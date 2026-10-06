@@ -55,6 +55,8 @@ export interface MeasuredObject {
   floor: string | null;
   color: string | null;
   note: string | null;
+  // what was measured and its dimensions: { element, height, thickness, width, factor }
+  params: Record<string, unknown>;
   created_at: string;
   deleted_at: string | null;
 }
@@ -95,6 +97,7 @@ const toObject = (r: Record<string, unknown>): MeasuredObject => ({
   floor: (r.floor as string | null) ?? null,
   color: (r.color as string | null) ?? null,
   note: (r.note as string | null) ?? null,
+  params: (r.params as Record<string, unknown>) ?? {},
   created_at: r.created_at as string,
   deleted_at: (r.deleted_at as string | null) ?? null,
 });
@@ -250,16 +253,16 @@ export async function pageObjects(pageId: string): Promise<MeasuredObject[]> {
   return (data ?? []).map(toObject);
 }
 
-export async function createMeasure(pageId: string, kind: MeasureKind, geometry: Point[], extra: { zone?: string | null; color?: string | null } = {}) {
+export async function createMeasure(pageId: string, kind: MeasureKind, geometry: Point[], extra: { zone?: string | null; color?: string | null; params?: Record<string, unknown> } = {}) {
   const { data, error } = await supabase
     .from('measured_objects')
-    .insert({ plan_page_id: pageId, kind, geometry, zone: extra.zone ?? null, color: extra.color ?? null })
+    .insert({ plan_page_id: pageId, kind, geometry, zone: extra.zone ?? null, color: extra.color ?? null, params: extra.params ?? {} })
     .select('*')
     .single();
   return { object: data ? toObject(data) : null, error: error?.message ?? null };
 }
 
-export async function updateMeasure(id: string, patch: Partial<Pick<MeasuredObject, 'geometry' | 'name' | 'zone' | 'floor' | 'color' | 'note'>>) {
+export async function updateMeasure(id: string, patch: Partial<Pick<MeasuredObject, 'geometry' | 'name' | 'zone' | 'floor' | 'color' | 'note' | 'params'>>) {
   const { data, error } = await supabase.from('measured_objects').update(patch).eq('id', id).select('*').single();
   return { object: data ? toObject(data) : null, error: error?.message ?? null };
 }

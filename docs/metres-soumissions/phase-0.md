@@ -293,3 +293,26 @@ Tests à chaque phase :
   - local : 75.60 m² ;
   - comptage : 3 pce.
 - **Reste pour la phase E** : lier une mesure à une position du métré (allocations N–N, formules, quantité mesurée).
+
+## 11. Phase E et export rempli
+
+- **Affecter une mesure** : le panneau de droite du plan propose trois étapes.
+  1. Ce qui a été mesuré (mur, dalle, semelle, surface, longueur, pièces).
+  2. Ses dimensions (hauteur, épaisseur, largeur, nombre de fois), saisies une fois par mesure et reprises pour la mesure suivante du même type.
+  3. Les positions proposées, chacune avec son calcul écrit (`17.80 m × 2.60 m × 2 = 92.56 m²`).
+- **Suggestions** (`lib/tenders/allocation.ts`) :
+  - l'unité de la position choisit la formule (m², m³, kg, m, pce, et le CAN « up = … ») ;
+  - le texte de la position et de ses parents la classe : un mur propose d'abord coffrages de parois et béton pour murs ;
+  - les dimensions imprimées dans la soumission (« Epaisseur mm 250 », « Masse kg/m3 85 ») sont lues et signalées. Les plages (« mm 51 à 100 ») et les bornes (« jusqu'à ») ne sont jamais prises.
+- **Formules fermées** : 13 formules, pas d'expression libre. Elles sont recalculées côté serveur (`tender_alloc_quantity`), avec les mêmes cas de test qu'en TypeScript.
+- **Liens** : table `quantity_allocations` (N–N). `quantity_measured` = somme des liens actifs.
+  - Redessiner, recalibrer ou supprimer une mesure met à jour ses liens et la position.
+  - « Position active » : chaque nouvelle mesure y est affectée directement.
+- **Dans le métré** : chaque position liste ses mesures sur plan, avec un lien qui ouvre le plan sur la mesure.
+- **Téléphone** : consultation seulement. Pas de mesure, pas d'import, pas de modification. Le métré, le plan et le devis restent visibles.
+- **Export « PDF de la soumission, rempli »** (`lib/tenders/pdfFill.ts`) :
+  - les champs pointillés du PDF d'origine reçoivent le PU, le montant, les « A reporter », les totaux de chapitre et le total général ;
+  - les montants déjà imprimés par l'architecte (régie) comptent dans les reports ;
+  - au choix : quantités de la soumission (recommandé) ou quantités retenues ;
+  - vérifié sur `01_BA_maconnerie.pdf` : 28 reports, 8 totaux de chapitre, régie 18'600.00, aucune position sans case ;
+  - un PDF scanné est refusé avec un message clair.

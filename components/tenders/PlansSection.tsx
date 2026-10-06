@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -37,7 +37,9 @@ export function PlansSection({ projectId, organizationId, userId, editable }: { 
   }
 
   const open = (p: SitePlanSummary) => router.push(`/(app)/chantiers/${projectId}/plans/${p.id}` as any);
-  const canUpload = editable && Platform.OS === 'web';
+  const { width } = useWindowDimensions();
+  // Plans are imported and measured on a computer; a phone only looks.
+  const canUpload = editable && Platform.OS === 'web' && width >= 900;
 
   return (
     <View style={{ gap: spacing.sm }}>
@@ -72,7 +74,7 @@ export function PlansSection({ projectId, organizationId, userId, editable }: { 
               <View style={[styles.badge, !p.calibrated && { backgroundColor: colors.warningSoft }]}>
                 <Text style={[styles.badgeText, !p.calibrated && { color: colors.warning }]}>{p.calibrated ? c.calibrated : c.notCalibrated}</Text>
               </View>
-              {editable ? (
+              {canUpload ? (
                 <Pressable onPress={() => setToDelete(p)} hitSlop={8} accessibilityLabel={c.deletePlan}>
                   <Feather name="trash-2" size={15} color={colors.textMuted} />
                 </Pressable>

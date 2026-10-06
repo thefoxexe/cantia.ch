@@ -5,6 +5,7 @@ import { Btn, Chip, Field, Segmented, kit } from '../admin/ledger/kit';
 import { auditFor, type AuditEntry } from '../../lib/tenders/api';
 import { checkBreakdownSum, lineAmount, quantityGap } from '../../lib/tenders/calc';
 import { fill, type TenderCopy } from '../../lib/tenders/copy';
+import { useAssignCopy } from '../../lib/tenders/assignCopy';
 import { formatChf, formatQuantity, parseSwissNumber } from '../../lib/tenders/numbers';
 import { UNIT_CHOICES, unitLabel } from '../../lib/tenders/units';
 import type { PriceSuggestion } from '../../lib/tenders/pricing';
@@ -29,6 +30,10 @@ export interface DetailProps {
   onBreakdown: (id: string, quantityManual: number | null) => void;
   onZoneLabel: (code: string, label: string) => void;
   onDelete: () => void;
+  // Plan measures feeding this position (phase E).
+  measures?: { id: string; label: string; quantity: number | null; formula: string; planId: string }[];
+  onOpenMeasure?: (planId: string, measureId: string) => void;
+  onMeasureOnPlan?: () => void;
 }
 
 // Number field that keeps what is being typed and commits on blur / enter.
@@ -138,6 +143,7 @@ export function TenderDetail(p: DetailProps) {
             <QtyOption active={position.quantity_selected_source === 'measured'} onPress={() => position.quantity_measured != null && pick('measured')} label={c.useSource.measured} hint={c.qtyMeasuredHint} disabled={position.quantity_measured == null}>
               <Text style={styles.qtyValue}>{position.quantity_measured == null ? '—' : `${formatQuantity(position.quantity_measured)} ${u}`}</Text>
             </QtyOption>
+            <MeasuresOnPlan p={p} unit={u} />
             <QtyOption active={position.quantity_selected_source === 'manual'} onPress={() => position.quantity_manual != null && pick('manual')} label={c.useSource.manual}>
               <NumberInput
                 value={position.quantity_manual}
@@ -264,6 +270,41 @@ export function TenderDetail(p: DetailProps) {
   );
 }
 
+function MeasuresOnPlan({ p, unit }: { p: DetailProps; unit: string }) {
+  const ac = useAssignCopy();
+  const list = p.measures ?? [];
+  if (!list.length) {
+    return p.onMeasureOnPlan ? (
+      <View style={styles.planBox}>
+        <Text style={[kit.hint, { flex: 1 }]}>{ac.noMeasureYet}</Text>
+        <Btn label={ac.measureOnPlan} icon="map" variant="ghost" onPress={p.onMeasureOnPlan} />
+      </View>
+    ) : null;
+  }
+  return (
+    <View style={styles.planBox}>
+      <Text style={[kit.eyebrow, { width: '100%' }]}>
+        {ac.onPlans} · {list.length}
+      </Text>
+      {list.map((m) => (
+        <Pressable key={m.id} onPress={() => p.onOpenMeasure?.(m.planId, m.id)} style={styles.planRow}>
+          <Feather name="map-pin" size={13} color={colors.slate} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.planLabel} numberOfLines={1}>
+              {m.label}
+            </Text>
+            <Text style={kit.hint} numberOfLines={1}>
+              {ac.formulas[m.formula] ?? m.formula}
+            </Text>
+          </View>
+          <Text style={styles.planQty}>{m.quantity == null ? '—' : `${formatQuantity(m.quantity)} ${unit}`}</Text>
+          <Feather name="external-link" size={13} color={colors.primary} />
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 function QtyOption({ active, onPress, label, hint, disabled, children }: { active: boolean; onPress: () => void; label: string; hint?: string; disabled?: boolean; children: React.ReactNode }) {
   return (
     <Pressable onPress={onPress} style={[styles.qtyOpt, active && styles.qtyOptOn, disabled && { opacity: 0.55 }]}>
@@ -294,6 +335,10 @@ function ZoneLabelInput({ code, label, editable, c, onCommit }: { code: string; 
 }
 
 const styles = StyleSheet.create({
+  planBox: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, padding: spacing.sm, borderRadius: radius.md, backgroundColor: colors.slateSoft },
+  planRow: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
+  planLabel: { fontSize: 13, fontWeight: '700', color: colors.text },
+  planQty: { fontSize: 13, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   ref: { ...monoType, fontSize: 14, fontWeight: '800', color: colors.text },
   warn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap', padding: spacing.md, borderRadius: radius.lg, backgroundColor: '#FBF0D9' },
   qtyOpt: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },

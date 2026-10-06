@@ -24,6 +24,8 @@ import {
 import { suggestPrices, type CatalogPrice, type HistoryPrice, type PriceSuggestion } from '../../../../../lib/tenders/pricing';
 import { fetchCatalog } from '../../../../../lib/catalog';
 import { exportTenderXlsx } from '../../../../../lib/tenders/export';
+import { exportFilledSoumission, hasSourcePdf, type QuantityBasis } from '../../../../../lib/tenders/exportFilled';
+import { allocationsForTender, measuresInfo, type Allocation } from '../../../../../lib/tenders/allocationApi';
 import { lineAmount, selectedQuantity, subtotalsByNode, tenderTotals } from '../../../../../lib/tenders/calc';
 import { fill, useTenderCopy } from '../../../../../lib/tenders/copy';
 import { formatChf, formatQuantity } from '../../../../../lib/tenders/numbers';
@@ -50,9 +52,14 @@ export default function TenderEditorScreen() {
   const [catalog, setCatalog] = useState<CatalogPrice[]>([]);
   const [filling, setFilling] = useState(false);
   const [offering, setOffering] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const { id: projectId, tenderId } = useLocalSearchParams<{ id: string; tenderId: string }>();
   const [bundle, setBundle] = useState<TenderBundle | null | undefined>(undefined);
-  const [editable, setEditable] = useState(false);
+  const [canEdit, setEditable] = useState(false);
+  // Phone = consultation: the métré and its offer can be read, not changed.
+  const editable = canEdit && !phone;
+  const [allocs, setAllocs] = useState<Allocation[]>([]);
+  const [measureInfo, setMeasureInfo] = useState<Awaited<ReturnType<typeof measuresInfo>>>(new Map());
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -67,6 +74,12 @@ export default function TenderEditorScreen() {
       if (!alive) return;
       setBundle(b);
       if (b) setEditable(await canEditTenders(b.tender.organization_id));
+      if (b) {
+        const a = await allocationsForTender(b.tender.id);
+        if (!alive) return;
+        setAllocs(a);
+        setMeasureInfo(await measuresInfo([...new Set(a.map((x) => x.measured_object_id).filter(Boolean) as string[])]));
+      }
       if (b?.pricesVisible) {
         const [h, cat] = await Promise.all([loadPriceHistory(b.tender.id), fetchCatalog(b.tender.organization_id)]);
         if (!alive) return;
@@ -310,6 +323,18 @@ export default function TenderEditorScreen() {
         persist(() => setZoneLabel(tender.id, code, label || null));
       }}
       onDelete={() => setConfirmDelete(selected.id)}
+      measures={
+        selectedPos
+          ? allocs
+              .filter((a) => a.position_id === selectedPos.id && a.measured_object_id && measureInfo.has(a.measured_object_id))
+              .map((a) => {
+                const m = measureInfo.get(a.measured_object_id!)!;
+                return { id: a.measured_object_id!, label: `${m.name ?? ''} · ${m.plan_name}`, quantity: a.final_quantity, formula: a.formula, planId: m.plan_id };
+              })
+          : []
+      }
+      onOpenMeasure={(planId, measureId) => router.push(`/(app)/chantiers/${projectId}/plans/${planId}?measure=${measureId}` as any)}
+      onMeasureOnPlan={editable ? () => router.push(`/(app)/chantiers/${projectId}/metre` as any) : undefined}
     />
   ) : null;
 
@@ -348,7 +373,7 @@ export default function TenderEditorScreen() {
       {showPrices && billableCount ? (
         <View style={[styles.actionsRow, phone && { paddingHorizontal: spacing.lg }]}>
           {editable && derived.noPrice ? <Btn label={c.fillPrices} icon="zap" onPress={() => setFilling(true)} /> : null}
-          {Platform.OS === 'web' ? <Btn label={c.exportXlsx} icon="download" onPress={() => exportTenderXlsx(bundle)} /> : null}
+          {Platform.OS === 'web' && !phone ? <Btn label={c.exportBtn} icon="download" onPress={() => setExporting(true)} /> : null}
           {tender.devis_id ? <Btn label={c.openDevis} icon="file-text" onPress={() => router.push(`/(app)/devis/${tender.devis_id}` as any)} /> : null}
           {editable ? <Btn label={c.createDevis} icon="send" variant="primary" onPress={() => setOffering(true)} /> : null}
         </View>
@@ -473,6 +498,7 @@ export default function TenderEditorScreen() {
         />
       ) : null}
 
+      {exporting ? <ExportSheet c={c} bundle={bundle} onClose={() => setExporting(false)} /> : null}
       {offering ? (
         <OfferSheet
           c={c}
@@ -566,6 +592,82 @@ function FillPricesSheet({ c, candidates, onClose, onApply }: { c: ReturnType<ty
       ) : (
         <Text style={kit.body}>{c.fillNone}</Text>
       )}
+    </Sheet>
+  );
+}
+
+function ExportSheet({ c, bundle, onClose }: { c: ReturnType<typeof useTenderCopy>; bundle: TenderBundle; onClose: () => void }) {
+  const [hasPdf, setHasPdf] = useState<boolean | null>(null);
+  const [kind, setKind] = useState<'pdf' | 'xlsx'>('pdf');
+  const [basis, setBasis] = useState<QuantityBasis>('document');
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<string[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    hasSourcePdf(bundle.tender.id).then((ok) => {
+      setHasPdf(ok);
+      if (!ok) setKind('xlsx');
+    });
+  }, [bundle.tender.id]);
+
+  async function go() {
+    setError(null);
+    setResult(null);
+    if (kind === 'xlsx') {
+      exportTenderXlsx(bundle);
+      return onClose();
+    }
+    setBusy(true);
+    const r = await exportFilledSoumission(bundle, basis);
+    setBusy(false);
+    if (r.error) return setError(r.error);
+    setResult([
+      fill(c.exportDone, { n: r.filled, total: formatChf(r.total) }),
+      ...(r.unpriced ? [fill(c.exportUnpriced, { n: r.unpriced })] : []),
+      ...(r.notPlaced ? [fill(c.exportNotPlaced, { n: r.notPlaced })] : []),
+    ]);
+  }
+
+  const Option = ({ on, title, hint, onPress, disabled }: { on: boolean; title: string; hint: string; onPress: () => void; disabled?: boolean }) => (
+    <Pressable onPress={disabled ? undefined : onPress} style={[styles.exportOpt, on && styles.exportOptOn, disabled && { opacity: 0.5 }]}>
+      <View style={[styles.radio, on && styles.radioOn]}>{on ? <View style={styles.radioDot} /> : null}</View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={styles.exportOptTitle}>{title}</Text>
+        <Text style={kit.hint}>{hint}</Text>
+      </View>
+    </Pressable>
+  );
+
+  return (
+    <Sheet
+      title={c.exportTitle}
+      onClose={onClose}
+      footer={
+        <>
+          <Btn label={c.cancel} onPress={onClose} grow />
+          <Btn label={busy ? c.exportWorking : c.exportGo} icon="download" variant="primary" onPress={go} disabled={busy || hasPdf === null} grow />
+        </>
+      }
+    >
+      <Option on={kind === 'pdf'} title={c.exportPdf} hint={hasPdf === false ? c.exportNoPdf : c.exportPdfHint} onPress={() => setKind('pdf')} disabled={hasPdf === false} />
+      {kind === 'pdf' && hasPdf ? (
+        <View style={{ gap: 6, paddingLeft: 30 }}>
+          <Option on={basis === 'document'} title={c.basisDocument} hint={c.basisDocumentHint} onPress={() => setBasis('document')} />
+          <Option on={basis === 'selected'} title={c.basisSelected} hint={c.basisSelectedHint} onPress={() => setBasis('selected')} />
+        </View>
+      ) : null}
+      <Option on={kind === 'xlsx'} title={c.exportExcel} hint={c.exportExcelHint} onPress={() => setKind('xlsx')} />
+      {result ? (
+        <View style={styles.exportResult}>
+          {result.map((r, i) => (
+            <Text key={i} style={[kit.body, i === 0 && { fontWeight: '800', color: colors.success }]}>
+              {i === 0 ? '✓ ' : '· '}
+              {r}
+            </Text>
+          ))}
+        </View>
+      ) : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
     </Sheet>
   );
 }
@@ -866,6 +968,13 @@ function AddSheet({ kind, c, onClose, onAdd }: { kind: 'section' | 'position'; c
 }
 
 const styles = StyleSheet.create({
+  exportOpt: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  exportOptOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft + '55' },
+  exportOptTitle: { fontSize: fontSize.md, fontWeight: '800', color: colors.text },
+  radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  radioOn: { borderColor: colors.primary },
+  radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.primary },
+  exportResult: { gap: 4, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.successSoft },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.sm },
   backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   title: { ...displayType, fontSize: 24, fontWeight: '800', color: colors.text, paddingVertical: 2, minWidth: 0 },

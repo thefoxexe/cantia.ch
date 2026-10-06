@@ -26,7 +26,9 @@ export default function ChantierMetresScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { project } = useProject(id);
   const [tenders, setTenders] = useState<TenderSummary[] | null>(null);
-  const [editable, setEditable] = useState(false);
+  const [canEdit, setEditable] = useState(false);
+  // Phone = consultation: open métrés, plans and offers, change nothing.
+  const editable = canEdit && !phone;
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [toDelete, setToDelete] = useState<TenderSummary | null>(null);
@@ -102,7 +104,7 @@ export default function ChantierMetresScreen() {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.page, phone && { padding: spacing.lg }]}>
         <FeatureHint id="chantier-metres-v2" icon="layers" title={c.hintTitle} text={c.hintText} />
 
-        {!editable ? (
+        {!canEdit ? (
           <View style={styles.upsell}>
             <View style={styles.upsellIcon}>
               <Feather name="lock" size={16} color={colors.primary} />
@@ -127,7 +129,7 @@ export default function ChantierMetresScreen() {
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        {pending.length ? (
+        {pending.length && editable ? (
           <View style={styles.pending}>
             <Text style={kit.eyebrow}>{c.pendingImports}</Text>
             {pending.map((j) => (

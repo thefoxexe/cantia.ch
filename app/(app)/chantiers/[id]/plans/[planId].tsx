@@ -6,7 +6,11 @@ import { useProject } from '../../../../../lib/useProject';
 import { AppScreen, LoadingScreen } from '../../../../../components/ui';
 import { Btn, Chip, Field, Sheet, kit } from '../../../../../components/admin/ledger/kit';
 import { MEASURE_COLORS, PlanCanvas, type Tool } from '../../../../../components/tenders/PlanCanvas';
-import { canEditTenders } from '../../../../../lib/tenders/api';
+import { canEditTenders, listTenders, type TenderSummary } from '../../../../../lib/tenders/api';
+import { AssignPanel, type AssignRow } from '../../../../../components/tenders/AssignPanel';
+import { allocationsForObjects, createAllocations, loadTenderPositions, removeAllocation, updateAllocation, useMeasuredQuantity, type Allocation, type TenderPositions } from '../../../../../lib/tenders/allocationApi';
+import { formulaDef, type Params } from '../../../../../lib/tenders/allocation';
+import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
 import { distancePt, formatMeasure, impliedScale, mainValue, parseScale, type Calibration, type MeasureKind, type Point } from '../../../../../lib/tenders/geometry';
 import { createMeasure, loadPlan, pageObjects, setCalibration, setMeasureDeleted, updateMeasure, updatePlan, type LoadedPlan, type MeasuredObject, type PlanPage } from '../../../../../lib/tenders/plansApi';
 import { usePlanCopy } from '../../../../../lib/tenders/planCopy';
@@ -40,7 +44,7 @@ export default function PlanMeasureScreen() {
   const c = usePlanCopy();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { id, planId } = useLocalSearchParams<{ id: string; planId: string }>();
+  const { id, planId, measure: focusMeasure } = useLocalSearchParams<{ id: string; planId: string; measure?: string }>();
   const { project } = useProject(id);
   const [data, setData] = useState<LoadedPlan | null>(null);
   const [revisionId, setRevisionId] = useState<string | null>(null);
@@ -56,6 +60,13 @@ export default function PlanMeasureScreen() {
   const [saving, setSaving] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [calSheet, setCalSheet] = useState<{ pts: Point[] | null } | null>(null);
+  const ac = useAssignCopy();
+  const [tenders, setTenders] = useState<TenderSummary[]>([]);
+  const [tenderId, setTenderId] = useState<string | null>(null);
+  const [tp, setTp] = useState<TenderPositions | null>(null);
+  const [allocs, setAllocs] = useState<Allocation[]>([]);
+  // « Position active »: every new measure is linked to it straight away.
+  const [active, setActive] = useState<{ positionId: string; formula: string; params: Params; ref: string } | null>(null);
 
   const desktop = Platform.OS === 'web' && width >= 900;
   const wide = width >= 1180;
@@ -66,9 +77,15 @@ export default function PlanMeasureScreen() {
       if (err) setError(err);
       setData(d);
       setObjects(d?.objects ?? []);
+      // Opened from the métré on one measure: show its page, select it.
+      const target = focusMeasure && d?.objects.find((o) => o.id === focusMeasure);
+      if (target && d) {
+        setPageIdx(Math.max(0, d.pages.findIndex((pg) => pg.id === target.plan_page_id)));
+        setSelectedId(target.id);
+      }
       if (d && !rev) setRevisionId(d.plan.active_revision_id ?? d.revisions[0]?.id ?? null);
     },
-    [planId],
+    [planId, focusMeasure],
   );
 
   useEffect(() => {
@@ -77,6 +94,26 @@ export default function PlanMeasureScreen() {
   useEffect(() => {
     if (project) canEditTenders(project.organization_id).then(setEditable);
   }, [project]);
+  useEffect(() => {
+    listTenders(id).then(({ tenders: list }) => {
+      setTenders(list);
+      setTenderId((cur) => cur ?? (list.find((t) => t.positions > 0) ?? list[0])?.id ?? null);
+    });
+  }, [id]);
+  const reloadPositions = useCallback(async () => {
+    if (tenderId) setTp(await loadTenderPositions(tenderId));
+  }, [tenderId]);
+  useEffect(() => {
+    setTp(null);
+    reloadPositions();
+  }, [reloadPositions]);
+  const objectIds = objects.map((o) => o.id).join(',');
+  const reloadAllocs = useCallback(async () => {
+    setAllocs(await allocationsForObjects(objectIds ? objectIds.split(',') : []));
+  }, [objectIds]);
+  useEffect(() => {
+    reloadAllocs();
+  }, [reloadAllocs]);
 
   const page: PlanPage | null = data?.pages[pageIdx] ?? null;
   const isActiveRev = !!data && revisionId === data.plan.active_revision_id;
@@ -105,13 +142,21 @@ export default function PlanMeasureScreen() {
       if (t === 'calibrate') return setCalSheet({ pts });
       if (t === 'select') return;
       setError(null);
-      const { object, error: err } = await track(createMeasure(page.id, t, pts, { color }));
+      // The next wall usually has the same height: dimensions carry over.
+      const previous = [...objects].reverse().find((o) => o.kind === t && o.params && Object.keys(o.params).length);
+      const { object, error: err } = await track(createMeasure(page.id, t, pts, { color, params: previous?.params ?? {} }));
       if (err || !object) return setError(err ?? 'Erreur');
       setObjects((o) => [...o, object]);
       setSelectedId(object.id);
       record({ t: 'create', id: object.id });
+      if (active && formulaDef(active.formula)?.kinds.includes(t)) {
+        const dims = Object.fromEntries(Object.entries(object.params).filter(([k, v]) => ['height', 'thickness', 'width', 'factor'].includes(k) && v != null));
+        const { error: aErr } = await track(createAllocations([{ positionId: active.positionId, measuredObjectId: object.id, formula: active.formula, params: { ...active.params, ...dims } }]));
+        if (aErr) setError(aErr);
+        await Promise.all([reloadAllocs(), reloadPositions()]);
+      }
     },
-    [page, color, track],
+    [page, color, track, objects, active, reloadAllocs, reloadPositions],
   );
 
   const onReshape = useCallback(
@@ -269,6 +314,7 @@ export default function PlanMeasureScreen() {
           key={selected.id}
           o={selected}
           editable={canDraw}
+          linked={allocs.filter((a) => a.measured_object_id === selected.id).length}
           onSave={async (patch) => {
             const { object, error: err } = await track(updateMeasure(selected.id, patch));
             if (err || !object) return setError(err ?? 'Erreur');
@@ -276,7 +322,50 @@ export default function PlanMeasureScreen() {
           }}
           onDelete={() => removeMeasure(selected.id)}
           onClose={() => setSelectedId(null)}
-        />
+        >
+          {canDraw ? (
+            <AssignPanel
+              measure={selected}
+              calibrated={!!page?.meters_per_pt}
+              tenders={tenders}
+              tenderId={tenderId}
+              onTender={setTenderId}
+              positions={tp}
+              allocations={allocs.filter((a) => a.measured_object_id === selected.id && a.tender_id === tenderId)}
+              activePositionId={active?.positionId ?? null}
+              onMeasureParams={async (params) => {
+                const { object, error: err } = await track(updateMeasure(selected.id, { params }));
+                if (err || !object) return setError(err ?? 'Erreur');
+                setObjects((o) => o.map((x) => (x.id === object.id ? object : x)));
+                // Links of this measure follow its new dimensions.
+                const dims = Object.fromEntries(Object.entries(params).filter(([k, v]) => ['height', 'thickness', 'width', 'factor'].includes(k) && v != null)) as Params;
+                const mine = allocs.filter((a) => a.measured_object_id === selected.id);
+                if (mine.length) {
+                  await track(Promise.all(mine.map((a) => updateAllocation(a.id, { params: { ...a.params, ...dims } }))));
+                  await Promise.all([reloadAllocs(), reloadPositions()]);
+                }
+              }}
+              onAssign={async (rows: AssignRow[], useMeasured) => {
+                const { error: err } = await track(createAllocations(rows.map((r) => ({ ...r, measuredObjectId: selected.id }))));
+                if (err) return err;
+                if (useMeasured) await track(useMeasuredQuantity(rows.map((r) => r.positionId)));
+                await Promise.all([reloadAllocs(), reloadPositions()]);
+                return null;
+              }}
+              onRemove={async (a) => {
+                const { error: err } = await track(removeAllocation(a.id));
+                if (err) setError(err);
+                if (active?.positionId === a.position_id) setActive(null);
+                await Promise.all([reloadAllocs(), reloadPositions()]);
+              }}
+              onKeepActive={(a) => {
+                const p = tp?.byId.get(a.position_id);
+                const keep = Object.fromEntries(Object.entries(a.params).filter(([k]) => k === 'faces' || k === 'rate')) as Params;
+                setActive(active?.positionId === a.position_id ? null : { positionId: a.position_id, formula: a.formula, params: keep, ref: `${p?.ref ?? ''} ${p?.title ?? ''}`.trim() });
+              }}
+            />
+          ) : null}
+        </MeasureDetail>
       ) : null}
       <View style={{ gap: 6 }}>
         <Text style={kit.eyebrow}>{c.totals}</Text>
@@ -316,6 +405,7 @@ export default function PlanMeasureScreen() {
                   {o.note ? ` · ${o.note}` : ''}
                 </Text>
               </View>
+              {allocs.some((a) => a.measured_object_id === o.id) ? <Feather name="link" size={12} color={colors.success} /> : null}
               <Text style={styles.rowValue}>{v.value == null ? '—' : `${formatMeasure(v.value, o.kind === 'count' ? 0 : 2)} ${v.unit}`}</Text>
             </Pressable>
           );
@@ -423,6 +513,17 @@ export default function PlanMeasureScreen() {
               <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
             )}
             <View style={styles.zoomFloat}>{zoomBar}</View>
+            {active && canDraw ? (
+              <View style={styles.activeBanner}>
+                <Feather name="target" size={14} color="#fff" />
+                <Text style={styles.activeText} numberOfLines={1}>
+                  {fill(ac.activeBanner, { ref: active.ref })}
+                </Text>
+                <Pressable onPress={() => setActive(null)}>
+                  <Text style={[styles.activeText, { textDecorationLine: 'underline' }]}>{ac.stop}</Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
           {panel}
         </BodyBox>
@@ -509,63 +610,80 @@ function IconBtn({ icon, label, onPress, disabled }: { icon: keyof typeof Feathe
 function MeasureDetail({
   o,
   editable,
+  linked,
+  children,
   onSave,
   onDelete,
   onClose,
 }: {
   o: MeasuredObject;
   editable: boolean;
+  linked: number;
+  children?: React.ReactNode;
   onSave: (patch: Partial<Pick<MeasuredObject, 'name' | 'zone' | 'note' | 'color'>>) => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
   const c = usePlanCopy();
+  const ac = useAssignCopy();
   const [name, setName] = useState(o.name ?? '');
   const [zone, setZone] = useState(o.zone ?? '');
   const [note, setNote] = useState(o.note ?? '');
+  const [more, setMore] = useState(false);
   const v = mainValue(o.kind, o);
   const save = (patch: Partial<Pick<MeasuredObject, 'name' | 'zone' | 'note' | 'color'>>) => editable && onSave(patch);
   return (
     <View style={styles.detail}>
-      <View style={[kit.row, { justifyContent: 'space-between' }]}>
-        <Text style={kit.eyebrow}>{c.kindsShort[o.kind]}</Text>
-        <Pressable onPress={onClose} accessibilityLabel="Fermer">
+      <View style={[kit.row, { justifyContent: 'space-between', flexWrap: 'nowrap' }]}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={kit.eyebrow}>
+            {o.name} · {c.kindsShort[o.kind]}
+            {linked ? ` · ${ac.assigned.toLowerCase()} (${linked})` : ''}
+          </Text>
+          <Text style={styles.detailValue}>
+            {v.value == null ? '—' : formatMeasure(v.value, o.kind === 'count' ? 0 : 2)} <Text style={styles.totalUnit}>{v.unit}</Text>
+          </Text>
+          <Text style={kit.hint}>
+            {o.kind === 'polygon' && o.perimeter_m != null ? `${c.perimeterLabel} ${formatMeasure(o.perimeter_m)} m · ` : ''}
+            {fill(c.pointsN, { n: o.geometry.length })}
+            {o.zone ? ` · ${c.zone} ${o.zone}` : ''}
+            {o.note ? ` · ${o.note}` : ''}
+          </Text>
+        </View>
+        <Pressable onPress={onClose} accessibilityLabel="Fermer" hitSlop={8}>
           <Feather name="x" size={16} color={colors.textMuted} />
         </Pressable>
       </View>
-      <Text style={styles.detailValue}>
-        {v.value == null ? '—' : formatMeasure(v.value, o.kind === 'count' ? 0 : 2)} <Text style={styles.totalUnit}>{v.unit}</Text>
-      </Text>
-      <Text style={kit.hint}>
-        {o.kind === 'polygon' && o.perimeter_m != null ? `${c.perimeterLabel} ${formatMeasure(o.perimeter_m)} m · ` : ''}
-        {fill(c.pointsN, { n: o.geometry.length })}
-      </Text>
+      {children}
       {editable ? (
         <>
-          <View style={[kit.row, { alignItems: 'flex-start' }]}>
-            <Field label={c.name} half>
-              <TextInput style={kit.input} value={name} onChangeText={setName} onBlur={() => name.trim() && name !== o.name && save({ name: name.trim().slice(0, 40) })} />
-            </Field>
-            <Field label={c.zone} half>
-              <TextInput style={kit.input} value={zone} onChangeText={setZone} placeholder="A-B" placeholderTextColor={colors.textMuted} onBlur={() => zone !== (o.zone ?? '') && save({ zone: zone.trim().slice(0, 40) || null })} />
-            </Field>
-          </View>
-          <Field label={c.note}>
-            <TextInput style={kit.input} value={note} onChangeText={setNote} onBlur={() => note !== (o.note ?? '') && save({ note: note.trim().slice(0, 500) || null })} />
-          </Field>
-          <View style={kit.row}>
-            {MEASURE_COLORS.map((col) => (
-              <Pressable key={col} onPress={() => save({ color: col })} style={[styles.swatch, { backgroundColor: col }, (o.color || MEASURE_COLORS[0]) === col && styles.swatchOn]} />
-            ))}
-          </View>
-          <Btn label={c.deleteMeasure} icon="trash-2" variant="bad" onPress={onDelete} />
+          <Pressable onPress={() => setMore((m) => !m)} style={styles.moreToggle}>
+            <Feather name={more ? 'chevron-down' : 'chevron-right'} size={14} color={colors.textMuted} />
+            <Text style={kit.hint}>{ac.details}</Text>
+          </Pressable>
+          {more ? (
+            <>
+              <View style={[kit.row, { alignItems: 'flex-start' }]}>
+                <Field label={c.name} half>
+                  <TextInput style={kit.input} value={name} onChangeText={setName} onBlur={() => name.trim() && name !== o.name && save({ name: name.trim().slice(0, 40) })} />
+                </Field>
+                <Field label={c.zone} half>
+                  <TextInput style={kit.input} value={zone} onChangeText={setZone} placeholder="A-B" placeholderTextColor={colors.textMuted} onBlur={() => zone !== (o.zone ?? '') && save({ zone: zone.trim().slice(0, 40) || null })} />
+                </Field>
+              </View>
+              <Field label={c.note}>
+                <TextInput style={kit.input} value={note} onChangeText={setNote} onBlur={() => note !== (o.note ?? '') && save({ note: note.trim().slice(0, 500) || null })} />
+              </Field>
+              <View style={kit.row}>
+                {MEASURE_COLORS.map((col) => (
+                  <Pressable key={col} onPress={() => save({ color: col })} style={[styles.swatch, { backgroundColor: col }, (o.color || MEASURE_COLORS[0]) === col && styles.swatchOn]} />
+                ))}
+              </View>
+              <Btn label={c.deleteMeasure} icon="trash-2" variant="bad" onPress={onDelete} />
+            </>
+          ) : null}
         </>
-      ) : (
-        <Text style={kit.body}>
-          {o.zone ? `${c.zone} ${o.zone}` : ''}
-          {o.note ? ` · ${o.note}` : ''}
-        </Text>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -658,7 +776,9 @@ const styles = StyleSheet.create({
   zoomFloat: { position: 'absolute', right: 16, bottom: 16 },
   zoomBar: { flexDirection: 'row', alignItems: 'center', gap: 2, padding: 3, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
   zoomText: { fontSize: 12.5, fontWeight: '700', color: colors.text, minWidth: 44, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  panel: { width: 330, flexGrow: 0, borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: colors.surface },
+  activeBanner: { position: 'absolute', left: 16, top: 12, right: 16, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.lg, backgroundColor: colors.primary, alignSelf: 'flex-start' },
+  activeText: { color: '#fff', fontSize: 13, fontWeight: '700', flexShrink: 1 },
+  panel: { width: 400, flexGrow: 0, borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: colors.surface },
   panelBelow: { width: '100%', backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
   bodyPhone: { flex: 1, borderTopWidth: 1, borderTopColor: colors.border },
   totals: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
@@ -671,5 +791,6 @@ const styles = StyleSheet.create({
   rowName: { fontSize: 13.5, fontWeight: '700', color: colors.text },
   rowValue: { fontSize: 13.5, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   detail: { gap: spacing.sm, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.primary + '66', backgroundColor: colors.bg },
+  moreToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
   detailValue: { fontSize: 26, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
 });
