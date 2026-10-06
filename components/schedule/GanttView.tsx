@@ -34,6 +34,7 @@ const HEAD = 48;
 const DAY_PX: Record<Zoom, number> = { day: 30, week: 14, month: 4.5 };
 const COLS = { name: 250, trade: 130, start: 70, end: 70, dur: 58, status: 92 };
 export const TABLE_W = Object.values(COLS).reduce((a, b) => a + b, 0);
+const COMPACT_W = COLS.name + COLS.dur;
 
 // Steady colour per corps de métier.
 const PALETTE = ['#B4532A', '#2F6F8F', '#5B7F3A', '#8A5A9E', '#C08A1E', '#3E8C84', '#A0465C', '#4F6BB5', '#7A6A4F', '#2E7D5B'];
@@ -84,6 +85,9 @@ export function GanttView({
   const right = useRef<ScrollView>(null);
   const horiz = useRef<ScrollView>(null);
   const syncing = useRef<'l' | 'r' | null>(null);
+  // tablets (or a narrow window): keep the time line visible
+  const [boxW, setBoxW] = useState(0);
+  const compact = boxW > 0 && boxW < 1080;
 
   // Time range: a week before the first date to three weeks after the last,
   // from a Monday.
@@ -122,16 +126,16 @@ export function GanttView({
   };
 
   return (
-    <View style={styles.wrap}>
-      {/* left: the table */}
-      <View style={{ width: TABLE_W, borderRightWidth: 1, borderRightColor: colors.border }}>
+    <View style={styles.wrap} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
+      {/* left: the table — on a tablet, name and duration only, so the time line keeps room */}
+      <View style={{ width: compact ? COMPACT_W : TABLE_W, borderRightWidth: 1, borderRightColor: colors.border }}>
         <View style={[styles.head, { flexDirection: 'row', alignItems: 'flex-end', paddingBottom: 8 }]}>
           <Text style={[styles.th, { width: COLS.name, paddingLeft: spacing.md }]}>{c.colName}</Text>
-          <Text style={[styles.th, { width: COLS.trade }]}>{c.colTrade}</Text>
-          <Text style={[styles.th, { width: COLS.start }]}>{c.colStart}</Text>
-          <Text style={[styles.th, { width: COLS.end }]}>{c.colEnd}</Text>
+          {!compact ? <Text style={[styles.th, { width: COLS.trade }]}>{c.colTrade}</Text> : null}
+          {!compact ? <Text style={[styles.th, { width: COLS.start }]}>{c.colStart}</Text> : null}
+          {!compact ? <Text style={[styles.th, { width: COLS.end }]}>{c.colEnd}</Text> : null}
           <Text style={[styles.th, { width: COLS.dur, textAlign: 'right', paddingRight: 8 }]}>{c.colDuration}</Text>
-          <Text style={[styles.th, { width: COLS.status }]}>{c.colStatus}</Text>
+          {!compact ? <Text style={[styles.th, { width: COLS.status }]}>{c.colStatus}</Text> : null}
         </View>
         <ScrollView ref={left} scrollEventThrottle={16} onScroll={(e) => sync('l', e.nativeEvent.contentOffset.y)} showsVerticalScrollIndicator={false}>
           {rows.map(({ item, depth, hasChildren }) => {
@@ -159,22 +163,26 @@ export function GanttView({
                     </Pressable>
                   ) : null}
                 </View>
+                {!compact ? (
                 <View style={{ width: COLS.trade, flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 6 }}>
                   {item.trade ? <View style={[styles.dot, { backgroundColor: tradeColor(item.trade) }]} /> : null}
                   <Text style={styles.cell} numberOfLines={1}>
                     {item.trade ?? ''}
                   </Text>
                 </View>
-                <Text style={[styles.cell, styles.mono, { width: COLS.start }]}>{shortDate(r?.start ?? null)}</Text>
-                <Text style={[styles.cell, styles.mono, { width: COLS.end }, late ? { color: colors.danger, fontWeight: '700' } : null]}>{shortDate(r?.end ?? null)}</Text>
+                ) : null}
+                {!compact ? <Text style={[styles.cell, styles.mono, { width: COLS.start }]}>{shortDate(r?.start ?? null)}</Text> : null}
+                {!compact ? <Text style={[styles.cell, styles.mono, { width: COLS.end }, late ? { color: colors.danger, fontWeight: '700' } : null]}>{shortDate(r?.end ?? null)}</Text> : null}
                 <Text style={[styles.cell, styles.mono, { width: COLS.dur, textAlign: 'right', paddingRight: 8 }]}>{item.kind === 'task' && item.duration != null ? `${item.duration} ${c.days}` : ''}</Text>
-                <View style={{ width: COLS.status, paddingRight: 8 }}>
-                  {isPhase ? (
-                    <Text style={[styles.cell, styles.mono]}>{r?.progress ?? 0} %</Text>
-                  ) : (
-                    <StatusPill c={c} item={item} late={late} />
-                  )}
-                </View>
+                {!compact ? (
+                  <View style={{ width: COLS.status, paddingRight: 8 }}>
+                    {isPhase ? (
+                      <Text style={[styles.cell, styles.mono]}>{r?.progress ?? 0} %</Text>
+                    ) : (
+                      <StatusPill c={c} item={item} late={late} />
+                    )}
+                  </View>
+                ) : null}
               </Pressable>
             );
           })}
