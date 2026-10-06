@@ -17,6 +17,8 @@ import type { TenderKind } from '../../../../lib/tenders/types';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { displayType, monoType } from '../../../../lib/marketingTheme';
 
+const SHOW_PLANS = false;
+
 const KINDS: TenderKind[] = ['soumission', 'interne', 'variante', 'complementaire'];
 
 export default function ChantierMetresScreen() {
@@ -211,8 +213,14 @@ export default function ChantierMetresScreen() {
           </View>
         )}
 
-        <View style={styles.divider} />
-        <PlansSection projectId={id} organizationId={project.organization_id} userId={user?.id ?? null} editable={editable} />
+        {/* Mesure sur plan: kept for « Créer une soumission » (architect side,
+            with the CAN catalogue). Answering a soumission needs no plan. */}
+        {SHOW_PLANS ? (
+          <>
+            <View style={styles.divider} />
+            <PlansSection projectId={id} organizationId={project.organization_id} userId={user?.id ?? null} editable={editable} />
+          </>
+        ) : null}
       </ScrollView>
 
       {progress ? <ImportProgressSheet progress={progress} /> : null}

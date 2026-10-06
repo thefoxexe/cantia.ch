@@ -20,9 +20,12 @@ export type FieldRole =
   | 'grand_total'
   // summary page ("CAP" programs): one line per chapter, then the totals
   | 'recap_chapter'
+  | 'recap_total'
   | 'recap_brut'
   | 'recap_rabais'
+  | 'recap_sub1'
   | 'recap_escompte'
+  | 'recap_sub2'
   | 'recap_tva'
   | 'recap_net';
 
@@ -42,21 +45,72 @@ export interface FieldLine {
   code?: string; // recap_chapter: "113"
   rate?: number; // recap_tva: the rate printed on the line ("TVA 7.60")
   bare?: boolean; // no dots to cover: write straight into the cell
+  percentSlot?: Slot; // "Rabais ....... % ......": where the rate goes
+  rounded?: boolean; // "arrondi aux 5 centimes"
 }
 
 const DOTS = /^[.…_·\-]{5,}$/;
 
 export function detectFieldLines(doc: ExtractedDocument): FieldLine[] {
   const out: FieldLine[] = [];
+  const recapCandidates: { l: Line; fields: Slot[]; percentSlot?: Slot }[] = [];
   for (const l of groupLines(doc.items)) {
-    const slots = l.items.filter((i) => DOTS.test(i.str.trim().replace(/\s+/g, ''))).map((i) => ({ x: i.x, right: i.x + i.w }));
+    const slots: Slot[] = [];
+    let percentSlot: Slot | undefined;
+    for (const i of l.items) {
+      const str = i.str.trim();
+      if (DOTS.test(str.replace(/\s+/g, ''))) {
+        slots.push({ x: i.x, right: i.x + i.w });
+        continue;
+      }
+      // "Fr. ......................": currency, then the field
+      const cur = /^(fr\.?|chf|sfr\.?)\s*([.…_]{5,})$/i.exec(str);
+      if (cur) {
+        const start = i.x + (i.w * (str.length - cur[2].length)) / str.length;
+        slots.push({ x: start, right: i.x + i.w });
+        continue;
+      }
+      // "................. % ......" or "7.70 % ......": rate field, then amount
+      const pc = str.indexOf('%');
+      if (pc > 0 && /^[\s.\d,]*%\s*[.…_\s]{5,}$/.test(str)) {
+        const at = (k: number) => i.x + (i.w * k) / str.length;
+        if (/^[.…_\s]{4,}$/.test(str.slice(0, pc))) percentSlot = { x: i.x, right: at(pc) - 7 };
+        slots.push({ x: at(pc + 1) + 2, right: i.x + i.w });
+      }
+    }
     // A rule under a title ("------") spans the text column: not a field.
     const fields = slots.filter((s) => s.right - s.x < 160);
     if (!fields.length) continue;
     // quantity · unit price · amount, all blank ("descriptif type"): a position
     const role = roleOf(l) ?? (fields.length >= 3 ? 'position' : null);
-    if (!role) continue;
+    const label = recapLabel(l.text);
+    if (label || !role) {
+      recapCandidates.push({ l, fields: fields.sort((a, b) => a.x - b.x), percentSlot });
+      continue;
+    }
     out.push({ page: l.page, y: l.y, h: l.h, fontSize: Math.max(...l.items.map((i) => i.fontSize)), role, slots: fields.sort((a, b) => a.x - b.x), text: l.text });
+  }
+
+  // Summary pages (before the first priced page): title page "Montant net
+  // soumission", chapter table (Brut / Net), conditions block. Figures go in
+  // the first column ("Total de la soumission"), never in "Révisé".
+  const firstPriced = Math.min(...out.filter((l) => l.role === 'position').map((l) => l.page), Infinity);
+  for (const l of out) if (l.role === 'chapter_total' && l.page < firstPriced && /^total\b/i.test(l.text.replace(/[.…_]{3,}/g, ' ').trim())) l.role = 'recap_total';
+  for (const { l, fields, percentSlot } of recapCandidates) {
+    const label = recapLabel(l.text);
+    const onSummary = l.page < firstPriced;
+    let role: FieldRole | null = label;
+    const text = l.text.replace(/[.…_]{3,}/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!role && onSummary && /^total$/i.test(text.replace(/\s*%.*$/, ''))) role = 'recap_total';
+    if (!role && onSummary && /^\d{3}\s+\D/.test(text)) role = 'recap_chapter';
+    if (!role) continue;
+    if (role === 'recap_chapter' || role === 'recap_total' ? !onSummary : false) continue;
+    const code = role === 'recap_chapter' ? /^(\d{3})/.exec(text)?.[1] : undefined;
+    const rate = role === 'recap_tva' ? Number(/(\d{1,2}[.,]\d{1,2})\s*%/.exec(l.text)?.[1]?.replace(',', '.')) || undefined : undefined;
+    out.push({
+      page: l.page, y: l.y, h: l.h, fontSize: Math.max(...l.items.map((i) => i.fontSize)), role, slots: fields, text: l.text,
+      ...(code ? { code } : {}), ...(rate ? { rate } : {}), ...(percentSlot ? { percentSlot } : {}), ...(/arrondi|gerundet|arrotondat/i.test(l.text) ? { rounded: true } : {}),
+    });
   }
 
   // Some programs print the carries and totals as bare labels ("report de
@@ -80,7 +134,7 @@ export function detectFieldLines(doc: ExtractedDocument): FieldLine[] {
       const right = role.startsWith('recap') ? offerRight.get(l.page) ?? amountRight : amountRight;
       const code = role === 'recap_chapter' ? /^(\d{3})/.exec(t)?.[1] : undefined;
       const rate = role === 'recap_tva' ? Number(/(\d{1,2}[.,]\d{1,2})/.exec(t)?.[1]?.replace(',', '.')) || undefined : undefined;
-      out.push({ page: l.page, y: l.y, h: l.h, fontSize: Math.max(...l.items.map((i) => i.fontSize)), role, slots: [{ x: right - 70, right }], text: l.text, bare: true, ...(code ? { code } : {}), ...(rate ? { rate } : {}) });
+      out.push({ page: l.page, y: l.y, h: l.h, fontSize: Math.max(...l.items.map((i) => i.fontSize)), role, slots: [{ x: right - 70, right }], text: l.text, bare: true, ...(code ? { code } : {}), ...(rate ? { rate } : {}), ...(/arrondi|gerundet|arrotondat/i.test(t) ? { rounded: true } : {}) });
     }
   }
   return out.sort((a, b) => a.page - b.page || a.y - b.y);
@@ -118,6 +172,20 @@ function mostFrequent(values: number[]): number | null {
   const c = new Map<number, number>();
   for (const v of values) c.set(v, (c.get(v) ?? 0) + 1);
   return [...c.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+// Summary labels (with or without dots).
+function recapLabel(raw: string): FieldRole | null {
+  const t = raw.replace(/[.…_]{3,}/g, ' ').replace(/\s+/g, ' ').trim();
+  if (/^montant (total )?net\b|^offre nette|^nettobetrag|^importo netto/i.test(t)) return 'recap_net';
+  if (/^net(to)?\s*(\(|$)/i.test(t)) return 'recap_net';
+  if (/^brut(to)?\s*$|^montant total brut|^total brut/i.test(t)) return 'recap_brut';
+  if (/^rabais\b|^rabatt\b|^ribasso\b/i.test(t)) return 'recap_rabais';
+  if (/^sous-total 1\b|^zwischentotal 1\b|^subtotale 1\b/i.test(t)) return 'recap_sub1';
+  if (/^escompte\b|^skonto\b|^sconto\b/i.test(t)) return 'recap_escompte';
+  if (/^sous-total 2\b|^zwischentotal 2\b|^subtotale 2\b/i.test(t)) return 'recap_sub2';
+  if (/^(tva|mwst|iva)\b/i.test(t)) return 'recap_tva';
+  return null;
 }
 
 // Labels without dots, as written by those programs.
@@ -207,39 +275,14 @@ export function planFill(lines: FieldLine[], nodes: FillNode[], terms: FillTerms
   let chapter = 0;
   let grand = 0;
   let unmatched = 0;
+  // Summary figures are the sums of what is written in the body, so the
+  // recap, the chapter totals and the "Total général" always agree.
+  const byChapter = new Map<string, number>();
   const put = (l: FieldLine, slot: Slot, value: number, kind: Write['kind']) =>
     writes.push({ page: l.page, right: slot.right - 1, top: l.y, h: l.h, fontSize: Math.min(10, Math.max(7, l.fontSize)), text: kind === 'quantity' ? formatPdfQuantity(value) : formatPdfAmount(value), cover: { x: slot.x - 1, w: l.bare ? 0 : slot.right - slot.x + 2 }, kind });
 
-  // The summary page comes first: its figures are the sums of the whole document.
-  const byChapter = new Map<string, number>();
-  let docTotal = 0;
-  for (const n of sorted) {
-    const a = n.printedAmount ?? n.amount;
-    if (a == null) continue;
-    docTotal += a;
-    if (n.chapter) byChapter.set(n.chapter, (byChapter.get(n.chapter) ?? 0) + a);
-  }
-  const brut = round2(docTotal);
-  const rabais = round2((brut * (terms.discountPercent ?? 0)) / 100);
-  const escompte = round2(((brut - rabais) * (terms.escomptePercent ?? 0)) / 100);
-  const ht = brut - rabais - escompte;
-  // The rate printed on the summary wins: it is the one the document asks for.
-  const vatRate = lines.find((l) => l.role === 'recap_tva')?.rate ?? terms.vatRate ?? 0;
-  const tva = round2((ht * vatRate) / 100);
-  const net = Math.round((ht + tva) * 20) / 20;
-
   for (const l of lines) {
-    if (l.role.startsWith('recap')) {
-      const v =
-        l.role === 'recap_chapter' ? byChapter.get(l.code ?? '') ?? null
-        : l.role === 'recap_brut' ? brut
-        : l.role === 'recap_rabais' ? (rabais ? -rabais : null)
-        : l.role === 'recap_escompte' ? (escompte ? -escompte : null)
-        : l.role === 'recap_tva' ? (vatRate ? tva : null)
-        : net;
-      if (v != null && brut) put(l, l.slots[l.slots.length - 1], round2(v), l.role);
-      continue;
-    }
+    if (l.role.startsWith('recap')) continue; // filled once the body is summed
     while (k + 1 < sorted.length && (sorted[k + 1].page < l.page || (sorted[k + 1].page === l.page && sorted[k + 1].y <= l.y + 1))) {
       k += 1;
       const passed = sorted[k];
@@ -247,6 +290,7 @@ export function planFill(lines: FieldLine[], nodes: FillNode[], terms: FillTerms
         done.add(passed.id);
         chapter += passed.printedAmount;
         grand += passed.printedAmount;
+        if (passed.chapter) byChapter.set(passed.chapter, (byChapter.get(passed.chapter) ?? 0) + passed.printedAmount);
       }
     }
     if (l.role === 'position') {
@@ -268,6 +312,7 @@ export function planFill(lines: FieldLine[], nodes: FillNode[], terms: FillTerms
       put(l, amountSlot, n.amount, 'position');
       chapter += n.amount;
       grand += n.amount;
+      if (n.chapter) byChapter.set(n.chapter, (byChapter.get(n.chapter) ?? 0) + n.amount);
     } else if (l.role === 'carry') {
       if (chapter) put(l, l.slots[l.slots.length - 1], round2(chapter), 'carry');
     } else if (l.role === 'chapter_total') {
@@ -276,6 +321,48 @@ export function planFill(lines: FieldLine[], nodes: FillNode[], terms: FillTerms
     } else if (l.role === 'grand_total') {
       if (grand) put(l, l.slots[l.slots.length - 1], round2(grand), 'grand_total');
     }
+  }
+
+  // Summary pages: Brut → Rabais → Sous-total 1 → Escompte → Sous-total 2 → TVA → Net.
+  const brut = round2(grand);
+  const rPct = terms.discountPercent ?? 0;
+  const ePct = terms.escomptePercent ?? 0;
+  const rabais = round2((brut * rPct) / 100);
+  const sub1 = round2(brut - rabais);
+  const escompte = round2((sub1 * ePct) / 100);
+  const sub2 = round2(sub1 - escompte);
+  // The rate validated in the recap wins; otherwise the one printed.
+  const vatRate = terms.vatRate ?? lines.find((l) => l.role === 'recap_tva')?.rate ?? 0;
+  const tva = round2((sub2 * vatRate) / 100);
+  const netExact = round2(sub2 + tva);
+  const net5 = Math.round(netExact * 20) / 20;
+  const chapterNet = (b: number) => round2(b * (1 - rPct / 100) * (1 - ePct / 100));
+  const putPercent = (l: FieldLine, pct: number) =>
+    l.percentSlot && writes.push({ page: l.page, right: l.percentSlot.right - 1, top: l.y, h: l.h, fontSize: Math.min(10, Math.max(7, l.fontSize)), text: pct.toFixed(2), cover: { x: l.percentSlot.x - 1, w: l.bare ? 0 : l.percentSlot.right - l.percentSlot.x + 2 }, kind: l.role });
+  for (const l of lines) {
+    if (!l.role.startsWith('recap')) continue;
+    if (!brut) continue;
+    const first = l.slots[0];
+    if (l.role === 'recap_chapter' || l.role === 'recap_total') {
+      const b = l.role === 'recap_total' ? brut : round2(byChapter.get(l.code ?? '') ?? 0);
+      if (!b && l.role === 'recap_chapter' && !byChapter.has(l.code ?? '')) continue;
+      put(l, first, b, l.role);
+      // Brut / Net columns side by side
+      if (l.slots.length >= 2 && !l.bare) put(l, l.slots[1], l.role === 'recap_total' ? sub2 : chapterNet(b), l.role);
+      continue;
+    }
+    if (l.role === 'recap_rabais') {
+      putPercent(l, rPct);
+      if (rabais) put(l, first, -rabais, l.role);
+      continue;
+    }
+    if (l.role === 'recap_escompte') {
+      putPercent(l, ePct);
+      if (escompte) put(l, first, -escompte, l.role);
+      continue;
+    }
+    const v = l.role === 'recap_brut' ? brut : l.role === 'recap_sub1' ? sub1 : l.role === 'recap_sub2' ? sub2 : l.role === 'recap_tva' ? (vatRate ? tva : null) : l.rounded ? net5 : netExact;
+    if (v != null) put(l, first, v, l.role);
   }
   const notPlaced = sorted.filter((n) => !done.has(n.id) && n.amount != null).map((n) => n.id);
   return { writes, filled: writes.filter((w) => w.kind === 'position').length, unpriced: [...unpriced], notPlaced, unmatched, total: round2(grand) };

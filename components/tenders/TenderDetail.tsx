@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Chip, Field, Segmented, kit } from '../admin/ledger/kit';
@@ -34,16 +34,25 @@ export interface DetailProps {
   measures?: { id: string; label: string; quantity: number | null; formula: string; planId: string }[];
   onOpenMeasure?: (planId: string, measureId: string) => void;
   onMeasureOnPlan?: () => void;
+  // Answering a soumission: its quantities are given, only prices are filled.
+  lockQuantities?: boolean;
 }
 
 // Number field that keeps what is being typed and commits on blur / enter.
 export function NumberInput({ value, onCommit, editable, placeholder, style, inputRef, onSubmitNext }: { value: number | null; onCommit: (n: number | null) => void; editable: boolean; placeholder?: string; style?: object; inputRef?: (r: TextInput | null) => void; onSubmitNext?: () => void }) {
   const [text, setText] = useState(value == null ? '' : String(value));
-  useEffect(() => setText(value == null ? '' : String(value)), [value]);
+  // Enter commits, then the blur that follows must not save it a second time.
+  const last = useRef<number | null>(value);
+  useEffect(() => {
+    setText(value == null ? '' : String(value));
+    last.current = value;
+  }, [value]);
   const commit = () => {
     const n = text.trim() === '' ? null : parseSwissNumber(text);
     if (text.trim() !== '' && n == null) return setText(value == null ? '' : String(value));
-    if (n !== value) onCommit(n);
+    if (n === last.current) return;
+    last.current = n;
+    onCommit(n);
   };
   return (
     <TextInput
@@ -135,6 +144,27 @@ export function TenderDetail(p: DetailProps) {
 
       {position ? (
         <>
+          {p.lockQuantities ? (
+            <View style={{ gap: 6 }}>
+              <Text style={kit.fieldLabel}>{c.qtySelected}</Text>
+              {position.quantity_original != null ? (
+                <View style={styles.qtyLocked}>
+                  <Feather name="lock" size={13} color={colors.textMuted} />
+                  <Text style={[styles.qtyValue, { flex: 1 }]}>{`${formatQuantity(position.quantity_original)} ${u}`}</Text>
+                  <Text style={kit.hint}>{c.useSource.original}</Text>
+                </View>
+              ) : (
+                <NumberInput
+                  value={position.quantity_manual}
+                  editable={editable}
+                  onCommit={(n) => p.onPosition({ quantity_manual: n, quantity_selected_source: (n == null ? 'original' : 'manual') as QuantitySource })}
+                  placeholder={u}
+                  style={{ width: 140 }}
+                />
+              )}
+              <Text style={kit.hint}>{position.quantity_original != null ? c.qtyLockedHint : c.qtyBlankHint}</Text>
+            </View>
+          ) : (
           <View style={{ gap: 6 }}>
             <Text style={kit.fieldLabel}>{c.qtySelected}</Text>
             <QtyOption active={position.quantity_selected_source === 'original'} onPress={() => pick('original')} label={c.useSource.original} hint={c.qtyOriginalHint}>
@@ -163,6 +193,7 @@ export function TenderDetail(p: DetailProps) {
               </Text>
             ) : null}
           </View>
+          )}
 
           <Field label={c.unit}>
             <View style={kit.row}>
@@ -333,6 +364,7 @@ function ZoneLabelInput({ code, label, editable, c, onCommit }: { code: string; 
 }
 
 const styles = StyleSheet.create({
+  qtyLocked: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
   planBox: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, padding: spacing.sm, borderRadius: radius.md, backgroundColor: colors.slateSoft },
   planRow: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
   planLabel: { fontSize: 13, fontWeight: '700', color: colors.text },

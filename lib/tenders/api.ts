@@ -242,7 +242,7 @@ export async function auditFor(tenderId: string, entityIds: string[]): Promise<A
 export async function loadPriceHistory(excludeTenderId: string): Promise<import('./pricing.ts').HistoryPrice[]> {
   const { data } = await supabase
     .from('tender_position_prices')
-    .select('unit_price, updated_at, tender_id, tenders(name), tender_positions(unit, tender_nodes(title, description))')
+    .select('unit_price, updated_at, tender_id, tenders(name), tender_positions(unit, tender_nodes(title, description, can_chapter, position_path, is_reserved))')
     .neq('tender_id', excludeTenderId)
     .not('unit_price', 'is', null)
     .order('updated_at', { ascending: false })
@@ -255,7 +255,19 @@ export async function loadPriceHistory(excludeTenderId: string): Promise<import(
       unitPrice: Number(r.unit_price),
       tenderName: r.tenders?.name ?? '',
       at: r.updated_at,
+      canRef: canRefOf(r.tender_positions.tender_nodes),
     }));
+}
+
+// "241" + "121.111" → "241.121.111" (same as public.tender_can_ref). R
+// positions are the author's own texts: never matched by number.
+export function canRefOf(n: { can_chapter?: string | null; position_path?: string | null; is_reserved?: boolean | null }): string | null {
+  return !n.is_reserved && /^\d{3}$/.test(n.can_chapter ?? '') && /^\d{3}\.\d{3}$/.test(n.position_path ?? '') ? `${n.can_chapter}.${n.position_path}` : null;
+}
+
+export async function saveTenderPricesToCatalog(tenderId: string) {
+  const { data, error } = await supabase.rpc('save_tender_prices_to_catalog', { p_tender: tenderId });
+  return { saved: (data as number | null) ?? 0, error: error?.message ?? null };
 }
 
 export async function setPrices(tenderId: string, rows: { positionId: string; unitPrice: number; source: NonNullable<PositionPrice['price_source']> }[]) {

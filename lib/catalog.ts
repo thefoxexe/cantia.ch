@@ -15,6 +15,7 @@ export interface CatalogEntry {
   unitPrice: number;
   count: number;
   lastUsedAt: string;
+  canRef?: string | null; // "241.121.111" when saved from a soumission
 }
 
 export interface CatalogMatch extends CatalogEntry {
@@ -24,7 +25,7 @@ export interface CatalogMatch extends CatalogEntry {
 export async function fetchCatalog(organizationId: string): Promise<CatalogEntry[]> {
   const { data } = await supabase
     .from('catalog_items')
-    .select('id, description, unit, unit_price, use_count, last_used_at')
+    .select('id, description, unit, unit_price, use_count, last_used_at, can_ref')
     .eq('organization_id', organizationId)
     .order('last_used_at', { ascending: false })
     .limit(2000);
@@ -35,6 +36,7 @@ export async function fetchCatalog(organizationId: string): Promise<CatalogEntry
     unitPrice: Number(row.unit_price) || 0,
     count: row.use_count,
     lastUsedAt: row.last_used_at,
+    canRef: row.can_ref ?? null,
   }));
 }
 

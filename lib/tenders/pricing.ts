@@ -11,12 +11,14 @@ export interface HistoryPrice {
   unitPrice: number;
   tenderName: string;
   at: string; // ISO date
+  canRef?: string | null; // "241.121.111"
 }
 
 export interface CatalogPrice {
   description: string;
   unit: string | null;
   unitPrice: number;
+  canRef?: string | null;
 }
 
 export interface PriceSuggestion {
@@ -70,12 +72,21 @@ export interface SuggestionInput {
   text: string;
   unit: string | null;
   documentUnitPrice?: number | null;
+  // Same CAN number = same work: matched before any wording.
+  canRef?: string | null;
 }
 
 // Same work in another métré = same unit and (almost) the same wording.
 export function suggestPrices(input: SuggestionInput, history: HistoryPrice[], catalog: CatalogPrice[], opts = { threshold: 0.72 }): PriceSuggestion[] {
   const out: PriceSuggestion[] = [];
   if (input.documentUnitPrice != null) out.push({ source: 'document', unitPrice: input.documentUnitPrice, label: 'Document', detail: 'Prix imprimé dans la soumission' });
+  if (input.canRef) {
+    const cat = catalog.find((c) => c.canRef === input.canRef && sameUnit(c.unit, input.unit) && c.unitPrice > 0);
+    if (cat) out.push({ source: 'catalog', unitPrice: cat.unitPrice, label: 'Catalogue · n° CAN', detail: `CAN ${input.canRef}` });
+    const hist = history.filter((h) => h.canRef === input.canRef && sameUnit(h.unit, input.unit) && h.unitPrice > 0).sort((a, b) => (a.at < b.at ? 1 : -1))[0];
+    if (hist && (!cat || hist.unitPrice !== cat.unitPrice)) out.push({ source: 'last_used', unitPrice: hist.unitPrice, label: 'Dernier prix · n° CAN', detail: hist.tenderName });
+    if (cat || hist) return out;
+  }
 
   const matches = history
     .filter((h) => sameUnit(h.unit, input.unit) && h.unitPrice > 0)

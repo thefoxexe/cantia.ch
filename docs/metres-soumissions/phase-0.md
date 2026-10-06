@@ -336,3 +336,13 @@ Tests à chaque phase :
 - **Soumissions scannées** : l'OCR (`tender-ocr` v2) donne aussi la hauteur de chaque ligne et les bords des colonnes Quantité / Prix / Montant. Cette grille est gardée avec le métré (`tender_documents.detected.ocr_fields`) et l'export « PDF rempli » écrit dans le scan. Les scans importés avant cette version doivent être réimportés pour l'export rempli.
 - **Suggestions** : les ouvrages à construire (maçonnerie, briques, plots, béton) passent avant les terrassements et les démolitions pour un mur.
 - Fixtures locales seulement (`fixtures/`, ignoré par git).
+
+## 13. Deux usages distincts : remplir une soumission / créer une soumission
+
+- **Remplir une soumission** (entreprise, ce qui est livré) : le dossier reçu est importé, les quantités sont celles du document (verrouillées dans la fiche ; une quantité laissée en blanc par le document se saisit directement dans la ligne), on ne remplit que les prix.
+  - Saisie rapide : Entrée passe au prix suivant (ou à la quantité à indiquer), y compris hors de l'écran ; le contenu du champ est sélectionné pour taper directement.
+  - Prix par **n° CAN** : `catalog_items.can_ref` (« 241.121.111 »). « Récapitulatif → Valider » enregistre les prix au catalogue (`save_tender_prices_to_catalog`, positions R exclues) ; dans la soumission suivante, le même n° reprend le prix (catalogue, puis dernier prix d'une autre soumission) avant toute comparaison de texte.
+  - **Récapitulatif** : totaux par chapitre, brut, rabais %, sous-total 1, escompte %, sous-total 2, TVA (taux imprimé proposé), net ; validé, il fixe les chiffres écrits dans le PDF.
+  - **PDF rempli** : page de titre (« Montant net soumission »), récapitulatif par chapitre (Brut / Net), bloc Conditions (rabais et escompte avec leur %, sous-totaux, TVA, net) dans la colonne « Total de la soumission », jamais « Révisé » ; tous ces chiffres sont les sommes de ce qui est écrit dans le corps.
+- **Créer une soumission** (architecte, plus tard) : catalogue CAN + mesure sur plan. La mesure sur plan et l'affectation aux positions restent dans le code (`SHOW_PLANS = false` dans `chantiers/[id]/metre.tsx`) pour ce module.
+- **Formats numériques** : SIA 451 et CRBX ne sont pas encore lus (pas d'exemple ; CRBX demande une licence CRB).

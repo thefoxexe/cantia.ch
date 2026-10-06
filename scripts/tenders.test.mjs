@@ -147,3 +147,13 @@ test('price suggestions come only from the organisation’s own figures', () => 
   assert.equal(suggestPrices({ text: 'x', unit: 'up', documentUnitPrice: 0.9 }, [], [])[0].source, 'document');
   assert.ok(textSimilarity('Coffrage parois', 'coffrage PAROIS') === 1);
 });
+
+test('same CAN number → same price, before any wording', async () => {
+  const { suggestPrices } = await import('../lib/tenders/pricing.ts');
+  const history = [{ description: 'Texte tout autre', unit: 'm2', unitPrice: 41, tenderName: 'Villa A', at: '2026-09-01', canRef: '241.235.111' }];
+  const catalog = [{ description: 'CAN 241.235.111 — Coffrage', unit: 'm2', unitPrice: 39, canRef: '241.235.111' }, { description: 'Coffrage de parois', unit: 'm2', unitPrice: 55 }];
+  const s = suggestPrices({ text: 'Epaisseur de paroi/mur jusqu’à m 0,25', unit: 'm2', canRef: '241.235.111' }, history, catalog);
+  assert.deepEqual(s.map((x) => [x.label, x.unitPrice]), [['Catalogue · n° CAN', 39], ['Dernier prix · n° CAN', 41]]);
+  // no number: back to wording
+  assert.equal(suggestPrices({ text: 'Coffrage de parois type 2', unit: 'm2' }, [], catalog)[0]?.unitPrice, 55);
+});
