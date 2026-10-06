@@ -12,6 +12,7 @@ import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
 import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
+import { getSignedUrl } from '../../../../lib/api/storage';
 import { hasSiteSchedule, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
 import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as addD, reconcile, rollup, workdaysBetween, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
@@ -285,7 +286,10 @@ export default function ChantierGanttScreen() {
       <View style={[styles.page, { flex: 1 }]}>
         {header}
         {phone ? (
-          <PhoneList c={c} rows={rows} rolled={rolled} onOpen={(item) => setEditing({ item, initial: {} })} />
+          <>
+            {Platform.OS === 'web' ? <Btn icon="download" label={c.exportPdf} onPress={() => setPdfOpen(true)} /> : null}
+            <PhoneList c={c} rows={rows} rolled={rolled} onOpen={(item) => setEditing({ item, initial: {} })} />
+          </>
         ) : (
           <>
             <View style={styles.toolbar}>
@@ -512,6 +516,26 @@ function PhoneList({ c, rows, rolled, onOpen }: { c: ReturnType<typeof useSchedu
   );
 }
 
+// The org logo (any format the browser reads) redrawn as PNG for pdf-lib;
+// null when it cannot be loaded — the PDF then carries the name only.
+async function logoAsPng(path: string): Promise<Uint8Array | null> {
+  try {
+    const url = await getSignedUrl(path);
+    if (!url) return null;
+    const blob = await (await fetch(url)).blob();
+    const bmp = await createImageBitmap(blob);
+    const scale = Math.min(1, 600 / bmp.width, 200 / bmp.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bmp.width * scale));
+    canvas.height = Math.max(1, Math.round(bmp.height * scale));
+    canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    const png = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/png'));
+    return png ? new Uint8Array(await png.arrayBuffer()) : null;
+  } catch {
+    return null;
+  }
+}
+
 function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType<typeof useScheduleCopy>; project: string; items: ScheduleItem[]; rolled: ReturnType<typeof rollup>; today: string; onClose: () => void }) {
   const dates = [...rolled.values()].flatMap((r) => [r.start, r.end]).filter(Boolean).sort() as string[];
   const [from, setFrom] = useState<string | null>(dates[0] ?? today);
@@ -520,6 +544,8 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
   const [picked, setPicked] = useState<Set<string>>(new Set(phases.map((p) => p.id)));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { organization } = useAuth();
+  const [brand, setBrand] = useState(false);
 
   const download = async () => {
     if (!from || !to) return;
@@ -544,6 +570,7 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
         to: to > from ? to : from,
         today,
         generatedAt: `${now.toLocaleDateString('fr-CH')} ${now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}`,
+        brand: brand && organization ? { name: organization.name, logoPng: organization.logo_url ? await logoAsPng(organization.logo_url) : null } : null,
       });
       const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/pdf' }));
       const a = document.createElement('a');
@@ -605,6 +632,15 @@ function PdfSheet({ c, project, items, rolled, today, onClose }: { c: ReturnType
           </View>
         </>
       ) : null}
+      {organization ? (
+        <Pressable onPress={() => setBrand((b) => !b)} style={styles.brandRow}>
+          <View style={[styles.check, brand && styles.checkOn]}>{brand ? <Feather name="check" size={13} color="#fff" /> : null}</View>
+          <View style={{ flex: 1 }}>
+            <Text style={kit.body}>{c.pdfBrand}</Text>
+            <Text style={kit.hint}>{c.pdfBrandHint}</Text>
+          </View>
+        </Pressable>
+      ) : null}
       {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
     </Sheet>
   );
@@ -617,6 +653,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', color: colors.text },
   toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: 10, borderWidth: 1, borderColor: colors.border },
+  check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  checkOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   sep: { width: 1, height: 20, backgroundColor: colors.border, marginHorizontal: 4 },
   tradeChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   tradeText: { fontSize: 12.5, color: colors.text },

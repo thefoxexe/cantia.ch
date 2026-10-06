@@ -34,7 +34,18 @@ function tradeHex(trade: string | null): string {
 
 export async function buildSchedulePdf(
   pdf: any,
-  opts: { c: ScheduleCopy; project: string; rows: PdfRow[]; rolled: Map<string, Rolled>; from: string; to: string; today: string; generatedAt: string },
+  opts: {
+    c: ScheduleCopy;
+    project: string;
+    rows: PdfRow[];
+    rolled: Map<string, Rolled>;
+    from: string;
+    to: string;
+    today: string;
+    generatedAt: string;
+    // optional company header: name and a PNG logo
+    brand?: { name: string; logoPng?: Uint8Array | null } | null;
+  },
 ): Promise<Uint8Array> {
   const { c, rows, rolled, from, to, today } = opts;
   const doc = await pdf.PDFDocument.create();
@@ -75,6 +86,8 @@ export async function buildSchedulePdf(
   const text = (page: any, t: string, x: number, y: number, size: number, f = font, color = ink, max?: number) =>
     page.drawText(max ? fit(f, t, size, max) : safe(f, t), { x, y, size, font: f, color });
 
+  const logo = opts.brand?.logoPng ? await doc.embedPng(opts.brand.logoPng).catch(() => null) : null;
+
   const days = Math.max(1, daysBetween(from, to) + 1);
   const chartX = M + TABLE_W + 8;
   const chartW = W - M - chartX;
@@ -92,6 +105,18 @@ export async function buildSchedulePdf(
     text(page, `${c.pdfPeriod} : ${shortDate(from)} → ${shortDate(to)}`, M, H - M - 34, 9.5, font, muted);
     const gen = fill(c.pdfGenerated, { date: opts.generatedAt });
     text(page, `${gen}   ·   ${p + 1} / ${pages}`, W - M - font.widthOfTextAtSize(safe(font, `${gen}   ·   ${p + 1} / ${pages}`), 9) , H - M - 34, 9, font, muted);
+    // company header, top right: logo then name to its left
+    if (opts.brand) {
+      let right = W - M;
+      if (logo) {
+        const s = Math.min(120 / logo.width, 24 / logo.height);
+        const w = logo.width * s;
+        page.drawImage(logo, { x: right - w, y: H - M - 22, width: w, height: logo.height * s });
+        right -= w + 10;
+      }
+      const name = fit(bold, opts.brand.name, 11, 260);
+      if (name) text(page, name, right - bold.widthOfTextAtSize(name, 11), H - M - 14, 11, bold);
+    }
 
     // column heads + time scale
     const hy = top - 12;
