@@ -316,3 +316,7 @@ Tests à chaque phase :
   - au choix : quantités de la soumission (recommandé) ou quantités retenues ;
   - vérifié sur `01_BA_maconnerie.pdf` : 28 reports, 8 totaux de chapitre, régie 18'600.00, aucune position sans case ;
   - un PDF scanné est refusé avec un message clair.
+- **Mesurer depuis le métré** : dans la position, le bouton « Mesurer sur le plan » ouvre le plan du chantier (ou propose le choix s'il y en a plusieurs) en mode « Vous mesurez pour… ».
+  - La barre indique comment mesurer (la meilleure façon d'abord : tracer le mur pour un coffrage en m², dessiner la surface pour une dalle), demande les dimensions nécessaires, puis affiche le total mesuré face à la quantité de la soumission.
+  - Chaque tracé est affecté à la position ; changer une dimension recalcule les tracés déjà faits.
+  - « Terminer » revient au métré sur la même position.

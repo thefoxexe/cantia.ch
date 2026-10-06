@@ -54,3 +54,14 @@ test('suggestions rank what fits the drawn element', () => {
   const sl = suggestPositions('polygon', 'slab', positions);
   assert.equal(sl[0].position.id, 'e');
 });
+
+test('measuring from a position: the right tool first', async () => {
+  const { measureModes } = await import('../lib/tenders/allocation.ts');
+  const m = (title, unit, context = '') => measureModes({ id: 'x', ref: null, title, text: title, context, unit }).map((x) => `${x.kind}:${x.formula}`);
+  assert.equal(m('Coffrage de parois type 2', 'm2')[0], 'polyline:wall_formwork');
+  assert.equal(m('Béton pour dalles', 'm3')[0], 'polygon:slab_volume');
+  assert.equal(m('Chape ciment', 'm2')[0], 'polygon:area');
+  assert.equal(m('Béton pour murs', 'm3')[0], 'polyline:wall_volume');
+  assert.deepEqual(m('Regards', 'pce'), ['count:count']);
+  assert.equal(m('Joint de reprise up = ml', 'up')[0], 'polyline:length');
+});

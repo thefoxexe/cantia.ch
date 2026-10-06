@@ -268,3 +268,43 @@ export function searchPositions(q: string, positions: PositionLite[], limit = 20
   if (!words.length) return [];
   return positions.filter((p) => words.every((w) => `${p.ref ?? ''} ${p.context} ${p.text}`.toLowerCase().includes(w))).slice(0, limit);
 }
+
+// ---------------------------------------------------------------------------
+// Starting from a position: how can it be measured on a plan?
+// ---------------------------------------------------------------------------
+
+export interface MeasureMode {
+  kind: MeasureKind; // the tool to draw with
+  element: Element;
+  formula: string;
+}
+
+const TRIES: [MeasureKind, Element][] = [
+  ['polyline', 'wall'],
+  ['polygon', 'slab'],
+  ['polygon', 'surface'],
+  ['polyline', 'footing'],
+  ['polyline', 'line'],
+  ['perimeter', 'line'],
+  ['count', 'items'],
+];
+
+// Ways to measure this position, best first: a wall formwork in m² is drawn
+// as the wall's line (× height × faces) before a surface; a slab in m³ as a
+// surface (× thickness)…
+export function measureModes(p: PositionLite): MeasureMode[] {
+  const full = `${p.context} ${p.text}`;
+  const dim = positionDimension(p.unit, p.text);
+  const best = new Map<string, MeasureMode & { score: number }>();
+  for (const [kind, element] of TRIES) {
+    const formula = chooseFormula(kind, dim, full, element);
+    if (!formula) continue;
+    let score = KEYWORDS[element].test(p.text) ? 3 : KEYWORDS[element].test(p.context) ? 2 : 0;
+    if (formula === 'area' || formula === 'length' || formula === 'count') score += 0.5; // no extra figure to type
+    if (kind === 'perimeter') score -= 0.25; // a closed outline is the rarer case
+    const key = `${kind}:${formula}`;
+    if ((best.get(key)?.score ?? -Infinity) < score) best.set(key, { kind, element, formula, score });
+  }
+  const out = [...best.values()];
+  return out.sort((a, b) => b.score - a.score).map(({ score: _s, ...m }) => m);
+}

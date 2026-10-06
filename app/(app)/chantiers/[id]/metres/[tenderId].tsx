@@ -26,6 +26,8 @@ import { fetchCatalog } from '../../../../../lib/catalog';
 import { exportTenderXlsx } from '../../../../../lib/tenders/export';
 import { exportFilledSoumission, hasSourcePdf, type QuantityBasis } from '../../../../../lib/tenders/exportFilled';
 import { allocationsForTender, measuresInfo, type Allocation } from '../../../../../lib/tenders/allocationApi';
+import { listPlans, type SitePlanSummary } from '../../../../../lib/tenders/plansApi';
+import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
 import { lineAmount, selectedQuantity, subtotalsByNode, tenderTotals } from '../../../../../lib/tenders/calc';
 import { fill, useTenderCopy } from '../../../../../lib/tenders/copy';
 import { formatChf, formatQuantity } from '../../../../../lib/tenders/numbers';
@@ -53,7 +55,8 @@ export default function TenderEditorScreen() {
   const [filling, setFilling] = useState(false);
   const [offering, setOffering] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const { id: projectId, tenderId } = useLocalSearchParams<{ id: string; tenderId: string }>();
+  const { id: projectId, tenderId, position: backFromPosition } = useLocalSearchParams<{ id: string; tenderId: string; position?: string }>();
+  const [planPicker, setPlanPicker] = useState<{ positionId: string; plans: SitePlanSummary[] } | null>(null);
   const [bundle, setBundle] = useState<TenderBundle | null | undefined>(undefined);
   const [canEdit, setEditable] = useState(false);
   // Phone = consultation: the métré and its offer can be read, not changed.
@@ -73,6 +76,9 @@ export default function TenderEditorScreen() {
     loadTender(tenderId).then(async ({ bundle: b }) => {
       if (!alive) return;
       setBundle(b);
+      // Back from the plan: the position just measured stays open.
+      const back = backFromPosition && b?.positions.find((x) => x.id === backFromPosition);
+      if (back) setSelectedId(back.node_id);
       if (b) setEditable(await canEditTenders(b.tender.organization_id));
       if (b) {
         const a = await allocationsForTender(b.tender.id);
@@ -334,7 +340,16 @@ export default function TenderEditorScreen() {
           : []
       }
       onOpenMeasure={(planId, measureId) => router.push(`/(app)/chantiers/${projectId}/plans/${planId}?measure=${measureId}` as any)}
-      onMeasureOnPlan={editable ? () => router.push(`/(app)/chantiers/${projectId}/metre` as any) : undefined}
+      onMeasureOnPlan={
+        editable && Platform.OS === 'web' && selectedPos
+          ? async () => {
+              const { plans } = await listPlans(projectId);
+              const go = (planId: string) => router.push(`/(app)/chantiers/${projectId}/plans/${planId}?tender=${tender.id}&position=${selectedPos.id}` as any);
+              if (plans.length === 1) return go(plans[0].id);
+              setPlanPicker({ positionId: selectedPos.id, plans });
+            }
+          : undefined
+      }
     />
   ) : null;
 
@@ -498,6 +513,14 @@ export default function TenderEditorScreen() {
         />
       ) : null}
 
+      {planPicker ? (
+        <PlanPickerSheet
+          plans={planPicker.plans}
+          onClose={() => setPlanPicker(null)}
+          onPick={(planId) => router.push(`/(app)/chantiers/${projectId}/plans/${planId}?tender=${tender.id}&position=${planPicker.positionId}` as any)}
+          onImport={() => router.push(`/(app)/chantiers/${projectId}/metre` as any)}
+        />
+      ) : null}
       {exporting ? <ExportSheet c={c} bundle={bundle} onClose={() => setExporting(false)} /> : null}
       {offering ? (
         <OfferSheet
@@ -591,6 +614,31 @@ function FillPricesSheet({ c, candidates, onClose, onApply }: { c: ReturnType<ty
         </>
       ) : (
         <Text style={kit.body}>{c.fillNone}</Text>
+      )}
+    </Sheet>
+  );
+}
+
+function PlanPickerSheet({ plans, onClose, onPick, onImport }: { plans: SitePlanSummary[]; onClose: () => void; onPick: (id: string) => void; onImport: () => void }) {
+  const ac = useAssignCopy();
+  return (
+    <Sheet title={ac.pickPlan} onClose={onClose}>
+      {plans.length === 0 ? (
+        <>
+          <Text style={kit.body}>{ac.noPlan}</Text>
+          <Btn label={ac.goPlans} icon="upload" variant="primary" onPress={onImport} />
+        </>
+      ) : (
+        plans.map((pl) => (
+          <Pressable key={pl.id} onPress={() => onPick(pl.id)} style={styles.exportOpt}>
+            <Feather name="map" size={18} color={colors.slate} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={styles.exportOptTitle}>{pl.number ? `${pl.number} · ${pl.name}` : pl.name}</Text>
+              <Text style={kit.hint}>{pl.revision_label}</Text>
+            </View>
+            <Feather name="arrow-right" size={16} color={colors.primary} />
+          </Pressable>
+        ))
       )}
     </Sheet>
   );

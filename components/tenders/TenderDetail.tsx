@@ -273,19 +273,16 @@ export function TenderDetail(p: DetailProps) {
 function MeasuresOnPlan({ p, unit }: { p: DetailProps; unit: string }) {
   const ac = useAssignCopy();
   const list = p.measures ?? [];
-  if (!list.length) {
-    return p.onMeasureOnPlan ? (
-      <View style={styles.planBox}>
-        <Text style={[kit.hint, { flex: 1 }]}>{ac.noMeasureYet}</Text>
-        <Btn label={ac.measureOnPlan} icon="map" variant="ghost" onPress={p.onMeasureOnPlan} />
-      </View>
-    ) : null;
-  }
+  if (!list.length && !p.onMeasureOnPlan) return null;
   return (
     <View style={styles.planBox}>
-      <Text style={[kit.eyebrow, { width: '100%' }]}>
-        {ac.onPlans} · {list.length}
-      </Text>
+      {list.length ? (
+        <Text style={[kit.eyebrow, { width: '100%' }]}>
+          {ac.onPlans} · {list.length}
+        </Text>
+      ) : (
+        <Text style={[kit.hint, { width: '100%' }]}>{ac.noMeasureYet}</Text>
+      )}
       {list.map((m) => (
         <Pressable key={m.id} onPress={() => p.onOpenMeasure?.(m.planId, m.id)} style={styles.planRow}>
           <Feather name="map-pin" size={13} color={colors.slate} />
@@ -301,6 +298,7 @@ function MeasuresOnPlan({ p, unit }: { p: DetailProps; unit: string }) {
           <Feather name="external-link" size={13} color={colors.primary} />
         </Pressable>
       ))}
+      {p.onMeasureOnPlan ? <Btn label={ac.measureBtn} icon="crosshair" variant="primary" onPress={p.onMeasureOnPlan} /> : null}
     </View>
   );
 }

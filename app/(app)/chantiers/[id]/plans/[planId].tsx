@@ -9,7 +9,9 @@ import { MEASURE_COLORS, PlanCanvas, type Tool } from '../../../../../components
 import { canEditTenders, listTenders, type TenderSummary } from '../../../../../lib/tenders/api';
 import { AssignPanel, type AssignRow } from '../../../../../components/tenders/AssignPanel';
 import { allocationsForObjects, createAllocations, loadTenderPositions, removeAllocation, updateAllocation, useMeasuredQuantity, type Allocation, type TenderPositions } from '../../../../../lib/tenders/allocationApi';
-import { formulaDef, type Params } from '../../../../../lib/tenders/allocation';
+import { defaultElement, displayUnit, formulaDef, measureModes, paramsFromText, type Params } from '../../../../../lib/tenders/allocation';
+import { TargetBar, type Target } from '../../../../../components/tenders/TargetBar';
+import { unitLabel } from '../../../../../lib/tenders/units';
 import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
 import { distancePt, formatMeasure, impliedScale, mainValue, parseScale, type Calibration, type MeasureKind, type Point } from '../../../../../lib/tenders/geometry';
 import { createMeasure, loadPlan, pageObjects, setCalibration, setMeasureDeleted, updateMeasure, updatePlan, type LoadedPlan, type MeasuredObject, type PlanPage } from '../../../../../lib/tenders/plansApi';
@@ -44,7 +46,7 @@ export default function PlanMeasureScreen() {
   const c = usePlanCopy();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { id, planId, measure: focusMeasure } = useLocalSearchParams<{ id: string; planId: string; measure?: string }>();
+  const { id, planId, measure: focusMeasure, tender: fromTender, position: fromPosition } = useLocalSearchParams<{ id: string; planId: string; measure?: string; tender?: string; position?: string }>();
   const { project } = useProject(id);
   const [data, setData] = useState<LoadedPlan | null>(null);
   const [revisionId, setRevisionId] = useState<string | null>(null);
@@ -65,8 +67,11 @@ export default function PlanMeasureScreen() {
   const [tenderId, setTenderId] = useState<string | null>(null);
   const [tp, setTp] = useState<TenderPositions | null>(null);
   const [allocs, setAllocs] = useState<Allocation[]>([]);
-  // « Position active »: every new measure is linked to it straight away.
-  const [active, setActive] = useState<{ positionId: string; formula: string; params: Params; ref: string } | null>(null);
+  // « Vous mesurez pour… »: every new measure drawn the target's way is
+  // linked to that position straight away (opened from the métré, or a
+  // position kept active from the panel).
+  const [target, setTarget] = useState<Omit<Target, 'measured' | 'count' | 'ref' | 'title' | 'unit' | 'quantityOriginal'> | null>(null);
+  const targetDone = useRef(false);
 
   const desktop = Platform.OS === 'web' && width >= 900;
   const wide = width >= 1180;
@@ -97,7 +102,7 @@ export default function PlanMeasureScreen() {
   useEffect(() => {
     listTenders(id).then(({ tenders: list }) => {
       setTenders(list);
-      setTenderId((cur) => cur ?? (list.find((t) => t.positions > 0) ?? list[0])?.id ?? null);
+      setTenderId((cur) => cur ?? (fromTender && list.some((t) => t.id === fromTender) ? fromTender : (list.find((t) => t.positions > 0) ?? list[0])?.id) ?? null);
     });
   }, [id]);
   const reloadPositions = useCallback(async () => {
@@ -114,6 +119,47 @@ export default function PlanMeasureScreen() {
   useEffect(() => {
     reloadAllocs();
   }, [reloadAllocs]);
+
+  // Opened from a position of the métré: set it as the target once.
+  useEffect(() => {
+    if (targetDone.current || !fromPosition || !tp || tp.bundle.tender.id !== fromTender) return;
+    const p = tp.byId.get(fromPosition);
+    if (!p) return;
+    targetDone.current = true;
+    startTarget(fromPosition);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tp, fromPosition, fromTender]);
+
+  function startTarget(positionId: string, formula?: string, keep: Params = {}) {
+    const p = tp?.byId.get(positionId);
+    if (!p) return;
+    let modes = measureModes(p);
+    if (formula && !modes.some((m) => m.formula === formula)) {
+      const def = formulaDef(formula);
+      if (def) modes = [{ kind: def.kinds[0], element: defaultElement(def.kinds[0]), formula }, ...modes];
+    }
+    if (!modes.length) return setError(ac.noSuggestion);
+    const modeIdx = Math.max(0, formula ? modes.findIndex((m) => m.formula === formula) : 0);
+    const params: Params = { ...keep };
+    for (const f of paramsFromText(p.text)) if (params[f.key] == null) params[f.key] = f.value;
+    setTarget({ positionId, modes, modeIdx, params });
+    setTool(modes[modeIdx].kind);
+    setSelectedId(null);
+  }
+
+  const targetView: Target | null = useMemo(() => {
+    if (!target) return null;
+    const p = tp?.byId.get(target.positionId);
+    return {
+      ...target,
+      ref: p?.ref ?? '',
+      title: p?.title ?? '',
+      unit: unitLabel(displayUnit(p?.unit ?? null, p?.text ?? '')),
+      quantityOriginal: p?.quantity_original ?? null,
+      measured: p?.quantity_measured ?? null,
+      count: allocs.filter((a) => a.position_id === target.positionId).length,
+    };
+  }, [target, tp, allocs]);
 
   const page: PlanPage | null = data?.pages[pageIdx] ?? null;
   const isActiveRev = !!data && revisionId === data.plan.active_revision_id;
@@ -142,21 +188,25 @@ export default function PlanMeasureScreen() {
       if (t === 'calibrate') return setCalSheet({ pts });
       if (t === 'select') return;
       setError(null);
+      const mode = target ? target.modes[target.modeIdx] : null;
+      const forTarget = !!mode && formulaDef(mode.formula)!.kinds.includes(t);
       // The next wall usually has the same height: dimensions carry over.
       const previous = [...objects].reverse().find((o) => o.kind === t && o.params && Object.keys(o.params).length);
-      const { object, error: err } = await track(createMeasure(page.id, t, pts, { color, params: previous?.params ?? {} }));
+      const measureParams = forTarget ? { element: mode!.element, ...dimsOf(target!.params) } : previous?.params ?? {};
+      const { object, error: err } = await track(createMeasure(page.id, t, pts, { color, params: measureParams }));
       if (err || !object) return setError(err ?? 'Erreur');
       setObjects((o) => [...o, object]);
       setSelectedId(object.id);
       record({ t: 'create', id: object.id });
-      if (active && formulaDef(active.formula)?.kinds.includes(t)) {
-        const dims = Object.fromEntries(Object.entries(object.params).filter(([k, v]) => ['height', 'thickness', 'width', 'factor'].includes(k) && v != null));
-        const { error: aErr } = await track(createAllocations([{ positionId: active.positionId, measuredObjectId: object.id, formula: active.formula, params: { ...active.params, ...dims } }]));
+      if (forTarget) {
+        const first = !allocs.some((a) => a.position_id === target!.positionId);
+        const { error: aErr } = await track(createAllocations([{ positionId: target!.positionId, measuredObjectId: object.id, formula: mode!.formula, params: target!.params }]));
         if (aErr) setError(aErr);
+        else if (first) await track(useMeasuredQuantity([target!.positionId]));
         await Promise.all([reloadAllocs(), reloadPositions()]);
       }
     },
-    [page, color, track, objects, active, reloadAllocs, reloadPositions],
+    [page, color, track, objects, target, allocs, reloadAllocs, reloadPositions],
   );
 
   const onReshape = useCallback(
@@ -332,7 +382,7 @@ export default function PlanMeasureScreen() {
               onTender={setTenderId}
               positions={tp}
               allocations={allocs.filter((a) => a.measured_object_id === selected.id && a.tender_id === tenderId)}
-              activePositionId={active?.positionId ?? null}
+              activePositionId={target?.positionId ?? null}
               onMeasureParams={async (params) => {
                 const { object, error: err } = await track(updateMeasure(selected.id, { params }));
                 if (err || !object) return setError(err ?? 'Erreur');
@@ -355,13 +405,12 @@ export default function PlanMeasureScreen() {
               onRemove={async (a) => {
                 const { error: err } = await track(removeAllocation(a.id));
                 if (err) setError(err);
-                if (active?.positionId === a.position_id) setActive(null);
+                if (target?.positionId === a.position_id && allocs.filter((x) => x.position_id === a.position_id).length <= 1) setTarget(null);
                 await Promise.all([reloadAllocs(), reloadPositions()]);
               }}
               onKeepActive={(a) => {
-                const p = tp?.byId.get(a.position_id);
-                const keep = Object.fromEntries(Object.entries(a.params).filter(([k]) => k === 'faces' || k === 'rate')) as Params;
-                setActive(active?.positionId === a.position_id ? null : { positionId: a.position_id, formula: a.formula, params: keep, ref: `${p?.ref ?? ''} ${p?.title ?? ''}`.trim() });
+                if (target?.positionId === a.position_id) return setTarget(null);
+                startTarget(a.position_id, a.formula, a.params);
               }}
             />
           ) : null}
@@ -463,6 +512,31 @@ export default function PlanMeasureScreen() {
           {scaleBadge}
         </View>
 
+        {targetView && canDraw ? (
+          <TargetBar
+            key={`${targetView.positionId}:${targetView.modeIdx}`}
+            t={targetView}
+            onMode={(i) => {
+              setTarget((tg) => (tg ? { ...tg, modeIdx: i } : tg));
+              setTool(target!.modes[i].kind);
+            }}
+            onParams={async (params) => {
+              setTarget((tg) => (tg ? { ...tg, params } : tg));
+              // Links already drawn for this position follow the new figures.
+              const mode = target!.modes[target!.modeIdx];
+              const mine = allocs.filter((x) => x.position_id === target!.positionId && x.formula === mode.formula);
+              if (mine.length) {
+                await track(Promise.all(mine.map((x) => updateAllocation(x.id, { params: { ...x.params, ...params } }))));
+                await Promise.all([reloadAllocs(), reloadPositions()]);
+              }
+            }}
+            onStop={() => {
+              setTarget(null);
+              setTool('select');
+            }}
+            onBack={fromTender ? () => router.push(`/(app)/chantiers/${id}/metres/${fromTender}?position=${target!.positionId}` as any) : undefined}
+          />
+        ) : null}
         {toolbar}
         {canDraw ? (
           <View style={styles.help}>
@@ -513,17 +587,6 @@ export default function PlanMeasureScreen() {
               <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
             )}
             <View style={styles.zoomFloat}>{zoomBar}</View>
-            {active && canDraw ? (
-              <View style={styles.activeBanner}>
-                <Feather name="target" size={14} color="#fff" />
-                <Text style={styles.activeText} numberOfLines={1}>
-                  {fill(ac.activeBanner, { ref: active.ref })}
-                </Text>
-                <Pressable onPress={() => setActive(null)}>
-                  <Text style={[styles.activeText, { textDecorationLine: 'underline' }]}>{ac.stop}</Text>
-                </Pressable>
-              </View>
-            ) : null}
           </View>
           {panel}
         </BodyBox>
@@ -573,6 +636,8 @@ function PanelBox({ desktop, children }: { desktop: boolean; children: React.Rea
   }
   return <View style={[styles.panelBelow, { padding: spacing.lg, gap: spacing.md }]}>{children}</View>;
 }
+
+const dimsOf = (p: Params) => Object.fromEntries(Object.entries(p).filter(([k, v]) => ['height', 'thickness', 'width', 'factor'].includes(k) && v != null));
 
 function pageTotals(objs: MeasuredObject[]) {
   let length = 0;
