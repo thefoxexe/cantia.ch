@@ -981,6 +981,8 @@ export const it: TranslationDict = {
     },
   },
   chantierHub: {
+    gantt: 'Programma lavori',
+    ganttHint: 'Fasi, attività, dipendenze e avanzamento (Gantt).',
     feed: 'Note e monitoraggio',
     reports: 'Rapporti',
     documents: 'Documenti',

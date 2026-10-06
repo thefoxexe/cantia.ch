@@ -978,6 +978,8 @@ export const de: TranslationDict = {
     },
   },
   chantierHub: {
+    gantt: 'Bauprogramm',
+    ganttHint: 'Phasen, Aufgaben, Abhängigkeiten und Fortschritt (Gantt).',
     feed: 'Notizen & Verlauf',
     reports: 'Baustellenrapporte',
     documents: 'Dokumente',

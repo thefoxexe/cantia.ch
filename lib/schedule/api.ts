@@ -1,6 +1,6 @@
 // Planning de chantier — data access (migration 20261007160000_site_schedules).
 import { supabase } from '../supabase';
-import { DEFAULT_WORKDAYS, endFromDuration, nextWorkday, addDays, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc';
+import { DEFAULT_WORKDAYS, endFromDuration, nextWorkday, addDays, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc.ts';
 
 export interface Schedule {
   id: string;

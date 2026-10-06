@@ -959,6 +959,8 @@ export const fr = {
     },
   },
   chantierHub: {
+    gantt: 'Planning de chantier',
+    ganttHint: 'Phases, tâches, dépendances et avancement (Gantt).',
     feed: 'Notes et suivi',
     reports: 'Rapports',
     documents: 'Documents',

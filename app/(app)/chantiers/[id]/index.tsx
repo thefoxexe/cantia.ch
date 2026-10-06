@@ -103,6 +103,14 @@ export default function ChantierDetailScreen() {
     { key: 'feed', label: t('chantierHub.feed'), icon: 'edit-3', route: `/(app)/chantiers/${id}/feed`, visible: true, featured: true },
     { key: 'reports', label: t('chantierHub.reports'), icon: 'file-text', route: `/(app)/chantiers/${id}/reports`, visible: true, featured: true },
     {
+      // Gantt (cahier des charges planning de chantier): building only
+      key: 'gantt',
+      label: t('chantierHub.gantt'),
+      icon: 'calendar',
+      route: `/(app)/chantiers/${id}/gantt`,
+      visible: fillsSoumissions(organization),
+    },
+    {
       key: 'documents',
       label: t('chantierHub.documents'),
       icon: 'folder',
@@ -159,6 +167,7 @@ export default function ChantierDetailScreen() {
   // is more useful here than a bare count, which stays meaningless at 0.
   const STATIC_HINT: Partial<Record<string, string>> = {
     extraWorks: t('chantierHub.extraWorksHint'),
+    gantt: t('chantierHub.ganttHint'),
     situations: t('chantierHub.situationsHint'),
   };
 
