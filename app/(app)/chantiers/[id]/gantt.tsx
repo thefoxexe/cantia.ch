@@ -12,7 +12,7 @@ import { useProject } from '../../../../lib/useProject';
 import { supabase } from '../../../../lib/supabase';
 import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
-import { addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
+import { hasSiteSchedule, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
 import { cascade, flatten, reconcile, rollup, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
@@ -36,7 +36,12 @@ export default function ChantierGanttScreen() {
   const { project } = useProject(id);
   const { width } = useWindowDimensions();
   const phone = width < 700;
-  const building = fillsSoumissions(organization);
+  // Équipe plan and up, building companies only; null while checking
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (organization) hasSiteSchedule(organization.id).then(setAllowed);
+  }, [organization?.id]);
+  const building = fillsSoumissions(organization) && allowed === true;
   const editable = building && !phone;
   const today = todayIso();
 
@@ -224,6 +229,7 @@ export default function ChantierGanttScreen() {
           <View style={[kit.card, { maxWidth: 620 }]}>
             <Text style={kit.cardTitle}>{c.emptyTitle}</Text>
             <Text style={kit.body}>{c.emptyText}</Text>
+            {!building && allowed === false ? <Text style={[kit.body, { fontWeight: '700' }]}>{c.planNeeded}</Text> : null}
             {building ? (
               <>
                 <View style={{ maxWidth: 260 }}>

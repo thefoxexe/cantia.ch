@@ -11,6 +11,7 @@ import { LoadingScreen, StatusBadge, AppScreen } from '../../../../components/ui
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import { fillsSoumissions } from '../../../../lib/trades';
+import { hasSiteSchedule } from '../../../../lib/schedule/api';
 import { ChantierDesk } from '../../../../components/chantier/ChantierDesk';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -52,6 +53,11 @@ export default function ChantierDetailScreen() {
   const { project } = useProject(id);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  // Planning de chantier: Équipe plan and up, building companies only.
+  const [siteSchedule, setSiteSchedule] = useState(false);
+  useEffect(() => {
+    if (organization) hasSiteSchedule(organization.id).then(setSiteSchedule);
+  }, [organization?.id]);
   const { width } = useWindowDimensions();
   // Computer: a working layout (see ChantierDesk); phone: the tiles below.
   const desk = width >= 1000;
@@ -108,7 +114,7 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.gantt'),
       icon: 'calendar',
       route: `/(app)/chantiers/${id}/gantt`,
-      visible: fillsSoumissions(organization),
+      visible: siteSchedule,
     },
     {
       key: 'documents',

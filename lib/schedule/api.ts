@@ -33,6 +33,12 @@ export const BASE_TRADES = [
 
 const ITEM_COLS = 'id, parent_id, kind, name, trade, company, responsible_user_id, team_size, status, progress, progress_manual, start_date, end_date, duration, fixed, baseline_start, baseline_end, actual_start, actual_end, notes, sort_order';
 
+// Équipe plan and up, building companies only (org_has_site_schedule).
+export async function hasSiteSchedule(organizationId: string): Promise<boolean> {
+  const { data } = await supabase.rpc('org_has_site_schedule', { org_id: organizationId });
+  return data === true;
+}
+
 export async function loadSchedule(projectId: string): Promise<ScheduleBundle | null> {
   const { data: schedule } = await supabase.from('site_schedules').select('id, organization_id, project_id, workdays').eq('project_id', projectId).maybeSingle();
   if (!schedule) return null;

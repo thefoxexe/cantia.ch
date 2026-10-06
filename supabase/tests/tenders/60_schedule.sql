@@ -37,3 +37,9 @@ insert into schedule_items (schedule_id, organization_id, kind, name) values ('0
 delete from site_schedules where id = '00000000-0000-0000-0000-00000000d001';
 reset role;
 select (select count(*) from schedule_items) items, (select count(*) from schedule_audit) audit;
+\echo '--- S7. Essentiel plan (org B): no schedule, even in the building sector'
+set role authenticated;
+set test.uid = '00000000-0000-0000-0000-0000000000f3';
+insert into site_schedules (organization_id, project_id) values ('00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000b1');
+reset role;
+select org_has_site_schedule('00000000-0000-0000-0000-00000000000b') as solo, org_has_site_schedule('00000000-0000-0000-0000-00000000000a') as pro_but_finance;
