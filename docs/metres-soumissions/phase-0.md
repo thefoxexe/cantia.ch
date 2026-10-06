@@ -3,9 +3,7 @@
 Audit de l'existant et plan d'intégration, avant toute implémentation.
 Référence : `cantia_metres_soumissions_cahier_des_charges.md` (v1.0).
 
-> **PDF de référence `01_BA_maconnerie.pdf` : pas encore analysé.**
-> Le réseau de l'environnement de développement bloque bf-archi.ch. Le PDF doit
-> être joint directement. Il deviendra la fixture `fixtures/tenders/01_BA_maconnerie.pdf`.
+> PDF de référence : `fixtures/tenders/01_BA_maconnerie.pdf`, **local uniquement**. Le dossier `fixtures/` est gitignoré, car les textes CAN appartiennent au CRB (voir `fixtures/README.md`). Analyse au §9.
 
 ---
 
@@ -173,3 +171,99 @@ Tests à chaque phase :
 4. **Les quantités et les prix restent visibles seulement avec la permission Finances**, comme les devis : un collaborateur sans Finances voit les quantités, pas les prix. *Recommandé.*
 5. **L'offre finale est un devis Cantia normal** (numéro, TVA, e-mail, suivi, situations), avec une mise en page « soumission ». *Recommandé.*
 6. **Ordre de livraison** : A + B + C d'abord (soumission importée et chiffrée, utile tout de suite), puis D + E (plans), puis F. *Recommandé.*
+
+---
+
+## 9. Analyse du PDF de référence (`01_BA_maconnerie.pdf`)
+
+**Généralités**
+- 50 pages A4 générées par Messerli (logiciel de soumission CAN).
+- **Texte natif** : aucun OCR nécessaire.
+- Une seule police de 10 pt, sans gras : la hiérarchie se lit **aux numéros et aux positions horizontales**, pas au style.
+
+**Page 1 (couverture)**
+- Soumission N° 1, projet 18106_CHOEX-VILLAS JUMELLES.
+- Maître d'ouvrage, architecte, ingénieur civil.
+- **CFC 211 : BÉTON ARMÉ**.
+
+**Page 2 (récapitulation)**
+- Contrat 1 (= CFC 211), avec les chapitres CAN 111, 112, 113, 172, 241, 314, 315 (le 102, conditions, n'a pas de montant).
+- Lignes de conditions : Brut, Rabais %, Sous-total 1, Escompte %, Sous-total 2, TVA 7.70 %, Net.
+- La ligne **`Structure : PG, A-B, C-D, F-G, E-COUV, PARK`** déclare la liste des zones. Leur signification n'est pas donnée dans le document : il faudra la demander à l'utilisateur.
+
+**Pages 3 et suivantes**
+- Chaque page a un en-tête répété à ignorer :
+  - projet ;
+  - date ;
+  - « Page: N » ;
+  - `Contrat : 1    CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)`.
+- Cet en-tête donne le **chapitre CAN** et sa **version** (`F/04(V´11)` = français, édition 04, version 2011).
+
+**Colonnes (en points PDF, identiques sur toutes les pages)**
+
+| x | Contenu |
+|---|---|
+| 57–60 | Numéro d'article principal (`121`, `R 429`) |
+| 76–78 | Sous-article (`.100`, `.111`) |
+| 101 | Texte |
+| 249 | Code de zone `:PG`, `:A-B`… `:Total` |
+| 350–365 | Quantité (alignée à droite) |
+| 390 | Unité |
+| 427 | Prix unitaire (pointillés vides, ou valeur) |
+| 500–523 | Montant |
+
+**Hiérarchie**
+- Les numéros sur 3 chiffres sont des articles. Les centaines (`100`, `200`) suivies d'une ligne de tirets sont des **titres de groupe**.
+- `.100`, `.110`, `.111` sont des sous-articles ; seuls ceux qui portent une quantité sont chiffrables.
+- Après un saut de page, le chemin complet est répété (`121.112 Epaisseur mm 51 à 100.`) : c'est une **continuation**, pas une nouvelle position.
+
+**Chiffres clés**
+- **145 positions chiffrables**.
+- 99 lignes de ventilation et 39 lignes `:Total`.
+
+**Unités rencontrées**
+
+| Unité | Lignes |
+|---|---|
+| `up` (unité de prix, ex. `up = Fr.` en régie ou `up = pce`) | 101 |
+| `m2` | 87 |
+| `p` (pièce) | 37 |
+| `m` | 24 |
+| `m3` | 18 |
+| `kg` | 6 |
+| `gl` (global) | 2 |
+
+**Positions R (réserve)**
+- Exemples : `R 411.902`, `R 429`, `R 490`, `R 591.103`, `R 821.190`.
+- Le `R` est parfois **sur une ligne à part**, juste au-dessus du numéro.
+
+**Prix**
+- Pointillés vides presque partout.
+- **Exception : la régie (CAN 111)**. Les prix y sont pré-remplis (`8'000 up × 0.90 = 7'200.00`), avec l'apostrophe suisse comme séparateur des milliers. Ce sont des facteurs de rabais et non des prix de marché. Ils sont à importer comme « prix du document » et à vérifier par `quantité × prix ≈ montant`.
+
+**Totaux**
+- « A reporter : » en pied de page.
+- « Total <chapitre> » + numéro à la fin de chaque chapitre, puis « Total général ».
+- Aucune de ces lignes n'est une position.
+
+**Textes libres**
+- Les articles R contiennent des textes rédigés par l'architecte (« Selon plan du bureau BF Architecture… »).
+- On y trouve parfois des nombres parasites (`99`) en colonne texte. Ils doivent rester du texte et ne pas devenir une quantité.
+
+**Conséquence pour le parseur.** Ce format (Messerli / CAN) se parse à **plus de 95 % par règles de position**. L'IA ne servira que pour les documents non standard et les cas réellement ambigus.
+
+**Tests prévus avec cette fixture** (sans dépendre de valeurs propres au seul document) :
+- 7 chapitres avec montants, plus les conditions ;
+- CFC 211 ;
+- comptage des positions chiffrables ;
+- présence de positions R ;
+- ventilations dont la somme égale `:Total` (ex. 241 / 214.114 : 40 + 40 + 28 = 108 m2) ;
+- prix de régie avec contrôle q × p = montant ;
+- « A reporter » et totaux non chiffrables ;
+- continuation après saut de page ;
+- texte long conservé.
+
+**Tests et droits CAN**
+- Les tests utilisent la fixture **quand elle est présente en local** et sont ignorés sinon (CI).
+- En parallèle, une **fixture synthétique** est commitée. Elle reprend la même mise en page (colonnes, numérotation, R, ventilations, reports), mais avec des textes inventés. Elle couvre aussi un document non-CAN.
+- **CRBX** : `docs/crbx-format.md` et `fixtures/README.md` posent déjà la règle « observé, jamais deviné ». Le format reste préparé (interfaces) tant qu'aucun vrai `.crbx` n'a été inspecté.
