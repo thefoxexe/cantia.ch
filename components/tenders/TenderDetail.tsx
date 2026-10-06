@@ -7,6 +7,7 @@ import { checkBreakdownSum, lineAmount, quantityGap } from '../../lib/tenders/ca
 import { fill, type TenderCopy } from '../../lib/tenders/copy';
 import { formatChf, formatQuantity, parseSwissNumber } from '../../lib/tenders/numbers';
 import { UNIT_CHOICES, unitLabel } from '../../lib/tenders/units';
+import type { PriceSuggestion } from '../../lib/tenders/pricing';
 import type { PositionBreakdown, PositionPrice, QuantitySource, TenderNode, TenderPosition, ZoneLabel } from '../../lib/tenders/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { monoType } from '../../lib/marketingTheme';
@@ -23,7 +24,8 @@ export interface DetailProps {
   pricesVisible: boolean;
   onNode: (patch: Partial<TenderNode>) => void;
   onPosition: (patch: Partial<TenderPosition>) => void;
-  onPrice: (unitPrice: number | null) => void;
+  onPrice: (unitPrice: number | null, source?: PositionPrice['price_source']) => void;
+  suggestions?: PriceSuggestion[];
   onBreakdown: (id: string, quantityManual: number | null) => void;
   onZoneLabel: (code: string, label: string) => void;
   onDelete: () => void;
@@ -171,6 +173,7 @@ export function TenderDetail(p: DetailProps) {
                 <Text style={kit.fieldLabel}>{c.unitPrice}</Text>
                 <NumberInput value={price?.unit_price ?? null} editable={editable} onCommit={p.onPrice} style={{ width: 140 }} placeholder="0.00" />
                 {price?.document_unit_price != null ? <Text style={kit.hint}>Document : {formatChf(price.document_unit_price, 2)}</Text> : null}
+                {price?.price_source && price.unit_price != null ? <Text style={kit.hint}>{c.priceSources[price.price_source] ?? price.price_source}</Text> : null}
               </View>
               <View style={{ alignItems: 'flex-end', gap: 4, marginLeft: 'auto' }}>
                 <Text style={kit.fieldLabel}>{c.amount}</Text>
@@ -180,6 +183,22 @@ export function TenderDetail(p: DetailProps) {
           ) : (
             <Text style={kit.hint}>{c.priceHidden}</Text>
           )}
+          {p.pricesVisible && editable && p.suggestions?.length ? (
+            <View style={{ gap: 6 }}>
+              <Text style={kit.fieldLabel}>{c.suggestions}</Text>
+              <View style={kit.row}>
+                {p.suggestions.map((sg) => (
+                  <Pressable key={sg.source} onPress={() => p.onPrice(sg.unitPrice, sg.source)} style={({ pressed }) => [styles.sugg, price?.unit_price === sg.unitPrice && styles.suggOn, pressed && { opacity: 0.8 }]}>
+                    <Text style={styles.suggPrice}>{formatChf(sg.unitPrice)}</Text>
+                    <Text style={styles.suggLabel} numberOfLines={1}>
+                      {c.suggestionLabels[sg.source] ?? sg.label}
+                      {sg.source === 'history_average' ? ` ${sg.label.replace(/^\D+/, '')}` : ''} · {sg.detail}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
 
           {p.breakdowns.length ? (
             <Field label={c.breakdowns}>
@@ -282,6 +301,10 @@ const styles = StyleSheet.create({
   radio: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   radioOn: { borderColor: colors.primary },
   radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
+  sugg: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, maxWidth: 260, gap: 1 },
+  suggOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  suggPrice: { ...monoType, fontSize: 14, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
+  suggLabel: { fontSize: 11.5, color: colors.textMuted },
   priceRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
   reserved: { ...monoType, fontSize: 11, fontWeight: '800', color: '#fff', backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, overflow: 'hidden' },
   block: { gap: spacing.sm, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },

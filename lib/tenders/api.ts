@@ -234,3 +234,87 @@ export async function auditFor(tenderId: string, entityIds: string[]): Promise<A
     .limit(50);
   return (data ?? []) as AuditEntry[];
 }
+
+// ---- Chiffrage --------------------------------------------------------------
+
+// Prices this organisation used in its other métrés (RLS limits them to the
+// tenders the member may see, with the Finances permission).
+export async function loadPriceHistory(excludeTenderId: string): Promise<import('./pricing.ts').HistoryPrice[]> {
+  const { data } = await supabase
+    .from('tender_position_prices')
+    .select('unit_price, updated_at, tender_id, tenders(name), tender_positions(unit, tender_nodes(title, description))')
+    .neq('tender_id', excludeTenderId)
+    .not('unit_price', 'is', null)
+    .order('updated_at', { ascending: false })
+    .limit(3000);
+  return ((data ?? []) as any[])
+    .filter((r) => r.tender_positions?.tender_nodes)
+    .map((r) => ({
+      description: r.tender_positions.tender_nodes.description || r.tender_positions.tender_nodes.title || '',
+      unit: r.tender_positions.unit ?? null,
+      unitPrice: Number(r.unit_price),
+      tenderName: r.tenders?.name ?? '',
+      at: r.updated_at,
+    }));
+}
+
+export async function setPrices(tenderId: string, rows: { positionId: string; unitPrice: number; source: NonNullable<PositionPrice['price_source']> }[]) {
+  if (!rows.length) return { prices: [] as PositionPrice[], error: null };
+  const { data, error } = await supabase
+    .from('tender_position_prices')
+    .upsert(rows.map((r) => ({ position_id: r.positionId, tender_id: tenderId, unit_price: r.unitPrice, price_source: r.source })), { onConflict: 'position_id' })
+    .select('*');
+  return { prices: (data ?? []).map(toPrice), error: error?.message ?? null };
+}
+
+// The offer is a regular Cantia devis (numbering, quota, PDF, e-mail,
+// follow-ups…). Quantities and prices are read back from the database —
+// the stored, trigger-computed figures — not from the screen.
+export async function createOfferDevis(tenderId: string, opts: { clientName: string; clientId?: string | null; includeUnpriced: boolean }) {
+  const { bundle, error } = await loadTender(tenderId);
+  if (!bundle) return { devisId: null, error: error ?? 'Métré introuvable' };
+  const { tender, nodes, positions, prices } = bundle;
+  const priceByPos = new Map(prices.map((p) => [p.position_id, p]));
+  const { data: project } = await supabase.from('projects').select('client_name').eq('id', tender.project_id).maybeSingle();
+  const { data: devis, error: devErr } = await supabase
+    .from('devis')
+    .insert({
+      organization_id: tender.organization_id,
+      project_id: tender.project_id,
+      client_name: opts.clientName.trim() || project?.client_name || tender.name,
+      client_id: opts.clientId ?? null,
+      vat_rate: tender.vat_rate,
+      status: 'draft',
+      notes: [tender.name, tender.cfc_code ? `CFC ${tender.cfc_code}` : null].filter(Boolean).join(' · '),
+    })
+    .select('id')
+    .single();
+  if (devErr || !devis) return { devisId: null, error: devErr?.message ?? 'Création du devis impossible' };
+  const order = new Map(nodes.map((n, i) => [n.id, i]));
+  const items = positions
+    .filter((p) => !p.excluded && p.quantity_selected != null)
+    .filter((p) => opts.includeUnpriced || priceByPos.get(p.id)?.unit_price != null)
+    .sort((a, b) => (order.get(a.node_id) ?? 0) - (order.get(b.node_id) ?? 0))
+    .map((p) => {
+      const n = nodes.find((x) => x.id === p.node_id)!;
+      const ref = n.display_reference ?? n.position_path ?? n.raw_number;
+      const text = (n.description || n.title || '').replace(/\s*\n\s*/g, ' ');
+      return { description: ref ? `${n.is_reserved && !ref.startsWith('R') ? 'R ' : ''}${ref} — ${text}` : text, quantity: p.quantity_selected!, unit: unitLabelOf(p.unit), unit_price: priceByPos.get(p.id)?.unit_price ?? 0 };
+    });
+  const brut = items.reduce((s, it) => s + Math.round(it.quantity * it.unit_price * 100) / 100, 0);
+  if (tender.discount_percent > 0) items.push({ description: `Rabais ${tender.discount_percent} %`, quantity: 1, unit: 'forfait', unit_price: -Math.round(brut * tender.discount_percent) / 100 });
+  if (tender.escompte_percent > 0) {
+    const after = brut * (1 - tender.discount_percent / 100);
+    items.push({ description: `Escompte ${tender.escompte_percent} %`, quantity: 1, unit: 'forfait', unit_price: -Math.round(after * tender.escompte_percent) / 100 });
+  }
+  for (let i = 0; i < items.length; i += 500) {
+    const { error: itErr } = await supabase.from('devis_items').insert(items.slice(i, i + 500).map((it, j) => ({ ...it, devis_id: devis.id, sort_order: i + j })));
+    if (itErr) return { devisId: devis.id as string, error: itErr.message };
+  }
+  await supabase.from('tenders').update({ devis_id: devis.id, status: 'offered' }).eq('id', tenderId);
+  return { devisId: devis.id as string, error: null };
+}
+
+function unitLabelOf(u: string | null): string {
+  return ({ m2: 'm²', m3: 'm³', gl: 'forfait' } as Record<string, string>)[u ?? ''] ?? (u || 'pce');
+}

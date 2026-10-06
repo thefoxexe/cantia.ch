@@ -125,3 +125,25 @@ test('tree: insertion order between siblings', () => {
   assert.equal(sortOrderAfter(sib, sib[1]), 3000);
   assert.equal(sortOrderAfter([], null), 1000);
 });
+
+import { median, suggestPrices, textSimilarity } from '../lib/tenders/pricing.ts';
+
+test('price suggestions come only from the organisation’s own figures', () => {
+  const history = [
+    { description: 'Coffrage parois type 2, hauteur jusqu’à 3 m', unit: 'm2', unitPrice: 91, tenderName: 'Chantier A', at: '2026-01-10' },
+    { description: 'Coffrage parois type 2, hauteur jusqu’à 3 m', unit: 'm2', unitPrice: 94.5, tenderName: 'Chantier B', at: '2026-03-02' },
+    { description: 'Coffrage parois type 2, hauteur jusqu’à 3 m', unit: 'm2', unitPrice: 92.2, tenderName: 'Chantier C', at: '2026-06-20' },
+    { description: 'Coffrage parois type 2, hauteur jusqu’à 3 m', unit: 'm3', unitPrice: 999, tenderName: 'Autre unité', at: '2026-07-01' },
+    { description: 'Béton de propreté', unit: 'm2', unitPrice: 20, tenderName: 'Chantier D', at: '2026-08-01' },
+  ];
+  const catalog = [{ description: 'Coffrage parois', unit: 'm2', unitPrice: 95 }];
+  const s = suggestPrices({ text: 'Coffrage parois type 2, hauteur jusqu’à 3 m', unit: 'm2' }, history, catalog);
+  assert.deepEqual(s.map((x) => [x.source, x.unitPrice]), [['last_used', 92.2], ['history_average', 92.57], ['catalog', 95]]);
+  assert.equal(s[0].detail, 'Chantier C');
+  assert.equal(median([91, 94.5, 92.2]), 92.2);
+  // nothing similar → nothing suggested (never invented)
+  assert.deepEqual(suggestPrices({ text: 'Isolation périphérique XPS', unit: 'm2' }, history, []), []);
+  // document price first when the soumission prints one
+  assert.equal(suggestPrices({ text: 'x', unit: 'up', documentUnitPrice: 0.9 }, [], [])[0].source, 'document');
+  assert.ok(textSimilarity('Coffrage parois', 'coffrage PAROIS') === 1);
+});

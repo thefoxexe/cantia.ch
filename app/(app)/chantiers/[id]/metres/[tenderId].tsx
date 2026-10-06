@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AppScreen, LoadingScreen } from '../../../../../components/ui';
@@ -17,7 +17,13 @@ import {
   updatePosition,
   updateTender,
   type TenderBundle,
+  createOfferDevis,
+  loadPriceHistory,
+  setPrices,
 } from '../../../../../lib/tenders/api';
+import { suggestPrices, type CatalogPrice, type HistoryPrice, type PriceSuggestion } from '../../../../../lib/tenders/pricing';
+import { fetchCatalog } from '../../../../../lib/catalog';
+import { exportTenderXlsx } from '../../../../../lib/tenders/export';
 import { lineAmount, selectedQuantity, subtotalsByNode, tenderTotals } from '../../../../../lib/tenders/calc';
 import { fill, useTenderCopy } from '../../../../../lib/tenders/copy';
 import { formatChf, formatQuantity } from '../../../../../lib/tenders/numbers';
@@ -40,6 +46,10 @@ export default function TenderEditorScreen() {
   const [view, setView] = useState<'positions' | 'tree'>('positions');
   const [filter, setFilter] = useState<'all' | 'noprice' | 'review' | 'gap'>('all');
   const priceInputs = useRef(new Map<string, TextInput | null>());
+  const [history, setHistory] = useState<HistoryPrice[]>([]);
+  const [catalog, setCatalog] = useState<CatalogPrice[]>([]);
+  const [filling, setFilling] = useState(false);
+  const [offering, setOffering] = useState(false);
   const { id: projectId, tenderId } = useLocalSearchParams<{ id: string; tenderId: string }>();
   const [bundle, setBundle] = useState<TenderBundle | null | undefined>(undefined);
   const [editable, setEditable] = useState(false);
@@ -57,6 +67,12 @@ export default function TenderEditorScreen() {
       if (!alive) return;
       setBundle(b);
       if (b) setEditable(await canEditTenders(b.tender.organization_id));
+      if (b?.pricesVisible) {
+        const [h, cat] = await Promise.all([loadPriceHistory(b.tender.id), fetchCatalog(b.tender.organization_id)]);
+        if (!alive) return;
+        setHistory(h);
+        setCatalog(cat.map((x) => ({ description: x.description, unit: x.unit, unitPrice: x.unitPrice })));
+      }
     });
     return () => {
       alive = false;
@@ -203,15 +219,15 @@ export default function TenderEditorScreen() {
       return { error };
     });
   };
-  const onPrice = (pos: TenderPosition, unitPrice: number | null) => {
+  const onPrice = (pos: TenderPosition, unitPrice: number | null, source: PositionPrice['price_source'] = 'manual') => {
     setBundle((b) => {
       if (!b) return b;
       const exists = b.prices.some((p) => p.position_id === pos.id);
-      const base: PositionPrice = { position_id: pos.id, tender_id: tender.id, unit_price: unitPrice, price_source: 'manual', document_unit_price: null, document_amount: null, amount: null };
-      return { ...b, prices: exists ? b.prices.map((p) => (p.position_id === pos.id ? { ...p, unit_price: unitPrice, price_source: 'manual' } : p)) : [...b.prices, base] };
+      const base: PositionPrice = { position_id: pos.id, tender_id: tender.id, unit_price: unitPrice, price_source: source, document_unit_price: null, document_amount: null, amount: null };
+      return { ...b, prices: exists ? b.prices.map((p) => (p.position_id === pos.id ? { ...p, unit_price: unitPrice, price_source: source } : p)) : [...b.prices, base] };
     });
     persist(async () => {
-      const { price, error } = await setUnitPrice(tender.id, pos.id, unitPrice);
+      const { price, error } = await setUnitPrice(tender.id, pos.id, unitPrice, source);
       if (price) setBundle((b) => (b ? { ...b, prices: b.prices.map((p) => (p.position_id === price.position_id ? price : p)) } : b));
       return { error };
     });
@@ -267,6 +283,9 @@ export default function TenderEditorScreen() {
   const toggle = (nodeId: string) => setCollapsed((s) => (s.has(nodeId) ? new Set([...s].filter((x) => x !== nodeId)) : new Set([...s, nodeId])));
   const collapseAll = () => setCollapsed(new Set(bundle.nodes.filter((n) => bundle.nodes.some((k) => k.parent_id === n.id)).map((n) => n.id)));
 
+  const suggestionsFor = (n: TenderNode, pos: TenderPosition): PriceSuggestion[] =>
+    suggestPrices({ text: n.description || n.title || '', unit: pos.unit, documentUnitPrice: derived.priceByPos.get(pos.id)?.document_unit_price ?? null }, history, catalog);
+
   const detail = selected ? (
     <TenderDetail
       c={c}
@@ -280,7 +299,8 @@ export default function TenderEditorScreen() {
       pricesVisible={bundle.pricesVisible}
       onNode={(patch) => onNode(selected, patch)}
       onPosition={(patch) => selectedPos && onPosition(selectedPos, patch)}
-      onPrice={(n) => selectedPos && onPrice(selectedPos, n)}
+      onPrice={(n, src) => selectedPos && onPrice(selectedPos, n, src ?? 'manual')}
+      suggestions={selectedPos ? suggestionsFor(selected, selectedPos) : []}
       onBreakdown={(id, q) => {
         setBundle((b) => (b ? { ...b, breakdowns: b.breakdowns.map((x) => (x.id === id ? { ...x, quantity_manual: q } : x)) } : b));
         persist(() => updateBreakdown(id, { quantity_manual: q }));
@@ -324,6 +344,15 @@ export default function TenderEditorScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      {showPrices && billableCount ? (
+        <View style={[styles.actionsRow, phone && { paddingHorizontal: spacing.lg }]}>
+          {editable && derived.noPrice ? <Btn label={c.fillPrices} icon="zap" onPress={() => setFilling(true)} /> : null}
+          {Platform.OS === 'web' ? <Btn label={c.exportXlsx} icon="download" onPress={() => exportTenderXlsx(bundle)} /> : null}
+          {tender.devis_id ? <Btn label={c.openDevis} icon="file-text" onPress={() => router.push(`/(app)/devis/${tender.devis_id}` as any)} /> : null}
+          {editable ? <Btn label={c.createDevis} icon="send" variant="primary" onPress={() => setOffering(true)} /> : null}
+        </View>
+      ) : null}
 
       <View style={[styles.toolbar, phone && { paddingHorizontal: spacing.lg }]}>
         <View style={styles.search}>
@@ -415,6 +444,52 @@ export default function TenderEditorScreen() {
         </Sheet>
       ) : null}
 
+      {filling ? (
+        <FillPricesSheet
+          c={c}
+          candidates={bundle.positions
+            .filter((p) => !p.excluded && derived.priceByPos.get(p.id)?.unit_price == null)
+            .map((p) => {
+              const n = bundle.nodes.find((x) => x.id === p.node_id)!;
+              const best = suggestionsFor(n, p).find((sg) => sg.source !== 'history_average');
+              return best ? { position: p, node: n, suggestion: best } : null;
+            })
+            .filter(Boolean) as FillCandidate[]}
+          onClose={() => setFilling(false)}
+          onApply={async (rows) => {
+            setBundle((b) => {
+              if (!b) return b;
+              const map = new Map(b.prices.map((x) => [x.position_id, x]));
+              for (const r of rows) map.set(r.positionId, { ...(map.get(r.positionId) ?? { position_id: r.positionId, tender_id: tender.id, document_unit_price: null, document_amount: null, amount: null }), unit_price: r.unitPrice, price_source: r.source });
+              return { ...b, prices: [...map.values()] };
+            });
+            setFilling(false);
+            persist(async () => {
+              const { prices, error } = await setPrices(tender.id, rows);
+              if (prices.length) setBundle((b) => (b ? { ...b, prices: b.prices.map((x) => prices.find((y) => y.position_id === x.position_id) ?? x) } : b));
+              return { error };
+            });
+          }}
+        />
+      ) : null}
+
+      {offering ? (
+        <OfferSheet
+          c={c}
+          tender={tender}
+          count={bundle.positions.filter((p) => !p.excluded).length}
+          net={derived.totals.net}
+          onClose={() => setOffering(false)}
+          onCreate={async (clientName, includeUnpriced) => {
+            const { devisId, error } = await createOfferDevis(tender.id, { clientName, includeUnpriced });
+            if (error && !devisId) return error;
+            setOffering(false);
+            if (devisId) router.push(`/(app)/devis/${devisId}` as any);
+            return null;
+          }}
+        />
+      ) : null}
+
       {adding ? <AddSheet kind={adding} c={c} onClose={() => setAdding(null)} onAdd={onAdd} /> : null}
 
       {confirmDelete ? (
@@ -432,6 +507,109 @@ export default function TenderEditorScreen() {
         </Sheet>
       ) : null}
     </AppScreen>
+  );
+}
+
+interface FillCandidate {
+  position: TenderPosition;
+  node: TenderNode;
+  suggestion: PriceSuggestion;
+}
+
+function FillPricesSheet({ c, candidates, onClose, onApply }: { c: ReturnType<typeof useTenderCopy>; candidates: FillCandidate[]; onClose: () => void; onApply: (rows: { positionId: string; unitPrice: number; source: NonNullable<PositionPrice['price_source']> }[]) => void }) {
+  const [picked, setPicked] = useState<Set<string>>(new Set(candidates.map((x) => x.position.id)));
+  const toggle = (id: string) => setPicked((s) => (s.has(id) ? new Set([...s].filter((x) => x !== id)) : new Set([...s, id])));
+  return (
+    <Sheet
+      title={c.fillTitle}
+      onClose={onClose}
+      footer={
+        <>
+          <Btn label={c.cancel} onPress={onClose} grow />
+          <Btn
+            label={fill(c.fillApply, { n: picked.size })}
+            icon="check"
+            variant="primary"
+            disabled={!picked.size}
+            onPress={() => onApply(candidates.filter((x) => picked.has(x.position.id)).map((x) => ({ positionId: x.position.id, unitPrice: x.suggestion.unitPrice, source: x.suggestion.source })))}
+            grow
+          />
+        </>
+      }
+    >
+      {candidates.length ? (
+        <>
+          <Text style={kit.body}>{fill(c.fillIntro, { n: candidates.length })}</Text>
+          <View style={kit.row}>
+            <Btn label={c.fillAll} variant="ghost" onPress={() => setPicked(new Set(candidates.map((x) => x.position.id)))} />
+            <Btn label={c.fillNoneSel} variant="ghost" onPress={() => setPicked(new Set())} />
+          </View>
+          {candidates.map((x) => (
+            <Pressable key={x.position.id} onPress={() => toggle(x.position.id)} style={styles.fillRow}>
+              <Feather name={picked.has(x.position.id) ? 'check-square' : 'square'} size={18} color={picked.has(x.position.id) ? colors.primary : colors.textMuted} />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.refText}>{x.node.position_path ?? x.node.raw_number}</Text>
+                <Text style={kit.body} numberOfLines={2}>
+                  {(x.node.description || x.node.title || '').replace(/\s*\n\s*/g, ' ')}
+                </Text>
+                <Text style={kit.hint} numberOfLines={1}>
+                  {c.suggestionLabels[x.suggestion.source]} · {x.suggestion.detail}
+                </Text>
+              </View>
+              <Text style={styles.fillPrice}>
+                {formatChf(x.suggestion.unitPrice)}
+                <Text style={kit.hint}> /{unitLabel(x.position.unit)}</Text>
+              </Text>
+            </Pressable>
+          ))}
+        </>
+      ) : (
+        <Text style={kit.body}>{c.fillNone}</Text>
+      )}
+    </Sheet>
+  );
+}
+
+function OfferSheet({ c, tender, count, net, onClose, onCreate }: { c: ReturnType<typeof useTenderCopy>; tender: TenderBundle['tender']; count: number; net: number; onClose: () => void; onCreate: (client: string, includeUnpriced: boolean) => Promise<string | null> }) {
+  const [client, setClient] = useState('');
+  const [unpriced, setUnpriced] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <Sheet
+      title={c.offerTitle}
+      onClose={onClose}
+      footer={
+        <>
+          <Btn label={c.cancel} onPress={onClose} grow />
+          <Btn
+            label={busy ? c.importing : c.createDevis}
+            icon="send"
+            variant="primary"
+            disabled={busy}
+            grow
+            onPress={async () => {
+              setBusy(true);
+              const err = await onCreate(client, unpriced);
+              setBusy(false);
+              if (err) setError(err);
+            }}
+          />
+        </>
+      }
+    >
+      <Text style={kit.body}>{c.offerIntro}</Text>
+      {tender.devis_id ? <Text style={[kit.hint, { color: '#9A6412' }]}>{c.offerExists}</Text> : null}
+      <Field label={c.offerClient}>
+        <TextInput style={kit.input} value={client} onChangeText={setClient} placeholder={tender.metadata?.owner ? String(tender.metadata.owner).split(',')[0] : ''} placeholderTextColor={colors.textMuted} />
+      </Field>
+      <Pressable onPress={() => setUnpriced((v) => !v)} style={styles.fillRow}>
+        <Feather name={unpriced ? 'check-square' : 'square'} size={18} color={unpriced ? colors.primary : colors.textMuted} />
+        <Text style={kit.body}>{c.offerUnpriced}</Text>
+      </Pressable>
+      <Text style={styles.fillPrice}>{fill(c.offerSummary, { n: count, total: formatChf(net) })}</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+    </Sheet>
   );
 }
 
@@ -698,6 +876,9 @@ const styles = StyleSheet.create({
   statValue: { ...displayType, fontSize: 20, fontWeight: '800', fontVariant: ['tabular-nums'] },
   totalStat: { marginLeft: 'auto', alignItems: 'flex-end', justifyContent: 'center', paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.lg, backgroundColor: colors.text },
   totalValue: { ...displayType, fontSize: 20, fontWeight: '800', color: '#fff', fontVariant: ['tabular-nums'] },
+  actionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, paddingHorizontal: spacing.xl, paddingBottom: spacing.sm },
+  fillRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
+  fillPrice: { ...monoType, fontSize: 14, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   filters: { paddingHorizontal: spacing.xl, paddingBottom: spacing.md },
   filterSep: { width: 1, height: 20, backgroundColor: colors.border, marginHorizontal: 4 },
   crumb: { fontSize: 11.5, color: colors.textMuted, marginBottom: 1 },
