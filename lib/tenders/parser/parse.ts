@@ -190,7 +190,7 @@ function appendText(node: DraftNode, text: string, raw: string) {
   // "rectangulai-" + "res." → "rectangulaires."
   if (/[a-zà-ÿ]-$/i.test(node.description) && /^[a-zà-ÿ]/i.test(t)) node.description = node.description.slice(0, -1) + t;
   else node.description = node.description ? `${node.description}\n${t}` : t;
-  node.rawText = node.rawText ? `${node.rawText}\n${raw}` : raw;
+  if (!node.rawText.split('\n').includes(raw)) node.rawText = node.rawText ? `${node.rawText}\n${raw}` : raw;
 }
 
 // CAN numbering: x00 main group → xy0 group → xyz article, and the same

@@ -123,7 +123,7 @@ export default function ImportReviewScreen() {
   }
 
   const meta = draft.meta;
-  const pdfWidth = wide ? Math.min(640, Math.max(420, width * 0.42)) : Math.min(width - 32, 560);
+  const pdfWidth = wide ? (selected ? Math.min(560, Math.max(380, width * 0.33)) : Math.min(640, Math.max(420, width * 0.42))) : Math.min(width - 32, 560);
 
   const header = (
     <View style={{ gap: spacing.md }}>
@@ -427,7 +427,7 @@ function NodeEditor({ c, n, unit, onChange }: { c: ReturnType<typeof useTenderCo
           </Field>
           <Field label={c.unit} hint={n.rawUnit ? `Document : « ${n.rawUnit} »` : undefined}>
             <View style={kit.row}>
-              {UNIT_CHOICES.map((u) => (
+              {Array.from(new Set([...UNIT_CHOICES, ...(unit && !UNIT_CHOICES.includes(unit) ? [unit] : [])])).map((u) => (
                 <Chip key={u} small label={unitLabel(u)} active={unit === u} onPress={() => onChange({ unitOverride: u })} />
               ))}
             </View>
