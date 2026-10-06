@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Chip, Field, Sheet, kit } from '../admin/ledger/kit';
 import { DateField } from '../DateField';
-import { reconcile, wouldCycle, type ItemKind, type ItemStatus, type Rolled, type ScheduleItem, type ScheduleLink } from '../../lib/schedule/calc';
+import { addDays, nextWorkday, reconcile, wouldCycle, type ItemKind, type ItemStatus, type Rolled, type ScheduleItem, type ScheduleLink } from '../../lib/schedule/calc';
 import { fill, shortDate, type ScheduleCopy } from '../../lib/schedule/copy';
 import { tradeColor } from './GanttView';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -49,7 +49,7 @@ export function ItemSheet({
 }: {
   c: ScheduleCopy;
   item: ScheduleItem | null; // null = new line
-  initial: Partial<ItemDraft>;
+  initial: Partial<ItemDraft> & { preds?: string[] };
   items: ScheduleItem[];
   links: ScheduleLink[];
   rolled: Map<string, Rolled>;
@@ -81,12 +81,29 @@ export function ItemSheet({
     fixed: item?.fixed ?? false,
     notes: item?.notes ?? null,
   }));
-  const [preds, setPreds] = useState<string[]>(() => (item ? links.filter((l) => l.to_item === item.id).map((l) => l.from_item) : []));
+  const [preds, setPreds] = useState<string[]>(() => (item ? links.filter((l) => l.to_item === item.id).map((l) => l.from_item) : initial.preds ?? []));
   const [tradeQuery, setTradeQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const set = (p: Partial<ItemDraft>) => setD((x) => ({ ...x, ...p }));
+  // Picking what comes before: the start moves right after it (never
+  // earlier than it was), keeping the duration.
+  const firstStartAfter = (ids: string[]) => {
+    const ends = ids
+      .map((pid) => items.find((i) => i.id === pid))
+      .filter((p) => p?.end_date)
+      .map((p) => nextWorkday(addDays(p!.end_date!, p!.kind === 'milestone' ? 0 : 1), workdays));
+    return ends.sort().at(-1) ?? null;
+  };
+  const togglePred = (pid: string) => {
+    const next = preds.includes(pid) ? preds.filter((x) => x !== pid) : [...preds, pid];
+    setPreds(next);
+    const start = firstStartAfter(next);
+    if (start && (!d.start_date || d.start_date < start) && !preds.includes(pid)) dates({ start_date: start }, 'start');
+  };
+  const afterStart = firstStartAfter(preds);
+  const lastPred = preds.map((pid) => items.find((i) => i.id === pid)).filter(Boolean).sort((a, b) => (a!.end_date ?? '').localeCompare(b!.end_date ?? '')).at(-1);
   const dates = (p: Partial<ItemDraft>, changed: 'start' | 'end' | 'duration') => setD((x) => ({ ...x, ...reconcile({ ...x, ...p }, changed, workdays) }));
 
   const phases = items.filter((i) => i.kind === 'phase' && i.id !== item?.id);
@@ -156,6 +173,23 @@ export function ItemSheet({
               ))}
             </View>
           </Field>
+
+          {!isPhase ? (
+            <View style={styles.afterBox}>
+              <Text style={kit.fieldLabel}>{c.predecessors}</Text>
+              <View style={styles.chips}>
+                {candidates.length === 0 ? <Text style={kit.hint}>{c.noPredecessor}</Text> : null}
+                {candidates.map((p) => (
+                  <Chip key={p.id} small icon={preds.includes(p.id) ? 'corner-down-right' : undefined} label={p.name} active={preds.includes(p.id)} onPress={() => !ro && togglePred(p.id)} />
+                ))}
+              </View>
+              {lastPred && afterStart ? (
+                <Text style={[kit.hint, d.start_date && d.start_date < afterStart ? { color: colors.danger } : null]}>
+                  {d.start_date && d.start_date < afterStart ? fill(c.cascadeNeeds, { date: shortDate(afterStart) }) : fill(c.afterHint, { date: shortDate(d.start_date ?? afterStart), name: lastPred.name })}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
 
           {isPhase ? (
             r?.start ? (
@@ -274,17 +308,6 @@ export function ItemSheet({
           ) : null}
 
           {!isPhase ? (
-            <Field label={c.predecessors}>
-              <View style={styles.chips}>
-                {candidates.length === 0 ? <Text style={kit.hint}>{c.noPredecessor}</Text> : null}
-                {candidates.map((p) => {
-                  const on = preds.includes(p.id);
-                  return <Chip key={p.id} small label={p.name} active={on} onPress={() => !ro && setPreds((x) => (on ? x.filter((y) => y !== p.id) : [...x, p.id]))} />;
-                })}
-              </View>
-            </Field>
-          ) : null}
-          {!isPhase ? (
             <Pressable onPress={() => !ro && set({ fixed: !d.fixed })} style={styles.check}>
               <View style={[styles.box, d.fixed && { backgroundColor: colors.primary, borderColor: colors.primary }]}>{d.fixed ? <Feather name="lock" size={11} color="#fff" /> : null}</View>
               <Text style={kit.body}>{c.fixed}</Text>
@@ -323,5 +346,6 @@ const styles = StyleSheet.create({
   tradeText: { fontSize: fontSize.sm, color: colors.text },
   dot: { width: 8, height: 8, borderRadius: 4 },
   check: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  afterBox: { gap: 6, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
   box: { width: 18, height: 18, borderRadius: 4, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
 });

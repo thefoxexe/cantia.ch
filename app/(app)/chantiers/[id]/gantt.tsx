@@ -13,7 +13,7 @@ import { supabase } from '../../../../lib/supabase';
 import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
 import { hasSiteSchedule, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
-import { cascade, flatten, reconcile, rollup, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
+import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as addD, reconcile, rollup, workdaysBetween, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
 import { buildSchedulePdf } from '../../../../lib/schedule/pdf';
@@ -55,13 +55,16 @@ export default function ChantierGanttScreen() {
   const [arrows, setArrows] = useState(true);
   const [tradeFilter, setTradeFilter] = useState<string | null>(null);
   const [toToday, setToToday] = useState(0);
-  const [editing, setEditing] = useState<{ item: ScheduleItem | null; initial: Partial<ItemDraft> } | null>(null);
+  const [editing, setEditing] = useState<{ item: ScheduleItem | null; initial: Partial<ItemDraft> & { preds?: string[] } } | null>(null);
   const [proposal, setProposal] = useState<{ shifts: Shift[]; conflicts: Conflict[] } | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [history, setHistory] = useState<AuditRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string | null>(today);
   const [creating, setCreating] = useState(false);
+  // after a bar snapped right after another line: offer to link them
+  const [snapped, setSnapped] = useState<{ fromId: string; fromName: string; toId: string } | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (!id) return;
@@ -149,17 +152,32 @@ export default function ChantierGanttScreen() {
     return null;
   };
 
-  const onDrag = async (item: ScheduleItem, start: string, end: string, mode: 'move' | 'resize') => {
+  const onDrag = async (item: ScheduleItem, start: string, end: string, mode: 'move' | 'resize', after?: { id: string; name: string }) => {
+    // dates land on working days: a start on a Sunday becomes Monday, an end
+    // on a Saturday the Friday before
+    const workStart = nextWorkday(start, workdays);
+    let workEnd = end;
+    for (let i = 0; i < 7 && !isWorkday(workEnd, workdays) && workEnd > workStart; i++) workEnd = addD(workEnd, -1);
     const patch =
       mode === 'move'
-        ? reconcile({ kind: item.kind, start_date: start, end_date: null, duration: item.duration ?? (item.kind === 'milestone' ? 0 : null) }, 'start', workdays)
-        : reconcile({ kind: item.kind, start_date: start, end_date: end, duration: null }, 'end', workdays);
-    if (mode === 'move' && !item.duration) patch.end_date = end;
+        ? reconcile({ kind: item.kind, start_date: workStart, end_date: null, duration: item.duration ?? (item.kind === 'milestone' ? 0 : null) }, 'start', workdays)
+        : reconcile({ kind: item.kind, start_date: item.start_date ?? workStart, end_date: workEnd, duration: null }, 'end', workdays);
+    if (mode === 'move' && !item.duration && item.kind !== 'milestone') patch.end_date = addD(end, workStart > start ? 1 : 0);
     const { error: e } = await updateItem(item.id, patch);
     if (e) return setError(e);
     const fresh = await loadSchedule(id!);
     setBundle(fresh);
+    setNotice(null);
+    setSnapped(after && !links.some((l) => l.from_item === after.id && l.to_item === item.id) ? { fromId: after.id, fromName: after.name, toId: item.id } : null);
     if (fresh) proposeCascade(fresh.items, [item.id]);
+  };
+
+  // "+" on a phase: a new task in it, right after its last line, linked.
+  const addInPhase = (phase: ScheduleItem) => {
+    const kids = items.filter((i) => i.parent_id === phase.id && i.kind !== 'phase').sort((a, b) => (a.end_date ?? '').localeCompare(b.end_date ?? ''));
+    const last = kids.at(-1);
+    const start = last?.end_date ? nextWorkday(addD(last.end_date, last.kind === 'milestone' ? 0 : 1), workdays) : rolled.get(phase.id)?.start ?? today;
+    setEditing({ item: null, initial: { kind: 'task', parent_id: phase.id, start_date: start, duration: 5, end_date: endFromDuration(start, 5, workdays), preds: last ? [last.id] : [] } });
   };
 
   const applyCascade = async () => {
@@ -312,6 +330,29 @@ export default function ChantierGanttScreen() {
                 <Text style={{ color: colors.danger, marginBottom: spacing.sm }}>{error}</Text>
               </Pressable>
             ) : null}
+            {snapped || notice ? (
+              <View style={styles.snapBar}>
+                <Feather name={notice ? 'check-circle' : 'corner-down-right'} size={15} color={colors.primary} />
+                <Text style={[kit.body, { flex: 1 }]}>{notice ?? fill(c.snapped, { name: snapped!.fromName })}</Text>
+                {snapped && !notice ? (
+                  <Btn
+                    label={c.linkToo}
+                    icon="link"
+                    variant="primary"
+                    onPress={async () => {
+                      const { error: e } = await addLink(bundle.schedule.id, snapped.fromId, snapped.toId);
+                      if (e) setError(e.includes('circulaire') ? c.cycle : e);
+                      else setNotice(fill(c.linked, { name: snapped.fromName }));
+                      setSnapped(null);
+                      reload();
+                    }}
+                  />
+                ) : null}
+                <Pressable onPress={() => (setSnapped(null), setNotice(null))} hitSlop={8}>
+                  <Feather name="x" size={16} color={colors.textMuted} />
+                </Pressable>
+              </View>
+            ) : null}
             <GanttView
               c={c}
               rows={rows}
@@ -335,6 +376,7 @@ export default function ChantierGanttScreen() {
               }
               onOpen={(item) => setEditing({ item, initial: {} })}
               onMove={onDrag}
+              onAddInPhase={editable ? addInPhase : undefined}
             />
           </>
         )}
@@ -382,17 +424,15 @@ export default function ChantierGanttScreen() {
         >
           {proposal.shifts.length ? (
             <>
-              <Text style={kit.body}>{c.cascadeIntro}</Text>
+              <Text style={[kit.body, { fontWeight: '700' }]}>{cascadeSummary(c, proposal.shifts, workdays)}</Text>
               {proposal.shifts.map((s) => (
                 <View key={s.id} style={styles.shift}>
-                  <Text style={[kit.body, { flex: 1, fontWeight: '700' }]}>{s.name}</Text>
-                  <Text style={styles.mono}>
-                    {shortDate(s.from.start)} – {shortDate(s.from.end)}
+                  <Text style={[kit.body, { flex: 1 }]} numberOfLines={1}>
+                    {s.name}
                   </Text>
-                  <Feather name="arrow-right" size={14} color={colors.textMuted} />
-                  <Text style={[styles.mono, { fontWeight: '800' }]}>
-                    {shortDate(s.to.start)} – {shortDate(s.to.end)}
-                  </Text>
+                  <Text style={[styles.mono, { color: colors.textMuted, textDecorationLine: 'line-through' }]}>{shortDate(s.from.start)}</Text>
+                  <Feather name="arrow-right" size={13} color={colors.textMuted} />
+                  <Text style={[styles.mono, { fontWeight: '800' }]}>{shortDate(s.to.start)}</Text>
                 </View>
               ))}
             </>
@@ -429,6 +469,14 @@ export default function ChantierGanttScreen() {
       ) : null}
     </AppScreen>
   );
+}
+
+// "3 tâches décalées de 2 jours ouvrables" when they all move by the same
+// amount, else just the count.
+function cascadeSummary(c: ReturnType<typeof useScheduleCopy>, shifts: Shift[], workdays: number[]): string {
+  const deltas = new Set(shifts.map((s) => (s.to.start > s.from.start ? workdaysBetween(s.from.start, s.to.start, workdays) - 1 : 0)));
+  const d = deltas.size === 1 ? [...deltas][0] : null;
+  return fill(d ? c.cascadeSummaryBy : c.cascadeSummary, { n: shifts.length, d: d ?? 0 });
 }
 
 function PhoneList({ c, rows, rolled, onOpen }: { c: ReturnType<typeof useScheduleCopy>; rows: ReturnType<typeof flatten>; rolled: ReturnType<typeof rollup>; onOpen: (i: ScheduleItem) => void }) {
@@ -573,6 +621,7 @@ const styles = StyleSheet.create({
   tradeChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   tradeText: { fontSize: 12.5, color: colors.text },
   dot: { width: 8, height: 8, borderRadius: 4 },
+  snapBar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primarySoft },
   shift: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border },
   mono: { fontSize: fontSize.sm, color: colors.text, fontVariant: ['tabular-nums'] },
   histRow: { flexDirection: 'row', gap: spacing.sm, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border },

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Feather } from '@expo/vector-icons';
-import { addDays, crossesNonWorking, daysBetween, isWorkday, type Rolled, type ScheduleItem, type ScheduleLink } from '../../lib/schedule/calc';
+import { addDays, crossesNonWorking, daysBetween, isWorkday, nextWorkday, type Rolled, type ScheduleItem, type ScheduleLink } from '../../lib/schedule/calc';
 import { fill, shortDate, type ScheduleCopy } from '../../lib/schedule/copy';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
@@ -18,6 +18,16 @@ export interface GanttRow {
   depth: number;
   hasChildren: boolean;
 }
+
+// While a bar is dragged, its start snaps to "right after" another line's
+// end when it comes close: a direct follow-on, offered to be linked too.
+export interface SnapTarget {
+  id: string;
+  name: string;
+  start: string; // first day the dragged line may start after it
+  row: number;
+}
+export type MoveHandler = (item: ScheduleItem, start: string, end: string, mode: 'move' | 'resize', after?: { id: string; name: string }) => void;
 
 const ROW = 36;
 const HEAD = 48;
@@ -49,6 +59,7 @@ export function GanttView({
   onToggle,
   onOpen,
   onMove,
+  onAddInPhase,
   scrollToToday,
 }: {
   c: ScheduleCopy;
@@ -64,7 +75,8 @@ export function GanttView({
   conflicts: Set<string>;
   onToggle: (id: string) => void;
   onOpen: (item: ScheduleItem) => void;
-  onMove: (item: ScheduleItem, start: string, end: string, mode: 'move' | 'resize') => void;
+  onMove: MoveHandler;
+  onAddInPhase?: (phase: ScheduleItem) => void;
   scrollToToday: number; // bump to scroll
 }) {
   const px = DAY_PX[zoom];
@@ -92,6 +104,15 @@ export function GanttView({
   }, [scrollToToday, zoom, range.start]);
 
   const rowIndex = useMemo(() => new Map(rows.map((r, i) => [r.item.id, i])), [rows]);
+  const targets = useMemo<SnapTarget[]>(
+    () =>
+      rows.flatMap(({ item }, i) => {
+        const end = rolled.get(item.id)?.end;
+        if (item.kind === 'phase' || !end) return [];
+        return [{ id: item.id, name: item.name, start: item.kind === 'milestone' ? nextWorkday(end, workdays) : nextWorkday(addDays(end, 1), workdays), row: i }];
+      }),
+    [rows, rolled, workdays],
+  );
 
   const sync = (from: 'l' | 'r', y: number) => {
     if (syncing.current && syncing.current !== from) return;
@@ -132,6 +153,11 @@ export function GanttView({
                   </Text>
                   {late ? <Feather name="alert-circle" size={12} color={colors.danger} /> : null}
                   {conflicts.has(item.id) ? <Feather name="link-2" size={12} color={colors.danger} /> : null}
+                  {isPhase && editable && onAddInPhase ? (
+                    <Pressable onPress={() => onAddInPhase(item)} hitSlop={6} style={styles.addIn} accessibilityLabel={c.addInPhase}>
+                      <Feather name="plus" size={13} color={colors.primary} />
+                    </Pressable>
+                  ) : null}
                 </View>
                 <View style={{ width: COLS.trade, flexDirection: 'row', alignItems: 'center', gap: 6, paddingRight: 6 }}>
                   {item.trade ? <View style={[styles.dot, { backgroundColor: tradeColor(item.trade) }]} /> : null}
@@ -176,7 +202,7 @@ export function GanttView({
               {showArrows ? <Arrows rows={rows} rolled={rolled} links={links} rowIndex={rowIndex} xOf={xOf} px={px} width={width} height={rows.length * ROW} /> : null}
 
               {rows.map(({ item }, i) => (
-                <Bar key={item.id} c={c} item={item} r={rolled.get(item.id)} top={i * ROW} xOf={xOf} px={px} zoom={zoom} workdays={workdays} editable={editable} conflict={conflicts.has(item.id)} onOpen={onOpen} onMove={onMove} />
+                <Bar key={item.id} c={c} item={item} r={rolled.get(item.id)} top={i * ROW} xOf={xOf} px={px} zoom={zoom} workdays={workdays} editable={editable} conflict={conflicts.has(item.id)} onOpen={onOpen} onMove={onMove} targets={targets} row={i} />
               ))}
             </View>
           </ScrollView>
@@ -251,6 +277,8 @@ function Bar({
   conflict,
   onOpen,
   onMove,
+  targets,
+  row,
 }: {
   c: ScheduleCopy;
   item: ScheduleItem;
@@ -263,21 +291,38 @@ function Bar({
   editable: boolean;
   conflict: boolean;
   onOpen: (item: ScheduleItem) => void;
-  onMove: (item: ScheduleItem, start: string, end: string, mode: 'move' | 'resize') => void;
+  onMove: MoveHandler;
+  targets: SnapTarget[];
+  row: number;
 }) {
-  const [drag, setDrag] = useState<{ dx: number; mode: 'move' | 'resize' } | null>(null);
+  const [drag, setDrag] = useState<{ dx: number; mode: 'move' | 'resize'; snap?: SnapTarget } | null>(null);
+  // Closest "right after" start within reach (rows nearby win ties).
+  const snapFor = (dx: number): SnapTarget | undefined => {
+    if (!item.start_date) return undefined;
+    const reach = Math.max(10, px * 1.5);
+    const startX = xOf(item.start_date) + dx;
+    let best: { t: SnapTarget; d: number } | undefined;
+    for (const t of targets) {
+      if (t.id === item.id) continue;
+      const d = Math.abs(xOf(t.start) - startX) + Math.abs(t.row - row) * 0.5;
+      if (Math.abs(xOf(t.start) - startX) <= reach && (!best || d < best.d)) best = { t, d };
+    }
+    return best?.t;
+  };
   const canDrag = editable && Platform.OS === 'web' && item.kind !== 'phase' && !!item.start_date;
   const responder = (mode: 'move' | 'resize') =>
     PanResponder.create({
       onStartShouldSetPanResponder: () => canDrag,
       onMoveShouldSetPanResponder: (_, g) => canDrag && Math.abs(g.dx) > 3,
-      onPanResponderMove: (_, g) => setDrag({ dx: g.dx, mode }),
+      onPanResponderMove: (_, g) => setDrag({ dx: g.dx, mode, snap: mode === 'move' ? snapFor(g.dx) : undefined }),
       onPanResponderRelease: (_, g) => {
         setDrag(null);
-        const days = Math.round(g.dx / px);
         if (Math.abs(g.dx) < 4) return onOpen(item);
-        if (!days || !item.start_date) return;
-        if (mode === 'move') onMove(item, addDays(item.start_date, days), addDays(item.end_date ?? item.start_date, days), 'move');
+        if (!item.start_date) return;
+        const snap = mode === 'move' ? snapFor(g.dx) : undefined;
+        const days = snap ? daysBetween(item.start_date, snap.start) : Math.round(g.dx / px);
+        if (!days) return;
+        if (mode === 'move') onMove(item, addDays(item.start_date, days), addDays(item.end_date ?? item.start_date, days), 'move', snap ? { id: snap.id, name: snap.name } : undefined);
         else {
           const end = addDays(item.end_date ?? item.start_date, days);
           onMove(item, item.start_date, end < item.start_date ? item.start_date : end, 'resize');
@@ -285,7 +330,7 @@ function Bar({
       },
       onPanResponderTerminate: () => setDrag(null),
     });
-  const moveR = useMemo(() => responder('move'), [canDrag, px, item]);
+  const moveR = useMemo(() => responder('move'), [canDrag, px, item, targets, row]);
   const sizeR = useMemo(() => responder('resize'), [canDrag, px, item]);
 
   const start = r?.start ?? item.start_date;
@@ -293,21 +338,37 @@ function Bar({
   if (!start || !end) return null;
   let x = xOf(start);
   let w = (daysBetween(start, end) + 1) * px;
-  if (drag?.mode === 'move') x += drag.dx;
+  if (drag?.mode === 'move') x = drag.snap ? xOf(drag.snap.start) : x + drag.dx;
   if (drag?.mode === 'resize') w = Math.max(px, w + drag.dx);
   const late = r?.late ?? 0;
   const progress = r?.progress ?? 0;
   const color = tradeColor(item.trade);
   const label = zoom === 'day' && w > 90 ? null : item.name;
 
-  if (item.kind === 'milestone') {
-    return (
-      <Pressable onPress={() => onOpen(item)} {...(canDrag ? moveR.panHandlers : {})} style={[styles.milestoneWrap, { top: top + 9, left: x + px / 2 - 9 }]}>
-        <View style={[styles.diamond, late ? { backgroundColor: colors.danger } : item.status === 'done' ? { backgroundColor: colors.success } : null]} />
-        <Text style={styles.barLabel} numberOfLines={1}>
-          {item.name} · {shortDate(start)}
+  const guide = drag?.snap ? (
+    <>
+      <View style={[styles.snapLine, { left: xOf(drag.snap.start) - 1, top: Math.min(drag.snap.row, row) * ROW, height: (Math.abs(drag.snap.row - row) + 1) * ROW }]} />
+      <View style={[styles.snapTip, { left: xOf(drag.snap.start) + 6, top: top - 20 }]}>
+        <Text style={styles.snapText} numberOfLines={1}>
+          ↳ {fill(c.snapAfter, { name: drag.snap.name })}
         </Text>
-      </Pressable>
+      </View>
+    </>
+  ) : null;
+
+  if (item.kind === 'milestone') {
+    // draggable: a plain View carrying the pan handlers (a tap opens on release)
+    const Wrap: any = canDrag ? View : Pressable;
+    return (
+      <>
+        {guide}
+        <Wrap {...(canDrag ? moveR.panHandlers : { onPress: () => onOpen(item) })} style={[styles.milestoneWrap, { top: top + 9, left: x + px / 2 - 9 }, canDrag && ({ cursor: drag ? 'grabbing' : 'grab' } as object)]}>
+          <View style={[styles.diamond, late ? { backgroundColor: colors.danger } : item.status === 'done' ? { backgroundColor: colors.success } : null]} />
+          <Text style={styles.barLabel} numberOfLines={1}>
+            {item.name} · {shortDate(drag?.snap ? drag.snap.start : start)}
+          </Text>
+        </Wrap>
+      </>
     );
   }
 
@@ -324,6 +385,7 @@ function Bar({
   const baselineShift = item.baseline_start && item.baseline_end && (item.baseline_start !== item.start_date || item.baseline_end !== item.end_date);
   return (
     <>
+      {guide}
       {baselineShift ? <View style={[styles.baseline, { top: top + ROW - 9, left: xOf(item.baseline_start!), width: (daysBetween(item.baseline_start!, item.baseline_end!) + 1) * px }]} /> : null}
       <View
         {...(canDrag ? moveR.panHandlers : {})}
@@ -409,6 +471,10 @@ const styles = StyleSheet.create({
   phaseBar: { position: 'absolute', height: 9, backgroundColor: '#3B4441', borderRadius: 2, overflow: 'visible' },
   phaseFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: colors.success, borderRadius: 2 },
   phaseCap: { position: 'absolute', top: 0, width: 4, height: 14, backgroundColor: '#3B4441' },
+  snapLine: { position: 'absolute', width: 2, backgroundColor: colors.primary, opacity: 0.8 },
+  snapTip: { position: 'absolute', backgroundColor: colors.text, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, zIndex: 5 },
+  snapText: { color: '#fff', fontSize: 11.5, fontWeight: '700' },
+  addIn: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   milestoneWrap: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 8 },
   diamond: { width: 16, height: 16, transform: [{ rotate: '45deg' }], backgroundColor: '#3B4441', borderRadius: 2 },
   diamondSmall: { width: 8, height: 8, transform: [{ rotate: '45deg' }], backgroundColor: '#3B4441' },
