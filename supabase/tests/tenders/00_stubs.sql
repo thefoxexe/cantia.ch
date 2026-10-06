@@ -3,7 +3,7 @@ create schema auth;
 create table auth.users (id uuid primary key);
 create or replace function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
 create table public.plans (id text primary key, name text);
-create table public.organizations (id uuid primary key default gen_random_uuid(), name text, plan_id text references public.plans(id), trade text default 'Maçonnerie', work_term text default 'chantier');
+create table public.organizations (id uuid primary key default gen_random_uuid(), name text, plan_id text references public.plans(id), trade text default 'Maçonnerie', work_term text default 'chantier', trade_specialties text[] not null default '{}');
 create table public.organization_roles (id uuid primary key default gen_random_uuid(), organization_id uuid, can_view_finances boolean default false, can_view_metre boolean default true);
 create table public.organization_members (organization_id uuid, user_id uuid, role text, role_id uuid);
 create table public.projects (id uuid primary key default gen_random_uuid(), organization_id uuid references public.organizations(id), name text, enabled_modules text[] default array['documents','photos','survey','metre']);

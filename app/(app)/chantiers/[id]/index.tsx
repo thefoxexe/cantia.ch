@@ -121,7 +121,8 @@ export default function ChantierDetailScreen() {
       label: t('chantierHub.metre'),
       icon: 'list',
       route: `/(app)/chantiers/${id}/metre`,
-      visible: isModuleEnabled(enabled, 'metre') && permissions.metre && fillsSoumissions(organization),
+      // compulsory for building companies, absent for everyone else
+      visible: permissions.metre && fillsSoumissions(organization),
     },
     {
       key: 'subcontractors',

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Image, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { CalendarConnections } from '../../../components/planning/CalendarSheet';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { connectBexio, disconnectBexio, getIntegration, setBexioAutoSync, syncBexio } from '../../../lib/api/integrations';
@@ -15,16 +16,9 @@ function formatDateTime(iso: string | null): string {
   return new Date(iso).toLocaleString(`${getAppLocale()}-CH`, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-// Mailbox connections announced ahead of release: shown with their logo and a
-// "coming soon" badge, no action yet.
-const EMAIL_PROVIDERS = [
-  { name: 'Gmail', logo: require('../../../assets/integrations/gmail-logo.png'), subtitleKey: 'integrationsSettings.gmailSubtitle' },
-  { name: 'Outlook', logo: require('../../../assets/integrations/outlook-logo.png'), subtitleKey: 'integrationsSettings.outlookSubtitle' },
-] as const;
-
 export default function IntegrationsScreen() {
   const { t } = useTranslation();
-  const { organization, role } = useAuth();
+  const { organization, role, user } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams<{ bexio?: string; message?: string }>();
   const [integration, setIntegration] = useState<Integration | null>(null);
@@ -227,23 +221,13 @@ export default function IntegrationsScreen() {
           {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
         </Text>
 
-        <Text style={styles.sectionTitle}>{t('integrationsSettings.emailSectionTitle')}</Text>
-        {EMAIL_PROVIDERS.map((p) => (
-          <View key={p.name} style={[styles.card, styles.soonCard]}>
-            <View style={styles.cardHeader}>
-              <View style={[styles.logoBadge, styles.logoBadgeLight]}>
-                <Image source={p.logo} style={styles.providerLogo} resizeMode="contain" accessibilityLabel={p.name} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>{p.name}</Text>
-                <Text style={styles.cardSubtitle}>{t(p.subtitleKey)}</Text>
-              </View>
-              <View style={styles.soonBadge}>
-                <Text style={styles.soonText}>{t('integrationsSettings.comingSoon')}</Text>
-              </View>
-            </View>
+        {/* Each person's own calendar (Planning ↔ Google Agenda / Outlook). */}
+        <Text style={styles.sectionTitle}>{t('integrationsSettings.calendarSectionTitle')}</Text>
+        {organization && user ? (
+          <View style={styles.card}>
+            <CalendarConnections organizationId={organization.id} userId={user.id} />
           </View>
-        ))}
+        ) : null}
       </Container>
     </AppScreen>
   );
@@ -307,15 +291,6 @@ const styles = StyleSheet.create({
   logoBadgeLocked: {
     backgroundColor: colors.border,
   },
-  logoBadgeLight: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  providerLogo: {
-    width: 26,
-    height: 26,
-  },
   sectionTitle: {
     fontSize: fontSize.xs,
     fontWeight: '700',
@@ -324,22 +299,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     marginTop: spacing.xl,
     marginBottom: spacing.sm,
-  },
-  soonCard: {
-    marginBottom: spacing.sm,
-  },
-  soonBadge: {
-    backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  soonText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textMuted,
   },
   logoImage: {
     width: 42,

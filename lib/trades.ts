@@ -1,75 +1,69 @@
-export const TRADES = [
-  'Construction & gros œuvre',
-  'Second œuvre & finitions',
-  'Technique du bâtiment',
-  'Architecture & ingénierie',
-  'Immobilier & gérance',
-  'Paysagisme & extérieurs',
-  'Nettoyage & entretien',
-  'Artisanat & fabrication',
-  'Services & conseil',
-  'Autre',
-] as const;
+// Secteur d'activité, then the trades inside it (several allowed). Cantia is
+// for any small company (quotes, invoices, hours…); the building sector
+// additionally gets the site tools: « Remplir une soumission » and the
+// construction schedule (Gantt).
+//
+// organization.trade stores the sector's French label verbatim (no id
+// column), organization.trade_specialties the trade keys below. Labels are
+// translated through "sectors.<key>" and "specialties.<key>".
 
-export type Trade = (typeof TRADES)[number];
+export interface Sector {
+  key: string;
+  label: string; // stored value
+  specialties: string[];
+}
 
-// organization.trade stores the French label verbatim as its canonical
-// value (no separate id column) — this maps each stored value to a
-// stable translation key, so the UI can localize the display label
-// without migrating existing data. Broad sectors (not only construction
-// trades): companies set up with an earlier, trade-level value keep it
-// (see LEGACY_TRADES), it simply isn't offered any more.
-export const TRADE_KEYS: Record<Trade, string> = {
-  'Construction & gros œuvre': 'construction',
-  'Second œuvre & finitions': 'finitions',
-  'Technique du bâtiment': 'technique',
-  'Architecture & ingénierie': 'architecture',
-  'Immobilier & gérance': 'immobilier',
-  'Paysagisme & extérieurs': 'paysagisme',
-  'Nettoyage & entretien': 'nettoyage',
-  'Artisanat & fabrication': 'artisanat',
-  'Services & conseil': 'services',
-  Autre: 'autre',
-};
+export const SECTORS: Sector[] = [
+  {
+    key: 'construction',
+    label: 'Construction & bâtiment',
+    specialties: [
+      'entrepriseGenerale', 'genieCivil', 'maconnerie', 'betonArme', 'terrassement', 'demolition', 'echafaudages',
+      'charpente', 'ferblanterie', 'facades', 'isolation', 'menuiserie', 'platreriePeinture', 'carrelage', 'sols', 'chape',
+      'agencement', 'vitrerie', 'electricite', 'sanitaire', 'chauffage', 'ventilation', 'serrurerie', 'domotique',
+      'amenagements', 'jardinage', 'clotures', 'piscines', 'architecture', 'ingenierie', 'geometre', 'immobilier',
+    ],
+  },
+  { key: 'informatique', label: 'Informatique & numérique', specialties: ['developpement', 'siteWeb', 'supportIt', 'cybersecurite', 'conseilIt', 'telecom'] },
+  { key: 'finance', label: 'Finance, comptabilité & assurances', specialties: ['fiduciaire', 'comptabilite', 'assurance', 'conseilFinancier', 'gestionPatrimoine'] },
+  { key: 'conseil', label: 'Conseil & services aux entreprises', specialties: ['conseilGestion', 'marketing', 'ressourcesHumaines', 'juridique', 'traduction', 'secretariat'] },
+  { key: 'commerce', label: 'Commerce & vente', specialties: ['commerceDetail', 'commerceGros', 'eCommerce', 'importExport'] },
+  { key: 'industrie', label: 'Industrie & fabrication', specialties: ['mecanique', 'constructionMetallique', 'electronique', 'imprimerie', 'alimentaire', 'plasturgie'] },
+  { key: 'artisanat', label: 'Artisanat', specialties: ['ebenisterie', 'horlogerie', 'bijouterie', 'couture', 'cordonnerie', 'boulangerie'] },
+  { key: 'transport', label: 'Transport & logistique', specialties: ['transportMarchandises', 'demenagement', 'taxi', 'coursier', 'logistique'] },
+  { key: 'automobile', label: 'Automobile & mécanique', specialties: ['garage', 'carrosserie', 'pneus', 'motos'] },
+  { key: 'sante', label: 'Santé & bien-être', specialties: ['physiotherapie', 'cabinetMedical', 'therapies', 'fitness', 'veterinaire'] },
+  { key: 'beaute', label: 'Beauté & coiffure', specialties: ['coiffure', 'esthetique', 'onglerie', 'massage'] },
+  { key: 'hotellerie', label: 'Hôtellerie, restauration & événementiel', specialties: ['restaurant', 'hotel', 'traiteur', 'evenementiel'] },
+  { key: 'nettoyage', label: 'Nettoyage & facility management', specialties: ['nettoyageBatiments', 'conciergerie', 'entretienEspacesVerts', 'deneigement'] },
+  { key: 'medias', label: 'Création, médias & audiovisuel', specialties: ['photographie', 'video', 'drone', 'graphisme', 'communication'] },
+  { key: 'formation', label: 'Formation & enseignement', specialties: ['formationPro', 'coursPrives', 'autoEcole'] },
+  { key: 'agriculture', label: 'Agriculture, viticulture & forêt', specialties: ['agriculture', 'viticulture', 'sylviculture'] },
+  { key: 'autre', label: 'Autre', specialties: [] },
+];
 
-// The trade-level values of the first version, still stored on existing
-// organizations: shown (selected) until the company picks a sector.
-export const LEGACY_TRADE_KEYS: Record<string, string> = {
-  'Génie civil': 'genieCivil',
-  Maçonnerie: 'maconnerie',
-  Serrurerie: 'serrurerie',
-  Électricité: 'electricite',
-  'Plomberie / Sanitaire': 'plomberie',
-  'Menuiserie / Charpente': 'menuiserie',
-  Peinture: 'peinture',
-  Carrelage: 'carrelage',
-  'Chauffage / Ventilation': 'chauffage',
-  Paysagisme: 'paysagismeOld',
-};
+export const CONSTRUCTION_SECTOR = 'Construction & bâtiment';
 
-// Building sectors: the companies that receive soumissions (CAN / NPK) to
-// fill. Only they get the "Remplir une soumission" module — anyone else
-// (fiduciaire, drone pilot, services) never sees it, it is not even offered.
-// Same list in SQL: public.org_fills_soumissions().
-export const BUILDING_SECTORS: readonly Trade[] = ['Construction & gros œuvre', 'Second œuvre & finitions', 'Technique du bâtiment', 'Paysagisme & extérieurs'];
+// Values stored before the sector list (first trade-level list, then the
+// building sub-sectors): all building, shown as « Construction & bâtiment ».
+const LEGACY_BUILDING = [
+  'Construction & gros œuvre', 'Second œuvre & finitions', 'Technique du bâtiment', 'Architecture & ingénierie', 'Paysagisme & extérieurs', 'Immobilier & gérance',
+  'Génie civil', 'Maçonnerie', 'Serrurerie', 'Électricité', 'Plomberie / Sanitaire', 'Menuiserie / Charpente', 'Peinture', 'Carrelage', 'Chauffage / Ventilation', 'Paysagisme',
+];
+
+export function sectorOf(trade: string | null | undefined): Sector | null {
+  if (!trade) return null;
+  if (LEGACY_BUILDING.includes(trade)) return SECTORS[0];
+  return SECTORS.find((s) => s.label === trade) ?? (trade === 'Services & conseil' ? SECTORS.find((s) => s.key === 'conseil')! : trade === 'Nettoyage & entretien' ? SECTORS.find((s) => s.key === 'nettoyage')! : trade === 'Artisanat & fabrication' ? SECTORS.find((s) => s.key === 'artisanat')! : null);
+}
 
 export function isBuildingTrade(trade: string | null | undefined): boolean {
-  if (!trade) return false;
-  return (BUILDING_SECTORS as readonly string[]).includes(trade) || trade in LEGACY_TRADE_KEYS;
+  return sectorOf(trade)?.key === 'construction';
 }
 
-// A building company working in "chantiers" (or "projets"); with mandats /
-// dossiers the vocabulary itself says it is not a site business.
-export function fillsSoumissions(org: { trade: string | null; work_term?: string | null } | null | undefined): boolean {
-  return !!org && isBuildingTrade(org.trade) && org.work_term !== 'mandat' && org.work_term !== 'dossier';
+// The site tools (soumissions, construction schedule) are on, and
+// compulsory, for every building company. Same rule in SQL:
+// public.org_fills_soumissions().
+export function fillsSoumissions(org: { trade: string | null } | null | undefined): boolean {
+  return !!org && isBuildingTrade(org.trade);
 }
-
-// What the company actually does inside its sector (several allowed), asked
-// right after the sector at sign-up. Stored as these keys in
-// organizations.trade_specialties; labels in translations "specialties".
-export const SPECIALTIES: Partial<Record<Trade, string[]>> = {
-  'Construction & gros œuvre': ['genieCivil', 'maconnerie', 'betonArme', 'terrassement', 'charpente', 'echafaudages', 'demolition'],
-  'Second œuvre & finitions': ['menuiserie', 'platreriePeinture', 'carrelage', 'sols', 'agencement', 'vitrerie', 'isolation'],
-  'Technique du bâtiment': ['electricite', 'sanitaire', 'chauffage', 'ventilation', 'ferblanterie', 'serrurerie', 'domotique'],
-  'Paysagisme & extérieurs': ['amenagements', 'jardinage', 'clotures', 'piscines'],
-};

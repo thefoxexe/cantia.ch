@@ -14,7 +14,7 @@ import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { LEGACY_TRADE_KEYS, SPECIALTIES, TRADES, TRADE_KEYS, type Trade } from '../../../lib/trades';
+import { SectorPicker } from '../../../components/SectorPicker';
 import { localityForNpa } from '../../../lib/swissPostalCodes';
 import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 import { SwissAddressField } from '../../../components/SwissAddressField';
@@ -167,46 +167,17 @@ export default function EntrepriseScreen() {
           <SectionHeader icon="briefcase" title={t('entreprise.identityTitle')} />
           <Card style={styles.card}>
             <Field label={t('entreprise.nameLabel')} value={name} onChangeText={withDirty(setName)} editable={isAdmin} />
-            <Text style={styles.fieldLabel}>{t('entreprise.tradeLabel')}</Text>
-            <View style={styles.chips}>
-              {/* A value from the first, trade-level list stays shown until
-                  a sector is picked. */}
-              {trade && LEGACY_TRADE_KEYS[trade] ? (
-                <View style={[styles.chip, styles.chipActive]}>
-                  <Text style={[styles.chipText, styles.chipTextActive]}>{t(`trades.${LEGACY_TRADE_KEYS[trade]}` as any)}</Text>
-                </View>
-              ) : null}
-              {TRADES.map((tr) => (
-                <Pressable
-                  key={tr}
-                  onPress={() => isAdmin && withDirty(setTrade)(tr)}
-                  disabled={!isAdmin}
-                  style={[styles.chip, trade === tr && styles.chipActive, !isAdmin && styles.chipDisabled]}
-                >
-                  <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
-                </Pressable>
-              ))}
-            </View>
-            {trade && SPECIALTIES[trade as Trade] ? (
-              <>
-                <Text style={styles.fieldLabel}>{t('trades.specialtiesLabel')}</Text>
-                <View style={styles.chips}>
-                  {SPECIALTIES[trade as Trade]!.map((k) => {
-                    const on = specialties.includes(k);
-                    return (
-                      <Pressable
-                        key={k}
-                        disabled={!isAdmin}
-                        onPress={() => withDirty(setSpecialties)(on ? specialties.filter((x) => x !== k) : [...specialties, k])}
-                        style={[styles.chip, on && styles.chipActive, !isAdmin && styles.chipDisabled]}
-                      >
-                        <Text style={[styles.chipText, on && styles.chipTextActive]}>{t(`specialties.${k}` as any)}</Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </>
-            ) : null}
+            <SectorPicker
+              trade={trade}
+              specialties={specialties}
+              disabled={!isAdmin}
+              labelStyle={styles.fieldLabel}
+              onChange={(tr, sp) => {
+                setTrade(tr);
+                setSpecialties(sp);
+                markDirty();
+              }}
+            />
           </Card>
 
           <SectionHeader icon="map-pin" title={t('entreprise.addressTitle')} hint={t('entreprise.addressHint')} />

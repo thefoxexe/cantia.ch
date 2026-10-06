@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import { useAuth } from './auth-context';
 import type { Plan } from './types';
-import { fillsSoumissions } from './trades';
 
 export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
 
@@ -40,10 +39,11 @@ export const PROJECT_MODULE_PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> =
   metre: 'has_tenders',
 };
 
-// The project modules this company can use at all: "Remplir une
-// soumission" only exists for building companies (lib/trades.ts).
-export function projectModulesFor(org: { trade: string | null; work_term?: string | null } | null | undefined): ModuleDef[] {
-  return PROJECT_MODULES.filter((m) => m.key !== 'metre' || fillsSoumissions(org));
+// The project modules a chantier can switch on or off. "Remplir une
+// soumission" is not one of them: always there for building companies,
+// never for the others (lib/trades.ts fillsSoumissions).
+export function projectModulesFor(_org?: unknown): ModuleDef[] {
+  return PROJECT_MODULES.filter((m) => m.key !== 'metre');
 }
 
 export function isModuleEnabled(enabledModules: string[] | undefined, key: ModuleKey): boolean {

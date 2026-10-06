@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { Button, Field, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { SPECIALTIES, TRADES, TRADE_KEYS, isBuildingTrade, type Trade } from '../../../lib/trades';
+import { SectorPicker } from '../../../components/SectorPicker';
 import { displayType } from '../../../lib/marketingTheme';
 import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 
@@ -59,38 +59,15 @@ export default function CreateOrganizationScreen() {
           placeholder={t('authOnboardingCreate.namePlaceholder')}
         />
 
-        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.tradeLabel')}</Text>
-        <View style={styles.chips}>
-          {TRADES.map((tr) => (
-            <Pressable
-              key={tr}
-              onPress={() => {
-                setTrade(tr);
-                setSpecialties([]);
-              }}
-              style={[styles.chip, trade === tr && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, trade === tr && styles.chipTextActive]}>{t(`trades.${TRADE_KEYS[tr]}` as any)}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {trade && SPECIALTIES[trade as Trade] ? (
-          <>
-            <Text style={styles.fieldLabel}>{t('trades.specialtiesLabel')}</Text>
-            <View style={styles.chips}>
-              {SPECIALTIES[trade as Trade]!.map((k) => {
-                const on = specialties.includes(k);
-                return (
-                  <Pressable key={k} onPress={() => setSpecialties((s) => (on ? s.filter((x) => x !== k) : [...s, k]))} style={[styles.chip, on && styles.chipActive]}>
-                    <Text style={[styles.chipText, on && styles.chipTextActive]}>{t(`specialties.${k}` as any)}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            {isBuildingTrade(trade) ? <Text style={styles.hint}>{t('trades.soumissionsHint')}</Text> : null}
-          </>
-        ) : null}
+        <SectorPicker
+          trade={trade}
+          specialties={specialties}
+          labelStyle={styles.fieldLabel}
+          onChange={(tr, sp) => {
+            setTrade(tr);
+            setSpecialties(sp);
+          }}
+        />
 
         <Text style={styles.fieldLabel}>{t('authOnboardingCreate.workTermLabel')}</Text>
         <View style={styles.chips}>

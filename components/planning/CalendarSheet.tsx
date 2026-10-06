@@ -19,6 +19,7 @@ const COPY = {
     never: 'Pas encore synchronisé',
     error: 'Erreur',
     when: 'La synchronisation se fait à l’ouverture du planning et à chaque modification.',
+    soon: 'Bientôt',
     disconnectHint: 'En déconnectant, les rendez-vous importés de cet agenda disparaissent du planning ; ce que Cantia a écrit dans l’agenda y reste.',
   },
   de: {
@@ -31,6 +32,7 @@ const COPY = {
     never: 'Noch nicht synchronisiert',
     error: 'Fehler',
     when: 'Die Synchronisierung erfolgt beim Öffnen der Planung und bei jeder Änderung.',
+    soon: 'Bald verfügbar',
     disconnectHint: 'Beim Trennen verschwinden die importierten Termine aus der Planung; was Cantia in den Kalender geschrieben hat, bleibt dort.',
   },
   it: {
@@ -43,16 +45,40 @@ const COPY = {
     never: 'Non ancora sincronizzato',
     error: 'Errore',
     when: 'La sincronizzazione avviene all’apertura della pianificazione e a ogni modifica.',
+    soon: 'Presto',
     disconnectHint: 'Scollegando, gli appuntamenti importati spariscono dalla pianificazione; ciò che Cantia ha scritto nel calendario vi resta.',
   },
 };
 
-const PROVIDERS: { key: CalendarProvider; name: string; icon: keyof typeof Feather.glyphMap }[] = [
+// Outlook is announced: the Microsoft app registration is not done yet.
+const PROVIDERS: { key: CalendarProvider; name: string; icon: keyof typeof Feather.glyphMap; soon?: boolean }[] = [
   { key: 'google', name: 'Google Agenda', icon: 'calendar' },
-  { key: 'microsoft', name: 'Outlook / Microsoft 365', icon: 'calendar' },
+  { key: 'microsoft', name: 'Outlook / Microsoft 365', icon: 'calendar', soon: true },
 ];
 
 export function CalendarSheet({ organizationId, userId, onClose, onSynced }: { organizationId: string; userId: string; onClose: () => void; onSynced: () => void }) {
+  const c = COPY[getAppLocale()] ?? COPY.fr;
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.backdrop}>
+        <View style={styles.sheet}>
+          <View style={styles.head}>
+            <Text style={styles.title}>{c.title}</Text>
+            <Pressable onPress={onClose} hitSlop={10}>
+              <Feather name="x" size={20} color={colors.text} />
+            </Pressable>
+          </View>
+          <ScrollView contentContainerStyle={{ gap: spacing.md }}>
+            <CalendarConnections organizationId={organizationId} userId={userId} onChanged={onSynced} />
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// The list itself, also shown in Paramètres › Intégrations.
+export function CalendarConnections({ organizationId, userId, onChanged }: { organizationId: string; userId: string; onChanged?: () => void }) {
   const c = COPY[getAppLocale()] ?? COPY.fr;
   const [list, setList] = useState<CalendarConnection[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -66,89 +92,81 @@ export function CalendarSheet({ organizationId, userId, onClose, onSynced }: { o
   const day = (iso: string) => new Date(iso).toLocaleString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
-          <View style={styles.head}>
-            <Text style={styles.title}>{c.title}</Text>
-            <Pressable onPress={onClose} hitSlop={10}>
-              <Feather name="x" size={20} color={colors.text} />
-            </Pressable>
-          </View>
-          <ScrollView contentContainerStyle={{ gap: spacing.md }}>
-            <Text style={styles.intro}>{c.intro}</Text>
-            {list === null ? <ActivityIndicator color={colors.primary} /> : null}
-            {list !== null
-              ? PROVIDERS.map((p) => {
-                  const conn = list.find((x) => x.provider === p.key);
-                  return (
-                    <View key={p.key} style={styles.row}>
-                      <View style={styles.icon}>
-                        <Feather name={p.icon} size={18} color={colors.primary} />
-                      </View>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={styles.name}>{p.name}</Text>
-                        {conn ? (
-                          <Text style={[styles.meta, conn.status === 'error' && { color: colors.danger }]} numberOfLines={2}>
-                            {[conn.account_email, conn.status === 'error' ? `${c.error} : ${conn.last_error ?? ''}` : conn.last_synced_at ? `${c.synced} ${day(conn.last_synced_at)}` : c.never].filter(Boolean).join(' · ')}
-                          </Text>
-                        ) : null}
-                      </View>
-                      {busy === p.key ? (
-                        <ActivityIndicator color={colors.primary} />
-                      ) : conn ? (
-                        <Pressable
-                          onPress={async () => {
-                            setBusy(p.key);
-                            setError(await disconnectCalendar(conn.id));
-                            await reload();
-                            setBusy(null);
-                            onSynced();
-                          }}
-                          style={styles.ghost}
-                        >
-                          <Text style={styles.ghostText}>{c.disconnect}</Text>
-                        </Pressable>
-                      ) : (
-                        <Pressable
-                          onPress={async () => {
-                            setBusy(p.key);
-                            const err = await connectCalendar(organizationId, p.key);
-                            if (err) {
-                              setError(err);
-                              setBusy(null);
-                            }
-                          }}
-                          style={styles.primary}
-                        >
-                          <Text style={styles.primaryText}>{c.connect}</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                  );
-                })
-              : null}
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            {list?.length ? (
-              <Pressable
-                onPress={async () => {
-                  setBusy('sync');
-                  await syncCalendars(organizationId);
-                  await reload();
-                  setBusy(null);
-                  onSynced();
-                }}
-                style={[styles.ghost, { alignSelf: 'flex-start' }]}
-              >
-                <Text style={styles.ghostText}>{busy === 'sync' ? '…' : c.syncNow}</Text>
-              </Pressable>
-            ) : null}
-            <Text style={styles.hint}>{c.when}</Text>
-            <Text style={styles.hint}>{c.disconnectHint}</Text>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    <View style={{ gap: spacing.md }}>
+      <Text style={styles.intro}>{c.intro}</Text>
+      {list === null ? <ActivityIndicator color={colors.primary} /> : null}
+      {list !== null
+        ? PROVIDERS.map((p) => {
+            const conn = list.find((x) => x.provider === p.key);
+            return (
+              <View key={p.key} style={[styles.row, p.soon && !conn && { opacity: 0.6 }]}>
+                <View style={styles.icon}>
+                  <Feather name={p.icon} size={18} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={styles.name}>{p.name}</Text>
+                  {conn ? (
+                    <Text style={[styles.meta, conn.status === 'error' && { color: colors.danger }]} numberOfLines={2}>
+                      {[conn.account_email, conn.status === 'error' ? `${c.error} : ${conn.last_error ?? ''}` : conn.last_synced_at ? `${c.synced} ${day(conn.last_synced_at)}` : c.never].filter(Boolean).join(' · ')}
+                    </Text>
+                  ) : null}
+                </View>
+                {busy === p.key ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : conn ? (
+                  <Pressable
+                    onPress={async () => {
+                      setBusy(p.key);
+                      setError(await disconnectCalendar(conn.id));
+                      await reload();
+                      setBusy(null);
+                      onChanged?.();
+                    }}
+                    style={styles.ghost}
+                  >
+                    <Text style={styles.ghostText}>{c.disconnect}</Text>
+                  </Pressable>
+                ) : p.soon ? (
+                  <View style={styles.soon}>
+                    <Text style={styles.soonText}>{c.soon}</Text>
+                  </View>
+                ) : (
+                  <Pressable
+                    onPress={async () => {
+                      setBusy(p.key);
+                      const err = await connectCalendar(organizationId, p.key);
+                      if (err) {
+                        setError(err);
+                        setBusy(null);
+                      }
+                    }}
+                    style={styles.primary}
+                  >
+                    <Text style={styles.primaryText}>{c.connect}</Text>
+                  </Pressable>
+                )}
+              </View>
+            );
+          })
+        : null}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {list?.length ? (
+        <Pressable
+          onPress={async () => {
+            setBusy('sync');
+            await syncCalendars(organizationId);
+            await reload();
+            setBusy(null);
+            onChanged?.();
+          }}
+          style={[styles.ghost, { alignSelf: 'flex-start' }]}
+        >
+          <Text style={styles.ghostText}>{busy === 'sync' ? '…' : c.syncNow}</Text>
+        </Pressable>
+      ) : null}
+      <Text style={styles.hint}>{c.when}</Text>
+      <Text style={styles.hint}>{c.disconnectHint}</Text>
+    </View>
   );
 }
 
@@ -168,4 +186,6 @@ const styles = StyleSheet.create({
   ghostText: { color: colors.text, fontWeight: '600', fontSize: fontSize.sm },
   error: { color: colors.danger, fontSize: fontSize.sm },
   hint: { fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 17 },
+  soon: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  soonText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.textMuted },
 });
