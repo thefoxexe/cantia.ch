@@ -2428,6 +2428,7 @@ export const it: TranslationDict = {
     nameRequired: 'Il suo nome è obbligatorio.',
     passwordTooShort: 'La password deve contenere almeno 6 caratteri.',
     accountCreated: 'Account creato.',
+    alreadyRegistered: 'Esiste già un account con questo indirizzo e-mail. Acceda con le sue credenziali (oppure « Password dimenticata? »).',
     continueBtn: 'Continua',
     nameLabel: 'Nome completo',
     namePlaceholder: 'Es.: Mario Rossi',

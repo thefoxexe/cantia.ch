@@ -2406,6 +2406,7 @@ export const fr = {
     nameRequired: 'Votre nom est requis.',
     passwordTooShort: 'Le mot de passe doit contenir au moins 6 caractères.',
     accountCreated: 'Compte créé.',
+    alreadyRegistered: 'Un compte existe déjà avec cette adresse e-mail. Connectez-vous avec vos identifiants (ou « Mot de passe oublié ? »).',
     continueBtn: 'Continuer',
     nameLabel: 'Nom complet',
     namePlaceholder: 'Ex : Jean Dupont',

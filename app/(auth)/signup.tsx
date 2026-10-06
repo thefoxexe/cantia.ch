@@ -50,10 +50,12 @@ export default function SignupScreen() {
       return;
     }
     setLoading(true);
-    const { error, needsVerification } = await signUp(email.trim(), password, fullName.trim(), newsletterOptIn);
+    const { error, needsVerification, alreadyRegistered } = await signUp(email.trim(), password, fullName.trim(), newsletterOptIn);
     setLoading(false);
     if (error) {
       setError(error);
+    } else if (alreadyRegistered) {
+      setError(t('authSignup.alreadyRegistered'));
     } else if (needsVerification) {
       router.replace(`/(auth)/verify-email?email=${encodeURIComponent(email.trim())}` as any);
     } else {

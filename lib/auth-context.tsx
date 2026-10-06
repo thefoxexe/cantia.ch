@@ -73,7 +73,7 @@ interface AuthContextValue {
   // needsVerification is true when Supabase's "Confirm email" setting is on
   // and the account isn't confirmed yet — signUp() then returns no session
   // (nothing to sign in with) until verifySignupCode() succeeds.
-  signUp: (email: string, password: string, fullName: string, newsletterOptIn?: boolean) => Promise<{ error: string | null; needsVerification: boolean }>;
+  signUp: (email: string, password: string, fullName: string, newsletterOptIn?: boolean) => Promise<{ error: string | null; needsVerification: boolean; alreadyRegistered?: boolean }>;
   verifySignupCode: (email: string, code: string) => Promise<{ error: string | null }>;
   resendSignupCode: (email: string) => Promise<{ error: string | null }>;
   // Updates organization_members.locale (the source of truth) for the
@@ -354,7 +354,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Supabase returns a user with no session when "Confirm email" is
     // enabled and this account isn't confirmed yet — that's the only
     // reliable signal here, since the call itself still succeeds either way.
-    return { error: error?.message ?? null, needsVerification: !error && !data.session };
+    // An address that already has an account comes back with no identity
+    // and no e-mail is sent (Supabase hides that the account exists).
+    const alreadyRegistered = !error && !!data.user && (data.user.identities?.length ?? 1) === 0;
+    return { error: error?.message ?? null, needsVerification: !error && !data.session && !alreadyRegistered, alreadyRegistered };
   }, []);
 
   const changeLocale = useCallback(

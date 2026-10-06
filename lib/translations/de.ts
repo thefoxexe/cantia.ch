@@ -2420,6 +2420,7 @@ export const de: TranslationDict = {
     nameRequired: 'Ihr Name ist erforderlich.',
     passwordTooShort: 'Das Passwort muss mindestens 6 Zeichen enthalten.',
     accountCreated: 'Konto erstellt.',
+    alreadyRegistered: 'Für diese E-Mail-Adresse besteht bereits ein Konto. Melden Sie sich mit Ihren Zugangsdaten an (oder « Passwort vergessen? »).',
     continueBtn: 'Weiter',
     nameLabel: 'Vollständiger Name',
     namePlaceholder: 'Bsp: Jean Dupont',

@@ -140,6 +140,7 @@ const fr = {
     resent: 'Code renvoyé.',
     missing: 'Remplissez tous les champs.',
     shortPassword: 'Le mot de passe doit contenir au moins 8 caractères.',
+    exists: 'Un compte existe déjà avec cette adresse e-mail. Connectez-vous avec vos identifiants (ou « Mot de passe oublié ? »).',
     back: 'Retour',
   },
   onboarding: {
@@ -345,6 +346,7 @@ const de: Copy = {
     resent: 'Code erneut gesendet.',
     missing: 'Bitte füllen Sie alle Felder aus.',
     shortPassword: 'Das Passwort muss mindestens 8 Zeichen enthalten.',
+    exists: 'Für diese E-Mail-Adresse besteht bereits ein Konto. Melden Sie sich mit Ihren Zugangsdaten an (oder « Passwort vergessen? »).',
     back: 'Zurück',
   },
   onboarding: {
@@ -548,6 +550,7 @@ const it: Copy = {
     resent: 'Codice inviato di nuovo.',
     missing: 'Compili tutti i campi.',
     shortPassword: 'La password deve contenere almeno 8 caratteri.',
+    exists: 'Esiste già un account con questo indirizzo e-mail. Acceda con le sue credenziali (oppure « Password dimenticata? »).',
     back: 'Indietro',
   },
   onboarding: {

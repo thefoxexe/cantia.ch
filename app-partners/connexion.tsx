@@ -71,6 +71,12 @@ export default function PartnersAuth() {
     });
     setBusy(false);
     if (err) return setError(err.message);
+    // An address that already has an account: Supabase answers « OK » with
+    // no identity and sends no e-mail, so say it instead of waiting for a code.
+    if (data.user && (data.user.identities?.length ?? 1) === 0) {
+      setMode('login');
+      return setError(copy.auth.exists);
+    }
     if (!data.session) setMode('code');
   }
 
