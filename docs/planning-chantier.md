@@ -18,7 +18,9 @@ Le module est réservé aux entreprises du secteur « Construction & bâtiment �
   - recalcul en cascade proposé ;
   - détection des boucles.
 - Écran : `app/(app)/chantiers/[id]/gantt.tsx`, avec `components/schedule/GanttView.tsx` et `components/schedule/ItemSheet.tsx`.
-- Export PDF : `lib/schedule/pdf.ts` (A3 paysage, généré dans le navigateur avec pdf-lib).
+- Export PDF : `lib/schedule/pdf.ts` (A3 paysage, généré dans le navigateur avec pdf-lib), avec en option le logo et le nom de l'entreprise.
+- Exports Excel et MS Project : `lib/schedule/exports.ts`. Excel : une ligne par phase / tâche / jalon, numérotée 1, 1.1… MS Project : fichier XML (MSPDI) avec hiérarchie, calendrier, liens fin → début et « début au plus tôt » sur les lignes sans prédécesseur.
+- Modèles d'entreprise : table `schedule_templates` (`supabase/migrations/20261007190000_site_schedules_templates.sql`) et `lib/schedule/templates.ts`. Un modèle garde la structure, les corps de métier, les durées, l'écart de chaque début (en jours ouvrables) et les liens ; jamais les dates réelles, les entreprises ni l'avancement. On l'enregistre depuis un planning (« Enregistrer comme modèle »), on le gère dans Catalogue › Plannings, et on le choisit à la création d'un planning. Le modèle « Villa » passe par le même code.
 
 ## Comportement
 
@@ -32,8 +34,11 @@ Le module est réservé aux entreprises du secteur « Construction & bâtiment �
   - flèches de dépendance affichables ou masquables ;
   - plan initial tracé sous la barre quand les dates ont bougé ;
   - filtres : masquer les tâches terminées, n'afficher que les retards, filtrer par corps de métier.
-- **Ordinateur** : glisser une barre déplace la tâche en gardant sa durée ; tirer son bord droit change sa fin et recalcule la durée.
-- **Téléphone** : liste en lecture seule.
+- **Ordinateur** : glisser une barre ou un jalon le déplace en gardant sa durée ; tirer son bord droit change sa fin et recalcule la durée. Les dates sont ramenées sur des jours ouvrables. Quand le début arrive près de la fin d'une autre ligne, une ligne de guidage et « à la suite de … » apparaissent : au lâcher, la ligne se cale juste après, et un bandeau propose de créer le lien.
+- **Phases** : le « + » d'une phase ajoute une tâche à la suite de la dernière de la phase.
+- **Fiche** : le bloc « Après » est en haut ; choisir un prédécesseur cale le début juste après lui.
+- **Tablette** (moins de 1080 px) : le tableau ne garde que le nom et la durée, pour laisser la place à la frise.
+- **Téléphone** : liste en lecture seule, export PDF disponible.
 - **Dépendances** : lien fin → début uniquement. Après un changement de dates, Cantia liste les tâches à décaler et demande avant d'appliquer. Une tâche à date fixe ou déjà terminée n'est pas déplacée : elle est signalée comme conflit.
 - **Suivi** :
   - passage « en cours » : la date réelle de début est enregistrée, et le plan initial est conservé ;
@@ -42,8 +47,7 @@ Le module est réservé aux entreprises du secteur « Construction & bâtiment �
 
 ## Pas encore fait (versions suivantes du cahier)
 
-- Modèles enregistrés par l'entreprise.
-- Export Excel / CSV et import (Excel, MS Project).
+- Import (Excel, MS Project).
 - Partage en lecture seule par lien.
 - Notifications d'échéance.
 - Jours fériés cantonaux.
