@@ -13,7 +13,7 @@ import type { NodeType, SourceBox } from '../types.ts';
 import { isDots, isZoneToken, readDocument, type Columns } from './layout.ts';
 import type { Certainty, DocumentMeta, DraftNode, DraftQuestion, ExtractedDocument, Line, ParseResult, TextItem } from './types.ts';
 
-export const PARSER_VERSION = 'tenders-parser/1.1.0';
+export const PARSER_VERSION = 'tenders-parser/1.1.1';
 
 // "Contrat : 1    CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)"
 // "NPK Bau : 241 Ortbetonbau D/04(V'11)"
@@ -605,8 +605,12 @@ function readMeta(lines: Line[], furniture: Line[], items: TextItem[] = []): Doc
     }
     const zones = /^(structure|struktur|struttura)\s*:\s*(.+)$/i.exec(t);
     if (zones) meta.zoneCodes = zones[2].split(/[,;]/).map((s) => s.trim()).filter(Boolean);
-    const vat = /^(tva|mwst|iva)\b\s*([\d.,]+)\s*%/i.exec(t);
-    if (vat) meta.documentVatRate = parseSwissNumber(vat[2]);
+    // "TVA 7.70 %", or "TVA 7.60" alone on the summary of some programs
+    const vat = /^(tva|mwst|iva)\b\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*(%|$|[.…_]{3,}|fr\.?\b)/i.exec(t);
+    if (vat && !meta.documentVatRate) {
+      const r = parseSwissNumber(vat[2]);
+      if (r != null && r > 0 && r < 30) meta.documentVatRate = r;
+    }
     const clean = l.items.filter((it) => !isDots(it.str)).map((it) => it.str.trim()).join(' ').trim();
     const ch = /^(\d{3})\s+(.{3,})$/.exec(clean);
     if (ch && l.page <= 2 && !meta.chapters.some((c) => c.code === ch[1])) meta.chapters.push({ code: ch[1], title: ch[2].trim(), version: null });

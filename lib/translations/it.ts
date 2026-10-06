@@ -2817,6 +2817,9 @@ export const it: TranslationDict = {
   inventaire: {
     title: 'Catalogo',
     subtitle: 'I prezzi e le unità già utilizzati nei suoi preventivi — Cantia li riconosce e li suggerisce automaticamente.',
+    filterBase: 'Preventivi e fatture',
+    filterTenders: 'Capitolati (n° CPN)',
+    filterAll: 'Tutto',
     actions: 'Azioni',
     newItem: 'Nuovo articolo',
     importing: 'Importazione in corso…',

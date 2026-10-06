@@ -2809,6 +2809,9 @@ export const de: TranslationDict = {
   inventaire: {
     title: 'Katalog',
     subtitle: 'Die Preise und Einheiten, die bereits in Ihren Offerten verwendet wurden — Cantia erkennt sie und schlägt sie automatisch vor.',
+    filterBase: 'Offerten und Rechnungen',
+    filterTenders: 'Leistungsverzeichnisse (NPK-Nr.)',
+    filterAll: 'Alle',
     actions: 'Aktionen',
     newItem: 'Neuer Artikel',
     importing: 'Import läuft…',

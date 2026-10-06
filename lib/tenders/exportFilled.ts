@@ -9,7 +9,7 @@ import { fileSignedUrl } from './importer.ts';
 import { loadPdfJs } from './pdfjs.ts';
 import { extractText } from './parser/extract.ts';
 import type { OcrFields } from './parser/ocrLayout.ts';
-import { applyFill, detectFieldLines, fieldLinesFromOcr, planFill, type FillNode, type PdfLibLike } from './pdfFill.ts';
+import { applyFill, contactWrites, detectContactFields, detectFieldLines, fieldLinesFromOcr, planFill, type ContactField, type ContactKey, type FillNode, type PdfLibLike } from './pdfFill.ts';
 import type { TenderBundle } from './api.ts';
 
 let loading: Promise<PdfLibLike> | null = null;
@@ -44,6 +44,38 @@ export interface FilledResult {
 export async function hasSourcePdf(tenderId: string): Promise<boolean> {
   const { data } = await supabase.from('tender_documents').select('file_id').eq('tender_id', tenderId).eq('role', 'soumission').not('file_id', 'is', null).limit(1);
   return !!data?.length;
+}
+
+export type BidderValues = Partial<Record<ContactKey, string>>;
+
+// The bidder block the soumission asks for (Nom, Rue, NP lieu, Téléphone…),
+// read from the original PDF so the recap can offer exactly those entries.
+const contactCache = new Map<string, Promise<ContactField[]>>();
+export function soumissionContactFields(tenderId: string): Promise<ContactField[]> {
+  if (Platform.OS !== 'web') return Promise.resolve([]);
+  let p = contactCache.get(tenderId);
+  if (!p) {
+    p = (async () => {
+      const { data: docs } = await supabase.from('tender_documents').select('file_id').eq('tender_id', tenderId).eq('role', 'soumission').not('file_id', 'is', null).limit(1);
+      const fileId = docs?.[0]?.file_id;
+      if (!fileId) return [];
+      const url = await fileSignedUrl(fileId);
+      if (!url) return [];
+      const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+      const text = await extractText(await loadPdfJs(), bytes);
+      return text.scanned ? [] : detectContactFields(text);
+    })().catch(() => {
+      contactCache.delete(tenderId);
+      return [];
+    });
+    contactCache.set(tenderId, p);
+  }
+  return p;
+}
+
+export function bidderOf(bundle: TenderBundle): BidderValues {
+  const b = (bundle.tender.metadata as { bidder?: BidderValues } | null)?.bidder;
+  return b && typeof b === 'object' ? b : {};
 }
 
 export async function exportFilledSoumission(bundle: TenderBundle, basis: QuantityBasis): Promise<FilledResult> {
@@ -90,6 +122,7 @@ export async function exportFilledSoumission(bundle: TenderBundle, basis: Quanti
       });
     }
     const plan = planFill(lines, fill, { discountPercent: Number(bundle.tender.discount_percent) || 0, escomptePercent: Number(bundle.tender.escompte_percent) || 0, vatRate: Number(bundle.tender.vat_rate) || 0 });
+    if (!text.scanned) plan.writes.push(...contactWrites(detectContactFields(text), bidderOf(bundle)));
     const out = await applyFill(pdfLib, bytes, plan);
 
     const name = `${(src.file_name ?? bundle.tender.name).replace(/\.pdf$/i, '')} - rempli.pdf`;

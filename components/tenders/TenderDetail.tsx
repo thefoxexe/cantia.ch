@@ -39,7 +39,7 @@ export interface DetailProps {
 }
 
 // Number field that keeps what is being typed and commits on blur / enter.
-export function NumberInput({ value, onCommit, editable, placeholder, style, inputRef, onSubmitNext }: { value: number | null; onCommit: (n: number | null) => void; editable: boolean; placeholder?: string; style?: object; inputRef?: (r: TextInput | null) => void; onSubmitNext?: () => void }) {
+export function NumberInput({ value, onCommit, editable, placeholder, style, inputRef, onSubmitNext, onArrow }: { value: number | null; onCommit: (n: number | null) => void; editable: boolean; placeholder?: string; style?: object; inputRef?: (r: TextInput | null) => void; onSubmitNext?: () => void; onArrow?: (dir: -1 | 1) => void }) {
   const [text, setText] = useState(value == null ? '' : String(value));
   // Enter commits, then the blur that follows must not save it a second time.
   const last = useRef<number | null>(value);
@@ -66,6 +66,18 @@ export function NumberInput({ value, onCommit, editable, placeholder, style, inp
         onSubmitNext?.();
       }}
       blurOnSubmit={!onSubmitNext}
+      // ↑ / ↓ (web keyboard): save, then the same field one row up / down.
+      onKeyPress={
+        onArrow
+          ? (e) => {
+              const key = e.nativeEvent.key;
+              if (key !== 'ArrowUp' && key !== 'ArrowDown') return;
+              (e as unknown as { preventDefault?: () => void }).preventDefault?.();
+              commit();
+              onArrow(key === 'ArrowUp' ? -1 : 1);
+            }
+          : undefined
+      }
       editable={editable}
       keyboardType="decimal-pad"
       placeholder={placeholder}

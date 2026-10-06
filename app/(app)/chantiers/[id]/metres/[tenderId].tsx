@@ -26,7 +26,9 @@ import {
 import { suggestPrices, type CatalogPrice, type HistoryPrice, type PriceSuggestion } from '../../../../../lib/tenders/pricing';
 import { fetchCatalog } from '../../../../../lib/catalog';
 import { exportTenderXlsx } from '../../../../../lib/tenders/export';
-import { exportFilledSoumission, hasSourcePdf, type QuantityBasis } from '../../../../../lib/tenders/exportFilled';
+import { bidderOf, exportFilledSoumission, hasSourcePdf, soumissionContactFields, type BidderValues, type QuantityBasis } from '../../../../../lib/tenders/exportFilled';
+import type { ContactField } from '../../../../../lib/tenders/pdfFill';
+import { useAuth } from '../../../../../lib/auth-context';
 import { allocationsForTender, measuresInfo, type Allocation } from '../../../../../lib/tenders/allocationApi';
 import { listPlans, type SitePlanSummary } from '../../../../../lib/tenders/plansApi';
 import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
@@ -174,6 +176,27 @@ export default function TenderEditorScreen() {
     }
     return out;
   }, [bundle, derived, query, collapsed, view, filter]);
+
+  // Keyboard flow in the price column. Enter → next price (or the next blank
+  // quantity first); ↑ / ↓ → same field one row up / down. Works even when
+  // the target row is not rendered yet (virtualised list).
+  const focusRow = (fromId: string, dir: -1 | 1, field: 'enter' | 'price' | 'qty') => {
+    if (!derived) return;
+    const ids = rows.filter((x) => derived.posByNode.has(x.node.id)).map((x) => x.node.id);
+    const next = ids[ids.indexOf(fromId) + dir];
+    if (!next) return;
+    const pos = derived.posByNode.get(next);
+    const blankQty = pos?.quantity_original == null && editable;
+    const target = () => (field !== 'price' && blankQty ? qtyInputs.current.get(next) : null) ?? priceInputs.current.get(next);
+    const el = target();
+    if (el) {
+      el.focus();
+      (el as unknown as { scrollIntoView?: (o: object) => void }).scrollIntoView?.({ block: 'nearest' });
+      return;
+    }
+    listRef.current?.scrollToIndex({ index: rows.findIndex((x) => x.node.id === next), viewPosition: 0.5, animated: false });
+    setTimeout(() => target()?.focus(), 80);
+  };
 
   // Short context above a position: its nearest titled parents.
   const breadcrumbs = useMemo(() => {
@@ -471,23 +494,8 @@ export default function TenderEditorScreen() {
                   if (p) onPosition(p, { quantity_manual: n, quantity_selected_source: n == null ? 'original' : 'manual' });
                 }}
                 onQtyNext={() => priceInputs.current.get(item.node.id)?.focus()}
-                onPriceNext={() => {
-                  // Enter → next price (or the next blank quantity), even
-                  // when that row is not on screen yet.
-                  const ids = rows.filter((x) => derived.posByNode.has(x.node.id)).map((x) => x.node.id);
-                  const next = ids[ids.indexOf(item.node.id) + 1];
-                  if (!next) return;
-                  const pos = derived.posByNode.get(next);
-                  const target = () => (pos?.quantity_original == null && editable ? qtyInputs.current.get(next) : null) ?? priceInputs.current.get(next);
-                  const el = target();
-                  if (el) {
-                    el.focus();
-                    (el as unknown as { scrollIntoView?: (o: object) => void }).scrollIntoView?.({ block: 'nearest' });
-                    return;
-                  }
-                  listRef.current?.scrollToIndex({ index: rows.findIndex((x) => x.node.id === next), viewPosition: 0.5, animated: false });
-                  setTimeout(() => target()?.focus(), 80);
-                }}
+                onPriceNext={() => focusRow(item.node.id, 1, 'enter')}
+                onArrow={(dir, field) => focusRow(item.node.id, dir, field)}
               />
             )}
             ListFooterComponent={showPrices && billableCount ? <Totals c={c} totals={derived.totals} tender={tender} editable={editable} onTender={onTender} /> : null}
@@ -555,8 +563,8 @@ export default function TenderEditorScreen() {
           bundle={bundle}
           derived={derived}
           onClose={() => setRecapOpen(false)}
-          onValidate={async (terms, saveCatalog) => {
-            onTender({ ...terms, status: 'priced' });
+          onValidate={async (terms, saveCatalog, bidder) => {
+            onTender({ ...terms, status: 'priced', ...(bidder ? { metadata: { ...(tender.metadata ?? {}), bidder } } : {}) });
             let saved = 0;
             if (saveCatalog) saved = (await saveTenderPricesToCatalog(tender.id)).saved;
             setRecapOpen(false);
@@ -674,13 +682,43 @@ function RecapSheet({
   bundle: TenderBundle;
   derived: { amounts: Map<string, number | null>; subtotals: Map<string, number>; noPrice: number };
   onClose: () => void;
-  onValidate: (terms: { discount_percent: number; escompte_percent: number; vat_rate: number }, saveCatalog: boolean) => Promise<void>;
+  onValidate: (terms: { discount_percent: number; escompte_percent: number; vat_rate: number }, saveCatalog: boolean, bidder: BidderValues | null) => Promise<void>;
 }) {
   const t = bundle.tender;
+  const { organization, user } = useAuth();
   const docVat = Number((t.metadata as { document_vat_rate?: number } | null)?.document_vat_rate) || null;
   const [discount, setDiscount] = useState<number | null>(Number(t.discount_percent) || 0);
   const [escompte, setEscompte] = useState<number | null>(Number(t.escompte_percent) || 0);
-  const [vat, setVat] = useState<number | null>(Number(t.vat_rate));
+  // Until the recap is validated, the rate printed in the soumission wins
+  // over the default 8.1 %; still editable.
+  const [vat, setVat] = useState<number | null>(t.status !== 'priced' && docVat != null ? docVat : Number(t.vat_rate));
+  // The bidder block of the soumission (Nom, Rue, NP lieu…), prefilled from
+  // the company profile, or from what was entered last time.
+  const [contactFields, setContactFields] = useState<ContactField[]>([]);
+  const [bidder, setBidder] = useState<BidderValues>(() => {
+    const saved = bidderOf(bundle);
+    const o = organization;
+    const today = new Date();
+    const date = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+    const defaults: BidderValues = {
+      company: o?.name ?? '',
+      street: o?.street || o?.address || '',
+      zipCity: [o?.postal_code, o?.locality].filter(Boolean).join(' '),
+      phone: o?.phone ?? '',
+      fax: '',
+      email: o?.email ?? '',
+      responsible: (user?.user_metadata as { full_name?: string } | undefined)?.full_name ?? '',
+      placeDate: [o?.locality, date].filter(Boolean).join(', '),
+    };
+    return { ...defaults, ...Object.fromEntries(Object.entries(saved).filter(([k, v]) => v && k !== 'placeDate')) };
+  });
+  useEffect(() => {
+    let live = true;
+    soumissionContactFields(t.id).then((f) => live && setContactFields(f));
+    return () => {
+      live = false;
+    };
+  }, [t.id]);
   const [saveCatalog, setSaveCatalog] = useState(true);
   const [busy, setBusy] = useState(false);
   const totals = tenderTotals([...derived.amounts.values()], { discount_percent: discount ?? 0, escompte_percent: escompte ?? 0, vat_rate: vat ?? 0 });
@@ -712,7 +750,7 @@ function RecapSheet({
             disabled={busy}
             onPress={async () => {
               setBusy(true);
-              await onValidate({ discount_percent: discount ?? 0, escompte_percent: escompte ?? 0, vat_rate: vat ?? 0 }, saveCatalog);
+              await onValidate({ discount_percent: discount ?? 0, escompte_percent: escompte ?? 0, vat_rate: vat ?? 0 }, saveCatalog, contactFields.length ? bidder : null);
               setBusy(false);
             }}
           />
@@ -754,6 +792,20 @@ function RecapSheet({
         ) : null}
         {line(c.net, totals.net, undefined, true)}
       </View>
+      {contactFields.length ? (
+        <View style={{ gap: spacing.sm }}>
+          <Text style={kit.eyebrow}>{c.recapBidder}</Text>
+          <Text style={kit.hint}>{c.recapBidderHint}</Text>
+          {contactFields.map((f) => (
+            <View key={f.key} style={styles.bidderRow}>
+              <Text style={[kit.body, styles.bidderLabel]} numberOfLines={1}>
+                {f.label}
+              </Text>
+              <TextInput style={[kit.input, { flex: 1 }]} value={bidder[f.key] ?? ''} onChangeText={(v) => setBidder((b) => ({ ...b, [f.key]: v }))} />
+            </View>
+          ))}
+        </View>
+      ) : null}
       <Pressable onPress={() => setSaveCatalog((v) => !v)} style={styles.recapCheck}>
         <View style={[styles.radio, { borderRadius: 4 }, saveCatalog && { backgroundColor: colors.primary, borderColor: colors.primary }]}>{saveCatalog ? <Feather name="check" size={12} color="#fff" /> : null}</View>
         <Text style={[kit.body, { flex: 1 }]}>{c.recapSaveCatalog}</Text>
@@ -988,9 +1040,10 @@ interface RowProps {
   qtyRef: (r: TextInput | null) => void;
   onQuantity: (n: number | null) => void;
   onQtyNext: () => void;
+  onArrow: (dir: -1 | 1, field: 'price' | 'qty') => void;
 }
 
-function Row({ row, c, phone, selected, collapsed, position, price, amount, subtotal, showPrices, editable, onToggle, onSelect, onPrice, breadcrumb, flat, priceRef, onPriceNext, qtyRef, onQuantity, onQtyNext }: RowProps) {
+function Row({ row, c, phone, selected, collapsed, position, price, amount, subtotal, showPrices, editable, onToggle, onSelect, onPrice, breadcrumb, flat, priceRef, onPriceNext, qtyRef, onQuantity, onQtyNext, onArrow }: RowProps) {
   const { node, level, hasChildren } = row;
   const indent = flat ? 0 : Math.min(level, 6) * (phone ? 12 : 16);
   // The chapter is already the heading: show the local reference only.
@@ -1049,12 +1102,14 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
   }
 
   return (
-    <Pressable onPress={onSelect} style={[styles.tr, selected && styles.rowSelected, isStructure && level === 0 && styles.chapterRow]}>
-      {refView}
+    // Only the number and the text open the detail panel: clicking into the
+    // quantity / price fields must not reflow the table.
+    <View style={[styles.tr, selected && styles.rowSelected, isStructure && level === 0 && styles.chapterRow]}>
+      <Pressable onPress={onSelect}>{refView}</Pressable>
       <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6, paddingLeft: indent }}>
         {flat ? null : chevron}
         {node.needs_review ? <Feather name="alert-triangle" size={13} color={colors.danger} /> : null}
-        <View style={{ flex: 1, minWidth: 0 }}>
+        <Pressable onPress={onSelect} style={{ flex: 1, minWidth: 0 }}>
           {breadcrumb ? (
             <Text style={styles.crumb} numberOfLines={1}>
               {breadcrumb}
@@ -1063,7 +1118,7 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           <Text style={[styles.desc, isStructure && styles.descStructure, isFinancial && styles.descFinancial, position?.excluded && styles.strike]} numberOfLines={position ? 2 : 1}>
             {text}
           </Text>
-        </View>
+        </Pressable>
       </View>
       {position ? (
         <>
@@ -1071,7 +1126,7 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           {position.quantity_original == null && editable ? (
             // Quantity left blank by the document: typed here, Enter → price.
             <View style={styles.cQty}>
-              <NumberInput value={position.quantity_manual} editable onCommit={onQuantity} style={styles.inlineQty} placeholder={c.qtyToFill} inputRef={qtyRef} onSubmitNext={onQtyNext} />
+              <NumberInput value={position.quantity_manual} editable onCommit={onQuantity} style={styles.inlineQty} placeholder={c.qtyToFill} inputRef={qtyRef} onSubmitNext={onQtyNext} onArrow={(d) => onArrow(d, 'qty')} />
             </View>
           ) : (
             <Text style={[styles.mono, styles.cQty, differs && { color: colors.primaryDark, fontWeight: '800' }]}>
@@ -1082,7 +1137,7 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           {showPrices ? (
             <View style={styles.cPrice}>
               {editable ? (
-                <NumberInput value={price?.unit_price ?? null} editable onCommit={onPrice} style={styles.inlinePrice} placeholder={c.colPrice} inputRef={priceRef} onSubmitNext={onPriceNext} />
+                <NumberInput value={price?.unit_price ?? null} editable onCommit={onPrice} style={styles.inlinePrice} placeholder={c.colPrice} inputRef={priceRef} onSubmitNext={onPriceNext} onArrow={(d) => onArrow(d, 'price')} />
               ) : (
                 <Text style={[styles.mono, { textAlign: 'right' }]}>{price?.unit_price == null ? '' : formatChf(price.unit_price)}</Text>
               )}
@@ -1099,7 +1154,7 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
           {showPrices ? <Text style={[styles.mono, styles.cAmount, { color: colors.textMuted, fontWeight: '700' }]}>{isStructure && subtotal ? formatChf(subtotal) : ''}</Text> : null}
         </>
       )}
-    </Pressable>
+    </View>
   );
 }
 
@@ -1210,6 +1265,8 @@ const styles = StyleSheet.create({
   body: { flex: 1, flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface },
   side: { width: 420, borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: colors.surface },
   sideHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  bidderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  bidderLabel: { width: 110, color: colors.textMuted },
   tr: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: 6, minHeight: 44, borderBottomWidth: 1, borderBottomColor: colors.border },
   th: { backgroundColor: colors.bg, minHeight: 34 },
   thText: { ...monoType, fontSize: 10.5, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.textMuted },

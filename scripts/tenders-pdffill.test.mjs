@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { detectFieldLines, planFill, formatPdfAmount } from '../lib/tenders/pdfFill.ts';
+import { contactWrites, detectContactFields, detectFieldLines, planFill, formatPdfAmount } from '../lib/tenders/pdfFill.ts';
 
 const item = (page, x, y, str, w = str.length * 5) => ({ page, x, y, w, h: 9, str, fontSize: 9 });
 const DOTS = '......................';
@@ -106,4 +106,25 @@ test('scan: OCR grid → field lines', async () => {
   assert.ok(Math.abs(lines[0].slots[2].right - (0.94 * 595 + 4)) < 0.01);
   const plan = planFill(lines, [{ id: 'a', page: 1, y: 600, unitPrice: 10, amount: 125, quantity: 12.5 }]);
   assert.deepEqual(plan.writes.map((w) => `${w.kind}:${w.text}`), ['quantity:12.5', 'unit_price:10.00', 'position:125.00', 'carry:125.00']);
+});
+
+test('bidder block: known labels found, signature left for the pen', () => {
+  const doc = {
+    pages: [{ page: 1, width: 595, height: 842, rotation: 0, textItems: 0 }],
+    scanned: false,
+    items: [
+      item(1, 57, 678, 'Nom :'), item(1, 122, 678, DOTS, 124),
+      item(1, 57, 722, 'NP, lieu :'), item(1, 122, 722, DOTS, 124),
+      item(1, 57, 744, 'Téléphone :'), item(1, 122, 744, DOTS, 124), item(1, 312, 744, 'Lieu, date : ' + DOTS + DOTS, 198),
+      item(1, 312, 788, 'Signature : ' + DOTS + DOTS, 197),
+      item(1, 57, 600, 'Durée :'), item(1, 122, 600, DOTS, 124),
+    ],
+  };
+  const f = detectContactFields(doc);
+  assert.deepEqual(f.map((x) => x.key), ['company', 'zipCity', 'phone', 'placeDate']);
+  const place = f.find((x) => x.key === 'placeDate');
+  assert.ok(place.x > 312 + 40 && place.x < 400, `dots start after the label (${place.x})`);
+  const w = contactWrites(f, { company: 'Exemple SA', phone: '024 000 00 00', fax: '—' });
+  assert.deepEqual(w.map((x) => `${x.kind}:${x.text}`), ['contact:Exemple SA', 'contact:024 000 00 00']);
+  assert.equal(w[0].left, 123);
 });

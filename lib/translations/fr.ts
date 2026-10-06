@@ -2795,6 +2795,9 @@ export const fr = {
   inventaire: {
     title: 'Catalogue',
     subtitle: 'Les prix et unités déjà utilisés dans vos devis — Cantia les reconnaît et les suggère automatiquement.',
+    filterBase: 'Devis et factures',
+    filterTenders: 'Soumissions (n° CAN)',
+    filterAll: 'Tout',
     actions: 'Actions',
     newItem: 'Nouvel article',
     importing: 'Import en cours…',

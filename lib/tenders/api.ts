@@ -75,7 +75,7 @@ export async function createTender(projectId: string, fields: { name: string; ki
   return { tender: data ? toTender(data) : null, error: error?.message ?? null };
 }
 
-export async function updateTender(id: string, patch: Partial<Pick<Tender, 'name' | 'number' | 'kind' | 'status' | 'cfc_code' | 'cfc_label' | 'discount_percent' | 'escompte_percent' | 'vat_rate' | 'sort_order'>>) {
+export async function updateTender(id: string, patch: Partial<Pick<Tender, 'name' | 'number' | 'kind' | 'status' | 'cfc_code' | 'cfc_label' | 'discount_percent' | 'escompte_percent' | 'vat_rate' | 'sort_order' | 'metadata'>>) {
   const { error } = await supabase.from('tenders').update(patch).eq('id', id);
   return { error: error?.message ?? null };
 }

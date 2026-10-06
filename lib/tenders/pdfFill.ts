@@ -140,6 +140,78 @@ export function detectFieldLines(doc: ExtractedDocument): FieldLine[] {
   return out.sort((a, b) => a.page - b.page || a.y - b.y);
 }
 
+// The bidder's own block ("Nom : ......", "Rue : ......", "Lieu, date :
+// ......"): which entries this soumission asks for, and where. The labels
+// vary from one program to another, so only the known ones are offered;
+// "Signature" stays for the pen.
+export type ContactKey = 'company' | 'street' | 'zipCity' | 'phone' | 'fax' | 'email' | 'responsible' | 'placeDate';
+
+export interface ContactField {
+  key: ContactKey;
+  label: string; // as printed, "NP, lieu"
+  page: number;
+  y: number;
+  h: number;
+  fontSize: number;
+  x: number; // start of the dots
+  right: number;
+}
+
+const CONTACT_LABELS: [ContactKey, RegExp][] = [
+  ['placeDate', /^(lieu\s*,?\s*(et\s*)?date|ort\s*,?\s*(und\s*)?datum|luogo\s*,?\s*(e\s*)?data)$/i],
+  ['zipCity', /^(np|npa|no postal)\s*,?\s*(lieu|localit[ée])$|^plz\s*,?\s*ort$|^nap\s*,?\s*(luogo|localit[àa])$/i],
+  ['company', /^(nom|raison sociale|entreprise|soumissionnaire|firma|name|unternehmer|ditta|impresa|offerente)$/i],
+  ['street', /^(rue|adresse|rue,? n[°o]|strasse|straße|adresse|via|indirizzo)$/i],
+  ['fax', /^(t[ée]l[ée]fax|fax|telefax)$/i],
+  ['phone', /^(t[ée]l[ée]phone|t[ée]l\.?|telefon|telefono)$/i],
+  ['email', /^(e-?mail|courriel)$/i],
+  ['responsible', /^(responsable|personne responsable|interlocuteur|verantwortlich|kontaktperson|responsabile)$/i],
+];
+
+export function detectContactFields(doc: ExtractedDocument): ContactField[] {
+  const out: ContactField[] = [];
+  for (const l of groupLines(doc.items)) {
+    const items = [...l.items].sort((a, b) => a.x - b.x);
+    for (let k = 0; k < items.length; k++) {
+      const it = items[k];
+      const str = it.str.replace(/\s+/g, ' ').trim();
+      // "Lieu, date : ........" in one piece, or the label then the dots
+      const m = /^([^:.…_]{2,40}?)\s*:\s*([.…_]{5,})?$/.exec(str);
+      if (!m) continue;
+      const label = m[1].trim();
+      const key = CONTACT_LABELS.find(([, re]) => re.test(label))?.[0];
+      if (!key || out.some((f) => f.key === key)) continue;
+      let x: number;
+      let right: number;
+      if (m[2]) {
+        // dots, spaces and ":" are about half as wide as letters
+        const width = (t: string) => [...t].reduce((n, ch) => n + (ch === '.' ? 0.56 : /[…_:,;\s'’]/.test(ch) ? 0.5 : 1), 0);
+        x = it.x + (it.w * width(str.slice(0, str.length - m[2].length))) / width(str) + 1.5;
+        right = it.x + it.w;
+      } else {
+        const dots = items[k + 1];
+        if (!dots || !DOTS.test(dots.str.replace(/\s+/g, '')) || dots.x - (it.x + it.w) > 120) continue;
+        x = dots.x;
+        right = dots.x + dots.w;
+      }
+      if (right - x < 40) continue;
+      out.push({ key, label, page: l.page, y: l.y, h: l.h, fontSize: Math.max(...l.items.map((i) => i.fontSize)), x, right });
+    }
+  }
+  return out;
+}
+
+// Text written left-aligned over the dots of a contact field.
+export function contactWrites(fields: ContactField[], values: Partial<Record<ContactKey, string>>): Write[] {
+  const out: Write[] = [];
+  for (const f of fields) {
+    const text = values[f.key]?.replace(/\s+/g, ' ').trim();
+    if (!text) continue;
+    out.push({ page: f.page, right: f.right - 1, left: f.x + 1, top: f.y, h: f.h, fontSize: Math.min(10, Math.max(7, f.fontSize)), text, cover: { x: f.x - 1, w: f.right - f.x + 2 }, kind: 'contact' });
+  }
+  return out;
+}
+
 // A scanned soumission has no text layer: the field lines come from the
 // OCR (row heights and column edges, as fractions of the page), kept with
 // the métré at import.
@@ -242,7 +314,8 @@ export interface Write {
   fontSize: number;
   text: string;
   cover: { x: number; w: number };
-  kind: FieldRole | 'unit_price' | 'quantity';
+  kind: FieldRole | 'unit_price' | 'quantity' | 'contact';
+  left?: number; // contact text: left-aligned from here, shrunk to fit
 }
 
 export interface FillPlan {
@@ -386,10 +459,19 @@ export async function applyFill(pdfLib: PdfLibLike, bytes: Uint8Array, plan: Fil
     const page = doc.getPage(w.page - 1);
     if (!page || (page.getRotation?.().angle ?? 0) % 360 !== 0) continue;
     const H = page.getHeight();
-    const f = w.kind === 'position' || w.kind === 'unit_price' || w.kind === 'quantity' ? font : bold;
+    const f = w.kind === 'position' || w.kind === 'unit_price' || w.kind === 'quantity' || w.kind === 'contact' ? font : bold;
+    // Helvetica only knows WinAnsi: anything else loses its accent or goes.
+    let text = w.text;
+    try {
+      f.widthOfTextAtSize(text, w.fontSize);
+    } catch {
+      text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7e]/g, '');
+    }
+    let size = w.fontSize;
+    if (w.left != null) while (size > 6 && f.widthOfTextAtSize(text, size) > w.right - w.left) size -= 0.5;
     if (w.cover.w > 0) page.drawRectangle({ x: w.cover.x, y: H - (w.top + w.h + 1.5), width: w.cover.w, height: w.h + 3, color: pdfLib.rgb(1, 1, 1) });
-    const tw = f.widthOfTextAtSize(w.text, w.fontSize);
-    page.drawText(w.text, { x: w.right - tw, y: H - (w.top + w.h * 0.8), size: w.fontSize, font: f, color: ink });
+    const tw = f.widthOfTextAtSize(text, size);
+    page.drawText(text, { x: w.left ?? w.right - tw, y: H - (w.top + w.h * 0.8), size, font: f, color: ink });
   }
   return doc.save();
 }

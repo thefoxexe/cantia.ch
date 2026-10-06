@@ -35,6 +35,9 @@ export default function InventaireScreen() {
   const [catalog, setCatalog] = useState<CatalogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
+  // Prices saved from soumissions (by CAN number) apart from the everyday
+  // devis / factures items.
+  const [kind, setKind] = useState<'base' | 'tenders' | 'all'>('base');
   const [importing, setImporting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [importSummary, setImportSummary] = useState<string | null>(null);
@@ -64,10 +67,13 @@ export default function InventaireScreen() {
 
   const filtered = useMemo(() => {
     const sorted = [...catalog].sort((a, b) => b.count - a.count || b.lastUsedAt.localeCompare(a.lastUsedAt));
+    const hasTenders = catalog.some((e) => e.canRef);
+    const ofKind = !hasTenders || kind === 'all' ? sorted : sorted.filter((e) => (kind === 'tenders') === !!e.canRef);
     const q = query.trim().toLowerCase();
-    if (!q) return sorted;
-    return sorted.filter((entry) => entry.description.toLowerCase().includes(q));
-  }, [catalog, query]);
+    if (!q) return ofKind;
+    return ofKind.filter((entry) => entry.description.toLowerCase().includes(q) || entry.canRef?.includes(q));
+  }, [catalog, query, kind]);
+  const tenderCount = catalog.filter((e) => e.canRef).length;
 
   function openCreate() {
     setEditing(null);
@@ -205,6 +211,18 @@ export default function InventaireScreen() {
         {actionError ? <Text style={styles.actionError}>{actionError}</Text> : null}
         {importSummary ? <Text style={styles.importSummary}>{importSummary}</Text> : null}
 
+        {tenderCount ? (
+          <View style={styles.kindRow}>
+            {(['base', 'tenders', 'all'] as const).map((k) => (
+              <Pressable key={k} onPress={() => setKind(k)} style={[styles.kindChip, kind === k && styles.kindChipOn]}>
+                <Text style={[styles.kindText, kind === k && styles.kindTextOn]}>
+                  {t(k === 'base' ? 'inventaire.filterBase' : k === 'tenders' ? 'inventaire.filterTenders' : 'inventaire.filterAll')}
+                  {k === 'tenders' ? ` · ${tenderCount}` : k === 'base' ? ` · ${catalog.length - tenderCount}` : ''}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
         <View style={styles.searchRow}>
           <Feather name="search" size={16} color={colors.textMuted} />
           <TextInput
@@ -282,6 +300,11 @@ export default function InventaireScreen() {
 }
 
 const styles = StyleSheet.create({
+  kindRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.sm },
+  kindChip: { paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  kindChipOn: { backgroundColor: colors.text, borderColor: colors.text },
+  kindText: { fontSize: fontSize.sm, color: colors.text, fontWeight: '600' },
+  kindTextOn: { color: colors.surface },
   container: {
     flex: 1,
     maxWidth: 720,
