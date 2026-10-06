@@ -8,7 +8,7 @@ create table public.organization_roles (id uuid primary key default gen_random_u
 create table public.organization_members (organization_id uuid, user_id uuid, role text, role_id uuid);
 create table public.projects (id uuid primary key default gen_random_uuid(), organization_id uuid references public.organizations(id), name text, enabled_modules text[] default array['documents','photos','survey','metre']);
 create table public.project_members (project_id uuid, user_id uuid);
-create table public.files (id uuid primary key default gen_random_uuid());
+create table public.files (id uuid primary key default gen_random_uuid(), organization_id uuid);
 create table public.devis (id uuid primary key default gen_random_uuid());
 create table public.metre_items (id uuid primary key default gen_random_uuid(), organization_id uuid, project_id uuid, reference text, description text not null, quantity numeric(12,2), unit text, sort_order int default 0, unit_price numeric(10,2) default 0, section text, created_at timestamptz default now());
 create function public.set_updated_at() returns trigger language plpgsql as $$ begin new.updated_at := now(); return new; end $$;

@@ -7,6 +7,7 @@ import { useProject } from '../../../../lib/useProject';
 import { useAuth } from '../../../../lib/auth-context';
 import { discardImport, importSoumission, pendingImports, type ImportJob, type ImportProgress } from '../../../../lib/tenders/importer';
 import { FeatureHint } from '../../../../components/FeatureHint';
+import { PlansSection } from '../../../../components/tenders/PlansSection';
 import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { Btn, Chip, Field, Sheet, kit, usePhone } from '../../../../components/admin/ledger/kit';
 import { canEditTenders, createTender, deleteTender, duplicateTender, listTenders, type TenderSummary } from '../../../../lib/tenders/api';
@@ -203,6 +204,9 @@ export default function ChantierMetresScreen() {
             ))}
           </View>
         )}
+
+        <View style={styles.divider} />
+        <PlansSection projectId={id} organizationId={project.organization_id} userId={user?.id ?? null} editable={editable} />
       </ScrollView>
 
       {progress ? <ImportProgressSheet progress={progress} /> : null}
@@ -339,6 +343,7 @@ const styles = StyleSheet.create({
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   tagText: { fontSize: 11.5, fontWeight: '700', color: colors.textMuted },
   error: { fontSize: fontSize.sm, color: colors.danger },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.sm },
   pending: { gap: spacing.sm, padding: spacing.lg, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.primary + '55', backgroundColor: colors.surface },
   pendingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   bar: { width: '100%', maxWidth: 360, height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },

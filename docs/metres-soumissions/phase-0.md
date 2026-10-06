@@ -267,3 +267,29 @@ Tests à chaque phase :
 - Les tests utilisent la fixture **quand elle est présente en local** et sont ignorés sinon (CI).
 - En parallèle, une **fixture synthétique** est commitée. Elle reprend la même mise en page (colonnes, numérotation, R, ventilations, reports), mais avec des textes inventés. Elle couvre aussi un document non-CAN.
 - **CRBX** : `docs/crbx-format.md` et `fixtures/README.md` posent déjà la règle « observé, jamais deviné ». Le format reste préparé (interfaces) tant qu'aucun vrai `.crbx` n'a été inspecté.
+
+## 10. Phase D livrée — plans et mesures
+
+- **Tables** (`20261006140000_tenders_plans.sql`) : `site_plans`, `site_plan_revisions`, `site_plan_pages`, `measured_objects`.
+  - Nom `site_plans`, parce que `public.plans` est le catalogue des abonnements.
+  - `organization_id` et `project_id` sont toujours dérivés du parent.
+  - Les révisions ne se suppriment pas (aucune politique `delete`).
+- **Calibration** par page, de deux façons :
+  - par une cote : deux points et la longueur réelle ;
+  - par l'échelle (1:50), seulement si le PDF est à l'échelle d'origine.
+  - `meters_per_pt` est calculé par trigger. Une recalibration recalcule toutes les mesures de la page.
+- **Mesures** : distance, longueur (polyligne), surface, périmètre, comptage.
+  - Les points sont normalisés de 0 à 1 sur la page.
+  - Longueurs et surfaces sont recalculées côté serveur (`measure_geometry`) : la valeur envoyée par le client est ignorée.
+  - Les mêmes formules existent dans `lib/tenders/geometry.ts` pour l'affichage en direct. Mêmes cas de test des deux côtés : `scripts/tenders-geometry.test.mjs` et `supabase/tests/tenders/30_plans.sql`.
+  - Numérotation automatique M-001, M-002… par chantier.
+- **Écran** `chantiers/[id]/plans/[planId]` :
+  - outils en barre, Maj pour l'horizontale / verticale, fermeture au premier point ;
+  - points déplaçables, annuler / rétablir (⌘Z), zoom (Ctrl + molette) ;
+  - panneau avec les totaux de la page et la liste des mesures.
+  - Sur téléphone : consultation seulement.
+- **Critère de la phase** vérifié sur un plan A3 au 1:50 :
+  - mur calibré : 10.80 m retrouvés ;
+  - local : 75.60 m² ;
+  - comptage : 3 pce.
+- **Reste pour la phase E** : lier une mesure à une position du métré (allocations N–N, formules, quantité mesurée).
