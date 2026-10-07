@@ -2,6 +2,7 @@
 import { supabase } from '../supabase';
 import { DEFAULT_WORKDAYS, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc.ts';
 import { VILLA_TEMPLATE, planTemplate, type TemplateData } from './templates.ts';
+import type { ImportLine, ImportPlan } from './imports.ts';
 
 export interface Schedule {
   id: string;
@@ -100,6 +101,54 @@ async function insertTemplate(scheduleId: string, organizationId: string, data: 
   if (!links.length) return null;
   const { error } = await supabase.from('schedule_links').insert(links);
   return error?.message ?? null;
+}
+
+// Excel / MS Project import (lib/schedule/imports.ts): the lines keep their
+// own dates; they go after the existing ones. Parents are inserted first.
+export async function importPlan(scheduleId: string, organizationId: string, plan: ImportPlan, after: number): Promise<{ count: number; error: string | null }> {
+  const byKey = new Map(plan.lines.map((l) => [l.key, l]));
+  const ordered: ImportLine[] = [];
+  const seen = new Set<string>();
+  const push = (l: ImportLine, depth = 0) => {
+    if (seen.has(l.key) || depth > 30) return;
+    const parent = l.parent ? byKey.get(l.parent) : undefined;
+    if (parent) push(parent, depth + 1);
+    seen.add(l.key);
+    ordered.push(l);
+  };
+  plan.lines.forEach((l) => push(l));
+  const ids = new Map<string, string>();
+  let i = 0;
+  for (const l of ordered) {
+    i++;
+    const status = l.kind === 'phase' ? 'planned' : l.progress >= 100 ? 'done' : l.progress > 0 ? 'in_progress' : l.start_date ? 'planned' : 'todo';
+    const { data: row, error } = await supabase
+      .from('schedule_items')
+      .insert({
+        schedule_id: scheduleId,
+        organization_id: organizationId,
+        parent_id: l.parent ? ids.get(l.parent) ?? null : null,
+        kind: l.kind,
+        name: l.name,
+        trade: l.trade,
+        company: l.company,
+        duration: l.kind === 'phase' ? null : l.duration,
+        start_date: l.start_date,
+        end_date: l.end_date,
+        status,
+        progress: l.kind === 'phase' ? 0 : l.progress,
+        notes: l.notes,
+        sort_order: after + i * 10,
+      })
+      .select('id')
+      .single();
+    if (error || !row) return { count: ids.size, error: error?.message ?? 'Import incomplet' };
+    ids.set(l.key, row.id);
+  }
+  const links = plan.links.filter(([a, b]) => ids.has(a) && ids.has(b)).map(([a, b]) => ({ schedule_id: scheduleId, from_item: ids.get(a)!, to_item: ids.get(b)! }));
+  // one by one: a circular link in the file is skipped, not fatal
+  for (const l of links) await supabase.from('schedule_links').insert(l);
+  return { count: ids.size, error: null };
 }
 
 // Company templates ----------------------------------------------------------

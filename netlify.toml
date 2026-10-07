@@ -108,6 +108,13 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+# Shared plannings (cantia.ch/planning-partage/<token>): never indexed.
+[[headers]]
+  for = "/planning-partage/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
 [[headers]]
   for = "/version.json"
   [headers.values]
@@ -1316,6 +1323,13 @@
 [[redirects]]
   from = "/it/blog/*"
   to = "/it/blog/:splat/index.html"
+  status = 200
+
+# Shared planning links: the client-rendered shell with a real 200 (link
+# previews and some mail clients give up on a 404).
+[[redirects]]
+  from = "/planning-partage/*"
+  to = "/app-shell.html"
   status = 200
 
 # SPA fallback for every other route (the actual app, auth screens, etc.) —

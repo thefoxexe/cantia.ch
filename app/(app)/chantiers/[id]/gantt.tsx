@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { AppScreen, LoadingScreen } from '../../../../components/ui';
 import { Btn, Chip, Field, Sheet, kit } from '../../../../components/admin/ledger/kit';
 import { DateField } from '../../../../components/DateField';
-import { GanttView, StatusPill, tradeColor, type Zoom } from '../../../../components/schedule/GanttView';
+import { GanttView, tradeColor, type Zoom } from '../../../../components/schedule/GanttView';
 import { ItemSheet, type ItemDraft } from '../../../../components/schedule/ItemSheet';
 import { useAuth } from '../../../../lib/auth-context';
 import { useProject } from '../../../../lib/useProject';
@@ -14,7 +14,7 @@ import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
 import { getSignedUrl } from '../../../../lib/api/storage';
 import { getAppLocale } from '../../../../lib/translations';
-import { hasSiteSchedule, updateCalendar, updateClosures, listTemplates, saveTemplate, type ScheduleTemplate, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
+import { hasSiteSchedule, importPlan, updateCalendar, updateClosures, listTemplates, saveTemplate, type ScheduleTemplate, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
 import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as addD, reconcile, rollup, workdaysBetween, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
@@ -23,6 +23,10 @@ import { templateStats, toTemplate } from '../../../../lib/schedule/templates';
 import { cantonFromAddress, workCalendar, type CalendarSettings, type Canton } from '../../../../lib/schedule/holidays';
 import { ScheduleCalendarSheet } from '../../../../components/schedule/ScheduleCalendarSheet';
 import { scheduleMspdi, scheduleSheetRows } from '../../../../lib/schedule/exports';
+import { logoAsPng, saveBlob as save } from '../../../../lib/schedule/download';
+import { PhoneList } from '../../../../components/schedule/PhoneList';
+import { ShareSheet } from '../../../../components/schedule/ShareSheet';
+import { ImportSheet } from '../../../../components/schedule/ImportSheet';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 // Planning de chantier (Gantt) — cahier des charges v1.0, MVP. Building
@@ -64,6 +68,8 @@ export default function ChantierGanttScreen() {
   const [editing, setEditing] = useState<{ item: ScheduleItem | null; initial: Partial<ItemDraft> & { preds?: string[] } } | null>(null);
   const [proposal, setProposal] = useState<{ shifts: Shift[]; conflicts: Conflict[] } | null>(null);
   const [pdfOpen, setPdfOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [history, setHistory] = useState<AuditRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string | null>(today);
@@ -250,6 +256,26 @@ export default function ChantierGanttScreen() {
     reload();
   };
 
+  // Excel / MS Project: creates the planning first when there is none yet
+  const runImport = async (plan: Parameters<typeof importPlan>[2]): Promise<string | null> => {
+    if (!organization || !id) return 'Planning introuvable';
+    let target = bundle;
+    if (!target) {
+      const { error: e } = await createSchedule(organization.id, id, 'empty', today);
+      if (e) return e;
+      target = await loadSchedule(id);
+      if (!target) return 'Planning introuvable';
+    }
+    const after = Math.max(0, ...target.items.filter((i) => !i.parent_id).map((i) => i.sort_order));
+    const { count, error: e } = await importPlan(target.schedule.id, organization.id, plan, after);
+    await reload();
+    if (e) return e;
+    setImportOpen(false);
+    setNotice(fill(c.importDone, { n: count }));
+    return null;
+  };
+  const importSheet = importOpen ? <ImportSheet c={c} workdays={workdays} onClose={() => setImportOpen(false)} onImport={runImport} /> : null;
+
   if (!project || bundle === undefined) {
     return (
       <AppScreen>
@@ -304,6 +330,8 @@ export default function ChantierGanttScreen() {
                     />
                   ))}
                 </View>
+                <Btn icon="upload" label={c.importFile} variant="ghost" disabled={creating || !organization} onPress={() => setImportOpen(true)} />
+                {notice ? <Text style={kit.hint}>{notice}</Text> : null}
                 {templates.length ? (
                   <>
                     <Text style={kit.eyebrow}>{c.yourTemplates}</Text>
@@ -329,6 +357,7 @@ export default function ChantierGanttScreen() {
             {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
           </View>
         </ScrollView>
+        {importSheet}
       </AppScreen>
     );
   }
@@ -339,7 +368,10 @@ export default function ChantierGanttScreen() {
         {header}
         {phone ? (
           <>
-            {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} /> : null}
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} grow /> : null}
+              <Btn icon="share-2" label={c.share} onPress={() => setShareOpen(true)} grow />
+            </View>
             <PhoneList c={c} rows={rows} rolled={rolled} onOpen={(item) => setEditing({ item, initial: {} })} />
           </>
         ) : (
@@ -367,7 +399,9 @@ export default function ChantierGanttScreen() {
               <View style={{ flex: 1 }} />
               <Btn icon="calendar" label={c.calendar} variant="ghost" onPress={() => setCalendarOpen(true)} />
               <Btn icon="clock" label={c.history} variant="ghost" onPress={async () => setHistory(await listAudit(bundle.schedule.id))} />
+              {editable ? <Btn icon="upload" label={c.importFile} variant="ghost" onPress={() => setImportOpen(true)} /> : null}
               {editable && items.length ? <Btn icon="bookmark" label={c.saveTemplate} variant="ghost" onPress={() => setTplOpen(true)} /> : null}
+              <Btn icon="share-2" label={c.share} onPress={() => setShareOpen(true)} />
               {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} /> : null}
             </View>
             <View style={styles.filters}>
@@ -568,6 +602,8 @@ export default function ChantierGanttScreen() {
           }}
         />
       ) : null}
+      {importSheet}
+      {shareOpen && organization ? <ShareSheet c={c} scheduleId={bundle.schedule.id} organizationId={organization.id} editable={building} onClose={() => setShareOpen(false)} /> : null}
       {pdfOpen ? <PdfSheet c={c} project={project.name} items={items} links={links} workdays={workdays} rolled={rolled} today={today} onClose={() => setPdfOpen(false)} /> : null}
 
       {history ? (
@@ -595,39 +631,6 @@ function cascadeSummary(c: ReturnType<typeof useScheduleCopy>, shifts: Shift[], 
   const deltas = new Set(shifts.map((s) => (s.to.start > s.from.start ? workdaysBetween(s.from.start, s.to.start, workdays) - 1 : 0)));
   const d = deltas.size === 1 ? [...deltas][0] : null;
   return fill(d ? c.cascadeSummaryBy : c.cascadeSummary, { n: shifts.length, d: d ?? 0 });
-}
-
-function PhoneList({ c, rows, rolled, onOpen }: { c: ReturnType<typeof useScheduleCopy>; rows: ReturnType<typeof flatten>; rolled: ReturnType<typeof rollup>; onOpen: (i: ScheduleItem) => void }) {
-  return (
-    <ScrollView contentContainerStyle={{ gap: 6, paddingBottom: spacing.xxl }}>
-      {rows.map(({ item, depth }) => {
-        const r = rolled.get(item.id);
-        const phase = item.kind === 'phase';
-        return (
-          <Pressable key={item.id} onPress={() => onOpen(item)} style={[styles.phoneRow, phase && { backgroundColor: '#F4F1EC' }, { marginLeft: depth * 12 }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              {item.trade ? <View style={[styles.dot, { backgroundColor: tradeColor(item.trade) }]} /> : null}
-              <Text style={[kit.body, { flex: 1, fontWeight: phase ? '800' : '600' }]} numberOfLines={2}>
-                {item.kind === 'milestone' ? '◆ ' : ''}
-                {item.name}
-              </Text>
-              {phase ? <Text style={styles.mono}>{r?.progress ?? 0} %</Text> : <StatusPill c={c} item={item} late={r?.late ?? 0} />}
-            </View>
-            <Text style={kit.hint}>
-              {shortDate(r?.start ?? null)} → {shortDate(r?.end ?? null)}
-              {item.kind === 'task' && item.duration ? ` · ${item.duration} ${c.days}` : ''}
-              {item.trade ? ` · ${item.trade}` : ''}
-            </Text>
-            {!phase && item.kind !== 'milestone' ? (
-              <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: `${item.status === 'done' ? 100 : item.progress}%`, backgroundColor: tradeColor(item.trade) }]} />
-              </View>
-            ) : null}
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
 }
 
 function TemplateSheet({ c, defaultName, onClose, onSave }: { c: ReturnType<typeof useScheduleCopy>; defaultName: string; onClose: () => void; onSave: (name: string, description: string | null) => Promise<string | null> }) {
@@ -667,37 +670,6 @@ function TemplateSheet({ c, defaultName, onClose, onSave }: { c: ReturnType<type
       {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
     </Sheet>
   );
-}
-
-function save(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
-}
-
-// The org logo (any format the browser reads) redrawn as PNG for pdf-lib;
-// null when it cannot be loaded — the PDF then carries the name only.
-async function logoAsPng(path: string): Promise<Uint8Array | null> {
-  try {
-    const url = await getSignedUrl(path);
-    if (!url) return null;
-    const blob = await (await fetch(url)).blob();
-    const bmp = await createImageBitmap(blob);
-    const scale = Math.min(1, 600 / bmp.width, 200 / bmp.height);
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(bmp.width * scale));
-    canvas.height = Math.max(1, Math.round(bmp.height * scale));
-    canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-    const png = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/png'));
-    return png ? new Uint8Array(await png.arrayBuffer()) : null;
-  } catch {
-    return null;
-  }
 }
 
 function PdfSheet({ c, project, items, links, workdays, rolled, today, onClose }: { c: ReturnType<typeof useScheduleCopy>; project: string; items: ScheduleItem[]; links: ScheduleBundle['links']; workdays: number[]; rolled: ReturnType<typeof rollup>; today: string; onClose: () => void }) {
@@ -754,7 +726,7 @@ function PdfSheet({ c, project, items, links, workdays, rolled, today, onClose }
         to: to > from ? to : from,
         today,
         generatedAt: `${now.toLocaleDateString('fr-CH')} ${now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}`,
-        brand: brand && organization ? { name: organization.name, logoPng: organization.logo_url ? await logoAsPng(organization.logo_url) : null } : null,
+        brand: brand && organization ? { name: organization.name, logoPng: organization.logo_url ? await logoAsPng(await getSignedUrl(organization.logo_url)) : null } : null,
       });
       save(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `${base}.pdf`);
       onClose();
@@ -857,7 +829,4 @@ const styles = StyleSheet.create({
   shift: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border },
   mono: { fontSize: fontSize.sm, color: colors.text, fontVariant: ['tabular-nums'] },
   histRow: { flexDirection: 'row', gap: spacing.sm, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border },
-  phoneRow: { padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 4 },
-  progressTrack: { height: 5, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: 'hidden', marginTop: 4 },
-  progressFill: { height: 5, borderRadius: 3 },
 });

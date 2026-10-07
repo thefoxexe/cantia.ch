@@ -11,7 +11,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // referral cookies (lib/siteAnalytics.ts). Shown once
 // on cantia.ch, never on app.cantia.ch nor on the pages clients open from an
 // email (devis, factures, documents), which have nothing to attribute.
-const HIDDEN_PREFIXES = ['/devis-client', '/facture-client', '/client-documents', '/travaux-supplementaires-client', '/salaire-employe', '/confidentialite'];
+const HIDDEN_PREFIXES = ['/devis-client', '/facture-client', '/client-documents', '/travaux-supplementaires-client', '/salaire-employe', '/planning-partage', '/confidentialite'];
 
 const COPY = {
   fr: {

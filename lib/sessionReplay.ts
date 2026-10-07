@@ -9,7 +9,7 @@ import { isMarketingHost } from './appHost';
 // Every typed value is masked; the pages clients open from an email
 // (devis, factures, documents, fiche de salaire) are never recorded.
 const KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY;
-const PRIVATE_PREFIXES = ['/devis-client', '/facture-client', '/client-documents', '/travaux-supplementaires-client', '/salaire-employe'];
+const PRIVATE_PREFIXES = ['/devis-client', '/facture-client', '/client-documents', '/travaux-supplementaires-client', '/salaire-employe', '/planning-partage'];
 
 type PostHog = typeof import('posthog-js').default;
 let ph: PostHog | null = null;

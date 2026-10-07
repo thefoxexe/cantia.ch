@@ -154,3 +154,63 @@ test('exports: MS Project calendar carries the days off', async () => {
   assert.ok(xml.includes('<FromDate>2026-05-14T00:00:00</FromDate>')); // Ascension
   assert.equal((xml.match(/<Exception>/g) ?? []).length > 3, true);
 });
+
+test('imports: our Excel and MS Project exports come back with the same tree, dates and links', async () => {
+  const { scheduleSheetRows, scheduleMspdi } = await import('../lib/schedule/exports.ts');
+  const { parseScheduleSheet, parseMspdi, importStats } = await import('../lib/schedule/imports.ts');
+  const items = [
+    item({ id: 'p', kind: 'phase', name: 'Gros œuvre & co', sort_order: 1 }),
+    item({ id: 'a', parent_id: 'p', name: 'Fouilles', trade: 'Terrassement', start_date: '2026-10-12', end_date: '2026-10-16', duration: 5, sort_order: 2 }),
+    item({ id: 'b', parent_id: 'p', name: 'Radier', start_date: '2026-10-19', end_date: '2026-10-21', duration: 3, sort_order: 3 }),
+    item({ id: 'm', kind: 'milestone', name: 'Hors d’eau', start_date: '2026-10-22', end_date: '2026-10-22', duration: 0, sort_order: 4 }),
+  ];
+  const links = [{ id: 'l1', from_item: 'a', to_item: 'b' }, { id: 'l2', from_item: 'b', to_item: 'm' }];
+  const rolled = rollup(items, '2026-10-01');
+
+  // Excel: dates as Date objects, like SheetJS with cellDates
+  const sheet = scheduleSheetRows(items, links, rolled);
+  const x = parseScheduleSheet(sheet);
+  assert.deepEqual(importStats(x), { phases: 1, tasks: 2, milestones: 1, links: 2 });
+  assert.deepEqual(x.lines.map((l) => [l.name, l.kind, l.parent, l.start_date, l.end_date, l.duration]), [
+    ['Gros œuvre & co', 'phase', null, null, null, null],
+    ['Fouilles', 'task', '1', '2026-10-12', '2026-10-16', 5],
+    ['Radier', 'task', '1', '2026-10-19', '2026-10-21', 3],
+    ['Hors d’eau', 'milestone', null, '2026-10-22', '2026-10-22', 0],
+  ]);
+  assert.equal(x.lines[1].trade, 'Terrassement');
+
+  // MS Project XML
+  const p = parseMspdi(scheduleMspdi({ project: 'P', items, links, rolled, now: '2026-10-01T00:00:00' }));
+  assert.deepEqual(importStats(p), { phases: 1, tasks: 2, milestones: 1, links: 2 });
+  assert.deepEqual(p.lines.map((l) => [l.name, l.kind, l.start_date, l.end_date, l.duration]), x.lines.map((l) => [l.name, l.kind, l.start_date, l.end_date, l.duration]));
+  assert.deepEqual(p.links, x.links);
+});
+
+test('imports: a foreign table (indented names, Swiss dates, "5 jours", MS Project IDs as predecessors)', async () => {
+  const { parseScheduleSheet, toWorkdays, toIsoDate } = await import('../lib/schedule/imports.ts');
+  const rows = [
+    ['Planning villa Dupont'],
+    [],
+    ['ID', 'Nom de la tâche', 'Durée', 'Début', 'Fin', 'Prédécesseurs', '% achevé'],
+    [1, 'Gros œuvre', '8 jours', 'Lu 12.10.26', 'Me 21.10.26', '', 0],
+    [2, '   Fouilles', '5 jours', 'Lu 12.10.26', 'Ve 16.10.26', '', 0.5], // a cell formatted as %
+    [3, '   Radier', '3 jours', '', '', '2FD+1 jour', '40%'],
+    [4, 'Réception', '0 jour', 'Je 22.10.26', 'Je 22.10.26', '3', 0],
+    [5, '', '', '', '', '', ''],
+  ];
+  const x = parseScheduleSheet(rows);
+  assert.deepEqual(x.lines.map((l) => [l.name, l.kind, l.parent]), [
+    ['Gros œuvre', 'phase', null],
+    ['Fouilles', 'task', '1'],
+    ['Radier', 'task', '1'],
+    ['Réception', 'milestone', null],
+  ]);
+  assert.deepEqual(x.links, [['2', '3'], ['3', '4']]);
+  assert.equal(x.lines[1].progress, 50);
+  assert.equal(x.lines[2].progress, 40);
+  assert.equal(x.lines[2].start_date, null); // no date: the cascade places it after Fouilles
+  assert.equal(toWorkdays('2 sem.'), 10);
+  assert.equal(toWorkdays('PT24H0M0S'), 3);
+  assert.equal(toIsoDate(46307), '2026-10-12');
+  assert.equal(toIsoDate('2026-10-12T08:00:00'), '2026-10-12');
+});
