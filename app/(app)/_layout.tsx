@@ -158,6 +158,12 @@ export default function AppLayout() {
     salesTrackingReady().then(setSalesReady);
   }, []);
   const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady);
+  // The signed-in app is private: its build-time HTML serves no one, and
+  // hydrating it against the visitor's real session, screen and date only
+  // produced mismatches (React error #418). Render it in the browser only.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
