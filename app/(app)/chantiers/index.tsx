@@ -11,6 +11,7 @@ import { Button, EmptyState, PageHeader, AppScreen, StatusBadge } from '../../..
 import { FolderList } from '../../../components/chantier/ProjectInfoForm';
 import { compareReference, createFolder, deleteFolder, folderPath, folderWords, listFavorites, listFolders, moveProject, setFavorite, updateFolder } from '../../../lib/projectFolders';
 import { useTranslation } from '../../../lib/translations';
+import { dragSource, dropTarget, type DragItem } from '../../../lib/dragDrop';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Project, ProjectFolder } from '../../../lib/types';
 
@@ -167,6 +168,35 @@ export default function ChantiersListScreen() {
     return out;
   }, [moving, folders]);
 
+  // Drag & drop (computer): a chantier or a folder onto a folder tile or a
+  // breadcrumb level. Same rules as « Déplacer ».
+  const [dropOver, setDropOver] = useState<string | null>(null);
+  const descendants = (id: string) => {
+    const out = new Set<string>([id]);
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const f of folders) if (f.parent_id && out.has(f.parent_id) && !out.has(f.id)) (out.add(f.id), (grew = true));
+    }
+    return out;
+  };
+  const accepts = (target: string | null) => (item: DragItem) => {
+    if (!canCreateProjects) return false;
+    if (item.kind === 'project') return (projects.find((p) => p.id === item.id)?.folder_id ?? null) !== target;
+    const f = folders.find((x) => x.id === item.id);
+    return !!f && (f.parent_id ?? null) !== target && (target === null || !descendants(f.id).has(target));
+  };
+  const drop = (target: string | null) =>
+    dropTarget({
+      accept: accepts(target),
+      onHover: (over) => setDropOver((cur) => (over ? target ?? 'root' : cur === (target ?? 'root') ? null : cur)),
+      onDrop: async (item) => {
+        const { error: e } = item.kind === 'project' ? await moveProject(item.id, target) : await updateFolder(item.id, { parent_id: target });
+        setError(e);
+        load();
+      },
+    });
+
   const pathOf = (p: Project) => folderPath(folders, p.folder_id).map((f) => f.name).join(' › ');
 
   return (
@@ -177,14 +207,14 @@ export default function ChantiersListScreen() {
 
         {/* breadcrumb */}
         <View style={styles.crumbs}>
-          <Pressable onPress={() => open(null)} style={styles.crumb} hitSlop={4}>
+          <Pressable ref={drop(null)} onPress={() => open(null)} style={[styles.crumb, dropOver === 'root' && styles.dropOn]} hitSlop={4}>
             <Feather name="home" size={14} color={path.length ? colors.primary : colors.text} />
             <Text style={[styles.crumbText, !path.length && styles.crumbOn]}>{t('explorer.allProjects')}</Text>
           </Pressable>
           {path.map((f, i) => (
             <View key={f.id} style={styles.crumb}>
               <Feather name="chevron-right" size={14} color={colors.textMuted} />
-              <Pressable onPress={() => open(f.id)} hitSlop={4}>
+              <Pressable ref={drop(f.id)} onPress={() => open(f.id)} hitSlop={4} style={dropOver === f.id ? styles.dropOn : null}>
                 <Text style={[styles.crumbText, i === path.length - 1 && styles.crumbOn]}>{f.name}</Text>
               </Pressable>
             </View>
@@ -235,7 +265,15 @@ export default function ChantiersListScreen() {
             {subFolders.map((f) => {
               const n = countIn(f.id);
               return (
-                <Pressable key={f.id} onPress={() => open(f.id)} style={({ hovered }: any) => [styles.folder, hovered && styles.folderHover]}>
+                <Pressable
+                  key={f.id}
+                  ref={(n) => {
+                    drop(f.id)(n);
+                    if (canCreateProjects) dragSource({ kind: 'folder', id: f.id })(n);
+                  }}
+                  onPress={() => open(f.id)}
+                  style={({ hovered }: any) => [styles.folder, hovered && styles.folderHover, dropOver === f.id && styles.dropOn]}
+                >
                   <View style={styles.folderIcon}>
                     <Feather name="folder" size={22} color={colors.primary} />
                   </View>
@@ -265,7 +303,7 @@ export default function ChantiersListScreen() {
             const fav = favorites.has(item.id);
             const where = q ? pathOf(item) : '';
             return (
-              <Pressable key={item.id} onPress={() => router.push(`/(app)/chantiers/${item.id}`)} style={({ hovered }: any) => [styles.card, hovered && styles.folderHover]}>
+              <Pressable key={item.id} ref={canCreateProjects ? dragSource({ kind: 'project', id: item.id }) : undefined} onPress={() => router.push(`/(app)/chantiers/${item.id}`)} style={({ hovered }: any) => [styles.card, hovered && styles.folderHover]}>
                 <Pressable onPress={() => toggleFavorite(item)} hitSlop={8} style={styles.star} accessibilityLabel={fav ? t('explorer.unfavorite') : t('explorer.favorite')}>
                   <FontAwesome name={fav ? 'star' : 'star-o'} size={18} color={fav ? '#E0A100' : colors.textMuted} />
                 </Pressable>
@@ -407,6 +445,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   folder: { flexGrow: 1, flexBasis: 240, maxWidth: 360, flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   folderHover: { borderColor: colors.primary },
+  dropOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft, borderRadius: radius.md },
   folderIcon: { width: 42, height: 42, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   folderName: { fontSize: fontSize.md, fontWeight: '800', color: colors.text },
   iconBtn: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
