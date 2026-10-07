@@ -105,18 +105,17 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-// Not the project's service-role key (this function has no way to obtain
-// that from this environment) — an internal secret whose only purpose is to
-// stop an outsider from invoking this endpoint at random. Duplicated as-is
-// in the migration's dispatch_notification_http() trigger. verify_jwt is
-// off for this function since the caller is a DB trigger, not a signed-in
-// user.
-const DISPATCH_SECRET = '3cafd1059f6e75930c7c09c4e9af5de9e435fbb49cbe5fdcb4964d7512d7bc1b';
+// Not the project's service-role key — an internal secret whose only purpose
+// is to stop an outsider from invoking this endpoint at random. The caller
+// (dispatch_notification_http() trigger) reads the same value from Vault
+// ('dispatch_secret'); here it comes from the DISPATCH_SECRET function
+// secret. verify_jwt is off since the caller is a DB trigger, not a user.
+const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET') ?? '';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
-  if (req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
+  if (!DISPATCH_SECRET || req.headers.get('x-dispatch-secret') !== DISPATCH_SECRET) {
     return json({ error: 'unauthorized' }, 401);
   }
 
