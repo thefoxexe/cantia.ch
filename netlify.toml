@@ -64,6 +64,21 @@
   to = "/presentation.html"
   status = 200
 
+# Browser protections on every page (cantia.ch and app.cantia.ch share this
+# export). SAMEORIGIN, not DENY: the app's maps are srcdoc iframes of its own.
+# Camera / microphone / location stay allowed for the app itself (photos,
+# dictation, voice notes, site position), refused to any embedded page.
+# No Content-Security-Policy yet: pdf.js, cdnjs and Supabase need a policy
+# tested in Report-Only first.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), microphone=(self), geolocation=(self), payment=(), usb=(), interest-cohort=()"
+
 [[headers]]
   for = "/presentation*"
   [headers.values]
