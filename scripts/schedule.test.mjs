@@ -116,3 +116,41 @@ test('exports: Excel rows numbered like a WBS, MS Project XML with links and con
   // balanced tags
   for (const t of ['Task', 'Project', 'Tasks', 'Calendar', 'WeekDay']) assert.equal((xml.match(new RegExp(`<${t}[ >]`, "g")) ?? []).length, (xml.match(new RegExp(`</${t}>`, 'g')) ?? []).length, t);
 });
+
+test('holidays: Easter, cantonal days, closures and the working calendar', async () => {
+  const { easter, cantonHolidays, workCalendar, daysOff, cantonFromAddress } = await import('../lib/schedule/holidays.ts');
+  assert.equal(easter(2026), '2026-04-05');
+  assert.equal(easter(2027), '2027-03-28');
+  const vd = cantonHolidays('VD', 2026).map((h) => h.date);
+  assert.ok(vd.includes('2026-04-03')); // Vendredi saint
+  assert.ok(vd.includes('2026-05-14')); // Ascension
+  assert.ok(vd.includes('2026-09-21')); // Lundi du Jeûne (3rd Sunday = 20.9)
+  assert.ok(!vd.includes('2026-08-15'));
+  const ge = cantonHolidays('GE', 2026).map((h) => h.date);
+  assert.ok(ge.includes('2026-09-10')); // Jeûne genevois: Thursday after 1st Sunday (6.9)
+  assert.ok(ge.includes('2026-12-31'));
+  const vs = cantonHolidays('VS', 2026).map((h) => h.date);
+  assert.ok(vs.includes('2026-06-04')); // Fête-Dieu
+  assert.ok(vs.includes('2026-03-19'));
+  // a 5-day task starting Thu 13.5.2026 in Vaud skips Ascension (14.5) and Whit Monday (25.5 is later)
+  const cal = workCalendar({ workdays: [1, 2, 3, 4, 5], canton: 'VD', holidays: true, closures: [{ from: '2026-07-20', to: '2026-08-07', label: 'Congés du bâtiment' }], extra: ['2026-05-15'] }, '2026-01-01', '2026-12-31');
+  assert.equal(endFromDuration('2026-05-13', 3, cal), '2026-05-19'); // 13, 18, 19 (14 Ascension, 15 extra day off)
+  assert.equal(endFromDuration('2026-07-17', 2, cal), '2026-08-10'); // Fri 17.7, then after the closure
+  assert.equal(workdaysBetween('2026-05-11', '2026-05-15', cal), 3);
+  const off = daysOff({ workdays: [1, 2, 3, 4, 5], canton: 'VD', holidays: true, closures: [], extra: [] }, '2026-12-01', '2026-12-31');
+  assert.deepEqual(off.map((d) => d.date), ['2026-12-25']);
+  assert.equal(cantonFromAddress('Ch. des Vignes 4, 1870 Monthey'), 'VS');
+  assert.equal(cantonFromAddress('Rue du Rhône 1, 1204 Genève'), 'GE');
+  assert.equal(cantonFromAddress('Avenue de la Gare 20, 1003 Lausanne'), 'VD');
+  assert.equal(cantonFromAddress('sans adresse'), null);
+});
+
+test('exports: MS Project calendar carries the days off', async () => {
+  const { scheduleMspdi } = await import('../lib/schedule/exports.ts');
+  const { workCalendar } = await import('../lib/schedule/holidays.ts');
+  const cal = workCalendar({ workdays: [1, 2, 3, 4, 5], canton: 'VD', holidays: true, closures: [], extra: [] }, '2026-01-01', '2026-12-31');
+  const items = [item({ id: 'a', name: 'Tâche', start_date: '2026-05-11', end_date: '2026-05-18', duration: 5 })];
+  const xml = scheduleMspdi({ project: 'P', items, links: [], rolled: rollup(items, '2026-05-01'), workdays: cal, now: '2026-05-01T00:00:00' });
+  assert.ok(xml.includes('<FromDate>2026-05-14T00:00:00</FromDate>')); // Ascension
+  assert.equal((xml.match(/<Exception>/g) ?? []).length > 3, true);
+});

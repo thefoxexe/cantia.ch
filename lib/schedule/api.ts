@@ -8,6 +8,10 @@ export interface Schedule {
   organization_id: string;
   project_id: string;
   workdays: number[];
+  // working-day calendar (migration 20261008120000)
+  canton: string | null;
+  holidays: boolean;
+  days_off: string[];
 }
 
 export interface ScheduleBundle {
@@ -41,7 +45,7 @@ export async function hasSiteSchedule(organizationId: string): Promise<boolean> 
 }
 
 export async function loadSchedule(projectId: string): Promise<ScheduleBundle | null> {
-  const { data: schedule } = await supabase.from('site_schedules').select('id, organization_id, project_id, workdays').eq('project_id', projectId).maybeSingle();
+  const { data: schedule } = await supabase.from('site_schedules').select('id, organization_id, project_id, workdays, canton, holidays, days_off').eq('project_id', projectId).maybeSingle();
   if (!schedule) return null;
   const [{ data: items }, { data: links }] = await Promise.all([
     supabase.from('schedule_items').select(ITEM_COLS).eq('schedule_id', schedule.id).order('sort_order'),
@@ -154,6 +158,17 @@ export async function addLink(scheduleId: string, from: string, to: string): Pro
 
 export async function removeLink(id: string): Promise<string | null> {
   const { error } = await supabase.from('schedule_links').delete().eq('id', id);
+  return error?.message ?? null;
+}
+
+export async function updateCalendar(scheduleId: string, patch: { workdays?: number[]; canton?: string | null; holidays?: boolean; days_off?: string[] }): Promise<string | null> {
+  const { error } = await supabase.from('site_schedules').update(patch).eq('id', scheduleId);
+  return error?.message ?? null;
+}
+
+// Company-wide closures (congés du bâtiment…), shared by every planning.
+export async function updateClosures(organizationId: string, closures: { from: string; to: string; label: string }[]): Promise<string | null> {
+  const { error } = await supabase.from('organizations').update({ closure_periods: closures }).eq('id', organizationId);
   return error?.message ?? null;
 }
 

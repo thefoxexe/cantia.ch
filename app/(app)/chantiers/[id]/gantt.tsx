@@ -13,12 +13,15 @@ import { supabase } from '../../../../lib/supabase';
 import { fillsSoumissions } from '../../../../lib/trades';
 import { loadPdfLib } from '../../../../lib/loadPdfLib';
 import { getSignedUrl } from '../../../../lib/api/storage';
-import { hasSiteSchedule, listTemplates, saveTemplate, type ScheduleTemplate, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
+import { getAppLocale } from '../../../../lib/translations';
+import { hasSiteSchedule, updateCalendar, updateClosures, listTemplates, saveTemplate, type ScheduleTemplate, addItem, addLink, addTrade, createSchedule, deleteItem, listAudit, listTrades, loadSchedule, removeLink, updateItem, type AuditRow, type ScheduleBundle } from '../../../../lib/schedule/api';
 import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as addD, reconcile, rollup, workdaysBetween, type Conflict, type ScheduleItem, type Shift } from '../../../../lib/schedule/calc';
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
 import { buildSchedulePdf } from '../../../../lib/schedule/pdf';
 import { templateStats, toTemplate } from '../../../../lib/schedule/templates';
+import { cantonFromAddress, workCalendar, type CalendarSettings, type Canton } from '../../../../lib/schedule/holidays';
+import { ScheduleCalendarSheet } from '../../../../components/schedule/ScheduleCalendarSheet';
 import { scheduleMspdi, scheduleSheetRows } from '../../../../lib/schedule/exports';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
@@ -35,7 +38,7 @@ export default function ChantierGanttScreen() {
   const c = useScheduleCopy();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { organization } = useAuth();
+  const { organization, role, refreshOrganization } = useAuth();
   const { project } = useProject(id);
   const { width } = useWindowDimensions();
   const phone = width < 700;
@@ -92,7 +95,28 @@ export default function ChantierGanttScreen() {
 
   const items = bundle?.items ?? [];
   const links = bundle?.links ?? [];
-  const workdays = bundle?.schedule.workdays ?? [1, 2, 3, 4, 5];
+  // Working-day calendar: weekdays + the canton's holidays + company
+  // closures + this chantier's days off. Every date calculation takes it.
+  const sched = bundle?.schedule;
+  const guessedCanton = useMemo(
+    () => cantonFromAddress(project?.address) ?? cantonFromAddress(organization?.postal_code ?? null),
+    [project?.address, organization?.postal_code],
+  );
+  const calSettings: CalendarSettings = useMemo(
+    () => ({
+      workdays: sched?.workdays?.length ? sched.workdays : [1, 2, 3, 4, 5],
+      canton: ((sched?.canton as Canton | null) ?? guessedCanton) || null,
+      holidays: sched?.holidays ?? true,
+      closures: organization?.closure_periods ?? [],
+      extra: sched?.days_off ?? [],
+    }),
+    [sched, guessedCanton, organization?.closure_periods],
+  );
+  const workdays = useMemo(() => {
+    const y = Number(today.slice(0, 4));
+    return workCalendar(calSettings, `${y - 3}-01-01`, `${y + 6}-12-31`);
+  }, [calSettings, today]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const rolled = useMemo(() => rollup(items, today), [items, today]);
 
   // A successor that starts before its predecessor ends.
@@ -163,7 +187,7 @@ export default function ChantierGanttScreen() {
     // on a Saturday the Friday before
     const workStart = nextWorkday(start, workdays);
     let workEnd = end;
-    for (let i = 0; i < 7 && !isWorkday(workEnd, workdays) && workEnd > workStart; i++) workEnd = addD(workEnd, -1);
+    for (let i = 0; i < 120 && !isWorkday(workEnd, workdays) && workEnd > workStart; i++) workEnd = addD(workEnd, -1);
     const patch =
       mode === 'move'
         ? reconcile({ kind: item.kind, start_date: workStart, end_date: null, duration: item.duration ?? (item.kind === 'milestone' ? 0 : null) }, 'start', workdays)
@@ -341,6 +365,7 @@ export default function ChantierGanttScreen() {
               </View>
               <Btn icon="crosshair" label={c.today} onPress={() => setToToday((n) => n + 1)} />
               <View style={{ flex: 1 }} />
+              <Btn icon="calendar" label={c.calendar} variant="ghost" onPress={() => setCalendarOpen(true)} />
               <Btn icon="clock" label={c.history} variant="ghost" onPress={async () => setHistory(await listAudit(bundle.schedule.id))} />
               {editable && items.length ? <Btn icon="bookmark" label={c.saveTemplate} variant="ghost" onPress={() => setTplOpen(true)} /> : null}
               {Platform.OS === 'web' ? <Btn icon="download" label={c.exportAll} onPress={() => setPdfOpen(true)} /> : null}
@@ -483,6 +508,51 @@ export default function ChantierGanttScreen() {
         </Sheet>
       ) : null}
 
+      {calendarOpen && bundle ? (
+        <ScheduleCalendarSheet
+          c={c}
+          lang={getAppLocale()}
+          initial={{ ...calSettings, cantonSet: !!sched?.canton }}
+          guessedCanton={guessedCanton}
+          editable={editable}
+          canEditClosures={editable && (role === 'owner' || role === 'admin')}
+          today={today}
+          onClose={() => setCalendarOpen(false)}
+          onSave={async (next, cantonSet) => {
+            const e1 = await updateCalendar(bundle.schedule.id, { workdays: next.workdays, canton: cantonSet ? next.canton : null, holidays: next.holidays, days_off: next.extra });
+            if (e1) return e1;
+            if ((role === 'owner' || role === 'admin') && organization && JSON.stringify(next.closures) !== JSON.stringify(calSettings.closures)) {
+              const e2 = await updateClosures(organization.id, next.closures);
+              if (e2) return e2;
+              refreshOrganization();
+            }
+            setCalendarOpen(false);
+            // dates under the new calendar: same starts and durations
+            const y = Number(today.slice(0, 4));
+            const cal = workCalendar(next, `${y - 3}-01-01`, `${y + 6}-12-31`);
+            const fresh = await loadSchedule(id!);
+            setBundle(fresh);
+            if (!fresh) return null;
+            const direct: Shift[] = [];
+            const moved = fresh.items.map((it) => {
+              if (it.kind === 'phase' || !it.start_date || it.fixed || it.status === 'done') return it;
+              const start = nextWorkday(it.start_date, cal);
+              const dur = it.kind === 'milestone' ? 0 : it.duration ?? (it.end_date ? workdaysBetween(it.start_date, it.end_date, workdays) : 1);
+              const end = it.kind === 'milestone' ? start : endFromDuration(start, dur, cal);
+              if (start === it.start_date && end === it.end_date) return it;
+              direct.push({ id: it.id, name: it.name, from: { start: it.start_date, end: it.end_date ?? it.start_date }, to: { start, end } });
+              return { ...it, start_date: start, end_date: end };
+            });
+            const more = cascade(moved, fresh.links, direct.map((d) => d.id), cal);
+            const shifts = [...direct, ...more.shifts.filter((s2) => !direct.some((d) => d.id === s2.id))];
+            if (shifts.length || more.conflicts.length) {
+              setNotice(c.calendarRecalc);
+              setProposal({ shifts, conflicts: more.conflicts });
+            }
+            return null;
+          }}
+        />
+      ) : null}
       {tplOpen && organization ? (
         <TemplateSheet
           c={c}

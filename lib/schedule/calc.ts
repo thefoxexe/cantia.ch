@@ -53,12 +53,15 @@ export function daysBetween(a: string, b: string): number {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
 }
 
-export const isWorkday = (date: string, workdays = DEFAULT_WORKDAYS) => workdays.includes(weekday(date));
+// `workdays` may carry the dates that are off (holidays, company closures —
+// see WorkCalendar in holidays.ts); a plain list of weekdays works as before.
+export const isWorkday = (date: string, workdays: number[] & { off?: Set<string> } = DEFAULT_WORKDAYS) =>
+  workdays.includes(weekday(date)) && !workdays.off?.has(date);
 
 // The same day if it is worked, else the next worked one.
 export function nextWorkday(date: string, workdays = DEFAULT_WORKDAYS): string {
   let d = date;
-  for (let i = 0; i < 14 && !isWorkday(d, workdays); i++) d = addDays(d, 1);
+  for (let i = 0; i < 120 && !isWorkday(d, workdays); i++) d = addDays(d, 1);
   return d;
 }
 
@@ -75,7 +78,7 @@ export function endFromDuration(start: string, duration: number, workdays = DEFA
 // First day of a task that ends on `end` and lasts `duration` working days.
 export function startFromDuration(end: string, duration: number, workdays = DEFAULT_WORKDAYS): string {
   let d = end;
-  for (let i = 0; i < 14 && !isWorkday(d, workdays); i++) d = addDays(d, -1);
+  for (let i = 0; i < 120 && !isWorkday(d, workdays); i++) d = addDays(d, -1);
   for (let left = Math.max(1, duration) - 1; left > 0; ) {
     d = addDays(d, -1);
     if (isWorkday(d, workdays)) left -= 1;

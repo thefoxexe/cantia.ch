@@ -132,6 +132,8 @@ export interface Organization {
   is_complimentary: boolean;
   created_at: string;
   updated_at: string;
+  // company closures (congés du bâtiment…) for the site planning calendar
+  closure_periods?: { from: string; to: string; label: string }[] | null;
 }
 
 export interface OrganizationInvite {

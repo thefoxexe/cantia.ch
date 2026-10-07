@@ -1,7 +1,7 @@
 // Planning de chantier — Excel rows and MS Project XML (MSPDI).
 // Pure functions (no RN, no XLSX) so Node can run the tests; the screen
 // turns the rows into an .xlsx with SheetJS.
-import { DEFAULT_WORKDAYS, flatten, workdaysBetween, type Rolled, type ScheduleItem, type ScheduleLink } from './calc.ts';
+import { DEFAULT_WORKDAYS, addDays as addDaysIso, flatten, workdaysBetween, type Rolled, type ScheduleItem, type ScheduleLink } from './calc.ts';
 
 type Cell = string | number | Date | null;
 
@@ -87,6 +87,14 @@ export function scheduleMspdi(opts: { project: string; items: ScheduleItem[]; li
     })
     .join('');
 
+  // holidays, closures and days off of the chantier (see WorkCalendar)
+  const offDays = [...((workdays as number[] & { off?: Set<string> }).off ?? [])].filter((d) => d >= addDaysIso(first, -31) && d <= addDaysIso(last, 365)).sort();
+  const exceptions = offDays.length
+    ? `<Exceptions>${offDays
+        .map((d) => `<Exception><EnteredByOccurrences>0</EnteredByOccurrences><TimePeriod><FromDate>${d}T00:00:00</FromDate><ToDate>${d}T23:59:00</ToDate></TimePeriod><Occurrences>1</Occurrences><Name>Jour fermé</Name><Type>1</Type><DayWorking>0</DayWorking></Exception>`)
+        .join('')}</Exceptions>`
+    : '';
+
   const tasks = rows.map(({ item, depth }, i) => {
     const { start, end } = dates[i];
     const summary = item.kind === 'phase' || hasChildren.has(item.id);
@@ -136,7 +144,7 @@ export function scheduleMspdi(opts: { project: string; items: ScheduleItem[]; li
     tag('MinutesPerWeek', 480 * workdays.length),
     tag('DaysPerMonth', 20),
     tag('DurationFormat', 7),
-    `<Calendars><Calendar><UID>1</UID><Name>Cantia</Name><IsBaseCalendar>1</IsBaseCalendar><WeekDays>${weekDays}</WeekDays></Calendar></Calendars>`,
+    `<Calendars><Calendar><UID>1</UID><Name>Cantia</Name><IsBaseCalendar>1</IsBaseCalendar><WeekDays>${weekDays}</WeekDays>${exceptions}</Calendar></Calendars>`,
     `<Tasks>${tasks.join('')}</Tasks>`,
     '</Project>',
   ].join('\n');
