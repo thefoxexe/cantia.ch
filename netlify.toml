@@ -64,6 +64,27 @@
   to = "/presentation.html"
   status = 200
 
+# PostHog (session replay on cantia.ch, lib/sessionReplay.ts) reached through
+# our own domain, so tracking protection and ad blockers don't drop it.
+# Only used after the visitor accepted cookies.
+[[redirects]]
+  from = "/ingest/static/*"
+  to = "https://eu-assets.i.posthog.com/static/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ingest/array/*"
+  to = "https://eu-assets.i.posthog.com/array/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ingest/*"
+  to = "https://eu.i.posthog.com/:splat"
+  status = 200
+  force = true
+
 # Browser protections on every page (cantia.ch and app.cantia.ch share this
 # export). SAMEORIGIN, not DENY: the app's maps are srcdoc iframes of its own.
 # Camera / microphone / location stay allowed for the app itself (photos,

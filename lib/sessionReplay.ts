@@ -26,7 +26,9 @@ export async function startSessionReplay(): Promise<void> {
   try {
     const { default: posthog } = await import('posthog-js');
     posthog.init(KEY, {
-      api_host: 'https://eu.i.posthog.com',
+      // through cantia.ch (netlify.toml /ingest proxy): Safari's tracking
+      // protection and ad blockers block posthog.com, not our own domain
+      api_host: `${window.location.origin}/ingest`,
       ui_host: 'https://eu.posthog.com',
       person_profiles: 'identified_only',
       capture_pageview: 'history_change',
