@@ -89,8 +89,6 @@
 # export). SAMEORIGIN, not DENY: the app's maps are srcdoc iframes of its own.
 # Camera / microphone / location stay allowed for the app itself (photos,
 # dictation, voice notes, site position), refused to any embedded page.
-# No Content-Security-Policy yet: pdf.js, cdnjs and Supabase need a policy
-# tested in Report-Only first.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -99,6 +97,11 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(self), microphone=(self), geolocation=(self), payment=(), usb=(), interest-cohort=()"
+    # Content-Security-Policy in observation mode: browsers only report what
+    # it would block. Checked enforcing on the main marketing and app pages
+    # (no violation) — switch the name to Content-Security-Policy once the
+    # less common flows (PDF import, maps, payments) have been watched.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://krijilwxhdlzflvnvrtl.supabase.co wss://krijilwxhdlzflvnvrtl.supabase.co https://api.open-meteo.com https://geocoding-api.open-meteo.com https://api3.geo.admin.ch https://api-adresse.data.gouv.fr https://www.googletagmanager.com https://www.google.com https://googleads.g.doubleclick.net https://cdnjs.cloudflare.com https://unpkg.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://td.doubleclick.net; worker-src 'self' blob: https://cdnjs.cloudflare.com; media-src 'self' blob: data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
 
 [[headers]]
   for = "/presentation*"
