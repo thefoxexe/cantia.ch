@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { isMarketingHost } from './appHost';
+import { startSessionReplay, stopSessionReplay } from './sessionReplay';
 
 // Self-hosted pageview logging for the marketing site — no third-party
 // script, no ad-tracking cookie. The visitor id is a random UUID kept in
@@ -121,6 +122,8 @@ export function setCookieConsent(value: CookieConsent): void {
     // Blocked storage: the banner simply shows again next visit.
   }
   const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  if (value === 'accepted') void startSessionReplay();
+  else stopSessionReplay();
   if (value === 'accepted') {
     gtag?.('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
     const attr = takePending<Attribution>(PENDING_ATTR_KEY);

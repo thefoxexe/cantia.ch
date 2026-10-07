@@ -14,6 +14,8 @@ import { registerForPushNotificationsAsync } from '../lib/notifications/register
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
 import { CookieBanner } from '../components/CookieBanner';
+import { getCookieConsent } from '../lib/siteAnalytics';
+import { onRouteChange, startSessionReplay } from '../lib/sessionReplay';
 import { holdHydrationViewport } from '../lib/hydrationViewport';
 import '../lib/pwaInstall';
 
@@ -153,6 +155,15 @@ function RootNavigation() {
       router.replace('/(auth)/login');
     }
   }, [session, organization, loading, isPlatformAdmin, isPasswordRecovery, pendingInvite, segments, router]);
+
+  // Session replay on cantia.ch, only once the visitor accepted cookies.
+  const replayPath = usePathname();
+  useEffect(() => {
+    if (getCookieConsent() === 'accepted') void startSessionReplay();
+  }, []);
+  useEffect(() => {
+    onRouteChange(replayPath);
+  }, [replayPath]);
 
   return (
     <>
