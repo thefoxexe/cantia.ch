@@ -6,22 +6,23 @@ import Head from 'expo-router/head';
 import { Feather } from '@expo/vector-icons';
 import { AccNav, AccPage, NavButton, PAGE_MAX, useIsWide } from './AccountingChrome';
 import { useAccCopy } from '../../lib/accounting/locale';
+import { useLandingCopy } from '../../lib/accounting/landingCopy';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
 const ORIGIN = 'https://accounting.cantia.ch';
 
 const META = {
   fr: {
-    title: 'Cantia Accounting · Portail gratuit pour fiduciaires en Suisse',
-    description: 'Logiciel gratuit pour fiduciaires : demandes de pièces aux mandants, échéances TVA, AVS et bouclement, factures, écritures et justificatifs de vos clients du bâtiment sur Cantia.',
+    title: 'Cantia Accounting · Logiciel gratuit pour fiduciaires en Suisse',
+    description: 'Logiciel gratuit pour fiduciaires : comptabilité de vos mandants (saisie, import Banana, Abacus, Winbiz), décompte TVA de l’AFC avec fichier eCH-0217, bouclement, pièces et signatures par lien privé, temps et honoraires.',
   },
   de: {
-    title: 'Cantia Accounting · Kostenloses Mandantenportal für Treuhänder',
-    description: 'Kostenlose Software für Treuhänder in der Schweiz: Belege bei Mandanten anfordern, MWST-, AHV- und Abschlussfristen, Rechnungen, Buchungen und Belege Ihrer Baukunden auf Cantia.',
+    title: 'Cantia Accounting · Kostenlose Software für Treuhänder',
+    description: 'Kostenlose Software für Treuhänder in der Schweiz: Buchhaltung Ihrer Mandanten (Erfassung, Import aus Banana, Abacus, Winbiz), MWST-Abrechnung mit eCH-0217-Datei, Abschluss, Belege und Unterschriften per privatem Link, Zeit und Honorare.',
   },
   it: {
-    title: 'Cantia Accounting · Portale gratuito per fiduciari in Svizzera',
-    description: 'Software gratuito per fiduciari: richieste di documenti ai mandanti, scadenze IVA, AVS e chiusura, fatture, registrazioni e giustificativi dei suoi clienti edili su Cantia.',
+    title: 'Cantia Accounting · Software gratuito per fiduciari in Svizzera',
+    description: 'Software gratuito per fiduciari: contabilità dei mandanti (registrazione, importazione da Banana, Abacus, Winbiz), rendiconto IVA con file eCH-0217, chiusura, documenti e firme con link privato, tempo e onorari.',
   },
 };
 
@@ -134,6 +135,10 @@ export function AccountingLanding() {
         </View>
       </Section>
 
+      <KindsSection />
+      <FeaturesSection />
+      <FlowSection />
+
       {/* Trust */}
       <View style={styles.bandWrap}>
         <View style={[styles.band, wide && styles.bandWide]}>
@@ -225,6 +230,148 @@ function Section({ title, children }: { title?: string; children: React.ReactNod
           </Text>
         ) : null}
         {children}
+      </View>
+    </View>
+  );
+}
+
+// The two kinds of clients.
+function KindsSection() {
+  const l = useLandingCopy().kinds;
+  const wide = useIsWide();
+  const card = (k: typeof l.cantia, dark: boolean) => (
+    <View style={[styles.kind, dark && styles.kindDark, wide && { flex: 1 }]}>
+      <Text style={[styles.kindLabel, dark && { color: '#D9895A' }]}>{k.label}</Text>
+      <Text style={[styles.h3, dark && { color: '#FFFFFF' }]}>{k.title}</Text>
+      <View style={{ gap: spacing.sm }}>
+        {k.items.map((item) => (
+          <View key={item} style={styles.kindRow}>
+            <Feather name="check" size={16} color={dark ? '#D9895A' : colors.primary} style={{ marginTop: 4 }} />
+            <Text style={[styles.body, { flex: 1 }, dark && { color: '#EFE4D6' }]}>{item}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+  return (
+    <Section>
+      <View style={{ gap: spacing.sm }}>
+        <Text style={styles.eyebrow}>{l.eyebrow}</Text>
+        <Text style={styles.h2} role="heading" aria-level={2}>
+          {l.title}
+        </Text>
+      </View>
+      <View style={[{ gap: spacing.lg }, wide && { flexDirection: 'row' }]}>
+        {card(l.cantia, false)}
+        {card(l.external, true)}
+      </View>
+    </Section>
+  );
+}
+
+// Every tool of the workspace.
+function FeaturesSection() {
+  const l = useLandingCopy().features;
+  const wide = useIsWide();
+  const mid = useIsWide(720);
+  return (
+    <Section>
+      <View style={{ gap: spacing.sm }}>
+        <Text style={styles.eyebrow}>{l.eyebrow}</Text>
+        <Text style={styles.h2} role="heading" aria-level={2}>
+          {l.title}
+        </Text>
+      </View>
+      <View style={styles.grid}>
+        {l.items.map((f) => (
+          <View key={f.title} style={[styles.feature, { flexBasis: wide ? '31%' : mid ? '47%' : '100%' }]}>
+            <View style={styles.featureIcon}>
+              <Feather name={f.icon as keyof typeof Feather.glyphMap} size={18} color={colors.primary} />
+            </View>
+            <Text style={styles.cardTitle}>{f.title}</Text>
+            <Text style={styles.featureText}>{f.text}</Text>
+          </View>
+        ))}
+      </View>
+    </Section>
+  );
+}
+
+// A quarter, from the receipt to the VAT return, with an example form.
+function FlowSection() {
+  const l = useLandingCopy().flow;
+  const wide = useIsWide();
+  return (
+    <Section>
+      <View style={[{ gap: 48 }, wide && { flexDirection: 'row', alignItems: 'center' }]}>
+        <View style={[{ gap: spacing.lg }, wide && { flex: 1 }]}>
+          <View style={{ gap: spacing.sm }}>
+            <Text style={styles.eyebrow}>{l.eyebrow}</Text>
+            <Text style={styles.h2} role="heading" aria-level={2}>
+              {l.title}
+            </Text>
+          </View>
+          {l.steps.map((step, i) => (
+            <View key={step.title} style={styles.flowStep}>
+              <View style={styles.stepDot}>
+                <Text style={styles.stepDotText}>{i + 1}</Text>
+              </View>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={styles.cardTitle}>{step.title}</Text>
+                <Text style={styles.body}>{step.text}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+        <View style={[wide ? { flex: 1.05 } : { width: '100%' }]}>
+          <BrowserFrame url="accounting.cantia.ch/mandant">
+            <VatPreview />
+          </BrowserFrame>
+        </View>
+      </View>
+    </Section>
+  );
+}
+
+function VatPreview() {
+  const p = useLandingCopy().flow.preview;
+  return (
+    <View style={styles.preview} aria-hidden>
+      <View style={styles.previewHead}>
+        <Text style={styles.previewTitle}>{p.title}</Text>
+        <View style={styles.previewPill}>
+          <Text style={styles.previewPillText}>{p.example}</Text>
+        </View>
+      </View>
+      {p.rows.map(([fig, label, value]) => (
+        <View key={fig} style={styles.vatRow}>
+          <Text style={styles.vatFig}>{fig}</Text>
+          <Text style={styles.vatLabel} numberOfLines={1}>
+            {label}
+          </Text>
+          <Text style={styles.vatValue}>{value}</Text>
+        </View>
+      ))}
+      <View style={[styles.vatRow, styles.vatTotal]}>
+        <Text style={styles.vatFig}>{p.total[0]}</Text>
+        <Text style={[styles.vatLabel, { fontWeight: '800' }]}>{p.total[1]}</Text>
+        <Text style={[styles.vatValue, { fontWeight: '800', fontSize: 15 }]}>CHF {p.total[2]}</Text>
+      </View>
+      {p.checks.map((c) => (
+        <View key={c} style={styles.kindRow}>
+          <Feather name="check-circle" size={13} color={colors.success} style={{ marginTop: 2 }} />
+          <Text style={styles.previewMeta}>{c}</Text>
+        </View>
+      ))}
+      <View style={styles.vatActions}>
+        <View style={styles.vatBtnGhost}>
+          <Feather name="download" size={13} color={colors.text} />
+          <Text style={styles.vatBtnGhostText}>{p.xml}</Text>
+        </View>
+        <View style={styles.vatBtn}>
+          <Feather name="send" size={13} color="#FFFFFF" />
+          <Text style={styles.vatBtnText}>{p.file}</Text>
+        </View>
       </View>
     </View>
   );
@@ -355,4 +502,23 @@ const styles = StyleSheet.create({
   previewAmount: { fontSize: 12.5, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
   previewOverdue: { fontSize: 11, color: colors.danger, fontWeight: '700' },
   previewOk: { fontSize: 11, color: colors.success },
+  kind: { gap: spacing.md, padding: 32, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  kindDark: { backgroundColor: '#16120E', borderColor: '#16120E' },
+  kindLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', color: colors.primary },
+  kindRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg, justifyContent: 'space-between' },
+  feature: { flexGrow: 1, gap: spacing.sm, padding: spacing.lg, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  featureIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  featureText: { fontSize: fontSize.sm, lineHeight: 22, color: '#4A3F35' },
+  flowStep: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
+  vatRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 7, borderTopWidth: 1, borderTopColor: colors.border },
+  vatTotal: { borderTopWidth: 2, borderTopColor: colors.text, backgroundColor: colors.bg, paddingHorizontal: 6, marginHorizontal: -6 },
+  vatFig: { width: 34, fontSize: 12, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
+  vatLabel: { flex: 1, fontSize: 12.5, color: colors.text },
+  vatValue: { fontSize: 12.5, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
+  vatActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xs },
+  vatBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: 8, paddingHorizontal: 12 },
+  vatBtnText: { fontSize: 12.5, fontWeight: '700', color: '#FFFFFF' },
+  vatBtnGhost: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: colors.surface },
+  vatBtnGhostText: { fontSize: 12.5, fontWeight: '700', color: colors.text },
 });

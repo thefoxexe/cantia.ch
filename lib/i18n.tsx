@@ -562,7 +562,7 @@ const fr: Dict = {
     title: 'Un écosystème pour les entreprises qui avancent par projets.',
     items: [
       { name: 'Cantia', tag: 'Pour les entreprises', text: 'Devis, factures QR, chantiers, rapports, heures et salaires. Le logiciel de gestion du bâtiment et des métiers de projets.', cta: 'Essayer gratuitement' },
-      { name: 'Cantia Accounting', tag: 'Gratuit pour les fiduciaires', text: 'Toutes les données comptables de vos mandants, les demandes de pièces et les échéances TVA au même endroit.', cta: 'Découvrir l’espace' },
+      { name: 'Cantia Accounting', tag: 'Gratuit pour les fiduciaires', text: 'La comptabilité de tous vos mandants, sur Cantia ou non : saisie et import Banana, Abacus, Winbiz, décompte TVA de l’AFC, bouclement, pièces et signatures par lien privé.', cta: 'Découvrir l’espace' },
       { name: 'Cantia Partners', tag: 'Programme partenaire', text: 'Recommandez Cantia autour de vous et gagnez davantage : une commission sur chaque entreprise que vous amenez.', cta: 'Devenir partenaire' },
     ],
   },
@@ -1012,7 +1012,7 @@ const de: Dict = {
     title: 'Ein Ökosystem für Unternehmen, die in Projekten arbeiten.',
     items: [
       { name: 'Cantia', tag: 'Für Unternehmen', text: 'Offerten, QR-Rechnungen, Baustellen, Rapporte, Stunden und Löhne. Die Verwaltungssoftware für den Bau und alle Projektbranchen.', cta: 'Kostenlos testen' },
-      { name: 'Cantia Accounting', tag: 'Kostenlos für Treuhänder', text: 'Alle Buchhaltungsdaten Ihrer Mandanten, Belegeanfragen und MWST-Fristen an einem Ort.', cta: 'Bereich entdecken' },
+      { name: 'Cantia Accounting', tag: 'Kostenlos für Treuhänder', text: 'Die Buchhaltung aller Ihrer Mandanten, mit oder ohne Cantia: Erfassung und Import aus Banana, Abacus, Winbiz, MWST-Abrechnung der ESTV, Abschluss, Belege und Unterschriften per privatem Link.', cta: 'Bereich entdecken' },
       { name: 'Cantia Partners', tag: 'Partnerprogramm', text: 'Empfehlen Sie Cantia weiter und verdienen Sie mehr: eine Provision für jedes Unternehmen, das Sie vermitteln.', cta: 'Partner werden' },
     ],
   },
@@ -1462,7 +1462,7 @@ const it: Dict = {
     title: 'Un ecosistema per le imprese che lavorano per progetti.',
     items: [
       { name: 'Cantia', tag: 'Per le imprese', text: 'Preventivi, fatture QR, cantieri, rapporti, ore e salari. Il software di gestione per l’edilizia e tutti i mestieri a progetto.', cta: 'Provare gratis' },
-      { name: 'Cantia Accounting', tag: 'Gratuito per i fiduciari', text: 'Tutti i dati contabili dei suoi mandanti, le richieste di documenti e le scadenze IVA in un unico posto.', cta: 'Scoprire lo spazio' },
+      { name: 'Cantia Accounting', tag: 'Gratuito per i fiduciari', text: 'La contabilità di tutti i suoi mandanti, su Cantia o no: registrazione e importazione da Banana, Abacus, Winbiz, rendiconto IVA dell’AFC, chiusura, documenti e firme con link privato.', cta: 'Scoprire lo spazio' },
       { name: 'Cantia Partners', tag: 'Programma partner', text: 'Raccomandi Cantia e guadagni di più: una commissione per ogni impresa che presenta.', cta: 'Diventare partner' },
     ],
   },
