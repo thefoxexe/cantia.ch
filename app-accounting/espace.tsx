@@ -8,6 +8,7 @@ import { Cockpit } from '../components/accounting/Cockpit';
 import { AccShell, SECTIONS, type SectionKey } from '../components/accounting/Shell';
 import { useAccCopy } from '../lib/accounting/locale';
 import { useWorkCopy } from '../lib/accounting/workCopy';
+import { useProCopy } from '../lib/accounting/proCopy';
 import { acc, type Me } from '../lib/accounting/api';
 import { usePartnerSession } from '../lib/partners/session';
 import { colors, spacing } from '../lib/theme';
@@ -18,6 +19,7 @@ import { colors, spacing } from '../lib/theme';
 export default function AccountingSpace() {
   const { copy } = useAccCopy();
   const w = useWorkCopy();
+  const p = useProCopy();
   const router = useRouter();
   const session = usePartnerSession();
   const params = useLocalSearchParams<{ tab?: string }>();
@@ -58,7 +60,7 @@ export default function AccountingSpace() {
   return (
     <AccShell me={me ?? null} active={tab} onSelect={go} badges={counts}>
       <Head>
-        <title>{`${w.shell[tab]} · ${copy.brand}`}</title>
+        <title>{`${tab === 'work' || tab === 'time' || tab === 'approvals' ? p.shell[tab] : w.shell[tab]} · ${copy.brand}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
       {me === undefined ? <Text style={styles.loading}>{copy.common.loading}</Text> : <Cockpit me={me} tab={tab} onGo={go} onReload={load} onCounts={setCounts} />}

@@ -24,6 +24,8 @@ import {
   type FiduciaryRequest,
 } from '../../lib/accounting/workspace';
 import { Linking, Platform } from 'react-native';
+import { clientHref, pro, refFromKey, type ClientRef } from '../../lib/accounting/pro';
+import { ClientPicker, useClientOptions } from './ProShared';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
@@ -166,7 +168,7 @@ export function OverviewSection({
       icon: 'corner-down-left' as const,
       tone: 'success' as const,
       text: fill(w.overview.answered, { client: r.organization_name, title: r.title }),
-      onPress: () => router.push(`/mandant?id=${r.organization_id}&tab=requests` as any),
+      onPress: () => router.push(clientHref(r, 'requests') as any),
     })),
     ...openDeadlines
       .filter((d) => daysUntil(d.due) < 0)
@@ -182,7 +184,7 @@ export function OverviewSection({
       icon: 'clock' as const,
       tone: 'warning' as const,
       text: fill(w.overview.overdueRequest, { client: r.organization_name, title: r.title }),
-      onPress: () => router.push(`/mandant?id=${r.organization_id}&tab=requests` as any),
+      onPress: () => router.push(clientHref(r, 'requests') as any),
     })),
     ...openDeadlines
       .filter((d) => daysUntil(d.due) >= 0 && daysUntil(d.due) <= 14)
@@ -299,7 +301,7 @@ export function OverviewSection({
 
 type RequestFilter = 'active' | 'answered' | 'done' | 'all';
 
-export function RequestsSection({ mandants, orgId, embedded = false }: { mandants: Mandant[]; orgId?: string; embedded?: boolean }) {
+export function RequestsSection({ mandants, orgId, extId, embedded = false }: { mandants: Mandant[]; orgId?: string; extId?: string; embedded?: boolean }) {
   const { copy } = useAccCopy();
   const w = useWorkCopy();
   const t = w.requests;
@@ -309,14 +311,13 @@ export function RequestsSection({ mandants, orgId, embedded = false }: { mandant
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await work.requests(orgId ?? null);
+    const { data } = extId ? await pro.extRequests(extId) : await work.requests(orgId ?? null);
     setRows(data ?? []);
-  }, [orgId]);
+  }, [orgId, extId]);
   useEffect(() => {
     load();
   }, [load]);
 
-  const active = mandants.filter((m) => m.status === 'ACTIVE');
   const counts = {
     active: (rows ?? []).filter((r) => r.status === 'open' || r.status === 'answered').length,
     answered: (rows ?? []).filter((r) => r.status === 'answered').length,
@@ -329,7 +330,8 @@ export function RequestsSection({ mandants, orgId, embedded = false }: { mandant
 
   async function act(id: string, action: 'done' | 'cancelled' | 'open' | 'remind') {
     setMessage(null);
-    const { error } = await work.updateRequest(id, action);
+    const row = (rows ?? []).find((r) => r.id === id);
+    const { error } = row?.external_client_id ? await pro.extUpdateRequest(id, action) : await work.updateRequest(id, action);
     setMessage(error ? { text: error, error: true } : action === 'remind' ? { text: t.reminded, error: false } : null);
     load();
   }
@@ -352,8 +354,7 @@ export function RequestsSection({ mandants, orgId, embedded = false }: { mandant
 
       {composing ? (
         <NewRequestForm
-          clients={active}
-          fixedOrg={orgId}
+          fixed={orgId ? { org: orgId } : extId ? { ext: extId } : undefined}
           onCancel={() => setComposing(false)}
           onSent={() => {
             setComposing(false);
@@ -377,7 +378,7 @@ export function RequestsSection({ mandants, orgId, embedded = false }: { mandant
       ) : list.length === 0 ? (
         <Text style={s.muted}>{t.emptyFilter}</Text>
       ) : (
-        list.map((r) => <RequestCard key={r.id} request={r} showClient={!orgId} onAction={act} />)
+        list.map((r) => <RequestCard key={r.id} request={r} showClient={!orgId && !extId} onAction={act} />)
       )}
     </View>
   );
@@ -395,7 +396,7 @@ function RequestCard({ request: r, showClient, onAction }: { request: FiduciaryR
       <View style={s.reqHead}>
         <View style={{ flex: 1, minWidth: 220, gap: 4 }}>
           {showClient ? (
-            <Pressable onPress={() => router.push(`/mandant?id=${r.organization_id}&tab=requests` as any)}>
+            <Pressable onPress={() => router.push(clientHref(r, 'requests') as any)}>
               <Text style={s.reqClient}>{r.organization_name}</Text>
             </Pressable>
           ) : null}
@@ -456,24 +457,26 @@ function RequestCard({ request: r, showClient, onAction }: { request: FiduciaryR
   );
 }
 
-function NewRequestForm({ clients, fixedOrg, onCancel, onSent }: { clients: Mandant[]; fixedOrg?: string; onCancel: () => void; onSent: () => void }) {
+function NewRequestForm({ fixed, onCancel, onSent }: { fixed?: ClientRef; onCancel: () => void; onSent: () => void }) {
   const w = useWorkCopy();
   const t = w.requests;
   const { copy } = useAccCopy();
-  const [org, setOrg] = useState<string | null>(fixedOrg ?? (clients.length === 1 ? clients[0].organization_id : null));
+  const options = useClientOptions();
+  const [clientKey, setClientKey] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [due, setDue] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const ref = fixed ?? (clientKey ? refFromKey(clientKey) : null);
 
   async function send() {
     const dueIso = parseSwissDate(due);
     if (dueIso === undefined) return setError(t.invalidDate);
-    if (!org || title.trim().length < 2) return;
+    if (!ref || title.trim().length < 2) return;
     setBusy(true);
     setError(null);
-    const { error: err } = await work.createRequest(org, title.trim(), details.trim(), dueIso);
+    const { error: err } = ref.ext ? await pro.extCreateRequest(ref.ext, title.trim(), details.trim(), dueIso) : await work.createRequest(ref.org!, title.trim(), details.trim(), dueIso);
     setBusy(false);
     if (err) setError(err);
     else onSent();
@@ -481,21 +484,7 @@ function NewRequestForm({ clients, fixedOrg, onCancel, onSent }: { clients: Mand
 
   return (
     <Panel title={t.new} tone="accent">
-      {!fixedOrg ? (
-        <View style={{ gap: 6 }}>
-          <Text style={s.label}>{t.client}</Text>
-          <View style={s.pickList}>
-            {clients.map((c) => {
-              const on = org === c.organization_id;
-              return (
-                <Pressable key={c.organization_id} onPress={() => setOrg(c.organization_id)} style={[s.pick, on && s.pickOn]}>
-                  <Text style={[s.pickText, on && s.pickTextOn]}>{c.name}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      ) : null}
+      {!fixed ? <ClientPicker value={clientKey} onChange={setClientKey} options={options} /> : null}
       <View style={{ gap: 6 }}>
         <Text style={s.label}>{t.what}</Text>
         <TextInput value={title} onChangeText={setTitle} placeholder={t.whatPlaceholder} placeholderTextColor={colors.textMuted} style={s.input} maxLength={160} />
@@ -517,7 +506,7 @@ function NewRequestForm({ clients, fixedOrg, onCancel, onSent }: { clients: Mand
       </View>
       {error ? <Text style={s.error}>{error}</Text> : null}
       <View style={s.rowActions}>
-        <Button title={t.send} icon="send" onPress={send} loading={busy} disabled={!org || title.trim().length < 2} />
+        <Button title={t.send} icon="send" onPress={send} loading={busy} disabled={!ref || title.trim().length < 2} />
         <Pressable onPress={onCancel}>
           <Text style={s.linkMuted}>{copy.clients.cancel}</Text>
         </Pressable>
@@ -531,7 +520,7 @@ function NewRequestForm({ clients, fixedOrg, onCancel, onSent }: { clients: Mand
 
 type DeadlineFilter = 'open' | 'late' | 'done' | 'all';
 
-export function DeadlinesSection({ orgId, embedded = false }: { orgId?: string; embedded?: boolean }) {
+export function DeadlinesSection({ orgId, extId, embedded = false }: { orgId?: string; extId?: string; embedded?: boolean }) {
   const { copy, locale } = useAccCopy();
   const w = useWorkCopy();
   const t = w.deadlines;
@@ -543,8 +532,8 @@ export function DeadlinesSection({ orgId, embedded = false }: { orgId?: string; 
 
   const load = useCallback(async () => {
     const { data } = await work.deadlineData();
-    setClients((data ?? []).filter((c) => !orgId || c.organization_id === orgId));
-  }, [orgId]);
+    setClients((data ?? []).filter((c) => (!orgId || c.organization_id === orgId) && (!extId || c.external_client_id === extId)));
+  }, [orgId, extId]);
   useEffect(() => {
     load();
   }, [load]);
@@ -564,7 +553,7 @@ export function DeadlinesSection({ orgId, embedded = false }: { orgId?: string; 
     setClients((prev) =>
       prev
         ? prev.map((c) =>
-            c.organization_id !== d.organization_id
+            c.organization_id !== d.organization_id || (c.external_client_id ?? null) !== d.external_client_id
               ? c
               : {
                   ...c,
@@ -573,7 +562,7 @@ export function DeadlinesSection({ orgId, embedded = false }: { orgId?: string; 
           )
         : prev,
     );
-    const { error: err } = await work.setDeadline(d.organization_id, d.kind, d.period_key, status);
+    const { error: err } = d.external_client_id ? await pro.extSetDeadline(d.external_client_id, d.kind, d.period_key, status) : await work.setDeadline(d.organization_id!, d.kind, d.period_key, status);
     if (err) {
       setError(err);
       load();
@@ -620,8 +609,8 @@ export function DeadlinesSection({ orgId, embedded = false }: { orgId?: string; 
                     <Text style={s.bodyStrong}>
                       {t.kinds[d.kind]} · {d.period_label}
                     </Text>
-                    {!orgId ? (
-                      <Pressable onPress={() => router.push(`/mandant?id=${d.organization_id}&tab=deadlines` as any)}>
+                    {!orgId && !extId ? (
+                      <Pressable onPress={() => router.push(clientHref(d, 'deadlines') as any)}>
                         <Text style={s.small}>{d.client}</Text>
                       </Pressable>
                     ) : (
@@ -834,7 +823,7 @@ export function InsightsPanel({ orgId, onGo }: { orgId: string; onGo: (tab: 'req
   );
 }
 
-export function NotesPanel({ orgId }: { orgId: string }) {
+export function NotesPanel({ orgId, extId }: { orgId?: string; extId?: string }) {
   const { locale } = useAccCopy();
   const w = useWorkCopy();
   const t = w.client;
@@ -843,14 +832,15 @@ export function NotesPanel({ orgId }: { orgId: string }) {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
-    work.notes(orgId).then(({ data }) => setNotes(data ?? []));
-  }, [orgId]);
+    (extId ? pro.extNotes(extId) : work.notes(orgId!)).then(({ data }) => setNotes(data ?? []));
+  }, [orgId, extId]);
   useEffect(load, [load]);
 
   async function add() {
     if (!body.trim()) return;
     setBusy(true);
-    await work.addNote(orgId, body.trim());
+    if (extId) await pro.extAddNote(extId, body.trim());
+    else await work.addNote(orgId!, body.trim());
     setBusy(false);
     setBody('');
     load();
@@ -871,7 +861,7 @@ export function NotesPanel({ orgId }: { orgId: string }) {
               {[n.author_name, formatDate(n.created_at, locale)].filter(Boolean).join(' · ')}
             </Text>
             {n.mine ? (
-              <Pressable onPress={() => work.deleteNote(n.id).then(load)}>
+              <Pressable onPress={() => (extId ? pro.extArchiveNote(n.id) : work.deleteNote(n.id)).then(load)}>
                 <Text style={s.linkMuted}>{t.deleteNote}</Text>
               </Pressable>
             ) : null}

@@ -5,7 +5,11 @@ import { Feather } from '@expo/vector-icons';
 import { Button, Field } from '../ui';
 import { useIsWide } from './AccountingChrome';
 import { SectionHeader, type SectionKey as Tab } from './Shell';
-import { DeadlinesSection, OverviewSection, RequestsSection } from './Workspace';
+import { DeadlinesSection, OverviewSection, RequestsSection, Segmented } from './Workspace';
+import { TimeSection, WorkSection } from './ProWork';
+import { ApprovalsSection, BrandSettings, ExternalClientsPanel, PortfolioPanel } from './ProClients';
+import { useProCopy } from '../../lib/accounting/proCopy';
+import { pro } from '../../lib/accounting/pro';
 import { useWorkCopy } from '../../lib/accounting/workCopy';
 import { work } from '../../lib/accounting/workspace';
 import { useAccCopy } from '../../lib/accounting/locale';
@@ -44,13 +48,14 @@ export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Ta
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [m, d, i, r] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations(), work.requests()]);
+    const [m, d, i, r, a] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations(), work.requests(), pro.approvals()]);
     setMandants(m.data ?? []);
     setDashboard(d.data);
     setInvitations((i.data ?? []).filter((x) => x.kind === 'NEW_CLIENT'));
     onCounts?.({
       clients: (m.data ?? []).filter((x) => x.status === 'PENDING_FIRM').length,
       requests: (r.data ?? []).filter((x) => x.status === 'answered').length,
+      approvals: (a.data ?? []).filter((x) => x.status !== 'pending' && x.decided_at && Date.now() - new Date(x.decided_at).getTime() < 3 * 86400000).length,
     });
   }, [onCounts]);
 
@@ -84,6 +89,12 @@ export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Ta
         <OverviewSection me={me} mandants={mandants} dashboard={dashboard} onGo={onGo} onRespond={(id, ok) => run(() => acc.respondClient(id, ok))} />
       ) : tab === 'clients' ? (
         <ClientsTab me={me} mandants={mandants} invitations={invitations} busy={busy} run={run} onAdded={load} />
+      ) : tab === 'work' ? (
+        <WorkSection me={me} />
+      ) : tab === 'time' ? (
+        <TimeSection me={me} />
+      ) : tab === 'approvals' ? (
+        <ApprovalsSection me={me} />
       ) : tab === 'requests' ? (
         <RequestsSection mandants={mandants ?? []} />
       ) : tab === 'deadlines' ? (
@@ -95,7 +106,10 @@ export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Ta
       ) : tab === 'partner' ? (
         <PartnerTab />
       ) : (
-        <SettingsTab firm={me.firm} onSaved={onReload} />
+        <View style={{ gap: spacing.lg }}>
+          <SettingsTab firm={me.firm} onSaved={onReload} />
+          <BrandSettings firm={me.firm} onSaved={onReload} />
+        </View>
       )}
       {mandants && mandants.length === 0 && tab === 'overview' ? (
         <View style={[styles.card, { marginTop: spacing.lg }]}>
@@ -198,6 +212,8 @@ function ClientsTab({
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('name');
   const [adding, setAdding] = useState(false);
+  const [view, setView] = useState<'list' | 'portfolio'>('list');
+  const p = useProCopy();
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -218,8 +234,18 @@ function ClientsTab({
   const statusLabel = (m: Mandant) => t.statuses[m.status];
   const subLabel = (s: string | null) => (t.subscription as Record<string, string>)[s ?? 'none'] ?? s ?? '—';
 
+  if (view === 'portfolio') {
+    return (
+      <View style={styles.stack}>
+        <Segmented value={view} onChange={setView} options={[{ key: 'list', label: p.portfolio.list }, { key: 'portfolio', label: p.portfolio.table }]} />
+        <PortfolioPanel />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.stack}>
+      <Segmented value={view} onChange={setView} options={[{ key: 'list', label: p.portfolio.list }, { key: 'portfolio', label: p.portfolio.table }]} />
       <View style={styles.toolbar}>
         <TextInput value={query} onChangeText={setQuery} placeholder={t.search} placeholderTextColor={colors.textMuted} style={[styles.input, { flex: 1, minWidth: 200 }]} />
         <Button title={t.add} icon="plus" onPress={() => setAdding((v) => !v)} />
@@ -309,6 +335,8 @@ function ClientsTab({
           </Pressable>
         ))
       )}
+
+      <ExternalClientsPanel />
 
       {invitations.length ? (
         <View style={[styles.card, { marginTop: spacing.lg }]}>

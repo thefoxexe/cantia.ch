@@ -5,7 +5,7 @@ import { useTranslation } from '../lib/translations';
 // Native fallback — the public client portal is only ever opened in a real
 // browser (see SignaturePad.web.tsx for the actual drawing pad), so on
 // native this just points the client at the "upload a photo" option instead.
-export function SignaturePad(_props: { onChange: (dataUrl: string | null) => void }) {
+export function SignaturePad(_props: { onChange: (dataUrl: string | null) => void; labels?: { hint: string; saved: string; clear: string } }) {
   const { t } = useTranslation();
   return (
     <View style={styles.wrap}>

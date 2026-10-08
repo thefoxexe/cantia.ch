@@ -7,6 +7,10 @@ import { Button } from '../components/ui';
 import { PAGE_MAX, useIsWide } from '../components/accounting/AccountingChrome';
 import { AccShell } from '../components/accounting/Shell';
 import { DeadlinesSection, InsightsPanel, NotesPanel, ProfileForm, RequestsSection } from '../components/accounting/Workspace';
+import { TimeSection, WorkSection } from '../components/accounting/ProWork';
+import { ApprovalsSection, ExportPanel, KpiPanel, ProposalsPanel } from '../components/accounting/ProClients';
+import { ExternalMandant } from '../components/accounting/ExternalMandant';
+import { useProCopy } from '../lib/accounting/proCopy';
 import { useWorkCopy } from '../lib/accounting/workCopy';
 import { Chip, Metric, openDocument } from '../components/accounting/Cockpit';
 import { useAccCopy } from '../lib/accounting/locale';
@@ -36,15 +40,19 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // reports) is ever loaded here. Every query is filtered by the database
 // (ACTIVE access + permission); the id in the URL grants nothing by itself.
 
-type Section = 'overview' | 'requests' | 'deadlines' | 'invoices' | 'payments' | 'customers' | 'accounting' | 'documents' | 'quotes' | 'hours' | 'payroll' | 'integrations' | 'notes';
+type Section = 'overview' | 'work' | 'requests' | 'deadlines' | 'approvals' | 'time' | 'invoices' | 'payments' | 'customers' | 'accounting' | 'proposals' | 'documents' | 'quotes' | 'hours' | 'payroll' | 'integrations' | 'notes';
 const SECTION_PERMISSION: Record<Section, Permission | null> = {
   overview: null,
+  work: null,
   requests: null,
   deadlines: null,
+  approvals: null,
+  time: null,
   invoices: 'VIEW_INVOICES',
   payments: 'VIEW_PAYMENT_STATUS',
   customers: 'VIEW_CUSTOMERS',
   accounting: 'VIEW_ACCOUNTING_DOCUMENTS',
+  proposals: 'VIEW_ACCOUNTING_DOCUMENTS',
   documents: null,
   quotes: 'VIEW_QUOTES',
   hours: 'VIEW_WORK_HOURS',
@@ -87,23 +95,35 @@ export default function MandantPage() {
   const t = copy.client;
   const router = useRouter();
   const session = usePartnerSession();
-  const params = useLocalSearchParams<{ id?: string; tab?: string }>();
+  const params = useLocalSearchParams<{ id?: string; ext?: string; tab?: string }>();
   const orgId = typeof params.id === 'string' ? params.id : null;
+  const extId = typeof params.ext === 'string' ? params.ext : null;
+  const p = useProCopy();
   const wide = useIsWide(900);
   const [me, setMe] = useState<Me | null>(null);
   const [client, setClient] = useState<ClientHeader | null | undefined>(undefined);
   const [section, setSection] = useState<Section>(params.tab && params.tab in SECTION_PERMISSION ? (params.tab as Section) : 'overview');
   const w = useWorkCopy();
   const sectionLabel = (sec: Section) =>
-    sec === 'overview' ? w.client.overview : sec === 'requests' ? w.client.requests : sec === 'deadlines' ? w.client.deadlines : sec === 'notes' ? w.client.notes : t.sections[sec];
+    sec === 'overview'
+      ? w.client.overview
+      : sec === 'requests'
+        ? w.client.requests
+        : sec === 'deadlines'
+          ? w.client.deadlines
+          : sec === 'notes'
+            ? w.client.notes
+            : sec === 'work' || sec === 'time' || sec === 'approvals' || sec === 'proposals'
+              ? p.client.tabs[sec]
+              : t.sections[sec];
   const [period, setPeriod] = useState<Period>('year');
   const [confirmEnd, setConfirmEnd] = useState(false);
 
   useEffect(() => {
     if (session === null) router.replace('/connexion');
-    if (!session || !orgId) return;
+    if (!session) return;
     acc.me().then(({ data }) => setMe(data));
-    acc.client(orgId).then(({ data }) => setClient(data ?? null));
+    if (orgId) acc.client(orgId).then(({ data }) => setClient(data ?? null));
   }, [session, orgId, router]);
 
   const range = useMemo(() => periodRange(period), [period]);
@@ -117,6 +137,14 @@ export default function MandantPage() {
     if (!client) return;
     const { error } = await acc.respondClient(client.access_id, false);
     if (!error) router.replace('/espace?tab=clients');
+  }
+
+  if (extId) {
+    return (
+      <AccShell me={me} active="clients">
+        {me ? <ExternalMandant me={me} id={extId} initialTab={params.tab} /> : <Text style={styles.muted}>{copy.common.loading}</Text>}
+      </AccShell>
+    );
   }
 
   return (
@@ -199,7 +227,18 @@ export default function MandantPage() {
                   </View>
                 ) : null}
                 {section === 'overview' ? (
-                  <InsightsPanel orgId={client.organization_id} onGo={(g) => setSection(g === 'invoices' && !can('VIEW_INVOICES') ? 'overview' : g)} />
+                  <View style={{ gap: spacing.lg }}>
+                    {can('VIEW_ACCOUNTING_DOCUMENTS') ? <KpiPanel org={client.organization_id} compact /> : null}
+                    <InsightsPanel orgId={client.organization_id} onGo={(g) => setSection(g === 'invoices' && !can('VIEW_INVOICES') ? 'overview' : g)} />
+                  </View>
+                ) : section === 'work' && me ? (
+                  <WorkSection me={me} client={{ org: client.organization_id }} embedded />
+                ) : section === 'time' && me ? (
+                  <TimeSection me={me} client={{ org: client.organization_id }} embedded />
+                ) : section === 'approvals' && me ? (
+                  <ApprovalsSection me={me} client={{ org: client.organization_id }} embedded />
+                ) : section === 'proposals' ? (
+                  <ProposalsPanel org={client.organization_id} allowed={can('PROPOSE_ENTRIES')} />
                 ) : section === 'requests' ? (
                   <RequestsSection mandants={[]} orgId={client.organization_id} embedded />
                 ) : section === 'deadlines' ? (
@@ -213,7 +252,10 @@ export default function MandantPage() {
                 ) : section === 'customers' ? (
                   <Customers orgId={client.organization_id} />
                 ) : section === 'accounting' ? (
-                  <Accounting orgId={client.organization_id} name={client.name} range={range} canExport={can('VIEW_EXPORTS')} />
+                  <View style={{ gap: spacing.lg }}>
+                    {can('VIEW_EXPORTS') ? <ExportPanel org={client.organization_id} name={client.name} range={range} /> : null}
+                    <Accounting orgId={client.organization_id} name={client.name} range={range} canExport={can('VIEW_EXPORTS')} />
+                  </View>
                 ) : section === 'documents' ? (
                   <Documents orgId={client.organization_id} canDownload={can('DOWNLOAD_DOCUMENTS')} />
                 ) : section === 'quotes' ? (

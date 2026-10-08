@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   'VIEW_QUOTES',
   'VIEW_WORK_HOURS',
   'VIEW_PAYROLL_DATA',
+  'PROPOSE_ENTRIES',
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -272,6 +273,7 @@ const fr = {
     VIEW_QUOTES: 'Devis',
     VIEW_WORK_HOURS: 'Heures',
     VIEW_PAYROLL_DATA: 'Salaires',
+    PROPOSE_ENTRIES: 'Proposer des écritures',
   },
   common: { loading: 'Chargement…', error: 'Une erreur est survenue.', never: 'jamais', yes: 'Oui', no: 'Non' },
 };
@@ -523,6 +525,7 @@ const de: AccCopy = {
     VIEW_QUOTES: 'Offerten',
     VIEW_WORK_HOURS: 'Stunden',
     VIEW_PAYROLL_DATA: 'Löhne',
+    PROPOSE_ENTRIES: 'Buchungen vorschlagen',
   },
   common: { loading: 'Wird geladen…', error: 'Ein Fehler ist aufgetreten.', never: 'nie', yes: 'Ja', no: 'Nein' },
 };
@@ -772,6 +775,7 @@ const it: AccCopy = {
     VIEW_QUOTES: 'Preventivi',
     VIEW_WORK_HOURS: 'Ore',
     VIEW_PAYROLL_DATA: 'Salari',
+    PROPOSE_ENTRIES: 'Proporre registrazioni',
   },
   common: { loading: 'Caricamento…', error: 'Si è verificato un errore.', never: 'mai', yes: 'Sì', no: 'No' },
 };

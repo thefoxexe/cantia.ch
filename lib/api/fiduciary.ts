@@ -15,6 +15,7 @@ export const FIDUCIARY_PERMISSIONS = [
   'VIEW_QUOTES',
   'VIEW_WORK_HOURS',
   'VIEW_PAYROLL_DATA',
+  'PROPOSE_ENTRIES',
 ] as const;
 export type FiduciaryPermission = (typeof FIDUCIARY_PERMISSIONS)[number];
 
@@ -144,5 +145,88 @@ export async function removeFiduciaryRequestFile(fileId: string): Promise<{ erro
 
 export async function answerFiduciaryRequest(requestId: string, message: string): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('org_answer_request', { p_request: requestId, p_message: message.trim() || null });
+  return { error: error?.message ?? null };
+}
+
+// ---------------------------------------------------------------------------
+// Documents to sign, entry proposals, directory
+// (supabase/migrations/20261008140000_fiduciary_pro.sql).
+
+export interface FiduciaryApprovalForClient {
+  id: string;
+  firm_name: string;
+  kind: string;
+  title: string;
+  message: string | null;
+  file_path: string | null;
+  file_name: string | null;
+  file_sha256: string | null;
+  due_date: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  signer_name: string | null;
+  decided_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+}
+
+export async function getFiduciaryApprovals(orgId: string): Promise<FiduciaryApprovalForClient[]> {
+  const { data } = await supabase.rpc('org_fiduciary_approvals', { p_org: orgId });
+  return (data as FiduciaryApprovalForClient[] | null) ?? [];
+}
+
+export async function decideFiduciaryApproval(id: string, accept: boolean, signer: string, signature: string | null, reason: string | null) {
+  const { error } = await supabase.rpc('org_decide_approval', { p_id: id, p_accept: accept, p_signer: signer, p_signature: signature, p_reason: reason });
+  return { error: error?.message ?? null };
+}
+
+export interface FiduciaryProposalForClient {
+  id: string;
+  firm_name: string;
+  entry_date: string;
+  label: string;
+  reason: string | null;
+  lines: { account_code: string; account_label: string | null; debit: number; credit: number; label: string | null }[];
+  status: 'pending' | 'accepted' | 'rejected';
+  posted: boolean;
+  created_at: string;
+  decided_at: string | null;
+  rejection_reason: string | null;
+}
+
+export async function getFiduciaryProposals(orgId: string): Promise<FiduciaryProposalForClient[]> {
+  const { data } = await supabase.rpc('org_entry_proposals', { p_org: orgId });
+  return (data as FiduciaryProposalForClient[] | null) ?? [];
+}
+
+export async function decideFiduciaryProposal(id: string, accept: boolean, reason: string | null) {
+  const { data, error } = await supabase.rpc('org_decide_entry_proposal', { p_id: id, p_accept: accept, p_reason: reason });
+  return { posted: (data as { posted?: boolean } | null)?.posted ?? false, error: error?.message ?? null };
+}
+
+export interface DirectoryFirm {
+  id: string;
+  name: string;
+  city: string | null;
+  postal_code: string | null;
+  website: string | null;
+  phone: string | null;
+  email: string | null;
+  verified: boolean;
+  logo_data: string | null;
+  brand_color: string | null;
+  description: string | null;
+  services: string[];
+  languages: string[];
+  cantons: string[];
+  accepts_new_clients: boolean;
+}
+
+export async function searchFiduciaries(search: string | null, canton: string | null): Promise<DirectoryFirm[]> {
+  const { data } = await supabase.rpc('fiduciary_directory', { p_search: search || null, p_canton: canton || null });
+  return (data as DirectoryFirm[] | null) ?? [];
+}
+
+export async function requestFiduciary(orgId: string, firmId: string, permissions: FiduciaryPermission[]) {
+  const { error } = await supabase.rpc('org_request_firm', { p_org: orgId, p_firm: firmId, p_permissions: permissions });
   return { error: error?.message ?? null };
 }

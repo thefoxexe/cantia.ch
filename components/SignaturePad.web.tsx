@@ -6,7 +6,7 @@ import { useTranslation } from '../lib/translations';
 // Web-only: this pad only ever renders on the public client portal pages,
 // which are exclusively opened in a real browser (no native app screen
 // links here) — see components/SignaturePad.tsx for the native fallback.
-export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) => void }) {
+export function SignaturePad({ onChange, labels }: { onChange: (dataUrl: string | null) => void; labels?: { hint: string; saved: string; clear: string } }) {
   const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
@@ -90,10 +90,10 @@ export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) 
         />
       </View>
       <View style={styles.row}>
-        <Text style={styles.hint}>{isEmpty ? t('signaturePad.drawHint') : t('signaturePad.saved')}</Text>
+        <Text style={styles.hint}>{isEmpty ? labels?.hint ?? t('signaturePad.drawHint') : labels?.saved ?? t('signaturePad.saved')}</Text>
         {!isEmpty && (
           <Text style={styles.clear} onPress={clear}>
-            {t('signaturePad.clear')}
+            {labels?.clear ?? t('signaturePad.clear')}
           </Text>
         )}
       </View>

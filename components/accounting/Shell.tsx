@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { AccLocaleSwitch, useIsWide } from './AccountingChrome';
 import { useAccCopy } from '../../lib/accounting/locale';
 import { useWorkCopy } from '../../lib/accounting/workCopy';
+import { useProCopy } from '../../lib/accounting/proCopy';
 import type { Me } from '../../lib/accounting/api';
 import { supabase } from '../../lib/supabase';
 import { displayType, monoType } from '../../lib/marketingTheme';
@@ -16,13 +17,16 @@ import { BRAND_DISPLAY_FONT, BRAND_TERRACOTTA, BrandLockup, BrandLogo } from '..
 // content (no sticky/blurred header, no nested vertical scroll views: both
 // broke scrolling and painted black areas in Safari).
 
-export const SECTIONS = ['overview', 'clients', 'requests', 'deadlines', 'documents', 'team', 'partner', 'settings'] as const;
+export const SECTIONS = ['overview', 'clients', 'work', 'requests', 'deadlines', 'approvals', 'time', 'documents', 'team', 'partner', 'settings'] as const;
 export type SectionKey = (typeof SECTIONS)[number];
 
 const ICONS: Record<SectionKey, keyof typeof Feather.glyphMap> = {
   overview: 'home',
   clients: 'briefcase',
+  work: 'check-square',
   requests: 'inbox',
+  approvals: 'edit-3',
+  time: 'clock',
   deadlines: 'calendar',
   documents: 'file-text',
   team: 'users',
@@ -45,6 +49,8 @@ export function AccShell({
 }) {
   const { copy } = useAccCopy();
   const w = useWorkCopy();
+  const p = useProCopy();
+  const label = (k: SectionKey) => (k === 'work' || k === 'time' || k === 'approvals' ? p.shell[k] : w.shell[k]);
   const router = useRouter();
   const wide = useIsWide(1024);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -76,7 +82,7 @@ export function AccShell({
             style={({ hovered }: any) => [styles.navItem, hovered && !on && styles.navItemHover, on && styles.navItemOn]}
           >
             <Feather name={ICONS[s]} size={16} color={on ? colors.primaryDark : colors.textMuted} />
-            <Text style={[styles.navText, on && styles.navTextOn]}>{w.shell[s]}</Text>
+            <Text style={[styles.navText, on && styles.navTextOn]}>{label(s)}</Text>
             {badge ? (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{badge}</Text>

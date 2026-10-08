@@ -21,6 +21,9 @@ import {
 import { AppScreen, Button, Card, Container, PageHeader, Switch } from '../../../components/ui';
 import { FiduciaryRequests } from '../../../components/FiduciaryRequests';
 import { FiduciarySharedList } from '../../../components/FiduciarySharedList';
+import { FiduciaryApprovals } from '../../../components/FiduciaryApprovals';
+import { FiduciaryProposals } from '../../../components/FiduciaryProposals';
+import { FiduciaryDirectory } from '../../../components/FiduciaryDirectory';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -96,7 +99,9 @@ export default function FiduciaireScreen() {
           </View>
 
           {organization && canViewFinances ? (
-            <View style={{ marginBottom: spacing.xl }}>
+            <View style={{ marginBottom: spacing.xl, gap: spacing.xl }}>
+              <FiduciaryApprovals orgId={organization.id} />
+              <FiduciaryProposals orgId={organization.id} />
               <FiduciaryRequests orgId={organization.id} />
             </View>
           ) : null}
@@ -187,6 +192,14 @@ export default function FiduciaireScreen() {
                   <Button title={t('fiduciary.invite')} icon="send" onPress={handleInvite} loading={busy} disabled={!email.trim()} />
                 </View>
               </Card>
+
+              {organization ? (
+                <FiduciaryDirectory
+                  orgId={organization.id}
+                  connectedIds={(data?.accesses ?? []).filter((a) => ['ACTIVE', 'PENDING_FIRM', 'PENDING_CLIENT'].includes(a.status)).map((a) => a.firm.id)}
+                  onAsked={load}
+                />
+              ) : null}
 
               <Pressable onPress={() => setShowAudit((v) => !v)} style={styles.auditToggle}>
                 <Feather name={showAudit ? 'chevron-down' : 'chevron-right'} size={16} color={colors.textMuted} />

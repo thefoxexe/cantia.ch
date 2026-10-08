@@ -33,7 +33,8 @@ export interface DeadlineStatusRow {
 }
 
 export interface DeadlineClient {
-  organization_id: string;
+  organization_id: string | null;
+  external_client_id?: string | null;
   name: string;
   profile: ClientProfile;
   statuses: DeadlineStatusRow[];
@@ -49,7 +50,8 @@ export interface RequestFile {
 
 export interface FiduciaryRequest {
   id: string;
-  organization_id: string;
+  organization_id: string | null;
+  external_client_id?: string | null;
   organization_name: string;
   title: string;
   details: string | null;
@@ -135,7 +137,8 @@ export const work = {
 
 export interface Deadline {
   key: string; // org|kind|period
-  organization_id: string;
+  organization_id: string | null;
+  external_client_id: string | null;
   client: string;
   kind: DeadlineKind;
   period_key: string;
@@ -181,7 +184,7 @@ export function computeDeadlines(
       c.statuses.find((s) => s.kind === kind && s.period_key === period)?.status ?? 'todo';
     const push = (kind: DeadlineKind, period: string, label: string, due: Date) => {
       if (due < from || due > to) return;
-      out.push({ key: `${c.organization_id}|${kind}|${period}`, organization_id: c.organization_id, client: c.name, kind, period_key: period, period_label: label, due: iso(due), status: status(kind, period) });
+      out.push({ key: `${c.organization_id ?? `ext:${c.external_client_id}`}|${kind}|${period}`, organization_id: c.organization_id, external_client_id: c.external_client_id ?? null, client: c.name, kind, period_key: period, period_label: label, due: iso(due), status: status(kind, period) });
     };
 
     for (const year of [y - 1, y, y + 1]) {
