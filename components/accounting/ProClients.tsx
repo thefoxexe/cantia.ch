@@ -40,6 +40,7 @@ import {
   type ProposalLine,
 } from '../../lib/accounting/pro';
 import { useProCopy } from '../../lib/accounting/proCopy';
+import { ledger } from '../../lib/accounting/ledger';
 import { getTrialBalance } from '../../lib/api/accounting';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { displayType, monoType } from '../../lib/marketingTheme';
@@ -234,9 +235,10 @@ export function PortalLinkPanel({ client, onChanged, isAdmin }: { client: Extern
 }
 
 // ---------------------------------------------------------------------------
-// Indicators of a Cantia client.
+// Indicators of a client: from its Cantia books (org) or from the books
+// the firm keeps for it (ext).
 
-export function KpiPanel({ org, compact = false }: { org: string; compact?: boolean }) {
+export function KpiPanel({ org, ext, compact = false }: { org?: string; ext?: string; compact?: boolean }) {
   const p = useProCopy();
   const t = p.kpis;
   const { locale } = useAccCopy();
@@ -244,11 +246,11 @@ export function KpiPanel({ org, compact = false }: { org: string; compact?: bool
   const [k, setK] = useState<Kpis | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    pro.kpis(org).then(({ data, error: e }) => {
+    (ext ? ledger.kpis(ext) : pro.kpis(org!)).then(({ data, error: e }) => {
       setK(data ?? null);
       setError(e);
     });
-  }, [org]);
+  }, [org, ext]);
   if (k === undefined) return <Text style={ps.muted}>{p.common.loading}</Text>;
   if (!k) return error ? <Text style={ps.muted}>{t.noAccess}</Text> : null;
   const cur = derive(k.current);

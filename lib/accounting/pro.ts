@@ -59,13 +59,16 @@ export interface ExternalClient {
   portal_token: string;
   status: 'ACTIVE' | 'ARCHIVED';
   created_at: string;
+  // Books kept by the firm in Cantia (20261009090000_fiduciary_ledger.sql).
+  ledger_started_at?: string | null;
+  ledger_locked_until?: string | null;
   requests_open?: number;
   requests_answered?: number;
   work_open?: number;
   approvals_pending?: number;
   unbilled_minutes?: number;
 }
-export type ExternalClientInput = Omit<ExternalClient, 'id' | 'portal_token' | 'status' | 'created_at' | 'assigned_name' | 'requests_open' | 'requests_answered' | 'work_open' | 'approvals_pending' | 'unbilled_minutes'>;
+export type ExternalClientInput = Omit<ExternalClient, 'id' | 'portal_token' | 'status' | 'created_at' | 'ledger_started_at' | 'ledger_locked_until' | 'assigned_name' | 'requests_open' | 'requests_answered' | 'work_open' | 'approvals_pending' | 'unbilled_minutes'>;
 
 export type WorkKind = 'closing' | 'vat' | 'payroll' | 'tax' | 'onboarding' | 'other';
 export const WORK_KINDS: WorkKind[] = ['closing', 'vat', 'payroll', 'tax', 'onboarding', 'other'];

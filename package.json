@@ -69,7 +69,8 @@
     "test:health": "node --experimental-strip-types --no-warnings --test scripts/health.test.mjs",
     "test:payroll": "node --experimental-strip-types --no-warnings --test scripts/payroll-engine.test.mjs scripts/vat-form.test.mjs scripts/iban.test.mjs scripts/treasury-curve.test.mjs scripts/closing.test.mjs scripts/tools.test.mjs scripts/ledger.test.mjs",
     "test:calendar": "node --experimental-strip-types --no-warnings --test scripts/calendar-map.test.mjs",
-    "test:schedule": "node --experimental-strip-types --no-warnings --test scripts/schedule.test.mjs"
+    "test:schedule": "node --experimental-strip-types --no-warnings --test scripts/schedule.test.mjs",
+    "test:accounting": "node --experimental-strip-types --no-warnings --test scripts/accounting-exports.test.mjs scripts/ext-ledger.test.mjs"
   },
   "private": true
 }

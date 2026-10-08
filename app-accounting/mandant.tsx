@@ -96,8 +96,12 @@ export default function MandantPage() {
   const router = useRouter();
   const session = usePartnerSession();
   const params = useLocalSearchParams<{ id?: string; ext?: string; tab?: string }>();
-  const orgId = typeof params.id === 'string' ? params.id : null;
-  const extId = typeof params.ext === 'string' ? params.ext : null;
+  // The page is prerendered without its query string: the first client
+  // render must match it (React #418), the ids are read right after.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const orgId = hydrated && typeof params.id === 'string' ? params.id : null;
+  const extId = hydrated && typeof params.ext === 'string' ? params.ext : null;
   const p = useProCopy();
   const wide = useIsWide(900);
   const [me, setMe] = useState<Me | null>(null);

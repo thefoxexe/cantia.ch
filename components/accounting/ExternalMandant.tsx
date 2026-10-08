@@ -6,24 +6,27 @@ import { Feather } from '@expo/vector-icons';
 import { useIsWide } from './AccountingChrome';
 import { DeadlinesSection, NotesPanel, Panel, RequestsSection, Stat } from './Workspace';
 import { TimeSection, WorkSection } from './ProWork';
-import { ApprovalsSection, ExternalClientForm, PortalLinkPanel } from './ProClients';
+import { ApprovalsSection, ExternalClientForm, KpiPanel, PortalLinkPanel } from './ProClients';
+import { ExtLedger } from './ExtLedger';
 import { LinkButton, Message, Pill, ps } from './ProShared';
 import { useAccCopy } from '../../lib/accounting/locale';
 import { acc, formatDate, type Me } from '../../lib/accounting/api';
 import { useWorkCopy } from '../../lib/accounting/workCopy';
 import { SOFTWARE_LABEL, formatMinutes, pro, type ExternalClient } from '../../lib/accounting/pro';
 import { useProCopy } from '../../lib/accounting/proCopy';
+import { useLedgerCopy } from '../../lib/accounting/ledgerCopy';
 import { displayType } from '../../lib/marketingTheme';
 import { colors, fontSize, spacing } from '../../lib/theme';
 
-type Tab = 'overview' | 'work' | 'requests' | 'deadlines' | 'approvals' | 'time' | 'notes' | 'settings';
-const TABS: Tab[] = ['overview', 'work', 'requests', 'deadlines', 'approvals', 'time', 'notes', 'settings'];
+type Tab = 'overview' | 'ledger' | 'work' | 'requests' | 'deadlines' | 'approvals' | 'time' | 'notes' | 'settings';
+const TABS: Tab[] = ['overview', 'ledger', 'work', 'requests', 'deadlines', 'approvals', 'time', 'notes', 'settings'];
 
 // A client of the firm that is not on Cantia (accounting.cantia.ch/mandant?ext=…).
 export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; initialTab?: string }) {
   const { copy, locale } = useAccCopy();
   const w = useWorkCopy();
   const p = useProCopy();
+  const lc = useLedgerCopy();
   const router = useRouter();
   const wide = useIsWide(900);
   const [client, setClient] = useState<ExternalClient | null | undefined>(undefined);
@@ -42,7 +45,7 @@ export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; in
   }, [load]);
 
   const label = (k: Tab) =>
-    k === 'overview' ? w.client.overview : k === 'requests' ? w.client.requests : k === 'deadlines' ? w.client.deadlines : k === 'notes' ? w.client.notes : k === 'settings' ? p.ext.settings : p.client.tabs[k];
+    k === 'overview' ? w.client.overview : k === 'ledger' ? lc.tab : k === 'requests' ? w.client.requests : k === 'deadlines' ? w.client.deadlines : k === 'notes' ? w.client.notes : k === 'settings' ? p.ext.settings : p.client.tabs[k];
 
   async function invite() {
     if (!client?.email) return;
@@ -72,7 +75,11 @@ export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; in
             <View style={{ flex: 1, minWidth: 240, gap: 4 }}>
               <View style={ps.actions}>
                 <Pill label={p.common.external} />
-                <Pill label={SOFTWARE_LABEL[client.software]} tone="primary" />
+                {client.ledger_started_at ? (
+                  <Pill label={`${lc.tab} Cantia`} tone="primary" />
+                ) : SOFTWARE_LABEL[client.software] !== '—' ? (
+                  <Pill label={SOFTWARE_LABEL[client.software]} tone="primary" />
+                ) : null}
                 {client.status === 'ARCHIVED' ? <Pill label={p.ext.archived} tone="warning" /> : null}
               </View>
               <Text style={st.h1} role="heading" aria-level={1}>
@@ -112,6 +119,11 @@ export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; in
                 <Stat label={p.client.tabs.approvals} value={String(client.approvals_pending ?? 0)} onPress={() => setTab('approvals')} />
                 <Stat label={p.time.toBill} value={`${formatMinutes(client.unbilled_minutes ?? 0)} h`} onPress={() => setTab('time')} />
               </View>
+              {client.ledger_started_at ? (
+                <Panel title={lc.tab}>
+                  <KpiPanel ext={client.id} compact />
+                </Panel>
+              ) : null}
               <PortalLinkPanel client={client} isAdmin={isAdmin} onChanged={load} />
               {client.email ? (
                 <Panel title={p.ext.invite}>
@@ -121,6 +133,8 @@ export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; in
               ) : null}
               <Text style={ps.small}>{formatDate(client.created_at, locale)}</Text>
             </View>
+          ) : tab === 'ledger' ? (
+            <ExtLedger me={me} client={client} onChanged={load} />
           ) : tab === 'work' ? (
             <WorkSection me={me} client={{ ext: client.id }} embedded />
           ) : tab === 'requests' ? (
