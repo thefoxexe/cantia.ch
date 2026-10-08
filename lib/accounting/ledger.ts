@@ -29,6 +29,8 @@ export interface LedgerEntry {
   changed: boolean;
   reverses_entry_id: string | null;
   reversed_by_entry_id: string | null;
+  // Written by the annual closing or a VAT return.
+  system?: 'closing' | 'vat' | null;
   created_by_name: string | null;
   amount: number;
   lines: (LedgerLine & { account_label: string })[];
@@ -55,6 +57,7 @@ export interface Statements {
   result: number;
   year_result: number;
   prior_results: number;
+  closed?: boolean;
 }
 
 export interface AccountLedger {
@@ -69,6 +72,38 @@ export interface VatSummary {
   codes: { vat_code: string; net: number; lines: number }[];
   vat_due: number;
   input_tax: number;
+  input_material: number;
+  input_invest: number;
+}
+
+export interface FiscalYear {
+  start: string;
+  end: string;
+  entries: number;
+  drafts: number;
+  result: number;
+  closed: boolean;
+  closed_at: string | null;
+  closed_by_name: string | null;
+  closing_number: number | null;
+  locked: boolean;
+  finished: boolean;
+}
+
+export interface VatReturn {
+  id: string;
+  period_start: string;
+  period_end: string;
+  period_key: string;
+  method: 'effective' | 'tdfn';
+  figures: Record<string, number>;
+  adjustments: Record<string, number>;
+  payable: number;
+  status: 'filed' | 'cancelled';
+  filed_at: string;
+  filed_by_name: string | null;
+  cancelled_at: string | null;
+  entry_number: number | null;
 }
 
 async function call<T>(fn: string, args?: Record<string, unknown>): Promise<{ data: T | null; error: string | null }> {
@@ -119,6 +154,32 @@ export const ledger = {
   statements: (ext: string, to: string, from?: string | null) => call<Statements>('acc_ext_statements', { p_ext: ext, p_to: to, p_from: from ?? null }),
   vat: (ext: string, from: string, to: string) => call<VatSummary>('acc_ext_vat_summary', { p_ext: ext, p_from: from, p_to: to }),
   kpis: (ext: string, asOf?: string) => call<Kpis>('acc_ext_kpis', { p_ext: ext, p_as_of: asOf ?? null }),
+  // Annual closing
+  years: (ext: string) => call<FiscalYear[]>('acc_ext_years', { p_ext: ext }),
+  closeYear: (ext: string, end: string, carry: boolean, lock: boolean) =>
+    call<{ result: number; entry_number: number | null; carry_number: number | null }>('acc_ext_close_year', { p_ext: ext, p_end: end, p_carry: carry, p_lock: lock }),
+  reopenYear: (ext: string, end: string) => call<null>('acc_ext_reopen_year', { p_ext: ext, p_end: end }),
+  // VAT returns
+  vatReturns: (ext: string) => call<VatReturn[]>('acc_ext_vat_returns', { p_ext: ext }),
+  fileVatReturn: (
+    ext: string,
+    r: { start: string; end: string; key: string; method: 'effective' | 'tdfn'; figures: Record<string, number>; adjustments: Record<string, number>; payable: number },
+    book: boolean,
+    lock: boolean,
+  ) =>
+    call<{ id: string; entry_number: number | null }>('acc_ext_file_vat_return', {
+      p_ext: ext,
+      p_start: r.start,
+      p_end: r.end,
+      p_key: r.key,
+      p_method: r.method,
+      p_figures: r.figures,
+      p_adjustments: r.adjustments,
+      p_payable: r.payable,
+      p_book: book,
+      p_lock: lock,
+    }),
+  cancelVatReturn: (id: string) => call<null>('acc_ext_cancel_vat_return', { p_id: id }),
 };
 
 // Every posted entry of a period, in the shape of the exports.

@@ -5,8 +5,10 @@ import { Feather } from '@expo/vector-icons';
 import { Button } from '../ui';
 import { Panel, Segmented } from './Workspace';
 import { KpiPanel } from './ProClients';
+import { ClosingView, VatView, printAnnualAccounts } from './ExtLedgerClosing';
 import { Empty, Input, LinkButton, Message, Picks, Pill, Toggle, isoToSwiss, ps, todayIso } from './ProShared';
 import { fill } from '../../lib/accounting/copy';
+import { useAccCopy } from '../../lib/accounting/locale';
 import { formatChf, type Me } from '../../lib/accounting/api';
 import { parseSwissDate } from '../../lib/accounting/workCopy';
 import { formatBalances, formatEntries, type ExportFormat } from '../../lib/accounting/exports';
@@ -49,8 +51,8 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 // balance, balance sheet, income statement, VAT summary, indicators,
 // imports from the client's old software, period locking.
 
-type LedgerView = 'journal' | 'accounts' | 'reports' | 'kpis' | 'import' | 'settings';
-const VIEWS: LedgerView[] = ['journal', 'accounts', 'reports', 'kpis', 'import', 'settings'];
+type LedgerView = 'journal' | 'accounts' | 'reports' | 'vat' | 'closing' | 'kpis' | 'import' | 'settings';
+const VIEWS: LedgerView[] = ['journal', 'accounts', 'reports', 'vat', 'closing', 'kpis', 'import', 'settings'];
 const PERIODS: LedgerPeriod[] = ['month', 'quarter', 'fy', 'lastFy', 'all'];
 
 const amountText = (n: number | null | undefined) => formatChf(n).replace('CHF ', '');
@@ -91,7 +93,7 @@ export function ExtLedger({ me, client, onChanged }: { me: Me; client: ExternalC
           {period !== 'all' ? <Text style={ps.small}>{`${isoToSwiss(range.start)} – ${isoToSwiss(range.end)}`}</Text> : null}
         </View>
       ) : null}
-      {client.ledger_locked_until && (view === 'journal' || view === 'import') ? (
+      {client.ledger_locked_until && (view === 'journal' || view === 'import' || view === 'vat') ? (
         <View style={st.notice}>
           <Feather name="lock" size={13} color={colors.textMuted} />
           <Text style={ps.small}>{fill(l.journal.lockedHint, { date: isoToSwiss(client.ledger_locked_until) })}</Text>
@@ -106,7 +108,11 @@ export function ExtLedger({ me, client, onChanged }: { me: Me; client: ExternalC
           <AccountsView ext={client.id} accounts={accounts} onChanged={loadAccounts} onOpen={setLedgerFor} />
         )
       ) : view === 'reports' ? (
-        <ReportsView client={client} range={range} />
+        <ReportsView client={client} range={range} firmName={me.firm.name} />
+      ) : view === 'vat' ? (
+        <VatView client={client} isAdmin={isAdmin} onChanged={onChanged} />
+      ) : view === 'closing' ? (
+        <ClosingView client={client} me={me} onChanged={onChanged} />
       ) : view === 'kpis' ? (
         <KpiPanel ext={client.id} />
       ) : view === 'import' ? (
@@ -781,20 +787,49 @@ function AccountLedgerView({ ext, code, range, name, onBack }: { ext: string; co
 // ---------------------------------------------------------------------------
 // Reports: statements, trial balance, VAT, exports.
 
-function ReportsView({ client, range }: { client: ExternalClient; range: { start: string; end: string } }) {
+function ReportsView({ client, range, firmName }: { client: ExternalClient; range: { start: string; end: string }; firmName: string }) {
   const l = useLedgerCopy();
   const t = l.reports;
-  const [data, setData] = useState<{ statements: Statements | null; trial: TrialRow[]; vat: VatSummary | null } | null>(null);
+  const { locale } = useAccCopy();
+  const [data, setData] = useState<{ statements: Statements | null; previous: Statements | null; trial: TrialRow[]; vat: VatSummary | null } | null>(null);
+  // "All": the statements of today's fiscal year.
+  const to = range.end === '2100-12-31' ? todayIso() : range.end;
   useEffect(() => {
     setData(null);
-    // "All": the statements of today's fiscal year.
-    const to = range.end === '2100-12-31' ? todayIso() : range.end;
-    Promise.all([ledger.statements(client.id, to, range.start), ledger.trialBalance(client.id, range.start, range.end), ledger.vat(client.id, range.start, range.end)]).then(([s, tb, v]) =>
-      setData({ statements: s.data, trial: tb.data ?? [], vat: v.data }),
-    );
-  }, [client.id, range.start, range.end]);
+    Promise.all([ledger.statements(client.id, to, range.start), ledger.trialBalance(client.id, range.start, range.end), ledger.vat(client.id, range.start, range.end)]).then(async ([s, tb, v]) => {
+      // The previous fiscal year, for the comparison column.
+      let previous: Statements | null = null;
+      if (s.data) {
+        const d = new Date(`${s.data.fy_start}T12:00:00Z`);
+        d.setUTCDate(d.getUTCDate() - 1);
+        const p = (await ledger.statements(client.id, d.toISOString().slice(0, 10))).data;
+        previous = p && (p.assets.length || p.income.length || p.expenses.length) ? p : null;
+      }
+      setData({ statements: s.data, previous, trial: tb.data ?? [], vat: v.data });
+    });
+  }, [client.id, range.start, range.end, to]);
   if (!data) return <Text style={ps.muted}>…</Text>;
   const s = data.statements;
+  const pv = data.previous;
+  // Rows of both years (an account may exist in one only).
+  const merged = (list: 'assets' | 'liabilities' | 'income' | 'expenses') => {
+    const cur = s ? s[list] : [];
+    const prev = pv ? pv[list] : [];
+    const codes = [...new Set([...cur.map((x) => x.code), ...prev.map((x) => x.code)])].sort();
+    return codes.map((code) => {
+      const a = cur.find((x) => x.code === code);
+      const b = prev.find((x) => x.code === code);
+      return { code, label: (a ?? b)!.label, amount: Number(a?.amount ?? 0), prev: pv ? Number(b?.amount ?? 0) : undefined };
+    });
+  };
+  const colHead = (date: string) =>
+    pv ? (
+      <View style={st.line}>
+        <Text style={[st.lineLabel, { color: colors.textMuted }]} />
+        <Text style={[ps.label, st.colHead]}>{isoToSwiss(date)}</Text>
+        <Text style={[ps.label, st.colHead]}>{isoToSwiss(pv.to)}</Text>
+      </View>
+    ) : null;
   const empty = !data.trial.length;
 
   async function downloadTrial() {
@@ -811,39 +846,51 @@ function ReportsView({ client, range }: { client: ExternalClient; range: { start
     <View style={{ gap: spacing.md }}>
       {empty ? <Empty icon="bar-chart-2" text={t.empty} /> : null}
       {s && !empty ? (
+        <View style={ps.actions}>
+          <Button title={t.print} icon="printer" onPress={() => printAnnualAccounts(client, firmName, to, locale, l)} />
+        </View>
+      ) : null}
+      {s && !empty ? (
         <View style={st.twoCols}>
           <View style={st.col}>
           <Panel title={fill(t.balanceSheet, { date: isoToSwiss(s.to) })}>
+            {colHead(s.to)}
             <Text style={ps.label}>{t.assets}</Text>
-            {s.assets.map((x) => (
-              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} />
+            {merged('assets').map((x) => (
+              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} prev={x.prev} />
             ))}
-            <Line label={t.totalAssets} value={sum(s.assets)} strong />
+            <Line label={t.totalAssets} value={sum(s.assets)} prev={pv ? sum(pv.assets) : undefined} strong />
             <View style={ps.divider} />
             <Text style={ps.label}>{t.liabilities}</Text>
-            {s.liabilities.map((x) => (
-              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} />
+            {merged('liabilities').map((x) => (
+              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} prev={x.prev} />
             ))}
-            {Number(s.prior_results) ? <Line label={t.priorResults} value={s.prior_results} /> : null}
-            <Line label={t.yearResult} value={s.year_result} />
-            <Line label={t.totalLiabilities} value={sum(s.liabilities) + Number(s.year_result) + Number(s.prior_results)} strong />
+            {Number(s.prior_results) ? <Line label={t.priorResults} value={s.prior_results} prev={pv ? Number(pv.prior_results) : undefined} /> : null}
+            {Number(s.year_result) || (pv && Number(pv.year_result)) ? <Line label={t.yearResult} value={s.year_result} prev={pv ? Number(pv.year_result) : undefined} /> : null}
+            <Line
+              label={t.totalLiabilities}
+              value={sum(s.liabilities) + Number(s.year_result) + Number(s.prior_results)}
+              prev={pv ? sum(pv.liabilities) + Number(pv.year_result) + Number(pv.prior_results) : undefined}
+              strong
+            />
           </Panel>
           </View>
           <View style={st.col}>
           <Panel title={fill(t.income, { from: isoToSwiss(s.from), to: isoToSwiss(s.to) })}>
+            {colHead(s.to)}
             <Text style={ps.label}>{t.revenue}</Text>
-            {s.income.map((x) => (
-              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} />
+            {merged('income').map((x) => (
+              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} prev={x.prev} />
             ))}
-            <Line label={t.revenue} value={sum(s.income)} strong />
+            <Line label={t.revenue} value={sum(s.income)} prev={pv ? sum(pv.income) : undefined} strong />
             <View style={ps.divider} />
             <Text style={ps.label}>{t.expenses}</Text>
-            {s.expenses.map((x) => (
-              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} />
+            {merged('expenses').map((x) => (
+              <Line key={x.code} label={`${x.code} ${x.label}`} value={x.amount} prev={x.prev} />
             ))}
-            <Line label={t.expenses} value={sum(s.expenses)} strong />
+            <Line label={t.expenses} value={sum(s.expenses)} prev={pv ? sum(pv.expenses) : undefined} strong />
             <View style={ps.divider} />
-            <Line label={Number(s.result) >= 0 ? t.profit : t.loss} value={s.result} strong tone={Number(s.result) < 0 ? 'danger' : 'success'} />
+            <Line label={Number(s.result) >= 0 ? t.profit : t.loss} value={s.result} prev={pv ? Number(pv.result) : undefined} strong tone={Number(s.result) < 0 ? 'danger' : 'success'} />
           </Panel>
           </View>
         </View>
@@ -902,13 +949,14 @@ function ReportsView({ client, range }: { client: ExternalClient; range: { start
   );
 }
 
-function Line({ label, value, strong = false, tone }: { label: string; value: number; strong?: boolean; tone?: 'danger' | 'success' }) {
+function Line({ label, value, prev, strong = false, tone }: { label: string; value: number; prev?: number; strong?: boolean; tone?: 'danger' | 'success' }) {
   return (
     <View style={st.line}>
       <Text style={[st.lineLabel, strong && st.lineStrong]} numberOfLines={1}>
         {label}
       </Text>
-      <Text style={[st.lineValue, strong && st.lineStrong, tone && { color: tone === 'danger' ? colors.danger : colors.success }]}>{formatChf(value)}</Text>
+      <Text style={[st.lineValue, st.colHead, strong && st.lineStrong, tone && { color: tone === 'danger' ? colors.danger : colors.success }]}>{prev !== undefined ? amountText(value) : formatChf(value)}</Text>
+      {prev !== undefined ? <Text style={[st.lineValue, st.colHead, { color: colors.textMuted }, strong && st.lineStrong]}>{amountText(prev)}</Text> : null}
     </View>
   );
 }
@@ -1265,4 +1313,5 @@ const st = StyleSheet.create({
   lineLabel: { flex: 1, fontSize: fontSize.sm, color: colors.text },
   lineValue: { ...monoType, fontSize: 12, color: colors.text } as any,
   lineStrong: { fontWeight: '800' },
+  colHead: { minWidth: 96, textAlign: 'right' },
 });

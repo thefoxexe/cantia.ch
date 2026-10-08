@@ -109,3 +109,38 @@ test('quick entry with VAT: sales to 2200, purchases to 1170 / 1171, balanced', 
   assert.equal(nextReference('2026-009'), '2026-010');
   assert.equal(nextReference('Q'), 'Q');
 });
+
+import { classifyVatCode, deadlineKey, extVatRows, vatSetup } from '../lib/accounting/extVat.ts';
+import { buildAfcForm, periodsFor } from '../lib/vat/afcForm.ts';
+
+test('VAT codes of the books become the AFC form figures', () => {
+  assert.deepEqual(classifyVatCode('V81'), { category: 'vente_normal', rate: 8.1 });
+  assert.deepEqual(classifyVatCode('vsm 8.1'.replace(' 8.1', '81')), { category: 'achat_materiel', rate: 8.1 });
+  assert.deepEqual(classifyVatCode('I26'), { category: 'achat_investissement', rate: 2.6 });
+  assert.deepEqual(classifyVatCode('V38'), { category: 'vente_hebergement', rate: 3.8 });
+  assert.equal(classifyVatCode('E0').category, 'vente_exoneree');
+  assert.equal(classifyVatCode('X0').category, 'vente_exclue');
+  assert.equal(classifyVatCode('ZZ9'), null);
+  const { rows, unknown } = extVatRows({
+    codes: [{ vat_code: 'V81', net: 5000, lines: 1 }, { vat_code: 'M81', net: 1000, lines: 1 }, { vat_code: 'I81', net: 2000, lines: 1 }, { vat_code: 'E0', net: 700, lines: 1 }, { vat_code: 'ZZ9', net: 12, lines: 1 }],
+    vat_due: 405, input_tax: 243, input_material: 81, input_invest: 162,
+  });
+  assert.deepEqual(unknown, [{ code: 'ZZ9', net: 12 }]);
+  const form = buildAfcForm(rows, 'effective', {});
+  const fig = (f) => [...form.turnover, ...form.tax].find((l) => l.figure === f);
+  assert.equal(fig('200').amount, 5700);
+  assert.equal(fig('220').amount, 700);
+  assert.equal(fig('299').amount, 5000);
+  assert.equal(fig('303').tax, 405);
+  assert.equal(fig('400').tax, 81);
+  assert.equal(fig('405').tax, 162);
+  assert.equal(form.payable, 162);
+  assert.deepEqual(vatSetup('effective_quarterly'), { method: 'effective', periodicity: 'trimestrielle' });
+  assert.equal(vatSetup('none'), null);
+  assert.deepEqual(periodsFor(2026, 'trimestrielle').map((p) => deadlineKey(p.key)), ['2026-Q1', '2026-Q2', '2026-Q3', '2026-Q4']);
+  assert.equal(deadlineKey('2026-M03'), '2026-M03');
+});
+
+test('a sale without VAT carries its code on the revenue line', () => {
+  assert.deepEqual(quickLines({ debit: '1100', credit: '3400', amount: 700, vat: 'E0' }).map((l) => [l.account_code, l.vat_code ?? null]), [['1100', null], ['3400', 'E0']]);
+});

@@ -408,7 +408,9 @@ export function openingEntry(balances: { code: string; label?: string; balance: 
 
 // V = sales (VAT due, 2200), M = material / services (input tax 1170),
 // I = investments and other costs (input tax 1171). Rates from 2024.
-export const VAT_CODES = ['V81', 'V26', 'V38', 'M81', 'M26', 'M38', 'I81', 'I26', 'I38'] as const;
+// Sales without VAT, for the AFC form: E0 exempt (exports, ch. 220),
+// A0 abroad (ch. 221), X0 excluded from VAT (art. 21, ch. 230).
+export const VAT_CODES = ['V81', 'V26', 'V38', 'M81', 'M26', 'M38', 'I81', 'I26', 'I38', 'E0', 'A0', 'X0'] as const;
 export type VatCode = (typeof VAT_CODES)[number];
 
 export function vatRate(code: string): number | null {
@@ -426,9 +428,11 @@ export function quickLines(input: { debit: string; credit: string; amount: numbe
   const amount = round2(Math.abs(input.amount));
   const rate = input.vat ? vatRate(input.vat) : null;
   if (!rate) {
+    // A sale without VAT carries its code on the revenue (credit) line.
+    const onCredit = !!input.vat && /^[EAX]0$/.test(input.vat);
     return [
-      { account_code: input.debit, debit: amount, credit: 0, label: input.label ?? null, vat_code: input.vat ?? null },
-      { account_code: input.credit, debit: 0, credit: amount, label: input.label ?? null },
+      { account_code: input.debit, debit: amount, credit: 0, label: input.label ?? null, vat_code: onCredit ? null : input.vat ?? null },
+      { account_code: input.credit, debit: 0, credit: amount, label: input.label ?? null, vat_code: onCredit ? input.vat : null },
     ];
   }
   const vat = vatIncluded(amount, rate);
