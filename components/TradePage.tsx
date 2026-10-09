@@ -26,11 +26,13 @@ export function TradePage({ slug }: { slug: string }) {
   const { width } = useWindowDimensions();
   const isTablet = width < breakpoints.desktop;
 
+  // Outside the building trades, the shared copy talks about projects.
+  const general = !!trade.general;
   const SECONDARY_FEATURES: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
-    { icon: 'users', title: t('tradePage.secondaryClientsTitle'), text: t('tradePage.secondaryClientsText') },
+    { icon: 'users', title: t('tradePage.secondaryClientsTitle'), text: t(general ? 'tradePage.generalClientsText' : 'tradePage.secondaryClientsText') },
     { icon: 'credit-card', title: t('tradePage.secondaryQrTitle'), text: t('tradePage.secondaryQrText') },
-    { icon: 'dollar-sign', title: t('tradePage.secondaryExpensesTitle'), text: t('tradePage.secondaryExpensesText') },
-    { icon: 'folder', title: t('tradePage.secondaryDocumentsTitle'), text: t('tradePage.secondaryDocumentsText') },
+    { icon: 'dollar-sign', title: t('tradePage.secondaryExpensesTitle'), text: t(general ? 'tradePage.generalExpensesText' : 'tradePage.secondaryExpensesText') },
+    { icon: 'folder', title: t('tradePage.secondaryDocumentsTitle'), text: t(general ? 'tradePage.generalDocumentsText' : 'tradePage.secondaryDocumentsText') },
     { icon: 'list', title: t('tradePage.secondaryCatalogueTitle'), text: t('tradePage.secondaryCatalogueText') },
     { icon: 'zap', title: t('tradePage.secondaryIntegrationsTitle'), text: t('tradePage.secondaryIntegrationsText') },
   ];
@@ -181,7 +183,7 @@ export function TradePage({ slug }: { slug: string }) {
 
         <View style={styles.closing}>
           <View style={styles.wrap}>
-            <Text style={styles.closingTitle}>{t('tradePage.closingTitle')}</Text>
+            <Text style={styles.closingTitle}>{t(general ? 'tradePage.generalClosingTitle' : 'tradePage.closingTitle')}</Text>
             <Text style={styles.closingText}>{t('tradePage.closingText')}</Text>
             <Link href={authHref('signup')} asChild>
               <CtaButton title={t('tradePage.closingCta')} style={{ marginTop: spacing.xl }} />
@@ -196,8 +198,12 @@ export function TradePage({ slug }: { slug: string }) {
 }
 
 function genderedFor(tradeName: string): string {
-  if (tradeName.endsWith('e') && !tradeName.endsWith('générale')) return `les ${tradeName}s`;
   if (tradeName === 'entreprise générale') return 'les entreprises générales';
+  if (tradeName.includes('-')) return `les ${tradeName.split('-').map((w) => `${w}s`).join('-')}`;
+  // "entreprise de nettoyage" -> "les entreprises de nettoyage"
+  if (tradeName.startsWith('entreprise ')) return `les entreprises ${tradeName.slice('entreprise '.length)}`;
+  if (tradeName === 'construction bois') return 'la construction bois';
+  if (tradeName === 'génie civil') return 'le génie civil';
   return `les ${tradeName}s`;
 }
 

@@ -38,6 +38,16 @@ const TRADE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
   parqueteur: 'grid',
   echafaudeur: 'bar-chart-2',
   demolition: 'x-octagon',
+  'entreprise-nettoyage': 'wind',
+  conciergerie: 'key',
+  garagiste: 'settings',
+  demenageur: 'truck',
+  informaticien: 'monitor',
+  graphiste: 'pen-tool',
+  photographe: 'camera',
+  traiteur: 'coffee',
+  consultant: 'briefcase',
+  formateur: 'book-open',
 };
 
 export default function MetiersScreen() {
@@ -60,24 +70,33 @@ export default function MetiersScreen() {
         />
 
         {/* A typographic index rather than a wall of icon cards: every trade
-            readable at a glance, one ruled row each, two columns on desktop. */}
-        <View style={[styles.wrap, styles.index, twoCols && styles.indexTwoCols]}>
-          {TRADE_PAGE_SLUGS.map((slug) => {
-            const trade = getTradePage(slug, locale)!;
-            return (
-              <Link key={slug} href={`${tradeHrefPrefix}${slug}` as any} asChild>
-                <Pressable style={StyleSheet.flatten([styles.row, twoCols && styles.rowHalf])}>
-                  <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={colors.primary} style={{ marginTop: 6 }} />
-                  <View style={{ flex: 1, gap: 4 }}>
-                    <Text style={styles.name}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
-                    <Text style={styles.text} numberOfLines={2}>{trade.hero.subtitle}</Text>
-                  </View>
-                  <Text style={styles.arrow}>→</Text>
-                </Pressable>
-              </Link>
-            );
-          })}
-        </View>
+            readable at a glance, one ruled row each, two columns on desktop;
+            the building trades first, then the other sectors. */}
+        {[
+          { label: t('metiersPage.groupBuilding'), slugs: TRADE_PAGE_SLUGS.filter((s) => !getTradePage(s, 'fr')!.general) },
+          { label: t('metiersPage.groupOther'), slugs: TRADE_PAGE_SLUGS.filter((s) => getTradePage(s, 'fr')!.general) },
+        ].map((group) => (
+          <View key={group.label} style={styles.wrap}>
+            <Text style={styles.groupLabel}>{group.label}</Text>
+            <View style={[styles.index, twoCols && styles.indexTwoCols]}>
+              {group.slugs.map((slug) => {
+                const trade = getTradePage(slug, locale)!;
+                return (
+                  <Link key={slug} href={`${tradeHrefPrefix}${slug}` as any} asChild>
+                    <Pressable style={StyleSheet.flatten([styles.row, twoCols && styles.rowHalf])}>
+                      <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={18} color={colors.primary} style={{ marginTop: 6 }} />
+                      <View style={{ flex: 1, gap: 4 }}>
+                        <Text style={styles.name}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
+                        <Text style={styles.text} numberOfLines={2}>{trade.hero.subtitle}</Text>
+                      </View>
+                      <Text style={styles.arrow}>→</Text>
+                    </Pressable>
+                  </Link>
+                );
+              })}
+            </View>
+          </View>
+        ))}
 
         <View style={[styles.wrap, { paddingTop: spacing.xxl, paddingBottom: 96 }]}>
           <Text style={styles.note}>
@@ -94,7 +113,8 @@ export default function MetiersScreen() {
 
 const styles = StyleSheet.create({
   wrap: pageWrap,
-  index: { borderTopWidth: 1.5, borderTopColor: ink, marginTop: spacing.xxl },
+  groupLabel: { ...monoType, fontSize: 11, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.primary, marginTop: spacing.xxxl, marginBottom: spacing.md },
+  index: { borderTopWidth: 1.5, borderTopColor: ink },
   indexTwoCols: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 48 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
   rowHalf: { width: 'calc(50% - 24px)' as any },

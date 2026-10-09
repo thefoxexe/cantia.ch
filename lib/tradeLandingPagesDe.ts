@@ -1820,4 +1820,614 @@ export const TRADE_PAGES_DE: Record<string, TradeLandingPage> = {
     relatedBlogSlugs: [],
     relatedTrades: ['terrassier', 'genie-civil'],
   },
+
+  'entreprise-nettoyage': {
+    slug: 'entreprise-nettoyage',
+    tradeName: 'Reinigungsunternehmen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Reinigungsunternehmen in der Schweiz | Cantia',
+      description:
+        'Offerten für Unterhaltsreinigung, Einsatzplanung, Stunden pro Kunde, Rapporte mit Fotos und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Reinigungsunternehmen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für die Reinigung',
+      title: 'Verträge, Teams und Rechnungen endlich am selben Ort',
+      subtitle:
+        'Cantia hilft Reinigungsunternehmen, Unterhaltsverträge zu kalkulieren, Teams einzuplanen, Stunden pro Kunde zu erfassen und jeden Monat ohne Abtippen zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Einsatzplanung ändert sich täglich',
+        consequence: 'Absenzen, Vertretungen und Endreinigungen werden per Nachricht geregelt, und irgendwann weiss jemand nicht, wohin.',
+        response: 'Eine gemeinsame Teamplanung: Alle sehen auf dem Handy, wo und für welchen Kunden sie heute arbeiten.',
+      },
+      {
+        problem: 'Die effektiven Stunden übersteigen oft den Vertrag',
+        consequence: 'Ein Kunde wünscht immer etwas mehr; ohne Erfassung pro Kunde schmilzt die Marge unbemerkt.',
+        response: 'Die Stunden werden pro Kunde erfasst und Monat für Monat mit dem vereinbarten Betrag verglichen.',
+      },
+      {
+        problem: 'Ein Kunde bestreitet die geleistete Arbeit',
+        consequence: 'Ohne schriftlichen Nachweis steht Wort gegen Wort, oft mit einer Gutschrift als Folge.',
+        response: 'Ein Rapport mit datierten Fotos am Ende des Einsatzes, dem Kunden als PDF gesendet.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerten pro Monat oder Einsatz', text: 'Ihre Leistungen und Preise im Katalog: Fläche, Häufigkeit, Fenster, Endreinigung, mit berechneter MWST.' },
+      { icon: 'calendar', title: 'Teamplanung', text: 'Wer wann zu welchem Kunden geht, für das ganze Team auf dem Handy sichtbar.' },
+      { icon: 'clock', title: 'Stunden pro Kunde', text: 'Jede Stunde dem richtigen Kunden zugeordnet, für die echte Rentabilität jedes Vertrags.' },
+      { icon: 'camera', title: 'Rapporte mit Fotos', text: 'Endreinigung, Zustandsaufnahme, Instandstellung: ein klarer Rapport mit Fotos als Beleg.' },
+      { icon: 'credit-card', title: 'QR-Rechnungen und Mahnungen', text: 'Die Rechnung entsteht aus der Offerte, mit QR-Einzahlungsschein; Mahnungen gehen automatisch raus.' },
+      { icon: 'users', title: 'Löhne der Mitarbeitenden', text: 'Die erfassten Stunden ergeben die Lohnabrechnung mit Schweizer Abzügen und danach den Lohnausweis.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein Unterhaltsvertrag für Büros',
+      text: 'Nach der Besichtigung erstellen Sie die Offerte aus Ihrem Katalog: Fläche, zwei Einsätze pro Woche, Fenster jedes Quartal. Der Kunde unterschreibt online. Die Einsätze kommen in die Teamplanung, die Stunden werden vor Ort erfasst, und Ende Monat entsteht die Rechnung ohne Abtippen.',
+    },
+    comparison: [
+      { before: 'Planung auf einer Tafel oder in einer Chatgruppe', after: 'Gemeinsame Planung auf jedem Handy' },
+      { before: 'Stunden auf Papier, für die Löhne abgeschrieben', after: 'Stunden pro Kunde, in die Lohnabrechnung übernommen' },
+      { before: 'Kein Nachweis bei Reklamationen', after: 'Rapport mit datierten Fotos' },
+      { before: 'Rechnungen Ende Monat von Hand', after: 'QR-Rechnungen aus der Offerte' },
+      { before: 'Offene Posten im Kopf', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für ein kleines Reinigungsunternehmen?', answer: 'Ja. Sie starten mit Offerten, Kunden und Rechnungen und ergänzen Teamplanung und Löhne, sobald Sie Personal einstellen.' },
+      { question: 'Kann ich von «Projekten» oder «Mandaten» statt von «Baustellen» sprechen?', answer: 'Ja. Sie wählen den Begriff Ihres Unternehmens (Baustelle, Projekt, Mandat oder Dossier), und er wird überall verwendet, auch auf Offerten und Rechnungen.' },
+      { question: 'Können meine Mitarbeitenden ihre Stunden auf dem Handy erfassen?', answer: 'Ja, alle erfassen ihre Stunden beim Kunden des Tages; sie dienen danach der Rentabilität und der Lohnabrechnung.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, jede Rechnung enthält den QR-Einzahlungsschein mit Ihrer IBAN und der Zahlungsreferenz.' },
+      { question: 'Kann ich dem Kunden einen Einsatzrapport mit Fotos senden?', answer: 'Ja, die vor Ort aufgenommenen Fotos werden pro Kunde abgelegt, und der Rapport geht als PDF raus.' },
+    ],
+    relatedTrades: ['conciergerie', 'demenageur'],
+  },
+
+  conciergerie: {
+    slug: 'conciergerie',
+    tradeName: 'Hauswartungen & Facility Management',
+    general: true,
+    seo: {
+      title: 'Software für Hauswartungen und Facility Management in der Schweiz | Cantia',
+      description:
+        'Einsätze, Regiearbeiten, Rapporte mit Fotos, Stunden pro Liegenschaft und QR-Rechnungen: Cantia unterstützt Hauswartungen und Facility-Management-Unternehmen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Hauswartungen',
+      title: 'Jede Liegenschaft, jeder Einsatz, jede Stunde, ohne Papier',
+      subtitle:
+        'Cantia hilft Hauswartungen und Facility-Management-Unternehmen, ihre Liegenschaften zu verwalten, Einsätze zu dokumentieren und Regiearbeiten den Verwaltungen zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Verwaltung fragt, was wann gemacht wurde',
+        consequence: 'Einsatzzettel gehen verloren, und beim Verrechnen muss alles rekonstruiert werden.',
+        response: 'Jeder Einsatz wird bei der Liegenschaft erfasst, mit Fotos, Stunden und Bemerkung.',
+      },
+      {
+        problem: 'Kleine Regiearbeiten werden nie verrechnet',
+        consequence: 'Hier eine Glühbirne, dort eine Verstopfung: zusammen Hunderte Franken pro Monat.',
+        response: 'Zusatzarbeiten werden vor Ort erfasst und landen in der Monatsrechnung.',
+      },
+      {
+        problem: 'Die Informationen sind verstreut',
+        consequence: 'Codes, Mieterkontakte, Wartungsverträge: alles in Ordnern oder im Kopf einer einzigen Person.',
+        response: 'Ein Dossier pro Liegenschaft, mit Dokumenten, Kontakten und Verlauf.',
+      },
+    ],
+    usages: [
+      { icon: 'home', title: 'Ein Dossier pro Liegenschaft', text: 'Dokumente, Fotos, Kontakte und Einsatzverlauf am selben Ort.' },
+      { icon: 'plus-circle', title: 'Regie und Zusatzarbeiten', text: 'Ein unvorhergesehener Einsatz wird vor Ort erfasst, mit Foto, und kann unterschrieben werden.' },
+      { icon: 'camera', title: 'Rapporte für die Verwaltung', text: 'Ein klarer Rapport mit datierten Fotos, als PDF gesendet.' },
+      { icon: 'calendar', title: 'Geplante Touren', text: 'Die Teamplanung Liegenschaft für Liegenschaft, auf dem Handy sichtbar.' },
+      { icon: 'clock', title: 'Stunden pro Liegenschaft', text: 'Die Zeit pro Liegenschaft, um zu sehen, welche rentabel sind.' },
+      { icon: 'credit-card', title: 'QR-Rechnungen an Verwaltungen', text: 'Rechnungen mit QR-Einzahlungsschein und automatischen Mahnungen.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein Wasserschaden am Freitagabend',
+      text: 'Die Verwaltung ruft an. Ihr Mitarbeiter öffnet das Dossier der Liegenschaft auf dem Handy, findet den Zugangscode, greift ein, macht zwei Fotos und erfasst seine Stunden. Die Zusatzarbeit wird vor Ort erfasst. Am Montag erhält die Verwaltung den Rapport, und der Einsatz steht in der Monatsrechnung.',
+    },
+    comparison: [
+      { before: 'Einsatzzettel auf Papier', after: 'Einsätze bei der Liegenschaft erfasst' },
+      { before: 'Regiearbeiten Ende Monat vergessen', after: 'Zusatzarbeiten vor Ort erfasst' },
+      { before: 'Fotos auf dem Handy jedes Einzelnen', after: 'Fotos pro Liegenschaft abgelegt' },
+      { before: 'Stunden schwer zuzuordnen', after: 'Stunden pro Liegenschaft' },
+      { before: 'Rapporte am Abend geschrieben', after: 'PDF-Rapport versandbereit' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für eine selbständige Hauswartung?', answer: 'Ja. Sie können allein mit Liegenschaftsdossiers, Rapporten und Rechnungen beginnen und später Ihr Team einladen.' },
+      { question: 'Kann ich meine Liegenschaften «Dossiers» oder «Mandate» nennen?', answer: 'Ja, Sie wählen den Begriff, der in der ganzen App und auf Ihren Dokumenten verwendet wird.' },
+      { question: 'Kann der Kunde einen Zusatzeinsatz unterschreiben?', answer: 'Ja, auf Ihrem Handy oder über den Link per E-Mail; die Unterschrift steht auf dem PDF.' },
+      { question: 'Kann ich einer Verwaltung mehrere Liegenschaften verrechnen?', answer: 'Ja, die Verwaltung ist ein Kunde mit ihren Liegenschaften, und jede Rechnung nennt die betroffene Liegenschaft.' },
+      { question: 'Sind die Fotos datiert?', answer: 'Ja, sie sind datiert und können georeferenziert werden, was bei Reklamationen als Nachweis dient.' },
+    ],
+    relatedTrades: ['entreprise-nettoyage', 'paysagiste'],
+  },
+
+  garagiste: {
+    slug: 'garagiste',
+    tradeName: 'Garagen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Garagen und Carrosserien in der Schweiz | Cantia',
+      description:
+        'Reparaturofferten, Werkstattstunden, Schadenfotos, Zusatzarbeiten und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Garagen und Carrosserien in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Garagen',
+      title: 'Von der Reparaturofferte bis zur Rechnung, ohne Umweg übers Büro',
+      subtitle:
+        'Cantia hilft Garagen und Carrosserien, Reparaturen zu kalkulieren, Werkstattstunden pro Fahrzeug zu erfassen, Schäden mit Fotos zu dokumentieren und mit der QR-Rechnung zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Der Kunde will einen Preis, bevor er das Auto dalässt',
+        consequence: 'Die Offerte wartet bis am Abend, der Kunde vergleicht anderswo.',
+        response: 'Eine Offerte in wenigen Minuten aus Ihren üblichen Leistungen und Teilen, online unterschrieben.',
+      },
+      {
+        problem: 'Während der Reparatur kommt etwas dazu',
+        consequence: 'Der Kunde entdeckt den Mehraufwand auf der Rechnung und bestreitet ihn.',
+        response: 'Die Zusatzarbeit wird mit Foto erfasst und vom Kunden bestätigt, bevor es weitergeht.',
+      },
+      {
+        problem: 'Werkstattstunden und Rechnung passen nicht zusammen',
+        consequence: 'Die effektive Zeit wird nicht erfasst, die Marge pro Reparatur bleibt eine Schätzung.',
+        response: 'Die Stunden der Mechaniker werden dem Fahrzeug zugeordnet und mit der Offerte verglichen.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Reparaturofferten', text: 'Arbeit, Teile und Pauschalen im Katalog, MWST berechnet, Online-Unterschrift.' },
+      { icon: 'camera', title: 'Schadenfotos', text: 'Vorher, während, nachher: Die Fotos bleiben beim Fahrzeug, nützlich für die Versicherung.' },
+      { icon: 'plus-circle', title: 'Zusatzarbeiten', text: 'Ein unterwegs entdeckter Mehraufwand, vom Kunden bestätigt, bevor er ausgeführt wird.' },
+      { icon: 'clock', title: 'Werkstattstunden', text: 'Jede Mechanikerstunde dem richtigen Fahrzeug zugeordnet.' },
+      { icon: 'calendar', title: 'Werkstattplanung', text: 'Wer an was arbeitet, Tag für Tag, für das ganze Team sichtbar.' },
+      { icon: 'credit-card', title: 'QR-Rechnungen', text: 'Die Rechnung entsteht aus der Offerte, mit QR-Einzahlungsschein und Mahnungen.' },
+    ],
+    scenario: {
+      title: 'Beispiel: eine Reparatur nach einem Parkschaden',
+      text: 'Der Kunde bringt sein Auto. Sie eröffnen ein Dossier, fotografieren den Schaden und erstellen die Offerte aus Ihrem Katalog. Beim Zerlegen entdeckt der Mechaniker eine gebrochene Halterung: Die Zusatzarbeit geht mit Foto an den Kunden, der sie auf dem Handy bestätigt. Bei der Rückgabe ist die QR-Rechnung bereit.',
+    },
+    comparison: [
+      { before: 'Offerte am Abend geschrieben', after: 'Offerte in wenigen Minuten' },
+      { before: 'Zusatzarbeiten erst auf der Rechnung sichtbar', after: 'Zusatzarbeiten vorher bestätigt' },
+      { before: 'Verstreute Fotos', after: 'Fotos pro Fahrzeug abgelegt' },
+      { before: 'Geschätzte Werkstattstunden', after: 'Stunden pro Reparatur erfasst' },
+      { before: 'Mahnungen von Hand', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Ersetzt Cantia eine spezialisierte Garagensoftware?', answer: 'Cantia deckt die Verwaltung ab: Offerten, Zusatzarbeiten, Stunden, Fotos, Rechnungen, Löhne und Buchhaltung. Teilekataloge der Hersteller und Diagnosen gehören nicht dazu.' },
+      { question: 'Kann ich jedes Fahrzeug separat verfolgen?', answer: 'Ja, jedes Fahrzeug oder jede Reparatur ist ein Dossier mit Fotos, Dokumenten, Stunden und Verkaufsdokumenten.' },
+      { question: 'Kann der Kunde eine Zusatzarbeit aus der Ferne bestätigen?', answer: 'Ja, er erhält einen Link per E-Mail und unterschreibt online; die Unterschrift steht auf dem PDF.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, jede Rechnung enthält den QR-Einzahlungsschein.' },
+      { question: 'Kann ich die Löhne meiner Mechaniker machen?', answer: 'Ja, mit Schweizer Abzügen, monatlichen Lohnabrechnungen und dem jährlichen Lohnausweis.' },
+    ],
+    relatedTrades: ['demenageur', 'informaticien'],
+  },
+
+  demenageur: {
+    slug: 'demenageur',
+    tradeName: 'Umzugsunternehmen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Umzugsunternehmen in der Schweiz | Cantia',
+      description:
+        'Umzugsofferten, Team- und Fahrzeugplanung, Zustand in Fotos, Stunden und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Umzugsunternehmen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Umzugsunternehmen',
+      title: 'Offerten am Tag der Besichtigung, Teams, die wissen, wohin',
+      subtitle:
+        'Cantia hilft Umzugsunternehmen, schnell zu kalkulieren, Teams zu planen, den Zustand der Güter mit Fotos zu dokumentieren und ohne Verzug zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Der Kunde verlangt drei Offerten',
+        consequence: 'Wer zuerst mit einem klaren Dokument antwortet, bekommt oft den Auftrag.',
+        response: 'Die Offerte entsteht direkt nach der Besichtigung, mit Ihren Pauschalen und Preisen, und wird online unterschrieben.',
+      },
+      {
+        problem: 'Ein beschädigtes Möbel, und die Diskussion beginnt',
+        consequence: 'Ohne Foto vom Zustand vor dem Transport lässt sich kaum klären, was passiert ist.',
+        response: 'Datierte Fotos beim Laden und bei der Lieferung, beim Umzug abgelegt.',
+      },
+      {
+        problem: 'Die Stunden übersteigen die Pauschale',
+        consequence: 'Schwieriger Zugang, Lift defekt: Der Mehraufwand wird mangels Nachweis nicht verrechnet.',
+        response: 'Die effektiven Stunden werden erfasst und der Zuschlag vor Ort vom Kunden bestätigt.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Schnelle Offerten', text: 'Pauschalen, Stunden, Verpackung, Möbellager: Ihre Preise im Katalog, MWST berechnet.' },
+      { icon: 'calendar', title: 'Teamplanung', text: 'Wer mit welchem Lastwagen an welche Adresse fährt, auf jedem Handy sichtbar.' },
+      { icon: 'camera', title: 'Zustand in Fotos', text: 'Vor dem Laden und bei der Lieferung, datiert und abgelegt.' },
+      { icon: 'plus-circle', title: 'Zuschläge vor Ort', text: 'Mehrstunden, Tragen von Hand: erfasst und vor Ort bestätigt.' },
+      { icon: 'clock', title: 'Stunden pro Umzug', text: 'Die effektive Zeit jedes Teams, verglichen mit dem Geplanten.' },
+      { icon: 'credit-card', title: 'Anzahlungen und QR-Rechnungen', text: 'Anzahlungsrechnung bei der Reservation, Restbetrag mit QR-Einzahlungsschein, automatische Mahnungen.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein Umzug von Bern nach Thun',
+      text: 'Nach der Besichtigung geht die Offerte noch am selben Abend raus. Der Kunde unterschreibt, Sie senden eine Anzahlungsrechnung. Am Umzugstag sieht das Team Adresse und Zeit auf dem Handy, fotografiert die zerbrechlichen Möbel beim Laden und erfasst zwei Mehrstunden wegen eines schwierigen Zugangs. Der Restbetrag wird am nächsten Tag verrechnet.',
+    },
+    comparison: [
+      { before: 'Offerte Tage nach der Besichtigung', after: 'Offerte am selben Tag' },
+      { before: 'Planung an der Tafel im Depot', after: 'Planung auf jedem Handy' },
+      { before: 'Streitfälle ohne Nachweis', after: 'Datierte Fotos vorher und nachher' },
+      { before: 'Mehrstunden nie verrechnet', after: 'Zuschläge vor Ort bestätigt' },
+      { before: 'Anzahlungen in einem Heft', after: 'Anzahlungs- und Schlussrechnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für ein kleines Umzugsunternehmen?', answer: 'Ja, Sie können mit Offerten und Rechnungen beginnen und später Planung und Löhne ergänzen.' },
+      { question: 'Kann ich eine Anzahlung verlangen?', answer: 'Ja, eine Anzahlungsrechnung kann vor dem Umzug ausgestellt werden, und die Schlussrechnung berücksichtigt sie.' },
+      { question: 'Sehen meine Teams ihre Planung auf dem Handy?', answer: 'Ja, alle sehen ihre Einsätze des Tages mit Adresse und nützlichen Informationen.' },
+      { question: 'Können die Fotos bei einem Streitfall dienen?', answer: 'Ja, sie sind datiert und können georeferenziert werden.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, auf allen Rechnungen.' },
+    ],
+    relatedTrades: ['entreprise-nettoyage', 'garagiste'],
+  },
+
+  informaticien: {
+    slug: 'informaticien',
+    tradeName: 'Informatiker & IT-KMU',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Informatiker und IT-KMU in der Schweiz | Cantia',
+      description:
+        'Offerten, Stunden pro Mandat, Einsätze, Supportverträge und QR-Rechnungen: Cantia hilft selbständigen Informatikern und IT-KMU in der Schweiz, jede Stunde zu verrechnen.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für die Informatik',
+      title: 'Jede Supportstunde landet auf einer Rechnung',
+      subtitle:
+        'Cantia hilft selbständigen Informatikern und kleinen IT-Firmen, Offerten zu erstellen, die Zeit pro Mandat zu erfassen, Einsätze zu dokumentieren und lückenlos zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Kleine Einsätze werden nicht notiert',
+        consequence: 'Ein Anruf von zwanzig Minuten, ein Fernupdate: Am Monatsende wird ein Teil der Zeit nie verrechnet.',
+        response: 'Die Zeit wird in Sekunden auf dem Mandat des Kunden erfasst, am Computer oder auf dem Handy.',
+      },
+      {
+        problem: 'Ein Projekt überschreitet unbemerkt das Budget',
+        consequence: 'Man merkt es beim Rechnungsstellen, zu spät für ein Gespräch mit dem Kunden.',
+        response: 'Die Stunden werden Mandat für Mandat mit dem offerierten Betrag verglichen.',
+      },
+      {
+        problem: 'Rechnungen gehen zu spät raus',
+        consequence: 'Die Rechnungsstellung passiert am Wochenende, und die Liquidität leidet.',
+        response: 'Die Rechnung entsteht aus Offerte und Stunden, mit QR-Rechnung und automatischen Mahnungen.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Klare Offerten', text: 'Leistungen, Lizenzen und Pauschalen im Katalog, elektronische Unterschrift des Kunden.' },
+      { icon: 'clock', title: 'Stunden pro Mandat', text: 'Jeder Einsatz dem richtigen Kunden und Mandat zugeordnet.' },
+      { icon: 'bar-chart-2', title: 'Rentabilität pro Projekt', text: 'Offeriert gegenüber geleistet, um zu sehen, welche Projekte wirklich rentieren.' },
+      { icon: 'mic', title: 'Diktierte Notizen', text: 'Diktieren Sie Ihren Einsatzbericht; er wird transkribiert und beim Mandat abgelegt.' },
+      { icon: 'credit-card', title: 'QR-Rechnungen und Mahnungen', text: 'Rechnung aus der Offerte, Schweizer QR-Einzahlungsschein, automatische Mahnungen.' },
+      { icon: 'pie-chart', title: 'Liquidität und MWST', text: 'Kommende Zahlungseingänge, MWST des Quartals und Buchhaltung am selben Ort.' },
+    ],
+    scenario: {
+      title: 'Beispiel: Umstellung eines KMU auf neue Arbeitsplätze',
+      text: 'Sie senden die Offerte, der Kunde unterschreibt online. Während des Projekts erfasst jeder Techniker seine Zeit auf dem Mandat. Ein zusätzlicher Arbeitsplatz wird gewünscht: Er kommt zum Mandat, und der Kunde bestätigt ihn. Am Ende übernimmt die Rechnung Offerte und Zusatz, mit QR-Einzahlungsschein.',
+    },
+    comparison: [
+      { before: 'Zeit in einer Tabelle notiert', after: 'Stunden auf dem Mandat erfasst' },
+      { before: 'Kleine Einsätze vergessen', after: 'Jeder Einsatz verrechnet' },
+      { before: 'Überschreitung beim Verrechnen entdeckt', after: 'Offeriert gegenüber geleistet laufend sichtbar' },
+      { before: 'Rechnungen am Wochenende', after: 'Rechnungen aus der Offerte' },
+      { before: 'Mahnungen von Fall zu Fall', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für einen selbständigen Informatiker?', answer: 'Ja. Offerten, Stunden, QR-Rechnungen und Mahnungen genügen für den Start allein.' },
+      { question: 'Kann ich von «Mandaten» statt von «Baustellen» sprechen?', answer: 'Ja, Sie wählen den Begriff, der in der App und auf Ihren Dokumenten verwendet wird.' },
+      { question: 'Dient Cantia als Ticketsystem?', answer: 'Nein. Cantia verwaltet Offerten, Zeit, Rechnungen und Administration; ein Ticket- oder Monitoringtool ersetzt es nicht.' },
+      { question: 'Kann ich Cantia mit Bexio nutzen?', answer: 'Ja, die Integration synchronisiert Kunden, Rechnungen und Zahlungen, je nach Abo.' },
+      { question: 'Unterstützt Cantia die MWST?', answer: 'Ja, wenn Sie mehrwertsteuerpflichtig sind, wird die MWST auf Ihren Dokumenten berechnet und die Quartalsabrechnung vorbereitet.' },
+    ],
+    relatedTrades: ['graphiste', 'consultant'],
+  },
+
+  graphiste: {
+    slug: 'graphiste',
+    tradeName: 'Grafiker & Agenturen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Grafiker und Kommunikationsagenturen | Cantia',
+      description:
+        'Offerten, Zeiterfassung pro Projekt, verrechenbare Korrekturschlaufen, QR-Rechnungen und Mahnungen: Cantia unterstützt Grafiker und Kommunikationsagenturen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Grafiker und Agenturen',
+      title: 'Die Zeit pro Projekt, endlich sichtbar',
+      subtitle:
+        'Cantia hilft selbständigen Grafikern und Agenturen, Projekte zu kalkulieren, die aufgewendete Zeit zu erfassen, Zusatzwünsche zu verrechnen und ohne Nachlaufen einzukassieren.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Korrekturen nehmen kein Ende',
+        consequence: 'Die dritte Schlaufe war vorgesehen, die siebte nicht, und sie wird fast nie verrechnet.',
+        response: 'Wünsche ausserhalb der Offerte kommen zum Projekt, und der Kunde bestätigt sie, bevor Sie sie umsetzen.',
+      },
+      {
+        problem: 'Man weiss nicht, welche Kunden rentieren',
+        consequence: 'Manche Projekte brauchen doppelt so viel Zeit wie geplant, ohne dass es jemand misst.',
+        response: 'Die Zeit wird pro Projekt erfasst und mit der Offerte verglichen.',
+      },
+      {
+        problem: 'Die Administration frisst die Tage',
+        consequence: 'Offerten, Rechnungen und Mahnungen am Abend statt kreativer Arbeit.',
+        response: 'Offerten aus dem Katalog, Rechnungen aus der Offerte, automatische Mahnungen.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerten pro Projekt', text: 'Logo, Website, Kampagne: Ihre Leistungen im Katalog, Online-Unterschrift.' },
+      { icon: 'clock', title: 'Zeit pro Projekt', text: 'Jede Stunde dem richtigen Kunden zugeordnet, für die echte Rentabilität.' },
+      { icon: 'plus-circle', title: 'Zusatzwünsche', text: 'Ein Wunsch ausserhalb der Offerte wird zum vom Kunden bestätigten Zusatz.' },
+      { icon: 'folder', title: 'Projektdateien', text: 'Briefings, Entwürfe und Lieferungen pro Projekt abgelegt.' },
+      { icon: 'credit-card', title: 'Anzahlungen und QR-Rechnungen', text: 'Anzahlung beim Start, Restbetrag bei der Lieferung, automatische Mahnungen.' },
+      { icon: 'pie-chart', title: 'Liquidität', text: 'Was wann hereinkommt, um böse Überraschungen zu vermeiden.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein neues Erscheinungsbild',
+      text: 'Die Offerte sieht drei Entwürfe und zwei Korrekturschlaufen vor. Der Kunde unterschreibt, Sie verrechnen eine Anzahlung. Bei der vierten Schlaufe geht der Zusatz an den Kunden, der ihn bestätigt. Die Zeit wird auf dem Projekt erfasst. Bei der Lieferung übernimmt die Schlussrechnung Offerte und Zusatz.',
+    },
+    comparison: [
+      { before: 'Faktisch unbegrenzte Korrekturen', after: 'Zusätze vorher bestätigt' },
+      { before: 'Zeit im Nachhinein geschätzt', after: 'Zeit pro Projekt erfasst' },
+      { before: 'Offerten jedes Mal neu', after: 'Offerten aus Ihrem Katalog' },
+      { before: 'Vergessene Anzahlungen', after: 'Anzahlungsrechnung beim Start' },
+      { before: 'Unangenehme Mahnungen', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für selbständige Grafiker?', answer: 'Ja, Offerten, Zeit und Rechnungen genügen für den Start allein.' },
+      { question: 'Kann ich meine Dossiers «Projekte» nennen?', answer: 'Ja, Sie wählen den Begriff, der überall verwendet wird, auch auf Ihren Dokumenten.' },
+      { question: 'Können Offerten und Rechnungen in meinen Farben sein?', answer: 'Ja, mit Ihrem Logo und Ihrer Markenfarbe, je nach Abo.' },
+      { question: 'Kann ich eine Anzahlung verlangen?', answer: 'Ja, die Anzahlungsrechnung wird von der Schlussrechnung abgezogen.' },
+      { question: 'Kann der Kunde die Offerte online unterschreiben?', answer: 'Ja, über den Link per E-Mail; die Unterschrift steht auf dem PDF.' },
+    ],
+    relatedTrades: ['photographe', 'informaticien'],
+  },
+
+  photographe: {
+    slug: 'photographe',
+    tradeName: 'Fotografen & Videografen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Fotografen und Videografen in der Schweiz | Cantia',
+      description:
+        'Offerten, Reservationen, Anzahlungen, Drehplanung und QR-Rechnungen: Cantia unterstützt Fotografen, Videografen und Drohnenpiloten in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Fotografen und Videografen',
+      title: 'Mehr Zeit hinter der Kamera, weniger hinter der Administration',
+      subtitle:
+        'Cantia hilft Fotografen, Videografen und Drohnenpiloten, Offerten zu senden, Termine mit einer Anzahlung zu sichern und zu verrechnen, ohne die Abende daran zu verlieren.',
+    },
+    painPoints: [
+      {
+        problem: 'Ein reservierter Termin, dann die Absage',
+        consequence: 'Ohne Anzahlung und unterschriebene Offerte ist der blockierte Tag verloren.',
+        response: 'Die Offerte wird online unterschrieben, und eine Anzahlungsrechnung geht sofort raus.',
+      },
+      {
+        problem: 'Die Nachbearbeitung wird nie gezählt',
+        consequence: 'Der Aufnahmetag wird verrechnet, die zwei Tage Bildbearbeitung kaum.',
+        response: 'Vorbereitung, Aufnahme und Nachbearbeitung werden pro Projekt erfasst.',
+      },
+      {
+        problem: 'Rechnungen warten auf die Lieferung',
+        consequence: 'Zwischen Lieferung und Rechnung vergehen Wochen.',
+        response: 'Die Schlussrechnung entsteht aus der Offerte, mit QR-Rechnung und Mahnungen.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerten und Pauschalen', text: 'Reportagen, Hochzeiten, Drehs, Drohnenflüge: Ihre Pauschalen im Katalog.' },
+      { icon: 'calendar', title: 'Drehplanung', text: 'Ihre Termine und die Ihrer Assistenten, mit Google Kalender synchronisierbar.' },
+      { icon: 'credit-card', title: 'Anzahlungen', text: 'Eine Anzahlungsrechnung bei der Unterschrift, vom Restbetrag abgezogen.' },
+      { icon: 'clock', title: 'Zeit pro Projekt', text: 'Vorbereitung, Aufnahme, Nachbearbeitung: alles wird gezählt.' },
+      { icon: 'folder', title: 'Projektdokumente', text: 'Briefings, Bewilligungen und Verträge pro Projekt abgelegt.' },
+      { icon: 'bell', title: 'Automatische Mahnungen', text: 'Überfällige Rechnungen werden gemahnt, ohne dass Sie schreiben müssen.' },
+    ],
+    scenario: {
+      title: 'Beispiel: eine Unternehmensreportage',
+      text: 'Sie senden die Offerte: ein Aufnahmetag und eine bearbeitete Auswahl. Der Kunde unterschreibt, die Anzahlung geht raus. Der Termin kommt in Ihre Planung. Nach dem Dreh erfassen Sie die Nachbearbeitungszeit auf dem Projekt. Bei der Lieferung ist die Schlussrechnung bereit.',
+    },
+    comparison: [
+      { before: 'Termine ohne Verbindlichkeit reserviert', after: 'Unterschriebene Offerte und Anzahlung' },
+      { before: 'Nachbearbeitung nicht gezählt', after: 'Zeit pro Projekt erfasst' },
+      { before: 'Rechnungen Wochen später', after: 'Rechnung bei der Lieferung bereit' },
+      { before: 'Kalender und Offerten getrennt', after: 'Planung mit den Projekten verknüpft' },
+      { before: 'Mahnungen von Fall zu Fall', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für selbständige Fotografen?', answer: 'Ja, Offerten, Anzahlungen und Rechnungen genügen für den Start allein.' },
+      { question: 'Kann ich meine Planung mit Google Kalender synchronisieren?', answer: 'Ja, die Synchronisation funktioniert in beide Richtungen, für jeden Benutzer.' },
+      { question: 'Kann ich bei der Reservation eine Anzahlung verlangen?', answer: 'Ja, die Anzahlungsrechnung wird danach vom Restbetrag abgezogen.' },
+      { question: 'Speichert Cantia meine hochaufgelösten Fotos für die Lieferung?', answer: 'Cantia legt Arbeitsdokumente und Fotos pro Projekt ab. Für grosse Lieferungen an Kunden behalten Sie Ihre gewohnte Plattform.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, auf allen Rechnungen.' },
+    ],
+    relatedTrades: ['graphiste', 'traiteur'],
+  },
+
+  traiteur: {
+    slug: 'traiteur',
+    tradeName: 'Caterer & Eventfirmen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Caterer und Eventfirmen in der Schweiz | Cantia',
+      description:
+        'Offerten pro Anlass, Anzahlungen, Personalplanung, Stunden, Löhne und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Caterern und Eventfirmen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Catering und Events',
+      title: 'Jeder Anlass kalkuliert, besetzt und verrechnet',
+      subtitle:
+        'Cantia hilft Caterern und Eventfirmen, klare Offerten zu senden, Anzahlungen einzuziehen, das Personal zu planen und den Restbetrag lückenlos zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Gästezahl ändert sich bis am Vortag',
+        consequence: 'Änderungen gehen zwischen E-Mails und Anrufen verloren, und die Rechnung stimmt nicht mehr.',
+        response: 'Jede Änderung kommt zum Anlass, und der Kunde bestätigt sie online.',
+      },
+      {
+        problem: 'Aushilfspersonal ist schwer zu verfolgen',
+        consequence: 'Servicestunden, Auf- und Abbau: Die Löhne werden von Hand berechnet.',
+        response: 'Personalplanung und erfasste Stunden ergeben die Lohnabrechnungen.',
+      },
+      {
+        problem: 'Anzahlungen werden nicht immer verlangt',
+        consequence: 'Eine späte Absage kostet die bereits bestellte Ware.',
+        response: 'Eine Anzahlungsrechnung geht mit der Unterschrift der Offerte raus.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerten pro Anlass', text: 'Menüs, Getränke, Service und Miete im Katalog, pro Gedeck oder pauschal.' },
+      { icon: 'plus-circle', title: 'Bestätigte Änderungen', text: 'Mehr Gäste, zusätzliche Option: Der Kunde bestätigt vor dem Anlass.' },
+      { icon: 'calendar', title: 'Personalplanung', text: 'Wer an welchem Anlass arbeitet, auf dem Handy sichtbar.' },
+      { icon: 'clock', title: 'Stunden und Löhne', text: 'Die Servicestunden ergeben die Lohnabrechnungen mit Schweizer Abzügen.' },
+      { icon: 'credit-card', title: 'Anzahlungen und Restbeträge', text: 'Anzahlungsrechnung, dann Restbetrag mit QR-Einzahlungsschein und Mahnungen.' },
+      { icon: 'bar-chart-2', title: 'Rentabilität pro Anlass', text: 'Ware, Personal und Spesen verglichen mit dem Offertpreis.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein Apéro für 150 Personen',
+      text: 'Die Offerte geht mit Menü und Service raus. Der Kunde unterschreibt und bezahlt die Anzahlung. Eine Woche vorher werden es 180 Gäste: Die Änderung geht an den Kunden, der sie bestätigt. Das Personal sieht seine Zeiten auf dem Handy und erfasst seine Stunden. Am nächsten Tag wird der Restbetrag verrechnet.',
+    },
+    comparison: [
+      { before: 'Änderungen gehen in E-Mails verloren', after: 'Änderungen bestätigt und beim Anlass abgelegt' },
+      { before: 'Personal per Nachricht geplant', after: 'Gemeinsame Planung' },
+      { before: 'Stunden für die Löhne abgeschrieben', after: 'Stunden in die Lohnabrechnung übernommen' },
+      { before: 'Vergessene Anzahlungen', after: 'Anzahlung ab der Unterschrift' },
+      { before: 'Unbekannte Marge pro Anlass', after: 'Rentabilität pro Anlass' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für einen kleinen Caterer?', answer: 'Ja, Offerten, Anzahlungen und Rechnungen genügen für den Start; Planung und Löhne folgen später.' },
+      { question: 'Kann ich die Löhne des Aushilfspersonals machen?', answer: 'Ja, im Stunden- oder Monatslohn, mit Schweizer Abzügen und Lohnausweis.' },
+      { question: 'Kann der Kunde eine Änderung online bestätigen?', answer: 'Ja, über den Link per E-Mail; seine Unterschrift steht auf dem Dokument.' },
+      { question: 'Kann ich meine Anlässe «Dossiers» nennen?', answer: 'Ja, Sie wählen den Begriff, der überall verwendet wird.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, auf allen Rechnungen.' },
+    ],
+    relatedTrades: ['photographe', 'entreprise-nettoyage'],
+  },
+
+  consultant: {
+    slug: 'consultant',
+    tradeName: 'Berater',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Berater und kleine Beratungsfirmen | Cantia',
+      description:
+        'Offerten, Mandate, Zeiterfassung, diktierte Notizen, QR-Rechnungen, MWST und Buchhaltung: Cantia unterstützt selbständige Berater und Beratungsfirmen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Berater',
+      title: 'Ihre Mandate, Ihre Zeit und Ihre Honorare, ohne Tabelle',
+      subtitle:
+        'Cantia hilft Beratern und kleinen Beratungsfirmen, Offerten zu erstellen, die Zeit pro Mandat zu erfassen, Honorare zu verrechnen und die Buchhaltung aktuell zu halten.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Zeit wird im Nachhinein notiert',
+        consequence: 'Ein Teil der geleisteten Stunden wird nie verrechnet.',
+        response: 'Die Zeit wird laufend auf dem Mandat erfasst, am Computer oder auf dem Handy.',
+      },
+      {
+        problem: 'Das Mandatsbudget wird unbemerkt überschritten',
+        consequence: 'Das Gespräch mit dem Kunden kommt zu spät.',
+        response: 'Die Stunden werden Mandat für Mandat mit dem Budget der Offerte verglichen.',
+      },
+      {
+        problem: 'Rechnungen und Buchhaltung füllen die Freitage',
+        consequence: 'Administrative Zeit verrechnet man niemandem.',
+        response: 'Rechnungen aus Offerte und Zeit, Buchhaltung und MWST automatisch gespeist.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerten und Auftragsbestätigungen', text: 'Ihre Leistungen im Katalog, elektronische Unterschrift des Kunden.' },
+      { icon: 'clock', title: 'Zeit pro Mandat', text: 'Jede Stunde auf dem richtigen Mandat, um korrekt zu verrechnen.' },
+      { icon: 'mic', title: 'Diktierte Notizen', text: 'Das Protokoll einer Sitzung auf dem Handy diktiert, beim Mandat transkribiert.' },
+      { icon: 'credit-card', title: 'Honorare und QR-Rechnungen', text: 'Pauschal oder nach Aufwand, QR-Einzahlungsschein, automatische Mahnungen.' },
+      { icon: 'pie-chart', title: 'Buchhaltung und MWST', text: 'Erfolgsrechnung und MWST-Abrechnung aus Ihren Rechnungen und Ausgaben.' },
+      { icon: 'briefcase', title: 'Verbindung zur Treuhand', text: 'Ihre Treuhand sieht Ihre Zahlen mit Leserecht, mit Ihrer Zustimmung.' },
+    ],
+    scenario: {
+      title: 'Beispiel: ein Begleitmandat über sechs Monate',
+      text: 'Die Offerte legt ein Budget in Tagen fest. Der Kunde unterschreibt online. Jede Woche erfassen Sie Ihre Zeit und diktieren das Protokoll der Sitzungen. Zur Halbzeit sehen Sie, dass 60 % des Budgets verbraucht sind, und sprechen mit dem Kunden. Jedes Monatsende entsteht die Rechnung aus der erfassten Zeit.',
+    },
+    comparison: [
+      { before: 'Zeit Ende Monat rekonstruiert', after: 'Zeit laufend erfasst' },
+      { before: 'Budget im Kopf verfolgt', after: 'Budget gegenüber geleistet' },
+      { before: 'Verstreute Protokolle', after: 'Diktierte Notizen pro Mandat' },
+      { before: 'Rechnungen und Buchhaltung am Freitag', after: 'Automatisch gespeist' },
+      { before: 'Unangenehme Mahnungen', after: 'Automatische Mahnungen' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für selbständige Berater?', answer: 'Ja, Offerten, Zeit, Rechnungen und Buchhaltung genügen, um allein zu arbeiten.' },
+      { question: 'Kann ich meine Projekte «Mandate» nennen?', answer: 'Ja, Sie wählen den Begriff, der in der App und auf Ihren Dokumenten verwendet wird.' },
+      { question: 'Kann ich nach Aufwand verrechnen?', answer: 'Ja, die auf dem Mandat erfassten Stunden können als Grundlage der Rechnung dienen.' },
+      { question: 'Kann meine Treuhand meine Zahlen sehen?', answer: 'Ja, wenn Sie es erlauben, mit Leserecht und Zugriffsprotokoll.' },
+      { question: 'Bereitet Cantia die MWST-Abrechnung vor?', answer: 'Ja, für mehrwertsteuerpflichtige Unternehmen, aus Ihren Rechnungen und Ausgaben.' },
+    ],
+    relatedTrades: ['informaticien', 'formateur'],
+  },
+
+  formateur: {
+    slug: 'formateur',
+    tradeName: 'Ausbilder & Schulen',
+    general: true,
+    seo: {
+      title: 'Verwaltungssoftware für Ausbilder und Privatschulen in der Schweiz | Cantia',
+      description:
+        'Kursofferten, Kursplanung, Stunden der Dozierenden, Löhne und QR-Rechnungen: Cantia unterstützt selbständige Ausbilder und kleine Schulen in der Schweiz.',
+    },
+    hero: {
+      eyebrow: 'Unternehmensverwaltung für Ausbilder',
+      title: 'Kurse geplant, Dozierende bezahlt, Rechnungen versendet',
+      subtitle:
+        'Cantia hilft selbständigen Ausbildern, Fahrschulen und kleinen Privatschulen, Kurse anzubieten, zu planen, Stunden zu erfassen und ohne Verzug zu verrechnen.',
+    },
+    painPoints: [
+      {
+        problem: 'Die Kursplanung ändert oft',
+        consequence: 'Eine schlecht kommunizierte Vertretung, und ein Raum wartet auf den Dozenten.',
+        response: 'Die Planung der Dozierenden ist geteilt und auf dem Handy sichtbar.',
+      },
+      {
+        problem: 'Die Stunden der Dozierenden werden abgeschrieben',
+        consequence: 'Lohnfehler und Abende mit Tabellen.',
+        response: 'Die erfassten Stunden ergeben die Lohnabrechnungen mit Schweizer Abzügen.',
+      },
+      {
+        problem: 'Rechnungen an Firmen kommen spät',
+        consequence: 'Kurs im März, Zahlung im Juni.',
+        response: 'Die Rechnung entsteht aus der Offerte, sobald der Kurs vorbei ist, mit automatischen Mahnungen.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Kursofferten', text: 'Module, Tage und Pauschalen im Katalog, Online-Unterschrift.' },
+      { icon: 'calendar', title: 'Kursplanung', text: 'Wer welchen Kurs wann und wo gibt, mit Google Kalender synchronisierbar.' },
+      { icon: 'clock', title: 'Stunden der Dozierenden', text: 'Jede Stunde dem richtigen Kurs zugeordnet.' },
+      { icon: 'users', title: 'Löhne', text: 'Monatliche Lohnabrechnungen und jährlicher Lohnausweis.' },
+      { icon: 'credit-card', title: 'QR-Rechnungen', text: 'An Firmen wie an Privatpersonen, mit automatischen Mahnungen.' },
+      { icon: 'folder', title: 'Unterlagen und Bestätigungen', text: 'Kursunterlagen, Listen und Bestätigungen pro Kurs abgelegt.' },
+    ],
+    scenario: {
+      title: 'Beispiel: eine dreitägige Firmenschulung',
+      text: 'Die Offerte geht mit dem Programm raus. Der Kunde unterschreibt. Die drei Tage kommen in die Planung des Dozenten, der seine Stunden erfasst. Am letzten Tag entsteht die Rechnung aus der Offerte; Ende Monat erscheinen seine Stunden auf seiner Lohnabrechnung.',
+    },
+    comparison: [
+      { before: 'Kursplanung per E-Mail', after: 'Gemeinsame Planung' },
+      { before: 'Stunden für die Löhne abgeschrieben', after: 'Stunden in die Lohnabrechnung übernommen' },
+      { before: 'Offerten jedes Mal neu', after: 'Offerten aus Ihrem Katalog' },
+      { before: 'Rechnungen Wochen später', after: 'Rechnung am Kursende bereit' },
+      { before: 'Verstreute Unterlagen', after: 'Pro Kurs abgelegt' },
+    ],
+    faq: [
+      { question: 'Eignet sich Cantia für selbständige Ausbilder?', answer: 'Ja, Offerten, Planung und Rechnungen genügen für den Start allein.' },
+      { question: 'Kann ich Dozierende im Stundenlohn bezahlen?', answer: 'Ja, Stundenlöhne werden aus den erfassten Stunden berechnet, mit Schweizer Abzügen.' },
+      { question: 'Verwaltet Cantia Online-Anmeldungen der Teilnehmenden?', answer: 'Nein, Cantia verwaltet Offerten, Planung, Stunden und Rechnungen, keine öffentlichen Anmeldungen.' },
+      { question: 'Kann ich die Planung mit Google Kalender synchronisieren?', answer: 'Ja, in beide Richtungen, für jeden Benutzer.' },
+      { question: 'Unterstützt Cantia die Schweizer QR-Rechnung?', answer: 'Ja, auf allen Rechnungen.' },
+    ],
+    relatedTrades: ['consultant', 'informaticien'],
+  },
 };

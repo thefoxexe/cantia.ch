@@ -6,6 +6,8 @@ const TRADE_SLUGS = new Set([
   'paysagiste', 'couvreur', 'chauffagiste', 'carreleur', 'platrier', 'genie-civil', 'terrassier',
   'entreprise-renovation', 'serrurier', 'ferblantier', 'facadier', 'etancheur', 'construction-bois',
   'vitrier', 'parqueteur', 'echafaudeur', 'demolition',
+  'entreprise-nettoyage', 'conciergerie', 'garagiste', 'demenageur', 'informaticien', 'graphiste',
+  'photographe', 'traiteur', 'consultant', 'formateur',
 ]);
 
 export const SITE = 'https://cantia.ch';
@@ -481,6 +483,116 @@ export const ROUTES = [
     title: 'Blog | Cantia — Réponses concrètes pour le bâtiment suisse',
     description:
       "Devis, facturation, RH, juridique, comparatifs : des réponses précises aux questions que se posent les artisans et entreprises du bâtiment en Suisse.",
+  },
+  {
+    path: 'blog/prix-contrat-nettoyage-bureaux-suisse-calcul',
+    title: 'Calculer le prix d’un contrat de nettoyage de bureaux : la méthode | Cantia',
+    description:
+      'Surface, fréquence, cadence, coût horaire complet, produits et marge : la méthode pour chiffrer un contrat d’entretien de bureaux en Suisse sans travailler à perte.',
+    faq: [
+      { q: 'Faut-il facturer le nettoyage au m² ou à l’heure ?', a: 'Les deux existent. Le prix au mois ou au passage, calculé à partir de la surface et de votre cadence, est le plus lisible pour un client régulier ; l’heure convient mieux aux interventions ponctuelles.' },
+      { q: 'Que mettre dans un contrat d’entretien ?', a: 'Les locaux concernés, la fréquence, les prestations comprises et exclues, le prix, la durée, le délai de résiliation et la façon dont les prestations supplémentaires sont facturées.' },
+      { q: 'Comment savoir si un contrat est rentable ?', a: 'En comparant chaque mois les heures réellement passées chez le client à celles prévues dans le calcul du prix.' },
+    ],
+  },
+  {
+    path: 'blog/facturer-petites-interventions-gerance-conciergerie',
+    title: 'Conciergerie : facturer les petites interventions sans en oublier | Cantia',
+    description:
+      'Ampoules, débouchages, réglages : les petites régies d’une conciergerie se perdent facilement. Comment les noter, les prouver et les facturer chaque mois à la gérance.',
+    faq: [
+      { q: 'Faut-il l’accord de la gérance avant chaque intervention ?', a: 'Cela dépend du contrat. Il est courant de fixer un montant en dessous duquel vous intervenez directement, et au-dessus duquel un accord écrit est demandé.' },
+      { q: 'Peut-on facturer un minimum par intervention ?', a: 'Oui, si le contrat ou votre liste de prix le prévoit, par exemple un quart d’heure ou une demi-heure minimum.' },
+      { q: 'Comment prouver une intervention contestée ?', a: 'Avec la date, l’heure, la description et des photos prises sur place, idéalement enregistrées au moment de l’intervention.' },
+    ],
+  },
+  {
+    path: 'blog/devis-reparation-garage-supplement-accord-client',
+    title: 'Devis de réparation au garage : que faire quand la facture dépasse ? | Cantia',
+    description:
+      'Devis approximatif ou prix ferme, dépassement, accord du client : ce que prévoit le Code des obligations et comment un garage évite la contestation au moment de la facture.',
+    faq: [
+      { q: 'Le garage peut-il dépasser le devis sans prévenir ?', a: 'Avec un prix ferme, en principe non. Avec un devis approximatif, un dépassement excessif ouvre au client des droits selon l’art. 375 CO. Dans tous les cas, prévenir et obtenir l’accord avant de continuer évite le litige.' },
+      { q: 'Un accord par téléphone suffit-il ?', a: 'Juridiquement, un accord oral peut suffire, mais il est difficile à prouver. Un accord écrit et daté est préférable.' },
+      { q: 'Que doit contenir un devis de réparation ?', a: 'Le véhicule, les travaux prévus, les pièces, la main-d’œuvre, la TVA si vous êtes assujetti, la validité et la nature du prix (ferme ou estimation).' },
+    ],
+  },
+  {
+    path: 'blog/acompte-demenagement-suisse-montant-facture',
+    title: 'Acompte de déménagement : combien demander et comment le facturer | Cantia',
+    description:
+      'Aucun taux légal n’impose un montant d’acompte pour un déménagement. Comment le fixer, le facturer, le déduire du solde et prévoir l’annulation dans l’offre.',
+    faq: [
+      { q: 'Existe-t-il un pourcentage légal d’acompte ?', a: 'Non. Le montant est convenu librement entre vous et le client, de préférence dans l’offre signée.' },
+      { q: 'L’acompte est-il soumis à la TVA ?', a: 'Oui, pour une entreprise assujettie, la TVA est due sur les acomptes encaissés comme sur le solde.' },
+      { q: 'Le client peut-il récupérer son acompte s’il annule ?', a: 'Cela dépend de ce qui a été convenu. Prévoyez dans l’offre les délais et les montants retenus en cas d’annulation.' },
+    ],
+  },
+  {
+    path: 'blog/facturer-support-informatique-temps-passe',
+    title: 'Support informatique : facturer chaque intervention, même les petites | Cantia',
+    description:
+      'Appels courts, mises à jour à distance, déplacements : comment un informaticien indépendant ou une PME IT note, arrondit et facture le temps de support sans perte.',
+    faq: [
+      { q: 'Peut-on facturer un minimum par intervention ?', a: 'Oui, si votre offre ou vos conditions le prévoient, par exemple un quart d’heure minimum par intervention à distance.' },
+      { q: 'Forfait ou temps passé pour le support ?', a: 'Le forfait apporte de la régularité, le temps passé de la précision. Beaucoup combinent un forfait de base et la facturation du temps au-delà.' },
+      { q: 'Que doit indiquer la facture ?', a: 'Vos coordonnées, celles du client, la date, les prestations, les montants, et pour une entreprise assujettie la TVA et le numéro IDE.' },
+    ],
+  },
+  {
+    path: 'blog/corrections-incluses-offre-graphiste-droits',
+    title: 'Offre de graphiste : limiter les corrections et préciser les droits | Cantia',
+    description:
+      'Nombre d’allers-retours, demandes hors offre, acompte, droits d’utilisation : ce qu’un graphiste ou une agence doit écrire dans son offre pour ne pas travailler gratuitement.',
+    faq: [
+      { q: 'Combien d’allers-retours inclure ?', a: 'Il n’y a pas de norme. Deux allers-retours par étape sont courants ; l’important est que le nombre soit écrit dans l’offre.' },
+      { q: 'Le client devient-il propriétaire du logo qu’il paie ?', a: 'Pas automatiquement : les droits d’utilisation cédés doivent être précisés par écrit.' },
+      { q: 'Faut-il demander un acompte ?', a: 'C’est recommandé pour tout projet de plusieurs jours : il engage le client et couvre le début du travail.' },
+    ],
+  },
+  {
+    path: 'blog/annulation-reservation-photographe-acompte-arrhes',
+    title: 'Photographe : protéger une date réservée contre l’annulation | Cantia',
+    description:
+      'Mariage, événement, tournage : une date bloquée puis annulée est perdue. Offre signée, acompte, conditions d’annulation : ce qu’un photographe ou vidéaste doit prévoir.',
+    faq: [
+      { q: 'Un photographe peut-il garder l’acompte si le client annule ?', a: 'Cela dépend de ce qui a été convenu. Écrivez les conditions d’annulation dans l’offre signée pour éviter toute discussion.' },
+      { q: 'Quand envoyer la facture d’acompte ?', a: 'Dès la signature de l’offre, en précisant que la date est confirmée à réception du paiement.' },
+      { q: 'Faut-il un contrat pour un mariage ?', a: 'Une offre détaillée et signée tient lieu de contrat : date, horaires, prestations, livrables, délais, prix et conditions d’annulation.' },
+    ],
+  },
+  {
+    path: 'blog/salaire-personnel-extra-evenementiel-traiteur',
+    title: 'Personnel extra d’un traiteur : salaire horaire, vacances et charges | Cantia',
+    description:
+      'Salaire horaire, indemnité de vacances en pour-cent, cotisations AVS et assurances : comment payer correctement le personnel engagé à l’heure pour un événement.',
+    faq: [
+      { q: 'Combien représente l’indemnité de vacances pour 5 semaines ?', a: '10,64 % du salaire horaire de base (5 semaines ÷ 47 semaines travaillées).' },
+      { q: 'Le personnel extra doit-il avoir une fiche de salaire ?', a: 'Oui, chaque paiement de salaire doit être accompagné d’un décompte indiquant le salaire, les suppléments et les déductions.' },
+      { q: 'Faut-il retenir l’assurance accidents non professionnels ?', a: 'Seulement si la personne travaille au moins 8 heures par semaine chez vous ; sinon, elle n’est pas assurée chez vous pour les accidents non professionnels.' },
+    ],
+  },
+  {
+    path: 'blog/forfait-ou-temps-passe-consultant-suisse',
+    title: 'Forfait ou temps passé : comment un consultant doit facturer | Cantia',
+    description:
+      'Avantages et risques du forfait, du temps passé et du budget plafonné pour un consultant indépendant en Suisse, avec la façon de suivre le mandat dans les deux cas.',
+    faq: [
+      { q: 'Quel mode de facturation préfèrent les clients ?', a: 'Beaucoup préfèrent le forfait pour la prévisibilité. Le budget plafonné est un bon compromis quand le périmètre n’est pas encore clair.' },
+      { q: 'Faut-il suivre son temps même au forfait ?', a: 'Oui, pour savoir si le forfait était rentable et pour chiffrer correctement les mandats suivants.' },
+      { q: 'Comment facturer une demande hors périmètre ?', a: 'Par un supplément ou un avenant chiffré, accepté par le client avant d’être réalisé.' },
+    ],
+  },
+  {
+    path: 'blog/formateur-independant-suisse-tva-facture',
+    title: 'Formateur indépendant : TVA, factures et ce qu’il faut savoir | Cantia',
+    description:
+      'Les prestations de formation sont en principe exclues de la TVA en Suisse. Ce que cela change pour un formateur indépendant ou une petite école : factures, décompte et pièges.',
+    faq: [
+      { q: 'Une formation pour une entreprise est-elle aussi exclue de la TVA ?', a: 'En principe oui, les prestations de formation sont exclues quel que soit le client. Les prestations de conseil ou d’accompagnement qui ne sont pas de la formation peuvent en revanche être imposables.' },
+      { q: 'Où déclarer les formations dans le décompte TVA ?', a: 'Au chiffre 200 avec le reste du chiffre d’affaires, puis en déduction au chiffre 230 (prestations exclues du champ de l’impôt sans option).' },
+      { q: 'Peut-on opter pour la TVA sur la formation ?', a: 'La loi le permet pour certaines prestations exclues (art. 22 LTVA). L’option a des conséquences sur la déduction de l’impôt préalable et mérite d’être examinée avec une fiduciaire.' },
+    ],
   },
   {
     path: 'blog/calculer-prix-devis-renovation-suisse',
@@ -2932,6 +3044,136 @@ export const ROUTES = [
       { q: 'Comment documenter un état des lieux avant démolition ?', a: 'Avec des photos géolocalisées, liées au chantier.' },
       { q: 'Cantia permet-il de connaître la rentabilité d\'un chantier avant sa fin ?', a: 'Oui, disponible en continu.' },
       { q: 'Puis-je suivre les heures d\'équipe et de machines par chantier ?', a: 'Oui, par personne ou par machine.' },
+    ],
+  },
+  {
+    path: 'entreprise-nettoyage',
+    title: 'Logiciel de gestion pour entreprises de nettoyage en Suisse | Cantia',
+    description:
+      'Devis d’entretien, planning des équipes, heures par client, rapports avec photos et factures QR : Cantia simplifie la gestion des entreprises de nettoyage en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à une petite entreprise de nettoyage ?', a: 'Oui. Vous commencez avec les devis, les clients et les factures, puis vous ajoutez le planning d’équipe et les salaires quand vous engagez.' },
+      { q: 'Puis-je parler de « projets » ou de « mandats » plutôt que de « chantiers » ?', a: 'Oui. Vous choisissez le terme de votre entreprise (chantier, projet, mandat ou dossier) et il est utilisé partout, y compris sur vos devis et factures.' },
+      { q: 'Mes employés peuvent-ils saisir leurs heures depuis leur téléphone ?', a: 'Oui, chacun saisit ses heures sur le client du jour ; elles servent ensuite au suivi de la rentabilité et aux fiches de salaire.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, chaque facture inclut le bulletin QR suisse avec votre IBAN et la référence de paiement.' },
+      { q: 'Puis-je envoyer un rapport de passage avec photos au client ?', a: 'Oui, les photos prises sur place sont classées par client et le rapport s’envoie en PDF.' },
+    ],
+  },
+  {
+    path: 'conciergerie',
+    title: 'Logiciel pour conciergeries et facility management en Suisse | Cantia',
+    description:
+      'Interventions, régies, rapports avec photos, heures par immeuble et factures QR : Cantia aide les conciergeries et entreprises de facility management en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à une conciergerie indépendante ?', a: 'Oui. Vous pouvez commencer seul avec les dossiers d’immeubles, les rapports et les factures, puis inviter votre équipe.' },
+      { q: 'Puis-je appeler mes immeubles « dossiers » ou « mandats » ?', a: 'Oui, vous choisissez le terme utilisé dans toute l’application et sur vos documents.' },
+      { q: 'Le client peut-il signer une intervention supplémentaire ?', a: 'Oui, sur votre téléphone ou depuis le lien reçu par e-mail ; la signature figure sur le PDF.' },
+      { q: 'Puis-je facturer une gérance pour plusieurs immeubles ?', a: 'Oui, la gérance est un client avec ses immeubles, et chaque facture précise l’immeuble concerné.' },
+      { q: 'Les photos sont-elles datées ?', a: 'Oui, elles sont datées et peuvent être géolocalisées, ce qui sert de preuve en cas de contestation.' },
+    ],
+  },
+  {
+    path: 'garagiste',
+    title: 'Logiciel de gestion pour garages et carrosseries en Suisse | Cantia',
+    description:
+      'Devis de réparation, ordres de travail, heures d’atelier, photos des dégâts et factures QR : Cantia simplifie la gestion des garages et carrosseries en Suisse.',
+    faq: [
+      { q: 'Cantia remplace-t-il un logiciel de garage spécialisé ?', a: 'Cantia couvre la gestion : devis, suppléments, heures, photos, factures, salaires et comptabilité. Il ne gère pas les catalogues de pièces des constructeurs ni les diagnostics.' },
+      { q: 'Puis-je suivre chaque véhicule séparément ?', a: 'Oui, chaque véhicule ou réparation est un dossier avec ses photos, documents, heures et documents commerciaux.' },
+      { q: 'Le client peut-il accepter un supplément à distance ?', a: 'Oui, il reçoit un lien par e-mail et signe en ligne ; la signature figure sur le PDF.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, chaque facture inclut le bulletin QR suisse.' },
+      { q: 'Puis-je faire les salaires de mes mécaniciens ?', a: 'Oui, avec les déductions suisses, les fiches de salaire mensuelles et le certificat de salaire annuel.' },
+    ],
+  },
+  {
+    path: 'demenageur',
+    title: 'Logiciel de gestion pour entreprises de déménagement en Suisse | Cantia',
+    description:
+      'Devis de déménagement, planning des équipes et des véhicules, état des lieux en photos, heures et factures QR : Cantia simplifie la gestion des déménageurs en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à une petite entreprise de déménagement ?', a: 'Oui, vous pouvez commencer avec les devis et les factures, puis ajouter le planning et les salaires.' },
+      { q: 'Puis-je demander un acompte ?', a: 'Oui, une facture d’acompte peut être émise avant le déménagement, et le solde en tient compte.' },
+      { q: 'Mes équipes voient-elles leur planning sur téléphone ?', a: 'Oui, chacun voit ses missions du jour, avec l’adresse et les informations utiles.' },
+      { q: 'Les photos peuvent-elles servir en cas de litige ?', a: 'Oui, elles sont datées et peuvent être géolocalisées.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, sur toutes les factures.' },
+    ],
+  },
+  {
+    path: 'informaticien',
+    title: 'Logiciel de gestion pour informaticiens et PME IT en Suisse | Cantia',
+    description:
+      'Offres, heures par mandat, interventions, contrats de support et factures QR : Cantia aide les informaticiens indépendants et les PME IT en Suisse à facturer chaque heure.',
+    faq: [
+      { q: 'Cantia convient-il à un informaticien indépendant ?', a: 'Oui. Offres, heures, factures QR et relances suffisent pour démarrer seul.' },
+      { q: 'Puis-je parler de « mandats » plutôt que de « chantiers » ?', a: 'Oui, vous choisissez le terme utilisé dans l’application et sur vos documents.' },
+      { q: 'Cantia sert-il de système de tickets ?', a: 'Non. Cantia gère vos offres, votre temps, vos factures et votre administration ; il ne remplace pas un outil de tickets ou de supervision.' },
+      { q: 'Puis-je utiliser Cantia avec Bexio ?', a: 'Oui, l’intégration synchronise clients, factures et paiements, selon votre formule.' },
+      { q: 'Cantia gère-t-il la TVA ?', a: 'Oui, si vous êtes assujetti, la TVA est calculée sur vos documents et le décompte trimestriel est préparé.' },
+    ],
+  },
+  {
+    path: 'graphiste',
+    title: 'Logiciel de gestion pour graphistes et agences de communication | Cantia',
+    description:
+      'Offres, suivi du temps par projet, allers-retours facturables, factures QR et relances : Cantia aide les graphistes et agences de communication en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à un graphiste indépendant ?', a: 'Oui, les offres, le temps et les factures suffisent pour démarrer seul.' },
+      { q: 'Puis-je appeler mes dossiers « projets » ?', a: 'Oui, vous choisissez le terme utilisé partout, y compris sur vos documents.' },
+      { q: 'Mes offres et factures peuvent-elles être à mes couleurs ?', a: 'Oui, avec votre logo et la couleur de votre marque, selon votre formule.' },
+      { q: 'Puis-je demander un acompte ?', a: 'Oui, la facture d’acompte est déduite de la facture de solde.' },
+      { q: 'Le client peut-il signer l’offre en ligne ?', a: 'Oui, depuis le lien reçu par e-mail ; la signature figure sur le PDF.' },
+    ],
+  },
+  {
+    path: 'photographe',
+    title: 'Logiciel de gestion pour photographes et vidéastes en Suisse | Cantia',
+    description:
+      'Offres, réservations, acomptes, planning des tournages et factures QR : Cantia aide les photographes, vidéastes et télépilotes de drone en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à un photographe indépendant ?', a: 'Oui, offres, acomptes et factures suffisent pour démarrer seul.' },
+      { q: 'Puis-je synchroniser mon planning avec Google Agenda ?', a: 'Oui, la synchronisation fonctionne dans les deux sens, pour chaque utilisateur.' },
+      { q: 'Puis-je demander un acompte à la réservation ?', a: 'Oui, la facture d’acompte est ensuite déduite du solde.' },
+      { q: 'Cantia stocke-t-il mes photos haute résolution pour la livraison ?', a: 'Cantia classe les documents et photos de travail par projet. Pour livrer de gros volumes au client, gardez votre plateforme de livraison habituelle.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, sur toutes les factures.' },
+    ],
+  },
+  {
+    path: 'traiteur',
+    title: 'Logiciel de gestion pour traiteurs et événementiel en Suisse | Cantia',
+    description:
+      'Offres par événement, acomptes, planning du personnel, heures, salaires et factures QR : Cantia simplifie la gestion des traiteurs et entreprises événementielles en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à un petit traiteur ?', a: 'Oui, offres, acomptes et factures suffisent pour démarrer, le planning et les salaires viennent ensuite.' },
+      { q: 'Puis-je faire les salaires du personnel extra ?', a: 'Oui, à l’heure ou au mois, avec les déductions suisses et le certificat de salaire.' },
+      { q: 'Le client peut-il accepter une modification en ligne ?', a: 'Oui, depuis le lien reçu par e-mail ; sa signature figure sur le document.' },
+      { q: 'Puis-je appeler mes événements « dossiers » ?', a: 'Oui, vous choisissez le terme utilisé partout.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, sur toutes les factures.' },
+    ],
+  },
+  {
+    path: 'consultant',
+    title: 'Logiciel de gestion pour consultants et petites sociétés de conseil | Cantia',
+    description:
+      'Offres, mandats, temps passé, notes dictées, factures QR, TVA et comptabilité : Cantia aide les consultants indépendants et sociétés de conseil en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à un consultant indépendant ?', a: 'Oui, offres, temps, factures et comptabilité suffisent pour travailler seul.' },
+      { q: 'Puis-je appeler mes projets « mandats » ?', a: 'Oui, vous choisissez le terme utilisé dans l’application et sur vos documents.' },
+      { q: 'Puis-je facturer au temps passé ?', a: 'Oui, les heures saisies sur le mandat peuvent servir de base à la facture.' },
+      { q: 'Ma fiduciaire peut-elle accéder à mes chiffres ?', a: 'Oui, si vous l’autorisez, en lecture et avec un journal des accès.' },
+      { q: 'Cantia prépare-t-il le décompte TVA ?', a: 'Oui, pour les entreprises assujetties, à partir de vos factures et dépenses.' },
+    ],
+  },
+  {
+    path: 'formateur',
+    title: 'Logiciel de gestion pour formateurs et écoles privées en Suisse | Cantia',
+    description:
+      'Offres de formation, planning des cours, heures des intervenants, salaires et factures QR : Cantia aide les formateurs indépendants et petites écoles en Suisse.',
+    faq: [
+      { q: 'Cantia convient-il à un formateur indépendant ?', a: 'Oui, offres, planning et factures suffisent pour démarrer seul.' },
+      { q: 'Puis-je payer des intervenants à l’heure ?', a: 'Oui, les salaires à l’heure sont calculés à partir des heures saisies, avec les déductions suisses.' },
+      { q: 'Cantia gère-t-il les inscriptions en ligne des participants ?', a: 'Non, Cantia gère vos offres, votre planning, vos heures et votre facturation, pas les inscriptions publiques.' },
+      { q: 'Puis-je synchroniser le planning avec Google Agenda ?', a: 'Oui, dans les deux sens, pour chaque utilisateur.' },
+      { q: 'Cantia gère-t-il la QR-facture suisse ?', a: 'Oui, sur toutes les factures.' },
     ],
   },
   {

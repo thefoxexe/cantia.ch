@@ -7,6 +7,7 @@ forceLocale('it');
 export default function TravauxSupplementairesSolutionPageIt() {
   return (
     <SolutionPage
+      documentId="travaux"
       kicker="Lavori supplementari"
       title="Gli extra di cantiere, finalmente tracciabili — e pagati"
       subtitle="«Già che c'è…» Quello che si decide a voce in cantiere finisce dimenticato o contestato alla fine. Cantia trasforma ogni extra in un documento datato, firmato e fatturato — senza dover rifare un preventivo completo."

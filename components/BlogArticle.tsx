@@ -25,6 +25,7 @@ const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap>
   'Métiers du bâtiment': 'tool',
   'Croissance & acquisition': 'target',
   'Sur-mesure & automatisations': 'sliders',
+  'Services & autres métiers': 'briefcase',
 };
 
 // Closing-CTA copy tailored per article category, used only for locale ===
@@ -66,6 +67,11 @@ const CATEGORY_CLOSING_FR: Partial<Record<BlogPost['category'], { title: string;
   'Croissance & acquisition': {
     title: 'Transformez plus de devis en chantiers',
     text: 'Répondez plus vite, suivez vos relances et donnez une image professionnelle à chaque interaction client.',
+    cta: 'Essayer 14 jours',
+  },
+  'Services & autres métiers': {
+    title: 'Devis, heures et factures, quel que soit votre métier',
+    text: 'Cantia parle de projets, de mandats ou de dossiers si vous n’avez pas de chantiers : mêmes outils, vos mots.',
     cta: 'Essayer 14 jours',
   },
   'Sur-mesure & automatisations': {

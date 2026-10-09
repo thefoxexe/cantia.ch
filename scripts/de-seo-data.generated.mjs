@@ -3417,13 +3417,285 @@ export const TRADE_SEO_DE = [
         "a": "Ja, jede erfasste Stunde wird einer Baustelle sowie der betreffenden Person oder Maschine zugeordnet."
       }
     ]
+  },
+  {
+    "path": "de/entreprise-nettoyage",
+    "title": "Verwaltungssoftware für Reinigungsunternehmen in der Schweiz | Cantia",
+    "description": "Offerten für Unterhaltsreinigung, Einsatzplanung, Stunden pro Kunde, Rapporte mit Fotos und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Reinigungsunternehmen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für ein kleines Reinigungsunternehmen?",
+        "a": "Ja. Sie starten mit Offerten, Kunden und Rechnungen und ergänzen Teamplanung und Löhne, sobald Sie Personal einstellen."
+      },
+      {
+        "q": "Kann ich von «Projekten» oder «Mandaten» statt von «Baustellen» sprechen?",
+        "a": "Ja. Sie wählen den Begriff Ihres Unternehmens (Baustelle, Projekt, Mandat oder Dossier), und er wird überall verwendet, auch auf Offerten und Rechnungen."
+      },
+      {
+        "q": "Können meine Mitarbeitenden ihre Stunden auf dem Handy erfassen?",
+        "a": "Ja, alle erfassen ihre Stunden beim Kunden des Tages; sie dienen danach der Rentabilität und der Lohnabrechnung."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, jede Rechnung enthält den QR-Einzahlungsschein mit Ihrer IBAN und der Zahlungsreferenz."
+      },
+      {
+        "q": "Kann ich dem Kunden einen Einsatzrapport mit Fotos senden?",
+        "a": "Ja, die vor Ort aufgenommenen Fotos werden pro Kunde abgelegt, und der Rapport geht als PDF raus."
+      }
+    ]
+  },
+  {
+    "path": "de/conciergerie",
+    "title": "Software für Hauswartungen und Facility Management in der Schweiz | Cantia",
+    "description": "Einsätze, Regiearbeiten, Rapporte mit Fotos, Stunden pro Liegenschaft und QR-Rechnungen: Cantia unterstützt Hauswartungen und Facility-Management-Unternehmen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für eine selbständige Hauswartung?",
+        "a": "Ja. Sie können allein mit Liegenschaftsdossiers, Rapporten und Rechnungen beginnen und später Ihr Team einladen."
+      },
+      {
+        "q": "Kann ich meine Liegenschaften «Dossiers» oder «Mandate» nennen?",
+        "a": "Ja, Sie wählen den Begriff, der in der ganzen App und auf Ihren Dokumenten verwendet wird."
+      },
+      {
+        "q": "Kann der Kunde einen Zusatzeinsatz unterschreiben?",
+        "a": "Ja, auf Ihrem Handy oder über den Link per E-Mail; die Unterschrift steht auf dem PDF."
+      },
+      {
+        "q": "Kann ich einer Verwaltung mehrere Liegenschaften verrechnen?",
+        "a": "Ja, die Verwaltung ist ein Kunde mit ihren Liegenschaften, und jede Rechnung nennt die betroffene Liegenschaft."
+      },
+      {
+        "q": "Sind die Fotos datiert?",
+        "a": "Ja, sie sind datiert und können georeferenziert werden, was bei Reklamationen als Nachweis dient."
+      }
+    ]
+  },
+  {
+    "path": "de/garagiste",
+    "title": "Verwaltungssoftware für Garagen und Carrosserien in der Schweiz | Cantia",
+    "description": "Reparaturofferten, Werkstattstunden, Schadenfotos, Zusatzarbeiten und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Garagen und Carrosserien in der Schweiz.",
+    "faq": [
+      {
+        "q": "Ersetzt Cantia eine spezialisierte Garagensoftware?",
+        "a": "Cantia deckt die Verwaltung ab: Offerten, Zusatzarbeiten, Stunden, Fotos, Rechnungen, Löhne und Buchhaltung. Teilekataloge der Hersteller und Diagnosen gehören nicht dazu."
+      },
+      {
+        "q": "Kann ich jedes Fahrzeug separat verfolgen?",
+        "a": "Ja, jedes Fahrzeug oder jede Reparatur ist ein Dossier mit Fotos, Dokumenten, Stunden und Verkaufsdokumenten."
+      },
+      {
+        "q": "Kann der Kunde eine Zusatzarbeit aus der Ferne bestätigen?",
+        "a": "Ja, er erhält einen Link per E-Mail und unterschreibt online; die Unterschrift steht auf dem PDF."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, jede Rechnung enthält den QR-Einzahlungsschein."
+      },
+      {
+        "q": "Kann ich die Löhne meiner Mechaniker machen?",
+        "a": "Ja, mit Schweizer Abzügen, monatlichen Lohnabrechnungen und dem jährlichen Lohnausweis."
+      }
+    ]
+  },
+  {
+    "path": "de/demenageur",
+    "title": "Verwaltungssoftware für Umzugsunternehmen in der Schweiz | Cantia",
+    "description": "Umzugsofferten, Team- und Fahrzeugplanung, Zustand in Fotos, Stunden und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Umzugsunternehmen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für ein kleines Umzugsunternehmen?",
+        "a": "Ja, Sie können mit Offerten und Rechnungen beginnen und später Planung und Löhne ergänzen."
+      },
+      {
+        "q": "Kann ich eine Anzahlung verlangen?",
+        "a": "Ja, eine Anzahlungsrechnung kann vor dem Umzug ausgestellt werden, und die Schlussrechnung berücksichtigt sie."
+      },
+      {
+        "q": "Sehen meine Teams ihre Planung auf dem Handy?",
+        "a": "Ja, alle sehen ihre Einsätze des Tages mit Adresse und nützlichen Informationen."
+      },
+      {
+        "q": "Können die Fotos bei einem Streitfall dienen?",
+        "a": "Ja, sie sind datiert und können georeferenziert werden."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, auf allen Rechnungen."
+      }
+    ]
+  },
+  {
+    "path": "de/informaticien",
+    "title": "Verwaltungssoftware für Informatiker und IT-KMU in der Schweiz | Cantia",
+    "description": "Offerten, Stunden pro Mandat, Einsätze, Supportverträge und QR-Rechnungen: Cantia hilft selbständigen Informatikern und IT-KMU in der Schweiz, jede Stunde zu verrechnen.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für einen selbständigen Informatiker?",
+        "a": "Ja. Offerten, Stunden, QR-Rechnungen und Mahnungen genügen für den Start allein."
+      },
+      {
+        "q": "Kann ich von «Mandaten» statt von «Baustellen» sprechen?",
+        "a": "Ja, Sie wählen den Begriff, der in der App und auf Ihren Dokumenten verwendet wird."
+      },
+      {
+        "q": "Dient Cantia als Ticketsystem?",
+        "a": "Nein. Cantia verwaltet Offerten, Zeit, Rechnungen und Administration; ein Ticket- oder Monitoringtool ersetzt es nicht."
+      },
+      {
+        "q": "Kann ich Cantia mit Bexio nutzen?",
+        "a": "Ja, die Integration synchronisiert Kunden, Rechnungen und Zahlungen, je nach Abo."
+      },
+      {
+        "q": "Unterstützt Cantia die MWST?",
+        "a": "Ja, wenn Sie mehrwertsteuerpflichtig sind, wird die MWST auf Ihren Dokumenten berechnet und die Quartalsabrechnung vorbereitet."
+      }
+    ]
+  },
+  {
+    "path": "de/graphiste",
+    "title": "Verwaltungssoftware für Grafiker und Kommunikationsagenturen | Cantia",
+    "description": "Offerten, Zeiterfassung pro Projekt, verrechenbare Korrekturschlaufen, QR-Rechnungen und Mahnungen: Cantia unterstützt Grafiker und Kommunikationsagenturen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für selbständige Grafiker?",
+        "a": "Ja, Offerten, Zeit und Rechnungen genügen für den Start allein."
+      },
+      {
+        "q": "Kann ich meine Dossiers «Projekte» nennen?",
+        "a": "Ja, Sie wählen den Begriff, der überall verwendet wird, auch auf Ihren Dokumenten."
+      },
+      {
+        "q": "Können Offerten und Rechnungen in meinen Farben sein?",
+        "a": "Ja, mit Ihrem Logo und Ihrer Markenfarbe, je nach Abo."
+      },
+      {
+        "q": "Kann ich eine Anzahlung verlangen?",
+        "a": "Ja, die Anzahlungsrechnung wird von der Schlussrechnung abgezogen."
+      },
+      {
+        "q": "Kann der Kunde die Offerte online unterschreiben?",
+        "a": "Ja, über den Link per E-Mail; die Unterschrift steht auf dem PDF."
+      }
+    ]
+  },
+  {
+    "path": "de/photographe",
+    "title": "Verwaltungssoftware für Fotografen und Videografen in der Schweiz | Cantia",
+    "description": "Offerten, Reservationen, Anzahlungen, Drehplanung und QR-Rechnungen: Cantia unterstützt Fotografen, Videografen und Drohnenpiloten in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für selbständige Fotografen?",
+        "a": "Ja, Offerten, Anzahlungen und Rechnungen genügen für den Start allein."
+      },
+      {
+        "q": "Kann ich meine Planung mit Google Kalender synchronisieren?",
+        "a": "Ja, die Synchronisation funktioniert in beide Richtungen, für jeden Benutzer."
+      },
+      {
+        "q": "Kann ich bei der Reservation eine Anzahlung verlangen?",
+        "a": "Ja, die Anzahlungsrechnung wird danach vom Restbetrag abgezogen."
+      },
+      {
+        "q": "Speichert Cantia meine hochaufgelösten Fotos für die Lieferung?",
+        "a": "Cantia legt Arbeitsdokumente und Fotos pro Projekt ab. Für grosse Lieferungen an Kunden behalten Sie Ihre gewohnte Plattform."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, auf allen Rechnungen."
+      }
+    ]
+  },
+  {
+    "path": "de/traiteur",
+    "title": "Verwaltungssoftware für Caterer und Eventfirmen in der Schweiz | Cantia",
+    "description": "Offerten pro Anlass, Anzahlungen, Personalplanung, Stunden, Löhne und QR-Rechnungen: Cantia vereinfacht die Verwaltung von Caterern und Eventfirmen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für einen kleinen Caterer?",
+        "a": "Ja, Offerten, Anzahlungen und Rechnungen genügen für den Start; Planung und Löhne folgen später."
+      },
+      {
+        "q": "Kann ich die Löhne des Aushilfspersonals machen?",
+        "a": "Ja, im Stunden- oder Monatslohn, mit Schweizer Abzügen und Lohnausweis."
+      },
+      {
+        "q": "Kann der Kunde eine Änderung online bestätigen?",
+        "a": "Ja, über den Link per E-Mail; seine Unterschrift steht auf dem Dokument."
+      },
+      {
+        "q": "Kann ich meine Anlässe «Dossiers» nennen?",
+        "a": "Ja, Sie wählen den Begriff, der überall verwendet wird."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, auf allen Rechnungen."
+      }
+    ]
+  },
+  {
+    "path": "de/consultant",
+    "title": "Verwaltungssoftware für Berater und kleine Beratungsfirmen | Cantia",
+    "description": "Offerten, Mandate, Zeiterfassung, diktierte Notizen, QR-Rechnungen, MWST und Buchhaltung: Cantia unterstützt selbständige Berater und Beratungsfirmen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für selbständige Berater?",
+        "a": "Ja, Offerten, Zeit, Rechnungen und Buchhaltung genügen, um allein zu arbeiten."
+      },
+      {
+        "q": "Kann ich meine Projekte «Mandate» nennen?",
+        "a": "Ja, Sie wählen den Begriff, der in der App und auf Ihren Dokumenten verwendet wird."
+      },
+      {
+        "q": "Kann ich nach Aufwand verrechnen?",
+        "a": "Ja, die auf dem Mandat erfassten Stunden können als Grundlage der Rechnung dienen."
+      },
+      {
+        "q": "Kann meine Treuhand meine Zahlen sehen?",
+        "a": "Ja, wenn Sie es erlauben, mit Leserecht und Zugriffsprotokoll."
+      },
+      {
+        "q": "Bereitet Cantia die MWST-Abrechnung vor?",
+        "a": "Ja, für mehrwertsteuerpflichtige Unternehmen, aus Ihren Rechnungen und Ausgaben."
+      }
+    ]
+  },
+  {
+    "path": "de/formateur",
+    "title": "Verwaltungssoftware für Ausbilder und Privatschulen in der Schweiz | Cantia",
+    "description": "Kursofferten, Kursplanung, Stunden der Dozierenden, Löhne und QR-Rechnungen: Cantia unterstützt selbständige Ausbilder und kleine Schulen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Eignet sich Cantia für selbständige Ausbilder?",
+        "a": "Ja, Offerten, Planung und Rechnungen genügen für den Start allein."
+      },
+      {
+        "q": "Kann ich Dozierende im Stundenlohn bezahlen?",
+        "a": "Ja, Stundenlöhne werden aus den erfassten Stunden berechnet, mit Schweizer Abzügen."
+      },
+      {
+        "q": "Verwaltet Cantia Online-Anmeldungen der Teilnehmenden?",
+        "a": "Nein, Cantia verwaltet Offerten, Planung, Stunden und Rechnungen, keine öffentlichen Anmeldungen."
+      },
+      {
+        "q": "Kann ich die Planung mit Google Kalender synchronisieren?",
+        "a": "Ja, in beide Richtungen, für jeden Benutzer."
+      },
+      {
+        "q": "Unterstützt Cantia die Schweizer QR-Rechnung?",
+        "a": "Ja, auf allen Rechnungen."
+      }
+    ]
   }
 ];
 
 export const BLOG_DATES_FR = {
   "accident-travail-chantier-obligations-employeur-suva": "2026-08-06",
+  "acompte-demenagement-suisse-montant-facture": "2026-10-09",
   "action-garantie-sous-traitant-entrepreneur-general": "2026-10-10",
   "affacturage-factoring-entreprise-batiment-suisse": "2026-10-07",
+  "annulation-reservation-photographe-acompte-arrhes": "2026-10-09",
   "appel-offres-marches-publics-batiment-suisse": "2026-05-21",
   "application-devis-mobile-artisan": "2026-10-01",
   "application-gestion-freelance-batiment": "2026-07-11",
@@ -3447,6 +3719,7 @@ export const BLOG_DATES_FR = {
   "bexio-vs-cantia-logiciel-batiment": "2026-02-02",
   "bilan-carbone-chantier-construction-suisse": "2026-10-08",
   "budget-logiciel-gestion-demarrage-entreprise": "2026-07-22",
+  "calcul-lpp-employe-taux-salaire-coordonne-2026": "2026-10-02",
   "calculer-13e-salaire-prorata-employe": "2026-04-02",
   "calculer-acomptes-impots-independant-batiment": "2026-09-22",
   "calculer-heures-travail-ouvrier-minutes-decimales": "2026-02-09",
@@ -3479,6 +3752,7 @@ export const BLOG_DATES_FR = {
   "contrat-ecrit-petits-travaux-quand-necessaire": "2026-05-18",
   "contrat-entreprise-vs-mandat-artisan": "2026-03-19",
   "cooperative-cautionnement-pme-financement-batiment": "2026-10-07",
+  "corrections-incluses-offre-graphiste-droits": "2026-10-09",
   "cout-creation-entreprise-construction-suisse": "2026-09-10",
   "credit-construction-hypothecaire-entreprise-batiment": "2026-10-06",
   "creer-champ-processus-sur-mesure-logiciel-gestion": "2026-08-18",
@@ -3522,6 +3796,7 @@ export const BLOG_DATES_FR = {
   "devis-oral-valeur-legale-suisse": "2026-04-16",
   "devis-peintre-batiment-calcul-surface-suisse": "2026-09-02",
   "devis-pompe-a-chaleur-chiffrage": "2026-10-04",
+  "devis-reparation-garage-supplement-accord-client": "2026-10-09",
   "diagnostic-amiante-renovation-obligatoire-suisse": "2026-09-23",
   "difference-devis-offre-facture-pro-forma": "2026-05-11",
   "difference-sia-108-sia-118-devis-contrat": "2026-06-17",
@@ -3540,10 +3815,14 @@ export const BLOG_DATES_FR = {
   "facturer-acompte-suisse-securiser-solde": "2026-02-23",
   "facturer-depannage-urgent-sans-devis": "2026-09-26",
   "facturer-frais-deplacement-client-artisan": "2026-09-26",
+  "facturer-petites-interventions-gerance-conciergerie": "2026-10-09",
+  "facturer-support-informatique-temps-passe": "2026-10-09",
   "faillite-client-creance-impayee-que-faire": "2026-10-10",
   "faire-evoluer-outil-gestion-avec-entreprise": "2026-08-22",
   "fideliser-ouvriers-qualifies-penurie-batiment-suisse": "2026-09-18",
   "fixer-prix-artisan-sans-brader-concurrence-suisse": "2026-09-11",
+  "forfait-ou-temps-passe-consultant-suisse": "2026-10-09",
+  "formateur-independant-suisse-tva-facture": "2026-10-09",
   "formation-continue-obligatoire-batiment-suisse": "2026-10-08",
   "garantie-travaux-construction-2-ou-5-ans": "2026-03-05",
   "gerer-conflit-entre-deux-ouvriers-chantier": "2026-10-08",
@@ -3619,6 +3898,7 @@ export const BLOG_DATES_FR = {
   "prescription-facture-impayee-delai-10-ans": "2026-06-12",
   "previsionnel-tresorerie-entreprise-batiment": "2026-07-05",
   "prime-fin-annee-ou-13e-salaire-difference": "2026-10-08",
+  "prix-contrat-nettoyage-bureaux-suisse-calcul": "2026-10-09",
   "prix-isolation-facade-m2-suisse": "2026-09-25",
   "prix-refection-toiture-suisse": "2026-09-25",
   "prix-renovation-cuisine-suisse": "2026-09-25",
@@ -3645,6 +3925,7 @@ export const BLOG_DATES_FR = {
   "rupture-stock-fournisseur-chantier-que-faire": "2026-10-09",
   "saisie-conservatoire-creance-impayee-batiment": "2026-10-10",
   "salaire-minimum-cct-construction-suisse": "2026-03-23",
+  "salaire-personnel-extra-evenementiel-traiteur": "2026-10-09",
   "seuil-lpp-affiliation-employe-batiment": "2026-09-22",
   "signature-electronique-devis-suisse-valeur-legale": "2026-04-20",
   "site-internet-artisan-batiment-utile": "2026-09-04",

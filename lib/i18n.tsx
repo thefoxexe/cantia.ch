@@ -182,7 +182,7 @@ interface Dict {
     intro: string;
     hint: string;
     docs: {
-      id: 'facture' | 'devis' | 'rapport' | 'salaire';
+      id: 'facture' | 'devis' | 'devisAutre' | 'travaux' | 'rapport' | 'planning' | 'salaire' | 'certificat';
       tab: string;
       alt: string;
       points: { title: string; text: string }[];
@@ -257,7 +257,7 @@ const fr: Dict = {
     cta: 'Essayer 14 jours',
     secondaryCta: 'Voir les tarifs',
     facts: ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Données hébergées à Zurich'],
-    trustCount: '+{{count}} entreprises du bâtiment nous font déjà confiance',
+    trustCount: '+{{count}} entreprises suisses nous font déjà confiance',
     cartouche: [
       { label: 'Objet', value: 'Gestion de chantiers et de projets' },
       { label: 'Pour', value: 'Entreprises de 1 à 25 personnes' },
@@ -602,6 +602,25 @@ const fr: Dict = {
         link: 'Découvrir les devis', linkSlug: 'devis',
       },
       {
+        id: 'devisAutre', tab: 'Devis d’entretien', alt: 'Devis d’une entreprise de nettoyage généré par Cantia',
+        points: [
+          { title: 'Vos couleurs, pas les nôtres', text: 'Une entreprise de nettoyage choisit le bleu : en-tête, tableau et totaux suivent la couleur de sa marque.' },
+          { title: 'Vos mots : projet, mandat ou dossier', text: 'Pas de « chantier » si vous n’en avez pas : le document reprend le terme choisi pour votre entreprise.' },
+          { title: 'Au mois, au passage, à l’heure', text: 'Les unités suivent votre façon de facturer : abonnement mensuel, passage, heure ou m².' },
+          { title: 'Accepté en ligne', text: 'Le client signe depuis son téléphone, puis la facture se prépare à partir du devis, sans ressaisie.' },
+        ],
+        link: 'Voir Cantia pour le nettoyage', linkSlug: '/entreprise-nettoyage',
+      },
+      {
+        id: 'travaux', tab: 'Travaux supplémentaires', alt: 'Bon de travaux supplémentaires signé sur place, généré par Cantia',
+        points: [
+          { title: 'Chiffré sur place', text: 'Les positions viennent de votre catalogue ; les heures de régie s’ajoutent au même document.' },
+          { title: 'Ce qui a été constaté', text: 'La remarque explique pourquoi le supplément est nécessaire ; les photos restent jointes au chantier.' },
+          { title: 'Signé avant de commencer', text: 'Le client signe sur votre téléphone ou depuis son e-mail : plus de discussion au moment de la facture.' },
+        ],
+        link: 'Découvrir les travaux supplémentaires', linkSlug: 'travaux-supplementaires',
+      },
+      {
         id: 'rapport', tab: 'Rapport de chantier', alt: 'Rapport de chantier avec photos généré par Cantia',
         points: [
           { title: 'L’essentiel en deux lignes', text: 'Le résumé est rédigé à partir des notes, photos et dictées de la journée. Vous relisez avant d’envoyer.' },
@@ -612,11 +631,30 @@ const fr: Dict = {
         link: 'Découvrir les rapports de chantier', linkSlug: 'rapports-chantier',
       },
       {
+        id: 'planning', tab: 'Planning de chantier', alt: 'Planning de chantier (Gantt) exporté en PDF par Cantia',
+        points: [
+          { title: 'À votre nom', text: 'Chantier, période, nom de votre entreprise et date d’édition, avec votre logo si vous le souhaitez : prêt pour le maître d’ouvrage.' },
+          { title: 'Avancement et jour J', text: 'Chaque tâche montre son avancement ; la ligne rouge marque aujourd’hui et les retards ressortent.' },
+          { title: 'Phases, corps de métier, jalons', text: 'Phases, entreprises intervenantes et jalons comme la réception, sur une seule page en paysage.' },
+        ],
+        link: 'Découvrir le planning', linkSlug: 'planning',
+      },
+      {
         id: 'salaire', tab: 'Fiche de salaire', alt: 'Décompte de salaire suisse généré par Cantia',
         points: [
           { title: 'Heures reprises du pointage', text: 'Les heures saisies par l’employé sur ses chantiers donnent le salaire du mois, sans ressaisie.' },
           { title: 'Déductions suisses', text: 'AVS/AI/APG, chômage, AANP, LPP et IJM, avec vos propres taux.' },
           { title: 'Net à verser', text: 'Le salaire net et l’IBAN de l’employé, prêts pour le paiement.' },
+        ],
+        link: 'Découvrir les heures et les salaires', linkSlug: 'rh-salaires',
+      },
+      {
+        id: 'certificat', tab: 'Certificat de salaire', alt: 'Certificat de salaire officiel (formulaire 11) rempli par Cantia',
+        points: [
+          { title: 'Le formulaire officiel', text: 'Le vrai formulaire 11 de l’Administration fédérale des contributions, rempli case par case.' },
+          { title: 'Le salaire de l’année', text: 'Les douze salaires et le 13e sont additionnés à partir des fiches de salaire.' },
+          { title: 'Chaque cotisation à son chiffre', text: 'AVS/AI/APG, AC et AANP au chiffre 9, LPP au chiffre 10.1.' },
+          { title: 'Les frais à part', text: 'Les frais remboursés vont au chiffre 13 ; l’employé reporte le net du chiffre 11 dans sa déclaration d’impôt.' },
         ],
         link: 'Découvrir les heures et les salaires', linkSlug: 'rh-salaires',
       },
@@ -707,7 +745,7 @@ const de: Dict = {
     cta: '14 Tage testen',
     secondaryCta: 'Preise ansehen',
     facts: ['Ab CHF 39.– pro Monat', '14 Tage Testphase, ohne Verpflichtung', 'Daten in Zürich gehostet'],
-    trustCount: '+{{count}} Bauunternehmen vertrauen uns bereits',
+    trustCount: '+{{count}} Schweizer Unternehmen vertrauen uns bereits',
     cartouche: [
       { label: 'Gegenstand', value: 'Baustellen- und Projektverwaltung' },
       { label: 'Für', value: 'Unternehmen mit 1 bis 25 Personen' },
@@ -1052,6 +1090,25 @@ const de: Dict = {
         link: 'Offerten entdecken', linkSlug: 'devis',
       },
       {
+        id: 'devisAutre', tab: 'Offerte Unterhaltsreinigung', alt: 'Offerte eines Reinigungsunternehmens, erstellt mit Cantia',
+        points: [
+          { title: 'Ihre Farben, nicht unsere', text: 'Ein Reinigungsunternehmen wählt Blau: Kopfzeile, Tabelle und Totale übernehmen die Farbe seiner Marke.' },
+          { title: 'Ihre Begriffe: Projekt, Mandat oder Dossier', text: 'Keine «Baustelle», wenn Sie keine haben: Das Dokument verwendet den Begriff Ihres Unternehmens.' },
+          { title: 'Pro Monat, pro Einsatz, pro Stunde', text: 'Die Einheiten folgen Ihrer Art zu verrechnen: Monatsabo, Einsatz, Stunde oder m².' },
+          { title: 'Online angenommen', text: 'Der Kunde unterschreibt auf dem Handy, danach entsteht die Rechnung aus der Offerte, ohne Abtippen.' },
+        ],
+        link: 'Cantia für Reinigungsunternehmen', linkSlug: '/entreprise-nettoyage',
+      },
+      {
+        id: 'travaux', tab: 'Zusatzarbeiten', alt: 'Vor Ort unterschriebener Auftrag für Zusatzarbeiten, erstellt mit Cantia',
+        points: [
+          { title: 'Vor Ort kalkuliert', text: 'Die Positionen kommen aus Ihrem Katalog; Regiestunden kommen ins gleiche Dokument.' },
+          { title: 'Was festgestellt wurde', text: 'Die Bemerkung erklärt, warum die Zusatzarbeit nötig ist; die Fotos bleiben bei der Baustelle.' },
+          { title: 'Unterschrieben, bevor es losgeht', text: 'Der Kunde unterschreibt auf Ihrem Handy oder per E-Mail: keine Diskussion mehr bei der Rechnung.' },
+        ],
+        link: 'Zusatzarbeiten entdecken', linkSlug: 'travaux-supplementaires',
+      },
+      {
         id: 'rapport', tab: 'Baustellenrapport', alt: 'Von Cantia erstellter Baustellenrapport mit Fotos',
         points: [
           { title: 'Das Wichtigste in zwei Zeilen', text: 'Die Zusammenfassung entsteht aus Notizen, Fotos und Diktaten des Tages. Sie prüfen vor dem Versand.' },
@@ -1062,11 +1119,30 @@ const de: Dict = {
         link: 'Baustellenrapporte entdecken', linkSlug: 'rapports-chantier',
       },
       {
+        id: 'planning', tab: 'Bauprogramm', alt: 'Bauprogramm (Gantt) als PDF aus Cantia',
+        points: [
+          { title: 'Mit Ihrem Namen', text: 'Baustelle, Zeitraum, Firmenname und Ausgabedatum, auf Wunsch mit Logo: bereit für die Bauherrschaft.' },
+          { title: 'Fortschritt und Stichtag', text: 'Jede Aufgabe zeigt ihren Fortschritt; die rote Linie markiert heute, Verspätungen fallen auf.' },
+          { title: 'Phasen, Gewerke, Meilensteine', text: 'Phasen, beteiligte Unternehmen und Meilensteine wie die Abnahme auf einer Seite im Querformat.' },
+        ],
+        link: 'Planung entdecken', linkSlug: 'planning',
+      },
+      {
         id: 'salaire', tab: 'Lohnabrechnung', alt: 'Von Cantia erstellte Schweizer Lohnabrechnung',
         points: [
           { title: 'Stunden aus der Zeiterfassung', text: 'Die auf den Baustellen erfassten Stunden ergeben den Monatslohn, ohne erneute Eingabe.' },
           { title: 'Schweizer Abzüge', text: 'AHV/IV/EO, ALV, NBU, BVG und KTG, mit Ihren eigenen Sätzen.' },
           { title: 'Auszuzahlender Nettolohn', text: 'Nettolohn und IBAN der Mitarbeiterin oder des Mitarbeiters, bereit für die Zahlung.' },
+        ],
+        link: 'Stunden und Löhne entdecken', linkSlug: 'rh-salaires',
+      },
+      {
+        id: 'certificat', tab: 'Lohnausweis', alt: 'Offizieller Lohnausweis (Formular 11), ausgefüllt von Cantia',
+        points: [
+          { title: 'Das offizielle Formular', text: 'Das echte Formular 11 der Eidgenössischen Steuerverwaltung, Feld für Feld ausgefüllt.' },
+          { title: 'Der Lohn des Jahres', text: 'Die zwölf Monatslöhne und der 13. werden aus den Lohnabrechnungen zusammengezählt.' },
+          { title: 'Jeder Beitrag in seiner Ziffer', text: 'AHV/IV/EO, ALV und NBUV in Ziffer 9, BVG in Ziffer 10.1.' },
+          { title: 'Spesen separat', text: 'Vergütete Spesen kommen in Ziffer 13; der Nettolohn aus Ziffer 11 geht in die Steuererklärung.' },
         ],
         link: 'Stunden und Löhne entdecken', linkSlug: 'rh-salaires',
       },
@@ -1157,7 +1233,7 @@ const it: Dict = {
     cta: 'Provi 14 giorni',
     secondaryCta: 'Vedere i prezzi',
     facts: ['Da CHF 39.– al mese', '14 giorni di prova, senza impegno', 'Dati ospitati a Zurigo'],
-    trustCount: '+{{count}} imprese del settore edile si fidano già di noi',
+    trustCount: '+{{count}} imprese svizzere si fidano già di noi',
     cartouche: [
       { label: 'Oggetto', value: 'Gestione di cantieri e progetti' },
       { label: 'Per', value: 'Imprese da 1 a 25 persone' },
@@ -1502,6 +1578,25 @@ const it: Dict = {
         link: 'Scoprire i preventivi', linkSlug: 'devis',
       },
       {
+        id: 'devisAutre', tab: 'Preventivo di pulizia', alt: 'Preventivo di un’impresa di pulizie generato da Cantia',
+        points: [
+          { title: 'I suoi colori, non i nostri', text: 'Un’impresa di pulizie sceglie il blu: intestazione, tabella e totali seguono il colore del suo marchio.' },
+          { title: 'Le sue parole: progetto, mandato o dossier', text: 'Niente «cantiere» se non ne ha: il documento usa il termine scelto per la sua impresa.' },
+          { title: 'Al mese, al passaggio, all’ora', text: 'Le unità seguono il suo modo di fatturare: abbonamento mensile, passaggio, ora o m².' },
+          { title: 'Accettato online', text: 'Il cliente firma dal telefono, poi la fattura si prepara dal preventivo, senza ridigitare nulla.' },
+        ],
+        link: 'Cantia per le imprese di pulizia', linkSlug: '/entreprise-nettoyage',
+      },
+      {
+        id: 'travaux', tab: 'Lavori supplementari', alt: 'Buono per lavori supplementari firmato sul posto, generato da Cantia',
+        points: [
+          { title: 'Calcolato sul posto', text: 'Le posizioni vengono dal suo catalogo; le ore in regia si aggiungono allo stesso documento.' },
+          { title: 'Cosa è stato constatato', text: 'L’osservazione spiega perché il supplemento è necessario; le foto restano allegate al cantiere.' },
+          { title: 'Firmato prima di iniziare', text: 'Il cliente firma sul suo telefono o via e-mail: nessuna discussione al momento della fattura.' },
+        ],
+        link: 'Scoprire i lavori supplementari', linkSlug: 'travaux-supplementaires',
+      },
+      {
         id: 'rapport', tab: 'Rapporto di cantiere', alt: 'Rapporto di cantiere con foto generato da Cantia',
         points: [
           { title: 'L’essenziale in due righe', text: 'Il riassunto nasce da note, foto e dettature della giornata. Lei rilegge prima di inviare.' },
@@ -1512,11 +1607,30 @@ const it: Dict = {
         link: 'Scoprire i rapporti di cantiere', linkSlug: 'rapports-chantier',
       },
       {
+        id: 'planning', tab: 'Programma lavori', alt: 'Programma lavori (Gantt) esportato in PDF da Cantia',
+        points: [
+          { title: 'A suo nome', text: 'Cantiere, periodo, nome dell’impresa e data, con il logo se lo desidera: pronto per il committente.' },
+          { title: 'Avanzamento e giorno X', text: 'Ogni attività mostra il suo avanzamento; la linea rossa segna oggi e i ritardi saltano all’occhio.' },
+          { title: 'Fasi, mestieri, tappe', text: 'Fasi, imprese coinvolte e tappe come la consegna, su una sola pagina orizzontale.' },
+        ],
+        link: 'Scoprire la pianificazione', linkSlug: 'planning',
+      },
+      {
         id: 'salaire', tab: 'Conteggio salariale', alt: 'Conteggio salariale svizzero generato da Cantia',
         points: [
           { title: 'Ore riprese dalla timbratura', text: 'Le ore registrate dal dipendente sui cantieri danno il salario del mese, senza reinserirle.' },
           { title: 'Deduzioni svizzere', text: 'AVS/AI/IPG, disoccupazione, AINP, LPP e IGM, con le sue aliquote.' },
           { title: 'Netto da versare', text: 'Salario netto e IBAN del dipendente, pronti per il pagamento.' },
+        ],
+        link: 'Scoprire ore e salari', linkSlug: 'rh-salaires',
+      },
+      {
+        id: 'certificat', tab: 'Certificato di salario', alt: 'Certificato di salario ufficiale (modulo 11) compilato da Cantia',
+        points: [
+          { title: 'Il modulo ufficiale', text: 'Il vero modulo 11 dell’Amministrazione federale delle contribuzioni, compilato casella per casella.' },
+          { title: 'Il salario dell’anno', text: 'I dodici salari mensili e la tredicesima vengono sommati a partire dalle buste paga.' },
+          { title: 'Ogni contributo alla sua cifra', text: 'AVS/AI/IPG, AD e AINP alla cifra 9, LPP alla cifra 10.1.' },
+          { title: 'Le spese a parte', text: 'Le spese rimborsate vanno alla cifra 13; il netto della cifra 11 va nella dichiarazione d’imposta.' },
         ],
         link: 'Scoprire ore e salari', linkSlug: 'rh-salaires',
       },

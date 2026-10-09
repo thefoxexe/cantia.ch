@@ -508,7 +508,7 @@ export default function LogicielChantierPage() {
         <View ref={docsRef} style={[styles.wrap, styles.section]}>
           <ScrollReveal>
             <SectionHead label="La preuve" title="Voici ce que vos clients recevront." intro={dict.documents.intro} />
-            <DocumentShowcase dict={dict.documents} hrefFor={solutionHref} />
+            <DocumentShowcase dict={{ ...dict.documents, docs: dict.documents.docs.filter((d) => d.id !== 'devisAutre') }} hrefFor={solutionHref} />
             <View style={[styles.ctaRow, { marginTop: spacing.xxl }]}>
               <Cta location="documents" label="Créer mon premier devis" />
               <Text style={styles.ctaNote}>À vos couleurs, avec votre logo, dès aujourd’hui</Text>

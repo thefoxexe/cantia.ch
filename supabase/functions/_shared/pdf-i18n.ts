@@ -178,6 +178,24 @@ export function pdfT(locale: PdfLocale, key: LabelKey, vars?: Record<string, str
   return text;
 }
 
+// What the company calls its jobs (organizations.work_term, see
+// lib/vocabulary.ts): a cleaning or IT company reads "Projet : …" on its
+// documents, not "Chantier : …".
+const WORK_TERM_WORDS: Record<string, Record<PdfLocale, string>> = {
+  chantier: { fr: 'Chantier', de: 'Baustelle', it: 'Cantiere' },
+  projet: { fr: 'Projet', de: 'Projekt', it: 'Progetto' },
+  mandat: { fr: 'Mandat', de: 'Mandat', it: 'Mandato' },
+  dossier: { fr: 'Dossier', de: 'Dossier', it: 'Dossier' },
+};
+
+export function workTermWord(locale: PdfLocale, workTerm: string | null | undefined): string {
+  return (WORK_TERM_WORDS[workTerm ?? ''] ?? WORK_TERM_WORDS.chantier)[locale];
+}
+
+export function pdfProjectLine(locale: PdfLocale, workTerm: string | null | undefined, name: string): string {
+  return `${workTermWord(locale, workTerm)}${locale === 'fr' ? ' : ' : ': '}${name}`;
+}
+
 const MONTHS: Record<PdfLocale, string[]> = {
   fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
   de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],

@@ -1823,4 +1823,614 @@ export const TRADE_PAGES_IT: Record<string, TradeLandingPage> = {
     relatedBlogSlugs: [],
     relatedTrades: ['terrassier', 'genie-civil'],
   },
+
+  'entreprise-nettoyage': {
+    slug: 'entreprise-nettoyage',
+    tradeName: 'Imprese di pulizia',
+    general: true,
+    seo: {
+      title: 'Software di gestione per imprese di pulizia in Svizzera | Cantia',
+      description:
+        'Preventivi di manutenzione, pianificazione delle squadre, ore per cliente, rapporti con foto e fatture QR: Cantia semplifica la gestione delle imprese di pulizia in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per le pulizie',
+      title: 'Contratti, squadre e fatture finalmente nello stesso posto',
+      subtitle:
+        'Cantia aiuta le imprese di pulizia a calcolare i contratti di manutenzione, pianificare le squadre, registrare le ore per cliente e fatturare ogni mese senza ribattere nulla.',
+    },
+    painPoints: [
+      {
+        problem: 'La pianificazione delle squadre cambia ogni giorno',
+        consequence: 'Assenze, sostituzioni e pulizie di fine locazione si gestiscono via messaggio, e prima o poi qualcuno non sa dove andare.',
+        response: 'Una pianificazione condivisa: ognuno vede sul telefono dove lavora oggi e per quale cliente.',
+      },
+      {
+        problem: 'Le ore effettive superano spesso il contratto',
+        consequence: 'Un cliente chiede sempre qualcosa in più; senza registrazione per cliente, il margine si scioglie senza che nessuno lo veda.',
+        response: 'Le ore sono registrate per cliente e confrontate con l’importo previsto, mese dopo mese.',
+      },
+      {
+        problem: 'Un cliente contesta il lavoro svolto',
+        consequence: 'Senza traccia scritta è la sua parola contro la sua, spesso con uno sconto come conseguenza.',
+        response: 'Un rapporto con foto datate a fine intervento, inviato al cliente in PDF.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Preventivi al mese o al passaggio', text: 'Le sue prestazioni e i suoi prezzi a catalogo: superficie, frequenza, vetri, ripristino, con l’IVA calcolata.' },
+      { icon: 'calendar', title: 'Pianificazione delle squadre', text: 'Chi va da quale cliente e quando, visibile da tutta la squadra sul telefono.' },
+      { icon: 'clock', title: 'Ore per cliente', text: 'Ogni ora collegata al cliente giusto, per vedere la redditività reale di ogni contratto.' },
+      { icon: 'camera', title: 'Rapporti con foto', text: 'Pulizia finale, stato dei locali, ripristino: un rapporto chiaro, con le foto a sostegno.' },
+      { icon: 'credit-card', title: 'Fatture QR e solleciti', text: 'La fattura nasce dal preventivo, con la polizza QR svizzera; i solleciti partono automaticamente.' },
+      { icon: 'users', title: 'Salari dei dipendenti', text: 'Le ore registrate danno la busta paga, con le deduzioni svizzere, e poi il certificato di salario.' },
+    ],
+    scenario: {
+      title: 'Esempio: un contratto di manutenzione per uffici',
+      text: 'Dopo il sopralluogo prepara il preventivo dal suo catalogo: superficie, due passaggi a settimana, vetri ogni trimestre. Il cliente firma online. I passaggi entrano nella pianificazione della squadra, le ore sono registrate sul posto e a fine mese la fattura si prepara senza ribattere nulla.',
+    },
+    comparison: [
+      { before: 'Pianificazione su una lavagna o in una chat', after: 'Pianificazione condivisa su ogni telefono' },
+      { before: 'Ore su carta, ricopiate per i salari', after: 'Ore per cliente, riprese nelle buste paga' },
+      { before: 'Nessuna prova in caso di contestazione', after: 'Rapporto con foto datate' },
+      { before: 'Fatture preparate a mano a fine mese', after: 'Fatture QR dal preventivo' },
+      { before: 'Insoluti seguiti a memoria', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a una piccola impresa di pulizia?', answer: 'Sì. Inizia con preventivi, clienti e fatture, poi aggiunge la pianificazione e i salari quando assume.' },
+      { question: 'Posso parlare di «progetti» o «mandati» invece di «cantieri»?', answer: 'Sì. Sceglie il termine della sua impresa (cantiere, progetto, mandato o dossier) e viene usato ovunque, anche su preventivi e fatture.' },
+      { question: 'I miei dipendenti possono registrare le ore dal telefono?', answer: 'Sì, ognuno registra le ore sul cliente del giorno; servono poi per la redditività e le buste paga.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, ogni fattura include la polizza QR con il suo IBAN e il riferimento di pagamento.' },
+      { question: 'Posso inviare al cliente un rapporto con foto?', answer: 'Sì, le foto scattate sul posto sono archiviate per cliente e il rapporto parte in PDF.' },
+    ],
+    relatedTrades: ['conciergerie', 'demenageur'],
+  },
+
+  conciergerie: {
+    slug: 'conciergerie',
+    tradeName: 'Portinerie & facility management',
+    general: true,
+    seo: {
+      title: 'Software per portinerie e facility management in Svizzera | Cantia',
+      description:
+        'Interventi, lavori in regia, rapporti con foto, ore per stabile e fatture QR: Cantia aiuta portinerie e imprese di facility management in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per le portinerie',
+      title: 'Ogni stabile, ogni intervento, ogni ora, senza carta',
+      subtitle:
+        'Cantia aiuta portinerie e imprese di facility management a seguire i loro stabili, documentare gli interventi e fatturare i lavori in regia alle amministrazioni.',
+    },
+    painPoints: [
+      {
+        problem: 'L’amministrazione chiede cosa è stato fatto, e quando',
+        consequence: 'I buoni d’intervento cartacei si perdono e al momento di fatturare bisogna ricostruire tutto.',
+        response: 'Ogni intervento è registrato sullo stabile, con foto, ore e osservazione.',
+      },
+      {
+        problem: 'Le piccole regie non vengono mai fatturate',
+        consequence: 'Una lampadina qui, uno sturamento là: sommati, centinaia di franchi persi ogni mese.',
+        response: 'I lavori supplementari si aggiungono sul posto e finiscono nella fattura del mese.',
+      },
+      {
+        problem: 'Le informazioni sono disperse',
+        consequence: 'Codici, contatti degli inquilini, contratti di manutenzione: tutto in classificatori o nella testa di una sola persona.',
+        response: 'Un dossier per stabile, con documenti, contatti e storico.',
+      },
+    ],
+    usages: [
+      { icon: 'home', title: 'Un dossier per stabile', text: 'Documenti, foto, contatti e storico degli interventi nello stesso posto.' },
+      { icon: 'plus-circle', title: 'Regie e supplementi', text: 'Un intervento imprevisto si aggiunge sul posto, con foto, e può essere firmato.' },
+      { icon: 'camera', title: 'Rapporti per l’amministrazione', text: 'Un rapporto chiaro con foto datate, inviato in PDF.' },
+      { icon: 'calendar', title: 'Giri pianificati', text: 'La pianificazione della squadra, stabile per stabile, visibile sul telefono.' },
+      { icon: 'clock', title: 'Ore per stabile', text: 'Il tempo passato su ogni stabile, per sapere quali sono redditizi.' },
+      { icon: 'credit-card', title: 'Fatture QR alle amministrazioni', text: 'Fatture con polizza QR e solleciti automatici delle fatture scadute.' },
+    ],
+    scenario: {
+      title: 'Esempio: una perdita segnalata un venerdì sera',
+      text: 'L’amministrazione chiama. Il suo collaboratore apre il dossier dello stabile sul telefono, ritrova il codice d’accesso, interviene, scatta due foto e registra le ore. Il supplemento è aggiunto sul posto. Lunedì l’amministrazione riceve il rapporto e l’intervento figura nella fattura del mese.',
+    },
+    comparison: [
+      { before: 'Buoni d’intervento cartacei', after: 'Interventi registrati sullo stabile' },
+      { before: 'Regie dimenticate a fine mese', after: 'Supplementi aggiunti sul posto' },
+      { before: 'Foto sul telefono di ognuno', after: 'Foto archiviate per stabile' },
+      { before: 'Ore difficili da ripartire', after: 'Ore per stabile' },
+      { before: 'Rapporti scritti la sera', after: 'Rapporto PDF pronto da inviare' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un custode indipendente?', answer: 'Sì. Può iniziare da solo con dossier degli stabili, rapporti e fatture, poi invitare la squadra.' },
+      { question: 'Posso chiamare i miei stabili «dossier» o «mandati»?', answer: 'Sì, sceglie il termine usato in tutta l’applicazione e sui suoi documenti.' },
+      { question: 'Il cliente può firmare un intervento supplementare?', answer: 'Sì, sul suo telefono o dal link ricevuto via e-mail; la firma figura sul PDF.' },
+      { question: 'Posso fatturare a un’amministrazione più stabili?', answer: 'Sì, l’amministrazione è un cliente con i suoi stabili e ogni fattura indica lo stabile interessato.' },
+      { question: 'Le foto sono datate?', answer: 'Sì, sono datate e possono essere geolocalizzate, il che serve da prova in caso di contestazione.' },
+    ],
+    relatedTrades: ['entreprise-nettoyage', 'paysagiste'],
+  },
+
+  garagiste: {
+    slug: 'garagiste',
+    tradeName: 'Garage',
+    general: true,
+    seo: {
+      title: 'Software di gestione per garage e carrozzerie in Svizzera | Cantia',
+      description:
+        'Preventivi di riparazione, ore d’officina, foto dei danni, lavori supplementari e fatture QR: Cantia semplifica la gestione di garage e carrozzerie in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per garage',
+      title: 'Dal preventivo di riparazione alla fattura, senza passare dall’ufficio',
+      subtitle:
+        'Cantia aiuta garage e carrozzerie a calcolare le riparazioni, registrare le ore d’officina per veicolo, documentare i danni con foto e fatturare con la fattura QR.',
+    },
+    painPoints: [
+      {
+        problem: 'Il cliente vuole un prezzo prima di lasciare l’auto',
+        consequence: 'Il preventivo aspetta la sera, il cliente confronta altrove.',
+        response: 'Un preventivo in pochi minuti dalle sue prestazioni e pezzi abituali, firmato online.',
+      },
+      {
+        problem: 'Durante la riparazione si scopre altro',
+        consequence: 'Il cliente scopre il supplemento in fattura e lo contesta.',
+        response: 'Il supplemento è aggiunto con foto e accettato dal cliente prima di continuare.',
+      },
+      {
+        problem: 'Ore d’officina e fattura non corrispondono',
+        consequence: 'Il tempo reale non è registrato, il margine per riparazione resta una stima.',
+        response: 'Le ore dei meccanici sono collegate al veicolo e confrontate con il preventivo.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Preventivi di riparazione', text: 'Manodopera, pezzi e forfait a catalogo, IVA calcolata, firma online.' },
+      { icon: 'camera', title: 'Foto dei danni', text: 'Prima, durante, dopo: le foto restano collegate al veicolo, utili per l’assicurazione.' },
+      { icon: 'plus-circle', title: 'Lavori supplementari', text: 'Un supplemento scoperto strada facendo, accettato dal cliente prima di essere eseguito.' },
+      { icon: 'clock', title: 'Ore d’officina', text: 'Ogni ora di meccanico collegata al veicolo giusto.' },
+      { icon: 'calendar', title: 'Pianificazione dell’officina', text: 'Chi lavora su cosa, giorno per giorno, visibile da tutta la squadra.' },
+      { icon: 'credit-card', title: 'Fatture QR', text: 'La fattura nasce dal preventivo, con la polizza QR svizzera e i solleciti.' },
+    ],
+    scenario: {
+      title: 'Esempio: una riparazione dopo un urto',
+      text: 'Il cliente lascia l’auto. Apre un dossier, fotografa i danni e prepara il preventivo dal catalogo. Smontando, il meccanico scopre un supporto rotto: il supplemento parte al cliente con una foto, lui lo accetta sul telefono. Alla riconsegna la fattura QR è pronta.',
+    },
+    comparison: [
+      { before: 'Preventivo scritto la sera', after: 'Preventivo in pochi minuti' },
+      { before: 'Supplementi scoperti in fattura', after: 'Supplementi accettati prima' },
+      { before: 'Foto sparse', after: 'Foto archiviate per veicolo' },
+      { before: 'Ore d’officina stimate', after: 'Ore registrate per riparazione' },
+      { before: 'Solleciti a mano', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia sostituisce un software specializzato per garage?', answer: 'Cantia copre la gestione: preventivi, supplementi, ore, foto, fatture, salari e contabilità. Non gestisce i cataloghi ricambi dei costruttori né le diagnosi.' },
+      { question: 'Posso seguire ogni veicolo separatamente?', answer: 'Sì, ogni veicolo o riparazione è un dossier con foto, documenti, ore e documenti commerciali.' },
+      { question: 'Il cliente può accettare un supplemento a distanza?', answer: 'Sì, riceve un link via e-mail e firma online; la firma figura sul PDF.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, ogni fattura include la polizza QR.' },
+      { question: 'Posso fare i salari dei miei meccanici?', answer: 'Sì, con le deduzioni svizzere, le buste paga mensili e il certificato di salario annuale.' },
+    ],
+    relatedTrades: ['demenageur', 'informaticien'],
+  },
+
+  demenageur: {
+    slug: 'demenageur',
+    tradeName: 'Imprese di traslochi',
+    general: true,
+    seo: {
+      title: 'Software di gestione per imprese di traslochi in Svizzera | Cantia',
+      description:
+        'Preventivi di trasloco, pianificazione di squadre e veicoli, stato dei beni in foto, ore e fatture QR: Cantia semplifica la gestione delle imprese di traslochi in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per traslocatori',
+      title: 'Preventivi inviati il giorno del sopralluogo, squadre che sanno dove andare',
+      subtitle:
+        'Cantia aiuta le imprese di traslochi a calcolare in fretta, pianificare le squadre, documentare lo stato dei beni con foto e fatturare senza ritardi.',
+    },
+    painPoints: [
+      {
+        problem: 'Il cliente chiede tre preventivi',
+        consequence: 'Chi risponde per primo, con un documento chiaro, ottiene spesso il lavoro.',
+        response: 'Il preventivo si prepara subito dopo il sopralluogo, con i suoi forfait e prezzi abituali, e si firma online.',
+      },
+      {
+        problem: 'Un mobile danneggiato, e inizia la discussione',
+        consequence: 'Senza foto dello stato prima del trasporto, è difficile capire cosa sia successo.',
+        response: 'Foto datate al carico e alla consegna, archiviate sul trasloco.',
+      },
+      {
+        problem: 'Le ore superano il forfait',
+        consequence: 'Accesso difficile, ascensore guasto: il supplemento non viene fatturato per mancanza di prove.',
+        response: 'Le ore effettive sono registrate e il supplemento si aggiunge sul posto, accettato dal cliente.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Preventivi rapidi', text: 'Forfait, ore, imballaggio, deposito mobili: i suoi prezzi a catalogo, IVA calcolata.' },
+      { icon: 'calendar', title: 'Pianificazione delle squadre', text: 'Chi parte con quale camion e verso quale indirizzo, visibile su ogni telefono.' },
+      { icon: 'camera', title: 'Stato dei beni in foto', text: 'Prima del carico e alla consegna, datate e archiviate.' },
+      { icon: 'plus-circle', title: 'Supplementi sul posto', text: 'Ore in più, trasporto a mano: aggiunti e accettati sul posto.' },
+      { icon: 'clock', title: 'Ore per trasloco', text: 'Il tempo reale di ogni squadra, confrontato con quanto previsto.' },
+      { icon: 'credit-card', title: 'Acconti e fatture QR', text: 'Fattura d’acconto alla prenotazione, saldo con polizza QR, solleciti automatici.' },
+    ],
+    scenario: {
+      title: 'Esempio: un trasloco da Lugano a Bellinzona',
+      text: 'Dopo il sopralluogo il preventivo parte la sera stessa. Il cliente firma, lei invia una fattura d’acconto. Il giorno del trasloco la squadra vede indirizzo e orario sul telefono, fotografa i mobili fragili al carico e registra due ore in più per un accesso difficile. Il saldo viene fatturato il giorno dopo.',
+    },
+    comparison: [
+      { before: 'Preventivo giorni dopo il sopralluogo', after: 'Preventivo lo stesso giorno' },
+      { before: 'Pianificazione su una lavagna al deposito', after: 'Pianificazione su ogni telefono' },
+      { before: 'Contestazioni senza prove', after: 'Foto datate prima e dopo' },
+      { before: 'Ore in più mai fatturate', after: 'Supplementi accettati sul posto' },
+      { before: 'Acconti in un quaderno', after: 'Fatture d’acconto e di saldo' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a una piccola impresa di traslochi?', answer: 'Sì, può iniziare con preventivi e fatture, poi aggiungere pianificazione e salari.' },
+      { question: 'Posso chiedere un acconto?', answer: 'Sì, una fattura d’acconto può essere emessa prima del trasloco e il saldo ne tiene conto.' },
+      { question: 'Le mie squadre vedono la pianificazione sul telefono?', answer: 'Sì, ognuno vede gli incarichi del giorno con indirizzo e informazioni utili.' },
+      { question: 'Le foto possono servire in caso di contestazione?', answer: 'Sì, sono datate e possono essere geolocalizzate.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, su tutte le fatture.' },
+    ],
+    relatedTrades: ['entreprise-nettoyage', 'garagiste'],
+  },
+
+  informaticien: {
+    slug: 'informaticien',
+    tradeName: 'Informatici & PMI IT',
+    general: true,
+    seo: {
+      title: 'Software di gestione per informatici e PMI IT in Svizzera | Cantia',
+      description:
+        'Offerte, ore per mandato, interventi, contratti di supporto e fatture QR: Cantia aiuta informatici indipendenti e PMI IT in Svizzera a fatturare ogni ora.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per l’informatica',
+      title: 'Ogni ora di supporto finisce in fattura',
+      subtitle:
+        'Cantia aiuta informatici indipendenti e piccole aziende IT a preparare offerte, registrare il tempo per mandato, documentare gli interventi e fatturare senza dimenticanze.',
+    },
+    painPoints: [
+      {
+        problem: 'I piccoli interventi non vengono annotati',
+        consequence: 'Una chiamata di venti minuti, un aggiornamento a distanza: a fine mese parte del tempo non viene mai fatturata.',
+        response: 'Il tempo si registra in pochi secondi sul mandato del cliente, dal computer o dal telefono.',
+      },
+      {
+        problem: 'Un progetto supera il budget senza avvisare',
+        consequence: 'Ce ne si accorge preparando la fattura, troppo tardi per parlarne con il cliente.',
+        response: 'Le ore sono confrontate con l’importo dell’offerta, mandato per mandato.',
+      },
+      {
+        problem: 'Le fatture partono in ritardo',
+        consequence: 'La fatturazione si fa nel fine settimana e la liquidità ne soffre.',
+        response: 'La fattura nasce da offerta e ore, con fattura QR e solleciti automatici.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte chiare', text: 'Prestazioni, licenze e forfait a catalogo, firma elettronica del cliente.' },
+      { icon: 'clock', title: 'Ore per mandato', text: 'Ogni intervento collegato al cliente e al mandato giusti.' },
+      { icon: 'bar-chart-2', title: 'Redditività per progetto', text: 'Offerto contro realizzato, per sapere quali progetti rendono davvero.' },
+      { icon: 'mic', title: 'Note dettate', text: 'Detti il resoconto dell’intervento; viene trascritto e archiviato sul mandato.' },
+      { icon: 'credit-card', title: 'Fatture QR e solleciti', text: 'Fattura dall’offerta, polizza QR svizzera, solleciti automatici.' },
+      { icon: 'pie-chart', title: 'Liquidità e IVA', text: 'Incassi in arrivo, IVA del trimestre e contabilità nello stesso posto.' },
+    ],
+    scenario: {
+      title: 'Esempio: la migrazione di una PMI verso nuove postazioni',
+      text: 'Invia l’offerta, il cliente la firma online. Durante il progetto ogni tecnico registra il suo tempo sul mandato. Viene chiesta una postazione in più: si aggiunge al mandato e il cliente la accetta. Alla fine la fattura riprende offerta e supplemento, con la polizza QR.',
+    },
+    comparison: [
+      { before: 'Tempo annotato in un foglio di calcolo', after: 'Ore registrate sul mandato' },
+      { before: 'Piccoli interventi dimenticati', after: 'Ogni intervento fatturato' },
+      { before: 'Sforamento scoperto in fattura', after: 'Offerto contro realizzato sempre visibile' },
+      { before: 'Fatture nel fine settimana', after: 'Fatture dall’offerta' },
+      { before: 'Solleciti caso per caso', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un informatico indipendente?', answer: 'Sì. Offerte, ore, fatture QR e solleciti bastano per iniziare da solo.' },
+      { question: 'Posso parlare di «mandati» invece di «cantieri»?', answer: 'Sì, sceglie il termine usato nell’applicazione e sui suoi documenti.' },
+      { question: 'Cantia funziona come sistema di ticket?', answer: 'No. Cantia gestisce offerte, tempo, fatture e amministrazione; non sostituisce uno strumento di ticket o di monitoraggio.' },
+      { question: 'Posso usare Cantia con Bexio?', answer: 'Sì, l’integrazione sincronizza clienti, fatture e pagamenti, secondo il suo piano.' },
+      { question: 'Cantia gestisce l’IVA?', answer: 'Sì, se è assoggettato, l’IVA è calcolata sui documenti e il rendiconto trimestrale è preparato.' },
+    ],
+    relatedTrades: ['graphiste', 'consultant'],
+  },
+
+  graphiste: {
+    slug: 'graphiste',
+    tradeName: 'Grafici & agenzie',
+    general: true,
+    seo: {
+      title: 'Software di gestione per grafici e agenzie di comunicazione | Cantia',
+      description:
+        'Offerte, tempo per progetto, revisioni fatturabili, fatture QR e solleciti: Cantia aiuta grafici e agenzie di comunicazione in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per grafici e agenzie',
+      title: 'Il tempo passato su ogni progetto, finalmente visibile',
+      subtitle:
+        'Cantia aiuta grafici indipendenti e agenzie a calcolare i progetti, registrare il tempo, fatturare le richieste in più e incassare senza rincorrere i clienti.',
+    },
+    painPoints: [
+      {
+        problem: 'Le correzioni non finiscono mai',
+        consequence: 'Il terzo giro era previsto, il settimo no, e non viene quasi mai fatturato.',
+        response: 'Le richieste fuori offerta si aggiungono al progetto e il cliente le accetta prima che lei le esegua.',
+      },
+      {
+        problem: 'Non si sa quali clienti sono redditizi',
+        consequence: 'Alcuni progetti richiedono il doppio del tempo previsto, senza che nessuno lo misuri.',
+        response: 'Il tempo è registrato per progetto e confrontato con l’offerta.',
+      },
+      {
+        problem: 'L’amministrazione si mangia le giornate',
+        consequence: 'Offerte, fatture e solleciti la sera, invece di creare.',
+        response: 'Offerte dal catalogo, fatture dall’offerta, solleciti automatici.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte per progetto', text: 'Logo, sito, campagna: le sue prestazioni a catalogo, firma online.' },
+      { icon: 'clock', title: 'Tempo per progetto', text: 'Ogni ora collegata al cliente giusto, per vedere la redditività reale.' },
+      { icon: 'plus-circle', title: 'Richieste in più', text: 'Una richiesta fuori offerta diventa un supplemento accettato dal cliente.' },
+      { icon: 'folder', title: 'File del progetto', text: 'Brief, bozze e consegne archiviati per progetto.' },
+      { icon: 'credit-card', title: 'Acconti e fatture QR', text: 'Acconto all’avvio, saldo alla consegna, solleciti automatici.' },
+      { icon: 'pie-chart', title: 'Liquidità', text: 'Cosa deve entrare e quando, per evitare brutte sorprese.' },
+    ],
+    scenario: {
+      title: 'Esempio: una nuova identità visiva',
+      text: 'L’offerta prevede tre proposte e due giri di correzioni. Il cliente firma, lei fattura un acconto. Al quarto giro il supplemento parte al cliente, che lo accetta. Il tempo è registrato sul progetto. Alla consegna la fattura di saldo riprende offerta e supplemento.',
+    },
+    comparison: [
+      { before: 'Correzioni di fatto illimitate', after: 'Supplementi accettati prima' },
+      { before: 'Tempo stimato a posteriori', after: 'Tempo registrato per progetto' },
+      { before: 'Offerte rifatte ogni volta', after: 'Offerte dal suo catalogo' },
+      { before: 'Acconti dimenticati', after: 'Fattura d’acconto all’avvio' },
+      { before: 'Solleciti imbarazzanti da scrivere', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un grafico indipendente?', answer: 'Sì, offerte, tempo e fatture bastano per iniziare da solo.' },
+      { question: 'Posso chiamare i miei dossier «progetti»?', answer: 'Sì, sceglie il termine usato ovunque, anche sui suoi documenti.' },
+      { question: 'Offerte e fatture possono avere i miei colori?', answer: 'Sì, con il suo logo e il colore del suo marchio, secondo il suo piano.' },
+      { question: 'Posso chiedere un acconto?', answer: 'Sì, la fattura d’acconto è dedotta dalla fattura di saldo.' },
+      { question: 'Il cliente può firmare l’offerta online?', answer: 'Sì, dal link ricevuto via e-mail; la firma figura sul PDF.' },
+    ],
+    relatedTrades: ['photographe', 'informaticien'],
+  },
+
+  photographe: {
+    slug: 'photographe',
+    tradeName: 'Fotografi & videomaker',
+    general: true,
+    seo: {
+      title: 'Software di gestione per fotografi e videomaker in Svizzera | Cantia',
+      description:
+        'Offerte, prenotazioni, acconti, pianificazione delle riprese e fatture QR: Cantia aiuta fotografi, videomaker e piloti di droni in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per fotografi e videomaker',
+      title: 'Più tempo dietro l’obiettivo, meno dietro l’amministrazione',
+      subtitle:
+        'Cantia aiuta fotografi, videomaker e piloti di droni a inviare offerte, bloccare le date con un acconto e fatturare senza passarci le serate.',
+    },
+    painPoints: [
+      {
+        problem: 'Una data prenotata, poi annullata',
+        consequence: 'Senza acconto né offerta firmata, la giornata bloccata è persa.',
+        response: 'L’offerta si firma online e parte subito una fattura d’acconto.',
+      },
+      {
+        problem: 'La post-produzione non viene mai contata',
+        consequence: 'La giornata di ripresa è fatturata, i due giorni di ritocco molto meno.',
+        response: 'Preparazione, ripresa e post-produzione sono registrate per progetto.',
+      },
+      {
+        problem: 'Le fatture aspettano la consegna',
+        consequence: 'Tra consegna e fattura passano settimane.',
+        response: 'La fattura di saldo nasce dall’offerta, con fattura QR e solleciti.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte e forfait', text: 'Reportage, matrimoni, riprese, voli di drone: i suoi forfait a catalogo.' },
+      { icon: 'calendar', title: 'Pianificazione delle riprese', text: 'Le sue date e quelle dei suoi assistenti, sincronizzabili con Google Calendar.' },
+      { icon: 'credit-card', title: 'Acconti', text: 'Una fattura d’acconto alla firma, dedotta dal saldo.' },
+      { icon: 'clock', title: 'Tempo per progetto', text: 'Preparazione, ripresa, post-produzione: tutto viene contato.' },
+      { icon: 'folder', title: 'Documenti del progetto', text: 'Brief, autorizzazioni e contratti archiviati per progetto.' },
+      { icon: 'bell', title: 'Solleciti automatici', text: 'Le fatture scadute vengono sollecitate senza che lei debba scrivere.' },
+    ],
+    scenario: {
+      title: 'Esempio: un reportage aziendale',
+      text: 'Invia l’offerta: una giornata di ripresa e una selezione ritoccata. Il cliente firma, l’acconto parte. La data entra nella sua pianificazione. Dopo le riprese registra il tempo di post-produzione sul progetto. Alla consegna la fattura di saldo è pronta.',
+    },
+    comparison: [
+      { before: 'Date prenotate senza impegno', after: 'Offerta firmata e acconto' },
+      { before: 'Post-produzione non contata', after: 'Tempo registrato per progetto' },
+      { before: 'Fatture inviate settimane dopo', after: 'Fattura pronta alla consegna' },
+      { before: 'Agenda e preventivi separati', after: 'Pianificazione collegata ai progetti' },
+      { before: 'Solleciti caso per caso', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un fotografo indipendente?', answer: 'Sì, offerte, acconti e fatture bastano per iniziare da solo.' },
+      { question: 'Posso sincronizzare la pianificazione con Google Calendar?', answer: 'Sì, la sincronizzazione funziona nei due sensi, per ogni utente.' },
+      { question: 'Posso chiedere un acconto alla prenotazione?', answer: 'Sì, la fattura d’acconto è poi dedotta dal saldo.' },
+      { question: 'Cantia conserva le mie foto ad alta risoluzione per la consegna?', answer: 'Cantia archivia documenti e foto di lavoro per progetto. Per consegnare grandi volumi al cliente, mantenga la sua piattaforma abituale.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, su tutte le fatture.' },
+    ],
+    relatedTrades: ['graphiste', 'traiteur'],
+  },
+
+  traiteur: {
+    slug: 'traiteur',
+    tradeName: 'Catering & eventi',
+    general: true,
+    seo: {
+      title: 'Software di gestione per catering ed eventi in Svizzera | Cantia',
+      description:
+        'Offerte per evento, acconti, pianificazione del personale, ore, salari e fatture QR: Cantia semplifica la gestione di catering e imprese di eventi in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per catering ed eventi',
+      title: 'Ogni evento calcolato, coperto e fatturato',
+      subtitle:
+        'Cantia aiuta catering e imprese di eventi a inviare offerte chiare, incassare gli acconti, pianificare il personale e fatturare il saldo senza dimenticanze.',
+    },
+    painPoints: [
+      {
+        problem: 'Il numero di ospiti cambia fino al giorno prima',
+        consequence: 'Le modifiche si perdono tra e-mail e telefonate e la fattura non corrisponde più.',
+        response: 'Ogni modifica si aggiunge all’evento e il cliente la accetta online.',
+      },
+      {
+        problem: 'Il personale ausiliario è difficile da seguire',
+        consequence: 'Ore di servizio, allestimento, smontaggio: i salari si calcolano a mano.',
+        response: 'La pianificazione del personale e le ore registrate danno le buste paga.',
+      },
+      {
+        problem: 'Gli acconti non vengono sempre chiesti',
+        consequence: 'Un annullamento tardivo costa la merce già ordinata.',
+        response: 'Una fattura d’acconto parte alla firma dell’offerta.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte per evento', text: 'Menu, bevande, servizio e noleggio a catalogo, a coperto o a forfait.' },
+      { icon: 'plus-circle', title: 'Modifiche accettate', text: 'Ospiti in più, opzione aggiunta: il cliente accetta prima dell’evento.' },
+      { icon: 'calendar', title: 'Pianificazione del personale', text: 'Chi lavora a quale evento, visibile sul telefono.' },
+      { icon: 'clock', title: 'Ore e salari', text: 'Le ore di servizio danno le buste paga, con le deduzioni svizzere.' },
+      { icon: 'credit-card', title: 'Acconti e saldi', text: 'Fattura d’acconto, poi saldo con polizza QR e solleciti.' },
+      { icon: 'bar-chart-2', title: 'Redditività per evento', text: 'Merce, personale e spese confrontati con il prezzo dell’offerta.' },
+    ],
+    scenario: {
+      title: 'Esempio: un aperitivo per 150 persone',
+      text: 'L’offerta parte con menu e servizio. Il cliente firma e paga l’acconto. Una settimana prima passa a 180 ospiti: la modifica gli viene inviata e lui la accetta. Il personale vede i suoi orari sul telefono e registra le ore. Il giorno dopo il saldo viene fatturato.',
+    },
+    comparison: [
+      { before: 'Modifiche perse nelle e-mail', after: 'Modifiche accettate e allegate all’evento' },
+      { before: 'Personale pianificato via messaggio', after: 'Pianificazione condivisa' },
+      { before: 'Ore ricopiate per i salari', after: 'Ore riprese nelle buste paga' },
+      { before: 'Acconti dimenticati', after: 'Acconto alla firma' },
+      { before: 'Margine sconosciuto per evento', after: 'Redditività per evento' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un piccolo catering?', answer: 'Sì, offerte, acconti e fatture bastano per iniziare; pianificazione e salari vengono dopo.' },
+      { question: 'Posso fare i salari del personale ausiliario?', answer: 'Sì, a ore o mensili, con le deduzioni svizzere e il certificato di salario.' },
+      { question: 'Il cliente può accettare una modifica online?', answer: 'Sì, dal link ricevuto via e-mail; la sua firma figura sul documento.' },
+      { question: 'Posso chiamare i miei eventi «dossier»?', answer: 'Sì, sceglie il termine usato ovunque.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, su tutte le fatture.' },
+    ],
+    relatedTrades: ['photographe', 'entreprise-nettoyage'],
+  },
+
+  consultant: {
+    slug: 'consultant',
+    tradeName: 'Consulenti',
+    general: true,
+    seo: {
+      title: 'Software di gestione per consulenti e piccole società di consulenza | Cantia',
+      description:
+        'Offerte, mandati, tempo, note dettate, fatture QR, IVA e contabilità: Cantia aiuta consulenti indipendenti e società di consulenza in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per consulenti',
+      title: 'I suoi mandati, il suo tempo e i suoi onorari, senza fogli di calcolo',
+      subtitle:
+        'Cantia aiuta consulenti e piccole società di consulenza a preparare offerte, registrare il tempo per mandato, fatturare gli onorari e tenere aggiornata la contabilità.',
+    },
+    painPoints: [
+      {
+        problem: 'Il tempo viene annotato a posteriori',
+        consequence: 'Una parte delle ore lavorate non viene mai fatturata.',
+        response: 'Il tempo si registra sul mandato durante la giornata, dal computer o dal telefono.',
+      },
+      {
+        problem: 'Il budget del mandato viene superato senza avvisare',
+        consequence: 'La discussione con il cliente arriva troppo tardi.',
+        response: 'Le ore sono confrontate con il budget dell’offerta, mandato per mandato.',
+      },
+      {
+        problem: 'Fatture e contabilità occupano i venerdì',
+        consequence: 'Il tempo amministrativo non si fattura a nessuno.',
+        response: 'Fatture da offerta e tempo, contabilità e IVA alimentate automaticamente.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte e lettere d’incarico', text: 'Le sue prestazioni a catalogo, firma elettronica del cliente.' },
+      { icon: 'clock', title: 'Tempo per mandato', text: 'Ogni ora sul mandato giusto, per fatturare correttamente.' },
+      { icon: 'mic', title: 'Note dettate', text: 'Il verbale di una riunione dettato sul telefono, trascritto sul mandato.' },
+      { icon: 'credit-card', title: 'Onorari e fatture QR', text: 'A forfait o a tempo, polizza QR, solleciti automatici.' },
+      { icon: 'pie-chart', title: 'Contabilità e IVA', text: 'Conto economico e rendiconto IVA alimentati da fatture e spese.' },
+      { icon: 'briefcase', title: 'Collegamento con la fiduciaria', text: 'La sua fiduciaria vede i suoi numeri in sola lettura, con il suo consenso.' },
+    ],
+    scenario: {
+      title: 'Esempio: un mandato di accompagnamento di sei mesi',
+      text: 'L’offerta fissa un budget in giorni. Il cliente firma online. Ogni settimana registra il suo tempo e detta il verbale delle riunioni. A metà percorso vede che il 60 % del budget è utilizzato e ne parla con il cliente. Ogni fine mese la fattura si prepara dal tempo registrato.',
+    },
+    comparison: [
+      { before: 'Tempo ricostruito a fine mese', after: 'Tempo registrato man mano' },
+      { before: 'Budget seguito a memoria', after: 'Budget confrontato con il realizzato' },
+      { before: 'Verbali sparsi', after: 'Note dettate archiviate per mandato' },
+      { before: 'Fatture e contabilità il venerdì', after: 'Alimentate automaticamente' },
+      { before: 'Solleciti imbarazzanti', after: 'Solleciti automatici' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un consulente indipendente?', answer: 'Sì, offerte, tempo, fatture e contabilità bastano per lavorare da solo.' },
+      { question: 'Posso chiamare i miei progetti «mandati»?', answer: 'Sì, sceglie il termine usato nell’applicazione e sui suoi documenti.' },
+      { question: 'Posso fatturare a tempo?', answer: 'Sì, le ore registrate sul mandato possono servire da base per la fattura.' },
+      { question: 'La mia fiduciaria può vedere i miei numeri?', answer: 'Sì, se lo autorizza, in sola lettura e con un registro degli accessi.' },
+      { question: 'Cantia prepara il rendiconto IVA?', answer: 'Sì, per le imprese assoggettate, a partire da fatture e spese.' },
+    ],
+    relatedTrades: ['informaticien', 'formateur'],
+  },
+
+  formateur: {
+    slug: 'formateur',
+    tradeName: 'Formatori & scuole',
+    general: true,
+    seo: {
+      title: 'Software di gestione per formatori e scuole private in Svizzera | Cantia',
+      description:
+        'Offerte di formazione, pianificazione dei corsi, ore dei docenti, salari e fatture QR: Cantia aiuta formatori indipendenti e piccole scuole in Svizzera.',
+    },
+    hero: {
+      eyebrow: 'Gestione aziendale per formatori',
+      title: 'Corsi pianificati, docenti pagati, fatture inviate',
+      subtitle:
+        'Cantia aiuta formatori indipendenti, scuole guida e piccole scuole private a proporre le formazioni, pianificare i corsi, registrare le ore e fatturare senza ritardi.',
+    },
+    painPoints: [
+      {
+        problem: 'La pianificazione dei corsi cambia spesso',
+        consequence: 'Una sostituzione comunicata male, e un’aula aspetta il formatore.',
+        response: 'La pianificazione dei docenti è condivisa e visibile sul telefono.',
+      },
+      {
+        problem: 'Le ore dei docenti vengono ricopiate a mano',
+        consequence: 'Errori nei salari e serate sui fogli di calcolo.',
+        response: 'Le ore registrate danno le buste paga, con le deduzioni svizzere.',
+      },
+      {
+        problem: 'Le fatture alle aziende tardano',
+        consequence: 'Corso a marzo, pagamento a giugno.',
+        response: 'La fattura nasce dall’offerta alla fine del corso, con solleciti automatici.',
+      },
+    ],
+    usages: [
+      { icon: 'file-text', title: 'Offerte di formazione', text: 'Moduli, giornate e forfait a catalogo, firma online.' },
+      { icon: 'calendar', title: 'Pianificazione dei corsi', text: 'Chi tiene quale corso, dove e quando, sincronizzabile con Google Calendar.' },
+      { icon: 'clock', title: 'Ore dei docenti', text: 'Ogni ora collegata alla formazione giusta.' },
+      { icon: 'users', title: 'Salari', text: 'Buste paga mensili e certificato di salario annuale.' },
+      { icon: 'credit-card', title: 'Fatture QR', text: 'Ad aziende e privati, con solleciti automatici.' },
+      { icon: 'folder', title: 'Materiali e attestati', text: 'Materiali del corso, liste e attestati archiviati per formazione.' },
+    ],
+    scenario: {
+      title: 'Esempio: una formazione di tre giorni in azienda',
+      text: 'L’offerta parte con il programma. Il cliente firma. Le tre giornate entrano nella pianificazione del docente, che registra le sue ore. L’ultimo giorno la fattura si prepara dall’offerta; a fine mese le sue ore compaiono nella busta paga.',
+    },
+    comparison: [
+      { before: 'Pianificazione dei corsi via e-mail', after: 'Pianificazione condivisa' },
+      { before: 'Ore ricopiate per i salari', after: 'Ore riprese nelle buste paga' },
+      { before: 'Offerte rifatte ogni volta', after: 'Offerte dal suo catalogo' },
+      { before: 'Fatture inviate settimane dopo', after: 'Fattura pronta a fine corso' },
+      { before: 'Documenti sparsi', after: 'Archiviati per formazione' },
+    ],
+    faq: [
+      { question: 'Cantia è adatto a un formatore indipendente?', answer: 'Sì, offerte, pianificazione e fatture bastano per iniziare da solo.' },
+      { question: 'Posso pagare docenti a ore?', answer: 'Sì, i salari orari sono calcolati dalle ore registrate, con le deduzioni svizzere.' },
+      { question: 'Cantia gestisce le iscrizioni online dei partecipanti?', answer: 'No, Cantia gestisce offerte, pianificazione, ore e fatturazione, non le iscrizioni pubbliche.' },
+      { question: 'Posso sincronizzare la pianificazione con Google Calendar?', answer: 'Sì, nei due sensi, per ogni utente.' },
+      { question: 'Cantia gestisce la fattura QR svizzera?', answer: 'Sì, su tutte le fatture.' },
+    ],
+    relatedTrades: ['consultant', 'informaticien'],
+  },
 };

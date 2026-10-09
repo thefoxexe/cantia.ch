@@ -44,7 +44,7 @@ import {
   swissRound,
   wrapText,
 } from './pdf-helpers.ts';
-import { PdfLocale, pdfT } from './pdf-i18n.ts';
+import { PdfLocale, pdfProjectLine, pdfT } from './pdf-i18n.ts';
 
 const chf = formatChf;
 
@@ -246,7 +246,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     devis.client_name,
     devis.client_address,
     devis.client_email,
-    devis.projects?.name ? pdfT(locale, 'project', { name: devis.projects.name }) : null,
+    devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null,
   ].filter(Boolean) as string[];
   drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 9, MUTED);
   y -= 14;

@@ -3546,6 +3546,10 @@ export const de: TranslationDict = {
     closingTitle: 'Verwalten Sie Ihre Baustellen mit weniger Administration',
     closingText: 'Entdecken Sie Cantia 14 Tage lang, ohne Verpflichtung und ohne Code.',
     closingCta: 'Testphase starten',
+    generalClientsText: 'Kundenkartei mit vollständiger Historie zu Offerten, Rechnungen und Projekten.',
+    generalExpensesText: 'Ausgaben jedem Projekt zuordnen für eine echte Rentabilitätsübersicht.',
+    generalDocumentsText: 'Verträge, PDFs und Dateien übersichtlich pro Projekt abgelegt.',
+    generalClosingTitle: 'Führen Sie Ihr Unternehmen mit weniger Administration',
   },
   marketingChrome: {
     menu: 'Menü',
@@ -3665,7 +3669,7 @@ export const de: TranslationDict = {
   },
   swissSection: {
     title: 'Für Schweizer Unternehmen entwickelt',
-    text: 'Cantia wurde für die Funktionsweise Schweizer Bauunternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
+    text: 'Cantia wurde für die Funktionsweise Schweizer Unternehmen entwickelt: CHF, Schweizer MWST, QR-Rechnung und in der Schweiz gehostete Daten.',
     factChfTitle: 'CHF',
     factChfText: 'Beträge und Dokumente auf Schweizer Unternehmen abgestimmt.',
     factVatTitle: 'Schweizer MWST',
@@ -3676,7 +3680,7 @@ export const de: TranslationDict = {
     factHostingText: 'Daten werden in der Schweiz gehostet.',
   },
   landingPage: {
-    trustLine: '+{{count}} Bauunternehmen vertrauen uns bereits',
+    trustLine: '+{{count}} Schweizer Unternehmen vertrauen uns bereits',
     trustSatisfaction: '{{rating}}/5 Kundenzufriedenheit',
     bexioRibbonNew: 'Neu — ',
     bexioRibbonTextBefore: 'native Integration mit ',
@@ -3723,10 +3727,12 @@ export const de: TranslationDict = {
   },
   metiersPage: {
     eyebrow: 'Cantia für Ihren Beruf',
-    title: 'Eine Verwaltungssoftware für die Berufe des Baugewerbes',
-    subtitle: 'Cantia bündelt Offerten, Baustellen, Teams und Rechnungsstellung. Entdecken Sie, wie es sich an den Alltag Ihres Berufs anpasst.',
+    title: 'Eine Verwaltungssoftware für Ihren Beruf',
+    subtitle: 'Cantia bündelt Offerten, Projekte, Teams und Rechnungsstellung. Auf der Baustelle entstanden, dient es auch Dienstleistungsunternehmen: Entdecken Sie, wie es sich an den Alltag Ihres Berufs anpasst.',
+    groupBuilding: 'Bau & Gebäude',
+    groupOther: 'Weitere Branchen',
     discover: 'Entdecken',
-    noteBefore: 'Ihr Beruf ist noch nicht aufgeführt? Cantia passt sich den meisten Berufen des Schweizer Baugewerbes an, ',
+    noteBefore: 'Ihr Beruf ist noch nicht aufgeführt? Cantia passt sich den meisten Berufen an, vom Bau bis zu den Dienstleistungen, ',
     noteLink: 'erzählen Sie uns von Ihrer Tätigkeit',
   },
   solutionPage: {
@@ -4065,6 +4071,7 @@ export const de: TranslationDict = {
     'Métiers du bâtiment': 'Berufe am Bau',
     'Croissance & acquisition': 'Wachstum & Kundengewinnung',
     'Sur-mesure & automatisations': 'Massgeschneidert & Automatisierung',
+    'Services & autres métiers': 'Dienstleistungen & weitere Branchen',
   },
   blogIndexPage: {
     kicker: 'Blog',

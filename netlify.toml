@@ -343,6 +343,56 @@
   status = 200
 
 [[redirects]]
+  from = "/entreprise-nettoyage"
+  to = "/entreprise-nettoyage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/conciergerie"
+  to = "/conciergerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/garagiste"
+  to = "/garagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demenageur"
+  to = "/demenageur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/informaticien"
+  to = "/informaticien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/graphiste"
+  to = "/graphiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/photographe"
+  to = "/photographe/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/traiteur"
+  to = "/traiteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/consultant"
+  to = "/consultant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/formateur"
+  to = "/formateur/index.html"
+  status = 200
+
+[[redirects]]
   from = "/telechargement"
   to = "/telechargement/index.html"
   status = 200
@@ -720,6 +770,56 @@
 [[redirects]]
   from = "/de/demolition"
   to = "/de/demolition/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/entreprise-nettoyage"
+  to = "/de/entreprise-nettoyage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/conciergerie"
+  to = "/de/conciergerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/garagiste"
+  to = "/de/garagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/demenageur"
+  to = "/de/demenageur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/informaticien"
+  to = "/de/informaticien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/graphiste"
+  to = "/de/graphiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/photographe"
+  to = "/de/photographe/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/traiteur"
+  to = "/de/traiteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/consultant"
+  to = "/de/consultant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/formateur"
+  to = "/de/formateur/index.html"
   status = 200
 
 [[redirects]]
@@ -1105,6 +1205,56 @@
 [[redirects]]
   from = "/it/demolition"
   to = "/it/demolition/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/entreprise-nettoyage"
+  to = "/it/entreprise-nettoyage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/conciergerie"
+  to = "/it/conciergerie/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/garagiste"
+  to = "/it/garagiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/demenageur"
+  to = "/it/demenageur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/informaticien"
+  to = "/it/informaticien/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/graphiste"
+  to = "/it/graphiste/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/photographe"
+  to = "/it/photographe/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/traiteur"
+  to = "/it/traiteur/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/consultant"
+  to = "/it/consultant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/formateur"
+  to = "/it/formateur/index.html"
   status = 200
 
 [[redirects]]

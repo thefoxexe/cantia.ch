@@ -3417,6 +3417,276 @@ export const TRADE_SEO_IT = [
         "a": "Sì, ogni ora registrata è collegata a un cantiere e alla persona o macchina interessata."
       }
     ]
+  },
+  {
+    "path": "it/entreprise-nettoyage",
+    "title": "Software di gestione per imprese di pulizia in Svizzera | Cantia",
+    "description": "Preventivi di manutenzione, pianificazione delle squadre, ore per cliente, rapporti con foto e fatture QR: Cantia semplifica la gestione delle imprese di pulizia in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a una piccola impresa di pulizia?",
+        "a": "Sì. Inizia con preventivi, clienti e fatture, poi aggiunge la pianificazione e i salari quando assume."
+      },
+      {
+        "q": "Posso parlare di «progetti» o «mandati» invece di «cantieri»?",
+        "a": "Sì. Sceglie il termine della sua impresa (cantiere, progetto, mandato o dossier) e viene usato ovunque, anche su preventivi e fatture."
+      },
+      {
+        "q": "I miei dipendenti possono registrare le ore dal telefono?",
+        "a": "Sì, ognuno registra le ore sul cliente del giorno; servono poi per la redditività e le buste paga."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, ogni fattura include la polizza QR con il suo IBAN e il riferimento di pagamento."
+      },
+      {
+        "q": "Posso inviare al cliente un rapporto con foto?",
+        "a": "Sì, le foto scattate sul posto sono archiviate per cliente e il rapporto parte in PDF."
+      }
+    ]
+  },
+  {
+    "path": "it/conciergerie",
+    "title": "Software per portinerie e facility management in Svizzera | Cantia",
+    "description": "Interventi, lavori in regia, rapporti con foto, ore per stabile e fatture QR: Cantia aiuta portinerie e imprese di facility management in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un custode indipendente?",
+        "a": "Sì. Può iniziare da solo con dossier degli stabili, rapporti e fatture, poi invitare la squadra."
+      },
+      {
+        "q": "Posso chiamare i miei stabili «dossier» o «mandati»?",
+        "a": "Sì, sceglie il termine usato in tutta l’applicazione e sui suoi documenti."
+      },
+      {
+        "q": "Il cliente può firmare un intervento supplementare?",
+        "a": "Sì, sul suo telefono o dal link ricevuto via e-mail; la firma figura sul PDF."
+      },
+      {
+        "q": "Posso fatturare a un’amministrazione più stabili?",
+        "a": "Sì, l’amministrazione è un cliente con i suoi stabili e ogni fattura indica lo stabile interessato."
+      },
+      {
+        "q": "Le foto sono datate?",
+        "a": "Sì, sono datate e possono essere geolocalizzate, il che serve da prova in caso di contestazione."
+      }
+    ]
+  },
+  {
+    "path": "it/garagiste",
+    "title": "Software di gestione per garage e carrozzerie in Svizzera | Cantia",
+    "description": "Preventivi di riparazione, ore d’officina, foto dei danni, lavori supplementari e fatture QR: Cantia semplifica la gestione di garage e carrozzerie in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia sostituisce un software specializzato per garage?",
+        "a": "Cantia copre la gestione: preventivi, supplementi, ore, foto, fatture, salari e contabilità. Non gestisce i cataloghi ricambi dei costruttori né le diagnosi."
+      },
+      {
+        "q": "Posso seguire ogni veicolo separatamente?",
+        "a": "Sì, ogni veicolo o riparazione è un dossier con foto, documenti, ore e documenti commerciali."
+      },
+      {
+        "q": "Il cliente può accettare un supplemento a distanza?",
+        "a": "Sì, riceve un link via e-mail e firma online; la firma figura sul PDF."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, ogni fattura include la polizza QR."
+      },
+      {
+        "q": "Posso fare i salari dei miei meccanici?",
+        "a": "Sì, con le deduzioni svizzere, le buste paga mensili e il certificato di salario annuale."
+      }
+    ]
+  },
+  {
+    "path": "it/demenageur",
+    "title": "Software di gestione per imprese di traslochi in Svizzera | Cantia",
+    "description": "Preventivi di trasloco, pianificazione di squadre e veicoli, stato dei beni in foto, ore e fatture QR: Cantia semplifica la gestione delle imprese di traslochi in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a una piccola impresa di traslochi?",
+        "a": "Sì, può iniziare con preventivi e fatture, poi aggiungere pianificazione e salari."
+      },
+      {
+        "q": "Posso chiedere un acconto?",
+        "a": "Sì, una fattura d’acconto può essere emessa prima del trasloco e il saldo ne tiene conto."
+      },
+      {
+        "q": "Le mie squadre vedono la pianificazione sul telefono?",
+        "a": "Sì, ognuno vede gli incarichi del giorno con indirizzo e informazioni utili."
+      },
+      {
+        "q": "Le foto possono servire in caso di contestazione?",
+        "a": "Sì, sono datate e possono essere geolocalizzate."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, su tutte le fatture."
+      }
+    ]
+  },
+  {
+    "path": "it/informaticien",
+    "title": "Software di gestione per informatici e PMI IT in Svizzera | Cantia",
+    "description": "Offerte, ore per mandato, interventi, contratti di supporto e fatture QR: Cantia aiuta informatici indipendenti e PMI IT in Svizzera a fatturare ogni ora.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un informatico indipendente?",
+        "a": "Sì. Offerte, ore, fatture QR e solleciti bastano per iniziare da solo."
+      },
+      {
+        "q": "Posso parlare di «mandati» invece di «cantieri»?",
+        "a": "Sì, sceglie il termine usato nell’applicazione e sui suoi documenti."
+      },
+      {
+        "q": "Cantia funziona come sistema di ticket?",
+        "a": "No. Cantia gestisce offerte, tempo, fatture e amministrazione; non sostituisce uno strumento di ticket o di monitoraggio."
+      },
+      {
+        "q": "Posso usare Cantia con Bexio?",
+        "a": "Sì, l’integrazione sincronizza clienti, fatture e pagamenti, secondo il suo piano."
+      },
+      {
+        "q": "Cantia gestisce l’IVA?",
+        "a": "Sì, se è assoggettato, l’IVA è calcolata sui documenti e il rendiconto trimestrale è preparato."
+      }
+    ]
+  },
+  {
+    "path": "it/graphiste",
+    "title": "Software di gestione per grafici e agenzie di comunicazione | Cantia",
+    "description": "Offerte, tempo per progetto, revisioni fatturabili, fatture QR e solleciti: Cantia aiuta grafici e agenzie di comunicazione in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un grafico indipendente?",
+        "a": "Sì, offerte, tempo e fatture bastano per iniziare da solo."
+      },
+      {
+        "q": "Posso chiamare i miei dossier «progetti»?",
+        "a": "Sì, sceglie il termine usato ovunque, anche sui suoi documenti."
+      },
+      {
+        "q": "Offerte e fatture possono avere i miei colori?",
+        "a": "Sì, con il suo logo e il colore del suo marchio, secondo il suo piano."
+      },
+      {
+        "q": "Posso chiedere un acconto?",
+        "a": "Sì, la fattura d’acconto è dedotta dalla fattura di saldo."
+      },
+      {
+        "q": "Il cliente può firmare l’offerta online?",
+        "a": "Sì, dal link ricevuto via e-mail; la firma figura sul PDF."
+      }
+    ]
+  },
+  {
+    "path": "it/photographe",
+    "title": "Software di gestione per fotografi e videomaker in Svizzera | Cantia",
+    "description": "Offerte, prenotazioni, acconti, pianificazione delle riprese e fatture QR: Cantia aiuta fotografi, videomaker e piloti di droni in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un fotografo indipendente?",
+        "a": "Sì, offerte, acconti e fatture bastano per iniziare da solo."
+      },
+      {
+        "q": "Posso sincronizzare la pianificazione con Google Calendar?",
+        "a": "Sì, la sincronizzazione funziona nei due sensi, per ogni utente."
+      },
+      {
+        "q": "Posso chiedere un acconto alla prenotazione?",
+        "a": "Sì, la fattura d’acconto è poi dedotta dal saldo."
+      },
+      {
+        "q": "Cantia conserva le mie foto ad alta risoluzione per la consegna?",
+        "a": "Cantia archivia documenti e foto di lavoro per progetto. Per consegnare grandi volumi al cliente, mantenga la sua piattaforma abituale."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, su tutte le fatture."
+      }
+    ]
+  },
+  {
+    "path": "it/traiteur",
+    "title": "Software di gestione per catering ed eventi in Svizzera | Cantia",
+    "description": "Offerte per evento, acconti, pianificazione del personale, ore, salari e fatture QR: Cantia semplifica la gestione di catering e imprese di eventi in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un piccolo catering?",
+        "a": "Sì, offerte, acconti e fatture bastano per iniziare; pianificazione e salari vengono dopo."
+      },
+      {
+        "q": "Posso fare i salari del personale ausiliario?",
+        "a": "Sì, a ore o mensili, con le deduzioni svizzere e il certificato di salario."
+      },
+      {
+        "q": "Il cliente può accettare una modifica online?",
+        "a": "Sì, dal link ricevuto via e-mail; la sua firma figura sul documento."
+      },
+      {
+        "q": "Posso chiamare i miei eventi «dossier»?",
+        "a": "Sì, sceglie il termine usato ovunque."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, su tutte le fatture."
+      }
+    ]
+  },
+  {
+    "path": "it/consultant",
+    "title": "Software di gestione per consulenti e piccole società di consulenza | Cantia",
+    "description": "Offerte, mandati, tempo, note dettate, fatture QR, IVA e contabilità: Cantia aiuta consulenti indipendenti e società di consulenza in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un consulente indipendente?",
+        "a": "Sì, offerte, tempo, fatture e contabilità bastano per lavorare da solo."
+      },
+      {
+        "q": "Posso chiamare i miei progetti «mandati»?",
+        "a": "Sì, sceglie il termine usato nell’applicazione e sui suoi documenti."
+      },
+      {
+        "q": "Posso fatturare a tempo?",
+        "a": "Sì, le ore registrate sul mandato possono servire da base per la fattura."
+      },
+      {
+        "q": "La mia fiduciaria può vedere i miei numeri?",
+        "a": "Sì, se lo autorizza, in sola lettura e con un registro degli accessi."
+      },
+      {
+        "q": "Cantia prepara il rendiconto IVA?",
+        "a": "Sì, per le imprese assoggettate, a partire da fatture e spese."
+      }
+    ]
+  },
+  {
+    "path": "it/formateur",
+    "title": "Software di gestione per formatori e scuole private in Svizzera | Cantia",
+    "description": "Offerte di formazione, pianificazione dei corsi, ore dei docenti, salari e fatture QR: Cantia aiuta formatori indipendenti e piccole scuole in Svizzera.",
+    "faq": [
+      {
+        "q": "Cantia è adatto a un formatore indipendente?",
+        "a": "Sì, offerte, pianificazione e fatture bastano per iniziare da solo."
+      },
+      {
+        "q": "Posso pagare docenti a ore?",
+        "a": "Sì, i salari orari sono calcolati dalle ore registrate, con le deduzioni svizzere."
+      },
+      {
+        "q": "Cantia gestisce le iscrizioni online dei partecipanti?",
+        "a": "No, Cantia gestisce offerte, pianificazione, ore e fatturazione, non le iscrizioni pubbliche."
+      },
+      {
+        "q": "Posso sincronizzare la pianificazione con Google Calendar?",
+        "a": "Sì, nei due sensi, per ogni utente."
+      },
+      {
+        "q": "Cantia gestisce la fattura QR svizzera?",
+        "a": "Sì, su tutte le fatture."
+      }
+    ]
   }
 ];
 

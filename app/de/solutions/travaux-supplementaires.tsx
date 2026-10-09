@@ -7,6 +7,7 @@ forceLocale('de');
 export default function TravauxSupplementairesSolutionPageDe() {
   return (
     <SolutionPage
+      documentId="travaux"
       kicker="Zusatzarbeiten"
       title="Die Extras der Baustelle, endlich nachvollziehbar — und bezahlt"
       subtitle="«Wo Sie schon dabei sind…» Was mündlich auf der Baustelle entschieden wird, wird am Ende oft vergessen oder bestritten. Cantia macht aus jedem Extra ein datiertes, unterschriebenes und verrechnetes Dokument — ohne den Umweg über eine ganze Offerte."

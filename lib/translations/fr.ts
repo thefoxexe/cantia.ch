@@ -3532,6 +3532,10 @@ export const fr = {
     closingTitle: 'Gérez vos chantiers avec moins d’administratif',
     closingText: 'Découvrez Cantia pendant 14 jours, sans engagement et sans code.',
     closingCta: 'Démarrer mon essai',
+    generalClientsText: 'Fiche client avec historique complet des devis, factures et projets.',
+    generalExpensesText: 'Rattachez vos dépenses à chaque projet pour une rentabilité réelle.',
+    generalDocumentsText: 'Contrats, PDF et fichiers classés en arborescence, par projet.',
+    generalClosingTitle: 'Gérez votre entreprise avec moins d’administratif',
   },
   marketingChrome: {
     menu: 'Menu',
@@ -3654,7 +3658,7 @@ export const fr = {
   },
   swissSection: {
     title: 'Conçu pour les entreprises suisses',
-    text: 'Cantia a été développé pour le fonctionnement des entreprises du bâtiment suisse : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
+    text: 'Cantia a été développé pour le fonctionnement des entreprises suisses : CHF, TVA suisse, QR-facture et données hébergées en Suisse.',
     factChfTitle: 'CHF',
     factChfText: 'Montants et documents adaptés aux entreprises suisses.',
     factVatTitle: 'TVA suisse',
@@ -3665,7 +3669,7 @@ export const fr = {
     factHostingText: 'Données hébergées en Suisse.',
   },
   landingPage: {
-    trustLine: '+{{count}} entreprises du bâtiment nous font déjà confiance',
+    trustLine: '+{{count}} entreprises suisses nous font déjà confiance',
     trustSatisfaction: '{{rating}}/5 satisfaction clients',
     bexioRibbonNew: 'Nouveau — ',
     bexioRibbonTextBefore: 'intégration native avec ',
@@ -3712,10 +3716,12 @@ export const fr = {
   },
   metiersPage: {
     eyebrow: 'Cantia pour votre métier',
-    title: 'Un logiciel de gestion adapté aux métiers du bâtiment',
-    subtitle: 'Cantia centralise devis, chantiers, équipes et facturation. Découvrez comment il peut s’adapter au quotidien de votre métier.',
+    title: 'Un logiciel de gestion adapté à votre métier',
+    subtitle: 'Cantia centralise devis, projets, équipes et facturation. Né sur les chantiers, il sert aussi les entreprises de services : découvrez comment il s’adapte au quotidien de votre métier.',
+    groupBuilding: 'Construction & bâtiment',
+    groupOther: 'Autres secteurs',
     discover: 'Découvrir',
-    noteBefore: 'Votre métier n’est pas encore listé ? Cantia s’adapte à la plupart des corps de métier du bâtiment suisse, ',
+    noteBefore: 'Votre métier n’est pas encore listé ? Cantia s’adapte à la plupart des métiers, du bâtiment aux services, ',
     noteLink: 'parlez-nous de votre activité',
   },
   solutionPage: {
@@ -4054,6 +4060,7 @@ export const fr = {
     'Métiers du bâtiment': 'Métiers du bâtiment',
     'Croissance & acquisition': 'Croissance & acquisition',
     'Sur-mesure & automatisations': 'Sur-mesure & automatisations',
+    'Services & autres métiers': 'Services & autres métiers',
   },
   blogIndexPage: {
     kicker: 'Blog',

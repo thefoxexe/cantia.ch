@@ -19,6 +19,7 @@ const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap
   'Métiers du bâtiment': { icon: 'tool', color: colors.slate, soft: colors.slateSoft },
   'Croissance & acquisition': { icon: 'target', color: colors.plum, soft: colors.plumSoft },
   'Sur-mesure & automatisations': { icon: 'sliders', color: colors.moss, soft: colors.mossSoft },
+  'Services & autres métiers': { icon: 'briefcase', color: colors.slate, soft: colors.slateSoft },
 };
 
 function normalize(text: string): string {

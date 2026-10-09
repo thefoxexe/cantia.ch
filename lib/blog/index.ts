@@ -246,6 +246,16 @@ import { post as p242 } from './posts/saisie-conservatoire-creance-impayee-batim
 import { post as p243 } from './posts/succession-familiale-entreprise-artisanale-batiment';
 import { post as p244 } from './posts/transmettre-entreprise-batiment-retraite';
 import { post as p245 } from './posts/calcul-lpp-employe-taux-salaire-coordonne-2026';
+import { post as p246 } from './posts/prix-contrat-nettoyage-bureaux-suisse-calcul';
+import { post as p247 } from './posts/facturer-petites-interventions-gerance-conciergerie';
+import { post as p248 } from './posts/devis-reparation-garage-supplement-accord-client';
+import { post as p249 } from './posts/acompte-demenagement-suisse-montant-facture';
+import { post as p250 } from './posts/facturer-support-informatique-temps-passe';
+import { post as p251 } from './posts/corrections-incluses-offre-graphiste-droits';
+import { post as p252 } from './posts/annulation-reservation-photographe-acompte-arrhes';
+import { post as p253 } from './posts/salaire-personnel-extra-evenementiel-traiteur';
+import { post as p254 } from './posts/forfait-ou-temps-passe-consultant-suisse';
+import { post as p255 } from './posts/formateur-independant-suisse-tva-facture';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -267,6 +277,7 @@ export const BLOG_POSTS: BlogPost[] = [
   p195, p196, p197, p198, p199, p200, p201, p202, p203, p204, p205, p206, p207, p208, p209, p210, p211, p212, p213, p214,
   p215, p216, p217, p218, p219, p220, p221, p222, p223, p224, p225, p226, p227, p228, p229, p230, p231, p232, p233, p234,
   p235, p236, p237, p238, p239, p240, p241, p242, p243, p244, p245,
+  p246, p247, p248, p249, p250, p251, p252, p253, p254, p255,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

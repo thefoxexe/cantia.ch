@@ -3554,6 +3554,10 @@ export const it: TranslationDict = {
     closingTitle: 'Gestisca i suoi cantieri con meno amministrazione',
     closingText: 'Scopra Cantia per 14 giorni, senza impegno e senza codice.',
     closingCta: 'Avvia la mia prova',
+    generalClientsText: 'Scheda cliente con cronologia completa di preventivi, fatture e progetti.',
+    generalExpensesText: 'Colleghi le spese a ogni progetto per una redditività reale.',
+    generalDocumentsText: 'Contratti, PDF e file archiviati per progetto, in cartelle.',
+    generalClosingTitle: 'Gestisca la sua impresa con meno amministrazione',
   },
   marketingChrome: {
     menu: 'Menu',
@@ -3673,7 +3677,7 @@ export const it: TranslationDict = {
   },
   swissSection: {
     title: 'Progettato per le imprese svizzere',
-    text: 'Cantia è stato sviluppato per il funzionamento delle imprese del settore edile svizzero: CHF, IVA svizzera, QR-fattura e dati ospitati in Svizzera.',
+    text: 'Cantia è stato sviluppato per il funzionamento delle imprese svizzere: CHF, IVA svizzera, QR-fattura e dati ospitati in Svizzera.',
     factChfTitle: 'CHF',
     factChfText: 'Importi e documenti adattati alle imprese svizzere.',
     factVatTitle: 'IVA svizzera',
@@ -3684,7 +3688,7 @@ export const it: TranslationDict = {
     factHostingText: 'Dati ospitati in Svizzera.',
   },
   landingPage: {
-    trustLine: '+{{count}} imprese del settore edile si fidano già di noi',
+    trustLine: '+{{count}} imprese svizzere si fidano già di noi',
     trustSatisfaction: '{{rating}}/5 soddisfazione clienti',
     bexioRibbonNew: 'Novità — ',
     bexioRibbonTextBefore: 'integrazione nativa con ',
@@ -3731,10 +3735,12 @@ export const it: TranslationDict = {
   },
   metiersPage: {
     eyebrow: 'Cantia per il suo mestiere',
-    title: 'Un software di gestione adatto ai mestieri del settore edile',
-    subtitle: 'Cantia centralizza preventivi, cantieri, team e fatturazione. Scopra come può adattarsi alla quotidianità del suo mestiere.',
+    title: 'Un software di gestione adatto al suo mestiere',
+    subtitle: 'Cantia centralizza preventivi, progetti, team e fatturazione. Nato nei cantieri, serve anche le imprese di servizi: scopra come si adatta alla quotidianità del suo mestiere.',
+    groupBuilding: 'Costruzione & edilizia',
+    groupOther: 'Altri settori',
     discover: 'Scopri',
-    noteBefore: 'Il suo mestiere non è ancora elencato? Cantia si adatta alla maggior parte dei mestieri del settore edile svizzero, ',
+    noteBefore: 'Il suo mestiere non è ancora elencato? Cantia si adatta alla maggior parte dei mestieri, dall’edilizia ai servizi, ',
     noteLink: 'ci parli della sua attività',
   },
   solutionPage: {
@@ -4073,6 +4079,7 @@ export const it: TranslationDict = {
     'Métiers du bâtiment': 'Mestieri del settore edile',
     'Croissance & acquisition': 'Crescita e acquisizione',
     'Sur-mesure & automatisations': 'Su misura e automazioni',
+    'Services & autres métiers': 'Servizi e altri mestieri',
   },
   blogIndexPage: {
     kicker: 'Blog',

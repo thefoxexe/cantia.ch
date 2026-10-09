@@ -4,6 +4,7 @@ import { ModuleMockup } from '../../components/solutions/ModuleMockup';
 export default function TravauxSupplementairesSolutionPage() {
   return (
     <SolutionPage
+      documentId="travaux"
       kicker="Travaux supplémentaires"
       title="Les extras du chantier, enfin traçables — et payés"
       subtitle="« Tant que vous y êtes… » Ce qui se décide à l'oral sur le chantier finit oublié ou contesté à la fin. Cantia transforme chaque extra en document daté, signé et facturé — sans repasser par un devis complet."

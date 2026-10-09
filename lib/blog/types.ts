@@ -37,7 +37,8 @@ export type BlogCategory =
   | 'Comparatifs & outils'
   | 'Métiers du bâtiment'
   | 'Croissance & acquisition'
-  | 'Sur-mesure & automatisations';
+  | 'Sur-mesure & automatisations'
+  | 'Services & autres métiers';
 
 export interface BlogPost {
   slug: string;
