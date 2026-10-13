@@ -60,7 +60,7 @@ async function loadTrialForecast(): Promise<TrialForecastRow[]> {
       endDate,
       days: Math.ceil((new Date(endDate).getTime() - Date.now()) / (24 * 3600 * 1000)),
       amount: billing?.will_be_charged ? billing.next_invoice_amount_chf : null,
-      hasCard: billing?.has_payment_method ?? false,
+      hasCard: billing?.payment_method_is_default ?? false,
     });
   }
   return rows.sort((a, b) => a.days - b.days);

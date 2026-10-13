@@ -102,69 +102,103 @@ async function getOrgBilling(stripe: Stripe, customerId: string | null, subscrip
   const empty = {
     has_payment_method: false,
     payment_method_type: null as string | null,
+    payment_method_wallet: null as string | null,
+    payment_method_source: null as PaymentMethodSource | null,
+    payment_method_is_default: false,
+    payment_methods_count: 0,
     card_brand: null as string | null,
     card_last4: null as string | null,
     card_exp_month: null as number | null,
     card_exp_year: null as number | null,
     subscription_status: null as string | null,
     cancel_at_period_end: false,
+    cancel_at: null as string | null,
+    trial_end_without_payment_method: null as string | null,
+    checkout_payment_method_collection: null as string | null,
     next_invoice_amount_chf: null as number | null,
     next_invoice_date: null as string | null,
     will_be_charged: false,
   };
   if (!customerId) return empty;
 
-  // A saved payment method isn't always a plain "card" object — Stripe Link
-  // can attach a payment method of type "link" (no card object exposed at
-  // all) rather than type "card". Filtering paymentMethods.list to
-  // type:'card' alone silently missed those, reporting "no card on file"
-  // for a customer who genuinely has a valid, chargeable method saved.
-  let pm: Stripe.PaymentMethod | null = null;
   let subscription: Stripe.Subscription | null = null;
-
   if (subscriptionId) {
     try {
-      subscription = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['default_payment_method'] });
-      const spm = subscription.default_payment_method;
-      if (spm && typeof spm !== 'string') pm = spm;
+      subscription = await stripe.subscriptions.retrieve(subscriptionId, { expand: ['default_payment_method', 'default_source'] });
     } catch {
       subscription = null;
     }
   }
 
-  if (!pm) {
-    try {
-      const customer = await stripe.customers.retrieve(customerId, { expand: ['invoice_settings.default_payment_method'] });
-      if (!('deleted' in customer) || !customer.deleted) {
-        const cpm = (customer as Stripe.Customer).invoice_settings?.default_payment_method;
-        if (cpm && typeof cpm !== 'string') pm = cpm;
-      }
-    } catch {
-      // customer lookup failed — leave pm null, fields below stay empty
-    }
+  let customer: Stripe.Customer | null = null;
+  try {
+    const c = await stripe.customers.retrieve(customerId, { expand: ['invoice_settings.default_payment_method', 'default_source'] });
+    if (!('deleted' in c) || !c.deleted) customer = c as Stripe.Customer;
+  } catch {
+    // customer lookup failed — the subscription alone still says a lot
   }
 
-  if (!pm) {
-    // Neither the subscription nor the customer has a default set — check
-    // what payment methods actually exist, across every type Stripe could
-    // have attached (card, and Link's own type), not just 'card'.
-    for (const type of ['card', 'link']) {
-      try {
-        // deno-lint-ignore no-explicit-any
-        const methods = await stripe.paymentMethods.list({ customer: customerId, type: type as any, limit: 1 });
-        if (methods.data[0]) {
-          pm = methods.data[0];
-          break;
-        }
-      } catch {
-        // this type isn't listable for this customer — try the next
-      }
+  // Every way a payment method can exist on a Stripe customer, of ANY type
+  // (card, Link, Apple/Google Pay — which are cards with a wallet — TWINT,
+  // PayPal, SEPA…), not just 'card' and 'link'. listPaymentMethods without a
+  // type returns all of them.
+  let attached: Stripe.PaymentMethod[] = [];
+  try {
+    const list = await stripe.customers.listPaymentMethods(customerId, { limit: 20 });
+    attached = list.data;
+  } catch {
+    // leave empty
+  }
+
+  // Which one Stripe will actually charge, in Stripe's own order: the
+  // subscription's default, then the customer's invoice default, then a
+  // legacy default source. A method that is merely attached, with no default
+  // pointing at it, is NOT used automatically when the trial ends.
+  let pm: Stripe.PaymentMethod | null = null;
+  let legacySource: { type: string; brand?: string; last4?: string; exp_month?: number; exp_year?: number } | null = null;
+  let source: PaymentMethodSource | null = null;
+
+  const spm = subscription?.default_payment_method;
+  const cpm = customer?.invoice_settings?.default_payment_method;
+  const ssrc = subscription?.default_source;
+  const csrc = customer?.default_source;
+  if (spm && typeof spm !== 'string') {
+    pm = spm;
+    source = 'subscription';
+  } else if (ssrc && typeof ssrc !== 'string') {
+    legacySource = describeSource(ssrc);
+    source = 'subscription';
+  } else if (cpm && typeof cpm !== 'string') {
+    pm = cpm;
+    source = 'customer_default';
+  } else if (csrc && typeof csrc !== 'string') {
+    legacySource = describeSource(csrc);
+    source = 'customer_default';
+  } else if (attached[0]) {
+    pm = attached[0];
+    source = 'attached_not_default';
+  }
+
+  const isDefault = source === 'subscription' || source === 'customer_default';
+  const status = subscription?.status ?? null;
+  const live = !!subscription && ['active', 'trialing', 'past_due'].includes(subscription.status);
+
+  // Without a default method, say how this subscription was created: a
+  // Checkout session with payment_method_collection 'if_required' lets a
+  // trial start with nothing on file.
+  let checkoutCollection: string | null = null;
+  if (!isDefault && subscriptionId) {
+    try {
+      const sessions = await stripe.checkout.sessions.list({ subscription: subscriptionId, limit: 1 });
+      checkoutCollection = sessions.data[0]?.payment_method_collection ?? null;
+    } catch {
+      // not created through Checkout, or lookup refused
     }
   }
 
   let nextInvoiceAmountChf: number | null = null;
   let nextInvoiceDate: string | null = null;
-  if (subscription && ['active', 'trialing', 'past_due'].includes(subscription.status)) {
+  if (subscription && live) {
     try {
       const upcoming = await stripe.invoices.retrieveUpcoming({ customer: customerId, subscription: subscription.id });
       nextInvoiceAmountChf = upcoming.amount_due / 100;
@@ -175,20 +209,38 @@ async function getOrgBilling(stripe: Stripe, customerId: string | null, subscrip
     }
   }
 
+  const card = pm?.card ?? null;
   return {
-    has_payment_method: !!pm,
-    payment_method_type: pm?.type ?? null,
-    card_brand: pm?.card?.brand ?? null,
-    card_last4: pm?.card?.last4 ?? null,
-    card_exp_month: pm?.card?.exp_month ?? null,
-    card_exp_year: pm?.card?.exp_year ?? null,
-    subscription_status: subscription?.status ?? null,
+    has_payment_method: !!pm || !!legacySource,
+    payment_method_type: pm?.type ?? legacySource?.type ?? null,
+    payment_method_wallet: card?.wallet?.type ?? null,
+    payment_method_source: source,
+    payment_method_is_default: isDefault,
+    payment_methods_count: attached.length,
+    card_brand: card?.brand ?? legacySource?.brand ?? null,
+    card_last4: card?.last4 ?? legacySource?.last4 ?? null,
+    card_exp_month: card?.exp_month ?? legacySource?.exp_month ?? null,
+    card_exp_year: card?.exp_year ?? legacySource?.exp_year ?? null,
+    subscription_status: status,
     cancel_at_period_end: subscription?.cancel_at_period_end ?? false,
+    cancel_at: subscription?.cancel_at ? new Date(subscription.cancel_at * 1000).toISOString() : null,
+    trial_end_without_payment_method: subscription?.trial_settings?.end_behavior?.missing_payment_method ?? null,
+    checkout_payment_method_collection: checkoutCollection,
     next_invoice_amount_chf: nextInvoiceAmountChf,
     next_invoice_date: nextInvoiceDate,
-    will_be_charged:
-      !!pm && !!subscription && ['active', 'trialing', 'past_due'].includes(subscription.status) && !subscription.cancel_at_period_end,
+    will_be_charged: isDefault && live && !subscription?.cancel_at_period_end && !subscription?.cancel_at,
   };
+}
+
+type PaymentMethodSource = 'subscription' | 'customer_default' | 'attached_not_default';
+
+// Legacy Sources/Cards API objects (pre-PaymentMethods integrations).
+// deno-lint-ignore no-explicit-any
+function describeSource(src: any) {
+  if (src?.object === 'card') {
+    return { type: 'card', brand: String(src.brand ?? '').toLowerCase() || undefined, last4: src.last4, exp_month: src.exp_month, exp_year: src.exp_year };
+  }
+  return { type: String(src?.type ?? src?.object ?? 'source') };
 }
 
 // A subscription with a 100%-off coupon attached — like the historical

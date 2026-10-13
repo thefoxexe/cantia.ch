@@ -1213,14 +1213,26 @@ export interface AdminOrganizationSummary {
 }
 
 export interface AdminOrgBillingStatus {
+  /** Any payment method found on the Stripe customer, of any type. */
   has_payment_method: boolean;
   payment_method_type: string | null;
+  /** apple_pay / google_pay / link / … when the card sits in a wallet. */
+  payment_method_wallet: string | null;
+  /** Where it was found: only 'subscription' and 'customer_default' are charged automatically. */
+  payment_method_source: 'subscription' | 'customer_default' | 'attached_not_default' | null;
+  payment_method_is_default: boolean;
+  payment_methods_count: number;
   card_brand: string | null;
   card_last4: string | null;
   card_exp_month: number | null;
   card_exp_year: number | null;
   subscription_status: string | null;
   cancel_at_period_end: boolean;
+  cancel_at: string | null;
+  /** Stripe's trial_settings.end_behavior.missing_payment_method: create_invoice | cancel | pause. */
+  trial_end_without_payment_method: string | null;
+  /** How the Checkout session collected a method: always | if_required (only looked up when no default exists). */
+  checkout_payment_method_collection: string | null;
   next_invoice_amount_chf: number | null;
   next_invoice_date: string | null;
   will_be_charged: boolean;

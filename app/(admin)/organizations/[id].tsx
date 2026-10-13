@@ -17,6 +17,62 @@ const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJE
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
+const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  card: 'Carte',
+  link: 'Stripe Link',
+  twint: 'TWINT',
+  paypal: 'PayPal',
+  sepa_debit: 'Prélèvement SEPA',
+  revolut_pay: 'Revolut Pay',
+  amazon_pay: 'Amazon Pay',
+  klarna: 'Klarna',
+};
+const WALLET_LABEL: Record<string, string> = { apple_pay: 'Apple Pay', google_pay: 'Google Pay', link: 'Stripe Link', samsung_pay: 'Samsung Pay' };
+
+function describePaymentMethod(b: AdminOrgBillingStatus): string {
+  if (!b.has_payment_method) return 'Aucun moyen de paiement enregistré chez Stripe (aucun type : carte, Link, wallet, TWINT, PayPal…)';
+  const type = b.payment_method_type ?? 'inconnu';
+  const wallet = b.payment_method_wallet ? ` via ${WALLET_LABEL[b.payment_method_wallet] ?? b.payment_method_wallet}` : '';
+  const more = b.payment_methods_count > 1 ? ` · ${b.payment_methods_count} moyens enregistrés` : '';
+  if (b.card_brand && b.card_last4) {
+    return `${CARD_BRAND_LABEL[b.card_brand] ?? b.card_brand} •••• ${b.card_last4} — exp. ${b.card_exp_month}/${b.card_exp_year}${wallet}${more}`;
+  }
+  if (type === 'link') return `Stripe Link (carte liée au compte Link, détails non exposés par Stripe)${more}`;
+  return `${PAYMENT_METHOD_LABEL[type] ?? type}${wallet}${more}`;
+}
+
+function describePaymentMethodSource(b: AdminOrgBillingStatus): string {
+  if (b.payment_method_source === 'subscription') return "Défini comme moyen de paiement de l'abonnement";
+  if (b.payment_method_source === 'customer_default') return 'Moyen de paiement par défaut du client (utilisé pour l’abonnement)';
+  return "Enregistré chez le client mais défini par défaut nulle part : Stripe ne l'utilisera pas automatiquement";
+}
+
+function describeChargeOutlook(b: AdminOrgBillingStatus): string {
+  if (b.cancel_at_period_end || b.cancel_at) {
+    const when = b.cancel_at ?? b.next_invoice_date;
+    return `Résiliation programmée${when ? ` le ${formatDate(when)}` : ''} — ne sera plus débité`;
+  }
+  if (b.will_be_charged) {
+    return b.next_invoice_amount_chf != null
+      ? `Sera débité : ${formatChf(b.next_invoice_amount_chf)} le ${formatDate(b.next_invoice_date)}`
+      : 'Sera débité au prochain cycle';
+  }
+  if (!['active', 'trialing', 'past_due'].includes(b.subscription_status ?? '')) return 'Ne sera pas débité (abonnement inactif)';
+  const atTrialEnd =
+    b.subscription_status !== 'trialing'
+      ? ''
+      : b.trial_end_without_payment_method === 'cancel'
+        ? " À la fin de l'essai, Stripe annulera l'abonnement."
+        : b.trial_end_without_payment_method === 'pause'
+          ? " À la fin de l'essai, Stripe mettra l'abonnement en pause."
+          : " À la fin de l'essai, Stripe créera une facture qui ne pourra pas être payée : l'accès sera coupé et l'e-mail « paiement échoué » partira.";
+  const why =
+    b.checkout_payment_method_collection === 'if_required'
+      ? ' (le paiement Stripe a laissé démarrer l’essai sans moyen de paiement)'
+      : '';
+  return `Ne sera pas débité automatiquement : aucun moyen de paiement par défaut${why}.${atTrialEnd}`;
+}
+
 const EVENT_META: Record<AdminOrgEvent['event_type'], { label: string; icon: keyof typeof Feather.glyphMap; color: string }> = {
   activated: { label: 'Abonnement activé', icon: 'check-circle', color: colors.success },
   trial_started: { label: "Période d'essai démarrée", icon: 'clock', color: colors.primary },
@@ -229,29 +285,23 @@ export default function AdminOrganizationDetailScreen() {
             ) : (
               <View style={styles.billingCard}>
                 <View style={styles.billingRow}>
-                  <Feather name="credit-card" size={16} color={billing?.has_payment_method ? colors.success : colors.danger} />
-                  <Text style={styles.billingText}>
-                    {billing?.has_payment_method
-                      ? billing.card_brand && billing.card_last4
-                        ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4} — exp. ${billing.card_exp_month}/${billing.card_exp_year}`
-                        : billing.payment_method_type === 'link'
-                          ? 'Moyen de paiement enregistré via Stripe Link (carte liée à un numéro de téléphone, détails non exposés par Stripe)'
-                          : `Moyen de paiement enregistré (${billing.payment_method_type ?? 'type inconnu'})`
-                      : 'Aucune carte enregistrée'}
-                  </Text>
+                  <Feather
+                    name="credit-card"
+                    size={16}
+                    color={billing?.payment_method_is_default ? colors.success : billing?.has_payment_method ? colors.warning : colors.danger}
+                  />
+                  <Text style={styles.billingText}>{billing ? describePaymentMethod(billing) : 'Aucun moyen de paiement enregistré'}</Text>
                 </View>
+                {billing?.has_payment_method ? (
+                  <View style={styles.billingRow}>
+                    <Feather name="info" size={16} color={colors.textMuted} />
+                    <Text style={styles.billingText}>{describePaymentMethodSource(billing)}</Text>
+                  </View>
+                ) : null}
                 {billing?.subscription_status ? (
                   <View style={styles.billingRow}>
                     <Feather name={billing.will_be_charged ? 'check-circle' : 'alert-triangle'} size={16} color={billing.will_be_charged ? colors.success : colors.warning} />
-                    <Text style={styles.billingText}>
-                      {billing.will_be_charged
-                        ? billing.next_invoice_amount_chf != null
-                          ? `Sera débité : ${formatChf(billing.next_invoice_amount_chf)} le ${formatDate(billing.next_invoice_date)}`
-                          : 'Sera débité au prochain cycle'
-                        : billing.cancel_at_period_end
-                          ? "Résiliation programmée — ne sera plus débité"
-                          : "Ne sera pas débité (pas de carte ou abonnement inactif)"}
-                    </Text>
+                    <Text style={styles.billingText}>{describeChargeOutlook(billing)}</Text>
                   </View>
                 ) : null}
                 {org.promo_code_used ? (

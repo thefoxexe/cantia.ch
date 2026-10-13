@@ -51,12 +51,13 @@ function formatTenure(iso: string): string {
 // that already got cancelled meant opening every org one by one.
 function billingLine(billing: AdminOrgBillingStatus | undefined): string | null {
   if (!billing?.subscription_status) return null;
+  if ((billing.cancel_at_period_end || billing.cancel_at) && (billing.cancel_at ?? billing.next_invoice_date)) {
+    return `Résilié — accès jusqu'au ${formatDateShort(billing.cancel_at ?? billing.next_invoice_date)}`;
+  }
   if (billing.subscription_status === 'trialing' && billing.next_invoice_date) {
     const amount = billing.next_invoice_amount_chf != null ? ` · ${formatChfShort(billing.next_invoice_amount_chf)}` : '';
-    return `Essai jusqu'au ${formatDateShort(billing.next_invoice_date)}${amount}`;
-  }
-  if (billing.cancel_at_period_end && billing.next_invoice_date) {
-    return `Résilié — accès jusqu'au ${formatDateShort(billing.next_invoice_date)}`;
+    const noMethod = billing.payment_method_is_default ? '' : ' · sans moyen de paiement par défaut';
+    return `Essai jusqu'au ${formatDateShort(billing.next_invoice_date)}${amount}${noMethod}`;
   }
   if (billing.will_be_charged && billing.next_invoice_date && billing.next_invoice_amount_chf != null) {
     return `Prochain paiement : ${formatChfShort(billing.next_invoice_amount_chf)} le ${formatDateShort(billing.next_invoice_date)}`;
