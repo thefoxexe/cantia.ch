@@ -128,9 +128,10 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const organizationId = typeof body?.organization_id === 'string' ? body.organization_id : '';
     const brief = typeof body?.brief === 'string' ? body.brief.trim().slice(0, 8000) : '';
+    const answers = cleanAnswers(body?.answers);
     const locale: Locale = body?.locale === 'de' || body?.locale === 'it' ? body.locale : 'fr';
     if (!organizationId) return json({ error: 'organization_id requis' }, 400);
-    if (brief.length < 20) return json({ error: 'Décrivez votre entreprise en quelques phrases (au moins 20 caractères).' }, 400);
+    if (brief.length < 20 && !answers) return json({ error: 'Décrivez votre entreprise en quelques phrases (au moins 20 caractères).' }, 400);
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!apiKey) return json({ error: 'IA non configurée (clé Anthropic manquante)' }, 500);
@@ -167,12 +168,12 @@ Deno.serve(async (req: Request) => {
 
     const { data: world, error: upsertError } = await admin
       .from('relief_worlds')
-      .upsert({ organization_id: organizationId, status: 'building', brief, error: null, requested_by: user.id, ready_at: null }, { onConflict: 'organization_id' })
+      .upsert({ organization_id: organizationId, status: 'building', brief: brief || '—', answers, error: null, requested_by: user.id, ready_at: null }, { onConflict: 'organization_id' })
       .select('id')
       .single();
     if (upsertError || !world) return json({ error: upsertError?.message ?? 'Enregistrement impossible' }, 500);
 
-    const job = build({ admin, apiKey, organizationId, worldId: world.id, brief, locale, userId: user.id, userEmail: user.email ?? null });
+    const job = build({ admin, apiKey, organizationId, worldId: world.id, brief, answers, locale, userId: user.id, userEmail: user.email ?? null });
     const runtime = (globalThis as unknown as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
     if (runtime?.waitUntil) runtime.waitUntil(job);
     else await job;
@@ -185,7 +186,7 @@ Deno.serve(async (req: Request) => {
 });
 
 // deno-lint-ignore no-explicit-any
-async function build(p: { admin: any; apiKey: string; organizationId: string; worldId: string; brief: string; locale: Locale; userId: string; userEmail: string | null }) {
+async function build(p: { admin: any; apiKey: string; organizationId: string; worldId: string; brief: string; answers: Answers | null; locale: Locale; userId: string; userEmail: string | null }) {
   const { admin, organizationId, locale } = p;
   try {
     const [{ data: org }, { data: projects }, { count: memberCount }] = await Promise.all([
@@ -207,7 +208,8 @@ async function build(p: { admin: any; apiKey: string; organizationId: string; wo
       '',
       projectLines.length ? `Projets enregistrés (${projectLines.length}) :\n${projectLines.join('\n')}` : 'Aucun projet enregistré pour l’instant.',
       '',
-      'Ce que le responsable a dicté sur son entreprise et son process :',
+      ...(p.answers ? answersPrompt(p.answers) : []),
+      'Ce que le responsable a dicté ou écrit sur son entreprise et son process :',
       p.brief,
     ].join('\n');
 
@@ -233,6 +235,7 @@ async function build(p: { admin: any; apiKey: string; organizationId: string; wo
       orgName: org?.name ?? 'Cantia',
       workTerm: org?.work_term ?? 'projet',
       projectIds: (projects ?? []).map((x: { id: string }) => x.id),
+      answers: p.answers,
     });
 
     await admin.from('relief_worlds').update({ status: 'ready', spec, error: null, ready_at: new Date().toISOString() }).eq('id', p.worldId);
@@ -306,16 +309,70 @@ function parseObject(raw: string): Record<string, unknown> | null {
   }
 }
 
+type Answers = {
+  activity: string;
+  template: Template | 'auto';
+  stages: { label: string; owner: string; days: number; client: boolean }[];
+  team: { name: string; job: string }[];
+  billing: 'end' | 'deposit' | 'milestones' | 'monthly';
+  quotes: boolean;
+  story: string;
+};
+
+// The onboarding answers, checked and clamped (stored in relief_worlds.answers).
+function cleanAnswers(v: unknown): (Answers & { version: 1; team: { id: string; name: string; job: string }[] }) | null {
+  if (!v || typeof v !== 'object') return null;
+  const o = v as Record<string, unknown>;
+  const text = (x: unknown, max: number) => (typeof x === 'string' ? x.trim().slice(0, max) : '');
+  const stages = (Array.isArray(o.stages) ? o.stages : [])
+    .slice(0, 8)
+    .map((s) => {
+      const x = (s ?? {}) as Record<string, unknown>;
+      return { label: text(x.label, 32), owner: text(x.owner, 40), days: Math.max(0, Math.min(365, Math.round(Number(x.days) || 0))), client: x.client === true };
+    })
+    .filter((s) => s.label);
+  const team = (Array.isArray(o.team) ? o.team : []).slice(0, 60).map((m) => {
+    const x = (m ?? {}) as Record<string, unknown>;
+    return { id: text(x.id, 64), name: text(x.name, 80), job: text(x.job, 60) };
+  });
+  const template = o.template === 'territoire' || o.template === 'studio' || o.template === 'atelier' ? o.template : 'auto';
+  const billing = o.billing === 'deposit' || o.billing === 'milestones' || o.billing === 'monthly' ? o.billing : 'end';
+  return { version: 1, activity: text(o.activity, 200), template, stages, team, billing, quotes: o.quotes !== false, story: text(o.story, 4000) };
+}
+
+const BILLING_FR: Record<Answers['billing'], string> = {
+  end: 'une facture à la fin',
+  deposit: 'un acompte au départ puis le solde',
+  milestones: 'une facture à chaque étape clé',
+  monthly: 'une facture chaque mois',
+};
+
+function answersPrompt(a: Answers): string[] {
+  return [
+    'Réponses structurées du responsable :',
+    a.activity ? `- Activité : ${a.activity}` : '',
+    a.template !== 'auto' ? `- Modèle choisi par le responsable : ${a.template} (à respecter)` : '- Modèle : à choisir',
+    a.stages.length ? `- Process (à reprendre tel quel dans "stages", mêmes mots, même ordre) :\n${a.stages.map((s, i) => `  ${i + 1}. ${s.label}${s.owner ? `, responsable ${s.owner}` : ''}${s.days ? `, ~${s.days} jours` : ''}${s.client ? ', validation du client' : ''}`).join('\n')}` : '',
+    a.team.some((m) => m.job) ? `- Équipe :\n${a.team.filter((m) => m.job).map((m) => `  ${m.name} : ${m.job}`).join('\n')}` : '',
+    `- Devis : ${a.quotes ? 'toujours un devis avant de commencer' : 'pas systématique'} ; facturation : ${BILLING_FR[a.billing]}`,
+    '',
+  ].filter((l) => l !== '');
+}
+
 const str = (v: unknown, max: number, fallback: string) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : fallback);
 
 // Never trust the model's output shape: every field is checked and clamped,
 // with a sensible default, so the scene always gets a complete plan.
-function sanitize(o: Record<string, unknown>, ctx: { locale: Locale; orgName: string; workTerm: string; projectIds: string[] }) {
-  const template: Template = o.template === 'studio' || o.template === 'atelier' || o.template === 'territoire' ? o.template : 'territoire';
+function sanitize(o: Record<string, unknown>, ctx: { locale: Locale; orgName: string; workTerm: string; projectIds: string[]; answers: Answers | null }) {
+  const chosen = ctx.answers?.template && ctx.answers.template !== 'auto' ? ctx.answers.template : null;
+  const template: Template = chosen ?? (o.template === 'studio' || o.template === 'atelier' || o.template === 'territoire' ? o.template : 'territoire');
   const styles = STYLES[template];
   const vocab = (o.vocabulary ?? {}) as Record<string, unknown>;
   let stages = Array.isArray(o.stages) ? o.stages.map((s) => str(s, 32, '')).filter(Boolean).slice(0, 6) : [];
   if (stages.length < 3) stages = DEFAULT_STAGES[template][ctx.locale];
+  // The owner's own process wins over the AI's reading of it.
+  const own = ctx.answers?.stages.filter((s) => s.label) ?? [];
+  if (own.length >= 3) stages = own.map((s) => s.label);
   const decor = (o.decor ?? {}) as Record<string, unknown>;
   const rawStyles = (o.styles ?? {}) as Record<string, unknown>;
   const outStyles: Record<string, string> = {};
@@ -346,7 +403,10 @@ function sanitize(o: Record<string, unknown>, ctx: { locale: Locale; orgName: st
       items: str(vocab.items, 30, `${ctx.workTerm}s`).toLowerCase(),
       place: str(vocab.place, 30, PLACE[template][ctx.locale]),
     },
-    stages: stages.map((label) => ({ label })),
+    stages: stages.map((label, i) => {
+      const a = own.length >= 3 ? own[i] : null;
+      return a ? { label, ...(a.owner ? { owner: a.owner } : {}), ...(a.days ? { days: a.days } : {}), ...(a.client ? { client: true } : {}) } : { label };
+    }),
     accent: typeof o.accent === 'string' && ACCENTS.includes(o.accent) ? o.accent : 'terracotta',
     decor: {
       mountains: decor.mountains !== false,

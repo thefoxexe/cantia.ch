@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useDictation } from '../../lib/useDictation';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, radius, spacing } from '../../lib/theme';
 import type { ReliefCopy } from '../../lib/relief/copy';
 
 // The screens of Cantia Relief around the 3D world (app/(app)/relief.tsx):
-// the offer when the option isn't active, the onboarding where the owner
-// dictates the business, and the wait while the AI builds the world.
+// the offer when the option isn't active, and the note for members who are
+// not admins. The onboarding and the wait while the AI builds the world are
+// in components/relief/ReliefOnboardingDom.tsx.
 
 const INK = '#16120E';
 
@@ -80,141 +80,6 @@ export function ReliefNotAdmin({ copy, onClose }: { copy: ReliefCopy; onClose: (
   );
 }
 
-// ------------------------------------------------------------ onboarding
-
-export function ReliefOnboarding({
-  copy,
-  initialBrief,
-  skipIntro,
-  onSubmit,
-  onClose,
-}: {
-  copy: ReliefCopy;
-  initialBrief: string;
-  skipIntro: boolean;
-  onSubmit: (brief: string) => Promise<string | null>;
-  onClose: () => void;
-}) {
-  const [step, setStep] = useState<'intro' | 'brief'>(skipIntro ? 'brief' : 'intro');
-  const [brief, setBrief] = useState(initialBrief);
-  const [error, setError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
-  const dictation = useDictation((text) => setBrief((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text)));
-
-  const toggleMic = async () => {
-    setError(null);
-    if (dictation.listening) {
-      await dictation.stop();
-      return;
-    }
-    const ok = await dictation.start();
-    if (!ok) setError(copy.micDenied);
-  };
-
-  const submit = async () => {
-    if (brief.trim().length < 20) {
-      setError(copy.tooShort);
-      return;
-    }
-    setSending(true);
-    setError(null);
-    const err = await onSubmit(brief.trim());
-    setSending(false);
-    if (err) setError(err);
-  };
-
-  if (step === 'intro') {
-    return (
-      <Shell copy={copy} onClose={onClose}>
-        <Text style={styles.eyebrow}>{copy.introEyebrow}</Text>
-        <Text style={styles.title}>{copy.introTitle}</Text>
-        <Text style={styles.lead}>{copy.introText}</Text>
-        <View style={styles.models}>
-          {copy.models.map((m) => (
-            <View key={m.key} style={styles.model}>
-              <ModelGlyph kind={m.key} />
-              <Text style={styles.modelTitle}>{m.title}</Text>
-              <Text style={styles.modelText}>{m.text}</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={styles.note}>{copy.modelsNote}</Text>
-        <View style={{ alignSelf: 'flex-start' }}>
-          <Button label={copy.start} onPress={() => setStep('brief')} primary icon="arrow-right" />
-        </View>
-      </Shell>
-    );
-  }
-
-  return (
-    <Shell copy={copy} onClose={onClose}>
-      <Text style={styles.title}>{copy.briefTitle}</Text>
-      <Text style={styles.lead}>{copy.briefText}</Text>
-      <View style={styles.questions}>
-        {copy.briefQuestions.map((q, i) => (
-          <View key={q} style={styles.question}>
-            <Text style={styles.questionNum}>{i + 1}</Text>
-            <Text style={styles.questionText}>{q}</Text>
-          </View>
-        ))}
-      </View>
-      <View style={styles.editor}>
-        <TextInput
-          value={brief}
-          onChangeText={setBrief}
-          placeholder={copy.briefPlaceholder}
-          placeholderTextColor="#A39784"
-          multiline
-          style={styles.input}
-          maxLength={8000}
-          accessibilityLabel={copy.briefTitle}
-        />
-        <View style={styles.editorBar}>
-          <Pressable onPress={toggleMic} style={[styles.mic, dictation.listening && styles.micOn]} accessibilityRole="button" disabled={dictation.transcribing}>
-            {dictation.transcribing ? <ActivityIndicator size="small" color={colors.primary} /> : <Feather name={dictation.listening ? 'square' : 'mic'} size={16} color={dictation.listening ? '#FFFFFF' : colors.text} />}
-            <Text style={[styles.micText, dictation.listening && { color: '#FFFFFF' }]}>{dictation.transcribing ? copy.transcribing : dictation.listening ? copy.stop : copy.dictate}</Text>
-          </Pressable>
-          <Text style={styles.count}>{brief.trim().length}</Text>
-        </View>
-      </View>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <View style={styles.row}>
-        {!skipIntro ? <Button label={copy.back} onPress={() => setStep('intro')} /> : null}
-        <Button label={copy.build} onPress={submit} primary disabled={sending || dictation.listening || dictation.transcribing} icon="box" />
-      </View>
-    </Shell>
-  );
-}
-
-// ------------------------------------------------------------ building / failed
-
-export function ReliefBuilding({ copy, onClose }: { copy: ReliefCopy; onClose: () => void }) {
-  return (
-    <Shell copy={copy} onClose={onClose}>
-      <MiniIsland building />
-      <Text style={styles.title}>{copy.buildingTitle}</Text>
-      <Text style={styles.lead}>{copy.buildingText}</Text>
-      <View style={styles.mailNote}>
-        <Feather name="mail" size={16} color={colors.primary} />
-        <Text style={styles.mailText}>{copy.buildingEmail}</Text>
-      </View>
-    </Shell>
-  );
-}
-
-export function ReliefFailed({ copy, onRetry, onEdit, onClose }: { copy: ReliefCopy; onRetry: () => void; onEdit: () => void; onClose: () => void }) {
-  return (
-    <Shell copy={copy} onClose={onClose}>
-      <Text style={styles.title}>{copy.failedTitle}</Text>
-      <Text style={styles.lead}>{copy.failedText}</Text>
-      <View style={styles.row}>
-        <Button label={copy.retry} onPress={onRetry} primary icon="refresh-cw" />
-        <Button label={copy.edit} onPress={onEdit} />
-      </View>
-    </Shell>
-  );
-}
-
 // ------------------------------------------------------------ small drawings
 
 // A little isometric island drawn with views: a slab, layers of soil and
@@ -246,40 +111,6 @@ function MiniIsland({ building = false }: { building?: boolean }) {
       <View style={styles.islandTop} />
       <View style={styles.islandSoil} />
       <View style={styles.islandSoilDark} />
-    </View>
-  );
-}
-
-function ModelGlyph({ kind }: { kind: string }) {
-  if (kind === 'studio') {
-    return (
-      <View style={styles.glyph}>
-        {[3, 5, 2].map((n, i) => (
-          <View key={i} style={{ gap: 2, justifyContent: 'flex-end' }}>
-            {Array.from({ length: n }).map((_, j) => (
-              <View key={j} style={[styles.glyphFloor, j === n - 1 && i === 1 && { backgroundColor: colors.primary }]} />
-            ))}
-          </View>
-        ))}
-      </View>
-    );
-  }
-  if (kind === 'atelier') {
-    return (
-      <View style={[styles.glyph, { flexWrap: 'wrap', width: 74, alignContent: 'flex-end' }]}>
-        {[0, 1, 2, 3].map((i) => (
-          <View key={i} style={[styles.glyphBay, i === 1 && { borderColor: colors.primary }]} />
-        ))}
-      </View>
-    );
-  }
-  return (
-    <View style={styles.glyph}>
-      <View style={[styles.glyphHouse, { height: 18 }]} />
-      <View style={styles.glyphRoad} />
-      <View style={[styles.glyphHouse, { height: 30, backgroundColor: colors.primary }]} />
-      <View style={styles.glyphRoad} />
-      <View style={[styles.glyphHouse, { height: 22 }]} />
     </View>
   );
 }

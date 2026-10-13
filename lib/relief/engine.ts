@@ -26,6 +26,10 @@ export interface ReliefHandle {
   reset(): void;
   setAnimated(on: boolean): void;
   update(data: ReliefData): void;
+  /** Swap the world plan (onboarding preview), keeping the camera. */
+  setSpec(spec: ReliefSpec, data: ReliefData): void;
+  /** Screen space covered by panels (px): the view centres in what's left. */
+  setInsets(insets: { left?: number; right?: number; bottom?: number; top?: number }): void;
   dispose(): void;
 }
 
@@ -33,6 +37,10 @@ interface Options {
   onSelect(id: string | null): void;
   baseLabel: string;
   exampleLabel: string;
+  /** Onboarding preview: turns on its own from the start. */
+  preview?: boolean;
+  /** Items rise from the ground when the world is (re)built. */
+  intro?: boolean;
 }
 
 // ------------------------------------------------------------------ palette
@@ -585,8 +593,9 @@ function buildBay(item: ReliefItem, stages: number, accent: string): Built {
 
 // ------------------------------------------------------------------ engine
 
-export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: ReliefData, opts: Options): ReliefHandle {
-  const accent = ACCENT[spec.accent] ?? ACCENT.terracotta;
+export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial: ReliefData, opts: Options): ReliefHandle {
+  let spec = initialSpec;
+  let accent = ACCENT[spec.accent] ?? ACCENT.terracotta;
   const width = () => host.clientWidth || 800;
   const height = () => host.clientHeight || 600;
 
@@ -632,6 +641,7 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
   let data = initial;
   let size = { W: 76, D: 49 };
   let home = { target: new THREE.Vector3(), offset: new THREE.Vector3() };
+  let homeRadius = 90;
   type ItemObj = { item: ReliefItem; built: Built; hit: THREE.Mesh; ring: THREE.Mesh; anchor: THREE.Vector3; road: THREE.CatmullRomCurve3 | null };
   let items = new Map<string, ItemObj>();
   let walkers: { obj: THREE.Object3D; a: THREE.Vector3; b: THREE.Vector3; speed: number; phase: number; walk: boolean }[] = [];
@@ -640,6 +650,8 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
   let workerLabels: { el: HTMLElement; obj: THREE.Object3D; itemId: string }[] = [];
   let hits: THREE.Mesh[] = [];
   let selected: string | null = null;
+  let rising: { obj: THREE.Object3D; t0: number }[] = [];
+  let insets = { left: 0, right: 0, bottom: 0, top: 0 };
 
   const personOf = (id: string) => data.people.find((p) => p.id === id);
 
@@ -654,6 +666,7 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
     workerLabels.forEach((l) => l.el.remove());
     labels = [];
     workerLabels = [];
+    rising = [];
 
     const n = Math.max(1, data.items.length);
     const stages = Math.max(2, spec.stages.length);
@@ -771,12 +784,17 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
     // Home view frames the whole miniature.
     const span = Math.max(W * 1.25, D * 1.9);
     home = { target: new THREE.Vector3(0, 0, spec.template === 'territoire' ? 4 : 2), offset: new THREE.Vector3(-0.28, 0.62, 0.83).normalize().multiplyScalar(span * 1.45) };
-    controls.maxDistance = span * 3.2;
+    homeRadius = Math.hypot(W, D) * 0.98;
+    controls.maxDistance = span * 4;
   }
 
   function addItemObj(it: ReliefItem, built: Built, x: number, z: number, road: THREE.CatmullRomCurve3 | null) {
     built.group.position.set(x, 0, z);
     world.add(built.group);
+    if (opts.intro) {
+      built.group.scale.y = 0.001;
+      rising.push({ obj: built.group, t0: performance.now() + 250 + items.size * 140 });
+    }
     const hit = new THREE.Mesh(new THREE.BoxGeometry(built.radius * 2, built.top, built.radius * 2), new THREE.MeshBasicMaterial({ visible: false }));
     hit.position.set(x, built.top / 2, z);
     hit.userData.id = it.id;
@@ -1040,20 +1058,42 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
     tween = { fromPos: camera.position.clone(), fromTarget: controls.target.clone(), toPos, toTarget, t0: performance.now(), dur: 1100 };
     controls.autoRotate = false;
   };
-  const homePos = () => home.target.clone().add(home.offset.clone().multiplyScalar(camera.aspect < 1 ? 1.8 : camera.aspect < 1.4 ? 1.25 : 1));
+  // Distance at which a sphere of radius r fills the free part of the view.
+  const fitDistance = (r: number) => {
+    const w = Math.max(1, width() - insets.right - insets.left);
+    const h = Math.max(1, height() - insets.bottom - insets.top);
+    const vf = THREE.MathUtils.degToRad(camera.fov) / 2;
+    // Half-angle under which the free area is seen, on its shorter side.
+    const a = Math.atan((Math.tan(vf) * Math.min(w, h)) / height());
+    return r / Math.sin(a);
+  };
+  const homePos = () => home.target.clone().add(home.offset.clone().normalize().multiplyScalar(fitDistance(homeRadius) * 0.86));
+  const applyInsets = () => {
+    const w = width();
+    const h = height();
+    // Shift the projection so the centre of the scene sits in the middle of
+    // the area left free by the panels.
+    camera.setViewOffset(w, h, (insets.right - insets.left) / 2, (insets.bottom - insets.top) / 2, w, h);
+    camera.updateProjectionMatrix();
+  };
 
   const resize = () => {
     renderer.setSize(width(), height());
     camera.aspect = width() / height();
-    camera.updateProjectionMatrix();
+    applyInsets();
   };
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
   ro?.observe(host);
 
   buildWorld();
+  applyInsets();
   camera.position.copy(homePos());
   controls.target.copy(home.target);
   controls.update();
+  if (opts.preview) {
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.9;
+  }
 
   // ---- loop
   let animated = true;
@@ -1076,8 +1116,18 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
       camera.position.lerpVectors(tween.fromPos, tween.toPos, e);
       controls.target.lerpVectors(tween.fromTarget, tween.toTarget, e);
       if (k >= 1) tween = null;
-    } else if (!selected && animated && now - lastInteraction > 25000) controls.autoRotate = true;
+    } else if (!selected && animated && now - lastInteraction > (opts.preview ? 4000 : 25000)) controls.autoRotate = true;
     controls.update();
+
+    if (rising.length) {
+      rising = rising.filter((r) => {
+        const k = Math.min(1, Math.max(0, (now - r.t0) / 900));
+        const c = 1.55;
+        const e = k <= 0 ? 0 : 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2);
+        r.obj.scale.y = Math.max(0.001, e);
+        return k < 1;
+      });
+    }
 
     for (const so of items.values()) {
       for (const c of so.built.cranes) c.jib.rotation.y = Math.sin(t * 0.16 + c.phase) * 1.3 + c.phase;
@@ -1159,9 +1209,8 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
       const dir = camera.position.clone().sub(controls.target).normalize();
       dir.y = Math.max(dir.y, 0.8);
       dir.normalize();
-      const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), dir).normalize();
-      const target = camera.aspect > 1.2 ? site.clone().add(right.multiplyScalar(-12)) : site;
-      flyTo(target.clone().add(dir.multiplyScalar(camera.aspect < 1 ? 140 : 92)), target);
+      const r = Math.max(16, so.built.radius * 2.4, so.built.top * 1.3);
+      flyTo(site.clone().add(dir.multiplyScalar(Math.min(controls.maxDistance, fitDistance(r)))), site);
     },
     reset() {
       handle.select(null);
@@ -1176,6 +1225,19 @@ export function createRelief(host: HTMLElement, spec: ReliefSpec, initial: Relie
       disposeWorld();
       buildWorld();
       if (selected && !items.has(selected)) handle.select(null);
+    },
+    setSpec(nextSpec, next) {
+      spec = nextSpec;
+      accent = ACCENT[spec.accent] ?? ACCENT.terracotta;
+      data = next;
+      disposeWorld();
+      buildWorld();
+      if (selected && !items.has(selected)) handle.select(null);
+      flyTo(homePos(), home.target.clone());
+    },
+    setInsets(next) {
+      insets = { left: next.left ?? 0, right: next.right ?? 0, bottom: next.bottom ?? 0, top: next.top ?? 0 };
+      applyInsets();
     },
     dispose() {
       cancelAnimationFrame(raf);

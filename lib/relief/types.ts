@@ -50,7 +50,7 @@ export interface ReliefSpec {
   /** The company's own words. */
   vocabulary: { item: string; items: string; place: string };
   /** The steps of the company's process, in order (3 to 6). */
-  stages: { label: string }[];
+  stages: ReliefStage[];
   accent: ReliefAccent;
   decor: { mountains: boolean; water: 'lac' | 'riviere' | 'aucune'; greenery: 'sobre' | 'verdoyant' };
   /** Shape of each real item (by project id) chosen from its name. */
@@ -103,4 +103,68 @@ export interface ReliefData {
   people: ReliefPerson[];
   /** People planned today without an item (at the office / depot). */
   atBase: string[];
+}
+
+/** One step of the company's process, as the owner described it. */
+export interface ReliefStage {
+  label: string;
+  /** Who leads this step (a role or a person), when known. */
+  owner?: string;
+  /** Typical length in working days, when known. */
+  days?: number;
+  /** The client validates at the end of this step. */
+  client?: boolean;
+}
+
+export type ReliefBilling = 'end' | 'deposit' | 'milestones' | 'monthly';
+
+/** What the owner answered in the onboarding (relief_worlds.answers). */
+export interface ReliefAnswers {
+  version: 1;
+  /** One line: what the company does. */
+  activity: string;
+  /** Chosen model, or 'auto' to let the AI decide. */
+  template: ReliefTemplate | 'auto';
+  stages: { label: string; owner: string; days: number; client: boolean }[];
+  /** Members and what each does. */
+  team: { id: string; name: string; job: string }[];
+  billing: ReliefBilling;
+  /** A quote is sent before each job. */
+  quotes: boolean;
+  /** Anything else, dictated or typed. */
+  story: string;
+}
+
+export type ReliefMember = { id: string; name: string };
+
+/** Everything Cantia knows about one item, loaded when its card opens. */
+export interface ReliefDetails {
+  /** null: the member may not see quotes and invoices. */
+  devis: { id: string; number: string | null; status: string; total: number; date: string }[] | null;
+  factures: { id: string; number: string | null; status: string; total: number; paid: number; dueDate: string | null }[] | null;
+  /** null: the member may not see costs. */
+  expenses: { total: number; count: number } | null;
+  tasks: { id: string; title: string; dueOn: string | null; assignee: string | null; done: boolean }[];
+  /** Who is planned on the item over the next 7 days (ISO dates). */
+  week: { personId: string; days: string[] }[];
+  counts: { documents: number | null; reports: number; feed: number };
+  /** Site schedule (Gantt), when there is one. */
+  schedule: { phase: string | null; progress: number } | null;
+}
+
+/** A place in Cantia the card links to, already filtered by rights. */
+export interface ReliefSection {
+  key: string;
+  label: string;
+  route: string;
+  icon: string;
+  count?: number | null;
+}
+
+/** What the member may do from the card. */
+export interface ReliefCaps {
+  plan: boolean;
+  quotes: boolean;
+  finances: boolean;
+  redo: boolean;
 }

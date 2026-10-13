@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import { invokeFunction } from '../api/functions';
-import type { ReliefData, ReliefItem, ReliefItemStatus, ReliefPerson, ReliefSpec, ReliefStyle } from './types';
+import type { ReliefAnswers, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefPerson, ReliefSpec, ReliefStyle } from './types';
 import { TEMPLATE_STYLES } from './types';
 
 // The live side of Cantia Relief: the company's real records turned into
@@ -12,6 +12,7 @@ export interface ReliefWorldRow {
   id: string;
   status: 'building' | 'ready' | 'failed';
   brief: string;
+  answers: ReliefAnswers | null;
   spec: ReliefSpec | null;
   error: string | null;
   ready_at: string | null;
@@ -19,13 +20,24 @@ export interface ReliefWorldRow {
 }
 
 export async function getReliefWorld(organizationId: string): Promise<ReliefWorldRow | null> {
-  const { data } = await supabase.from('relief_worlds').select('id, status, brief, spec, error, ready_at, updated_at').eq('organization_id', organizationId).maybeSingle();
+  const { data } = await supabase.from('relief_worlds').select('id, status, brief, answers, spec, error, ready_at, updated_at').eq('organization_id', organizationId).maybeSingle();
   return (data as ReliefWorldRow | null) ?? null;
 }
 
-export async function startReliefBuild(organizationId: string, brief: string, locale: string): Promise<{ error: string | null }> {
-  const { error } = await invokeFunction('relief-build', { organization_id: organizationId, brief, locale });
+export async function startReliefBuild(organizationId: string, answers: ReliefAnswers, locale: string): Promise<{ error: string | null }> {
+  const { error } = await invokeFunction('relief-build', { organization_id: organizationId, answers, brief: briefFromAnswers(answers), locale });
   return { error };
+}
+
+/** The answers as plain text, kept as the readable brief of the world. */
+export function briefFromAnswers(a: ReliefAnswers): string {
+  const lines = [
+    a.activity.trim(),
+    a.stages.map((s, i) => `${i + 1}. ${s.label}${s.owner ? ` (${s.owner})` : ''}${s.days ? `, ${s.days} j` : ''}${s.client ? ', validation client' : ''}`).join('\n'),
+    a.team.filter((m) => m.job.trim()).map((m) => `${m.name} : ${m.job.trim()}`).join('\n'),
+    a.story.trim(),
+  ].filter(Boolean);
+  return lines.join('\n\n').slice(0, 8000);
 }
 
 const PALETTE = ['#C8642E', '#3F6E8C', '#6E8B4A', '#8C4A6E', '#B08A2E', '#2E7D72', '#5A5FA8', '#A8463E', '#7A5A3E', '#4E7FA8'];
@@ -200,10 +212,113 @@ export async function addReliefTask(organizationId: string, userId: string, proj
   return { error: error?.message ?? null };
 }
 
-export async function planOnItemToday(organizationId: string, userId: string, memberId: string, projectId: string): Promise<{ error: string | null }> {
-  const today = todayIso();
+
+function isoDay(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Everything on one item, loaded when its card opens; RLS has the last word. */
+export async function loadItemDetails(
+  organizationId: string,
+  projectId: string,
+  opts: { quotes: boolean; finances: boolean; documents: boolean },
+): Promise<ReliefDetails> {
+  const today = new Date();
+  const from = isoDay(today);
+  const to = isoDay(new Date(today.getTime() + 6 * 86400000));
+  const total = (rows: { quantity: number; unit_price: number }[] | null | undefined) => sum(rows ?? [], (r) => r.quantity * r.unit_price);
+
+  const [devisRes, facturesRes, costsRes, tasksRes, planRes, filesRes, reportsRes, feedRes, scheduleRes] = await Promise.all([
+    opts.quotes
+      ? supabase.from('devis').select('id, number, status, created_at, devis_items(quantity, unit_price)').eq('project_id', projectId).order('created_at', { ascending: false }).limit(20)
+      : Promise.resolve({ data: null }),
+    opts.quotes
+      ? supabase
+          .from('factures')
+          .select('id, number, status, due_date, facture_items(quantity, unit_price), facture_payments(amount)')
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: null }),
+    opts.finances ? supabase.from('project_expenses').select('amount').eq('project_id', projectId) : Promise.resolve({ data: null }),
+    supabase.from('dashboard_tasks').select('id, title, due_on, assigned_to, done').eq('organization_id', organizationId).eq('project_id', projectId).order('done').order('due_on', { nullsFirst: false }).limit(40),
+    supabase.from('planning_assignments').select('member_user_id, starts_on, ends_on').eq('project_id', projectId).lte('starts_on', to).gte('ends_on', from),
+    opts.documents ? supabase.from('files').select('id', { count: 'exact', head: true }).eq('project_id', projectId) : Promise.resolve({ count: null }),
+    supabase.from('reports').select('id', { count: 'exact', head: true }).eq('project_id', projectId),
+    supabase.from('feed_entries').select('id', { count: 'exact', head: true }).eq('project_id', projectId),
+    supabase.from('site_schedules').select('id').eq('project_id', projectId).maybeSingle(),
+  ]);
+
+  let schedule: ReliefDetails['schedule'] = null;
+  const scheduleId = (scheduleRes.data as { id: string } | null)?.id;
+  if (scheduleId) {
+    const { data } = await supabase.from('schedule_items').select('kind, name, progress, duration, start_date, end_date').eq('schedule_id', scheduleId);
+    const rows = (data ?? []) as { kind: string; name: string; progress: number | null; duration: number | null; start_date: string | null; end_date: string | null }[];
+    const tasks = rows.filter((r) => r.kind === 'task');
+    const w = sum(tasks, (r) => Math.max(1, Number(r.duration) || 1));
+    const p = w ? sum(tasks, (r) => Math.max(1, Number(r.duration) || 1) * Math.min(100, Math.max(0, Number(r.progress) || 0))) / w / 100 : 0;
+    const phase = rows.find((r) => r.kind === 'phase' && r.start_date && r.end_date && r.start_date <= from && r.end_date >= from)?.name ?? null;
+    schedule = { phase, progress: p };
+  }
+
+  // Each planned day of the coming week, per person.
+  const week = new Map<string, Set<string>>();
+  for (const a of (planRes.data ?? []) as { member_user_id: string; starts_on: string; ends_on: string }[]) {
+    const set = week.get(a.member_user_id) ?? new Set<string>();
+    for (let i = 0; i < 7; i++) {
+      const d = isoDay(new Date(today.getTime() + i * 86400000));
+      if (d >= a.starts_on && d <= a.ends_on) set.add(d);
+    }
+    week.set(a.member_user_id, set);
+  }
+
+  return {
+    devis: devisRes.data
+      ? (devisRes.data as { id: string; number: string | null; status: string; created_at: string; devis_items: { quantity: number; unit_price: number }[] }[]).map((d) => ({
+          id: d.id,
+          number: d.number,
+          status: d.status,
+          total: total(d.devis_items),
+          date: d.created_at.slice(0, 10),
+        }))
+      : null,
+    factures: facturesRes.data
+      ? (
+          facturesRes.data as {
+            id: string;
+            number: string | null;
+            status: string;
+            due_date: string | null;
+            facture_items: { quantity: number; unit_price: number }[];
+            facture_payments: { amount: number }[];
+          }[]
+        ).map((f) => ({ id: f.id, number: f.number, status: f.status, total: total(f.facture_items), paid: sum(f.facture_payments ?? [], (x) => x.amount), dueDate: f.due_date }))
+      : null,
+    expenses: costsRes.data ? { total: sum(costsRes.data as { amount: number }[], (c) => c.amount), count: (costsRes.data as unknown[]).length } : null,
+    tasks: ((tasksRes.data ?? []) as { id: string; title: string; due_on: string | null; assigned_to: string | null; done: boolean }[]).map((t) => ({
+      id: t.id,
+      title: t.title,
+      dueOn: t.due_on,
+      assignee: t.assigned_to,
+      done: t.done,
+    })),
+    week: [...week.entries()].filter(([, d]) => d.size).map(([personId, d]) => ({ personId, days: [...d].sort() })),
+    counts: { documents: opts.documents ? (filesRes.count ?? 0) : null, reports: reportsRes.count ?? 0, feed: feedRes.count ?? 0 },
+    schedule,
+  };
+}
+
+export async function setReliefTaskDone(taskId: string, done: boolean): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('dashboard_tasks')
+    .update({ done, done_at: done ? new Date().toISOString() : null })
+    .eq('id', taskId);
+  return { error: error?.message ?? null };
+}
+
+export async function planOnItem(organizationId: string, userId: string, memberId: string, projectId: string, day: string): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('planning_assignments')
-    .insert({ organization_id: organizationId, created_by: userId, member_user_id: memberId, project_id: projectId, starts_on: today, ends_on: today });
+    .insert({ organization_id: organizationId, created_by: userId, member_user_id: memberId, project_id: projectId, starts_on: day, ends_on: day });
   return { error: error?.message ?? null };
 }

@@ -7,9 +7,22 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
 ## Parcours
 
 1. **Offre** (`ReliefLocked`) tant que l'option n'est pas activée ; bouton « Activer » si elle est accordée et que l'utilisateur est admin.
-2. **Onboarding** (`ReliefOnboarding`) : les 3 modèles, puis la description (dictée par micro ou texte, 20 caractères minimum).
-3. **Construction** (`ReliefBuilding`) : la fonction `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification dans l'app + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/relief`. La page suit la ligne `relief_worlds` en temps réel (et toutes les 15 s en secours).
-4. **Le monde** (`ReliefDom`) en plein écran : liste à gauche, clic sur un élément → fiche (étapes, avancement, dates, chiffres si autorisé, équipe du jour, tâches). Depuis la fiche : ajouter une tâche, planifier quelqu'un aujourd'hui, ouvrir le dossier dans Cantia. « Refaire mon Relief » relance l'onboarding.
+2. **Onboarding** (`ReliefOnboardingDom`, avec aperçu 3D en direct qui change à chaque réponse) : accueil, puis 5 étapes comme dans une vraie entreprise :
+   1. Activité en une phrase + modèle (suggéré d'après le secteur, modifiable).
+   2. Process : étapes d'un projet (nom, responsable, durée, validation client), à réordonner ; préremplies selon le métier (`lib/relief/process.ts`).
+   3. Équipe : le rôle de chaque membre.
+   4. Facturation : devis systématique ou non, quand on facture (à la fin, acompte, par étape, mensuel).
+   5. Récit libre, dicté au micro ou écrit.
+   Puis un récapitulatif modifiable. Les réponses sont gardées (`relief_worlds.answers`) pour « Refaire mon Relief ».
+3. **Construction** (même écran, aperçu animé) : la fonction `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification dans l'app + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/relief`. La page suit la ligne `relief_worlds` en temps réel (et toutes les 15 s en secours).
+4. **Le monde** (`ReliefDom`) en plein écran. Ordinateur : en-tête, liste à gauche, fiche à droite. Téléphone : la 3D occupe l'écran, liste et fiche dans une feuille en bas (aperçu des projets en bande, liste dépliable, fiche à 68 % de l'écran) ; la caméra se centre dans la zone libre (`setInsets`).
+   La fiche d'un projet est son dossier complet, selon les droits :
+   - **Aperçu** : process avec responsable, durée et validations client, avancement, dates, phase du planning de chantier, devis acceptés et facturé (si devis/finances), dépenses (si finances), équipe du jour.
+   - **Tâches** : cocher / décocher, ajouter, terminées repliées.
+   - **Planning** : les 7 prochains jours par personne ; planifier quelqu'un un jour donné (admin ou droit planning).
+   - **Facturation** (droit devis ou finances) : devis et factures du projet avec statut, montant, payé / reste, échéance ; nouveau devis / nouvelle facture préremplis avec le projet ; dépenses et facturé − dépenses (finances).
+   - **Dossier** : liens vers fil, rapports, planning de chantier, documents, photos, métré, sous-traitants, rentabilité, travaux supplémentaires, situations — mêmes règles que la page du projet.
+   « Refaire mon Relief » rouvre l'onboarding avec les réponses précédentes.
 
 ## Modèles
 
@@ -33,13 +46,17 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
 | Fichier | Rôle |
 |---|---|
 | `supabase/migrations/20261013180000_relief.sql` | Table `relief_worlds`, module `relief`, types de notification. |
-| `supabase/functions/relief-build/index.ts` | Vérifications (admin, option, quota IA), appel IA, nettoyage du plan, notification, e-mail. |
+| `supabase/migrations/20261013200000_relief_answers.sql` | Réponses de l'onboarding (`relief_worlds.answers`). |
+| `lib/relief/process.ts` | Process type par métier (étapes, responsables, durées), rôles proposés. |
+| `lib/relief/sceneCss.ts` | Style des étiquettes posées sur la scène. |
+| `components/relief/ReliefOnboardingDom.tsx` | Onboarding, construction, échec (composant DOM, aperçu 3D). |
+| `supabase/functions/relief-build/index.ts` | Vérifications (admin, option, quota IA), appel IA avec les réponses structurées (le process du responsable prime), nettoyage du plan, notification, e-mail. |
 | `lib/relief/types.ts` | Le plan (`ReliefSpec`) et les données de la scène. |
-| `lib/relief/data.ts` | Lecture des vraies données, écritures (tâche, planning). |
+| `lib/relief/data.ts` | Lecture des vraies données et du dossier d'un projet, écritures (tâche, cocher, planning). |
 | `lib/relief/engine.ts` | La scène three.js des 3 modèles. |
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
 | `components/relief/ReliefDom.tsx` | Interface autour de la scène (composant DOM Expo). |
-| `components/relief/ReliefScreens.tsx` | Offre, onboarding, construction, échec. |
+| `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
 | `app/(app)/relief.tsx` | La page, plein écran (sans menu, voir `app/(app)/_layout.tsx`). |
 
 ## Activer pour une entreprise
