@@ -131,6 +131,7 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 export default function AppLayout() {
   useEffect(releaseHydrationViewport, []);
   const { width } = useWindowDimensions();
+  const pathname = usePathname();
   const { t } = useTranslation();
   const { organization, canViewFinances, canManageDevis, canManagePayroll, permissions } = useAuth();
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
@@ -164,6 +165,15 @@ export default function AppLayout() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
+
+  // Cantia Relief takes the whole screen: no menu, no assistant button.
+  if (pathname === '/relief') {
+    return (
+      <View style={{ flex: 1 }}>
+        <Slot />
+      </View>
+    );
+  }
 
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;

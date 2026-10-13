@@ -4,7 +4,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
-import { isModuleEnabled } from '../../lib/modules';
+import { isModuleEnabled, useModule } from '../../lib/modules';
+import { RELIEF_COPY, reliefLocale } from '../../lib/relief/copy';
 import { isOnline } from '../../lib/presence';
 import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
@@ -171,6 +172,7 @@ export default function DashboardScreen() {
     : null;
   const devisVisible = isModuleEnabled(organization?.enabled_modules, 'devis') && canManageDevis;
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
+  const reliefOn = useModule('relief');
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
 
@@ -619,6 +621,22 @@ export default function DashboardScreen() {
           {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
         </View>
 
+        {reliefOn ? (
+          <Pressable onPress={() => router.push('/relief' as never)} style={({ pressed }) => [styles.relief, pressed && styles.reliefHover]}>
+            <View style={styles.reliefIcon}>
+              <Feather name="box" size={18} color="#FFFFFF" />
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.reliefTitle}>{RELIEF_COPY[reliefLocale(lang)].brand}</Text>
+              <Text style={styles.reliefText} numberOfLines={2}>
+                {RELIEF_COPY[reliefLocale(lang)].dashText}
+              </Text>
+            </View>
+            <Text style={styles.reliefOpen}>{RELIEF_COPY[reliefLocale(lang)].dashOpen}</Text>
+            <Feather name="arrow-right" size={16} color={colors.primary} />
+          </Pressable>
+        ) : null}
+
         {favoritesCard}
 
         {wide ? (
@@ -668,6 +686,12 @@ const styles = StyleSheet.create({
   trialBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.accentSoft, borderRadius: radius.md, padding: spacing.md },
   trialBannerText: { flex: 1, fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
   quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  relief: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  reliefHover: { borderColor: colors.primary },
+  reliefIcon: { width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  reliefTitle: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  reliefText: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 1 },
+  reliefOpen: { fontSize: fontSize.sm, fontWeight: '600', color: colors.primary },
   columns: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.lg },
   col: { flex: 1, gap: spacing.lg },
   card: { gap: spacing.xs },

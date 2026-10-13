@@ -21,6 +21,12 @@ export interface ModuleRegistryEntry {
   visibility: 'standard' | 'private' | 'experimental';
 }
 
-// No private modules exist yet — this list stays empty until the first one
-// ships. It intentionally does not list any speculative/future module.
-export const MODULE_REGISTRY: ModuleRegistryEntry[] = [];
+export const MODULE_REGISTRY: ModuleRegistryEntry[] = [
+  {
+    key: 'relief',
+    name: 'Cantia Relief',
+    description: 'L’entreprise en maquette 3D vivante, construite par l’IA selon le métier et reliée aux projets, au planning et aux tâches (docs/relief.md).',
+    route: '/relief',
+    visibility: 'private',
+  },
+];
