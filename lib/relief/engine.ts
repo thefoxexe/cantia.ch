@@ -41,6 +41,12 @@ interface Options {
   preview?: boolean;
   /** Items rise from the ground when the world is (re)built. */
   intro?: boolean;
+  /** false: a picture that turns on its own (dashboard), no mouse or touch. */
+  interactive?: boolean;
+  /** No sky colour: the page behind shows through around the miniature. */
+  transparent?: boolean;
+  /** Bigger than 1: the home view comes closer (a card can crop the edges). */
+  zoom?: number;
 }
 
 // ------------------------------------------------------------------ palette
@@ -599,7 +605,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   const width = () => host.clientWidth || 800;
   const height = () => host.clientHeight || 600;
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !!opts.transparent, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(width(), height());
   renderer.shadowMap.enabled = true;
@@ -614,8 +620,10 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   host.appendChild(labelLayer);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(C.bg);
-  scene.fog = new THREE.Fog(C.bg, 320, 700);
+  if (!opts.transparent) {
+    scene.background = new THREE.Color(C.bg);
+    scene.fog = new THREE.Fog(C.bg, 320, 700);
+  }
 
   const camera = new THREE.PerspectiveCamera(30, width() / height(), 1, 1600);
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -927,8 +935,12 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
         x = base.x + Math.cos(angle) * rad * (W / 49);
         z = base.z * 0.4 + Math.sin(angle) * rad * (D / 49) * 0.85;
         angle += 0.37;
-        if (occ.free(x, z, built.radius + 1)) break;
+        const inside = Math.abs(x) < W - built.radius - 4 && Math.abs(z) < D - built.radius - 4;
+        if (inside && occ.free(x, z, built.radius + 1)) break;
       }
+      // Never off the island, even when it is crowded.
+      x = THREE.MathUtils.clamp(x, -W + built.radius + 4, W - built.radius - 4);
+      z = THREE.MathUtils.clamp(z, -D + built.radius + 4, D - built.radius - 4);
       angle += 2.4;
       const gate = built.gate.clone().add(new THREE.Vector3(x, 0, z));
       const mid = roadStart.clone().lerp(gate, 0.5);
@@ -1049,10 +1061,17 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   const onMove = (ev: PointerEvent) => {
     if (!down) renderer.domElement.style.cursor = pick(ev) ? 'pointer' : 'grab';
   };
-  renderer.domElement.addEventListener('pointerdown', onDown);
-  renderer.domElement.addEventListener('pointerup', onUp);
-  renderer.domElement.addEventListener('pointermove', onMove);
-  renderer.domElement.addEventListener('wheel', stopAuto, { passive: true });
+  const interactive = opts.interactive !== false;
+  controls.enabled = interactive;
+  if (interactive) {
+    renderer.domElement.addEventListener('pointerdown', onDown);
+    renderer.domElement.addEventListener('pointerup', onUp);
+    renderer.domElement.addEventListener('pointermove', onMove);
+    renderer.domElement.addEventListener('wheel', stopAuto, { passive: true });
+  } else {
+    renderer.domElement.style.pointerEvents = 'none';
+    labelLayer.style.display = 'none';
+  }
 
   const flyTo = (toPos: THREE.Vector3, toTarget: THREE.Vector3) => {
     tween = { fromPos: camera.position.clone(), fromTarget: controls.target.clone(), toPos, toTarget, t0: performance.now(), dur: 1100 };
@@ -1067,7 +1086,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     const a = Math.atan((Math.tan(vf) * Math.min(w, h)) / height());
     return r / Math.sin(a);
   };
-  const homePos = () => home.target.clone().add(home.offset.clone().normalize().multiplyScalar(fitDistance(homeRadius) * 0.86));
+  const homePos = () => home.target.clone().add(home.offset.clone().normalize().multiplyScalar((fitDistance(homeRadius) * 0.86) / (opts.zoom ?? 1)));
   const applyInsets = () => {
     const w = width();
     const h = height();

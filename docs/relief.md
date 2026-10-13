@@ -24,6 +24,10 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
    - **Dossier** : liens vers fil, rapports, planning de chantier, documents, photos, métré, sous-traitants, rentabilité, travaux supplémentaires, situations — mêmes règles que la page du projet.
    « Refaire mon Relief » rouvre l'onboarding avec les réponses précédentes.
 
+## Sur l'accueil
+
+Quand l'option est active, l'accueil montre une carte « Cantia Relief » (`components/relief/ReliefDashboardCard.tsx` + `ReliefPeekDom.tsx`) : la vraie maquette qui tourne doucement, sans interaction, avec les chiffres du jour (projets en cours, personnes planifiées aujourd'hui, retards — jamais de montants) et « Ouvrir mon Relief ». Elle se met à jour en direct (projets, planning, tâches). Avant la première construction, elle montre une esquisse du process type du métier et « Créer mon Relief ».
+
 ## Modèles
 
 | Modèle | Pour qui | Un projet c'est… |
@@ -56,6 +60,8 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
 | `lib/relief/engine.ts` | La scène three.js des 3 modèles. |
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
 | `components/relief/ReliefDom.tsx` | Interface autour de la scène (composant DOM Expo). |
+| `components/relief/ReliefDashboardCard.tsx`, `ReliefPeekDom.tsx` | Carte de l'accueil (aperçu 3D vivant). |
+| `lib/relief/preview.ts` | Monde esquissé à partir des réponses (onboarding, carte de l'accueil). |
 | `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
 | `app/(app)/relief.tsx` | La page, plein écran (sans menu, voir `app/(app)/_layout.tsx`). |
 

@@ -7,7 +7,7 @@ import { useTranslation } from '../../lib/translations';
 import { hasModule, isModuleEnabled, listMyPrivateModules, toggleModuleActivation } from '../../lib/modules';
 import { fillsSoumissions } from '../../lib/trades';
 import { useDictation } from '../../lib/useDictation';
-import { RELIEF_COPY, reliefLocale } from '../../lib/relief/copy';
+import { RELIEF_COPY, reliefLocale, workTermWords } from '../../lib/relief/copy';
 import { defaultAnswers } from '../../lib/relief/process';
 import { addReliefTask, getReliefWorld, loadItemDetails, loadReliefData, planOnItem, setReliefTaskDone, startReliefBuild, type ReliefWorldRow } from '../../lib/relief/data';
 import type { ReliefAnswers, ReliefData, ReliefMember, ReliefSection } from '../../lib/relief/types';
@@ -25,11 +25,6 @@ import { ReliefLocked, ReliefNotAdmin } from '../../components/relief/ReliefScre
 type Access = 'loading' | 'none' | 'granted' | 'active';
 
 const DATE_FMT: Record<string, string> = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
-const TERMS: Record<string, Record<string, [string, string]>> = {
-  fr: { chantier: ['chantier', 'chantiers'], projet: ['projet', 'projets'], mandat: ['mandat', 'mandats'], dossier: ['dossier', 'dossiers'] },
-  de: { chantier: ['Baustelle', 'Baustellen'], projet: ['Projekt', 'Projekte'], mandat: ['Mandat', 'Mandate'], dossier: ['Dossier', 'Dossiers'] },
-  it: { chantier: ['cantiere', 'cantieri'], projet: ['progetto', 'progetti'], mandat: ['mandato', 'mandati'], dossier: ['dossier', 'dossier'] },
-};
 
 export default function ReliefScreen() {
   const router = useRouter();
@@ -49,8 +44,7 @@ export default function ReliefScreen() {
   const worldRef = useRef(world);
   worldRef.current = world;
   const orgId = organization?.id;
-  const term = (organization as { work_term?: string | null } | null)?.work_term ?? 'chantier';
-  const [itemWord, itemsWord] = TERMS[locale][term] ?? TERMS[locale].chantier;
+  const { item: itemWord, items: itemsWord } = workTermWords(locale, (organization as { work_term?: string | null } | null)?.work_term);
   const dictation = useDictation((text) => setDictated((d) => ({ seq: d.seq + 1, text })));
 
   const close = useCallback(() => {

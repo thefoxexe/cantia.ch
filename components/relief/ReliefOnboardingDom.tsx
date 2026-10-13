@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { DOMProps } from 'expo/dom';
 import { createRelief, type ReliefHandle } from '../../lib/relief/engine';
 import { SCENE_CSS } from '../../lib/relief/sceneCss';
-import { roleOptions, stagesForTemplate, suggestedTemplate } from '../../lib/relief/process';
-import type { ReliefAnswers, ReliefBilling, ReliefData, ReliefMember, ReliefSpec, ReliefStyle, ReliefTemplate } from '../../lib/relief/types';
-import { TEMPLATE_STYLES } from '../../lib/relief/types';
+import { roleOptions, suggestedTemplate } from '../../lib/relief/process';
+import { ACCENT_HEX, PALETTE, initials, previewData, previewSpec } from '../../lib/relief/preview';
+import type { ReliefAnswers, ReliefBilling, ReliefMember, ReliefTemplate } from '../../lib/relief/types';
 import type { ReliefCopy } from '../../lib/relief/copy';
 
 // The onboarding of Cantia Relief, with the world drawn live next to it:
@@ -19,18 +19,10 @@ import type { ReliefCopy } from '../../lib/relief/copy';
 type Locale = 'fr' | 'de' | 'it';
 type Step = 'welcome' | 0 | 1 | 2 | 3 | 4 | 'recap';
 const STEPS: Step[] = ['welcome', 0, 1, 2, 3, 4, 'recap'];
-const ACCENT_OF: Record<ReliefTemplate, ReliefSpec['accent']> = { territoire: 'terracotta', studio: 'lac', atelier: 'ardoise' };
-const ACCENT_HEX: Record<string, string> = { terracotta: '#A95C30', sapin: '#2F6B4F', lac: '#2F6E8A', ardoise: '#4A5563', prune: '#7A4A6E' };
-const PALETTE = ['#C8642E', '#3F6E8C', '#6E8B4A', '#8C4A6E', '#B08A2E', '#2E7D72', '#5A5FA8', '#A8463E'];
 const BILLING: ReliefBilling[] = ['end', 'deposit', 'milestones', 'monthly'];
 
 function fill(s: string, vars: Record<string, string | number>) {
   return s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
-}
-
-function initials(name: string) {
-  const p = name.trim().split(/\s+/).filter(Boolean);
-  return ((p[0]?.[0] ?? '?') + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
 }
 
 interface Props {
@@ -53,50 +45,6 @@ interface Props {
   onEdit: () => void;
   onClose: () => void;
   dom?: DOMProps;
-}
-
-// ------------------------------------------------------------- preview data
-
-function previewSpec(a: ReliefAnswers, trade: string | null, company: string, workTerm: Props['workTerm']): ReliefSpec {
-  const template = a.template === 'auto' ? suggestedTemplate(trade) : a.template;
-  const stages = a.stages.filter((s) => s.label.trim()).slice(0, 8);
-  return {
-    version: 1,
-    template,
-    title: company,
-    tagline: a.activity,
-    understood: [],
-    vocabulary: { item: workTerm.item, items: workTerm.items, place: '' },
-    stages: (stages.length >= 2 ? stages : [{ label: '1' }, { label: '2' }, { label: '3' }]).map((s) => ({ label: s.label })),
-    accent: ACCENT_OF[template],
-    decor: { mountains: true, water: template === 'territoire' ? 'riviere' : 'lac', greenery: template === 'territoire' ? 'verdoyant' : 'sobre' },
-    styles: {},
-    examples: [],
-  };
-}
-
-function previewData(spec: ReliefSpec, a: ReliefAnswers, company: string): ReliefData {
-  const styles = TEMPLATE_STYLES[spec.template];
-  const n = spec.stages.length;
-  const people = a.team.slice(0, 8).map((m, i) => ({ id: m.id, name: m.name, initials: initials(m.name), color: PALETTE[i % PALETTE.length] }));
-  // One item per step of the process, each standing at its own step.
-  const items = spec.stages.map((s, i) => ({
-    id: `p${i}`,
-    name: s.label,
-    client: null,
-    place: null,
-    progress: n > 1 ? i / (n - 1) : 1,
-    stage: i,
-    status: (i === n - 1 ? 'done' : 'ok') as 'done' | 'ok',
-    startDate: null,
-    endDate: null,
-    money: null,
-    crew: people.length ? [people[i % people.length].id] : [],
-    tasks: [],
-    style: styles[i % styles.length] as ReliefStyle,
-    example: false,
-  }));
-  return { company, today: '', items, people, atBase: [] };
 }
 
 // ------------------------------------------------------------- component

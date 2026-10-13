@@ -7,6 +7,12 @@ const fr = {
   brand: 'Cantia Relief',
   dashText: 'Vos projets, votre équipe et vos tâches, dans votre monde en 3D.',
   dashOpen: 'Ouvrir mon Relief',
+  dashLive: 'En direct',
+  dashCreate: 'Créer mon Relief',
+  dashDiscover: 'Découvrir',
+  dashTeaser: 'Votre entreprise en 3D, construite par l’IA à partir de votre process et reliée à vos {items}.',
+  dashBuilding: 'Votre Relief se construit… vous recevrez un e-mail.',
+  dashPlanned: 'planifiés aujourd’hui',
   close: 'Fermer',
   // Not activated
   lockedTitle: 'Votre entreprise, en relief',
@@ -105,6 +111,12 @@ const de: Copy = {
   brand: 'Cantia Relief',
   dashText: 'Ihre Projekte, Ihr Team und Ihre Aufgaben in Ihrer 3D-Welt.',
   dashOpen: 'Mein Relief öffnen',
+  dashLive: 'Live',
+  dashCreate: 'Mein Relief erstellen',
+  dashDiscover: 'Entdecken',
+  dashTeaser: 'Ihr Unternehmen in 3D, von der KI aus Ihrem Ablauf gebaut und mit Ihren {items} verbunden.',
+  dashBuilding: 'Ihr Relief wird gebaut… Sie erhalten eine E-Mail.',
+  dashPlanned: 'heute eingeplant',
   close: 'Schliessen',
   lockedTitle: 'Ihr Unternehmen, im Relief',
   lockedText: 'Cantia Relief baut das lebendige Modell Ihres Unternehmens: Ihre Projekte, Ihr Team von heute und Ihre Aufgaben, in einer 3D-Welt für Ihre Branche.',
@@ -197,6 +209,12 @@ const it: Copy = {
   brand: 'Cantia Relief',
   dashText: 'I vostri progetti, il vostro team e i vostri compiti nel vostro mondo in 3D.',
   dashOpen: 'Apri il mio Relief',
+  dashLive: 'In diretta',
+  dashCreate: 'Crea il mio Relief',
+  dashDiscover: 'Scopri',
+  dashTeaser: 'La sua impresa in 3D, costruita dall’IA dal suo processo e collegata ai suoi {items}.',
+  dashBuilding: 'Il suo Relief è in costruzione… riceverà un’e-mail.',
+  dashPlanned: 'pianificati oggi',
   close: 'Chiudi',
   lockedTitle: 'La sua impresa, in rilievo',
   lockedText: 'Cantia Relief costruisce il plastico vivente della sua impresa: i progetti, la squadra del giorno e i compiti, in un mondo 3D fatto per il suo mestiere.',
@@ -581,4 +599,16 @@ export function reliefLocale(lang: string | undefined): ReliefLocale {
 
 export function fill(s: string, vars: Record<string, string>) {
   return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+
+const TERMS: Record<ReliefLocale, Record<string, [string, string]>> = {
+  fr: { chantier: ['chantier', 'chantiers'], projet: ['projet', 'projets'], mandat: ['mandat', 'mandats'], dossier: ['dossier', 'dossiers'] },
+  de: { chantier: ['Baustelle', 'Baustellen'], projet: ['Projekt', 'Projekte'], mandat: ['Mandat', 'Mandate'], dossier: ['Dossier', 'Dossiers'] },
+  it: { chantier: ['cantiere', 'cantieri'], projet: ['progetto', 'progetti'], mandat: ['mandato', 'mandati'], dossier: ['dossier', 'dossier'] },
+};
+
+/** The company's word for a job (organizations.work_term), singular and plural. */
+export function workTermWords(locale: ReliefLocale, term: string | null | undefined): { item: string; items: string } {
+  const [item, items] = TERMS[locale][term ?? 'chantier'] ?? TERMS[locale].chantier;
+  return { item, items };
 }
