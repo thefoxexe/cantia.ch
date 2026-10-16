@@ -1,28 +1,52 @@
-// Styles of what lib/relief/engine.ts draws over the 3D scene (item labels,
-// the base, people's initials), shared by the world (ReliefDom) and the
-// onboarding preview (ReliefOnboardingDom). Expects --accent on an ancestor.
+// Styles of what lib/relief/engine.ts writes over the 3D scene, in the manner
+// of a Swiss national map: item names as map annotations (no bubbles), place
+// and water names in the cartographer's lettering, the base as a small
+// black plate. Shared by the world (ReliefDom) and the onboarding preview.
+// Expects --accent on an ancestor; .rf-dusk switches to night lettering.
 
 export const SCENE_CSS = `
 .rf-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.rf-label { position: absolute; left: 0; top: 0; pointer-events: auto; display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px 6px 8px; border-radius: 999px; border: 1px solid rgba(35,26,18,0.12); background: rgba(255,253,249,0.96); box-shadow: 0 6px 18px rgba(43,33,26,0.14); font: 600 12px/1 Archivo, system-ui, sans-serif; color: #231A12; white-space: nowrap; cursor: pointer; transition: opacity .2s, box-shadow .2s; }
-.rf-label::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 1px; height: 7px; background: rgba(35,26,18,0.3); }
-.rf-label:hover, .rf-label.rf-on { box-shadow: 0 0 0 2px var(--accent), 0 8px 22px rgba(43,33,26,0.2); }
-.rf-label.rf-dim { opacity: 0.45; }
-.rf-label .rf-step-name { font-weight: 500; color: #6E6153; font-size: 11.5px; }
-.rf-label .rf-pct { font: 700 10.5px 'Martian Mono', ui-monospace, monospace; color: #FFFFFF; background: var(--accent); border-radius: 999px; padding: 2px 6px; }
+.rf-label { all: unset; position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; display: grid; grid-template-columns: auto auto; column-gap: 6px; align-items: baseline; padding: 0 0 9px 9px; font: 700 12px/1.15 Archivo, system-ui, sans-serif; color: #1D1712; white-space: nowrap; text-shadow: 0 0 2px #FBF8F2, 0 0 2px #FBF8F2, 0 0 3px #FBF8F2, 0 0 5px #FBF8F2; transition: opacity .2s; }
+.rf-label::before { content: ''; position: absolute; left: 0; bottom: 0; width: 1px; height: calc(100% - 2px); background: #1D1712; opacity: .55; }
+.rf-label::after { content: ''; position: absolute; left: -2px; bottom: -2px; width: 5px; height: 5px; background: #1D1712; }
+.rf-label .rf-dot { display: none; }
+.rf-label .rf-name { grid-column: 1 / -1; letter-spacing: .1px; }
+.rf-label .rf-step-name { font: 500 10.5px/1.2 Archivo, system-ui, sans-serif; color: #5D5247; }
+.rf-label .rf-pct { font: 600 10px/1.2 'Martian Mono', ui-monospace, monospace; color: #5D5247; }
 .rf-label .rf-pct:empty { display: none; }
-.rf-st-late .rf-pct { background: #AB3327; } .rf-st-risk .rf-pct { background: #B07A12; } .rf-st-done .rf-pct { background: #8C8073; }
-.rf-example { border-style: dashed; }
-.rf-base { cursor: default; background: #16120E; color: #F4F1EA; border-color: #16120E; font-weight: 700; }
-.rf-base::after { background: #16120E; }
-.rf-worker { position: absolute; left: 0; top: 0; min-width: 24px; height: 20px; padding: 0 5px; border-radius: 999px; display: grid; place-items: center; color: #FFFFFF; font: 800 10px/1 Archivo, system-ui, sans-serif; border: 1.5px solid #FFFFFF; box-shadow: 0 3px 10px rgba(43,33,26,0.3); }
-.rf-label .rf-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; display: inline-block; }
-.rf-st-ok .rf-dot { background: #2E6B4F; } .rf-st-risk .rf-dot { background: #B07A12; } .rf-st-late .rf-dot { background: #AB3327; } .rf-st-done .rf-dot { background: #8C8073; }
+.rf-st-late .rf-name { color: #A3271B; } .rf-st-late .rf-pct { color: #A3271B; }
+.rf-st-risk .rf-pct { color: #8F6210; }
+.rf-st-done .rf-name { color: #6E6458; font-weight: 600; }
+.rf-st-late::after { background: #C62F22; } .rf-st-risk::after { background: #C98A12; }
+.rf-label:hover .rf-name, .rf-label.rf-on .rf-name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; text-decoration-color: var(--accent); }
+.rf-label.rf-dim { opacity: 0.35; }
+.rf-example .rf-name { font-style: italic; font-weight: 600; }
+.rf-base { position: absolute; left: 0; top: 0; padding: 4px 7px; background: #1D1712; color: #F6F2EA; font: 700 10px/1 Archivo, system-ui, sans-serif; letter-spacing: 1.2px; text-transform: uppercase; white-space: nowrap; }
+.rf-worker { position: absolute; left: 0; top: 0; min-width: 20px; height: 16px; padding: 0 4px; display: grid; place-items: center; color: #FFFFFF; font: 700 9px/1 'Martian Mono', ui-monospace, monospace; border: 1px solid #FFFFFF; }
+
+.rf-quiet .rf-label, .rf-quiet .rf-worker, .rf-quiet .rf-base, .rf-quiet .rf-map-horizon { display: none !important; }
+.rf-map { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; text-shadow: 0 0 2px #FBF8F2, 0 0 3px #FBF8F2, 0 0 5px #FBF8F2; transition: opacity .2s; }
+.rf-map.rf-dim { opacity: .3; }
+.rf-map-water { font: italic 500 13px/1 Georgia, 'Times New Roman', serif; letter-spacing: 3px; color: #2D6E8E; }
+.rf-map-place { font: 600 10.5px/1 Archivo, system-ui, sans-serif; letter-spacing: 2.4px; text-transform: uppercase; color: #3A322B; }
+.rf-map-horizon { font: italic 400 11px/1 Georgia, 'Times New Roman', serif; letter-spacing: 1.6px; color: #6A6156; }
+
+.rf-dusk .rf-label { color: #F3EEE5; text-shadow: 0 0 2px #121922, 0 0 3px #121922, 0 0 6px #121922; }
+.rf-dusk .rf-label::before, .rf-dusk .rf-label::after { background: #F3EEE5; }
+.rf-dusk .rf-label .rf-step-name, .rf-dusk .rf-label .rf-pct { color: #AEB7C2; }
+.rf-dusk .rf-st-late .rf-name, .rf-dusk .rf-st-late .rf-pct { color: #FF8A7D; }
+.rf-dusk .rf-map { text-shadow: 0 0 3px #121922, 0 0 6px #121922; }
+.rf-dusk .rf-map-water { color: #8EC3DD; }
+.rf-dusk .rf-map-place { color: #E4DCCF; }
+.rf-dusk .rf-map-horizon { color: #9AA4B0; }
+.rf-dusk .rf-base { background: #F3EEE5; color: #121922; }
+
 @media (max-width: 760px) {
-  .rf-label { padding: 4px 8px 4px 6px; font-size: 11px; gap: 5px; }
+  .rf-label { font-size: 11px; padding: 0 0 7px 7px; }
   .rf-label .rf-step-name { display: none; }
-  .rf-label .rf-pct { font-size: 9.5px; padding: 1px 5px; }
-  .rf-label .rf-dot { width: 7px; height: 7px; }
   .rf-label.rf-on .rf-step-name { display: inline; }
+  .rf-map-water { font-size: 11px; letter-spacing: 2px; }
+  .rf-map-place { font-size: 9px; letter-spacing: 1.8px; }
+  .rf-map-horizon { display: none; }
 }
 `;

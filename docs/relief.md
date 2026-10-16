@@ -24,6 +24,15 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
    - **Dossier** : liens vers fil, rapports, planning de chantier, documents, photos, métré, sous-traitants, rentabilité, travaux supplémentaires, situations — mêmes règles que la page du projet.
    « Refaire mon Relief » rouvre l'onboarding avec les réponses précédentes.
 
+## Identité : une carte suisse
+
+Le Relief se lit comme une feuille de carte nationale, pas comme un tableau de bord générique :
+
+- **Lieu de l'entreprise** (`lib/relief/geo.ts`) : à partir de `organizations.locality`, géocodage (open-meteo, mis en cache), coordonnées suisses LV95, altitude, canton. Le cartouche du Relief et la carte de l'accueil les affichent (ex. « Valais · 491 m · 2 593 979 / 1 120 187 »).
+- **Repères locaux en 3D** : derrière l'île, une bande de terrain avec le monument de la ville et l'horizon du lieu ; devant, le lac ou la rivière avec leur nom. Villes connues : Lausanne (cathédrale, Léman, Alpes de Savoie), Genève (Jet d'eau, Léman, Salève), Sion (Valère et Tourbillon, vignes, Rhône, Alpes valaisannes), Zurich (Grossmünster, lac), Berne (Zytglogge, Aar, Eiger · Mönch · Jungfrau), Bâle (Münster, Rhin), Lucerne (Kapellbrücke), Montreux / Vevey (Chillon), Fribourg, Neuchâtel, Delémont (Porte au Loup, Sorne, Jura), Bienne, Lugano, Nyon, Martigny, Sierre, etc. Ailleurs : l'horizon d'après le canton (Alpes, Préalpes, Jura, collines) et une vieille ville générique.
+- **Lettrage de carte** : noms de projets en annotations avec trait de rappel (pas de bulles), eaux en italique bleu, lieux en capitales espacées, horizon en italique ; les noms qui se chevauchent sont éclaircis automatiquement (priorité aux retards, puis au premier plan).
+- **Habillage** : cartouche, légende, flèche du nord, « Relief schématique — pas à l'échelle » ; angles nets, filets fins, chiffres en chasse fixe. Carte de l'accueil : cadre gradué en coordonnées, courbes de niveau, cartouche crème, journal d'activité.
+
 ## Ville vivante
 
 Le moteur (`lib/relief/engine.ts`) ajoute à chaque modèle :

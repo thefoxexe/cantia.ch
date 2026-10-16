@@ -8,6 +8,7 @@ import { RELIEF_COPY, fill, reliefLocale, workTermWords } from '../../lib/relief
 import { getReliefWorld, loadReliefActivity, loadReliefData, type ReliefEvent, type ReliefWorldRow } from '../../lib/relief/data';
 import { defaultAnswers } from '../../lib/relief/process';
 import { previewData, previewSpec } from '../../lib/relief/preview';
+import { getReliefGeo, type ReliefGeo } from '../../lib/relief/geo';
 import type { ReliefData } from '../../lib/relief/types';
 import ReliefPeekDom, { type PeekEvent } from './ReliefPeekDom';
 
@@ -39,6 +40,16 @@ export function ReliefDashboardCard() {
   const [world, setWorld] = useState<ReliefWorldRow | null | undefined>(undefined);
   const [data, setData] = useState<ReliefData | null>(null);
   const [events, setEvents] = useState<ReliefEvent[]>([]);
+  const [geo, setGeo] = useState<ReliefGeo | null>(null);
+  const locality = (organization as { locality?: string | null } | null)?.locality ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    getReliefGeo(locality, locale).then((g) => !cancelled && setGeo(g));
+    return () => {
+      cancelled = true;
+    };
+  }, [locality, locale]);
   const orgId = organization?.id;
   const words = workTermWords(locale, (organization as { work_term?: string | null } | null)?.work_term);
   const spec = world?.spec ?? null;
@@ -91,20 +102,20 @@ export function ReliefDashboardCard() {
   if (!organization || world === undefined || (spec && !data) || (!spec && !sketch)) return null;
 
   const wide = width >= 700;
-  const height = wide ? 400 : 470;
+  const height = wide ? 420 : 520;
   const open = () => router.push('/relief' as never);
   const tag = LOCALE_TAG[locale];
   const feed: PeekEvent[] = events.map((e) => {
     const when = ago(e.at, tag);
-    if (e.kind === 'task') return { kind: e.kind, tag: copy.evTask, title: e.text, meta: [e.item, e.who, when].filter(Boolean).join(' · ') };
+    if (e.kind === 'task') return { kind: e.kind, tag: copy.evTask, title: e.text, meta: [e.item, e.who].filter(Boolean).join(' · '), when };
     if (e.kind === 'plan') {
       const day = new Date(`${e.text}T12:00:00`).toLocaleDateString(tag, { weekday: 'short', day: 'numeric', month: 'short' });
-      return { kind: e.kind, tag: copy.evPlan, title: `${e.who ?? '—'} → ${e.item ?? '—'}`, meta: `${day} · ${when}` };
+      return { kind: e.kind, tag: copy.evPlan, title: `${e.who ?? '—'} · ${e.item ?? '—'}`, meta: day, when };
     }
-    if (e.kind === 'paid') return { kind: e.kind, tag: copy.evPaid, title: e.text || '—', meta: [e.item, when].filter(Boolean).join(' · ') };
-    return { kind: e.kind, tag: `${copy.evProject} · ${words.item}`, title: e.item ?? '—', meta: when };
+    if (e.kind === 'paid') return { kind: e.kind, tag: copy.evPaid, title: e.text || '—', meta: e.item ?? '', when };
+    return { kind: e.kind, tag: `${copy.evProject} ${words.item}`, title: e.item ?? '—', meta: '', when };
   });
-  const common = { feedTitle: copy.feedTitle, feed, feedEmpty: copy.feedEmpty, legend: copy.dashLegend };
+  const common = { feedTitle: copy.feedTitle, feed, feedEmpty: copy.feedEmpty, legend: copy.dashLegend, geo };
 
   if (spec && data) {
     const active = data.items.filter((i) => i.status !== 'done' && !i.example).length;
@@ -113,7 +124,7 @@ export function ReliefDashboardCard() {
     const real = data.items.filter((i) => !i.example && i.status !== 'done');
     const avg = real.length ? Math.round((real.reduce((x, i) => x + i.progress, 0) / real.length) * 100) : 0;
     return (
-      <View style={{ height, borderRadius: 18, overflow: 'hidden' }}>
+      <View style={{ height, borderRadius: 6, overflow: 'hidden' }}>
         <ReliefPeekDom
           spec={spec}
           data={data}
@@ -138,7 +149,7 @@ export function ReliefDashboardCard() {
 
   const building = world?.status === 'building';
   return (
-    <View style={{ height, borderRadius: 18, overflow: 'hidden' }}>
+    <View style={{ height, borderRadius: 6, overflow: 'hidden' }}>
       <ReliefPeekDom
         spec={sketch!.spec}
         data={sketch!.data}

@@ -1,27 +1,30 @@
 'use dom';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DOMProps } from 'expo/dom';
 import { accentColor, createRelief, type ReliefHandle } from '../../lib/relief/engine';
+import { formatCoord, type ReliefGeo } from '../../lib/relief/geo';
+import { SCENE_CSS } from '../../lib/relief/sceneCss';
 import type { ReliefData, ReliefSpec } from '../../lib/relief/types';
 
-// The Relief on the dashboard, as a live city at dusk: the company's real
-// miniature turning slowly, lit windows, traffic, a data cable from the base
-// to every job with pulses running along it (outgoing work, progress coming
-// back, red beacons on what is late), today's figures counting up, and the
-// latest activity scrolling in. One click opens the Relief full screen.
-// Before the first build it shows a sketch of the company's process.
+// The Relief on the dashboard, laid out like a sheet of the Swiss national
+// map at night: a graduated frame with the company's LV95 coordinates,
+// contour lines, the town's own landmark and horizon behind the 3D city, a
+// cartouche with the figures of the day, and the logbook of what happened
+// lately. One click opens the Relief full screen.
 
 export interface PeekEvent {
   kind: 'task' | 'plan' | 'project' | 'paid';
   tag: string;
   title: string;
   meta: string;
+  when: string;
 }
 
 interface Props {
   spec: ReliefSpec;
   data: ReliefData;
+  geo: ReliefGeo | null;
   eyebrow: string;
   live: string;
   title: string;
@@ -36,20 +39,19 @@ interface Props {
   dom?: DOMProps;
 }
 
-const KIND_COLOR: Record<PeekEvent['kind'], string> = { task: '#3FBF7F', plan: '#5AA9E6', project: '#E7A52A', paid: '#B48CF0' };
+const KIND_COLOR: Record<PeekEvent['kind'], string> = { task: '#5FB98A', plan: '#7FB3D9', project: '#D9A64A', paid: '#B9A2E0' };
 
 function CountUp({ value, suffix = '' }: { value: number; suffix?: string }) {
   const [n, setN] = useState(0);
   useEffect(() => {
-    const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) {
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       setN(value);
       return;
     }
     const t0 = performance.now();
     let raf = 0;
     const step = (now: number) => {
-      const k = Math.min(1, (now - t0) / 1300);
+      const k = Math.min(1, (now - t0) / 1100);
       setN(Math.round(value * (1 - Math.pow(1 - k, 3))));
       if (k < 1) raf = requestAnimationFrame(step);
     };
@@ -64,12 +66,40 @@ function CountUp({ value, suffix = '' }: { value: number; suffix?: string }) {
   );
 }
 
-export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtitle, stats, feedTitle, feed, feedEmpty, legend, cta, onOpen }: Props) {
+// Contour lines around the town, drawn once per company (seeded).
+function contours(seed: number, w: number, h: number, cx: number, cy: number) {
+  let x = seed || 1;
+  const rnd = () => {
+    x = (x * 16807) % 2147483647;
+    return (x - 1) / 2147483646;
+  };
+  const waves = Array.from({ length: 4 }, () => ({ f: 2 + Math.floor(rnd() * 4), p: rnd() * Math.PI * 2, a: 0.05 + rnd() * 0.09 }));
+  const out: { d: string; index: boolean }[] = [];
+  for (let k = 1; k <= 22; k++) {
+    const r = k * Math.max(w, h) * 0.034;
+    let d = '';
+    for (let i = 0; i <= 96; i++) {
+      const t = (i / 96) * Math.PI * 2;
+      let m = 1;
+      for (const wv of waves) m += Math.sin(t * wv.f + wv.p + k * 0.13) * wv.a;
+      const px = cx + Math.cos(t) * r * m * 1.35;
+      const py = cy + Math.sin(t) * r * m * 0.8;
+      d += `${i ? 'L' : 'M'}${px.toFixed(1)} ${py.toFixed(1)}`;
+    }
+    out.push({ d: `${d}Z`, index: k % 5 === 0 });
+  }
+  return out;
+}
+
+export default function ReliefPeekDom({ spec, data, geo, eyebrow, live, title, subtitle, stats, feedTitle, feed, feedEmpty, legend, cta, onOpen }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<ReliefHandle | null>(null);
   const first = useRef(true);
-  const [wide, setWide] = useState(true);
+  const [size, setSize] = useState({ w: 1100, h: 400 });
   const [turn, setTurn] = useState(0);
+  const wide = size.w > 760;
+  const geoKey = geo ? `${geo.city}|${geo.landmark}|${geo.backdrop}` : '';
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -84,7 +114,8 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
         transparent: true,
         mood: 'dusk',
         hud: true,
-        zoom: hostRef.current.clientWidth > 760 ? 1.35 : 1.05,
+        zoom: hostRef.current.clientWidth > 760 ? 1.25 : 1.0,
+        geo: geo ? { landmark: geo.landmark, backdrop: geo.backdrop, water: geo.water, names: geo.names } : null,
       });
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) handleRef.current.setAnimated(false);
     } catch {
@@ -96,7 +127,7 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
       first.current = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec]);
+  }, [spec, geoKey]);
 
   useEffect(() => {
     if (first.current) {
@@ -106,32 +137,44 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
     handleRef.current?.update(data);
   }, [data]);
 
-  // The city sits between the figures and the feed.
   useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
+    const el = rootRef.current;
+    if (!el) return;
     const fit = () => {
-      const w = host.clientWidth;
-      const isWide = w > 760;
-      setWide(isWide);
-      handleRef.current?.setInsets(isWide ? { left: Math.min(330, w * 0.3), right: Math.min(300, w * 0.26), bottom: 30, top: 10 } : { top: 92, bottom: 250 });
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      setSize({ w, h });
+      handleRef.current?.setInsets(w > 760 ? { left: Math.min(340, w * 0.31), right: Math.min(290, w * 0.25), top: 20, bottom: 20 } : { top: 30, bottom: 300 });
     };
     fit();
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;
-    ro?.observe(host);
+    ro?.observe(el);
     return () => ro?.disconnect();
-  }, [spec]);
+  }, [spec, geoKey]);
 
-  // The feed keeps moving: the oldest entry goes back to the top.
   useEffect(() => {
     if (feed.length < 2) return;
-    const id = setInterval(() => setTurn((x) => x + 1), 4200);
+    const id = setInterval(() => setTurn((x) => x + 1), 5000);
     return () => clearInterval(id);
   }, [feed.length]);
-  const shown = feed.length ? [...feed.slice(turn % feed.length), ...feed.slice(0, turn % feed.length)].slice(0, wide ? 5 : 1) : [];
+  const shown = feed.length ? [...feed.slice(turn % feed.length), ...feed.slice(0, turn % feed.length)].slice(0, wide ? 5 : 2) : [];
+
+  const lines = useMemo(() => {
+    const seed = Math.abs(Array.from(spec.title + (geo?.city ?? '')).reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+    return contours(seed, size.w, size.h, size.w * (wide ? 0.5 : 0.5), size.h * (wide ? 0.55 : 0.3));
+  }, [spec.title, geo?.city, size.w, size.h, wide]);
+
+  // Graduation of the frame: every 500 m around the town.
+  const ticks = useMemo(() => {
+    if (!geo?.e || !geo?.n) return null;
+    const e0 = Math.round(geo.e / 500) * 500;
+    const n0 = Math.round(geo.n / 500) * 500;
+    return { e: [-1000, -500, 0, 500, 1000].map((d) => e0 + d), n: [500, 0, -500].map((d) => n0 + d) };
+  }, [geo?.e, geo?.n]);
 
   return (
     <div
+      ref={rootRef}
       className={`pk-root${wide ? '' : ' pk-narrow'}`}
       style={{ ['--accent' as string]: accentColor(spec) }}
       role="button"
@@ -145,53 +188,95 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
       }}
       aria-label={`${title} · ${cta}`}
     >
-      <style>{CSS}</style>
-      <div className="pk-sky" aria-hidden="true" />
-      <div className="pk-grid" aria-hidden="true" />
-      <div className="pk-scan" aria-hidden="true" />
-      <div ref={hostRef} className="pk-world" aria-hidden="true" />
+      <style>{SCENE_CSS + CSS}</style>
+      <svg className="pk-contours" width={size.w} height={size.h} aria-hidden="true">
+        {lines.map((l, i) => (
+          <path key={i} d={l.d} fill="none" stroke="#EBE4D6" strokeOpacity={l.index ? 0.13 : 0.055} strokeWidth={l.index ? 1.1 : 0.8} />
+        ))}
+      </svg>
+      <div ref={hostRef} className="pk-world rf-dusk" aria-hidden="true" />
 
-      <div className="pk-left">
-        <div className="pk-eyebrow">
-          <span className="pk-live" />
-          {eyebrow} · {live}
+      <div className="pk-frame" aria-hidden="true">
+        {ticks && wide
+          ? ticks.e.map((v, i) => (
+              <span key={`e${v}`} className="pk-tick pk-tick-e" style={{ left: `${10 + i * 20}%` }}>
+                {formatCoord(v)}
+              </span>
+            ))
+          : null}
+        {ticks && wide
+          ? ticks.n.map((v, i) => (
+              <span key={`n${v}`} className="pk-tick pk-tick-n" style={{ top: `${22 + i * 28}%` }}>
+                {formatCoord(v)}
+              </span>
+            ))
+          : null}
+      </div>
+
+      <div className="pk-north" aria-hidden="true">
+        <svg width="18" height="30" viewBox="0 0 18 30">
+          <path d="M9 1 L15 19 L9 15.5 L3 19 Z" fill="#EBE4D6" />
+          <path d="M9 1 L9 15.5 L3 19 Z" fill="#111A23" stroke="#EBE4D6" strokeWidth="0.8" />
+          <text x="9" y="29" textAnchor="middle" fontSize="8" fontWeight="700" fill="#EBE4D6" fontFamily="Archivo, sans-serif">
+            N
+          </text>
+        </svg>
+      </div>
+
+      <div className="pk-cartouche">
+        <div className="pk-c-top">
+          <span>{eyebrow}</span>
+          <span className="pk-live">
+            <i />
+            {live}
+          </span>
         </div>
-        <div className="pk-title">{title}</div>
-        {subtitle && wide ? <div className="pk-sub">{subtitle}</div> : null}
+        {geo ? <div className="pk-c-city">{geo.city}</div> : null}
+        <div className="pk-c-title">{title}</div>
+        {geo && (geo.canton || geo.elevation != null) ? (
+          <div className="pk-c-meta">
+            {[geo.canton, geo.elevation != null ? `${Math.round(geo.elevation)} m` : null].filter(Boolean).join(' · ')}
+            {geo.e && geo.n ? (
+              <>
+                <br />
+                {formatCoord(geo.e)} / {formatCoord(geo.n)}
+              </>
+            ) : null}
+          </div>
+        ) : subtitle ? (
+          <div className="pk-c-meta">{subtitle}</div>
+        ) : null}
         {stats.length ? (
-          <div className="pk-stats">
-            {stats.map((s, i) => (
-              <div key={s.label} className={`pk-stat${s.tone === 'late' ? ' pk-stat-late' : ''}`} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+          <div className="pk-c-stats">
+            {stats.map((s) => (
+              <div key={s.label} className={`pk-c-row${s.tone === 'late' ? ' pk-c-late' : ''}`}>
+                <span>{s.label}</span>
                 <b>
                   <CountUp value={s.value} suffix={s.suffix} />
                 </b>
-                <span>{s.label}</span>
               </div>
             ))}
           </div>
         ) : null}
-        {wide ? (
-          <span className="pk-cta">
-            {cta} <span className="pk-arrow">→</span>
-          </span>
-        ) : null}
+        <span className="pk-cta">
+          {cta}
+          <span className="pk-arrow">→</span>
+        </span>
       </div>
 
-      <div className="pk-feed">
-        <div className="pk-feed-head">
-          <span className="pk-feed-dot" />
-          {feedTitle}
-        </div>
+      <div className="pk-log">
+        <div className="pk-log-head">{feedTitle}</div>
         {shown.length ? (
           shown.map((e, i) => (
-            <div key={`${turn}-${e.tag}-${e.title}-${i}`} className="pk-ev" style={{ animationDelay: `${i * 70}ms` }}>
-              <span className="pk-ev-bar" style={{ background: KIND_COLOR[e.kind] }} />
+            <div key={`${turn}-${i}-${e.title}`} className="pk-ev" style={{ animationDelay: `${i * 60}ms` }}>
+              <span className="pk-ev-when">{e.when}</span>
               <span className="pk-ev-main">
-                <span className="pk-ev-tag" style={{ color: KIND_COLOR[e.kind] }}>
+                <span className="pk-ev-tag">
+                  <i style={{ background: KIND_COLOR[e.kind] }} />
                   {e.tag}
                 </span>
                 <span className="pk-ev-title">{e.title}</span>
-                <span className="pk-ev-meta">{e.meta}</span>
+                {e.meta ? <span className="pk-ev-meta">{e.meta}</span> : null}
               </span>
             </div>
           ))
@@ -200,103 +285,84 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
         )}
       </div>
 
-      {!wide && stats.length ? (
-        <div className="pk-mstats">
-          {stats.map((s, i) => (
-            <div key={s.label} className={`pk-stat${s.tone === 'late' ? ' pk-stat-late' : ''}`} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
-              <b>
-                <CountUp value={s.value} suffix={s.suffix} />
-              </b>
-              <span>{s.label}</span>
-            </div>
-          ))}
-        </div>
-      ) : null}
-
       {wide ? (
         <div className="pk-legend" aria-hidden="true">
           <span>
-            <i style={{ background: 'var(--accent)' }} />
+            <i className="pk-l-line" />
             {legend[0]}
           </span>
           <span>
-            <i style={{ background: '#3FBF7F' }} />
+            <i className="pk-l-line" style={{ background: '#5FB98A' }} />
             {legend[1]}
           </span>
           <span>
-            <i style={{ background: '#E0483C' }} />
+            <i className="pk-l-sq" />
             {legend[2]}
           </span>
         </div>
-      ) : (
-        <span className="pk-cta pk-cta-m">
-          {cta} <span className="pk-arrow">→</span>
-        </span>
-      )}
+      ) : null}
     </div>
   );
 }
 
 const CSS = `
-.pk-root { position: relative; width: 100%; height: 100%; min-height: 260px; overflow: hidden; border-radius: 18px; cursor: pointer; background: #0E131A; font-family: Archivo, system-ui, -apple-system, sans-serif; color: #F4F1EA; -webkit-font-smoothing: antialiased; box-sizing: border-box; outline: none; isolation: isolate; transition: box-shadow .3s, transform .3s; box-shadow: 0 18px 44px rgba(14,19,26,0.28); }
+.pk-root { position: relative; width: 100%; height: 100%; min-height: 280px; overflow: hidden; border-radius: 6px; cursor: pointer; background: #111A23; font-family: Archivo, system-ui, -apple-system, sans-serif; color: #EBE4D6; -webkit-font-smoothing: antialiased; box-sizing: border-box; outline: none; isolation: isolate; }
 .pk-root * { box-sizing: border-box; }
-.pk-root:hover { box-shadow: 0 26px 60px rgba(14,19,26,0.38); transform: translateY(-2px); }
-.pk-root:focus-visible { box-shadow: 0 0 0 3px var(--accent), 0 18px 44px rgba(14,19,26,0.28); }
-.pk-sky { position: absolute; inset: 0; background: radial-gradient(60% 75% at 52% 52%, color-mix(in srgb, var(--accent) 34%, #1B2633) 0%, #16202B 45%, #0E131A 100%); }
-.pk-grid { position: absolute; inset: -40% -10% 0 -10%; background-image: linear-gradient(rgba(140,190,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(140,190,255,0.07) 1px, transparent 1px); background-size: 34px 34px; transform: perspective(600px) rotateX(58deg); transform-origin: 50% 100%; mask-image: radial-gradient(70% 60% at 50% 70%, #000 30%, transparent 80%); -webkit-mask-image: radial-gradient(70% 60% at 50% 70%, #000 30%, transparent 80%); animation: pk-grid 14s linear infinite; }
-.pk-scan { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0%, rgba(160,210,255,0.05) 48%, rgba(160,210,255,0.12) 50%, rgba(160,210,255,0.05) 52%, transparent 100%); background-size: 100% 220%; animation: pk-scan 7s linear infinite; pointer-events: none; mix-blend-mode: screen; }
-.pk-world { position: absolute; inset: 0; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
-.pk-root:hover .pk-world { transform: scale(1.03); }
+.pk-root:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.pk-contours { position: absolute; inset: 0; }
+.pk-world { position: absolute; inset: 0; }
+.pk-frame { position: absolute; inset: 12px; border: 1px solid rgba(235,228,214,0.3); pointer-events: none; background:
+  repeating-linear-gradient(90deg, rgba(235,228,214,0.45) 0 1px, transparent 1px 40px) top / 100% 5px no-repeat,
+  repeating-linear-gradient(90deg, rgba(235,228,214,0.45) 0 1px, transparent 1px 40px) bottom / 100% 5px no-repeat,
+  repeating-linear-gradient(0deg, rgba(235,228,214,0.45) 0 1px, transparent 1px 40px) left / 5px 100% no-repeat,
+  repeating-linear-gradient(0deg, rgba(235,228,214,0.45) 0 1px, transparent 1px 40px) right / 5px 100% no-repeat; }
+.pk-tick { position: absolute; font: 500 8.5px 'Martian Mono', ui-monospace, monospace; color: rgba(235,228,214,0.6); letter-spacing: .3px; background: #111A23; padding: 0 4px; }
+.pk-tick-e { top: -6px; transform: translateX(-50%); }
+.pk-tick-n { left: -6px; transform: rotate(-90deg) translateX(-50%); transform-origin: left top; }
+.pk-north { position: absolute; left: 26px; top: 26px; opacity: .85; }
 
-.pk-left { position: absolute; left: 26px; top: 24px; bottom: 24px; width: min(300px, 30%); display: flex; flex-direction: column; gap: 10px; z-index: 2; }
-.pk-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 55%, #FFFFFF); animation: pk-in .5s ease-out both; }
-.pk-live { width: 8px; height: 8px; border-radius: 50%; background: #3FD07F; box-shadow: 0 0 10px #3FD07F; animation: pk-ping 1.8s infinite; }
-.pk-title { font-size: 25px; line-height: 1.06; font-weight: 900; letter-spacing: -0.6px; color: #FFFFFF; text-wrap: balance; animation: pk-in .5s .05s ease-out both; }
-.pk-sub { font-size: 12.5px; line-height: 1.45; color: #A9B4C2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; animation: pk-in .5s .1s ease-out both; }
-.pk-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-.pk-stat { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: pk-in .5s ease-out both; }
-.pk-stat b { font: 700 22px 'Martian Mono', ui-monospace, monospace; color: #FFFFFF; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
-.pk-stat span { font-size: 11px; font-weight: 600; color: #A9B4C2; line-height: 1.25; }
-.pk-stat-late { background: rgba(224,72,60,0.12); border-color: rgba(224,72,60,0.35); }
-.pk-stat-late b { color: #FF8A7E; }
-.pk-cta { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 12px; background: #FFFFFF; color: #0E131A; font-size: 13.5px; font-weight: 800; box-shadow: 0 10px 26px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.2); white-space: nowrap; animation: pk-in .5s .3s ease-out both; }
-.pk-arrow { display: inline-block; transition: transform .25s; }
+.pk-cartouche { position: absolute; left: 24px; bottom: 24px; width: min(300px, 30%); display: flex; flex-direction: column; background: #F1EBDF; color: #1D1712; padding: 14px 16px 12px; border-top: 3px solid var(--accent); z-index: 2; animation: pk-in .5s ease-out both; }
+.pk-c-top { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: #6E6458; }
+.pk-live { display: inline-flex; align-items: center; gap: 5px; color: #A3271B; }
+.pk-live i { width: 6px; height: 6px; background: #C62F22; animation: pk-blink 1.6s steps(2, jump-none) infinite; }
+.pk-c-city { margin-top: 10px; font-size: 11px; font-weight: 800; letter-spacing: 3.5px; text-transform: uppercase; color: #5D5247; }
+.pk-c-title { font-size: 21px; line-height: 1.05; font-weight: 900; letter-spacing: -0.5px; margin-top: 2px; text-wrap: balance; }
+.pk-c-meta { margin-top: 6px; font: 500 10px/1.5 'Martian Mono', ui-monospace, monospace; color: #6E6458; }
+.pk-c-stats { margin-top: 10px; border-top: 1px solid #D9CFBF; }
+.pk-c-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid #E3DACB; font-size: 11.5px; color: #4A3F35; }
+.pk-c-row b { font: 600 15px 'Martian Mono', ui-monospace, monospace; color: #1D1712; font-variant-numeric: tabular-nums; }
+.pk-c-late b, .pk-c-late span { color: #A3271B; }
+.pk-cta { margin-top: 12px; display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; font-weight: 800; letter-spacing: .3px; color: #1D1712; padding-bottom: 3px; border-bottom: 2px solid var(--accent); }
+.pk-arrow { transition: transform .25s; }
 .pk-root:hover .pk-arrow { transform: translateX(4px); }
 
-.pk-feed { position: absolute; right: 22px; top: 22px; width: min(270px, 26%); display: flex; flex-direction: column; gap: 6px; z-index: 2; padding: 12px; border-radius: 14px; background: rgba(14,19,26,0.55); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.pk-feed-head { display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #C9D2DC; padding: 0 2px 4px; }
-.pk-feed-dot { width: 6px; height: 6px; border-radius: 50%; background: #5AA9E6; box-shadow: 0 0 8px #5AA9E6; animation: pk-blink 1.4s infinite; }
-.pk-ev { display: flex; gap: 9px; padding: 8px 9px; border-radius: 10px; background: rgba(255,255,255,0.045); animation: pk-slide .45s cubic-bezier(.2,.8,.2,1) both; }
-.pk-ev-bar { width: 3px; border-radius: 2px; flex: none; box-shadow: 0 0 8px currentColor; }
+.pk-log { position: absolute; right: 26px; top: 26px; width: min(260px, 24%); display: flex; flex-direction: column; z-index: 2; border-left: 1px solid rgba(235,228,214,0.25); padding-left: 12px; }
+.pk-log-head { font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(235,228,214,0.7); padding-bottom: 8px; }
+.pk-ev { display: grid; grid-template-columns: 54px 1fr; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(235,228,214,0.1); animation: pk-fade .5s ease-out both; }
+.pk-ev-when { font: 500 9.5px/1.5 'Martian Mono', ui-monospace, monospace; color: rgba(235,228,214,0.55); }
 .pk-ev-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.pk-ev-tag { font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
-.pk-ev-title { font-size: 12.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pk-ev-meta { font-size: 11px; color: #8D99A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pk-ev-empty { font-size: 12px; line-height: 1.45; color: #8D99A8; padding: 4px 2px; }
+.pk-ev-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(235,228,214,0.75); }
+.pk-ev-tag i { width: 6px; height: 6px; display: inline-block; }
+.pk-ev-title { font-size: 12.5px; font-weight: 700; color: #F6F1E8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-ev-meta { font-size: 10.5px; color: rgba(235,228,214,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-ev-empty { font-size: 11.5px; line-height: 1.5; color: rgba(235,228,214,0.55); padding-top: 6px; border-top: 1px solid rgba(235,228,214,0.1); }
 
-.pk-legend { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 16px; font-size: 11px; font-weight: 600; color: #A9B4C2; z-index: 2; white-space: nowrap; }
+.pk-legend { position: absolute; right: 26px; bottom: 24px; display: flex; gap: 14px; font-size: 10px; font-weight: 600; color: rgba(235,228,214,0.7); z-index: 2; }
 .pk-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.pk-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; box-shadow: 0 0 8px currentColor; }
+.pk-l-line { width: 16px; height: 2px; background: var(--accent); display: inline-block; }
+.pk-l-sq { width: 7px; height: 7px; background: #C62F22; display: inline-block; }
 
-@keyframes pk-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@keyframes pk-slide { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
-@keyframes pk-ping { 0% { box-shadow: 0 0 0 0 rgba(63,208,127,.6); } 80%, 100% { box-shadow: 0 0 0 9px rgba(63,208,127,0); } }
-@keyframes pk-blink { 50% { opacity: .3; } }
-@keyframes pk-scan { from { background-position: 0 -110%; } to { background-position: 0 110%; } }
-@keyframes pk-grid { from { background-position: 0 0; } to { background-position: 0 34px; } }
+@keyframes pk-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes pk-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pk-blink { 50% { opacity: .25; } }
 
 /* phone */
-.pk-narrow .pk-left { left: 16px; right: 16px; top: 16px; bottom: auto; width: auto; gap: 6px; }
-.pk-narrow .pk-title { font-size: 20px; }
-.pk-narrow .pk-left .pk-stats { display: none; }
-.pk-narrow .pk-feed { left: 14px; right: 14px; top: auto; bottom: 74px; width: auto; padding: 8px 10px; gap: 4px; }
-.pk-narrow .pk-feed-head { padding: 0 2px 2px; }
-.pk-narrow .pk-ev { padding: 6px 8px; }
-.pk-cta-m { position: absolute; left: 14px; right: 14px; bottom: 14px; justify-content: center; margin: 0; z-index: 2; }
-.pk-mstats { position: absolute; left: 14px; right: 14px; bottom: 170px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; z-index: 2; }
-.pk-mstats .pk-stat { padding: 7px 8px; border-radius: 10px; }
-.pk-mstats .pk-stat b { font-size: 16px; }
-.pk-mstats .pk-stat span { font-size: 9.5px; }
-
+.pk-narrow .pk-north { left: 22px; top: 22px; }
+.pk-narrow .pk-cartouche { left: 12px; right: 12px; bottom: 12px; width: auto; padding: 12px 14px 10px; }
+.pk-narrow .pk-c-title { font-size: 18px; }
+.pk-narrow .pk-c-stats { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; }
+.pk-narrow .pk-c-row { font-size: 10.5px; }
+.pk-narrow .pk-c-row b { font-size: 13px; }
+.pk-narrow .pk-log { left: 24px; right: 24px; top: auto; bottom: calc(12px + var(--cart, 260px)); width: auto; display: none; }
 @media (prefers-reduced-motion: reduce) { .pk-root *, .pk-root { animation: none !important; transition: none !important; } }
 `;

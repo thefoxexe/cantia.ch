@@ -52,6 +52,13 @@ interface Options {
   mood?: 'day' | 'dusk';
   /** Floating progress gauges over each item (when labels are hidden). */
   hud?: boolean;
+  /** Where the company is: its town's landmark, lake or river, horizon. */
+  geo?: {
+    landmark: string | null;
+    backdrop: 'alps' | 'prealps' | 'jura' | 'plain';
+    water: { kind: 'lake' | 'river'; name: string } | null;
+    names: { landmark: string[]; horizon: string | null };
+  } | null;
 }
 
 // ------------------------------------------------------------------ palette
@@ -271,6 +278,211 @@ function lamp() {
   const g = new THREE.Group();
   g.add(mesh(new THREE.CylinderGeometry(0.09, 0.13, 4.2, 6).translate(0, 2.1, 0), '#3B3A38'), mesh(boxGeo(0.9, 0.1, 0.12, 0.35, 4.15, 0), '#3B3A38', false));
   g.add(mesh(boxGeo(0.42, 0.2, 0.32, 0.72, 3.95, 0), '#FFF1CC', false, MOOD === 'dusk' ? { emissive: '#FFD58A', emissiveIntensity: 2.4 } : {}));
+  return g;
+}
+
+// ------------------------------------------------------------ local landmarks
+
+function slab(w: number, d: number, r: number, depth: number) {
+  const sh = new THREE.Shape();
+  sh.moveTo(-w + r, -d);
+  sh.lineTo(w - r, -d);
+  sh.quadraticCurveTo(w, -d, w, -d + r);
+  sh.lineTo(w, d - r);
+  sh.quadraticCurveTo(w, d, w - r, d);
+  sh.lineTo(-w + r, d);
+  sh.quadraticCurveTo(-w, d, -w, d - r);
+  sh.lineTo(-w, -d + r);
+  sh.quadraticCurveTo(-w, -d, -w + r, -d);
+  const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false, curveSegments: 10 });
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+
+function pyramid(w: number, h: number, color: string, x = 0, y = 0, z = 0) {
+  return mesh(new THREE.ConeGeometry(w * 0.72, h, 4).rotateY(Math.PI / 4).translate(x, y + h / 2, z), color);
+}
+
+const STONE = '#D9CDB8';
+const STONE_DARK = '#B9AC95';
+const SLATE = '#56606B';
+const TILE = '#9C4A33';
+
+function landmarkCathedrale() {
+  const g = new THREE.Group();
+  g.add(box(13, 6.5, 5, STONE, 0, 0, 0));
+  const roof = mesh(gableGeo(13, 5, 2.6, 0.3), SLATE);
+  roof.position.y = 6.5;
+  g.add(roof);
+  g.add(box(4.6, 5, 9, STONE, 1.5, 0, 0));
+  g.add(box(3.4, 15, 3.4, STONE, -7.2, 0, 0), box(3.6, 0.4, 3.6, STONE_DARK, -7.2, 15, 0));
+  g.add(pyramid(3.3, 7.5, SLATE, -7.2, 15.4, 0));
+  g.add(mesh(new THREE.CylinderGeometry(0.9, 0.9, 3, 8).translate(3.8, 6.5 + 1.5, 0), STONE_DARK), mesh(new THREE.ConeGeometry(1.1, 3, 8).translate(3.8, 9.5 + 1.5, 0), SLATE));
+  return g;
+}
+
+function landmarkBasel() {
+  const g = new THREE.Group();
+  const red = '#B4614C';
+  g.add(box(12, 7, 5, red, 1.5, 0, 0));
+  const roof = mesh(gableGeo(12, 5, 3, 0.3), '#4E6A57');
+  roof.position.set(1.5, 7, 0);
+  g.add(roof);
+  for (const z of [-1.7, 1.7]) {
+    g.add(box(2.8, 15, 2.8, red, -5.6, 0, z));
+    g.add(pyramid(2.6, 6, '#4E6A57', -5.6, 15, z));
+  }
+  return g;
+}
+
+function landmarkGrossmunster() {
+  const g = new THREE.Group();
+  g.add(box(11, 6.5, 6, STONE, 2, 0, 0));
+  const roof = mesh(gableGeo(11, 6, 2.6, 0.3), SLATE);
+  roof.position.set(2, 6.5, 0);
+  g.add(roof);
+  for (const z of [-1.9, 1.9]) {
+    g.add(box(3, 16, 3, STONE, -4.6, 0, z));
+    g.add(mesh(new THREE.CylinderGeometry(1.2, 1.5, 2.4, 8).translate(-4.6, 17.2, z), STONE_DARK));
+    g.add(mesh(new THREE.SphereGeometry(1.25, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).translate(-4.6, 18.4, z), SLATE));
+  }
+  return g;
+}
+
+function landmarkZytglogge() {
+  const g = new THREE.Group();
+  g.add(box(4.2, 14, 4.2, '#D6C19C', 0, 0, 0));
+  g.add(box(4.6, 0.5, 4.6, STONE_DARK, 0, 9.5, 0));
+  g.add(mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.2, 24).rotateX(Math.PI / 2).translate(0, 11.5, 2.2), '#C9A13B'));
+  g.add(pyramid(4.6, 7, '#7A3B2E', 0, 14, 0));
+  g.add(mesh(new THREE.ConeGeometry(0.4, 3, 6).translate(0, 22.5, 0), '#7A3B2E'));
+  // Arcaded houses on both sides.
+  for (const x of [-7, -4.2, 4.2, 7]) {
+    g.add(box(2.6, 7, 6, x < 0 ? '#E7DCC8' : '#E2D3BA', x, 0, 0));
+    const r = mesh(gableGeo(2.6, 6, 1.6, 0.2), TILE);
+    r.position.set(x, 7, 0);
+    g.add(r);
+  }
+  return g;
+}
+
+function landmarkPorte() {
+  const g = new THREE.Group();
+  g.add(box(4.4, 10, 4.4, '#D8CCB4', 0, 0, 0));
+  g.add(box(2, 3.6, 0.2, '#3A3430', 0, 0, 2.25));
+  g.add(pyramid(4.6, 5.5, TILE, 0, 10, 0));
+  for (const [x, h, c] of [
+    [-6.5, 6, '#E9DDC6'],
+    [-3.6, 7, '#DCCDB1'],
+    [3.6, 6.5, '#E4D5BD'],
+    [6.5, 5.5, '#EAE0CC'],
+  ] as [number, number, string][]) {
+    g.add(box(2.8, h, 5, c, x, 0, 0));
+    const r = mesh(gableGeo(2.8, 5, 1.6, 0.2), TILE);
+    r.position.set(x, h, 0);
+    g.add(r);
+  }
+  return g;
+}
+
+function landmarkTown() {
+  const g = new THREE.Group();
+  g.add(box(3, 9, 3, STONE, 0, 0, 0), pyramid(3, 5, SLATE, 0, 9, 0));
+  const tones = ['#E9DDC6', '#DCCDB1', '#E4D5BD', '#EAE0CC', '#D9C9AE'];
+  [-8, -5.2, -2.6, 2.8, 5.4, 8].forEach((x, i) => {
+    const h = 4.5 + ((i * 7) % 3);
+    g.add(box(2.6, h, 4.6, tones[i % tones.length], x, 0, (i % 2) * 1.2));
+    const r = mesh(gableGeo(2.6, 4.6, 1.5, 0.2), TILE);
+    r.position.set(x, h, (i % 2) * 1.2);
+    g.add(r);
+  });
+  return g;
+}
+
+// Sion: the two hills, Valère (church) and Tourbillon (castle ruin).
+function landmarkValere() {
+  const g = new THREE.Group();
+  const hill = (x: number, r: number, h: number) => {
+    const geo = new THREE.ConeGeometry(r, h, 9, 2);
+    const pa = geo.attributes.position;
+    for (let j = 0; j < pa.count; j++) if (pa.getY(j) > h / 2 - 0.01) pa.setY(j, pa.getY(j) - h * 0.18);
+    geo.computeVertexNormals();
+    const m = mesh(geo.translate(x, h / 2, 0), '#A49C83');
+    return m;
+  };
+  g.add(hill(-9, 9, 14), hill(9, 8, 17));
+  // Vineyard terraces on the slopes.
+  const vines: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 5; i++) vines.push(boxGeo(16 - i * 2.2, 0.35, 0.5, -9, 1.6 + i * 1.9, 5.6 - i * 1.0), boxGeo(14 - i * 2.2, 0.35, 0.5, 9, 1.6 + i * 2.2, 5.2 - i * 0.95));
+  g.add(merged(vines, '#6F8E4A', false));
+  // Valère: walls and the church with its tower.
+  const vy = 14 * 0.82;
+  g.add(box(6.5, 1.6, 5, STONE_DARK, -9, vy - 0.4, 0), box(5, 3.6, 2.8, STONE, -9.5, vy + 1.2, 0));
+  const vr = mesh(gableGeo(5, 2.8, 1.5, 0.2), SLATE);
+  vr.position.set(-9.5, vy + 4.8, 0);
+  g.add(vr, box(1.6, 6, 1.6, STONE, -7, vy + 1.2, 0.4), pyramid(1.7, 2.6, SLATE, -7, vy + 7.2, 0.4));
+  // Tourbillon: a ring of broken walls and a square keep.
+  const ty = 17 * 0.82;
+  const walls: THREE.BufferGeometry[] = [];
+  for (let k = 0; k < 9; k++) {
+    if (k === 3 || k === 7) continue;
+    const a = (k / 9) * Math.PI * 2;
+    walls.push(boxGeo(2.2, 1.6 + (k % 3) * 0.8, 0.5, 9 + Math.cos(a) * 3.2, ty - 0.2, Math.sin(a) * 2.6).rotateY(0));
+  }
+  g.add(merged(walls, STONE));
+  g.add(box(2.2, 5.5, 2.2, STONE_DARK, 9.6, ty - 0.2, -0.6));
+  return g;
+}
+
+function landmarkChillon() {
+  const g = new THREE.Group();
+  g.add(mesh(new THREE.CylinderGeometry(7, 8, 1.6, 10).translate(0, 0.8, 0), '#9A958C'));
+  const parts: [number, number, number, number, number][] = [
+    [-3, 6, 4, 0, 0],
+    [2, 5, 5, 0, 1],
+    [0, 9, 2.6, 0, -1.5],
+    [4.5, 7, 2.2, 0, -2],
+    [-5.5, 7, 2, 0, 2],
+  ];
+  for (const [x, h, w, , z] of parts) {
+    g.add(box(w, h, w, '#E3D8C4', x, 1.6, z));
+    g.add(pyramid(w + 0.2, h * 0.45, TILE, x, 1.6 + h, z));
+  }
+  return g;
+}
+
+function landmarkKapellbrucke() {
+  const g = new THREE.Group();
+  const deck: THREE.BufferGeometry[] = [];
+  const roofs: THREE.BufferGeometry[] = [];
+  const pts = [
+    [-16, 0],
+    [-6, 3],
+    [4, 1],
+    [14, 4],
+  ];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, z0] = pts[i];
+    const [x1, z1] = pts[i + 1];
+    const len = Math.hypot(x1 - x0, z1 - z0);
+    const ang = -Math.atan2(z1 - z0, x1 - x0);
+    deck.push(boxGeo(len, 1.6, 1.6, 0, 0.4, 0).rotateY(ang).translate((x0 + x1) / 2, 0, (z0 + z1) / 2));
+    roofs.push(boxGeo(len, 0.4, 2.2, 0, 2.1, 0).rotateY(ang).translate((x0 + x1) / 2, 0, (z0 + z1) / 2));
+  }
+  g.add(merged(deck, '#B98A5E'), merged(roofs, '#7A4A33'));
+  g.add(mesh(new THREE.CylinderGeometry(1.9, 2.1, 8, 8).translate(-2, 4, 4.5), '#C9AE84'), mesh(new THREE.ConeGeometry(2.3, 3, 8).translate(-2, 9.5, 4.5), '#7A4A33'));
+  return g;
+}
+
+function sailboat(color: string) {
+  const g = new THREE.Group();
+  g.add(mesh(new THREE.BoxGeometry(3.2, 0.5, 1.1).translate(0, 0.25, 0), '#F2EEE6'));
+  g.add(mesh(new THREE.CylinderGeometry(0.06, 0.06, 4, 4).translate(0, 2.3, 0), '#6E6153', false));
+  const sail = new THREE.BufferGeometry();
+  sail.setAttribute('position', new THREE.Float32BufferAttribute([0.05, 0.6, 0, 0.05, 4.2, 0, 1.6, 0.6, 0], 3));
+  sail.computeVertexNormals();
+  const sm = new THREE.Mesh(sail, new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide, roughness: 0.9 }));
+  g.add(sm);
   return g;
 }
 
@@ -730,6 +942,9 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   let beams: { mesh: THREE.Mesh; phase: number }[] = [];
   let blinkers: { obj: THREE.Object3D; phase: number }[] = [];
   let cars: { obj: THREE.Object3D; axis: 'x' | 'z'; fixed: number; from: number; to: number; speed: number; phase: number }[] = [];
+  let boats: { obj: THREE.Object3D; x0: number; x1: number; z: number; speed: number; phase: number }[] = [];
+  let fountains: THREE.Object3D[] = [];
+  let extent = { front: 0, back: 0 };
   let labels: { el: HTMLElement; pos: THREE.Vector3; id: string | null }[] = [];
   let workerLabels: { el: HTMLElement; obj: THREE.Object3D; itemId: string }[] = [];
   let hits: THREE.Mesh[] = [];
@@ -751,6 +966,9 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     beams = [];
     blinkers = [];
     cars = [];
+    boats = [];
+    fountains = [];
+    extent = { front: 0, back: 0 };
     MOOD = mood;
     labels.forEach((l) => l.el.remove());
     workerLabels.forEach((l) => l.el.remove());
@@ -811,6 +1029,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
 
     const base = new THREE.Vector3(0, 0, spec.template === 'territoire' ? D * 0.12 : D - 12);
 
+    if (opts.geo) buildSurroundings(opts.geo);
     if (spec.template === 'territoire') buildTerritoire(rand, occ, base, stages);
     else if (spec.template === 'studio') buildStudio(occ, base, stages);
     else buildAtelier(base, stages);
@@ -834,7 +1053,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       labels.push({ el, pos: so.anchor, id: so.item.id });
     }
     const baseEl = document.createElement('div');
-    baseEl.className = 'rf-label rf-base';
+    baseEl.className = 'rf-base';
     baseEl.textContent = opts.baseLabel;
     labelLayer.appendChild(baseEl);
     labels.push({ el: baseEl, pos: new THREE.Vector3(base.x, 10, base.z - 2), id: null });
@@ -878,9 +1097,191 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
 
     // Home view frames the whole miniature.
     const span = Math.max(W * 1.25, D * 1.9);
-    home = { target: new THREE.Vector3(0, 0, spec.template === 'territoire' ? 4 : 2), offset: new THREE.Vector3(-0.28, 0.62, 0.83).normalize().multiplyScalar(span * 1.45) };
-    homeRadius = Math.hypot(W, D) * 0.98;
+    const shift = (extent.front - extent.back) * 0.35;
+    home = { target: new THREE.Vector3(0, 0, (spec.template === 'territoire' ? 4 : 2) + shift), offset: new THREE.Vector3(-0.28, 0.62, 0.83).normalize().multiplyScalar(span * 1.45) };
+    homeRadius = Math.hypot(W, D + (extent.front + extent.back) * 0.32) * 0.98;
     controls.maxDistance = span * 4;
+  }
+
+  function addMapLabel(text: string, pos: THREE.Vector3, kind: 'water' | 'place' | 'horizon') {
+    const el = document.createElement('div');
+    el.className = `rf-map rf-map-${kind}`;
+    el.textContent = text;
+    labelLayer.appendChild(el);
+    labels.push({ el, pos, id: null });
+  }
+
+  // The town around the island: a raised strip at the back with the local
+  // landmark and the horizon (Alps, Prealps, Jura), a lake or a river in
+  // front — like a museum relief of the place.
+  function buildSurroundings(geo: NonNullable<Options['geo']>) {
+    const { W, D } = size;
+    const rand = rng(hash(geo.backdrop + (geo.landmark ?? '')));
+    const backD = 20;
+    const backZ = -D - 2 - backD;
+    // Back strip, a step higher than the island.
+    const back = new THREE.Mesh(slab(W, backD, 8, 9), [mat(geo.backdrop === 'jura' ? '#A3B285' : geo.backdrop === 'alps' ? '#ADB28F' : '#B3BC95'), mat(C.soil)]);
+    back.position.set(0, -8.4, backZ);
+    back.receiveShadow = true;
+    world.add(back);
+    extent.back = backD * 2 + 2;
+
+    // Horizon.
+    const peaks: THREE.Vector3[] = [];
+    if (geo.backdrop === 'alps' || geo.backdrop === 'prealps') {
+      const alps = geo.backdrop === 'alps';
+      const count = Math.max(5, Math.round(W / 12));
+      for (let i = 0; i < count; i++) {
+        const x = -W + 8 + (i * (2 * W - 16)) / Math.max(1, count - 1) + (rand() - 0.5) * 6;
+        const z = backZ - backD * 0.35 + (rand() - 0.5) * 8;
+        const h = (alps ? 17 : 11) + rand() * (alps ? 13 : 8);
+        const r = (alps ? 12 : 10) + rand() * 5;
+        const geoC = new THREE.ConeGeometry(r, h, 7, 3);
+        const pa = geoC.attributes.position;
+        for (let j = 0; j < pa.count; j++) {
+          const y = pa.getY(j);
+          if (y > -h / 2 + 0.01 && y < h / 2 - 0.01) {
+            pa.setX(j, pa.getX(j) + (rand() - 0.5) * r * 0.25);
+            pa.setZ(j, pa.getZ(j) + (rand() - 0.5) * r * 0.25);
+          }
+        }
+        geoC.computeVertexNormals();
+        const m = mesh(geoC.translate(x, h / 2 + 0.4, z), alps ? (rand() > 0.5 ? C.rock : C.rockDark) : rand() > 0.5 ? '#8E9C78' : '#97A27F');
+        world.add(m);
+        if (alps || h > 17) {
+          const capH = h * 0.36;
+          world.add(mesh(new THREE.ConeGeometry(r * 0.33, capH, 7).translate(x, h - capH / 2 + 0.1, z), C.snow));
+        }
+        peaks.push(new THREE.Vector3(x, h + 2, z));
+      }
+    } else if (geo.backdrop === 'jura') {
+      // Long, rounded, wooded ridges.
+      for (let i = 0; i < 3; i++) {
+        const ridge = new THREE.SphereGeometry(1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+        ridge.scale(W * (0.55 + rand() * 0.3), 11 + i * 3, 6 + rand() * 2);
+        const m = mesh(ridge.translate(-W * 0.5 + i * W * 0.5 + (rand() - 0.5) * 10, 0.4, backZ - backD * 0.25 - i * 3), i % 2 ? '#7D9466' : '#869C6D');
+        world.add(m);
+        peaks.push(new THREE.Vector3(m.position.x, 13 + i * 3, backZ - i * 3));
+      }
+      for (let k = 0; k < 40; k++) {
+        const t = tree('pine', 0.7 + rand() * 0.3, C.pine);
+        t.position.set(-W + 6 + rand() * (2 * W - 12), 0.4, backZ + backD * 0.35 + rand() * 6);
+        world.add(t);
+      }
+    } else {
+      for (let i = 0; i < 4; i++) {
+        const hill = new THREE.SphereGeometry(1, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2);
+        hill.scale(16 + rand() * 10, 6 + rand() * 4, 9);
+        world.add(mesh(hill.translate(-W * 0.7 + i * W * 0.45, 0.4, backZ - backD * 0.3), '#9DAE80'));
+      }
+    }
+    if (geo.names.horizon && peaks.length) {
+      const top = peaks.reduce((a, b) => (b.y > a.y ? b : a));
+      addMapLabel(geo.names.horizon, top.clone().setY(top.y + 3), 'horizon');
+    }
+
+    // The landmark, in front of the horizon.
+    const builders: Record<string, () => THREE.Group> = {
+      cathedrale: landmarkCathedrale,
+      basel: landmarkBasel,
+      grossmunster: landmarkGrossmunster,
+      zytglogge: landmarkZytglogge,
+      porte: landmarkPorte,
+      valere: landmarkValere,
+      chillon: landmarkChillon,
+    };
+    const lmZ = backZ + backD * 0.35;
+    if (geo.landmark && builders[geo.landmark]) {
+      const lm = builders[geo.landmark]();
+      lm.position.set(W * 0.18, 0.4, lmZ);
+      world.add(lm);
+      const bb = new THREE.Box3().setFromObject(lm);
+      if (geo.landmark === 'valere' && geo.names.landmark.length >= 2) {
+        addMapLabel(geo.names.landmark[0], new THREE.Vector3(lm.position.x - 9, bb.max.y - 1, lmZ), 'place');
+        addMapLabel(geo.names.landmark[1], new THREE.Vector3(lm.position.x + 9, bb.max.y + 1, lmZ), 'place');
+      } else if (geo.names.landmark[0]) addMapLabel(geo.names.landmark[0], new THREE.Vector3(lm.position.x, bb.max.y + 2, lmZ), 'place');
+    } else {
+      const town = landmarkTown();
+      town.position.set(W * 0.2, 0.4, lmZ);
+      world.add(town);
+    }
+    // Small old town spreading around the landmark.
+    const tones = ['#E9DDC6', '#DCCDB1', '#E4D5BD', '#EAE0CC'];
+    for (let i = 0; i < 12; i++) {
+      const x = -W + 10 + rand() * (W * 0.9);
+      const z = backZ + backD * 0.5 + rand() * 8;
+      const h = 3 + rand() * 3;
+      const house = new THREE.Group();
+      house.add(box(2.6, h, 3.4, tones[i % tones.length], 0, 0, 0));
+      const r = mesh(gableGeo(2.6, 3.4, 1.4, 0.2), TILE);
+      r.position.y = h;
+      house.add(r);
+      house.position.set(x, 0.4, z);
+      house.rotation.y = (rand() - 0.5) * 0.4;
+      world.add(house);
+    }
+
+    // Water in front.
+    if (geo.water) {
+      const frontD = 15;
+      const frontZ = D + 2 + frontD;
+      extent.front = frontD * 2 + 2;
+      if (geo.water.kind === 'lake') {
+        const lake = new THREE.Mesh(slab(W, frontD, 8, 2.4), [mat(C.water, { roughness: 0.35, flatShading: false }), mat('#6F95A1')]);
+        lake.position.set(0, -2.8, frontZ);
+        world.add(lake);
+        const shore = mesh(boxGeo(2 * W - 4, 0.3, 1.6, 0, -0.55, D + 2.6), C.sand, false);
+        world.add(shore);
+        for (let i = 0; i < 3; i++) {
+          const b = sailboat(i === 1 ? accent : '#F7F3EA');
+          b.position.set(0, -0.35, frontZ - 4 + i * 5);
+          world.add(b);
+          boats.push({ obj: b, x0: -W + 8, x1: W - 8, z: frontZ - 5 + i * 5, speed: 0.012 + i * 0.004, phase: i * 0.31 });
+        }
+        if (geo.landmark === 'jetdeau') {
+          const jet = new THREE.Group();
+          jet.add(mesh(new THREE.ConeGeometry(1.4, 26, 10, 1, true).translate(0, 13, 0), '#F6F8FA', false, { transparent: true, opacity: 0.85 }));
+          jet.add(mesh(new THREE.SphereGeometry(2.2, 10, 8).translate(0, 25, 0), '#F6F8FA', false, { transparent: true, opacity: 0.6 }));
+          jet.add(mesh(boxGeo(9, 0.5, 1.4, -5, 0, 0), STONE_DARK));
+          jet.position.set(-W * 0.25, -0.4, frontZ + 2);
+          world.add(jet);
+          fountains.push(jet);
+          if (geo.names.landmark[0]) addMapLabel(geo.names.landmark[0], new THREE.Vector3(jet.position.x, 30, jet.position.z), 'place');
+        }
+        if (geo.landmark === 'chillon') {
+          const c = landmarkChillon();
+          c.position.set(W * 0.6, -0.9, frontZ - 2);
+          world.add(c);
+        }
+        if (geo.landmark === 'kapellbrucke') {
+          const k = landmarkKapellbrucke();
+          k.position.set(W * 0.15, -0.6, frontZ - 4);
+          world.add(k);
+          if (geo.names.landmark[0]) addMapLabel(geo.names.landmark[0], new THREE.Vector3(k.position.x - 2, 12, k.position.z + 4), 'place');
+        }
+        addMapLabel(geo.water.name, new THREE.Vector3(-W * 0.45, 0, frontZ + frontD * 0.35), 'water');
+      } else {
+        const bank = new THREE.Mesh(slab(W, frontD, 8, 2.4), [mat('#B6BE97'), mat(C.soil)]);
+        bank.position.set(0, -2.6, frontZ);
+        world.add(bank);
+        const river = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(-W - 2, 0, frontZ + 3),
+          new THREE.Vector3(-W * 0.4, 0, frontZ - 4),
+          new THREE.Vector3(W * 0.2, 0, frontZ + 5),
+          new THREE.Vector3(W + 2, 0, frontZ - 1),
+        ]);
+        world.add(new THREE.Mesh(ribbonGeo(river, 9, -0.16), mat(C.sand)), new THREE.Mesh(ribbonGeo(river, 6.5, -0.12), mat(C.water, { roughness: 0.3, flatShading: false })));
+        for (let k = 0; k < 18; k++) {
+          const t = tree('leaf', 0.6 + rand() * 0.3, rand() > 0.5 ? C.leaf1 : C.leaf2);
+          const u = rand();
+          const p = river.getPointAt(u);
+          t.position.set(p.x + (rand() - 0.5) * 3, -0.2, p.z + (rand() > 0.5 ? 6 : -6));
+          world.add(t);
+        }
+        const mid = river.getPointAt(0.3);
+        addMapLabel(geo.water.name, new THREE.Vector3(mid.x, 0.4, mid.z), 'water');
+      }
+    }
   }
 
   function addWave(x: number, z: number, color: string, size: number, period: number, phase: number, peak = 0.55) {
@@ -1090,7 +1491,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   // ---- territoire
   function buildTerritoire(rand: () => number, occ: Occupancy, base: THREE.Vector3, stages: number) {
     const { W, D } = size;
-    if (spec.decor.mountains) {
+    if (spec.decor.mountains && !opts.geo) {
       const peaks = Math.max(3, Math.round(W / 22));
       for (let i = 0; i < peaks; i++) {
         const x = -W + 14 + (i * (2 * W - 28)) / Math.max(1, peaks - 1) + (rand() - 0.5) * 6;
@@ -1326,7 +1727,8 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     renderer.domElement.addEventListener('wheel', stopAuto, { passive: true });
   } else {
     renderer.domElement.style.pointerEvents = 'none';
-    labelLayer.style.display = 'none';
+    // Only the map names stay: places, water, horizon.
+    labelLayer.classList.add('rf-quiet');
   }
 
   const flyTo = (toPos: THREE.Vector3, toTarget: THREE.Vector3) => {
@@ -1376,6 +1778,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   let last = performance.now();
   let raf = 0;
   const tmp = new THREE.Vector3();
+  const tmp2 = new THREE.Vector3();
 
   const frame = () => {
     raf = requestAnimationFrame(frame);
@@ -1453,6 +1856,15 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
         c.obj.rotation.y = back ? Math.PI : 0;
       }
     }
+    for (const b of boats) {
+      const u = (t * b.speed + b.phase) % 1;
+      const tri = u < 0.5 ? u * 2 : 2 - u * 2;
+      b.obj.position.x = b.x0 + (b.x1 - b.x0) * (0.5 - 0.5 * Math.cos(tri * Math.PI));
+      b.obj.position.y = -0.35 + Math.sin(t * 1.6 + b.phase * 9) * 0.08;
+      b.obj.rotation.y = u < 0.5 ? 0 : Math.PI;
+      b.obj.rotation.z = Math.sin(t * 1.2 + b.phase * 5) * 0.05;
+    }
+    for (const f of fountains) f.scale.y = 1 + Math.sin(t * 3.1) * 0.04;
     for (const v of vans) {
       const ph = t * v.speed * Math.PI * 2 + v.phase;
       const u = THREE.MathUtils.clamp((1 - Math.cos(ph)) / 2, 0, 1);
@@ -1471,14 +1883,41 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       tmp.copy(v).project(camera);
       const visible = tmp.z < 1 && Math.abs(tmp.x) < 1.2 && Math.abs(tmp.y) < 1.2;
       el.style.display = visible ? '' : 'none';
-      if (visible) el.style.transform = `translate(${((tmp.x * 0.5 + 0.5) * w).toFixed(1)}px, ${((-tmp.y * 0.5 + 0.5) * h).toFixed(1)}px) translate(-50%, -100%)`;
+      // Item labels hang from a leader line whose foot is the item; the
+      // other names are centred on their point.
+      const shift = el.classList.contains('rf-label') ? 'translate(0, -100%)' : 'translate(-50%, -100%)';
+      if (visible) el.style.transform = `translate(${((tmp.x * 0.5 + 0.5) * w).toFixed(1)}px, ${((-tmp.y * 0.5 + 0.5) * h).toFixed(1)}px) ${shift}`;
       return tmp.z;
     };
+    // Place every name, then keep only those that do not run into a more
+    // important one — the way a cartographer thins out lettering.
+    const placed: { l: (typeof labels)[number]; x: number; y: number; rank: number }[] = [];
     for (const l of labels) {
       const z = place(l.el, l.pos);
       l.el.style.zIndex = String(1000 - Math.round(z * 1000));
       l.el.classList.toggle('rf-on', l.id !== null && l.id === selected);
       l.el.classList.toggle('rf-dim', selected !== null && l.id !== selected);
+      if (l.el.style.display === 'none') continue;
+      const so = l.id ? items.get(l.id) : null;
+      const st = so?.item.status;
+      const rank = l.id && l.id === selected ? -1 : so ? (st === 'late' ? 0 : st === 'risk' ? 1 : st === 'done' ? 3 : 2) : l.el.classList.contains('rf-base') ? 0.5 : 4;
+      placed.push({ l, x: (tmp2.copy(l.pos).project(camera).x * 0.5 + 0.5) * w, y: (-tmp2.y * 0.5 + 0.5) * h, rank });
+    }
+    placed.sort((a, b) => a.rank - b.rank || b.y - a.y);
+    const taken: [number, number, number, number][] = [];
+    for (const p of placed) {
+      const el = p.l.el;
+      if (!el.dataset.w || el.dataset.w === '0') {
+        el.dataset.w = String(el.offsetWidth);
+        el.dataset.h = String(el.offsetHeight);
+      }
+      const bw = Number(el.dataset.w);
+      const bh = Number(el.dataset.h);
+      const item = el.classList.contains('rf-label');
+      const r: [number, number, number, number] = item ? [p.x - 2, p.y - bh, p.x + bw, p.y] : [p.x - bw / 2, p.y - bh, p.x + bw / 2, p.y];
+      const hit = taken.some((t) => r[0] < t[2] + 4 && r[2] > t[0] - 4 && r[1] < t[3] + 2 && r[3] > t[1] - 2);
+      el.style.visibility = hit && p.rank > -1 ? 'hidden' : 'visible';
+      if (!hit || p.rank === -1) taken.push(r);
     }
     for (const wl of workerLabels) {
       if (wl.itemId !== selected) {

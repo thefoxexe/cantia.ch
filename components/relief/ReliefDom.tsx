@@ -6,6 +6,7 @@ import { accentColor, createRelief, type ReliefHandle } from '../../lib/relief/e
 import { SCENE_CSS } from '../../lib/relief/sceneCss';
 import type { ReliefCaps, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefSection, ReliefSpec } from '../../lib/relief/types';
 import type { ReliefCopy } from '../../lib/relief/copy';
+import { formatCoord, type ReliefGeo } from '../../lib/relief/geo';
 
 // Cantia Relief, full screen: the 3D world (lib/relief/engine.ts) and what
 // sits around it. On a computer: a header, the list on the left and the
@@ -93,11 +94,14 @@ interface Props {
   onNavigate: (route: string) => void;
   onClose: () => void;
   onRedo: () => void;
+  /** The company's town, for the landmarks and the cartouche. */
+  geo?: ReliefGeo | null;
   dom?: DOMProps;
 }
 
 export default function ReliefDom(props: Props) {
-  const { spec, data, copy, caps, rebuilding, onClose, onRedo } = props;
+  const { spec, data, copy, caps, rebuilding, onClose, onRedo, geo } = props;
+  const geoKey = geo ? `${geo.city}|${geo.landmark}|${geo.backdrop}|${geo.water?.name ?? ''}` : '';
   const stageRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<ReliefHandle | null>(null);
   const firstData = useRef(true);
@@ -141,6 +145,7 @@ export default function ReliefDom(props: Props) {
         exampleLabel: copy.example,
         intro: true,
         mood,
+        geo: geo ? { landmark: geo.landmark, backdrop: geo.backdrop, water: geo.water, names: geo.names } : null,
       });
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
         handleRef.current.setAnimated(false);
@@ -156,7 +161,7 @@ export default function ReliefDom(props: Props) {
     };
     // The world is rebuilt from scratch only when its plan changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec]);
+  }, [spec, geoKey]);
 
   useEffect(() => {
     if (firstData.current) {
@@ -179,7 +184,7 @@ export default function ReliefDom(props: Props) {
     const h = handleRef.current;
     if (!h) return;
     if (mobile) h.setInsets({ top: 64, bottom: sheetHeight });
-    else h.setInsets({ left: listOpen ? 352 : 0, right: item ? 472 : 0, top: 80, bottom: 56 });
+    else h.setInsets({ left: listOpen ? 352 : 0, right: item ? 472 : 0, top: 90, bottom: 64 });
   }, [mobile, sheetHeight, listOpen, item, spec]);
 
   const stats = useMemo(
@@ -274,7 +279,10 @@ export default function ReliefDom(props: Props) {
               <Icon name="x" />
             </button>
             <div className="rf-mbar-title">
-              <span className="rf-eyebrow">{copy.brand}</span>
+              <span className="rf-eyebrow">
+                {copy.brand}
+                {geo ? ` · ${geo.city}` : ''}
+              </span>
               <span className="rf-mbar-name">{spec.title}</span>
             </div>
             <button type="button" className="rf-ibtn" onClick={overview} aria-label={copy.overview}>
@@ -342,16 +350,32 @@ export default function ReliefDom(props: Props) {
         <>
           <div className="rf-top">
             <div className="rf-card rf-head">
-              <div className="rf-head-main">
-                <div className="rf-eyebrow">{copy.brand}</div>
-                <div className="rf-title">{spec.title}</div>
-                {spec.tagline ? <div className="rf-tagline">{spec.tagline}</div> : null}
+              <div className="rf-cart-top">
+                <span>{copy.brand}</span>
+                {geo ? <span>{geo.city}</span> : null}
               </div>
-              <div className="rf-head-side">
-                {statsLine}
-                <span className="rf-muted">
-                  {copy.today} · {data.today}
+              <div className="rf-title">{spec.title}</div>
+              {geo && (geo.e || geo.elevation) ? (
+                <div className="rf-cart-meta">
+                  {[geo.canton, geo.elevation != null ? `${Math.round(geo.elevation)} m` : null, geo.e && geo.n ? `${formatCoord(geo.e)} / ${formatCoord(geo.n)}` : null].filter(Boolean).join('   ·   ')}
+                </div>
+              ) : null}
+              <div className="rf-cart-stats">
+                <span>
+                  <b>{stats.active}</b>
+                  {fill(copy.statInProgress, { items: vocab.items })}
                 </span>
+                <span>
+                  <b>{stats.people}</b>
+                  {copy.statOut}
+                </span>
+                <span className={stats.late ? 'rf-late' : ''}>
+                  <b>{stats.late}</b>
+                  {copy.statLate}
+                </span>
+              </div>
+              <div className="rf-cart-date">
+                {copy.today} · {data.today}
               </div>
             </div>
             <div className="rf-actions">
@@ -394,13 +418,26 @@ export default function ReliefDom(props: Props) {
           {card ? <div className="rf-card rf-panel">{card}</div> : null}
 
           <div className="rf-legend">
+            <span className="rf-legend-title">{copy.legendTitle}</span>
             {(Object.keys(STATUS_COLOR) as ReliefItemStatus[]).map((k) => (
               <span key={k} className="rf-legend-item">
-                <span className="rf-dot" style={{ background: STATUS_COLOR[k] }} />
+                <span className="rf-sq" style={{ background: STATUS_COLOR[k] }} />
                 {copy.status[k]}
               </span>
             ))}
-            <span className="rf-hint">{copy.hint}</span>
+            <span className="rf-legend-item">
+              <span className="rf-line" />
+              {copy.legendCable}
+            </span>
+            <span className="rf-hint rf-legend-hint">{copy.hint}</span>
+          </div>
+          <div className="rf-furniture" aria-hidden="true">
+            <svg width="26" height="40" viewBox="0 0 26 40">
+              <path d="M13 2 L21 26 L13 21 L5 26 Z" fill="currentColor" />
+              <path d="M13 2 L13 21 L5 26 Z" fill="var(--paper)" stroke="currentColor" strokeWidth="1" />
+              <text x="13" y="38" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor" fontFamily="Archivo, sans-serif">N</text>
+            </svg>
+            <span>{copy.schematic}</span>
           </div>
         </>
       )}
@@ -941,12 +978,12 @@ const CSS = `
 .rf-root * { box-sizing: border-box; }
 .rf-stage { position: absolute; inset: 0; z-index: 0; touch-action: none; }
 .rf-top, .rf-side, .rf-panel, .rf-legend, .rf-mbar, .rf-sheet { z-index: 2; }
-.rf-card { background: #FFFDF9; border: 1px solid rgba(35,26,18,0.1); border-radius: 12px; box-shadow: 0 12px 34px rgba(43,33,26,0.12); }
+.rf-card { background: #FFFDF9; border: 1px solid rgba(35,26,18,0.1); border-radius: 4px; box-shadow: 0 1px 2px rgba(29,23,18,0.06), 0 8px 24px rgba(29,23,18,0.06); }
 .rf-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rf-muted { font-size: 12px; color: #6E6153; }
 .rf-small { font-size: 11.5px; }
 .rf-pad { padding: 8px 2px; }
-.rf-note { font-size: 12px; line-height: 1.45; color: #6E6153; background: #F6F0E6; border-radius: 8px; padding: 8px 10px; margin: 6px 8px; }
+.rf-note { font-size: 12px; line-height: 1.45; color: #6E6153; background: #F6F0E6; border-radius: 3px; padding: 8px 10px; margin: 6px 8px; }
 .rf-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; display: inline-block; }
 .rf-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: #4A3F35; }
 .rf-stats b { font-family: 'Martian Mono', ui-monospace, monospace; font-weight: 600; color: #231A12; }
@@ -956,8 +993,8 @@ const CSS = `
 @keyframes rf-shimmer { 0% { background-position: -300px 0; } 100% { background-position: 300px 0; } }
 
 /* buttons */
-.rf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font: 700 13px Archivo, system-ui, sans-serif; padding: 9px 13px; border-radius: 8px; border: 1px solid rgba(35,26,18,0.14); background: #FFFDF9; color: #231A12; cursor: pointer; box-shadow: 0 4px 14px rgba(43,33,26,0.08); white-space: nowrap; transition: transform .15s, background .15s, box-shadow .15s; }
-.rf-btn:hover { background: #F6EFE3; transform: translateY(-1px); }
+.rf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font: 700 13px Archivo, system-ui, sans-serif; padding: 9px 13px; border-radius: 3px; border: 1px solid rgba(35,26,18,0.14); background: #FFFDF9; color: #231A12; cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s; }
+.rf-btn:hover { background: #F4EEE4; border-color: rgba(29,23,18,0.3); }
 .rf-btn:active { transform: none; }
 .rf-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 .rf-btn:focus-visible, .rf-row:focus-visible, .rf-tab:focus-visible, .rf-ibtn:focus-visible, .rf-link:focus-visible, .rf-doc:focus-visible, .rf-mini:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -965,30 +1002,35 @@ const CSS = `
 .rf-btn-dark:hover { background: #2B241D; }
 .rf-btn-primary { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
 .rf-btn-primary:hover { background: var(--accent); filter: brightness(0.93); }
-.rf-ibtn { all: unset; box-sizing: border-box; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: #FFFDF9; border: 1px solid rgba(35,26,18,0.12); box-shadow: 0 4px 14px rgba(43,33,26,0.12); cursor: pointer; color: #231A12; flex: none; }
+.rf-ibtn { all: unset; box-sizing: border-box; width: 40px; height: 40px; border-radius: 3px; display: grid; place-items: center; background: #FFFDF9; border: 1px solid rgba(35,26,18,0.12); cursor: pointer; color: #231A12; flex: none; }
 .rf-ibtn:disabled { opacity: .45; }
 .rf-ibtn-dark { background: #16120E; color: #FFFFFF; border-color: #16120E; }
 .rf-ibtn-flat { width: 34px; height: 34px; box-shadow: none; border-color: transparent; background: transparent; color: #6E6153; }
 .rf-ibtn-flat:hover { background: #F6EFE3; }
-.rf-chip { all: unset; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); padding: 6px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 10%, #FFFFFF); }
+.rf-chip { all: unset; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: #1D1712; padding: 4px 0; border-bottom: 2px solid var(--accent); }
 
 /* desktop frame */
 .rf-top { position: absolute; left: 16px; right: 16px; top: 16px; display: flex; gap: 12px; align-items: flex-start; pointer-events: none; }
 .rf-top > * { pointer-events: auto; }
-.rf-head { display: flex; gap: 22px; align-items: flex-end; padding: 12px 16px; max-width: min(760px, 100% - 420px); animation: rf-fade .35s ease-out; }
-.rf-head-main { min-width: 0; }
-.rf-title { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rf-tagline { font-size: 12.5px; line-height: 1.4; color: #4A3F35; margin-top: 2px; max-width: 420px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.rf-head-side { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.rf-head { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 12px; width: min(420px, 100% - 520px); min-width: 300px; animation: rf-fade .35s ease-out; border-top: 3px solid var(--accent); }
+.rf-cart-top { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: #5D5247; }
+.rf-cart-top span:last-child { color: #1D1712; }
+.rf-cart-meta { font: 500 10.5px 'Martian Mono', ui-monospace, monospace; color: #6E6458; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rf-cart-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #E6DED1; margin-top: 4px; }
+.rf-cart-stats span { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 2px 0; font-size: 11px; color: #6E6458; line-height: 1.2; }
+.rf-cart-stats span + span { padding-left: 10px; border-left: 1px solid #E6DED1; }
+.rf-cart-stats b { font: 600 18px 'Martian Mono', ui-monospace, monospace; color: #1D1712; }
+.rf-cart-date { font-size: 10.5px; color: #8C8073; }
+.rf-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rf-actions { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 
-.rf-side { position: absolute; left: 16px; top: 128px; bottom: 64px; width: 320px; display: flex; flex-direction: column; overflow: hidden; animation: rf-fade .4s ease-out; }
+.rf-side { position: absolute; left: 16px; top: 206px; bottom: 64px; width: 320px; display: flex; flex-direction: column; overflow: hidden; animation: rf-fade .4s ease-out; }
 .rf-side-closed { bottom: auto; }
 .rf-side-head { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; cursor: pointer; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
 .rf-side-head > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
 .rf-side-head .rf-muted { text-transform: none; letter-spacing: 0; font-weight: 600; }
 .rf-rows { overflow: auto; padding: 4px 6px 8px; min-height: 0; }
-.rf-row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: auto 1fr 54px; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 8px; cursor: pointer; animation: rf-fade .3s ease-out both; }
+.rf-row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: auto 1fr 54px; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 3px; cursor: pointer; animation: rf-fade .3s ease-out both; }
 .rf-row:hover { background: #F6EFE3; }
 .rf-row-on { background: color-mix(in srgb, var(--accent) 12%, #FFFFFF) !important; }
 .rf-row-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -1000,7 +1042,15 @@ const CSS = `
 .rf-panel { position: absolute; right: 16px; top: 80px; bottom: 16px; width: 440px; overflow: hidden; display: flex; flex-direction: column; animation: rf-slide .28s cubic-bezier(.2,.8,.2,1); }
 .rf-cardin { display: flex; flex-direction: column; gap: 12px; padding: 18px; overflow: auto; min-height: 0; flex: 1; }
 .rf-cardin > * { flex-shrink: 0; }
-.rf-legend { position: absolute; left: 352px; right: 472px; bottom: 16px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; font-size: 11.5px; font-weight: 600; color: #4A3F35; pointer-events: none; text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
+.rf-legend { position: absolute; left: 352px; bottom: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 8px 12px; font-size: 11px; font-weight: 600; color: #3A322B; background: rgba(251,248,242,0.92); border: 1px solid rgba(29,23,18,0.14); max-width: max(260px, calc(100% - 1060px)); }
+.rf-legend-title { font-size: 9.5px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: #6E6458; padding-right: 4px; border-right: 1px solid rgba(29,23,18,0.14); }
+.rf-sq { width: 8px; height: 8px; display: inline-block; }
+.rf-legend-hint { flex-basis: 100%; font-weight: 500; font-size: 10.5px; }
+.rf-line { width: 18px; height: 2px; background: var(--accent); display: inline-block; }
+.rf-furniture { position: absolute; right: 472px; bottom: 16px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; color: #1D1712; font: italic 400 11px Georgia, serif; --paper: #EFE8DC; pointer-events: none; }
+.rf-furniture .rf-hint { font: 500 10.5px Archivo, system-ui, sans-serif; font-style: normal; }
+.rf-dusk .rf-furniture { color: #E4DCCF; --paper: #18202A; }
+.rf-dusk .rf-legend { background: rgba(18,25,34,0.85); color: #E4DCCF; border-color: rgba(255,255,255,0.14); }
 .rf-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .rf-hint { color: #8C8073; font-weight: 500; }
 
@@ -1008,7 +1058,7 @@ const CSS = `
 .rf-panel-top { display: flex; justify-content: space-between; gap: 12px; }
 .rf-panel-title { font-size: 21px; font-weight: 800; letter-spacing: -0.4px; margin-top: 4px; line-height: 1.15; }
 .rf-badges { display: flex; flex-wrap: wrap; gap: 6px; }
-.rf-badge { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid; }
+.rf-badge { font-size: 10px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; padding: 4px 7px; border-radius: 2px; border: 1px solid; }
 .rf-badge-soft { border-color: transparent; background: #F3ECE1; color: #4A3F35; }
 .rf-steps { display: grid; gap: 4px; }
 .rf-step-bar { display: block; height: 5px; border-radius: 3px; background: #EDE3D3; transition: background .4s; }
@@ -1019,9 +1069,9 @@ const CSS = `
 .rf-tab { all: unset; cursor: pointer; flex: 1 0 auto; justify-content: center; padding: 9px 6px 10px; font-size: 12.5px; font-weight: 700; color: #8C8073; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; transition: color .15s, border-color .15s; }
 .rf-tab:hover { color: #231A12; }
 .rf-tab-on { color: #231A12; border-bottom-color: var(--accent); }
-.rf-tab-badge { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 10.5px; background: var(--accent); color: #FFFFFF; border-radius: 999px; padding: 1px 6px; }
+.rf-tab-badge { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 10px; color: var(--accent); }
 .rf-tabbody { display: flex; flex-direction: column; gap: 10px; animation: rf-fade .25s ease-out; }
-.rf-skeleton { height: 120px; border-radius: 10px; background: linear-gradient(90deg, #F3ECE1 0, #FAF6EF 40%, #F3ECE1 80%); background-size: 600px 100%; animation: rf-shimmer 1.2s linear infinite; }
+.rf-skeleton { height: 120px; border-radius: 3px; background: linear-gradient(90deg, #F3ECE1 0, #FAF6EF 40%, #F3ECE1 80%); background-size: 600px 100%; animation: rf-shimmer 1.2s linear infinite; }
 .rf-section { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin-top: 4px; color: #4A3F35; }
 
 .rf-timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -1035,11 +1085,11 @@ const CSS = `
 .rf-tl-label { font-size: 13px; font-weight: 600; color: #6E6153; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .rf-tl-on .rf-tl-label { color: #231A12; font-weight: 800; }
 .rf-tl-done .rf-tl-label { color: #231A12; }
-.rf-tl-client { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); border: 1px solid currentColor; border-radius: 999px; padding: 1px 6px; }
+.rf-tl-client { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--accent); border: 1px solid currentColor; border-radius: 2px; padding: 1px 5px; }
 .rf-tl-meta { font-size: 11.5px; color: #8C8073; }
 
 .rf-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.rf-figure { border: 1px solid #EDE3D3; border-radius: 9px; padding: 9px 10px; background: #FFFFFF; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rf-figure { border: 1px solid #EDE3D3; border-radius: 3px; padding: 9px 10px; background: #FFFFFF; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .rf-figure-label { font-size: 10.5px; color: #6E6153; font-weight: 600; }
 .rf-figure-value { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .rf-figure-bar { display: block; height: 4px; border-radius: 2px; background: #EDE3D3; overflow: hidden; margin-top: 3px; }
@@ -1059,10 +1109,10 @@ const CSS = `
 .rf-check-on { background: var(--accent); border-color: var(--accent); transform: scale(1.05); }
 .rf-disclose { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #6E6153; padding: 10px 2px 4px; }
 .rf-inline { display: flex; gap: 8px; margin-bottom: 4px; }
-.rf-inline input, .rf-planform select { flex: 1; min-width: 0; font: 500 14px Archivo, system-ui, sans-serif; padding: 9px 11px; border-radius: 8px; border: 1px solid rgba(35,26,18,0.18); background: #FFFFFF; color: #231A12; }
+.rf-inline input, .rf-planform select { flex: 1; min-width: 0; font: 500 14px Archivo, system-ui, sans-serif; padding: 9px 11px; border-radius: 3px; border: 1px solid rgba(35,26,18,0.18); background: #FFFFFF; color: #231A12; }
 .rf-inline input:focus, .rf-planform select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
 
-.rf-grid-wrap { overflow-x: auto; border: 1px solid #EDE3D3; border-radius: 10px; background: #FFFFFF; }
+.rf-grid-wrap { overflow-x: auto; border: 1px solid #EDE3D3; border-radius: 3px; background: #FFFFFF; }
 .rf-grid { border-collapse: collapse; width: 100%; font-size: 11px; }
 .rf-grid th { font-weight: 700; color: #6E6153; padding: 7px 4px; text-align: center; white-space: nowrap; }
 .rf-grid td { height: 34px; text-align: center; border-top: 1px solid #F3ECE1; }
@@ -1075,7 +1125,7 @@ const CSS = `
 
 .rf-money { display: flex; flex-direction: column; gap: 6px; }
 .rf-money-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.rf-doc { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 10px; border-radius: 9px; border: 1px solid #EDE3D3; background: #FFFFFF; transition: border-color .15s, transform .15s; animation: rf-fade .25s ease-out; }
+.rf-doc { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 10px; border-radius: 3px; border: 1px solid #EDE3D3; background: #FFFFFF; transition: border-color .15s, transform .15s; animation: rf-fade .25s ease-out; }
 .rf-doc:hover { border-color: var(--accent); transform: translateY(-1px); }
 .rf-doc-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .rf-doc-num { font: 600 12.5px 'Martian Mono', ui-monospace, monospace; }
@@ -1084,7 +1134,7 @@ const CSS = `
 .rf-doc-bar > span { display: block; height: 100%; background: #2E6B4F; }
 .rf-doc-amount { font: 600 12.5px 'Martian Mono', ui-monospace, monospace; text-align: right; display: flex; flex-direction: column; gap: 2px; }
 .rf-doc-amount small { font: 500 10.5px Archivo, system-ui, sans-serif; color: #AB3327; }
-.rf-pill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #F3ECE1; color: #4A3F35; white-space: nowrap; }
+.rf-pill { font-size: 9.5px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 3px 6px; border-radius: 2px; background: #F3ECE1; color: #4A3F35; white-space: nowrap; }
 .rf-pill-accepted, .rf-pill-paid { background: #E3EFE7; color: #2E6B4F; }
 .rf-pill-sent, .rf-pill-ready { background: #E6EEF3; color: #2F5E7A; }
 .rf-pill-partial { background: #F6EBD6; color: #8A5E0E; }
@@ -1092,18 +1142,17 @@ const CSS = `
 .rf-figures-money { margin-top: 6px; }
 
 .rf-links { display: flex; flex-direction: column; gap: 6px; }
-.rf-link { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; border: 1px solid #EDE3D3; background: #FFFFFF; font-size: 13.5px; font-weight: 600; transition: border-color .15s, transform .15s; animation: rf-fade .25s ease-out both; }
+.rf-link { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 3px; border: 1px solid #EDE3D3; background: #FFFFFF; font-size: 13.5px; font-weight: 600; transition: border-color .15s, transform .15s; animation: rf-fade .25s ease-out both; }
 .rf-link:hover { border-color: var(--accent); transform: translateX(2px); }
-.rf-link-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 12%, #FFFFFF); color: var(--accent); flex: none; }
+.rf-link-icon { width: 30px; height: 30px; border-radius: 3px; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 12%, #FFFFFF); color: var(--accent); flex: none; }
 .rf-link-label { flex: 1; }
 .rf-link-count { font: 600 11.5px 'Martian Mono', ui-monospace, monospace; color: #6E6153; }
-.rf-example-box { display: flex; flex-direction: column; gap: 10px; background: #F6F0E6; border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.45; color: #4A3F35; }
+.rf-example-box { display: flex; flex-direction: column; gap: 10px; background: #F6F0E6; border-radius: 3px; padding: 12px; font-size: 13px; line-height: 1.45; color: #4A3F35; }
 .rf-example-box p { margin: 0; }
 .rf-message { font-size: 12.5px; color: #2E6B4F; animation: rf-fade .2s ease-out; }
 .rf-message-err { color: #AB3327; }
 .rf-open { width: 100%; padding: 12px; margin-top: auto; }
 .rf-dusk { background: #18202A; }
-.rf-dusk .rf-legend { color: #E8E1D6; text-shadow: none; }
 .rf-dusk .rf-hint { color: #A79D90; }
 .rf-dusk .rf-mbar { background: linear-gradient(#18202A 70%, rgba(24,32,42,0)); }
 .rf-dusk .rf-mbar-name { color: #FFFFFF; }
@@ -1113,7 +1162,7 @@ const CSS = `
 .rf-mbar { position: absolute; left: 0; right: 0; top: 0; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; background: linear-gradient(#EFE8DC 70%, rgba(239,232,220,0)); }
 .rf-mbar-title { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .rf-mbar-name { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rf-sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #FFFDF9; border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(43,33,26,0.16); display: flex; flex-direction: column; transition: height .32s cubic-bezier(.2,.8,.2,1); padding-bottom: env(safe-area-inset-bottom); }
+.rf-sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #FFFDF9; border-radius: 10px 10px 0 0; box-shadow: 0 -10px 30px rgba(43,33,26,0.16); display: flex; flex-direction: column; transition: height .32s cubic-bezier(.2,.8,.2,1); padding-bottom: env(safe-area-inset-bottom); }
 .rf-grab { all: unset; cursor: pointer; display: grid; place-items: center; height: 22px; flex: none; }
 .rf-grab span { width: 40px; height: 5px; border-radius: 3px; background: #D9CFC0; }
 .rf-sheet-body { display: flex; flex-direction: column; min-height: 0; flex: 1; }
@@ -1121,7 +1170,7 @@ const CSS = `
 .rf-sheet-title { font-size: 16px; font-weight: 800; text-transform: capitalize; margin-bottom: 2px; }
 .rf-strip { display: flex; gap: 10px; overflow-x: auto; padding: 4px 16px 12px; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .rf-strip::-webkit-scrollbar { display: none; }
-.rf-mini { all: unset; box-sizing: border-box; cursor: pointer; flex: 0 0 72%; max-width: 260px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; padding: 11px 12px; border-radius: 12px; border: 1px solid #EDE3D3; background: #FFFFFF; }
+.rf-mini { all: unset; box-sizing: border-box; cursor: pointer; flex: 0 0 72%; max-width: 260px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 6px; padding: 11px 12px; border-radius: 4px; border: 1px solid #EDE3D3; background: #FFFFFF; }
 .rf-mini-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .rf-mini-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rf-mini-meta { font-size: 11.5px; color: #6E6153; }

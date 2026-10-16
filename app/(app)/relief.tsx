@@ -9,6 +9,7 @@ import { fillsSoumissions } from '../../lib/trades';
 import { useDictation } from '../../lib/useDictation';
 import { RELIEF_COPY, reliefLocale, workTermWords } from '../../lib/relief/copy';
 import { defaultAnswers } from '../../lib/relief/process';
+import { getReliefGeo, type ReliefGeo } from '../../lib/relief/geo';
 import { addReliefTask, getReliefWorld, loadItemDetails, loadReliefData, planOnItem, setReliefTaskDone, startReliefBuild, type ReliefWorldRow } from '../../lib/relief/data';
 import type { ReliefAnswers, ReliefData, ReliefMember, ReliefSection } from '../../lib/relief/types';
 import ReliefDom from '../../components/relief/ReliefDom';
@@ -40,6 +41,15 @@ export default function ReliefScreen() {
   const [data, setData] = useState<ReliefData | null>(null);
   const [members, setMembers] = useState<ReliefMember[] | null>(null);
   const [dictated, setDictated] = useState({ seq: 0, text: '' });
+  const [geo, setGeo] = useState<ReliefGeo | null>(null);
+  const locality = (organization as { locality?: string | null } | null)?.locality ?? null;
+  useEffect(() => {
+    let cancelled = false;
+    getReliefGeo(locality, locale).then((g) => !cancelled && setGeo(g));
+    return () => {
+      cancelled = true;
+    };
+  }, [locality, locale]);
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const worldRef = useRef(world);
   worldRef.current = world;
@@ -234,6 +244,7 @@ export default function ReliefScreen() {
           }}
           onEdit={() => setEditing(true)}
           onClose={world && editing && world.spec ? () => setEditing(false) : close}
+          geo={geo}
           dom={{ style: { flex: 1 } }}
         />
       </View>
@@ -279,6 +290,7 @@ export default function ReliefScreen() {
         onNavigate={(route) => router.push(route as never)}
         onClose={close}
         onRedo={() => setEditing(true)}
+        geo={geo}
         dom={{ style: { flex: 1 } }}
       />
     </View>
