@@ -19,6 +19,7 @@ import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
 import { StatusLink } from '../../components/StatusLink';
 import { BrandLogo, BrandMark } from '../../components/brand/Logo';
+import { MaquetteButton } from '../../components/relief/MaquetteButton';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -166,8 +167,8 @@ export default function AppLayout() {
   useEffect(() => setMounted(true), []);
   if (!mounted) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
-  // Cantia Relief takes the whole screen: no menu, no assistant button.
-  if (pathname === '/relief') {
+  // Cantia Maquette takes the whole screen: no menu, no assistant button.
+  if (pathname === '/maquette' || pathname === '/relief') {
     return (
       <View style={{ flex: 1 }}>
         <Slot />
@@ -202,6 +203,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         </Pressable>
         <BrandMark size={30} />
         <View style={{ flex: 1 }} />
+        <MaquetteButton compact />
         <SafeNotificationBell />
         <AccountMenu />
       </View>
@@ -327,6 +329,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
       </View>
       <View style={styles.desktopContent}>
         <View style={[styles.desktopTopBar, { paddingTop: insets.top + spacing.sm }]}>
+          <MaquetteButton />
           <SafeNotificationBell />
           <AccountMenu />
         </View>

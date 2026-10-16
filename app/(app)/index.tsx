@@ -4,8 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
-import { isModuleEnabled, useModule } from '../../lib/modules';
-import { ReliefDashboardCard } from '../../components/relief/ReliefDashboardCard';
+import { isModuleEnabled } from '../../lib/modules';
 import { isOnline } from '../../lib/presence';
 import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
@@ -172,7 +171,6 @@ export default function DashboardScreen() {
     : null;
   const devisVisible = isModuleEnabled(organization?.enabled_modules, 'devis') && canManageDevis;
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
-  const reliefOn = useModule('relief');
   const fullName = (user?.user_metadata?.full_name as string | undefined) || null;
   const firstName = fullName?.trim().split(' ')[0] || null;
 
@@ -621,7 +619,6 @@ export default function DashboardScreen() {
           {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
         </View>
 
-        {reliefOn ? <ReliefDashboardCard /> : null}
 
         {favoritesCard}
 

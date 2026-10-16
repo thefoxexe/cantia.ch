@@ -1,4 +1,4 @@
-// Cantia Relief: the company as a living 3D miniature.
+// Cantia Maquette (code name relief): the company as a living 3D miniature.
 //
 // Two halves meet in the scene (lib/relief/engine.ts):
 // - the ReliefSpec, written once by the AI from what the owner dictated
@@ -82,8 +82,18 @@ export interface ReliefItem {
   place: string | null;
   /** 0 to 1. */
   progress: number;
-  /** Index in spec.stages. */
+  /** Kind of project (ReliefKind.id) and the process that applies to it. */
+  kind: string;
+  stages: ReliefStage[];
+  /** Index in stages. */
   stage: number;
+  /** The step was set by someone (relief_item_progress), not guessed. */
+  tracked: boolean;
+  /** Since when the item is at this step (ISO day), and for how many working days. */
+  stageSince: string | null;
+  stageElapsed: number | null;
+  /** Estimated end from the durations of the remaining steps (ISO day). */
+  eta: string | null;
   status: ReliefItemStatus;
   startDate: string | null;
   endDate: string | null;
@@ -103,6 +113,8 @@ export interface ReliefData {
   people: ReliefPerson[];
   /** People planned today without an item (at the office / depot). */
   atBase: string[];
+  /** Kinds of projects and their processes. */
+  kinds: ReliefKind[];
 }
 
 /** One step of the company's process, as the owner described it. */
@@ -112,9 +124,20 @@ export interface ReliefStage {
   owner?: string;
   /** Typical length in working days, when known. */
   days?: number;
+  /** Shortest it can honestly take, in working days. */
+  minDays?: number;
   /** The client validates at the end of this step. */
   client?: boolean;
 }
+
+/** A kind of project with its own process (a showcase site is not an e-shop). */
+export interface ReliefKind {
+  id: string;
+  name: string;
+  stages: ReliefStage[];
+}
+
+export type ReliefAnswerStage = { label: string; owner: string; days: number; minDays?: number; client: boolean };
 
 export type ReliefBilling = 'end' | 'deposit' | 'milestones' | 'monthly';
 
@@ -125,7 +148,12 @@ export interface ReliefAnswers {
   activity: string;
   /** Chosen model, or 'auto' to let the AI decide. */
   template: ReliefTemplate | 'auto';
-  stages: { label: string; owner: string; days: number; client: boolean }[];
+  /** Process of the first kind of project (kept for older worlds). */
+  stages: ReliefAnswerStage[];
+  /** Kinds of projects, each with its own process; the first is the usual one. */
+  kinds?: { id: string; name: string; stages: ReliefAnswerStage[] }[];
+  /** The company's website, read to prefill the answers. */
+  website?: string;
   /** Members and what each does. */
   team: { id: string; name: string; job: string }[];
   billing: ReliefBilling;
@@ -164,6 +192,12 @@ export interface ReliefSection {
 /** What the member may do from the card. */
 export interface ReliefCaps {
   plan: boolean;
+  /** Move an item to another step of its process. */
+  stage: boolean;
+  /** Edit the process (kinds, steps, durations). */
+  process: boolean;
+  /** Close a finished item. */
+  close: boolean;
   quotes: boolean;
   finances: boolean;
   redo: boolean;

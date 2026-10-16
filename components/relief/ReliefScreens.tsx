@@ -5,7 +5,7 @@ import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, radius, spacing } from '../../lib/theme';
 import type { ReliefCopy } from '../../lib/relief/copy';
 
-// The screens of Cantia Relief around the 3D world (app/(app)/relief.tsx):
+// The screens of Cantia Maquette around the 3D world (app/(app)/maquette.tsx):
 // the offer when the option isn't active, and the note for members who are
 // not admins. The onboarding and the wait while the AI builds the world are
 // in components/relief/ReliefOnboardingDom.tsx.

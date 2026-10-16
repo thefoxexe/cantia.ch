@@ -1,4 +1,4 @@
-import type { ReliefAnswers, ReliefData, ReliefSpec, ReliefStyle, ReliefTemplate } from './types';
+import type { ReliefAnswers, ReliefData, ReliefItem, ReliefKind, ReliefSpec, ReliefStyle, ReliefTemplate } from './types';
 import { TEMPLATE_STYLES } from './types';
 import { suggestedTemplate } from './process';
 
@@ -18,7 +18,7 @@ export function initials(name: string) {
 
 export function previewSpec(a: ReliefAnswers, trade: string | null, company: string, workTerm: { item: string; items: string }): ReliefSpec {
   const template = a.template === 'auto' ? suggestedTemplate(trade) : a.template;
-  const stages = a.stages.filter((s) => s.label.trim()).slice(0, 8);
+  const stages = (a.kinds?.[0]?.stages ?? a.stages).filter((s) => s.label.trim()).slice(0, 8);
   return {
     version: 1,
     template,
@@ -34,25 +34,44 @@ export function previewSpec(a: ReliefAnswers, trade: string | null, company: str
   };
 }
 
+function previewKinds(spec: ReliefSpec, a: ReliefAnswers): ReliefKind[] {
+  const kinds = (a.kinds ?? [])
+    .map((k) => ({ id: k.id, name: k.name, stages: k.stages.filter((s) => s.label.trim()).map((s) => ({ label: s.label, days: s.days, minDays: s.minDays, owner: s.owner, client: s.client })) }))
+    .filter((k) => k.stages.length >= 2);
+  return kinds.length ? kinds : [{ id: 'main', name: spec.vocabulary.item, stages: spec.stages }];
+}
+
 export function previewData(spec: ReliefSpec, a: ReliefAnswers, company: string): ReliefData {
   const styles = TEMPLATE_STYLES[spec.template];
-  const n = spec.stages.length;
+  const kinds = previewKinds(spec, a);
   const people = a.team.slice(0, 8).map((m, i) => ({ id: m.id, name: m.name, initials: initials(m.name), color: PALETTE[i % PALETTE.length] }));
-  const items = spec.stages.map((s, i) => ({
-    id: `p${i}`,
-    name: s.label,
-    client: null,
-    place: null,
-    progress: n > 1 ? i / (n - 1) : 1,
-    stage: i,
-    status: (i === n - 1 ? 'done' : 'ok') as 'done' | 'ok',
-    startDate: null,
-    endDate: null,
-    money: null,
-    crew: people.length ? [people[i % people.length].id] : [],
-    tasks: [],
-    style: styles[i % styles.length] as ReliefStyle,
-    example: false,
-  }));
-  return { company, today: '', items, people, atBase: [] };
+  const make = (kind: ReliefKind, stage: number, name: string, i: number): ReliefItem => {
+    const n = kind.stages.length;
+    return {
+      id: `p${i}`,
+      name,
+      client: null,
+      place: null,
+      progress: n > 1 ? stage / (n - 1) : 1,
+      kind: kind.id,
+      stages: kind.stages,
+      stage,
+      tracked: false,
+      stageSince: null,
+      stageElapsed: null,
+      eta: null,
+      status: stage === n - 1 ? 'done' : 'ok',
+      startDate: null,
+      endDate: null,
+      money: null,
+      crew: people.length ? [people[i % people.length].id] : [],
+      tasks: [],
+      style: styles[i % styles.length] as ReliefStyle,
+      example: false,
+    };
+  };
+  // One item standing at each step of the usual process, then one per other kind.
+  const items = kinds[0].stages.map((s, i) => make(kinds[0], i, s.label, i));
+  kinds.slice(1, 4).forEach((k, j) => items.push(make(k, Math.floor((k.stages.length - 1) / 2), k.name, items.length + j)));
+  return { company, today: '', items, people, atBase: [], kinds };
 }

@@ -2,8 +2,9 @@ import { supabase } from '../supabase';
 import { invokeFunction } from '../api/functions';
 import type { ReliefAnswers, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefPerson, ReliefSpec, ReliefStyle } from './types';
 import { TEMPLATE_STYLES } from './types';
+import { estimateEnd, guessKind, kindsOf, progressAt, stageOverdue, workingDaysBetween } from './stages';
 
-// The live side of Cantia Relief: the company's real records turned into
+// The live side of Cantia Maquette: the company's real records turned into
 // what the scene shows (lib/relief/engine.ts), and the few writes the scene
 // allows (a task, someone planned on an item today). Everything goes
 // through the member's own session, so RLS decides what each person sees.
@@ -29,11 +30,30 @@ export async function startReliefBuild(organizationId: string, answers: ReliefAn
   return { error };
 }
 
+export type ReliefPrefill = {
+  website: string;
+  pages: { url: string; title: string }[];
+  activity: string;
+  template: ReliefAnswers['template'];
+  understood: string[];
+  kinds: NonNullable<ReliefAnswers['kinds']>;
+  billing: ReliefAnswers['billing'];
+  quotes: boolean;
+  story: string;
+};
+
+/** Read the company's website and get proposed answers (nothing is saved). */
+export async function prefillFromWebsite(organizationId: string, url: string, locale: string): Promise<{ data: ReliefPrefill | null; error: string | null }> {
+  return invokeFunction<ReliefPrefill>('relief-prefill', { organization_id: organizationId, url, locale });
+}
+
 /** The answers as plain text, kept as the readable brief of the world. */
 export function briefFromAnswers(a: ReliefAnswers): string {
   const lines = [
     a.activity.trim(),
-    a.stages.map((s, i) => `${i + 1}. ${s.label}${s.owner ? ` (${s.owner})` : ''}${s.days ? `, ${s.days} j` : ''}${s.client ? ', validation client' : ''}`).join('\n'),
+    ...(a.kinds?.length ? a.kinds : [{ name: '', stages: a.stages }]).map(
+      (k) => `${k.name ? `${k.name} :\n` : ''}${k.stages.map((s, i) => `${i + 1}. ${s.label}${s.owner ? ` (${s.owner})` : ''}${s.days ? `, ${s.days} j` : ''}${s.minDays ? ` (min ${s.minDays} j)` : ''}${s.client ? ', validation client' : ''}`).join('\n')}`,
+    ),
     a.team.filter((m) => m.job.trim()).map((m) => `${m.name} : ${m.job.trim()}`).join('\n'),
     a.story.trim(),
   ].filter(Boolean);
@@ -56,15 +76,22 @@ function sum<T>(rows: T[], f: (r: T) => number) {
   return rows.reduce((s, r) => s + (Number(f(r)) || 0), 0);
 }
 
-export async function loadReliefData(org: { id: string; name: string }, spec: ReliefSpec, opts: { withMoney: boolean; todayLabel: string }): Promise<ReliefData> {
+export async function loadReliefData(
+  org: { id: string; name: string },
+  spec: ReliefSpec,
+  opts: { withMoney: boolean; todayLabel: string; answers?: ReliefAnswers | null },
+): Promise<ReliefData> {
   const today = todayIso();
-  const [projectsRes, membersRes, plansRes, tasksRes, schedulesRes] = await Promise.all([
+  const kinds = kindsOf(spec, opts.answers);
+  const [projectsRes, membersRes, plansRes, tasksRes, schedulesRes, progressRes] = await Promise.all([
     supabase.from('projects').select('id, name, client_name, address, status, start_date, end_date, updated_at').eq('organization_id', org.id).order('updated_at', { ascending: false }).limit(80),
     supabase.from('organization_members').select('user_id, full_name').eq('organization_id', org.id),
     supabase.from('planning_assignments').select('project_id, member_user_id, is_private').eq('organization_id', org.id).lte('starts_on', today).gte('ends_on', today),
     supabase.from('dashboard_tasks').select('id, title, project_id, due_on, assigned_to, done').eq('organization_id', org.id).not('project_id', 'is', null).limit(1000),
     supabase.from('site_schedules').select('id, project_id').eq('organization_id', org.id),
+    supabase.from('relief_item_progress').select('project_id, kind, stage, stage_started_on').eq('organization_id', org.id),
   ]);
+  const progressRows = new Map(((progressRes.data ?? []) as { project_id: string; kind: string | null; stage: number; stage_started_on: string }[]).map((r) => [r.project_id, r]));
 
   // Active items first, then the five most recently finished.
   const all = (projectsRes.data ?? []) as {
@@ -139,27 +166,42 @@ export async function loadReliefData(org: { id: string; name: string }, spec: Re
 
   const tasks = (tasksRes.data ?? []) as { id: string; title: string; project_id: string; due_on: string | null; assigned_to: string | null; done: boolean }[];
   const plans = (plansRes.data ?? []) as { project_id: string | null; member_user_id: string; is_private: boolean }[];
-  const stagesN = spec.stages.length;
   const styles = TEMPLATE_STYLES[spec.template];
 
   const items: ReliefItem[] = projects.map((p, i) => {
     const own = tasks.filter((t) => t.project_id === p.id);
     const open = own.filter((t) => !t.done);
     const done = p.status === 'completed';
-    let progress = scheduleProgress.get(p.id);
-    if (progress === undefined && own.length >= 2) progress = (own.length - open.length) / own.length;
-    if (progress === undefined && p.start_date && p.end_date) {
-      const a = Date.parse(p.start_date);
-      const b = Date.parse(p.end_date);
-      if (b > a) progress = Math.min(0.95, Math.max(0.05, (Date.now() - a) / (b - a)));
+    const row = progressRows.get(p.id);
+    const kind = kinds.find((k) => k.id === row?.kind) ?? guessKind(kinds, p.name);
+    const stages = kind.stages;
+    const n = stages.length;
+    let stage: number;
+    let progress: number | undefined;
+    let elapsed: number | null = null;
+    let eta: string | null = null;
+    if (row && !done) {
+      // Someone said where the item stands: the durations do the rest.
+      stage = Math.min(n - 1, Math.max(0, row.stage));
+      elapsed = workingDaysBetween(row.stage_started_on, today);
+      progress = progressAt(stages, stage, elapsed);
+      if (stages.some((s) => s.days)) eta = estimateEnd(stages, stage, row.stage_started_on, today);
+    } else {
+      progress = scheduleProgress.get(p.id);
+      if (progress === undefined && own.length >= 2) progress = (own.length - open.length) / own.length;
+      if (progress === undefined && p.start_date && p.end_date) {
+        const a = Date.parse(p.start_date);
+        const b = Date.parse(p.end_date);
+        if (b > a) progress = Math.min(0.95, Math.max(0.05, (Date.now() - a) / (b - a)));
+      }
+      if (progress === undefined) progress = 0.15;
+      if (done) progress = 1;
+      stage = done ? n - 1 : Math.max(0, Math.min(n - 2, Math.floor(progress * (n - 1))));
     }
-    if (progress === undefined) progress = 0.15;
-    if (done) progress = 1;
-    const stage = done ? stagesN - 1 : Math.min(stagesN - 2, Math.floor(progress * (stagesN - 1)));
     let status: ReliefItemStatus = 'ok';
     if (done) status = 'done';
     else if (p.end_date && p.end_date < today) status = 'late';
-    else if (open.some((t) => t.due_on && t.due_on < today)) status = 'risk';
+    else if (open.some((t) => t.due_on && t.due_on < today) || stageOverdue(stages[stage], elapsed) || (eta && p.end_date && eta > p.end_date)) status = 'risk';
     const style = (spec.styles?.[p.id] as ReliefStyle | undefined) && styles.includes(spec.styles[p.id]) ? spec.styles[p.id] : styles[i % styles.length];
     return {
       id: p.id,
@@ -167,7 +209,13 @@ export async function loadReliefData(org: { id: string; name: string }, spec: Re
       client: p.client_name,
       place: p.address,
       progress,
-      stage: Math.max(0, stage),
+      kind: kind.id,
+      stages,
+      stage,
+      tracked: !!row && !done,
+      stageSince: row && !done ? row.stage_started_on : null,
+      stageElapsed: elapsed,
+      eta,
       status,
       startDate: p.start_date,
       endDate: p.end_date,
@@ -181,15 +229,24 @@ export async function loadReliefData(org: { id: string; name: string }, spec: Re
 
   // Examples from the AI while the company has almost no records yet.
   if (items.length < 3) {
+    const stages = kinds[0].stages;
+    const stagesN = stages.length;
     spec.examples.slice(0, 5 - items.length).forEach((e, i) => {
+      const stage = Math.min(stagesN - 1, e.stage);
       items.push({
         id: `example-${i}`,
         name: e.name,
         client: e.client || null,
         place: null,
-        progress: stagesN > 1 ? e.stage / (stagesN - 1) : 0,
-        stage: e.stage,
-        status: e.stage >= stagesN - 1 ? 'done' : 'ok',
+        progress: stagesN > 1 ? stage / (stagesN - 1) : 0,
+        kind: kinds[0].id,
+        stages,
+        stage,
+        tracked: false,
+        stageSince: null,
+        stageElapsed: null,
+        eta: null,
+        status: stage >= stagesN - 1 ? 'done' : 'ok',
         startDate: null,
         endDate: null,
         money: null,
@@ -204,7 +261,33 @@ export async function loadReliefData(org: { id: string; name: string }, spec: Re
   const onItems = new Set(items.flatMap((it) => it.crew));
   const atBase = Array.from(new Set(plans.filter((a) => !a.project_id).map((a) => a.member_user_id))).filter((id) => !onItems.has(id));
 
-  return { company: org.name, today: opts.todayLabel, items, people, atBase };
+  return { company: org.name, today: opts.todayLabel, items, people, atBase, kinds };
+}
+
+/** Move a project to a step of its process (and keep who did it, when). */
+export async function setReliefStage(organizationId: string, userId: string, projectId: string, kind: string, stage: number): Promise<{ error: string | null }> {
+  const { data: prev } = await supabase.from('relief_item_progress').select('stage, kind, history').eq('project_id', projectId).maybeSingle();
+  const old = prev as { stage: number; kind: string | null; history: unknown } | null;
+  if (old && old.stage === stage && old.kind === kind) return { error: null };
+  const history = (Array.isArray(old?.history) ? (old!.history as unknown[]) : []).slice(-40);
+  history.push({ stage, kind, at: new Date().toISOString(), by: userId });
+  const { error } = await supabase.from('relief_item_progress').upsert(
+    { project_id: projectId, organization_id: organizationId, kind, stage, stage_started_on: todayIso(), history, updated_by: userId },
+    { onConflict: 'project_id' },
+  );
+  return { error: error?.message ?? null };
+}
+
+/** The owner's process (kinds, steps, durations), saved without rebuilding the world. */
+export async function saveReliefAnswers(organizationId: string, answers: ReliefAnswers): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('relief_save_answers', { p_organization_id: organizationId, p_answers: answers });
+  return { error: error?.message ?? null };
+}
+
+/** Close a finished project (the last step is done). RLS decides who may. */
+export async function closeReliefItem(projectId: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.from('projects').update({ status: 'completed' }).eq('id', projectId);
+  return { error: error?.message ?? null };
 }
 
 export async function addReliefTask(organizationId: string, userId: string, projectId: string, title: string): Promise<{ error: string | null }> {
@@ -321,37 +404,4 @@ export async function planOnItem(organizationId: string, userId: string, memberI
     .from('planning_assignments')
     .insert({ organization_id: organizationId, created_by: userId, member_user_id: memberId, project_id: projectId, starts_on: day, ends_on: day });
   return { error: error?.message ?? null };
-}
-
-export type ReliefEvent = { kind: 'task' | 'plan' | 'project' | 'paid'; at: string; who: string | null; item: string | null; text: string };
-
-/** What happened lately, for the live feed on the dashboard (no amounts). */
-export async function loadReliefActivity(organizationId: string, opts: { invoices: boolean }): Promise<ReliefEvent[]> {
-  const since = new Date(Date.now() - 14 * 86400000).toISOString();
-  const [tasksRes, plansRes, projectsRes, paidRes, membersRes] = await Promise.all([
-    supabase.from('dashboard_tasks').select('title, done_at, project_id, assigned_to').eq('organization_id', organizationId).eq('done', true).gte('done_at', since).order('done_at', { ascending: false }).limit(6),
-    supabase.from('planning_assignments').select('member_user_id, project_id, starts_on, created_at').eq('organization_id', organizationId).not('project_id', 'is', null).gte('created_at', since).order('created_at', { ascending: false }).limit(6),
-    supabase.from('projects').select('id, name, created_at').eq('organization_id', organizationId).gte('created_at', since).order('created_at', { ascending: false }).limit(3),
-    opts.invoices
-      ? supabase.from('factures').select('number, project_id, paid_at').eq('organization_id', organizationId).eq('status', 'paid').gte('paid_at', since).order('paid_at', { ascending: false }).limit(4)
-      : Promise.resolve({ data: [] }),
-    supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organizationId),
-  ]);
-  const ids = new Set<string>();
-  for (const r of [...(tasksRes.data ?? []), ...(plansRes.data ?? []), ...((paidRes.data ?? []) as { project_id: string | null }[])] as { project_id: string | null }[]) if (r.project_id) ids.add(r.project_id);
-  const names = new Map<string, string>();
-  if (ids.size) {
-    const { data } = await supabase.from('projects').select('id, name').in('id', [...ids]);
-    for (const p of (data ?? []) as { id: string; name: string }[]) names.set(p.id, p.name);
-  }
-  const person = new Map(((membersRes.data ?? []) as { user_id: string; full_name: string | null }[]).map((m) => [m.user_id, m.full_name || '—']));
-  const out: ReliefEvent[] = [];
-  for (const t of (tasksRes.data ?? []) as { title: string; done_at: string; project_id: string | null; assigned_to: string | null }[])
-    out.push({ kind: 'task', at: t.done_at, who: t.assigned_to ? (person.get(t.assigned_to) ?? null) : null, item: t.project_id ? (names.get(t.project_id) ?? null) : null, text: t.title });
-  for (const a of (plansRes.data ?? []) as { member_user_id: string; project_id: string; starts_on: string; created_at: string }[])
-    out.push({ kind: 'plan', at: a.created_at, who: person.get(a.member_user_id) ?? null, item: names.get(a.project_id) ?? null, text: a.starts_on });
-  for (const p of (projectsRes.data ?? []) as { id: string; name: string; created_at: string }[]) out.push({ kind: 'project', at: p.created_at, who: null, item: p.name, text: '' });
-  for (const f of (paidRes.data ?? []) as { number: string | null; project_id: string | null; paid_at: string }[])
-    out.push({ kind: 'paid', at: f.paid_at, who: null, item: f.project_id ? (names.get(f.project_id) ?? null) : null, text: f.number ?? '' });
-  return out.sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 8);
 }

@@ -4,24 +4,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DOMProps } from 'expo/dom';
 import { accentColor, createRelief, type ReliefHandle } from '../../lib/relief/engine';
 import { SCENE_CSS } from '../../lib/relief/sceneCss';
-import type { ReliefCaps, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefSection, ReliefSpec } from '../../lib/relief/types';
+import type { ReliefCaps, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefKind, ReliefSection, ReliefSpec, ReliefStage } from '../../lib/relief/types';
 import type { ReliefCopy } from '../../lib/relief/copy';
 import { formatCoord, type ReliefGeo } from '../../lib/relief/geo';
+import { parseStageCommand, stageOverdue, stageTooEarly } from '../../lib/relief/stages';
 
-// Cantia Relief, full screen: the 3D world (lib/relief/engine.ts) and what
+// Cantia Maquette, full screen: the 3D world (lib/relief/engine.ts) and what
 // sits around it. On a computer: a header, the list on the left and the
 // item's card on the right. On a phone: the world fills the screen and the
 // list and the card live in a sheet at the bottom. The card is the item's
 // whole file in Cantia, filtered by the member's rights: process step,
 // tasks, the week's planning, quotes and invoices, and links to every part
-// of the file. A DOM component: plain React DOM on the web, its own web view
-// on phones.
+// of the file. Anyone may move an item to its next step, by a click or by
+// saying it ("Villa Dupont: gros œuvre terminé"); the owner edits the
+// process itself (kinds of projects, steps, durations) without a rebuild.
+// A DOM component: plain React DOM on the web, its own web view on phones.
 
 const STATUS_COLOR: Record<ReliefItemStatus, string> = { ok: '#2E6B4F', risk: '#B07A12', late: '#AB3327', done: '#8C8073' };
 const MOBILE = '(max-width: 760px)';
 const DATE_LOCALE: Record<string, string> = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
 
 type Tab = 'overview' | 'tasks' | 'planning' | 'money' | 'links';
+type Toast = { ok: boolean; text: string; heard?: string } | null;
 type Sheet = 'peek' | 'list' | 'item';
 type Loaded = { details: ReliefDetails; sections: ReliefSection[] };
 
@@ -70,6 +74,9 @@ const ICONS: Record<string, string> = {
   'bar-chart-2': 'M18 20V10M12 20V4M6 20v-6',
   'file-text': 'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6',
   'edit-3': 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',
+  mic: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM19 11a7 7 0 0 1-14 0M12 18v3',
+  flow: 'M4 6h6v4H4zM14 14h6v4h-6zM10 8h4a2 2 0 0 1 2 2v4',
+  flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
 };
 
 function Icon({ name, size = 16 }: { name: string; size?: number }) {
@@ -91,6 +98,14 @@ interface Props {
   onAddTask: (itemId: string, title: string) => Promise<string | null>;
   onToggleTask: (taskId: string, done: boolean) => Promise<string | null>;
   onPlan: (itemId: string, personId: string, day: string) => Promise<string | null>;
+  onSetStage: (itemId: string, kind: string, stage: number) => Promise<string | null>;
+  onCloseProject: (itemId: string) => Promise<string | null>;
+  onSaveProcess: (kinds: ReliefKind[]) => Promise<string | null>;
+  /** Dictation, for moving items along by voice. */
+  listening: boolean;
+  transcribing: boolean;
+  dictated: { seq: number; text: string };
+  onToggleDictation: () => Promise<string | null>;
   onNavigate: (route: string) => void;
   onClose: () => void;
   onRedo: () => void;
@@ -112,6 +127,9 @@ export default function ReliefDom(props: Props) {
   const [listOpen, setListOpen] = useState(true);
   const [sheet, setSheet] = useState<Sheet>('peek');
   const [vh, setVh] = useState(() => (typeof window !== 'undefined' ? window.innerHeight : 800));
+  const [toast, setToast] = useState<Toast>(null);
+  const [processOpen, setProcessOpen] = useState(false);
+  const lastSeq = useRef(props.dictated.seq);
   const [mood, setMood] = useState<'day' | 'dusk'>(() => {
     try {
       return window.localStorage.getItem('cantia-relief-mood') === 'dusk' ? 'dusk' : 'day';
@@ -121,6 +139,8 @@ export default function ReliefDom(props: Props) {
   });
   const accent = accentColor(spec);
   const vocab = spec.vocabulary;
+  // Worlds built before the rename were called "Le Relief de …".
+  const title = /relief/i.test(spec.title) ? data.company : spec.title;
 
   useEffect(() => {
     const mq = window.matchMedia?.(MOBILE);
@@ -179,13 +199,54 @@ export default function ReliefDom(props: Props) {
   // Height of the bottom sheet on a phone, so the world centres above it.
   const sheetHeight = sheet === 'item' ? Math.round(vh * 0.68) : sheet === 'list' ? Math.round(vh * 0.52) : 172;
   const item = data.items.find((i) => i.id === selectedId) ?? null;
+  const sidePanel = !!item || processOpen;
+
+  // A toast fades on its own.
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), toast.ok ? 4200 : 7000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // What was said: which item, which step.
+  useEffect(() => {
+    if (props.dictated.seq === lastSeq.current) return;
+    lastSeq.current = props.dictated.seq;
+    const text = props.dictated.text.trim();
+    if (!text) return;
+    const real = data.items.filter((i) => !i.example && i.status !== 'done');
+    const cmd = parseStageCommand(text, { items: real, current: selectedId });
+    const it = real.find((i) => i.id === cmd.itemId);
+    if (!it) {
+      setToast({ ok: false, heard: text, text: fill(copy.sayWhich, { item: vocab.item }) });
+      return;
+    }
+    if (it.id !== selectedId) {
+      handleRef.current?.select(it.id);
+      handleRef.current?.focus(it.id);
+    }
+    if (cmd.stage == null) {
+      setToast({ ok: false, heard: text, text: fill(copy.sayUnknown, { example: sayExample(copy, it) }) });
+      return;
+    }
+    const label = it.stages[cmd.stage]?.label ?? '';
+    props.onSetStage(it.id, it.kind, cmd.stage).then((err) =>
+      setToast(err ? { ok: false, heard: text, text: fill(copy.error, { message: err }) } : { ok: true, heard: text, text: fill(copy.sayDone, { name: it.name, stage: label }) }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.dictated]);
+
+  const say = async () => {
+    const err = await props.onToggleDictation();
+    if (err) setToast({ ok: false, text: err });
+  };
 
   useEffect(() => {
     const h = handleRef.current;
     if (!h) return;
     if (mobile) h.setInsets({ top: 64, bottom: sheetHeight });
-    else h.setInsets({ left: listOpen ? 352 : 0, right: item ? 472 : 0, top: 90, bottom: 64 });
-  }, [mobile, sheetHeight, listOpen, item, spec]);
+    else h.setInsets({ left: listOpen ? 352 : 0, right: sidePanel ? 472 : 0, top: 90, bottom: 64 });
+  }, [mobile, sheetHeight, listOpen, sidePanel, spec]);
 
   const stats = useMemo(
     () => ({
@@ -196,9 +257,10 @@ export default function ReliefDom(props: Props) {
     [data],
   );
   const hasExamples = data.items.some((i) => i.example);
-  const stageLabel = (it: ReliefItem) => spec.stages[Math.min(spec.stages.length - 1, it.stage)]?.label ?? '';
+  const stageLabel = (it: ReliefItem) => it.stages[Math.min(it.stages.length - 1, it.stage)]?.label ?? '';
 
   const choose = (id: string) => {
+    setProcessOpen(false);
     handleRef.current?.select(id);
     handleRef.current?.focus(id);
   };
@@ -260,6 +322,68 @@ export default function ReliefDom(props: Props) {
   );
 
   const card = item ? <ItemCard key={item.id} {...props} item={item} onCloseItem={closeItem} mobile={mobile} /> : null;
+  const process = processOpen ? (
+    <ProcessEditor
+      copy={copy}
+      kinds={data.kinds}
+      itemWord={vocab.item}
+      onRedo={caps.redo && !rebuilding ? onRedo : null}
+      onClose={() => setProcessOpen(false)}
+      onSave={async (kinds) => {
+        const err = await props.onSaveProcess(kinds);
+        setToast(err ? { ok: false, text: fill(copy.error, { message: err }) } : { ok: true, text: copy.processSaved });
+        if (!err) setProcessOpen(false);
+        return err;
+      }}
+    />
+  ) : null;
+  const sayButton = (
+    <button
+      type="button"
+      className={`rf-btn rf-say${props.listening ? ' rf-say-on' : ''}`}
+      onClick={say}
+      disabled={props.transcribing}
+      aria-pressed={props.listening}
+      title={fill(copy.sayTitle, { item: vocab.item })}
+    >
+      <span className="rf-say-dot" />
+      <Icon name="mic" /> {props.transcribing ? copy.transcribing : props.listening ? copy.stop : copy.say}
+    </button>
+  );
+  const sayExampleItem = data.items.find((i) => !i.example && i.status !== 'done') ?? data.items[0];
+  const voiceBar =
+    props.listening || props.transcribing || toast ? (
+      <div
+        className={`rf-voice${toast && !toast.ok ? ' rf-voice-err' : ''}${toast?.ok ? ' rf-voice-ok' : ''}`}
+        role="status"
+        style={mobile ? undefined : { left: `calc(${listOpen ? 352 : 0}px + (100% - ${(listOpen ? 352 : 0) + (sidePanel ? 472 : 0)}px) / 2)` }}
+      >
+        {props.listening ? (
+          <>
+            <span className="rf-voice-wave" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            <span className="rf-voice-main">
+              <b>{copy.sayListening}</b>
+              {sayExampleItem ? <span>{fill(copy.sayHint, { example: sayExample(copy, sayExampleItem) })}</span> : null}
+            </span>
+          </>
+        ) : props.transcribing ? (
+          <span className="rf-voice-main">
+            <b>{copy.transcribing}</b>
+          </span>
+        ) : toast ? (
+          <span className="rf-voice-main">
+            {toast.heard ? <span className="rf-voice-heard">{fill(copy.sayHeard, { text: toast.heard })}</span> : null}
+            <b>{toast.text}</b>
+          </span>
+        ) : null}
+      </div>
+    ) : null;
 
   return (
     <div className={`rf-root${mobile ? ' rf-mobile' : ''}${mood === 'dusk' ? ' rf-dusk' : ''}`} style={{ ['--accent' as string]: accent }}>
@@ -283,7 +407,7 @@ export default function ReliefDom(props: Props) {
                 {copy.brand}
                 {geo ? ` · ${geo.city}` : ''}
               </span>
-              <span className="rf-mbar-name">{spec.title}</span>
+              <span className="rf-mbar-name">{title}</span>
             </div>
             <button type="button" className="rf-ibtn" onClick={overview} aria-label={copy.overview}>
               <Icon name="home" />
@@ -291,12 +415,13 @@ export default function ReliefDom(props: Props) {
             <button type="button" className="rf-ibtn" onClick={toggleMood} aria-label={mood === 'day' ? copy.night : copy.day}>
               <Icon name={mood === 'day' ? 'moon' : 'sun'} />
             </button>
-            {caps.redo ? (
-              <button type="button" className="rf-ibtn" onClick={onRedo} disabled={rebuilding} aria-label={copy.redo}>
-                <Icon name="redo" />
+            {caps.stage ? (
+              <button type="button" className={`rf-ibtn rf-ibtn-say${props.listening ? ' rf-say-on' : ''}`} onClick={say} disabled={props.transcribing} aria-label={copy.say}>
+                <Icon name="mic" />
               </button>
             ) : null}
           </div>
+          {voiceBar}
 
           <div className={`rf-sheet rf-sheet-${sheet}`} style={{ height: sheetHeight }}>
             <button
@@ -309,6 +434,8 @@ export default function ReliefDom(props: Props) {
             </button>
             {sheet === 'item' && card ? (
               card
+            ) : sheet === 'list' && processOpen && process ? (
+              process
             ) : (
               <div className="rf-sheet-body">
                 <div className="rf-sheet-head">
@@ -316,9 +443,28 @@ export default function ReliefDom(props: Props) {
                     <div className="rf-sheet-title">{fill(copy.listCount, { n: data.items.length, items: vocab.items })}</div>
                     {statsLine}
                   </div>
-                  <button type="button" className="rf-chip" onClick={() => setSheet(sheet === 'peek' ? 'list' : 'peek')}>
-                    {sheet === 'peek' ? copy.show : copy.hide}
-                  </button>
+                  <span className="rf-sheet-tools">
+                    {caps.process ? (
+                      <button
+                        type="button"
+                        className="rf-chip"
+                        onClick={() => {
+                          setProcessOpen(true);
+                          setSheet('list');
+                        }}
+                      >
+                        {copy.processEdit}
+                      </button>
+                    ) : null}
+                    {caps.redo ? (
+                      <button type="button" className="rf-chip" onClick={onRedo} disabled={rebuilding}>
+                        {copy.redo}
+                      </button>
+                    ) : null}
+                    <button type="button" className="rf-chip" onClick={() => setSheet(sheet === 'peek' ? 'list' : 'peek')}>
+                      {sheet === 'peek' ? copy.show : copy.hide}
+                    </button>
+                  </span>
                 </div>
                 {rebuilding ? <div className="rf-note">{copy.rebuilding}</div> : null}
                 {sheet === 'peek' ? (
@@ -354,7 +500,7 @@ export default function ReliefDom(props: Props) {
                 <span>{copy.brand}</span>
                 {geo ? <span>{geo.city}</span> : null}
               </div>
-              <div className="rf-title">{spec.title}</div>
+              <div className="rf-title">{title}</div>
               {geo && (geo.e || geo.elevation) ? (
                 <div className="rf-cart-meta">
                   {[geo.canton, geo.elevation != null ? `${Math.round(geo.elevation)} m` : null, geo.e && geo.n ? `${formatCoord(geo.e)} / ${formatCoord(geo.n)}` : null].filter(Boolean).join('   ·   ')}
@@ -379,16 +525,29 @@ export default function ReliefDom(props: Props) {
               </div>
             </div>
             <div className="rf-actions">
+              {caps.stage ? sayButton : null}
               <button type="button" className="rf-btn" onClick={overview}>
                 <Icon name="home" /> {copy.overview}
               </button>
+              {caps.process ? (
+                <button
+                  type="button"
+                  className={`rf-btn${processOpen ? ' rf-btn-on' : ''}`}
+                  onClick={() => {
+                    handleRef.current?.select(null);
+                    setProcessOpen((v) => !v);
+                  }}
+                >
+                  <Icon name="flow" /> {copy.processEdit}
+                </button>
+              ) : null}
               <button type="button" className="rf-ibtn" onClick={toggleMood} aria-label={mood === 'day' ? copy.night : copy.day} title={mood === 'day' ? copy.night : copy.day}>
                 <Icon name={mood === 'day' ? 'moon' : 'sun'} />
               </button>
               <button type="button" className="rf-ibtn" onClick={toggleAnim} aria-label={animated ? copy.pause : copy.play} title={animated ? copy.pause : copy.play}>
                 <Icon name={animated ? 'pause' : 'play'} />
               </button>
-              {caps.redo ? (
+              {caps.redo && !caps.process ? (
                 <button type="button" className="rf-btn" onClick={onRedo} disabled={rebuilding}>
                   <Icon name="redo" /> {copy.redo}
                 </button>
@@ -415,7 +574,8 @@ export default function ReliefDom(props: Props) {
             ) : null}
           </div>
 
-          {card ? <div className="rf-card rf-panel">{card}</div> : null}
+          {card ? <div className="rf-card rf-panel">{card}</div> : process ? <div className="rf-card rf-panel">{process}</div> : null}
+          {voiceBar}
 
           <div className="rf-legend">
             <span className="rf-legend-title">{copy.legendTitle}</span>
@@ -459,6 +619,8 @@ function ItemCard({
   onAddTask,
   onToggleTask,
   onPlan,
+  onSetStage,
+  onCloseProject,
   onNavigate,
   onCloseItem,
 }: Props & { item: ReliefItem; mobile: boolean; onCloseItem: () => void }) {
@@ -466,8 +628,6 @@ function ItemCard({
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [loading, setLoading] = useState(!item.example);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
-  const stages = spec.stages;
-  const current = stages[Math.min(stages.length - 1, item.stage)];
   const showMoney = caps.quotes || caps.finances;
 
   const reload = useCallback(async () => {
@@ -517,18 +677,20 @@ function ItemCard({
         <span className="rf-badge" style={{ color: STATUS_COLOR[item.status], borderColor: STATUS_COLOR[item.status] }}>
           {item.example ? copy.example : copy.status[item.status]}
         </span>
-        <span className="rf-badge rf-badge-soft">
-          {copy.currentStage} · {current?.label}
-        </span>
+        {data.kinds.length > 1 && !item.example ? <span className="rf-badge rf-badge-soft">{data.kinds.find((k) => k.id === item.kind)?.name}</span> : null}
       </div>
 
-      <div className="rf-steps" style={{ gridTemplateColumns: `repeat(${stages.length}, 1fr)` }}>
-        {stages.map((s, i) => (
-          <div key={s.label + i} className={`rf-step${i < item.stage || item.status === 'done' ? ' rf-step-done' : ''}${i === item.stage && item.status !== 'done' ? ' rf-step-on' : ''}`} title={s.label}>
-            <span className="rf-step-bar" />
-          </div>
-        ))}
-      </div>
+      <StageBlock
+        item={item}
+        kinds={data.kinds}
+        copy={copy}
+        locale={locale}
+        itemWord={spec.vocabulary.item}
+        canMove={caps.stage && !item.example}
+        canClose={caps.close && !item.example}
+        onMove={(kind, stage) => run(() => onSetStage(item.id, kind, stage), fill(copy.stageSaved, { stage: (data.kinds.find((k) => k.id === kind)?.stages ?? item.stages)[stage]?.label ?? '' }))}
+        onCloseProject={() => run(() => onCloseProject(item.id), copy.closed)}
+      />
 
       {item.example ? (
         <div className="rf-example-box">
@@ -612,6 +774,267 @@ function vocabLabel(spec: ReliefSpec) {
   return spec.vocabulary.item;
 }
 
+function sayExample(copy: ReliefCopy, it: ReliefItem) {
+  const i = Math.min(it.stages.length - 2, Math.max(0, it.stage));
+  return fill(copy.sayExample, { name: it.name, stage: it.stages[i]?.label ?? '', next: it.stages[i + 1]?.label ?? '' });
+}
+
+function dayLabel(iso: string, locale: string) {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString(DATE_LOCALE[locale] ?? 'fr-CH', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// Where the item stands in its process: the steps as a rail anyone may
+// click to move it, how long it has been at this step against the usual and
+// the minimum lengths, the estimated end, and the button to move on.
+function StageBlock({
+  item,
+  kinds,
+  copy,
+  locale,
+  itemWord,
+  canMove,
+  canClose,
+  onMove,
+  onCloseProject,
+}: {
+  item: ReliefItem;
+  kinds: ReliefKind[];
+  copy: ReliefCopy;
+  locale: string;
+  itemWord: string;
+  canMove: boolean;
+  canClose: boolean;
+  onMove: (kind: string, stage: number) => Promise<boolean>;
+  onCloseProject: () => Promise<boolean>;
+}) {
+  const [confirm, setConfirm] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const stages = item.stages;
+  const i = Math.min(stages.length - 1, item.stage);
+  const cur: ReliefStage | undefined = stages[i];
+  const done = item.status === 'done';
+  const last = i >= stages.length - 1;
+  const over = stageOverdue(cur, item.stageElapsed);
+
+  const move = async (to: number, force = false) => {
+    if (!canMove || busy || to === i) return;
+    // Moving on before the minimum: ask once.
+    if (!force && to > i && stageTooEarly(cur, item.stageElapsed)) {
+      setConfirm(to);
+      return;
+    }
+    setConfirm(null);
+    setBusy(true);
+    await onMove(item.kind, to);
+    setBusy(false);
+  };
+
+  return (
+    <div className={`rf-stageblock${done ? ' rf-stageblock-done' : ''}`}>
+      <div className="rf-sb-top">
+        <span className="rf-sb-count">{fill(copy.stageOf, { n: i + 1, total: stages.length })}</span>
+        {canMove && kinds.length > 1 && !done ? (
+          <label className="rf-sb-kind">
+            <span>{copy.kindLabel}</span>
+            <select value={item.kind} onChange={(e) => onMove(e.target.value, 0)} disabled={busy}>
+              {kinds.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+      </div>
+      <div className="rf-sb-name">{done ? copy.status.done : cur?.label}</div>
+      {!done ? (
+        <div className="rf-sb-meta">
+          {item.stageElapsed != null ? <span className={over ? 'rf-sb-over' : ''}>{fill(copy.stageSince, { days: item.stageElapsed })}</span> : null}
+          {cur?.days ? <span>{fill(copy.stagePlanned, { usual: cur.days })}</span> : null}
+          {cur?.minDays ? <span>{fill(copy.stageMinimum, { min: cur.minDays })}</span> : null}
+          {over && cur?.days && item.stageElapsed != null ? <span className="rf-sb-over">{fill(copy.stageOver, { n: item.stageElapsed - cur.days })}</span> : null}
+        </div>
+      ) : null}
+
+      <div className="rf-rail" role="list">
+        {stages.map((s, j) => {
+          const state = done || j < i ? 'done' : j === i ? 'on' : 'next';
+          // Time spent in the current step, against its usual length.
+          const fillPct = state === 'done' ? 100 : state === 'on' && cur?.days && item.stageElapsed != null ? Math.min(100, (item.stageElapsed / cur.days) * 100) : state === 'on' ? 35 : 0;
+          return (
+            <button
+              key={`${s.label}-${j}`}
+              type="button"
+              role="listitem"
+              className={`rf-rail-step rf-rail-${state}${canMove && !done ? ' rf-rail-click' : ''}`}
+              style={{ flexGrow: Math.max(1, s.days ?? 1) }}
+              onClick={() => (canMove && !done ? move(j) : undefined)}
+              disabled={!canMove || done || busy}
+              title={s.label}
+            >
+              <span className="rf-rail-bar">
+                <span style={{ width: `${fillPct}%` }} className={state === 'on' && over ? 'rf-rail-over' : ''} />
+                {s.minDays && s.days ? <i style={{ left: `${Math.min(100, (s.minDays / s.days) * 100)}%` }} /> : null}
+              </span>
+              <span className="rf-rail-label">{String(j + 1).padStart(2, '0')}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {!item.tracked && !done && !item.example ? <div className="rf-sb-note">{canMove ? copy.stageGuessed : ''}</div> : null}
+      {item.eta && !done ? (
+        <div className="rf-sb-eta">
+          <span>{copy.eta}</span>
+          <b className={item.endDate && item.eta > item.endDate ? 'rf-sb-over' : ''}>{dayLabel(item.eta, locale)}</b>
+          {item.endDate && item.eta > item.endDate ? <span className="rf-sb-over">{copy.etaLate}</span> : null}
+        </div>
+      ) : null}
+
+      {confirm != null ? (
+        <div className="rf-sb-confirm">
+          <span>{fill(copy.stageEarly, { min: cur?.minDays ?? 0 })}</span>
+          <span className="rf-sb-confirm-actions">
+            <button type="button" className="rf-btn rf-btn-primary" onClick={() => move(confirm, true)} disabled={busy}>
+              {copy.stageConfirm}
+            </button>
+            <button type="button" className="rf-btn" onClick={() => setConfirm(null)}>
+              {copy.stageCancel}
+            </button>
+          </span>
+        </div>
+      ) : canMove && !done ? (
+        last ? (
+          canClose ? (
+            <button type="button" className="rf-btn rf-btn-dark rf-sb-next" onClick={async () => { setBusy(true); await onCloseProject(); setBusy(false); }} disabled={busy}>
+              <Icon name="flag" /> {fill(copy.closeItem, { item: itemWord })}
+            </button>
+          ) : (
+            <div className="rf-sb-note">{copy.stageLast}</div>
+          )
+        ) : (
+          <button type="button" className="rf-btn rf-btn-dark rf-sb-next" onClick={() => move(i + 1)} disabled={busy}>
+            <Icon name="check" /> {copy.stageDone}
+            <span className="rf-sb-next-to">{fill(copy.stageNext, { stage: stages[i + 1]?.label ?? '' })}</span>
+          </button>
+        )
+      ) : null}
+    </div>
+  );
+}
+
+// The owner's process, editable from the map: kinds of projects, their
+// steps with usual and minimum durations. Saved without rebuilding.
+function ProcessEditor({
+  copy,
+  kinds: initial,
+  itemWord,
+  onClose,
+  onSave,
+  onRedo,
+}: {
+  copy: ReliefCopy;
+  kinds: ReliefKind[];
+  itemWord: string;
+  onClose: () => void;
+  onSave: (kinds: ReliefKind[]) => Promise<string | null>;
+  onRedo: (() => void) | null;
+}) {
+  const [kinds, setKinds] = useState<ReliefKind[]>(() => initial.map((k) => ({ ...k, stages: k.stages.map((s) => ({ ...s })) })));
+  const [idx, setIdx] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const k = kinds[Math.min(idx, kinds.length - 1)];
+  const valid = kinds.every((x) => x.name.trim() && x.stages.filter((s) => s.label.trim()).length >= 3);
+  const setStage = (j: number, patch: Partial<ReliefStage>) =>
+    setKinds((ks) =>
+      ks.map((x, i) => {
+        if (i !== idx) return x;
+        return {
+          ...x,
+          stages: x.stages.map((s, n) => {
+            if (n !== j) return s;
+            const next = { ...s, ...patch };
+            if (next.minDays && next.days && next.minDays > next.days) {
+              if ('days' in patch) next.minDays = next.days;
+              else next.days = next.minDays;
+            }
+            return next;
+          }),
+        };
+      }),
+    );
+  const total = k.stages.reduce((a, s) => a + (s.days ?? 0), 0);
+  const num = (v: string) => Math.max(0, Math.min(365, Number(v) || 0));
+  return (
+    <div className="rf-cardin rf-proc">
+      <div className="rf-panel-top">
+        <div style={{ minWidth: 0 }}>
+          <div className="rf-eyebrow">{copy.processEdit}</div>
+          <div className="rf-panel-title">{copy.processTitle}</div>
+        </div>
+        <button type="button" className="rf-ibtn rf-ibtn-flat" onClick={onClose} aria-label={copy.close}>
+          <Icon name="x" size={18} />
+        </button>
+      </div>
+      <p className="rf-muted rf-proc-text">{copy.processText}</p>
+      {kinds.length > 1 ? (
+        <div className="rf-tabs" role="tablist">
+          {kinds.map((x, i) => (
+            <button key={x.id} type="button" role="tab" aria-selected={i === idx} className={`rf-tab${i === idx ? ' rf-tab-on' : ''}`} onClick={() => setIdx(i)}>
+              {x.name || '—'}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <input className="rf-proc-name" value={k.name} onChange={(e) => setKinds((ks) => ks.map((x, i) => (i === idx ? { ...x, name: e.target.value } : x)))} maxLength={40} aria-label={copy.obKindName} />
+      <div className="rf-proc-head" aria-hidden="true">
+        <span />
+        <span>{copy.obStageName}</span>
+        <span>{copy.obStageUsual}</span>
+        <span>{copy.obStageMin}</span>
+      </div>
+      <div className="rf-proc-rows">
+        {k.stages.map((s, j) => (
+          <div key={j} className="rf-proc-row">
+            <span className="rf-proc-n">{String(j + 1).padStart(2, '0')}</span>
+            <input value={s.label} onChange={(e) => setStage(j, { label: e.target.value })} maxLength={32} aria-label={copy.obStageName} />
+            <input className="rf-proc-num" type="number" min={0} max={365} value={s.days || ''} onChange={(e) => setStage(j, { days: num(e.target.value) })} aria-label={copy.obStageUsual} />
+            <input className="rf-proc-num rf-proc-min" type="number" min={0} max={365} value={s.minDays || ''} onChange={(e) => setStage(j, { minDays: num(e.target.value) })} aria-label={copy.obStageMin} />
+          </div>
+        ))}
+      </div>
+      <div className="rf-proc-foot">
+        <span className="rf-muted">
+          {fill(copy.processStages, { n: k.stages.length })} · {total} {copy.obDaysUnit}
+        </span>
+        {k.stages.length < 8 ? (
+          <button type="button" className="rf-chip" onClick={() => setKinds((ks) => ks.map((x, i) => (i === idx ? { ...x, stages: [...x.stages, { label: '' }] } : x)))}>
+            + {copy.obAddStage}
+          </button>
+        ) : null}
+      </div>
+      <div className="rf-muted rf-small">{fill(copy.obKindsHint, { item: itemWord })}</div>
+      <button
+        type="button"
+        className="rf-btn rf-btn-primary rf-open"
+        disabled={!valid || busy}
+        onClick={async () => {
+          setBusy(true);
+          await onSave(kinds.map((x) => ({ ...x, name: x.name.trim(), stages: x.stages.filter((s) => s.label.trim()) })));
+          setBusy(false);
+        }}
+      >
+        {copy.processSave}
+      </button>
+      {onRedo ? (
+        <button type="button" className="rf-btn rf-proc-redo" onClick={onRedo}>
+          <Icon name="redo" /> {copy.redo}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function Overview({ item, spec, data, copy, details, caps }: { item: ReliefItem; spec: ReliefSpec; data: ReliefData; copy: ReliefCopy; details: ReliefDetails | null; caps: Props['caps'] }) {
   const crew = item.crew.map((id) => data.people.find((p) => p.id === id)).filter(Boolean) as ReliefData['people'];
   const invoiced = details?.factures?.reduce((s, f) => s + (f.status === 'draft' || f.status === 'cancelled' ? 0 : f.total), 0) ?? item.money?.invoiced ?? 0;
@@ -619,7 +1042,7 @@ function Overview({ item, spec, data, copy, details, caps }: { item: ReliefItem;
   return (
     <div className="rf-ov">
       <ol className="rf-timeline">
-        {spec.stages.map((s, i) => {
+        {item.stages.map((s, i) => {
           const state = item.status === 'done' || i < item.stage ? 'done' : i === item.stage ? 'on' : 'next';
           return (
             <li key={s.label + i} className={`rf-tl rf-tl-${state}`}>
@@ -1180,6 +1603,95 @@ const CSS = `
 .rf-mobile .rf-panel-title { font-size: 19px; }
 .rf-mobile .rf-tab { font-size: 12.5px; padding: 8px 8px 9px; }
 .rf-open-m { position: sticky; bottom: 0; margin-bottom: 12px; box-shadow: 0 -10px 18px 8px #FFFDF9; }
+
+/* where the item stands: a departure board for its process */
+.rf-stageblock { background: #1D1712; color: #F3EEE5; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; border-radius: 2px; position: relative; overflow: hidden; }
+.rf-stageblock::after { content: ''; position: absolute; right: -40px; top: -40px; width: 120px; height: 120px; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70%); pointer-events: none; }
+.rf-stageblock-done { background: #3A332C; }
+.rf-sb-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.rf-sb-count { font: 600 10px 'Martian Mono', ui-monospace, monospace; letter-spacing: .8px; text-transform: uppercase; color: #B8AE9F; }
+.rf-sb-kind { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #B8AE9F; position: relative; z-index: 1; }
+.rf-sb-kind select { font: 600 12px Archivo, system-ui, sans-serif; color: #F3EEE5; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 2px; padding: 4px 6px; }
+.rf-sb-kind option { color: #1D1712; }
+.rf-sb-name { font-size: 24px; font-weight: 900; letter-spacing: -.6px; line-height: 1.05; }
+.rf-sb-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 500 11px 'Martian Mono', ui-monospace, monospace; color: #CFC6B8; }
+.rf-sb-over { color: #FF9A8C !important; }
+.rf-rail { display: flex; gap: 3px; margin-top: 4px; }
+.rf-rail-step { all: unset; box-sizing: border-box; flex-basis: 0; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
+.rf-rail-click { cursor: pointer; }
+.rf-rail-click:hover .rf-rail-bar { outline: 1px solid rgba(255,255,255,.5); outline-offset: 2px; }
+.rf-rail-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rf-rail-bar { position: relative; display: block; height: 8px; background: rgba(255,255,255,.12); }
+.rf-rail-bar > span { display: block; height: 100%; background: var(--accent); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.rf-rail-done .rf-rail-bar > span { background: color-mix(in srgb, var(--accent) 55%, #F3EEE5); }
+.rf-rail-on .rf-rail-bar > span { background: var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent); }
+.rf-rail-bar > span.rf-rail-over { background: #E0503F; }
+.rf-rail-bar > i { position: absolute; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,.55); }
+.rf-rail-label { font: 600 9.5px 'Martian Mono', ui-monospace, monospace; color: #8A8073; white-space: nowrap; overflow: hidden; }
+.rf-rail-on .rf-rail-label { color: #FFFFFF; }
+.rf-rail-done .rf-rail-label { color: #CFC6B8; }
+.rf-sb-note { font-size: 11.5px; line-height: 1.4; color: #B8AE9F; }
+.rf-sb-note:empty { display: none; }
+.rf-sb-eta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 11px; color: #B8AE9F; border-top: 1px solid rgba(255,255,255,.12); padding-top: 8px; }
+.rf-sb-eta b { font: 600 13px 'Martian Mono', ui-monospace, monospace; color: #FFFFFF; }
+.rf-sb-next { width: 100%; justify-content: space-between; background: var(--accent) !important; border-color: var(--accent) !important; color: #FFFFFF !important; padding: 11px 12px; position: relative; z-index: 1; }
+.rf-sb-next:hover { filter: brightness(1.08); }
+.rf-sb-next-to { margin-left: auto; font-weight: 600; font-size: 12px; opacity: .85; overflow: hidden; text-overflow: ellipsis; }
+.rf-sb-confirm { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; line-height: 1.4; color: #FFE2C4; background: rgba(224,80,63,.16); border: 1px solid rgba(224,80,63,.4); padding: 10px; }
+.rf-sb-confirm-actions { display: flex; gap: 8px; }
+.rf-sb-confirm .rf-btn:not(.rf-btn-primary) { background: transparent; color: #F3EEE5; border-color: rgba(255,255,255,.3); }
+
+/* voice */
+.rf-say { gap: 8px; }
+.rf-say-dot { width: 7px; height: 7px; border-radius: 50%; background: #C62F22; display: none; }
+.rf-say-on { background: #C62F22 !important; border-color: #C62F22 !important; color: #FFFFFF !important; }
+.rf-say-on .rf-say-dot { display: inline-block; background: #FFFFFF; animation: rf-blink 1s steps(2) infinite; }
+.rf-ibtn-say.rf-say-on { animation: rf-pulse 1.4s ease-out infinite; }
+.rf-btn.rf-btn-on { background: #1D1712; color: #FFFFFF; border-color: #1D1712; transition: none; }
+.rf-btn.rf-btn-on:hover { background: #2B241D; }
+.rf-voice { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 4; display: flex; align-items: center; gap: 14px; padding: 12px 18px; max-width: min(560px, calc(100% - 32px)); background: #1D1712; color: #F3EEE5; border-radius: 2px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.5); animation: rf-rise .3s cubic-bezier(.2,.8,.2,1); }
+.rf-voice-ok { border-left: 3px solid #6FBF8E; }
+.rf-voice-err { border-left: 3px solid #E0503F; }
+.rf-voice-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 12px; color: #CFC6B8; }
+.rf-voice-main b { font-size: 14px; color: #FFFFFF; font-weight: 800; }
+.rf-voice-heard { font-style: italic; }
+.rf-voice-wave { display: inline-flex; align-items: center; gap: 3px; height: 22px; }
+.rf-voice-wave i { width: 3px; height: 100%; background: #E0503F; animation: rf-wave 1s ease-in-out infinite; }
+.rf-voice-wave i:nth-child(2) { animation-delay: .1s; } .rf-voice-wave i:nth-child(3) { animation-delay: .2s; } .rf-voice-wave i:nth-child(4) { animation-delay: .3s; } .rf-voice-wave i:nth-child(5) { animation-delay: .4s; }
+.rf-mobile .rf-voice { bottom: auto; top: calc(max(10px, env(safe-area-inset-top)) + 58px); }
+@keyframes rf-wave { 0%, 100% { transform: scaleY(.25); } 50% { transform: scaleY(1); } }
+@keyframes rf-blink { 50% { opacity: .2; } }
+@keyframes rf-pulse { 0% { box-shadow: 0 0 0 0 rgba(198,47,34,.5); } 100% { box-shadow: 0 0 0 12px rgba(198,47,34,0); } }
+@keyframes rf-rise { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* process editor */
+.rf-proc-text { margin: 0; line-height: 1.45; }
+.rf-proc-name { font: 800 17px Archivo, system-ui, sans-serif; padding: 9px 11px; border: 1px solid rgba(35,26,18,.18); border-radius: 2px; background: #FFFFFF; color: #231A12; }
+.rf-proc-head, .rf-proc-row { display: grid; grid-template-columns: 26px 1fr 62px 62px; gap: 8px; align-items: center; }
+.rf-proc-head { font-size: 9.5px; font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; color: #8C8073; }
+.rf-proc-rows { display: flex; flex-direction: column; border-top: 1px solid #EDE3D3; }
+.rf-proc-row { padding: 6px 0; border-bottom: 1px solid #EDE3D3; }
+.rf-proc-row input { min-width: 0; font: 500 13.5px Archivo, system-ui, sans-serif; padding: 8px 9px; border: 1px solid rgba(35,26,18,.14); border-radius: 2px; background: #FFFFFF; color: #231A12; }
+.rf-proc-row input:focus, .rf-proc-name:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.rf-proc-num { font-family: 'Martian Mono', ui-monospace, monospace !important; text-align: right; -moz-appearance: textfield; }
+.rf-proc-num::-webkit-outer-spin-button, .rf-proc-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.rf-proc-min { background: repeating-linear-gradient(135deg, #FFFFFF 0 3px, #F6F1E8 3px 6px) !important; }
+.rf-proc-n { font: 600 10.5px 'Martian Mono', ui-monospace, monospace; color: var(--accent); }
+.rf-proc-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.rf-proc-redo { width: 100%; }
+.rf-proc .rf-open { margin-top: auto; }
+.rf-sheet-tools { display: inline-flex; gap: 14px; align-items: center; }
+
+/* a narrow computer or a tablet: icon buttons, no legend */
+@media (max-width: 1180px) and (min-width: 761px) {
+  .rf-actions .rf-btn { font-size: 0; gap: 0; width: 40px; height: 40px; padding: 0; }
+  .rf-actions .rf-btn svg { width: 17px; height: 17px; }
+  .rf-actions .rf-say-dot { display: none !important; }
+  .rf-legend { display: none; }
+  .rf-furniture { display: none; }
+  .rf-head { width: 300px; min-width: 260px; }
+  .rf-panel { width: 420px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .rf-root *, .rf-root *::before { animation: none !important; transition: none !important; }

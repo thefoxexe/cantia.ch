@@ -24,9 +24,9 @@ export interface ModuleRegistryEntry {
 export const MODULE_REGISTRY: ModuleRegistryEntry[] = [
   {
     key: 'relief',
-    name: 'Cantia Relief',
-    description: 'L’entreprise en maquette 3D vivante, construite par l’IA selon le métier et reliée aux projets, au planning et aux tâches (docs/relief.md).',
-    route: '/relief',
+    name: 'Cantia Maquette',
+    description: 'L’entreprise en maquette 3D vivante : process prérempli depuis le site, projets à leur étape, équipes du jour, reliée au planning, aux tâches et à la facturation (docs/relief.md).',
+    route: '/maquette',
     visibility: 'private',
   },
 ];

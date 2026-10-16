@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { ReliefData, ReliefItem, ReliefSpec, ReliefStyle } from './types';
 
-// Cantia Relief: the scene. A tabletop miniature of the company drawn with
+// Cantia Maquette: the scene. A tabletop miniature of the company drawn with
 // three.js from its ReliefSpec (base model, process steps, look — written by
 // the AI) and its ReliefData (projects, today's crew, tasks — read live):
 //
@@ -15,6 +15,10 @@ import type { ReliefData, ReliefItem, ReliefSpec, ReliefStyle } from './types';
 //    coming ones drawn as outlines;
 //  - atelier: a workshop hall with a bay per job, the object being worked
 //    on, and a path of floor tiles that lights up step by step.
+//
+// Everywhere, the people planned today leave the base and go to their item
+// (a van out to the sites, on foot through the streets or the workshop),
+// then work there; an item that moved up a step pops with a ring.
 //
 // Plain three.js, no React: it runs inside the DOM component
 // (components/relief/ReliefDom.tsx). update() rebuilds the scene from new
@@ -226,21 +230,74 @@ class Occupancy {
 
 // ------------------------------------------------------------------ small props
 
-function person(color: string, helmet: string | null) {
+/** A little person whose legs and arms swing from the hips and shoulders. */
+interface Figure {
+  group: THREE.Group;
+  body: THREE.Group;
+  legL: THREE.Object3D;
+  legR: THREE.Object3D;
+  armL: THREE.Object3D;
+  armR: THREE.Object3D;
+}
+
+function person(color: string, helmet: string | null, scale = 1.5): Figure {
   const g = new THREE.Group();
-  g.add(box(0.24, 0.85, 0.26, C.dark, -0.15, 0, 0));
-  g.add(box(0.24, 0.85, 0.26, C.dark, 0.15, 0, 0));
-  g.add(box(0.62, 0.8, 0.36, color, 0, 0.85, 0));
-  const head = mesh(new THREE.SphereGeometry(0.24, 10, 8), C.skin);
+  const body = new THREE.Group();
+  g.add(body);
+  const limb = (w: number, h: number, d: number, col: string, x: number, y: number) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(x, y, 0);
+    pivot.add(mesh(boxGeo(w, h, d, 0, -h, 0), col));
+    body.add(pivot);
+    return pivot;
+  };
+  const legL = limb(0.24, 0.86, 0.26, C.dark, -0.15, 0.88);
+  const legR = limb(0.24, 0.86, 0.26, C.dark, 0.15, 0.88);
+  body.add(box(0.62, 0.78, 0.36, color, 0, 0.86, 0));
+  // A reflective strip on the work vest.
+  body.add(box(0.63, 0.08, 0.37, '#E9E3D6', 0, 1.18, 0));
+  const armL = limb(0.16, 0.66, 0.2, color, -0.41, 1.6);
+  const armR = limb(0.16, 0.66, 0.2, color, 0.41, 1.6);
+  const head = mesh(new THREE.SphereGeometry(0.24, 12, 9), C.skin);
   head.position.y = 1.9;
-  g.add(head);
+  body.add(head);
   if (helmet) {
-    const hat = mesh(new THREE.SphereGeometry(0.28, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), helmet);
+    const hat = mesh(new THREE.SphereGeometry(0.28, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), helmet);
     hat.position.y = 1.98;
-    g.add(hat);
+    body.add(hat);
+    const brim = mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.04, 14), helmet);
+    brim.position.y = 1.98;
+    body.add(brim);
   }
-  g.scale.setScalar(1.5);
-  return g;
+  g.scale.setScalar(scale);
+  return { group: g, body, legL, legR, armL, armR };
+}
+
+/** One step of the walk cycle (phase in radians, amount 0 to 1). */
+function stride(f: Figure, phase: number, amount: number) {
+  const a = Math.sin(phase) * 0.7 * amount;
+  f.legL.rotation.x = a;
+  f.legR.rotation.x = -a;
+  f.armL.rotation.x = -a * 0.8;
+  f.armR.rotation.x = a * 0.8;
+  f.body.position.y = Math.abs(Math.cos(phase)) * 0.06 * amount;
+}
+
+/** Working on the spot: one arm hammers, the other holds. */
+function hammer(f: Figure, t: number, phase: number) {
+  f.legL.rotation.x = 0;
+  f.legR.rotation.x = 0;
+  f.armL.rotation.x = -0.5;
+  f.armR.rotation.x = -1.3 + Math.max(0, Math.sin(t * 5 + phase)) * 1.1;
+  f.body.position.y = 0;
+  f.body.rotation.x = 0.12 + Math.max(0, Math.sin(t * 5 + phase)) * 0.06;
+}
+
+/** A path made of straight legs, walked at a constant speed. */
+function polyline(points: THREE.Vector3[]) {
+  const path = new THREE.CurvePath<THREE.Vector3>();
+  for (let i = 1; i < points.length; i++) if (points[i].distanceTo(points[i - 1]) > 0.01) path.add(new THREE.LineCurve3(points[i - 1].clone(), points[i].clone()));
+  return path;
 }
 
 function tree(kind: 'pine' | 'leaf', s: number, color: string) {
@@ -554,6 +611,9 @@ function windows(w: number, d: number, floors: number, floorH: number, base: num
 
 // ------------------------------------------------------------------ item builders
 
+/** Steps of the item's own process (its kind of project). */
+const stepsOf = (it: ReliefItem, fallback: number) => Math.max(2, it.stages?.length || fallback);
+
 interface Built {
   group: THREE.Group;
   top: number;
@@ -864,6 +924,14 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   Object.assign(renderer.domElement.style, { display: 'block', width: '100%', height: '100%', outline: 'none' });
   host.appendChild(renderer.domElement);
 
+  // Tilt-shift: the near and far edges of the view melt into a soft blur,
+  // like a photograph of a real scale model. Under the names, not over them.
+  const tilt = opts.transparent ? null : document.createElement('div');
+  if (tilt) {
+    tilt.className = 'rf-tilt';
+    host.appendChild(tilt);
+  }
+
   const labelLayer = document.createElement('div');
   labelLayer.className = 'rf-labels';
   host.appendChild(labelLayer);
@@ -934,8 +1002,33 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   let homeRadius = 90;
   type ItemObj = { item: ReliefItem; built: Built; hit: THREE.Mesh; ring: THREE.Mesh; anchor: THREE.Vector3; road: THREE.CatmullRomCurve3 | null };
   let items = new Map<string, ItemObj>();
-  let walkers: { obj: THREE.Object3D; a: THREE.Vector3; b: THREE.Vector3; speed: number; phase: number; walk: boolean }[] = [];
-  let vans: { obj: THREE.Object3D; curve: THREE.CatmullRomCurve3; speed: number; phase: number }[] = [];
+  // People: on their way (a path walked from t0, hidden until then when
+  // they ride in a van), then at work on the spot (pacing or hammering).
+  type Walker = {
+    fig: Figure;
+    a: THREE.Vector3;
+    b: THREE.Vector3;
+    speed: number;
+    phase: number;
+    walk: boolean;
+    face: THREE.Vector3 | null;
+    trip: { path: THREE.CurvePath<THREE.Vector3>; len: number; t0: number; speed: number } | null;
+    key: string | null;
+    el: HTMLElement | null;
+    itemId: string | null;
+  };
+  let walkers: Walker[] = [];
+  let vans: { obj: THREE.Object3D; curve: THREE.CatmullRomCurve3; speed: number; phase: number; trip?: { t0: number; dur: number } }[] = [];
+  // Who already reached their item (kept across rebuilds: only newcomers walk).
+  const arrived = new Set<string>();
+  let animated = true;
+  let simTime = 0;
+  // Step of each item at the last build: a step gained makes the item pop.
+  const lastStages = new Map<string, number>();
+  let pops: { obj: THREE.Object3D; t0: number; ring: THREE.Mesh; r: number }[] = [];
+  // Where people leave the base, and the way to each item (set by the builder).
+  let door = new THREE.Vector3();
+  let routeTo: (so: { built: Built; item: ReliefItem }) => THREE.Vector3[] = () => [];
   type Dot = { parts: THREE.Object3D[]; u: number; dir: 1 | -1 };
   let flows: { curve: THREE.QuadraticBezierCurve3; len: number; dots: Dot[] }[] = [];
   let waves: { mesh: THREE.Mesh; period: number; phase: number; size: number; peak: number }[] = [];
@@ -946,7 +1039,6 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   let fountains: THREE.Object3D[] = [];
   let extent = { front: 0, back: 0 };
   let labels: { el: HTMLElement; pos: THREE.Vector3; id: string | null }[] = [];
-  let workerLabels: { el: HTMLElement; obj: THREE.Object3D; itemId: string }[] = [];
   let hits: THREE.Mesh[] = [];
   let selected: string | null = null;
   let rising: { obj: THREE.Object3D; t0: number }[] = [];
@@ -959,8 +1051,10 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     world = new THREE.Group();
     scene.add(world);
     items = new Map();
+    walkers.forEach((w) => w.el?.remove());
     walkers = [];
     vans = [];
+    pops = [];
     flows = [];
     waves = [];
     beams = [];
@@ -971,9 +1065,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     extent = { front: 0, back: 0 };
     MOOD = mood;
     labels.forEach((l) => l.el.remove());
-    workerLabels.forEach((l) => l.el.remove());
     labels = [];
-    workerLabels = [];
     rising = [];
 
     const n = Math.max(1, data.items.length);
@@ -1035,7 +1127,10 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     else buildAtelier(base, stages);
 
     // Labels over items and over the base.
-    const stageLabel = (it: ReliefItem) => spec.stages[Math.min(spec.stages.length - 1, it.stage)]?.label ?? '';
+    const stageLabel = (it: ReliefItem) => {
+      const list = it.stages?.length ? it.stages : spec.stages;
+      return list[Math.min(list.length - 1, it.stage)]?.label ?? '';
+    };
     for (const so of items.values()) {
       const el = document.createElement('button');
       el.type = 'button';
@@ -1062,36 +1157,80 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     const hub = spec.template === 'territoire' ? base.clone().add(new THREE.Vector3(-3, 7.6, -3)) : spec.template === 'studio' ? base.clone().add(new THREE.Vector3(0, 5.7, -1)) : base.clone().add(new THREE.Vector3(0, 4.1, 0));
     buildNetwork(hub, base);
 
-    // People planned today: on their item, or at the base.
+    // People planned today: they leave the base and go to their item (in a
+    // van out to the sites, on foot through the streets or the workshop),
+    // then work there. Only those not seen arriving yet make the trip.
+    const helmet = spec.template === 'territoire' ? C.helmet : null;
+    // Figurines a little larger than life, so they read from the overview.
+    const figScale = spec.template === 'studio' ? 2.2 : spec.template === 'territoire' ? 1.9 : 1.6;
+    let order = 0;
+    let vanCount = 0;
+    const startAt = simTime + (opts.intro ? 1.2 : 0.3);
     for (const so of items.values()) {
-      so.item.crew.forEach((pid, i) => {
-        const p = personOf(pid);
-        if (!p) return;
-        const fig = person(p.color, spec.template === 'territoire' ? C.helmet : null);
-        const spot = so.built.spots[i % so.built.spots.length].clone();
-        const a = spot.clone().add(so.built.group.position);
-        const b = a.clone().add(new THREE.Vector3((rand() - 0.5) * 4, 0, (rand() - 0.5) * 2));
-        fig.position.copy(a);
-        world.add(fig);
-        walkers.push({ obj: fig, a, b, speed: 0.25 + rand() * 0.2, phase: rand() * 6, walk: i % 2 === 0 });
+      const crew = so.item.crew.map(personOf).filter(Boolean) as ReliefData['people'];
+      if (!crew.length) continue;
+      const keys = crew.map((p) => `${p.id}:${so.item.id}`);
+      const fresh = animated && keys.some((k) => !arrived.has(k));
+      const gateW = so.built.gate.clone().add(so.built.group.position);
+      // Out to a site: the van drives the road, the crew gets off at the gate.
+      let rideUntil: number | null = null;
+      if (spec.template === 'territoire' && so.road && vanCount < 6) {
+        const v = van(accent);
+        world.add(v);
+        const dur = THREE.MathUtils.clamp(so.road.getLength() / 12, 2.2, 5.5);
+        const t0 = startAt + order * 0.9;
+        vans.push({ obj: v, curve: so.road, speed: 0, phase: 0, trip: fresh ? { t0, dur } : { t0: -1e9, dur } });
+        if (fresh) rideUntil = t0 + dur;
+        vanCount++;
+      }
+      crew.forEach((p, i) => {
+        const fig = person(p.color, helmet, figScale);
+        const spot = so.built.spots[i % so.built.spots.length].clone().add(so.built.group.position);
+        const b = spot.clone().add(new THREE.Vector3((rand() - 0.5) * 4, 0, (rand() - 0.5) * 2));
+        const key = keys[i];
+        const center = so.built.group.position.clone();
+        let trip: Walker['trip'] = null;
+        if (animated && !arrived.has(key)) {
+          const pts = rideUntil != null ? [gateW.clone().add(new THREE.Vector3((i - (crew.length - 1) / 2) * 1.1, 0.08, 1.4)), spot] : [door.clone(), ...routeTo(so), spot];
+          const path = polyline(pts);
+          const len = Math.max(0.1, path.getLength());
+          trip = { path, len, t0: rideUntil != null ? rideUntil + 0.3 + i * 0.35 : startAt + order * 0.9 + i * 0.55, speed: Math.max(4.2, len / 16) };
+        } else arrived.add(key);
+        fig.group.position.copy(trip ? door : spot);
+        world.add(fig.group);
         const el = document.createElement('div');
         el.className = 'rf-worker';
         el.textContent = p.initials;
         el.title = p.name;
         el.style.background = p.color;
         labelLayer.appendChild(el);
-        workerLabels.push({ el, obj: fig, itemId: so.item.id });
+        walkers.push({ fig, a: spot, b, speed: 0.25 + rand() * 0.2, phase: rand() * 6, walk: i % 2 === 0, face: center, trip, key, el, itemId: so.item.id });
       });
+      order++;
     }
     data.atBase.forEach((pid, i) => {
       const p = personOf(pid);
       if (!p) return;
-      const fig = person(p.color, null);
-      const a = base.clone().add(new THREE.Vector3(-4 + i * 1.6, 0.1, 6));
-      fig.position.copy(a);
-      world.add(fig);
-      walkers.push({ obj: fig, a, b: a.clone().add(new THREE.Vector3(2, 0, 0)), speed: 0.2, phase: i, walk: false });
+      const fig = person(p.color, null, figScale);
+      const a = door.clone().add(new THREE.Vector3(-4 + i * 1.6, 0.1, 2.5));
+      fig.group.position.copy(a);
+      world.add(fig.group);
+      walkers.push({ fig, a, b: a.clone().add(new THREE.Vector3(2, 0, 0)), speed: 0.2, phase: i, walk: false, face: null, trip: null, key: null, el: null, itemId: null });
     });
+
+    // An item that moved up a step since the last build pops, with a ring.
+    for (const so of items.values()) {
+      const prev = lastStages.get(so.item.id);
+      if (prev !== undefined && so.item.stage > prev && animated) {
+        const r = so.built.radius;
+        const ring = new THREE.Mesh(new THREE.RingGeometry(r * 0.9, r * 0.9 + 0.8, 56), new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(so.built.group.position.x, 0.2, so.built.group.position.z);
+        world.add(ring);
+        pops.push({ obj: so.built.group, t0: performance.now() + 150, ring, r });
+      }
+      lastStages.set(so.item.id, so.item.stage);
+    }
 
     hits = [...items.values()].map((s) => s.hit);
 
@@ -1575,7 +1714,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     const roadStart = base.clone().add(new THREE.Vector3(0, 0, 9));
     let angle = 0.9;
     data.items.forEach((it, i) => {
-      const built = buildSite(it, stages, accent, rand);
+      const built = buildSite(it, stepsOf(it, stages), accent, rand);
       let x = 0;
       let z = 0;
       for (let tries = 0; tries < 400; tries++) {
@@ -1605,15 +1744,18 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       }
     });
 
-    // A van out for each crew of the day (up to five).
-    [...items.values()]
-      .filter((o) => o.item.crew.length && o.road)
-      .slice(0, 5)
-      .forEach((o, i) => {
-        const v = van(accent);
-        world.add(v);
-        vans.push({ obj: v, curve: o.road as THREE.CatmullRomCurve3, speed: 0.03 + (i % 3) * 0.01, phase: i * 1.7 });
+    // On foot (when no van is left): out of the depot, then along the road.
+    door = base.clone().add(new THREE.Vector3(-5, 0.08, 1.6));
+    routeTo = (so) => {
+      const road = (so as { road?: THREE.CatmullRomCurve3 | null }).road ?? items.get(so.item.id)?.road;
+      if (!road) return [];
+      return Array.from({ length: 12 }, (_, k) => {
+        const u = k / 11;
+        const pt = road.getPointAt(u);
+        const tan = road.getTangentAt(u);
+        return new THREE.Vector3(pt.x - tan.z * 1.6, 0.08, pt.z + tan.x * 1.6);
       });
+    };
 
     scatterTrees(occ, rand, spec.decor.greenery === 'verdoyant' ? 140 : 70, true);
   }
@@ -1644,10 +1786,19 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     data.items.forEach((it, i) => {
       const x = x0 + (i % cols) * cell;
       const z = z0 + Math.floor(i / cols) * cell;
-      const built = buildTower(it, stages, accent);
+      const built = buildTower(it, stepsOf(it, stages), accent);
       addItemObj(it, built, x, z, null);
       occ.add(x, z, built.radius);
     });
+    // People walk out of the office and along the streets to their building.
+    door = base.clone().add(new THREE.Vector3(0, 0.1, 3.6));
+    const front = z0 - cell / 2 + rows * cell;
+    routeTo = (so) => {
+      const { x, z } = so.built.group.position;
+      const xs = x - cell / 2 + 1.4;
+      const zs = z + cell / 2 - 1.4;
+      return [new THREE.Vector3(door.x, 0.1, front + 1.4), new THREE.Vector3(xs, 0.1, front + 1.4), new THREE.Vector3(xs, 0.1, zs), new THREE.Vector3(x, 0.1, zs)];
+    };
     // Office of the company, at the front.
     const hq = new THREE.Group();
     hq.position.copy(base);
@@ -1675,8 +1826,15 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     data.items.forEach((it, i) => {
       const x = x0 + (i % cols) * cellX;
       const z = z0 + Math.floor(i / cols) * cellZ;
-      addItemObj(it, buildBay(it, stages, accent), x, z, null);
+      addItemObj(it, buildBay(it, stepsOf(it, stages), accent), x, z, null);
     });
+    // From the office along the aisles to the bay.
+    door = base.clone().add(new THREE.Vector3(0, 0.1, -4.2));
+    routeTo = (so) => {
+      const { x, z } = so.built.group.position;
+      const aisle = z + cellZ / 2;
+      return [new THREE.Vector3(door.x, 0.1, aisle), new THREE.Vector3(x, 0.1, aisle)];
+    };
     // Office corner at the front.
     const office = new THREE.Group();
     office.position.copy(base);
@@ -1773,8 +1931,6 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   }
 
   // ---- loop
-  let animated = true;
-  let simTime = 0;
   let last = performance.now();
   let raf = 0;
   const tmp = new THREE.Vector3();
@@ -1815,16 +1971,61 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       ringMat.opacity += (target - ringMat.opacity) * 0.15;
     }
     for (const w of walkers) {
+      const g = w.fig.group;
+      if (w.trip) {
+        const k = (t - w.trip.t0) * w.trip.speed;
+        if (k < 0) {
+          // Still inside (or in the van).
+          g.visible = false;
+          continue;
+        }
+        g.visible = true;
+        const u = k / w.trip.len;
+        if (u >= 1) {
+          if (w.key) arrived.add(w.key);
+          w.trip = null;
+          g.position.copy(w.a);
+        } else {
+          w.trip.path.getPointAt(u, tmp);
+          g.position.set(tmp.x, w.a.y, tmp.z);
+          w.trip.path.getTangentAt(u, tmp2);
+          g.rotation.y = Math.atan2(tmp2.x, tmp2.z);
+          stride(w.fig, k * 1.9, 1);
+          continue;
+        }
+      }
       if (w.walk) {
         const u = (1 - Math.cos(t * w.speed + w.phase)) / 2;
-        w.obj.position.lerpVectors(w.a, w.b, u);
+        g.position.lerpVectors(w.a, w.b, u);
         const dir = Math.sin(t * w.speed + w.phase) >= 0 ? 1 : -1;
         tmp.subVectors(w.b, w.a).multiplyScalar(dir);
-        w.obj.rotation.y = Math.atan2(tmp.x, tmp.z);
-        w.obj.position.y = w.a.y + Math.abs(Math.sin(t * 6 + w.phase)) * 0.07;
+        g.rotation.y = Math.atan2(tmp.x, tmp.z);
+        stride(w.fig, t * 6 + w.phase, Math.min(1, Math.abs(Math.sin(t * w.speed + w.phase)) * 2.5));
+      } else if (w.face) {
+        // Facing the work, hammering.
+        g.rotation.y = Math.atan2(w.face.x - g.position.x, w.face.z - g.position.z);
+        hammer(w.fig, t, w.phase);
       } else {
-        w.obj.rotation.y = w.phase + Math.sin(t * 0.6 + w.phase) * 0.5;
+        g.rotation.y = w.phase + Math.sin(t * 0.6 + w.phase) * 0.5;
+        stride(w.fig, 0, 0);
       }
+    }
+    if (pops.length) {
+      pops = pops.filter((p) => {
+        const k = (now - p.t0) / 1300;
+        if (k < 0) return true;
+        const e = Math.min(1, k);
+        p.obj.scale.setScalar(1 + Math.sin(e * Math.PI) * 0.14 * (1 - e));
+        const rm = p.ring.material as THREE.MeshBasicMaterial;
+        rm.opacity = (1 - e) * 0.85;
+        p.ring.scale.setScalar(1 + e * 1.4);
+        if (k >= 1) {
+          p.obj.scale.setScalar(1);
+          p.ring.visible = false;
+          return false;
+        }
+        return true;
+      });
     }
     for (const f of flows) {
       for (const d of f.dots) {
@@ -1866,11 +2067,22 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     }
     for (const f of fountains) f.scale.y = 1 + Math.sin(t * 3.1) * 0.04;
     for (const v of vans) {
-      const ph = t * v.speed * Math.PI * 2 + v.phase;
-      const u = THREE.MathUtils.clamp((1 - Math.cos(ph)) / 2, 0, 1);
+      let u: number;
+      let back = false;
+      if (v.trip) {
+        // Out once to the site, eased, then parked at the gate.
+        const k = THREE.MathUtils.clamp((t - v.trip.t0) / v.trip.dur, 0, 1);
+        u = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        u = Math.min(0.985, u);
+        v.obj.visible = t >= v.trip.t0;
+      } else {
+        const ph = t * v.speed * Math.PI * 2 + v.phase;
+        u = THREE.MathUtils.clamp((1 - Math.cos(ph)) / 2, 0, 1);
+        back = Math.sin(ph) < 0;
+      }
       const p = v.curve.getPointAt(u);
       const tan = v.curve.getTangentAt(u);
-      if (Math.sin(ph) < 0) tan.negate();
+      if (back) tan.negate();
       v.obj.position.set(p.x - tan.z * 0.7, 0.08, p.z + tan.x * 0.7);
       v.obj.rotation.y = -Math.atan2(tan.z, tan.x);
     }
@@ -1919,13 +2131,17 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       el.style.visibility = hit && p.rank > -1 ? 'hidden' : 'visible';
       if (!hit || p.rank === -1) taken.push(r);
     }
-    for (const wl of workerLabels) {
-      if (wl.itemId !== selected) {
-        wl.el.style.display = 'none';
+    // Initials over people on their way, and over the selected item's crew.
+    for (const w of walkers) {
+      if (!w.el) continue;
+      const show = w.fig.group.visible && (w.trip !== null || (w.itemId !== null && w.itemId === selected));
+      if (!show) {
+        w.el.style.display = 'none';
         continue;
       }
-      wl.obj.getWorldPosition(tmp);
-      place(wl.el, tmp.clone().setY(tmp.y + 4.2));
+      w.fig.group.getWorldPosition(tmp);
+      place(w.el, tmp.clone().setY(tmp.y + 2.9 * w.fig.group.scale.y));
+      w.el.classList.toggle('rf-worker-go', w.trip !== null);
     }
   };
   raf = requestAnimationFrame(frame);
@@ -2007,6 +2223,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       glowTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();
+      tilt?.remove();
       labelLayer.remove();
     },
   };

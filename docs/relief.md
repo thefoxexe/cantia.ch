@@ -1,51 +1,61 @@
-# Cantia Relief
+# Cantia Maquette
 
-L'entreprise en maquette 3D vivante. Le responsable dicte (ou écrit) son métier et sa façon de travailler ; l'IA choisit un modèle de monde, l'habille avec les mots de l'entreprise et les étapes de son process ; la scène est ensuite alimentée en direct par les vraies données : projets, planning du jour, tâches, chiffres.
+(Nom de code dans le code et la base : `relief`. Allemand : Cantia Modell ; italien : Cantia Plastico.)
+
+L'entreprise en maquette 3D vivante. Le process de l'entreprise est prérempli d'après son site internet, le responsable le corrige (types de projets, étapes, durées habituelles et minimales) ; l'IA choisit un modèle de monde et l'habille avec les mots de l'entreprise ; la scène est ensuite alimentée en direct par les vraies données : projets à leur étape, équipes du jour qui partent sur leurs projets, tâches, chiffres.
 
 Option payante (module privé `relief`) : accordée par l'admin plateforme (`organization_modules.enabled`), puis activée par l'admin de l'entreprise (`activated`).
+
+## Où on la trouve
+
+Un bouton **Maquette** dans la barre du haut, à côté de la cloche (`components/relief/MaquetteButton.tsx`, sur ordinateur et téléphone), avec le nombre de personnes sur le terrain aujourd'hui. Il ouvre `/maquette` en plein écran. L'ancienne adresse `/relief` (anciens e-mails et notifications) redirige. Plus de carte sur l'accueil.
 
 ## Parcours
 
 1. **Offre** (`ReliefLocked`) tant que l'option n'est pas activée ; bouton « Activer » si elle est accordée et que l'utilisateur est admin.
-2. **Onboarding** (`ReliefOnboardingDom`, avec aperçu 3D en direct qui change à chaque réponse) : accueil, puis 5 étapes comme dans une vraie entreprise :
-   1. Activité en une phrase + modèle (suggéré d'après le secteur, modifiable).
-   2. Process : étapes d'un projet (nom, responsable, durée, validation client), à réordonner ; préremplies selon le métier (`lib/relief/process.ts`).
-   3. Équipe : le rôle de chaque membre.
-   4. Facturation : devis systématique ou non, quand on facture (à la fin, acompte, par étape, mensuel).
-   5. Récit libre, dicté au micro ou écrit.
-   Puis un récapitulatif modifiable. Les réponses sont gardées (`relief_worlds.answers`) pour « Refaire mon Relief ».
-3. **Construction** (même écran, aperçu animé) : la fonction `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification dans l'app + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/relief`. La page suit la ligne `relief_worlds` en temps réel (et toutes les 15 s en secours).
-4. **Le monde** (`ReliefDom`) en plein écran. Ordinateur : en-tête, liste à gauche, fiche à droite. Téléphone : la 3D occupe l'écran, liste et fiche dans une feuille en bas (aperçu des projets en bande, liste dépliable, fiche à 68 % de l'écran) ; la caméra se centre dans la zone libre (`setInsets`).
-   La fiche d'un projet est son dossier complet, selon les droits :
-   - **Aperçu** : process avec responsable, durée et validations client, avancement, dates, phase du planning de chantier, devis acceptés et facturé (si devis/finances), dépenses (si finances), équipe du jour.
-   - **Tâches** : cocher / décocher, ajouter, terminées repliées.
-   - **Planning** : les 7 prochains jours par personne ; planifier quelqu'un un jour donné (admin ou droit planning).
-   - **Facturation** (droit devis ou finances) : devis et factures du projet avec statut, montant, payé / reste, échéance ; nouveau devis / nouvelle facture préremplis avec le projet ; dépenses et facturé − dépenses (finances).
-   - **Dossier** : liens vers fil, rapports, planning de chantier, documents, photos, métré, sous-traitants, rentabilité, travaux supplémentaires, situations — mêmes règles que la page du projet.
-   « Refaire mon Relief » rouvre l'onboarding avec les réponses précédentes.
+2. **Onboarding** (`ReliefOnboardingDom`, aperçu 3D en direct qui change à chaque réponse) :
+   - **Le site** : l'adresse du site (reprise de `organizations.website`) ; « Lire mon site » appelle `relief-prefill`, qui lit la page d'accueil et jusqu'à 3 pages (prestations, à propos, méthode…) et propose les réponses. Pendant la lecture : liste d'étapes animée et balayage de la maquette. Ensuite « Voici ce que nous avons compris » : activité, points compris, types de projets trouvés avec leur frise. On peut aussi continuer sans site.
+   - 5 étapes à vérifier, marquées « D'après votre site » quand elles viennent du site :
+     1. Activité en une phrase + modèle (Territoire / Studio / Atelier).
+     2. Process **par type de projet** (jusqu'à 4 types, ex. « Site vitrine » et « Boutique en ligne ») : étapes (nom, responsable, validation client), **durée habituelle** et **durée minimum** en jours ouvrables, frise proportionnelle aux durées (minimum hachuré, validations client marquées).
+     3. Équipe : le rôle de chaque membre.
+     4. Facturation : devis systématique ou non, quand on facture.
+     5. Récit libre, dicté ou écrit (prérempli d'après le site).
+   - Récapitulatif modifiable. Les réponses sont gardées (`relief_worlds.answers`).
+3. **Construction** : `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/maquette`.
+4. **La maquette** (`ReliefDom`) en plein écran. Ordinateur : cartouche, liste à gauche, fiche à droite. Téléphone : la 3D occupe l'écran, liste et fiche dans une feuille en bas. Tablette / petit écran : boutons en icônes, sans légende.
+
+## Faire avancer un projet
+
+- **Au clic** : la fiche commence par un tableau d'étapes (« Étape 2 sur 5 · Conception ») : depuis combien de jours, durée prévue, minimum, dépassement ; un rail des étapes proportionnel aux durées — toucher une étape y place le projet ; bouton « Étape terminée → Passer à « … » ». Avant le minimum, une confirmation est demandée. À la dernière étape : « Clôturer le projet » (passe le projet en terminé, admin ou droit de créer des projets).
+- **À la voix** : bouton « Dire » (en-tête) : « Villa Dupont : gros œuvre terminé, on passe au second œuvre ». Le projet est trouvé par son nom (ou c'est celui ouvert), l'étape par son libellé, l'intention par quelques mots en FR/DE/IT (terminé, on passe à, fertig, jetzt, finito, passiamo a…). Parseur pur testé : `lib/relief/stages.ts`, `npm run test:maquette`.
+- **Type de projet** : choisi dans la fiche quand il y en a plusieurs ; sinon deviné d'après le nom du projet.
+- Tout membre peut faire avancer un projet (comme cocher une tâche) ; l'historique garde qui et quand (`relief_item_progress.history`).
+- La maquette suit : le bâtiment / le site / le poste se reconstruit à la nouvelle étape et « saute » avec un anneau.
+- **Process éditable** depuis la maquette (bouton « Process », admin) : types, étapes, durées habituelles et minimales ; enregistré sans reconstruction (`relief_save_answers`). « Refaire ma maquette » est dans ce panneau.
+
+## Calculs
+
+- Étape suivie (ligne `relief_item_progress`) : avancement = jours des étapes passées + jours passés dans l'étape (au plus 90 % de sa durée) / durée totale du process ; « à surveiller » si l'étape dépasse sa durée habituelle ou si la fin estimée dépasse la date de fin du projet ; fin estimée = reste de l'étape + étapes suivantes, en jours ouvrables.
+- Étape non suivie : comme avant (planning de chantier pondéré, sinon tâches faites, sinon dates), affichée « Étape estimée ».
+- En retard : date de fin passée. Terminé : projet terminé.
+
+## Les équipes du jour
+
+Chaque personne planifiée aujourd'hui sur un projet est une figurine (jambes et bras articulés, casque en Territoire, initiales au-dessus pendant le trajet) :
+
+- **Territoire** : une camionnette part du dépôt et roule jusqu'au chantier, se gare au portail ; l'équipe descend et va à son poste. Au-delà de 6 camionnettes, à pied le long de la route.
+- **Studio** : sortie du bureau, à pied par les rues jusqu'au bâtiment.
+- **Atelier** : du bureau par les allées jusqu'au poste.
+- Sur place : l'un fait des allers-retours, l'autre travaille (marteau). Seuls les nouveaux arrivants refont le trajet quand les données changent.
 
 ## Identité : une carte suisse
 
-Le Relief se lit comme une feuille de carte nationale, pas comme un tableau de bord générique :
-
-- **Lieu de l'entreprise** (`lib/relief/geo.ts`) : à partir de `organizations.locality`, géocodage (open-meteo, mis en cache), coordonnées suisses LV95, altitude, canton. Le cartouche du Relief et la carte de l'accueil les affichent (ex. « Valais · 491 m · 2 593 979 / 1 120 187 »).
-- **Repères locaux en 3D** : derrière l'île, une bande de terrain avec le monument de la ville et l'horizon du lieu ; devant, le lac ou la rivière avec leur nom. Villes connues : Lausanne (cathédrale, Léman, Alpes de Savoie), Genève (Jet d'eau, Léman, Salève), Sion (Valère et Tourbillon, vignes, Rhône, Alpes valaisannes), Zurich (Grossmünster, lac), Berne (Zytglogge, Aar, Eiger · Mönch · Jungfrau), Bâle (Münster, Rhin), Lucerne (Kapellbrücke), Montreux / Vevey (Chillon), Fribourg, Neuchâtel, Delémont (Porte au Loup, Sorne, Jura), Bienne, Lugano, Nyon, Martigny, Sierre, etc. Ailleurs : l'horizon d'après le canton (Alpes, Préalpes, Jura, collines) et une vieille ville générique.
-- **Lettrage de carte** : noms de projets en annotations avec trait de rappel (pas de bulles), eaux en italique bleu, lieux en capitales espacées, horizon en italique ; les noms qui se chevauchent sont éclaircis automatiquement (priorité aux retards, puis au premier plan).
-- **Habillage** : cartouche, légende, flèche du nord, « Relief schématique — pas à l'échelle » ; angles nets, filets fins, chiffres en chasse fixe. Carte de l'accueil : cadre gradué en coordonnées, courbes de niveau, cartouche crème, journal d'activité.
-
-## Ville vivante
-
-Le moteur (`lib/relief/engine.ts`) ajoute à chaque modèle :
-
-- **Câbles de données** du siège (antenne qui clignote, ondes au sol) vers chaque projet ; couleur selon l'état (normal, tâche en retard, en retard, terminé). Des impulsions partent vers le projet — plus il y a de tâches ouvertes et de personnes, plus il y en a — et une impulsion verte revient quand le projet avance.
-- **Balises** : ondes rouges et faisceau lumineux sur les projets en retard, ondes ambre sur ceux qui ont une tâche en retard.
-- **Circulation** dans les rues (Studio) et sur la route principale (Territoire), lampadaires.
-- **Mode nuit** (bouton lune / soleil dans le Relief, mémorisé sur l'appareil) : lumière lunaire, fenêtres allumées, phares, halos des lampadaires, câbles lumineux.
-- **Pourcentage d'avancement** dans l'étiquette de chaque projet ; jauges flottantes quand les étiquettes sont masquées (carte de l'accueil).
-
-## Sur l'accueil
-
-Quand l'option est active, l'accueil montre la carte « Cantia Relief » (`components/relief/ReliefDashboardCard.tsx` + `ReliefPeekDom.tsx`) : la ville de l'entreprise de nuit, qui tourne doucement, avec câbles, impulsions, balises, circulation et jauges ; les chiffres du jour qui défilent jusqu'à leur valeur (projets en cours, planifiés aujourd'hui, avancement moyen, retards — jamais de montants) ; le fil d'activité des 14 derniers jours qui tourne (tâches terminées, planifications, nouveaux projets, factures payées si la personne y a droit, `loadReliefActivity`) ; un clic ouvre le Relief. Mise à jour en direct. Avant la première construction : esquisse du process type du métier et « Créer mon Relief ».
+- **Lieu de l'entreprise** (`lib/relief/geo.ts`) : géocodage de `organizations.locality`, coordonnées LV95, altitude, canton dans le cartouche.
+- **Repères locaux en 3D** : monument et horizon de la ville derrière l'île, lac ou rivière devant (Lausanne, Genève, Sion, Zurich, Berne, Bâle, Lucerne, Montreux / Vevey, Fribourg, Neuchâtel, Delémont, Bienne, Lugano…).
+- **Lettrage de carte**, légende, flèche du nord, « Maquette schématique — pas à l'échelle ».
+- **Effet maquette** (tilt-shift) : le haut et le bas de l'image sont flous comme une photo de vraie maquette (sous les noms, pas dessus).
+- Mode nuit, câbles de données, balises, circulation : voir le moteur (`lib/relief/engine.ts`).
 
 ## Modèles
 
@@ -55,34 +65,26 @@ Quand l'option est active, l'accueil montre la carte « Cantia Relief » (`compo
 | Studio | Travail de bureau (agence web, informatique, conseil, fiduciaire…) | Un bâtiment qui gagne un étage à chaque étape du process. |
 | Atelier | Les clients viennent chez vous (garage, menuiserie, réparation…) | Un poste de l'atelier avec l'objet traité. |
 
-## Données
-
-- Avancement : planning de chantier (Gantt) pondéré par durée, sinon ratio des tâches faites, sinon dates de début / fin.
-- Statut : en retard si la date de fin est passée, à surveiller si une tâche ouverte est échue, terminé si le projet est terminé.
-- Équipe du jour : `planning_assignments` qui couvrent aujourd'hui. Personne sans projet → au dépôt / bureau / atelier.
-- Chiffres (devis acceptés, factures envoyées, dépenses) seulement pour qui voit les finances.
-- Moins de 3 projets : la scène ajoute les exemples proposés par l'IA, marqués « Exemple ».
-- Rechargement automatique (temps réel) quand projets, planning ou tâches changent.
-
 ## Fichiers
 
 | Fichier | Rôle |
 |---|---|
 | `supabase/migrations/20261013180000_relief.sql` | Table `relief_worlds`, module `relief`, types de notification. |
 | `supabase/migrations/20261013200000_relief_answers.sql` | Réponses de l'onboarding (`relief_worlds.answers`). |
-| `lib/relief/process.ts` | Process type par métier (étapes, responsables, durées), rôles proposés. |
-| `lib/relief/sceneCss.ts` | Style des étiquettes posées sur la scène. |
-| `components/relief/ReliefOnboardingDom.tsx` | Onboarding, construction, échec (composant DOM, aperçu 3D). |
-| `supabase/functions/relief-build/index.ts` | Vérifications (admin, option, quota IA), appel IA avec les réponses structurées (le process du responsable prime), nettoyage du plan, notification, e-mail. |
-| `lib/relief/types.ts` | Le plan (`ReliefSpec`) et les données de la scène. |
-| `lib/relief/data.ts` | Lecture des vraies données et du dossier d'un projet, écritures (tâche, cocher, planning). |
-| `lib/relief/engine.ts` | La scène three.js des 3 modèles. |
+| `supabase/migrations/20261016100000_maquette.sql` | Étape de chaque projet (`relief_item_progress`, RLS membres), `relief_save_answers` (admin), nom du module. |
+| `supabase/functions/relief-prefill/index.ts` | Lecture du site (http(s) publics seulement : pas d'IP, pas de noms locaux, 3 redirections, 600 ko par page), proposition des réponses par l'IA, rien n'est enregistré. Admin, option active, quota IA. |
+| `supabase/functions/relief-build/index.ts` | Construction du monde (le process du responsable prime), notification, e-mail. |
+| `lib/relief/stages.ts` | Types de projets, jours ouvrables, avancement, fin estimée, commande vocale (testé). |
+| `lib/relief/process.ts` | Process type par métier, rôles proposés. |
+| `lib/relief/types.ts` | Le plan (`ReliefSpec`), les types de projets, les données de la scène. |
+| `lib/relief/data.ts` | Lecture des données, étape d'un projet, process, clôture, tâches, planning, lecture du site. |
+| `lib/relief/engine.ts` | La scène three.js (figurines, trajets, camionnettes, tilt-shift…). |
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
-| `components/relief/ReliefDom.tsx` | Interface autour de la scène (composant DOM Expo). |
-| `components/relief/ReliefDashboardCard.tsx`, `ReliefPeekDom.tsx` | Carte de l'accueil (aperçu 3D vivant). |
-| `lib/relief/preview.ts` | Monde esquissé à partir des réponses (onboarding, carte de l'accueil). |
+| `components/relief/ReliefOnboardingDom.tsx` | Onboarding (site, process par type, frise), construction, échec. |
+| `components/relief/ReliefDom.tsx` | Interface de la maquette : fiche, tableau d'étapes, voix, éditeur de process. |
+| `components/relief/MaquetteButton.tsx` | Le bouton de la barre du haut. |
 | `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
-| `app/(app)/relief.tsx` | La page, plein écran (sans menu, voir `app/(app)/_layout.tsx`). |
+| `app/(app)/maquette.tsx` | La page plein écran ; `app/(app)/relief.tsx` redirige. |
 
 ## Activer pour une entreprise
 
@@ -91,4 +93,4 @@ insert into organization_modules (organization_id, module_id, enabled, activated
 select '<organization_id>', id, true, false from modules where key = 'relief';
 ```
 
-L'admin de l'entreprise l'active ensuite depuis la page `/relief`.
+L'admin de l'entreprise l'active ensuite depuis la page `/maquette`.

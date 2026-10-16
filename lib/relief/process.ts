@@ -29,9 +29,10 @@ export function roleOptions(l: L): string[] {
 
 type Step = { label: Tri; owner: keyof typeof ROLE; days: number; client?: boolean };
 
-const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
+const PRESETS: Record<string, { template: ReliefTemplate; kind: Tri; steps: Step[] }> = {
   construction: {
     template: 'territoire',
+    kind: ['Construction', 'Bauprojekt', 'Costruzione'],
     steps: [
       { label: ['Devis signé', 'Offerte unterschrieben', 'Preventivo firmato'], owner: 'direction', days: 5, client: true },
       { label: ['Préparation', 'Vorbereitung', 'Preparazione'], owner: 'chantier', days: 5 },
@@ -43,6 +44,7 @@ const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
   },
   terrain: {
     template: 'territoire',
+    kind: ['Intervention', 'Einsatz', 'Intervento'],
     steps: [
       { label: ['Demande', 'Anfrage', 'Richiesta'], owner: 'accueil', days: 1 },
       { label: ['Devis', 'Offerte', 'Preventivo'], owner: 'direction', days: 3, client: true },
@@ -53,6 +55,7 @@ const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
   },
   studio: {
     template: 'studio',
+    kind: ['Projet', 'Projekt', 'Progetto'],
     steps: [
       { label: ['Brief', 'Briefing', 'Brief'], owner: 'projet', days: 3, client: true },
       { label: ['Maquettes', 'Entwürfe', 'Bozzetti'], owner: 'design', days: 10, client: true },
@@ -63,6 +66,7 @@ const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
   },
   conseil: {
     template: 'studio',
+    kind: ['Mandat', 'Mandat', 'Mandato'],
     steps: [
       { label: ['Premier entretien', 'Erstgespräch', 'Primo colloquio'], owner: 'direction', days: 1 },
       { label: ['Offre', 'Offerte', 'Offerta'], owner: 'direction', days: 3, client: true },
@@ -73,6 +77,7 @@ const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
   },
   atelier: {
     template: 'atelier',
+    kind: ['Réparation', 'Reparatur', 'Riparazione'],
     steps: [
       { label: ['Réception', 'Annahme', 'Accettazione'], owner: 'accueil', days: 1 },
       { label: ['Diagnostic', 'Diagnose', 'Diagnosi'], owner: 'atelier', days: 1 },
@@ -84,6 +89,7 @@ const PRESETS: Record<string, { template: ReliefTemplate; steps: Step[] }> = {
   },
   soin: {
     template: 'atelier',
+    kind: ['Suivi', 'Behandlung', 'Trattamento'],
     steps: [
       { label: ['Rendez-vous', 'Termin', 'Appuntamento'], owner: 'accueil', days: 1 },
       { label: ['Bilan', 'Abklärung', 'Valutazione'], owner: 'equipe', days: 1 },
@@ -123,8 +129,28 @@ export function presetTemplate(key: keyof typeof PRESETS): ReliefTemplate {
   return PRESETS[key].template;
 }
 
+// The shortest a step can honestly take, when the owner hasn't said.
+const minOf = (days: number) => (days <= 1 ? days : Math.max(1, Math.round(days * 0.5)));
+
 export function stagesFor(key: keyof typeof PRESETS, l: L): ReliefAnswers['stages'] {
-  return PRESETS[key].steps.map((s) => ({ label: pick(s.label, l), owner: pick(ROLE[s.owner], l), days: s.days, client: !!s.client }));
+  return PRESETS[key].steps.map((s) => ({ label: pick(s.label, l), owner: pick(ROLE[s.owner], l), days: s.days, minDays: minOf(s.days), client: !!s.client }));
+}
+
+export function kindName(key: keyof typeof PRESETS, l: L): string {
+  return pick(PRESETS[key].kind, l);
+}
+
+let kindSeq = 0;
+/** A new id for a kind of project, unique enough within one company. */
+export function newKindId(): string {
+  kindSeq += 1;
+  return `k${Date.now().toString(36)}${kindSeq}`;
+}
+
+/** The answers with their kinds filled in (older answers had one process). */
+export function withKinds(a: ReliefAnswers, fallbackName: string): ReliefAnswers {
+  if (a.kinds?.length) return { ...a, stages: a.kinds[0].stages };
+  return { ...a, kinds: [{ id: 'main', name: fallbackName, stages: a.stages }] };
 }
 
 /** Process to show when the owner switches model by hand. */
@@ -135,11 +161,13 @@ export function stagesForTemplate(t: ReliefTemplate, trade: string | null | unde
 
 export function defaultAnswers(trade: string | null | undefined, l: L, team: { id: string; name: string }[]): ReliefAnswers {
   const key = presetFor(trade);
+  const stages = stagesFor(key, l);
   return {
     version: 1,
     activity: '',
     template: 'auto',
-    stages: stagesFor(key, l),
+    stages,
+    kinds: [{ id: 'main', name: kindName(key, l), stages }],
     team: team.map((m) => ({ id: m.id, name: m.name, job: '' })),
     billing: 'end',
     quotes: true,
