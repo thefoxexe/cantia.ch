@@ -322,3 +322,36 @@ export async function planOnItem(organizationId: string, userId: string, memberI
     .insert({ organization_id: organizationId, created_by: userId, member_user_id: memberId, project_id: projectId, starts_on: day, ends_on: day });
   return { error: error?.message ?? null };
 }
+
+export type ReliefEvent = { kind: 'task' | 'plan' | 'project' | 'paid'; at: string; who: string | null; item: string | null; text: string };
+
+/** What happened lately, for the live feed on the dashboard (no amounts). */
+export async function loadReliefActivity(organizationId: string, opts: { invoices: boolean }): Promise<ReliefEvent[]> {
+  const since = new Date(Date.now() - 14 * 86400000).toISOString();
+  const [tasksRes, plansRes, projectsRes, paidRes, membersRes] = await Promise.all([
+    supabase.from('dashboard_tasks').select('title, done_at, project_id, assigned_to').eq('organization_id', organizationId).eq('done', true).gte('done_at', since).order('done_at', { ascending: false }).limit(6),
+    supabase.from('planning_assignments').select('member_user_id, project_id, starts_on, created_at').eq('organization_id', organizationId).not('project_id', 'is', null).gte('created_at', since).order('created_at', { ascending: false }).limit(6),
+    supabase.from('projects').select('id, name, created_at').eq('organization_id', organizationId).gte('created_at', since).order('created_at', { ascending: false }).limit(3),
+    opts.invoices
+      ? supabase.from('factures').select('number, project_id, paid_at').eq('organization_id', organizationId).eq('status', 'paid').gte('paid_at', since).order('paid_at', { ascending: false }).limit(4)
+      : Promise.resolve({ data: [] }),
+    supabase.from('organization_members').select('user_id, full_name').eq('organization_id', organizationId),
+  ]);
+  const ids = new Set<string>();
+  for (const r of [...(tasksRes.data ?? []), ...(plansRes.data ?? []), ...((paidRes.data ?? []) as { project_id: string | null }[])] as { project_id: string | null }[]) if (r.project_id) ids.add(r.project_id);
+  const names = new Map<string, string>();
+  if (ids.size) {
+    const { data } = await supabase.from('projects').select('id, name').in('id', [...ids]);
+    for (const p of (data ?? []) as { id: string; name: string }[]) names.set(p.id, p.name);
+  }
+  const person = new Map(((membersRes.data ?? []) as { user_id: string; full_name: string | null }[]).map((m) => [m.user_id, m.full_name || '—']));
+  const out: ReliefEvent[] = [];
+  for (const t of (tasksRes.data ?? []) as { title: string; done_at: string; project_id: string | null; assigned_to: string | null }[])
+    out.push({ kind: 'task', at: t.done_at, who: t.assigned_to ? (person.get(t.assigned_to) ?? null) : null, item: t.project_id ? (names.get(t.project_id) ?? null) : null, text: t.title });
+  for (const a of (plansRes.data ?? []) as { member_user_id: string; project_id: string; starts_on: string; created_at: string }[])
+    out.push({ kind: 'plan', at: a.created_at, who: person.get(a.member_user_id) ?? null, item: names.get(a.project_id) ?? null, text: a.starts_on });
+  for (const p of (projectsRes.data ?? []) as { id: string; name: string; created_at: string }[]) out.push({ kind: 'project', at: p.created_at, who: null, item: p.name, text: '' });
+  for (const f of (paidRes.data ?? []) as { number: string | null; project_id: string | null; paid_at: string }[])
+    out.push({ kind: 'paid', at: f.paid_at, who: null, item: f.project_id ? (names.get(f.project_id) ?? null) : null, text: f.number ?? '' });
+  return out.sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 8);
+}

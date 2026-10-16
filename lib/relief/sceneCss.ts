@@ -9,6 +9,9 @@ export const SCENE_CSS = `
 .rf-label:hover, .rf-label.rf-on { box-shadow: 0 0 0 2px var(--accent), 0 8px 22px rgba(43,33,26,0.2); }
 .rf-label.rf-dim { opacity: 0.45; }
 .rf-label .rf-step-name { font-weight: 500; color: #6E6153; font-size: 11.5px; }
+.rf-label .rf-pct { font: 700 10.5px 'Martian Mono', ui-monospace, monospace; color: #FFFFFF; background: var(--accent); border-radius: 999px; padding: 2px 6px; }
+.rf-label .rf-pct:empty { display: none; }
+.rf-st-late .rf-pct { background: #AB3327; } .rf-st-risk .rf-pct { background: #B07A12; } .rf-st-done .rf-pct { background: #8C8073; }
 .rf-example { border-style: dashed; }
 .rf-base { cursor: default; background: #16120E; color: #F4F1EA; border-color: #16120E; font-weight: 700; }
 .rf-base::after { background: #16120E; }
@@ -18,6 +21,7 @@ export const SCENE_CSS = `
 @media (max-width: 760px) {
   .rf-label { padding: 4px 8px 4px 6px; font-size: 11px; gap: 5px; }
   .rf-label .rf-step-name { display: none; }
+  .rf-label .rf-pct { font-size: 9.5px; padding: 1px 5px; }
   .rf-label .rf-dot { width: 7px; height: 7px; }
   .rf-label.rf-on .rf-step-name { display: inline; }
 }

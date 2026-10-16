@@ -30,6 +30,7 @@ export interface ReliefHandle {
   setSpec(spec: ReliefSpec, data: ReliefData): void;
   /** Screen space covered by panels (px): the view centres in what's left. */
   setInsets(insets: { left?: number; right?: number; bottom?: number; top?: number }): void;
+  setMood(mood: 'day' | 'dusk'): void;
   dispose(): void;
 }
 
@@ -47,6 +48,10 @@ interface Options {
   transparent?: boolean;
   /** Bigger than 1: the home view comes closer (a card can crop the edges). */
   zoom?: number;
+  /** 'dusk': evening light, lit windows, street lamps, glowing data cables. */
+  mood?: 'day' | 'dusk';
+  /** Floating progress gauges over each item (when labels are hidden). */
+  hud?: boolean;
 }
 
 // ------------------------------------------------------------------ palette
@@ -116,11 +121,15 @@ function hash(s: string) {
 }
 
 const materialCache = new Map<string, THREE.Material>();
+// Set by the world being built: at dusk, window glass glows.
+let MOOD: 'day' | 'dusk' = 'day';
+const GLOW = new Set(['#4A5C68', '#7D93A0', '#56697A']);
 function mat(color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) {
-  const key = color + JSON.stringify(extra);
+  const lit = MOOD === 'dusk' && GLOW.has(color) && !('emissive' in extra);
+  const key = color + JSON.stringify(extra) + (lit ? '|lit' : '');
   let m = materialCache.get(key) as THREE.MeshStandardMaterial | undefined;
   if (!m) {
-    m = new THREE.MeshStandardMaterial({ color, roughness: 0.93, metalness: 0, flatShading: true, ...extra });
+    m = new THREE.MeshStandardMaterial({ color, roughness: 0.93, metalness: 0, flatShading: true, ...(lit ? { emissive: '#FFC47E', emissiveIntensity: 0.9 } : {}), ...extra });
     materialCache.set(key, m);
   }
   return m;
@@ -238,6 +247,34 @@ function tree(kind: 'pine' | 'leaf', s: number, color: string) {
   }
   return g;
 }
+
+function car(color: string) {
+  const g = new THREE.Group();
+  const wheels: THREE.BufferGeometry[] = [];
+  for (const [x, z] of [
+    [-0.95, 0.62],
+    [-0.95, -0.62],
+    [0.95, 0.62],
+    [0.95, -0.62],
+  ])
+    wheels.push(new THREE.CylinderGeometry(0.32, 0.32, 0.24, 10).rotateX(Math.PI / 2).translate(x, 0.32, z));
+  g.add(merged(wheels, C.dark));
+  g.add(box(2.9, 0.75, 1.4, color, 0, 0.3, 0), box(1.6, 0.62, 1.28, color, -0.15, 1.05, 0), box(1.62, 0.42, 1.3, C.glass, -0.15, 1.12, 0));
+  const head = MOOD === 'dusk' ? { emissive: '#FFF1C2', emissiveIntensity: 2.2 } : {};
+  const tail = MOOD === 'dusk' ? { emissive: '#FF4A3A', emissiveIntensity: 1.6 } : {};
+  g.add(mesh(boxGeo(0.06, 0.22, 0.32, 1.46, 0.6, 0.42), '#FFF6DA', false, head), mesh(boxGeo(0.06, 0.22, 0.32, 1.46, 0.6, -0.42), '#FFF6DA', false, head));
+  g.add(mesh(boxGeo(0.06, 0.2, 0.3, -1.46, 0.6, 0.45), '#C8382C', false, tail), mesh(boxGeo(0.06, 0.2, 0.3, -1.46, 0.6, -0.45), '#C8382C', false, tail));
+  return g;
+}
+
+function lamp() {
+  const g = new THREE.Group();
+  g.add(mesh(new THREE.CylinderGeometry(0.09, 0.13, 4.2, 6).translate(0, 2.1, 0), '#3B3A38'), mesh(boxGeo(0.9, 0.1, 0.12, 0.35, 4.15, 0), '#3B3A38', false));
+  g.add(mesh(boxGeo(0.42, 0.2, 0.32, 0.72, 3.95, 0), '#FFF1CC', false, MOOD === 'dusk' ? { emissive: '#FFD58A', emissiveIntensity: 2.4 } : {}));
+  return g;
+}
+
+const CAR_COLORS = ['#B84A3A', '#3F6E8C', '#E8E2D6', '#2F3A44', '#C9A13B', '#6E8B4A', '#8A8F96'];
 
 function van(accent: string) {
   const g = new THREE.Group();
@@ -620,10 +657,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   host.appendChild(labelLayer);
 
   const scene = new THREE.Scene();
-  if (!opts.transparent) {
-    scene.background = new THREE.Color(C.bg);
-    scene.fog = new THREE.Fog(C.bg, 320, 700);
-  }
+  let mood: 'day' | 'dusk' = opts.mood ?? 'day';
 
   const camera = new THREE.PerspectiveCamera(30, width() / height(), 1, 1600);
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -635,7 +669,8 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   controls.screenSpacePanning = false;
   controls.autoRotateSpeed = 0.3;
 
-  scene.add(new THREE.HemisphereLight('#FFF6E8', '#8C7B62', 1.4));
+  const hemi = new THREE.HemisphereLight('#FFF6E8', '#8C7B62', 1.4);
+  scene.add(hemi);
   const sun = new THREE.DirectionalLight('#FFE9CF', 2.2);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -643,6 +678,41 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   sun.shadow.normalBias = 0.04;
   scene.add(sun);
   scene.add(sun.target);
+
+  const applyMood = () => {
+    const dusk = mood === 'dusk';
+    hemi.color.set(dusk ? '#8FA9D8' : '#FFF6E8');
+    hemi.groundColor.set(dusk ? '#1E2530' : '#8C7B62');
+    hemi.intensity = dusk ? 1.15 : 1.4;
+    sun.color.set(dusk ? '#C9D6F0' : '#FFE9CF');
+    sun.intensity = dusk ? 0.85 : 2.2;
+    renderer.toneMappingExposure = dusk ? 1.05 : 1.05;
+    if (!opts.transparent) {
+      const bg = dusk ? '#18202A' : C.bg;
+      scene.background = new THREE.Color(bg);
+      scene.fog = new THREE.Fog(bg, 320, 700);
+    }
+  };
+  applyMood();
+
+  // Soft round glow, for lamps and data pulses at dusk.
+  const glowTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d')!;
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.35, 'rgba(255,255,255,0.45)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  })();
+  const glow = (color: string, size: number, opacity = 0.9) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
+    sp.scale.setScalar(size);
+    return sp;
+  };
 
   // ---- per-build state
   let world = new THREE.Group();
@@ -654,6 +724,12 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   let items = new Map<string, ItemObj>();
   let walkers: { obj: THREE.Object3D; a: THREE.Vector3; b: THREE.Vector3; speed: number; phase: number; walk: boolean }[] = [];
   let vans: { obj: THREE.Object3D; curve: THREE.CatmullRomCurve3; speed: number; phase: number }[] = [];
+  type Dot = { parts: THREE.Object3D[]; u: number; dir: 1 | -1 };
+  let flows: { curve: THREE.QuadraticBezierCurve3; len: number; dots: Dot[] }[] = [];
+  let waves: { mesh: THREE.Mesh; period: number; phase: number; size: number; peak: number }[] = [];
+  let beams: { mesh: THREE.Mesh; phase: number }[] = [];
+  let blinkers: { obj: THREE.Object3D; phase: number }[] = [];
+  let cars: { obj: THREE.Object3D; axis: 'x' | 'z'; fixed: number; from: number; to: number; speed: number; phase: number }[] = [];
   let labels: { el: HTMLElement; pos: THREE.Vector3; id: string | null }[] = [];
   let workerLabels: { el: HTMLElement; obj: THREE.Object3D; itemId: string }[] = [];
   let hits: THREE.Mesh[] = [];
@@ -670,6 +746,12 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     items = new Map();
     walkers = [];
     vans = [];
+    flows = [];
+    waves = [];
+    beams = [];
+    blinkers = [];
+    cars = [];
+    MOOD = mood;
     labels.forEach((l) => l.el.remove());
     workerLabels.forEach((l) => l.el.remove());
     labels = [];
@@ -722,7 +804,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
 
     // Sun and shadow camera follow the size.
     const ext = Math.max(W, D) + 20;
-    sun.position.set(-W * 0.8, 120, D * 1.1);
+    sun.position.set(-W * 0.8, mood === 'dusk' ? 55 : 120, D * 1.1);
     sun.target.position.set(0, 0, 0);
     Object.assign(sun.shadow.camera, { left: -ext, right: ext, top: ext, bottom: -ext, near: 10, far: 420 });
     sun.shadow.camera.updateProjectionMatrix();
@@ -739,7 +821,8 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       const el = document.createElement('button');
       el.type = 'button';
       el.className = `rf-label rf-st-${so.item.status}${so.item.example ? ' rf-example' : ''}`;
-      el.innerHTML = '<span class="rf-dot"></span><span class="rf-name"></span><span class="rf-step-name"></span>';
+      el.innerHTML = '<span class="rf-dot"></span><span class="rf-name"></span><span class="rf-step-name"></span><span class="rf-pct"></span>';
+      (el.querySelector('.rf-pct') as HTMLElement).textContent = so.item.example ? '' : `${Math.round(so.item.progress * 100)}%`;
       (el.querySelector('.rf-name') as HTMLElement).textContent = so.item.name;
       (el.querySelector('.rf-step-name') as HTMLElement).textContent = so.item.example ? `${opts.exampleLabel} · ${stageLabel(so.item)}` : stageLabel(so.item);
       el.addEventListener('click', (e) => {
@@ -755,6 +838,10 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     baseEl.textContent = opts.baseLabel;
     labelLayer.appendChild(baseEl);
     labels.push({ el: baseEl, pos: new THREE.Vector3(base.x, 10, base.z - 2), id: null });
+
+    // The data network: a cable from the base to every item, with pulses.
+    const hub = spec.template === 'territoire' ? base.clone().add(new THREE.Vector3(-3, 7.6, -3)) : spec.template === 'studio' ? base.clone().add(new THREE.Vector3(0, 5.7, -1)) : base.clone().add(new THREE.Vector3(0, 4.1, 0));
+    buildNetwork(hub, base);
 
     // People planned today: on their item, or at the base.
     for (const so of items.values()) {
@@ -794,6 +881,156 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     home = { target: new THREE.Vector3(0, 0, spec.template === 'territoire' ? 4 : 2), offset: new THREE.Vector3(-0.28, 0.62, 0.83).normalize().multiplyScalar(span * 1.45) };
     homeRadius = Math.hypot(W, D) * 0.98;
     controls.maxDistance = span * 4;
+  }
+
+  function addWave(x: number, z: number, color: string, size: number, period: number, phase: number, peak = 0.55) {
+    const m = new THREE.Mesh(new THREE.RingGeometry(0.82, 1, 56), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+    m.rotation.x = -Math.PI / 2;
+    m.position.set(x, 0.2, z);
+    world.add(m);
+    waves.push({ mesh: m, period, phase, size, peak });
+  }
+
+  function gaugeSprite(progress: number, color: string) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d')!;
+    const dusk = mood === 'dusk';
+    g.beginPath();
+    g.arc(64, 64, 52, 0, Math.PI * 2);
+    g.fillStyle = dusk ? 'rgba(16,21,28,0.82)' : 'rgba(255,253,249,0.94)';
+    g.fill();
+    g.lineWidth = 10;
+    g.strokeStyle = dusk ? 'rgba(255,255,255,0.14)' : 'rgba(35,26,18,0.1)';
+    g.beginPath();
+    g.arc(64, 64, 42, 0, Math.PI * 2);
+    g.stroke();
+    g.strokeStyle = color;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.arc(64, 64, 42, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.02, Math.min(1, progress)));
+    g.stroke();
+    g.fillStyle = dusk ? '#FFFFFF' : '#231A12';
+    g.font = '700 30px ui-monospace, Menlo, monospace';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(`${Math.round(progress * 100)}`, 64, 66);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+    sp.scale.setScalar(8.5);
+    sp.renderOrder = 5;
+    return sp;
+  }
+
+  function buildNetwork(hub: THREE.Vector3, base: THREE.Vector3) {
+    const dusk = mood === 'dusk';
+    // Antenna on the base, with a blinking tip and waves on the ground.
+    world.add(mesh(new THREE.CylinderGeometry(0.16, 0.26, 5, 8).translate(hub.x, hub.y + 2.5, hub.z), '#3B3A38'));
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), new THREE.MeshBasicMaterial({ color: accent }));
+    tip.position.set(hub.x, hub.y + 5.2, hub.z);
+    world.add(tip);
+    blinkers.push({ obj: tip, phase: 0 });
+    if (dusk) {
+      const g = glow(accent, 7, 0.8);
+      g.position.copy(tip.position);
+      world.add(g);
+      blinkers.push({ obj: g, phase: 0 });
+    }
+    addWave(base.x, base.z, accent, 16, 3.6, 0, 0.45);
+    addWave(base.x, base.z, accent, 16, 3.6, 1.8, 0.45);
+    const top = tip.position.clone();
+    const dotGeo = new THREE.SphereGeometry(0.42, 10, 8);
+
+    for (const so of items.values()) {
+      const it = so.item;
+      const pos = so.built.group.position;
+      const end = so.anchor.clone();
+      end.y -= 0.8;
+      const d = Math.hypot(end.x - top.x, end.z - top.z);
+      const mid = top.clone().lerp(end, 0.5);
+      mid.y = Math.max(top.y, end.y) + 5 + d * 0.22;
+      const curve = new THREE.QuadraticBezierCurve3(top.clone(), mid, end);
+      const color = it.status === 'late' ? '#E0483C' : it.status === 'risk' ? '#E7A52A' : it.status === 'done' ? '#9C9388' : accent;
+      const opacity = it.example ? 0.22 : it.status === 'done' ? 0.22 : dusk ? 0.6 : 0.42;
+      world.add(
+        new THREE.Mesh(
+          new THREE.TubeGeometry(curve, 56, it.status === 'done' ? 0.06 : 0.11, 6, false),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, blending: dusk ? THREE.AdditiveBlending : THREE.NormalBlending }),
+        ),
+      );
+      // Where the cable lands: a small glowing socket.
+      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), new THREE.MeshBasicMaterial({ color }));
+      socket.position.copy(end);
+      world.add(socket);
+
+      if (opts.hud) {
+        const gs = gaugeSprite(it.status === 'done' ? 1 : it.progress, it.status === 'done' ? '#8C8073' : color);
+        gs.position.set(pos.x, so.anchor.y + 4.2, pos.z);
+        world.add(gs);
+      }
+
+      if (it.status !== 'done') {
+        const flow = { curve, len: curve.getLength(), dots: [] as Dot[] };
+        const makeDot = (core: string, halo: string, u: number, dir: 1 | -1): Dot => {
+          const parts: THREE.Object3D[] = [0, 1, 2].map((i) => {
+            const m = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: i === 0 ? core : halo, transparent: true, opacity: 1 - i * 0.3, depthWrite: false }));
+            m.scale.setScalar(1 - i * 0.25);
+            world.add(m);
+            return m;
+          });
+          if (dusk) {
+            const g = glow(halo, 3.2, 0.85);
+            world.add(g);
+            parts.push(g);
+          }
+          return { parts, u, dir };
+        };
+        // Outgoing work: more pulses where there are open tasks and people.
+        const n = it.example ? 1 : Math.min(5, 1 + Math.ceil(it.tasks.length / 2) + Math.min(2, it.crew.length));
+        for (let k = 0; k < n; k++) flow.dots.push(makeDot(dusk ? '#FFFFFF' : color, color, k / n, 1));
+        // Progress coming back to the base.
+        if (!it.example && it.progress > 0.05) flow.dots.push(makeDot('#B9F5D2', '#3FBF7F', 0.5, -1));
+        flows.push(flow);
+      }
+
+      // Beacons on what needs attention.
+      if (it.status === 'late' || it.status === 'risk') {
+        const c = it.status === 'late' ? '#E0483C' : '#E7A52A';
+        addWave(pos.x, pos.z, c, so.built.radius + 5, 2.2, 0, 0.7);
+        addWave(pos.x, pos.z, c, so.built.radius + 5, 2.2, 1.1, 0.7);
+        if (it.status === 'late') {
+          const beam = new THREE.Mesh(
+            new THREE.CylinderGeometry(1.0, 2.6, 38, 18, 1, true).translate(0, 19, 0),
+            new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }),
+          );
+          beam.position.set(pos.x, 0, pos.z);
+          world.add(beam);
+          beams.push({ mesh: beam, phase: pos.x * 0.1 });
+        }
+      }
+    }
+  }
+
+  function addCar(axis: 'x' | 'z', fixed: number, from: number, to: number, i: number) {
+    const c = car(CAR_COLORS[i % CAR_COLORS.length]);
+    world.add(c);
+    cars.push({ obj: c, axis, fixed, from, to, speed: 0.035 + (i % 4) * 0.008, phase: i * 0.37 });
+  }
+
+  function addLamp(x: number, z: number, rotY: number) {
+    const l = lamp();
+    l.position.set(x, 0, z);
+    l.rotation.y = rotY;
+    world.add(l);
+    if (mood === 'dusk') {
+      const g = glow('#FFD58A', 5.5, 0.75);
+      const p = new THREE.Vector3(0.72, 3.9, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
+      g.position.set(x + p.x, p.y, z + p.z);
+      world.add(g);
+      const pool = new THREE.Mesh(new THREE.CircleGeometry(2.6, 24), new THREE.MeshBasicMaterial({ color: '#FFCF7A', transparent: true, opacity: 0.14, depthWrite: false, blending: THREE.AdditiveBlending }));
+      pool.rotation.x = -Math.PI / 2;
+      pool.position.set(x + p.x, 0.16, z + p.z);
+      world.add(pool);
+    }
   }
 
   function addItemObj(it: ReliefItem, built: Built, x: number, z: number, road: THREE.CatmullRomCurve3 | null) {
@@ -922,6 +1159,16 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       new THREE.Vector3(W, 0, base.z + 3),
     ]);
     addRoad(main, 3.2, 0.07, occ);
+    for (let i = 0; i < 3; i++) {
+      const c = car(CAR_COLORS[(i * 2) % CAR_COLORS.length]);
+      world.add(c);
+      vans.push({ obj: c, curve: main, speed: 0.018 + i * 0.006, phase: i * 2.1 });
+    }
+    for (let k = 1; k < 8; k++) {
+      const p = main.getPointAt(k / 8);
+      const tan = main.getTangentAt(k / 8);
+      addLamp(p.x - tan.z * 2.6, p.z + tan.x * 2.6, -Math.atan2(tan.z, tan.x) + Math.PI / 2);
+    }
 
     // Items around the depot on a widening spiral.
     const roadStart = base.clone().add(new THREE.Vector3(0, 0, 9));
@@ -984,6 +1231,15 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     for (let c = 0; c <= cols; c++) streets.push(boxGeo(3.4, 0.05, 2 * D - 8, x0 - cell / 2 + c * cell, 0.02, 0));
     for (let rI = 0; rI <= rows; rI++) streets.push(boxGeo(2 * W - 8, 0.05, 3.4, 0, 0.02, z0 - cell / 2 + rI * cell));
     world.add(merged(streets, C.road, false, { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }));
+    // Traffic on the streets, lamps at the crossings.
+    let ci = 0;
+    for (let c = 0; c <= cols && ci < 5; c += 1) {
+      const x = x0 - cell / 2 + c * cell;
+      if (c % 2 === 0) addCar('z', x, -D + 6, D - 6, ci++);
+    }
+    for (let rI = 0; rI <= rows && ci < 8; rI++) addCar('x', z0 - cell / 2 + rI * cell, -W + 6, W - 6, ci++);
+    for (let c = 0; c <= cols; c++)
+      for (let rI = 0; rI <= rows; rI++) if ((c + rI) % 2 === 0) addLamp(x0 - cell / 2 + c * cell + 2.4, z0 - cell / 2 + rI * cell + 2.4, Math.PI * 0.75);
     data.items.forEach((it, i) => {
       const x = x0 + (i % cols) * cell;
       const z = z0 + Math.floor(i / cols) * cell;
@@ -1167,6 +1423,36 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
         w.obj.rotation.y = w.phase + Math.sin(t * 0.6 + w.phase) * 0.5;
       }
     }
+    for (const f of flows) {
+      for (const d of f.dots) {
+        if (animated) d.u = (((d.u + dt * (12 / f.len) * d.dir) % 1) + 1) % 1;
+        d.parts.forEach((m, i) => {
+          const uu = (((d.u - d.dir * Math.min(i, 2) * (1.1 / f.len)) % 1) + 1) % 1;
+          f.curve.getPoint(uu, m.position);
+        });
+      }
+    }
+    for (const w of waves) {
+      const k = ((t + w.phase) % w.period) / w.period;
+      w.mesh.scale.setScalar(Math.max(0.05, k * w.size));
+      (w.mesh.material as THREE.MeshBasicMaterial).opacity = (1 - k) * w.peak;
+    }
+    for (const b of beams) (b.mesh.material as THREE.MeshBasicMaterial).opacity = 0.11 + 0.08 * Math.sin(t * 2.4 + b.phase);
+    for (const b of blinkers) b.obj.scale.setScalar((b.obj instanceof THREE.Sprite ? 7 : 1) * (0.85 + 0.25 * Math.max(0, Math.sin(t * 3 + b.phase))));
+    for (const c of cars) {
+      const u = (t * c.speed + c.phase) % 1;
+      const tri = u < 0.5 ? u * 2 : 2 - u * 2;
+      const v = c.from + (c.to - c.from) * tri;
+      const back = u >= 0.5;
+      const lane = back ? -0.9 : 0.9;
+      if (c.axis === 'z') {
+        c.obj.position.set(c.fixed + lane, 0.08, v);
+        c.obj.rotation.y = back ? Math.PI / 2 : -Math.PI / 2;
+      } else {
+        c.obj.position.set(v, 0.08, c.fixed - lane);
+        c.obj.rotation.y = back ? Math.PI : 0;
+      }
+    }
     for (const v of vans) {
       const ph = t * v.speed * Math.PI * 2 + v.phase;
       const u = THREE.MathUtils.clamp((1 - Math.cos(ph)) / 2, 0, 1);
@@ -1210,7 +1496,11 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
     world.traverse((o) => {
       const m = o as THREE.Mesh;
       m.geometry?.dispose();
-      if (m.material && !Array.isArray(m.material) && ![...materialCache.values()].includes(m.material)) (m.material as THREE.Material).dispose();
+      if (m.material && !Array.isArray(m.material) && ![...materialCache.values()].includes(m.material)) {
+        const mm = m.material as THREE.Material & { map?: THREE.Texture | null };
+        if (mm.map && mm.map !== glowTex) mm.map.dispose();
+        mm.dispose();
+      }
     });
   }
 
@@ -1254,6 +1544,14 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       if (selected && !items.has(selected)) handle.select(null);
       flyTo(homePos(), home.target.clone());
     },
+    setMood(next) {
+      if (next === mood) return;
+      mood = next;
+      applyMood();
+      disposeWorld();
+      buildWorld();
+      if (selected && !items.has(selected)) handle.select(null);
+    },
     setInsets(next) {
       insets = { left: next.left ?? 0, right: next.right ?? 0, bottom: next.bottom ?? 0, top: next.top ?? 0 };
       applyInsets();
@@ -1267,8 +1565,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       renderer.domElement.removeEventListener('wheel', stopAuto);
       controls.dispose();
       disposeWorld();
-      materialCache.forEach((m) => m.dispose());
-      materialCache.clear();
+      glowTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       labelLayer.remove();

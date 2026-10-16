@@ -49,6 +49,8 @@ const ICONS: Record<string, string> = {
   home: 'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',
   redo: 'M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6',
   pause: 'M8 5v14M16 5v14',
+  moon: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
+  sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
   play: 'M7 4l13 8-13 8z',
   list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
   check: 'M20 6 9 17l-5-5',
@@ -106,6 +108,13 @@ export default function ReliefDom(props: Props) {
   const [listOpen, setListOpen] = useState(true);
   const [sheet, setSheet] = useState<Sheet>('peek');
   const [vh, setVh] = useState(() => (typeof window !== 'undefined' ? window.innerHeight : 800));
+  const [mood, setMood] = useState<'day' | 'dusk'>(() => {
+    try {
+      return window.localStorage.getItem('cantia-relief-mood') === 'dusk' ? 'dusk' : 'day';
+    } catch {
+      return 'day';
+    }
+  });
   const accent = accentColor(spec);
   const vocab = spec.vocabulary;
 
@@ -131,6 +140,7 @@ export default function ReliefDom(props: Props) {
         baseLabel: `${vocab.place} · ${data.company}`,
         exampleLabel: copy.example,
         intro: true,
+        mood,
       });
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
         handleRef.current.setAnimated(false);
@@ -192,6 +202,16 @@ export default function ReliefDom(props: Props) {
     handleRef.current?.reset();
     if (mobile) setSheet('peek');
   };
+  const toggleMood = () => {
+    const next = mood === 'day' ? 'dusk' : 'day';
+    setMood(next);
+    handleRef.current?.setMood(next);
+    try {
+      window.localStorage.setItem('cantia-relief-mood', next);
+    } catch {
+      // Private mode: the choice just isn't remembered.
+    }
+  };
   const toggleAnim = () => {
     handleRef.current?.setAnimated(!animated);
     setAnimated(!animated);
@@ -237,7 +257,7 @@ export default function ReliefDom(props: Props) {
   const card = item ? <ItemCard key={item.id} {...props} item={item} onCloseItem={closeItem} mobile={mobile} /> : null;
 
   return (
-    <div className={`rf-root${mobile ? ' rf-mobile' : ''}`} style={{ ['--accent' as string]: accent }}>
+    <div className={`rf-root${mobile ? ' rf-mobile' : ''}${mood === 'dusk' ? ' rf-dusk' : ''}`} style={{ ['--accent' as string]: accent }}>
       <style>{SCENE_CSS + CSS}</style>
       <div ref={stageRef} className="rf-stage" />
       {error ? (
@@ -259,6 +279,9 @@ export default function ReliefDom(props: Props) {
             </div>
             <button type="button" className="rf-ibtn" onClick={overview} aria-label={copy.overview}>
               <Icon name="home" />
+            </button>
+            <button type="button" className="rf-ibtn" onClick={toggleMood} aria-label={mood === 'day' ? copy.night : copy.day}>
+              <Icon name={mood === 'day' ? 'moon' : 'sun'} />
             </button>
             {caps.redo ? (
               <button type="button" className="rf-ibtn" onClick={onRedo} disabled={rebuilding} aria-label={copy.redo}>
@@ -335,8 +358,11 @@ export default function ReliefDom(props: Props) {
               <button type="button" className="rf-btn" onClick={overview}>
                 <Icon name="home" /> {copy.overview}
               </button>
-              <button type="button" className="rf-btn" onClick={toggleAnim}>
-                <Icon name={animated ? 'pause' : 'play'} /> {animated ? copy.pause : copy.play}
+              <button type="button" className="rf-ibtn" onClick={toggleMood} aria-label={mood === 'day' ? copy.night : copy.day} title={mood === 'day' ? copy.night : copy.day}>
+                <Icon name={mood === 'day' ? 'moon' : 'sun'} />
+              </button>
+              <button type="button" className="rf-ibtn" onClick={toggleAnim} aria-label={animated ? copy.pause : copy.play} title={animated ? copy.pause : copy.play}>
+                <Icon name={animated ? 'pause' : 'play'} />
               </button>
               {caps.redo ? (
                 <button type="button" className="rf-btn" onClick={onRedo} disabled={rebuilding}>
@@ -1076,6 +1102,11 @@ const CSS = `
 .rf-message { font-size: 12.5px; color: #2E6B4F; animation: rf-fade .2s ease-out; }
 .rf-message-err { color: #AB3327; }
 .rf-open { width: 100%; padding: 12px; margin-top: auto; }
+.rf-dusk { background: #18202A; }
+.rf-dusk .rf-legend { color: #E8E1D6; text-shadow: none; }
+.rf-dusk .rf-hint { color: #A79D90; }
+.rf-dusk .rf-mbar { background: linear-gradient(#18202A 70%, rgba(24,32,42,0)); }
+.rf-dusk .rf-mbar-name { color: #FFFFFF; }
 .rf-error { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 14px; color: #6E6153; z-index: 3; }
 
 /* phone */

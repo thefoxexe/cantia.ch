@@ -24,9 +24,19 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
    - **Dossier** : liens vers fil, rapports, planning de chantier, documents, photos, métré, sous-traitants, rentabilité, travaux supplémentaires, situations — mêmes règles que la page du projet.
    « Refaire mon Relief » rouvre l'onboarding avec les réponses précédentes.
 
+## Ville vivante
+
+Le moteur (`lib/relief/engine.ts`) ajoute à chaque modèle :
+
+- **Câbles de données** du siège (antenne qui clignote, ondes au sol) vers chaque projet ; couleur selon l'état (normal, tâche en retard, en retard, terminé). Des impulsions partent vers le projet — plus il y a de tâches ouvertes et de personnes, plus il y en a — et une impulsion verte revient quand le projet avance.
+- **Balises** : ondes rouges et faisceau lumineux sur les projets en retard, ondes ambre sur ceux qui ont une tâche en retard.
+- **Circulation** dans les rues (Studio) et sur la route principale (Territoire), lampadaires.
+- **Mode nuit** (bouton lune / soleil dans le Relief, mémorisé sur l'appareil) : lumière lunaire, fenêtres allumées, phares, halos des lampadaires, câbles lumineux.
+- **Pourcentage d'avancement** dans l'étiquette de chaque projet ; jauges flottantes quand les étiquettes sont masquées (carte de l'accueil).
+
 ## Sur l'accueil
 
-Quand l'option est active, l'accueil montre une carte « Cantia Relief » (`components/relief/ReliefDashboardCard.tsx` + `ReliefPeekDom.tsx`) : la vraie maquette qui tourne doucement, sans interaction, avec les chiffres du jour (projets en cours, personnes planifiées aujourd'hui, retards — jamais de montants) et « Ouvrir mon Relief ». Elle se met à jour en direct (projets, planning, tâches). Avant la première construction, elle montre une esquisse du process type du métier et « Créer mon Relief ».
+Quand l'option est active, l'accueil montre la carte « Cantia Relief » (`components/relief/ReliefDashboardCard.tsx` + `ReliefPeekDom.tsx`) : la ville de l'entreprise de nuit, qui tourne doucement, avec câbles, impulsions, balises, circulation et jauges ; les chiffres du jour qui défilent jusqu'à leur valeur (projets en cours, planifiés aujourd'hui, avancement moyen, retards — jamais de montants) ; le fil d'activité des 14 derniers jours qui tourne (tâches terminées, planifications, nouveaux projets, factures payées si la personne y a droit, `loadReliefActivity`) ; un clic ouvre le Relief. Mise à jour en direct. Avant la première construction : esquisse du process type du métier et « Créer mon Relief ».
 
 ## Modèles
 

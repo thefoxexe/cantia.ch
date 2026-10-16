@@ -1,14 +1,23 @@
 'use dom';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { DOMProps } from 'expo/dom';
 import { accentColor, createRelief, type ReliefHandle } from '../../lib/relief/engine';
 import type { ReliefData, ReliefSpec } from '../../lib/relief/types';
 
-// The Relief on the dashboard: the company's real miniature turning slowly,
-// today's figures over it, and one click to open it full screen. Before the
-// first build it shows a sketch of the company's process instead, with an
-// invitation to create it.
+// The Relief on the dashboard, as a live city at dusk: the company's real
+// miniature turning slowly, lit windows, traffic, a data cable from the base
+// to every job with pulses running along it (outgoing work, progress coming
+// back, red beacons on what is late), today's figures counting up, and the
+// latest activity scrolling in. One click opens the Relief full screen.
+// Before the first build it shows a sketch of the company's process.
+
+export interface PeekEvent {
+  kind: 'task' | 'plan' | 'project' | 'paid';
+  tag: string;
+  title: string;
+  meta: string;
+}
 
 interface Props {
   spec: ReliefSpec;
@@ -17,21 +26,66 @@ interface Props {
   live: string;
   title: string;
   subtitle: string;
-  stats: { value: string; label: string; tone?: 'late' }[];
+  stats: { value: number; suffix?: string; label: string; tone?: 'late' }[];
+  feedTitle: string;
+  feed: PeekEvent[];
+  feedEmpty: string;
+  legend: string[];
   cta: string;
   onOpen: () => void;
   dom?: DOMProps;
 }
 
-export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtitle, stats, cta, onOpen }: Props) {
+const KIND_COLOR: Record<PeekEvent['kind'], string> = { task: '#3FBF7F', plan: '#5AA9E6', project: '#E7A52A', paid: '#B48CF0' };
+
+function CountUp({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      setN(value);
+      return;
+    }
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / 1300);
+      setN(Math.round(value * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return (
+    <>
+      {n}
+      {suffix}
+    </>
+  );
+}
+
+export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtitle, stats, feedTitle, feed, feedEmpty, legend, cta, onOpen }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<ReliefHandle | null>(null);
   const first = useRef(true);
+  const [wide, setWide] = useState(true);
+  const [turn, setTurn] = useState(0);
 
   useEffect(() => {
     if (!hostRef.current) return;
     try {
-      handleRef.current = createRelief(hostRef.current, spec, data, { onSelect: () => {}, baseLabel: '', exampleLabel: '', preview: true, intro: true, interactive: false, transparent: true, zoom: hostRef.current.clientWidth > 620 ? 1.5 : 1.05 });
+      handleRef.current = createRelief(hostRef.current, spec, data, {
+        onSelect: () => {},
+        baseLabel: '',
+        exampleLabel: '',
+        preview: true,
+        intro: true,
+        interactive: false,
+        transparent: true,
+        mood: 'dusk',
+        hud: true,
+        zoom: hostRef.current.clientWidth > 760 ? 1.35 : 1.05,
+      });
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) handleRef.current.setAnimated(false);
     } catch {
       handleRef.current = null;
@@ -52,13 +106,15 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
     handleRef.current?.update(data);
   }, [data]);
 
-  // Keep the miniature in the right part of the card, clear of the text.
+  // The city sits between the figures and the feed.
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     const fit = () => {
       const w = host.clientWidth;
-      handleRef.current?.setInsets(w > 620 ? { left: Math.min(300, w * 0.36), bottom: 10 } : { top: 60, bottom: 110 });
+      const isWide = w > 760;
+      setWide(isWide);
+      handleRef.current?.setInsets(isWide ? { left: Math.min(330, w * 0.3), right: Math.min(300, w * 0.26), bottom: 30, top: 10 } : { top: 92, bottom: 250 });
     };
     fit();
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;
@@ -66,9 +122,17 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
     return () => ro?.disconnect();
   }, [spec]);
 
+  // The feed keeps moving: the oldest entry goes back to the top.
+  useEffect(() => {
+    if (feed.length < 2) return;
+    const id = setInterval(() => setTurn((x) => x + 1), 4200);
+    return () => clearInterval(id);
+  }, [feed.length]);
+  const shown = feed.length ? [...feed.slice(turn % feed.length), ...feed.slice(0, turn % feed.length)].slice(0, wide ? 5 : 1) : [];
+
   return (
     <div
-      className="pk-root"
+      className={`pk-root${wide ? '' : ' pk-narrow'}`}
       style={{ ['--accent' as string]: accentColor(spec) }}
       role="button"
       tabIndex={0}
@@ -82,69 +146,157 @@ export default function ReliefPeekDom({ spec, data, eyebrow, live, title, subtit
       aria-label={`${title} · ${cta}`}
     >
       <style>{CSS}</style>
+      <div className="pk-sky" aria-hidden="true" />
       <div className="pk-grid" aria-hidden="true" />
+      <div className="pk-scan" aria-hidden="true" />
       <div ref={hostRef} className="pk-world" aria-hidden="true" />
-      <div className="pk-shade" aria-hidden="true" />
-      <div className="pk-text">
+
+      <div className="pk-left">
         <div className="pk-eyebrow">
           <span className="pk-live" />
           {eyebrow} · {live}
         </div>
         <div className="pk-title">{title}</div>
-        {subtitle ? <div className="pk-sub">{subtitle}</div> : null}
+        {subtitle && wide ? <div className="pk-sub">{subtitle}</div> : null}
+        {stats.length ? (
+          <div className="pk-stats">
+            {stats.map((s, i) => (
+              <div key={s.label} className={`pk-stat${s.tone === 'late' ? ' pk-stat-late' : ''}`} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+                <b>
+                  <CountUp value={s.value} suffix={s.suffix} />
+                </b>
+                <span>{s.label}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {wide ? (
+          <span className="pk-cta">
+            {cta} <span className="pk-arrow">→</span>
+          </span>
+        ) : null}
       </div>
-      <div className="pk-foot">
-        <div className="pk-stats">
-          {stats.map((s) => (
-            <span key={s.label} className={`pk-stat${s.tone === 'late' ? ' pk-stat-late' : ''}`}>
-              <b>{s.value}</b>
-              {s.label}
-            </span>
+
+      <div className="pk-feed">
+        <div className="pk-feed-head">
+          <span className="pk-feed-dot" />
+          {feedTitle}
+        </div>
+        {shown.length ? (
+          shown.map((e, i) => (
+            <div key={`${turn}-${e.tag}-${e.title}-${i}`} className="pk-ev" style={{ animationDelay: `${i * 70}ms` }}>
+              <span className="pk-ev-bar" style={{ background: KIND_COLOR[e.kind] }} />
+              <span className="pk-ev-main">
+                <span className="pk-ev-tag" style={{ color: KIND_COLOR[e.kind] }}>
+                  {e.tag}
+                </span>
+                <span className="pk-ev-title">{e.title}</span>
+                <span className="pk-ev-meta">{e.meta}</span>
+              </span>
+            </div>
+          ))
+        ) : (
+          <div className="pk-ev-empty">{feedEmpty}</div>
+        )}
+      </div>
+
+      {!wide && stats.length ? (
+        <div className="pk-mstats">
+          {stats.map((s, i) => (
+            <div key={s.label} className={`pk-stat${s.tone === 'late' ? ' pk-stat-late' : ''}`} style={{ animationDelay: `${0.15 + i * 0.08}s` }}>
+              <b>
+                <CountUp value={s.value} suffix={s.suffix} />
+              </b>
+              <span>{s.label}</span>
+            </div>
           ))}
         </div>
-        <span className="pk-cta">
+      ) : null}
+
+      {wide ? (
+        <div className="pk-legend" aria-hidden="true">
+          <span>
+            <i style={{ background: 'var(--accent)' }} />
+            {legend[0]}
+          </span>
+          <span>
+            <i style={{ background: '#3FBF7F' }} />
+            {legend[1]}
+          </span>
+          <span>
+            <i style={{ background: '#E0483C' }} />
+            {legend[2]}
+          </span>
+        </div>
+      ) : (
+        <span className="pk-cta pk-cta-m">
           {cta} <span className="pk-arrow">→</span>
         </span>
-      </div>
+      )}
     </div>
   );
 }
 
 const CSS = `
-.pk-root { position: relative; width: 100%; height: 100%; min-height: 220px; overflow: hidden; border-radius: 16px; cursor: pointer; background: radial-gradient(120% 90% at 75% 40%, #F6F0E5 0%, #EDE4D5 55%, #E4D9C7 100%); font-family: Archivo, system-ui, -apple-system, sans-serif; color: #231A12; -webkit-font-smoothing: antialiased; box-sizing: border-box; border: 1px solid rgba(35,26,18,0.08); transition: box-shadow .25s, transform .25s; outline: none; }
+.pk-root { position: relative; width: 100%; height: 100%; min-height: 260px; overflow: hidden; border-radius: 18px; cursor: pointer; background: #0E131A; font-family: Archivo, system-ui, -apple-system, sans-serif; color: #F4F1EA; -webkit-font-smoothing: antialiased; box-sizing: border-box; outline: none; isolation: isolate; transition: box-shadow .3s, transform .3s; box-shadow: 0 18px 44px rgba(14,19,26,0.28); }
 .pk-root * { box-sizing: border-box; }
-.pk-root:hover { box-shadow: 0 18px 40px rgba(43,33,26,0.16); transform: translateY(-1px); }
-.pk-root:focus-visible { box-shadow: 0 0 0 3px var(--accent); }
-.pk-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(35,26,18,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(35,26,18,0.045) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(80% 80% at 70% 50%, #000 30%, transparent 85%); -webkit-mask-image: radial-gradient(80% 80% at 70% 50%, #000 30%, transparent 85%); }
-.pk-world { position: absolute; inset: 0; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
-.pk-world canvas { background: transparent; }
+.pk-root:hover { box-shadow: 0 26px 60px rgba(14,19,26,0.38); transform: translateY(-2px); }
+.pk-root:focus-visible { box-shadow: 0 0 0 3px var(--accent), 0 18px 44px rgba(14,19,26,0.28); }
+.pk-sky { position: absolute; inset: 0; background: radial-gradient(60% 75% at 52% 52%, color-mix(in srgb, var(--accent) 34%, #1B2633) 0%, #16202B 45%, #0E131A 100%); }
+.pk-grid { position: absolute; inset: -40% -10% 0 -10%; background-image: linear-gradient(rgba(140,190,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(140,190,255,0.07) 1px, transparent 1px); background-size: 34px 34px; transform: perspective(600px) rotateX(58deg); transform-origin: 50% 100%; mask-image: radial-gradient(70% 60% at 50% 70%, #000 30%, transparent 80%); -webkit-mask-image: radial-gradient(70% 60% at 50% 70%, #000 30%, transparent 80%); animation: pk-grid 14s linear infinite; }
+.pk-scan { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0%, rgba(160,210,255,0.05) 48%, rgba(160,210,255,0.12) 50%, rgba(160,210,255,0.05) 52%, transparent 100%); background-size: 100% 220%; animation: pk-scan 7s linear infinite; pointer-events: none; mix-blend-mode: screen; }
+.pk-world { position: absolute; inset: 0; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
 .pk-root:hover .pk-world { transform: scale(1.03); }
-.pk-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(246,240,229,0.96) 0%, rgba(246,240,229,0.7) 30%, rgba(246,240,229,0) 52%), linear-gradient(0deg, rgba(237,228,213,0.95) 0%, rgba(237,228,213,0) 34%); }
-.pk-text { position: absolute; left: 22px; top: 20px; max-width: min(340px, 46%); display: flex; flex-direction: column; gap: 6px; animation: pk-in .5s ease-out both; }
-.pk-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
-.pk-live { width: 8px; height: 8px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 0 rgba(46,158,91,.55); animation: pk-ping 1.8s infinite; }
-.pk-title { font-size: 24px; line-height: 1.08; font-weight: 900; letter-spacing: -0.6px; text-wrap: balance; }
-.pk-sub { font-size: 13px; line-height: 1.45; color: #4A3F35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.pk-foot { position: absolute; left: 22px; right: 22px; bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.pk-stats { display: flex; flex-wrap: wrap; gap: 8px; }
-.pk-stat { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 11px; border-radius: 10px; background: rgba(255,253,249,0.9); border: 1px solid rgba(35,26,18,0.08); box-shadow: 0 6px 16px rgba(43,33,26,0.08); font-size: 12px; font-weight: 600; color: #4A3F35; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: pk-in .5s ease-out both; }
-.pk-stat:nth-child(2) { animation-delay: .08s; } .pk-stat:nth-child(3) { animation-delay: .16s; }
-.pk-stat b { font: 700 16px 'Martian Mono', ui-monospace, monospace; color: #231A12; }
-.pk-stat-late, .pk-stat-late b { color: #AB3327; }
-.pk-cta { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 12px; background: #16120E; color: #FFFFFF; font-size: 13.5px; font-weight: 800; box-shadow: 0 10px 22px rgba(22,18,14,0.25); white-space: nowrap; }
+
+.pk-left { position: absolute; left: 26px; top: 24px; bottom: 24px; width: min(300px, 30%); display: flex; flex-direction: column; gap: 10px; z-index: 2; }
+.pk-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 55%, #FFFFFF); animation: pk-in .5s ease-out both; }
+.pk-live { width: 8px; height: 8px; border-radius: 50%; background: #3FD07F; box-shadow: 0 0 10px #3FD07F; animation: pk-ping 1.8s infinite; }
+.pk-title { font-size: 25px; line-height: 1.06; font-weight: 900; letter-spacing: -0.6px; color: #FFFFFF; text-wrap: balance; animation: pk-in .5s .05s ease-out both; }
+.pk-sub { font-size: 12.5px; line-height: 1.45; color: #A9B4C2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; animation: pk-in .5s .1s ease-out both; }
+.pk-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.pk-stat { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: pk-in .5s ease-out both; }
+.pk-stat b { font: 700 22px 'Martian Mono', ui-monospace, monospace; color: #FFFFFF; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+.pk-stat span { font-size: 11px; font-weight: 600; color: #A9B4C2; line-height: 1.25; }
+.pk-stat-late { background: rgba(224,72,60,0.12); border-color: rgba(224,72,60,0.35); }
+.pk-stat-late b { color: #FF8A7E; }
+.pk-cta { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 12px; background: #FFFFFF; color: #0E131A; font-size: 13.5px; font-weight: 800; box-shadow: 0 10px 26px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.2); white-space: nowrap; animation: pk-in .5s .3s ease-out both; }
 .pk-arrow { display: inline-block; transition: transform .25s; }
 .pk-root:hover .pk-arrow { transform: translateX(4px); }
-@keyframes pk-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@keyframes pk-ping { 0% { box-shadow: 0 0 0 0 rgba(46,158,91,.5); } 80%, 100% { box-shadow: 0 0 0 8px rgba(46,158,91,0); } }
-@media (max-width: 620px) {
-  .pk-shade { background: linear-gradient(180deg, rgba(246,240,229,0.95) 0%, rgba(246,240,229,0) 30%), linear-gradient(0deg, rgba(237,228,213,0.97) 0%, rgba(237,228,213,0) 40%); }
-  .pk-text { left: 16px; top: 14px; max-width: calc(100% - 32px); gap: 4px; }
-  .pk-title { font-size: 19px; }
-  .pk-sub { display: none; }
-  .pk-foot { left: 14px; right: 14px; bottom: 14px; }
-  .pk-stat { padding: 6px 9px; font-size: 11px; }
-  .pk-stat b { font-size: 14px; }
-  .pk-cta { width: 100%; justify-content: center; }
-}
+
+.pk-feed { position: absolute; right: 22px; top: 22px; width: min(270px, 26%); display: flex; flex-direction: column; gap: 6px; z-index: 2; padding: 12px; border-radius: 14px; background: rgba(14,19,26,0.55); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.pk-feed-head { display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: #C9D2DC; padding: 0 2px 4px; }
+.pk-feed-dot { width: 6px; height: 6px; border-radius: 50%; background: #5AA9E6; box-shadow: 0 0 8px #5AA9E6; animation: pk-blink 1.4s infinite; }
+.pk-ev { display: flex; gap: 9px; padding: 8px 9px; border-radius: 10px; background: rgba(255,255,255,0.045); animation: pk-slide .45s cubic-bezier(.2,.8,.2,1) both; }
+.pk-ev-bar { width: 3px; border-radius: 2px; flex: none; box-shadow: 0 0 8px currentColor; }
+.pk-ev-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pk-ev-tag { font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+.pk-ev-title { font-size: 12.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-ev-meta { font-size: 11px; color: #8D99A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-ev-empty { font-size: 12px; line-height: 1.45; color: #8D99A8; padding: 4px 2px; }
+
+.pk-legend { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 16px; font-size: 11px; font-weight: 600; color: #A9B4C2; z-index: 2; white-space: nowrap; }
+.pk-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.pk-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; box-shadow: 0 0 8px currentColor; }
+
+@keyframes pk-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pk-slide { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes pk-ping { 0% { box-shadow: 0 0 0 0 rgba(63,208,127,.6); } 80%, 100% { box-shadow: 0 0 0 9px rgba(63,208,127,0); } }
+@keyframes pk-blink { 50% { opacity: .3; } }
+@keyframes pk-scan { from { background-position: 0 -110%; } to { background-position: 0 110%; } }
+@keyframes pk-grid { from { background-position: 0 0; } to { background-position: 0 34px; } }
+
+/* phone */
+.pk-narrow .pk-left { left: 16px; right: 16px; top: 16px; bottom: auto; width: auto; gap: 6px; }
+.pk-narrow .pk-title { font-size: 20px; }
+.pk-narrow .pk-left .pk-stats { display: none; }
+.pk-narrow .pk-feed { left: 14px; right: 14px; top: auto; bottom: 74px; width: auto; padding: 8px 10px; gap: 4px; }
+.pk-narrow .pk-feed-head { padding: 0 2px 2px; }
+.pk-narrow .pk-ev { padding: 6px 8px; }
+.pk-cta-m { position: absolute; left: 14px; right: 14px; bottom: 14px; justify-content: center; margin: 0; z-index: 2; }
+.pk-mstats { position: absolute; left: 14px; right: 14px; bottom: 170px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; z-index: 2; }
+.pk-mstats .pk-stat { padding: 7px 8px; border-radius: 10px; }
+.pk-mstats .pk-stat b { font-size: 16px; }
+.pk-mstats .pk-stat span { font-size: 9.5px; }
+
 @media (prefers-reduced-motion: reduce) { .pk-root *, .pk-root { animation: none !important; transition: none !important; } }
 `;
