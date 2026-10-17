@@ -56,6 +56,10 @@ interface Options {
   mood?: 'day' | 'dusk';
   /** Floating progress gauges over each item (when labels are hidden). */
   hud?: boolean;
+  /** Tilt-shift blur at the top and bottom (default: when not transparent). */
+  tilt?: boolean;
+  /** Turns on its own from the start, at this speed (a picture on a card). */
+  spin?: number;
   /** Where the company is: its town's landmark, lake or river, horizon. */
   geo?: {
     landmark: string | null;
@@ -926,7 +930,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
 
   // Tilt-shift: the near and far edges of the view melt into a soft blur,
   // like a photograph of a real scale model. Under the names, not over them.
-  const tilt = opts.transparent ? null : document.createElement('div');
+  const tilt = (opts.tilt ?? !opts.transparent) ? document.createElement('div') : null;
   if (tilt) {
     tilt.className = 'rf-tilt';
     host.appendChild(tilt);
@@ -1925,9 +1929,9 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
   camera.position.copy(homePos());
   controls.target.copy(home.target);
   controls.update();
-  if (opts.preview) {
+  if (opts.preview || opts.spin) {
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.9;
+    controls.autoRotateSpeed = opts.spin ?? 0.9;
   }
 
   // ---- loop
@@ -1950,7 +1954,7 @@ export function createRelief(host: HTMLElement, initialSpec: ReliefSpec, initial
       camera.position.lerpVectors(tween.fromPos, tween.toPos, e);
       controls.target.lerpVectors(tween.fromTarget, tween.toTarget, e);
       if (k >= 1) tween = null;
-    } else if (!selected && animated && now - lastInteraction > (opts.preview ? 4000 : 25000)) controls.autoRotate = true;
+    } else if (!selected && animated && now - lastInteraction > (opts.preview || opts.spin ? 4000 : 25000)) controls.autoRotate = true;
     controls.update();
 
     if (rising.length) {

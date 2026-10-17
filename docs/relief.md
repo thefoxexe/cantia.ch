@@ -8,7 +8,7 @@ Option payante (module privé `relief`) : accordée par l'admin plateforme (`org
 
 ## Où on la trouve
 
-Un bouton **Maquette** dans la barre du haut, à côté de la cloche (`components/relief/MaquetteButton.tsx`, sur ordinateur et téléphone), avec le nombre de personnes sur le terrain aujourd'hui. Il ouvre `/maquette` en plein écran. L'ancienne adresse `/relief` (anciens e-mails et notifications) redirige. Plus de carte sur l'accueil.
+Sur l'accueil, juste sous les boutons rapides, quand l'option est active (`components/relief/MaquetteCard.tsx` + `MaquetteCardDom.tsx`) : le petit monde de l'entreprise qui tourne tout seul (équipes qui partent sur leurs projets, bâtiments à leur étape, effet maquette) ; à côté, qui est sur le terrain aujourd'hui et où, la « ligne d'horizon » du process (combien de projets à chaque étape), projets en cours / en retard / à surveiller, et « Entrer dans la maquette ». Toute la carte est cliquable et ouvre `/maquette` en plein écran. Mise à jour en direct (projets, étapes, planning, tâches). Avant la première construction : le process type du métier en esquisse et « Créer la maquette ». Jamais de montants sur l'accueil. L'ancienne adresse `/relief` redirige.
 
 ## Parcours
 
@@ -82,7 +82,7 @@ Chaque personne planifiée aujourd'hui sur un projet est une figurine (jambes et
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
 | `components/relief/ReliefOnboardingDom.tsx` | Onboarding (site, process par type, frise), construction, échec. |
 | `components/relief/ReliefDom.tsx` | Interface de la maquette : fiche, tableau d'étapes, voix, éditeur de process. |
-| `components/relief/MaquetteButton.tsx` | Le bouton de la barre du haut. |
+| `components/relief/MaquetteCard.tsx`, `MaquetteCardDom.tsx` | La carte de l'accueil. |
 | `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
 | `app/(app)/maquette.tsx` | La page plein écran ; `app/(app)/relief.tsx` redirige. |
 

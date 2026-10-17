@@ -5,6 +5,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
+import { MaquetteCard } from '../../components/relief/MaquetteCard';
 import { isOnline } from '../../lib/presence';
 import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
@@ -619,6 +620,8 @@ export default function DashboardScreen() {
           {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
         </View>
 
+
+        <MaquetteCard />
 
         {favoritesCard}
 
