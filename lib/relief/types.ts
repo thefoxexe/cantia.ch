@@ -1,6 +1,6 @@
-// Cantia Maquette (code name relief): the company as a living 3D miniature.
+// Cantia Panorama (code name relief): the company, live, on the planet.
 //
-// Two halves meet in the scene (lib/relief/engine.ts):
+// Two halves meet on the planet (lib/relief/globe.ts):
 // - the ReliefSpec, written once by the AI from what the owner dictated
 //   (supabase/functions/relief-build, stored in relief_worlds.spec): which
 //   base model, the company's own words, the steps of its process, the look;

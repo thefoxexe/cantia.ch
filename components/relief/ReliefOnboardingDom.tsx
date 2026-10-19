@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { DOMProps } from 'expo/dom';
-import { createRelief, type ReliefHandle } from '../../lib/relief/engine';
-import { SCENE_CSS } from '../../lib/relief/sceneCss';
+import { createGlobe, type GlobeHandle, type GlobePoint } from '../../lib/relief/globe';
 import { newKindId, roleOptions, suggestedTemplate, withKinds } from '../../lib/relief/process';
 import { ACCENT_HEX, PALETTE, initials, previewData, previewSpec } from '../../lib/relief/preview';
 import type { ReliefAnswerStage, ReliefAnswers, ReliefBilling, ReliefMember, ReliefTemplate } from '../../lib/relief/types';
@@ -89,7 +88,7 @@ export default function ReliefOnboardingDom(props: Props) {
   const [now, setNow] = useState(() => Date.now());
   const stageRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement | null>(null);
-  const relief = useRef<ReliefHandle | null>(null);
+  const relief = useRef<GlobeHandle | null>(null);
   const lastSeq = useRef(props.dictated.seq);
   const [mobile, setMobile] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(max-width: 860px)').matches);
 
@@ -107,18 +106,17 @@ export default function ReliefOnboardingDom(props: Props) {
     return () => mq?.removeEventListener?.('change', on);
   }, []);
 
-  // The live preview: created once, then re-planned as the answers change.
+  // The live preview: the planet turning, then diving to the company, with
+  // example lights around the head office that follow the answers.
+  const hq = props.geo?.lat != null && props.geo.lon != null ? { lat: props.geo.lat, lon: props.geo.lon } : null;
+  const previewPoints = (): GlobePoint[] => {
+    const at = hq ?? { lat: 46.948, lon: 7.447 };
+    return previewData(spec, a, company).items.map((it) => ({ id: it.id, lat: at.lat, lon: at.lon, status: it.status, crew: it.crew.length }));
+  };
   useEffect(() => {
     if (!stageRef.current) return;
     try {
-      relief.current = createRelief(stageRef.current, spec, previewData(spec, a, company), {
-        onSelect: () => {},
-        baseLabel: company,
-        exampleLabel: '',
-        preview: true,
-        intro: true,
-        geo: props.geo ? { landmark: props.geo.landmark, backdrop: props.geo.backdrop, water: props.geo.water, names: props.geo.names } : null,
-      });
+      relief.current = createGlobe(stageRef.current, { mode: 'card', accent: '#F2B880', points: previewPoints(), hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
     } catch {
       relief.current = null;
     }
@@ -126,23 +124,15 @@ export default function ReliefOnboardingDom(props: Props) {
       relief.current?.dispose();
       relief.current = null;
     };
-    // Rebuilt when the town is known (it is looked up after the first paint).
+    // Made once; the head office moves when the town is known (looked up after the first paint).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.geo?.city, props.geo?.landmark]);
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => relief.current?.setSpec(spec, previewData(spec, a, company)), 350);
+    const t = setTimeout(() => relief.current?.update(previewPoints(), hq), 350);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [specKey]);
-
-  // While the AI builds, the preview keeps rebuilding itself.
-  useEffect(() => {
-    if (mode !== 'building') return;
-    const t = setInterval(() => relief.current?.setSpec(spec, previewData(spec, a, company)), 7000);
-    return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, specKey]);
+  }, [specKey, hq?.lat, hq?.lon]);
 
   // The reading checklist advances on its own while the site is read.
   useEffect(() => {
@@ -765,7 +755,7 @@ export default function ReliefOnboardingDom(props: Props) {
 
   return (
     <div className={`ob-root${mobile ? ' ob-m' : ''}${welcome ? ' ob-is-welcome' : ''}`} style={{ ['--accent' as string]: accent }}>
-      <style>{SCENE_CSS + CSS}</style>
+      <style>{CSS}</style>
       <div ref={stageRef} className="ob-world" />
       {scanning ? <div className="ob-sweep" aria-hidden="true" /> : null}
       <div className="ob-topbar">
@@ -887,9 +877,7 @@ function ModelArt({ kind }: { kind: ReliefTemplate }) {
 const CSS = `
 .ob-root { --ink: #1D1712; --ink2: #4A3F35; --ink3: #7C7062; --paper: #FBF8F2; --rule: #E6DDCF; position: relative; width: 100%; height: 100%; min-height: 100%; overflow: hidden; background: #EFE8DC; font-family: Archivo, system-ui, -apple-system, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
 .ob-root * { box-sizing: border-box; }
-.ob-world { position: absolute; inset: 0; z-index: 0; }
-.ob-world .rf-labels { opacity: .92; }
-.ob-world .rf-step-name { display: none; }
+.ob-world { position: absolute; inset: 0; z-index: 0; background: radial-gradient(110% 90% at 65% 40%, #13213A 0%, #0A1222 45%, #050912 100%); }
 .ob-sweep { position: absolute; left: 0; right: 0; top: 0; height: 32%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,0), color-mix(in srgb, var(--accent) 18%, transparent) 85%, color-mix(in srgb, var(--accent) 70%, transparent) 99%, rgba(255,255,255,0)); animation: ob-sweep 2.6s cubic-bezier(.5,0,.5,1) infinite; }
 .ob-topbar { position: absolute; left: 0; right: 0; top: 0; z-index: 3; display: flex; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 18px 14px; pointer-events: none; }
 .ob-topbar > * { pointer-events: auto; }

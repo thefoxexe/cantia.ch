@@ -9,7 +9,7 @@ import { fillsSoumissions } from '../../lib/trades';
 import { useDictation } from '../../lib/useDictation';
 import { RELIEF_COPY, reliefLocale, workTermWords } from '../../lib/relief/copy';
 import { defaultAnswers } from '../../lib/relief/process';
-import { getReliefGeo, type ReliefGeo } from '../../lib/relief/geo';
+import { getReliefGeo, locateAddresses, type ReliefGeo } from '../../lib/relief/geo';
 import {
   addReliefTask,
   closeReliefItem,
@@ -65,6 +65,21 @@ export default function PanoramaScreen() {
       cancelled = true;
     };
   }, [locality, locale]);
+  // Each project on the planet at its town (geocoded once, then cached).
+  const [places, setPlaces] = useState<Record<string, { lat: number; lon: number }>>({});
+  const addressKey = (data?.items ?? [])
+    .filter((i) => !i.example)
+    .map((i) => `${i.id}:${i.place ?? ''}`)
+    .join('|');
+  useEffect(() => {
+    if (!data) return;
+    let cancelled = false;
+    locateAddresses(data.items.filter((i) => !i.example).map((i) => ({ id: i.id, address: i.place }))).then((p) => !cancelled && setPlaces(p));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressKey]);
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const worldRef = useRef(world);
   worldRef.current = world;
@@ -345,6 +360,7 @@ export default function PanoramaScreen() {
         onClose={close}
         onRedo={() => setEditing(true)}
         geo={geo}
+        places={places}
         dom={{ style: { flex: 1 } }}
       />
     </View>

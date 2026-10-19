@@ -5,7 +5,7 @@ import { TEMPLATE_STYLES } from './types';
 import { estimateEnd, guessKind, kindsOf, progressAt, stageOverdue, workingDaysBetween } from './stages';
 
 // The live side of Cantia Maquette: the company's real records turned into
-// what the scene shows (lib/relief/engine.ts), and the few writes the scene
+// what the planet shows (lib/relief/globe.ts), and the few writes the scene
 // allows (a task, someone planned on an item today). Everything goes
 // through the member's own session, so RLS decides what each person sees.
 

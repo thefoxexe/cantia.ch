@@ -2,17 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DOMProps } from 'expo/dom';
-import { accentColor, createRelief, type ReliefHandle } from '../../lib/relief/engine';
+import { ACCENT_HEX } from '../../lib/relief/preview';
+import { createGlobe, GLOBE_STATUS, type GlobeHandle, type GlobePoint } from '../../lib/relief/globe';
 import { SCENE_CSS } from '../../lib/relief/sceneCss';
 import type { ReliefCaps, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefKind, ReliefSection, ReliefSpec, ReliefStage } from '../../lib/relief/types';
 import type { ReliefCopy } from '../../lib/relief/copy';
 import { formatCoord, type ReliefGeo } from '../../lib/relief/geo';
 import { parseStageCommand, stageOverdue, stageTooEarly } from '../../lib/relief/stages';
 
-// Cantia Maquette, full screen: the 3D world (lib/relief/engine.ts) and what
-// sits around it. On a computer: a header, the list on the left and the
-// item's card on the right. On a phone: the world fills the screen and the
-// list and the card live in a sheet at the bottom. The card is the item's
+// Cantia Panorama, full screen: the planet (lib/relief/globe.ts) with every
+// item at its address, and what sits around it. On a computer: a header, the
+// list on the left and the item's card on the right. On a phone: the planet
+// fills the screen and the list and the card live in a sheet at the bottom. The card is the item's
 // whole file in Cantia, filtered by the member's rights: process step,
 // tasks, the week's planning, quotes and invoices, and links to every part
 // of the file. Anyone may move an item to its next step, by a click or by
@@ -20,6 +21,8 @@ import { parseStageCommand, stageOverdue, stageTooEarly } from '../../lib/relief
 // process itself (kinds of projects, steps, durations) without a rebuild.
 // A DOM component: plain React DOM on the web, its own web view on phones.
 
+// Arcs and pulses from the head office: a warm light that reads on the planet.
+const ARC = '#F2B880';
 const STATUS_COLOR: Record<ReliefItemStatus, string> = { ok: '#2E6B4F', risk: '#B07A12', late: '#AB3327', done: '#8C8073' };
 const MOBILE = '(max-width: 760px)';
 const DATE_LOCALE: Record<string, string> = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
@@ -109,16 +112,18 @@ interface Props {
   onNavigate: (route: string) => void;
   onClose: () => void;
   onRedo: () => void;
-  /** The company's town, for the landmarks and the cartouche. */
+  /** The company's town: the head office on the planet, the cartouche. */
   geo?: ReliefGeo | null;
+  /** Where each item is (its address' town); missing ones sit around the head office. */
+  places?: Record<string, { lat: number; lon: number }>;
   dom?: DOMProps;
 }
 
 export default function ReliefDom(props: Props) {
-  const { spec, data, copy, caps, rebuilding, onClose, onRedo, geo } = props;
-  const geoKey = geo ? `${geo.city}|${geo.landmark}|${geo.backdrop}|${geo.water?.name ?? ''}` : '';
+  const { spec, data, copy, caps, rebuilding, onClose, onRedo, geo, places } = props;
+  const hq = geo?.lat != null && geo.lon != null ? { lat: geo.lat, lon: geo.lon } : null;
   const stageRef = useRef<HTMLDivElement>(null);
-  const handleRef = useRef<ReliefHandle | null>(null);
+  const handleRef = useRef<GlobeHandle | null>(null);
   const firstData = useRef(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [animated, setAnimated] = useState(true);
@@ -137,10 +142,20 @@ export default function ReliefDom(props: Props) {
       return 'day';
     }
   });
-  const accent = accentColor(spec);
+  const accent = ACCENT_HEX[spec.accent] ?? ACCENT_HEX.terracotta;
   const vocab = spec.vocabulary;
-  // Worlds built before the rename were called "Le Relief de …".
-  const title = /relief/i.test(spec.title) ? data.company : spec.title;
+  // Worlds built before the rename were called "Le Relief de …" or "La maquette de …".
+  const title = /relief|maquette/i.test(spec.title) ? data.company : spec.title;
+  const stageLabel = (it: ReliefItem) => it.stages[Math.min(it.stages.length - 1, it.stage)]?.label ?? '';
+  const points = useMemo<GlobePoint[]>(
+    () =>
+      data.items.map((it) => {
+        const at = places?.[it.id] ?? hq ?? { lat: 46.948, lon: 7.447 };
+        return { id: it.id, lat: at.lat, lon: at.lon, status: it.status, crew: it.crew.length, name: it.name, detail: it.example ? copy.example : stageLabel(it), progress: it.progress, example: it.example };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, places, hq?.lat, hq?.lon],
+  );
 
   useEffect(() => {
     const mq = window.matchMedia?.(MOBILE);
@@ -159,18 +174,18 @@ export default function ReliefDom(props: Props) {
   useEffect(() => {
     if (!stageRef.current) return;
     try {
-      handleRef.current = createRelief(stageRef.current, spec, data, {
-        onSelect: setSelectedId,
+      const still = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      handleRef.current = createGlobe(stageRef.current, {
+        mode: 'full',
+        accent: ARC,
+        points,
+        hq,
+        mood: mood === 'dusk' ? 'night' : 'day',
         baseLabel: `${vocab.place} · ${data.company}`,
-        exampleLabel: copy.example,
-        intro: true,
-        mood,
-        geo: geo ? { landmark: geo.landmark, backdrop: geo.backdrop, water: geo.water, names: geo.names } : null,
+        onSelect: setSelectedId,
+        still,
       });
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-        handleRef.current.setAnimated(false);
-        setAnimated(false);
-      }
+      if (still) setAnimated(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -179,17 +194,18 @@ export default function ReliefDom(props: Props) {
       handleRef.current = null;
       firstData.current = true;
     };
-    // The world is rebuilt from scratch only when its plan changes.
+    // The planet is made once; the items move on it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec, geoKey]);
+  }, [spec]);
 
   useEffect(() => {
     if (firstData.current) {
       firstData.current = false;
       return;
     }
-    handleRef.current?.update(data);
-  }, [data]);
+    handleRef.current?.update(points, hq);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points]);
 
   useEffect(() => {
     if (selectedId) setSheet('item');
@@ -257,7 +273,6 @@ export default function ReliefDom(props: Props) {
     [data],
   );
   const hasExamples = data.items.some((i) => i.example);
-  const stageLabel = (it: ReliefItem) => it.stages[Math.min(it.stages.length - 1, it.stage)]?.label ?? '';
 
   const choose = (id: string) => {
     setProcessOpen(false);
@@ -272,7 +287,7 @@ export default function ReliefDom(props: Props) {
   const toggleMood = () => {
     const next = mood === 'day' ? 'dusk' : 'day';
     setMood(next);
-    handleRef.current?.setMood(next);
+    handleRef.current?.setMood(next === 'dusk' ? 'night' : 'day');
     try {
       window.localStorage.setItem('cantia-relief-mood', next);
     } catch {
@@ -386,7 +401,7 @@ export default function ReliefDom(props: Props) {
     ) : null;
 
   return (
-    <div className={`rf-root${mobile ? ' rf-mobile' : ''}${mood === 'dusk' ? ' rf-dusk' : ''}`} style={{ ['--accent' as string]: accent }}>
+    <div className={`rf-root rf-dusk${mobile ? ' rf-mobile' : ''}`} style={{ ['--accent' as string]: accent }}>
       <style>{SCENE_CSS + CSS}</style>
       <div ref={stageRef} className="rf-stage" />
       {error ? (
@@ -403,10 +418,7 @@ export default function ReliefDom(props: Props) {
               <Icon name="x" />
             </button>
             <div className="rf-mbar-title">
-              <span className="rf-eyebrow">
-                {copy.brand}
-                {geo ? ` · ${geo.city}` : ''}
-              </span>
+              <span className="rf-eyebrow">{copy.brand}</span>
               <span className="rf-mbar-name">{title}</span>
             </div>
             <button type="button" className="rf-ibtn" onClick={overview} aria-label={copy.overview}>
@@ -447,18 +459,19 @@ export default function ReliefDom(props: Props) {
                     {caps.process ? (
                       <button
                         type="button"
-                        className="rf-chip"
+                        className="rf-ibtn rf-ibtn-flat"
+                        aria-label={copy.processEdit}
+                        title={copy.processEdit}
                         onClick={() => {
                           setProcessOpen(true);
                           setSheet('list');
                         }}
                       >
-                        {copy.processEdit}
+                        <Icon name="flow" />
                       </button>
-                    ) : null}
-                    {caps.redo ? (
-                      <button type="button" className="rf-chip" onClick={onRedo} disabled={rebuilding}>
-                        {copy.redo}
+                    ) : caps.redo ? (
+                      <button type="button" className="rf-ibtn rf-ibtn-flat" onClick={onRedo} disabled={rebuilding} aria-label={copy.redo} title={copy.redo}>
+                        <Icon name="redo" />
                       </button>
                     ) : null}
                     <button type="button" className="rf-chip" onClick={() => setSheet(sheet === 'peek' ? 'list' : 'peek')}>
@@ -581,7 +594,7 @@ export default function ReliefDom(props: Props) {
             <span className="rf-legend-title">{copy.legendTitle}</span>
             {(Object.keys(STATUS_COLOR) as ReliefItemStatus[]).map((k) => (
               <span key={k} className="rf-legend-item">
-                <span className="rf-sq" style={{ background: STATUS_COLOR[k] }} />
+                <span className="rf-sq" style={{ background: GLOBE_STATUS[k] }} />
                 {copy.status[k]}
               </span>
             ))}
@@ -590,14 +603,6 @@ export default function ReliefDom(props: Props) {
               {copy.legendCable}
             </span>
             <span className="rf-hint rf-legend-hint">{copy.hint}</span>
-          </div>
-          <div className="rf-furniture" aria-hidden="true">
-            <svg width="26" height="40" viewBox="0 0 26 40">
-              <path d="M13 2 L21 26 L13 21 L5 26 Z" fill="currentColor" />
-              <path d="M13 2 L13 21 L5 26 Z" fill="var(--paper)" stroke="currentColor" strokeWidth="1" />
-              <text x="13" y="38" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor" fontFamily="Archivo, sans-serif">N</text>
-            </svg>
-            <span>{copy.schematic}</span>
           </div>
         </>
       )}
@@ -1470,10 +1475,8 @@ const CSS = `
 .rf-sq { width: 8px; height: 8px; display: inline-block; }
 .rf-legend-hint { flex-basis: 100%; font-weight: 500; font-size: 10.5px; }
 .rf-line { width: 18px; height: 2px; background: var(--accent); display: inline-block; }
-.rf-furniture { position: absolute; right: 472px; bottom: 16px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; color: #1D1712; font: italic 400 11px Georgia, serif; --paper: #EFE8DC; pointer-events: none; }
-.rf-furniture .rf-hint { font: 500 10.5px Archivo, system-ui, sans-serif; font-style: normal; }
-.rf-dusk .rf-furniture { color: #E4DCCF; --paper: #18202A; }
-.rf-dusk .rf-legend { background: rgba(18,25,34,0.85); color: #E4DCCF; border-color: rgba(255,255,255,0.14); }
+.rf-dusk .rf-legend { background: rgba(8,12,22,0.72); color: #E4DCCF; border-color: rgba(255,255,255,0.14); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.rf-dusk .rf-legend-title { color: #9FB0CB; border-color: rgba(255,255,255,0.18); }
 .rf-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .rf-hint { color: #8C8073; font-weight: 500; }
 
@@ -1575,9 +1578,10 @@ const CSS = `
 .rf-message { font-size: 12.5px; color: #2E6B4F; animation: rf-fade .2s ease-out; }
 .rf-message-err { color: #AB3327; }
 .rf-open { width: 100%; padding: 12px; margin-top: auto; }
-.rf-dusk { background: #18202A; }
+.rf-dusk { background: radial-gradient(120% 90% at 50% 40%, #0E1A30 0%, #070B16 55%, #03050B 100%); }
 .rf-dusk .rf-hint { color: #A79D90; }
-.rf-dusk .rf-mbar { background: linear-gradient(#18202A 70%, rgba(24,32,42,0)); }
+.rf-dusk .rf-mbar { background: linear-gradient(rgba(5,8,16,.92) 60%, rgba(5,8,16,0)); }
+.rf-dusk .rf-mbar .rf-eyebrow { color: #F2B880; }
 .rf-dusk .rf-mbar-name { color: #FFFFFF; }
 .rf-error { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 14px; color: #6E6153; z-index: 3; }
 
@@ -1680,7 +1684,7 @@ const CSS = `
 .rf-proc-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .rf-proc-redo { width: 100%; }
 .rf-proc .rf-open { margin-top: auto; }
-.rf-sheet-tools { display: inline-flex; gap: 14px; align-items: center; }
+.rf-sheet-tools { display: inline-flex; gap: 10px; align-items: center; flex: none; }
 
 /* a narrow computer or a tablet: icon buttons, no legend */
 @media (max-width: 1180px) and (min-width: 761px) {
@@ -1688,7 +1692,6 @@ const CSS = `
   .rf-actions .rf-btn svg { width: 17px; height: 17px; }
   .rf-actions .rf-say-dot { display: none !important; }
   .rf-legend { display: none; }
-  .rf-furniture { display: none; }
   .rf-head { width: 300px; min-width: 260px; }
   .rf-panel { width: 420px; }
 }

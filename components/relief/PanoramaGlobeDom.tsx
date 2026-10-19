@@ -30,7 +30,7 @@ export default function PanoramaGlobeDom({ accent, points, hq, brand, line, acti
   useEffect(() => {
     if (!host.current) return;
     try {
-      globe.current = createGlobe(host.current, { accent, points, hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
+      globe.current = createGlobe(host.current, { mode: 'card', accent, points, hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
     } catch {
       globe.current = null;
     }
