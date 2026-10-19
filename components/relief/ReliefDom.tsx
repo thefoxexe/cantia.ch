@@ -3,15 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DOMProps } from 'expo/dom';
 import { ACCENT_HEX } from '../../lib/relief/preview';
-import { createGlobe, GLOBE_STATUS, type GlobeHandle, type GlobePoint } from '../../lib/relief/globe';
+import { createGlobe, type GlobeHandle, type GlobePoint } from '../../lib/relief/globe';
+import { createWorld, WORLD_STATUS, type WorldHandle } from '../../lib/relief/terrain';
 import { SCENE_CSS } from '../../lib/relief/sceneCss';
 import type { ReliefCaps, ReliefData, ReliefDetails, ReliefItem, ReliefItemStatus, ReliefKind, ReliefSection, ReliefSpec, ReliefStage } from '../../lib/relief/types';
 import type { ReliefCopy } from '../../lib/relief/copy';
 import { formatCoord, type ReliefGeo } from '../../lib/relief/geo';
 import { parseStageCommand, stageOverdue, stageTooEarly } from '../../lib/relief/stages';
 
-// Cantia Panorama, full screen: the planet (lib/relief/globe.ts) with every
-// item at its address, and what sits around it. On a computer: a header, the
+// Cantia Panorama, full screen: a zoom from space onto the company
+// (lib/relief/globe.ts), then its piece of land (lib/relief/terrain.ts) with
+// every item at its address, and what sits around it. On a computer: a header, the
 // list on the left and the item's card on the right. On a phone: the planet
 // fills the screen and the list and the card live in a sheet at the bottom. The card is the item's
 // whole file in Cantia, filtered by the member's rights: process step,
@@ -21,8 +23,6 @@ import { parseStageCommand, stageOverdue, stageTooEarly } from '../../lib/relief
 // process itself (kinds of projects, steps, durations) without a rebuild.
 // A DOM component: plain React DOM on the web, its own web view on phones.
 
-// Arcs and pulses from the head office: a warm light that reads on the planet.
-const ARC = '#F2B880';
 const STATUS_COLOR: Record<ReliefItemStatus, string> = { ok: '#2E6B4F', risk: '#B07A12', late: '#AB3327', done: '#8C8073' };
 const MOBILE = '(max-width: 760px)';
 const DATE_LOCALE: Record<string, string> = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
@@ -123,7 +123,9 @@ export default function ReliefDom(props: Props) {
   const { spec, data, copy, caps, rebuilding, onClose, onRedo, geo, places } = props;
   const hq = geo?.lat != null && geo.lon != null ? { lat: geo.lat, lon: geo.lon } : null;
   const stageRef = useRef<HTMLDivElement>(null);
-  const handleRef = useRef<GlobeHandle | null>(null);
+  const handleRef = useRef<WorldHandle | null>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  const [intro, setIntro] = useState<'on' | 'out' | 'off'>('on');
   const firstData = useRef(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [animated, setAnimated] = useState(true);
@@ -151,7 +153,7 @@ export default function ReliefDom(props: Props) {
     () =>
       data.items.map((it) => {
         const at = places?.[it.id] ?? hq ?? { lat: 46.948, lon: 7.447 };
-        return { id: it.id, lat: at.lat, lon: at.lon, status: it.status, crew: it.crew.length, name: it.name, detail: it.example ? copy.example : stageLabel(it), progress: it.progress, example: it.example };
+        return { id: it.id, lat: at.lat, lon: at.lon, status: it.status, crew: it.crew.length, name: it.name, detail: it.example ? copy.example : stageLabel(it), progress: it.progress, example: it.example, step: it.stage, steps: it.stages.length };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data, places, hq?.lat, hq?.lon],
@@ -173,28 +175,54 @@ export default function ReliefDom(props: Props) {
 
   useEffect(() => {
     if (!stageRef.current) return;
+    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let disposeIntro = () => {};
     try {
       const still = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      handleRef.current = createGlobe(stageRef.current, {
-        mode: 'full',
-        accent: ARC,
+      const world = createWorld(stageRef.current, {
+        accent,
         points,
         hq,
         mood: mood === 'dusk' ? 'night' : 'day',
         baseLabel: `${vocab.place} · ${data.company}`,
         onSelect: setSelectedId,
+        hold: !still,
         still,
       });
-      if (still) setAnimated(false);
+      handleRef.current = world;
+      if (still) {
+        setAnimated(false);
+        setIntro('off');
+      } else if (introRef.current) {
+        // From space down to the company, then the land takes over.
+        let planet: GlobeHandle | null = null;
+        const land = () => {
+          world.arrive();
+          setIntro('out');
+          fadeTimer = setTimeout(() => {
+            planet?.dispose();
+            planet = null;
+            setIntro('off');
+          }, 900);
+        };
+        try {
+          planet = createGlobe(introRef.current, { mode: 'intro', tone: 'light', accent, points, hq, onArrive: land });
+        } catch {
+          land();
+        }
+        disposeIntro = () => planet?.dispose();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
     return () => {
+      clearTimeout(fadeTimer);
+      disposeIntro();
       handleRef.current?.dispose();
       handleRef.current = null;
       firstData.current = true;
     };
-    // The planet is made once; the items move on it.
+    // The land is made once; the items move on it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spec]);
 
@@ -401,9 +429,10 @@ export default function ReliefDom(props: Props) {
     ) : null;
 
   return (
-    <div className={`rf-root rf-dusk${mobile ? ' rf-mobile' : ''}`} style={{ ['--accent' as string]: accent }}>
+    <div className={`rf-root${mobile ? ' rf-mobile' : ''}${mood === 'dusk' ? ' rf-dusk' : ''}`} style={{ ['--accent' as string]: accent }}>
       <style>{SCENE_CSS + CSS}</style>
       <div ref={stageRef} className="rf-stage" />
+      {intro !== 'off' ? <div ref={introRef} className={`rf-intro${intro === 'out' ? ' rf-intro-out' : ''}`} aria-hidden="true" /> : null}
       {error ? (
         <div className="rf-error">
           <b>{fill(copy.error, { message: '' })}</b>
@@ -594,7 +623,7 @@ export default function ReliefDom(props: Props) {
             <span className="rf-legend-title">{copy.legendTitle}</span>
             {(Object.keys(STATUS_COLOR) as ReliefItemStatus[]).map((k) => (
               <span key={k} className="rf-legend-item">
-                <span className="rf-sq" style={{ background: GLOBE_STATUS[k] }} />
+                <span className="rf-sq" style={{ background: WORLD_STATUS[k] }} />
                 {copy.status[k]}
               </span>
             ))}
@@ -1402,9 +1431,11 @@ function Figure({ label, value, small = false, bar }: { label: string; value: st
 }
 
 const CSS = `
-.rf-root { position: relative; flex: 1; width: 100%; height: 100%; min-height: 100%; overflow: hidden; background: #EFE8DC; font-family: Archivo, system-ui, -apple-system, sans-serif; color: #231A12; -webkit-font-smoothing: antialiased; }
+.rf-root { position: relative; flex: 1; width: 100%; height: 100%; min-height: 100%; overflow: hidden; background: radial-gradient(110% 90% at 55% 45%, #F8F4EC 0%, #EEE7DB 60%, #E4DBCC 100%); font-family: Archivo, system-ui, -apple-system, sans-serif; color: #231A12; -webkit-font-smoothing: antialiased; }
 .rf-root * { box-sizing: border-box; }
 .rf-stage { position: absolute; inset: 0; z-index: 0; touch-action: none; }
+.rf-intro { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(110% 90% at 55% 45%, #F8F4EC 0%, #EEE7DB 60%, #E4DBCC 100%); transition: opacity .9s ease; }
+.rf-intro-out { opacity: 0; }
 .rf-top, .rf-side, .rf-panel, .rf-legend, .rf-mbar, .rf-sheet { z-index: 2; }
 .rf-card { background: #FFFDF9; border: 1px solid rgba(35,26,18,0.1); border-radius: 4px; box-shadow: 0 1px 2px rgba(29,23,18,0.06), 0 8px 24px rgba(29,23,18,0.06); }
 .rf-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1475,8 +1506,7 @@ const CSS = `
 .rf-sq { width: 8px; height: 8px; display: inline-block; }
 .rf-legend-hint { flex-basis: 100%; font-weight: 500; font-size: 10.5px; }
 .rf-line { width: 18px; height: 2px; background: var(--accent); display: inline-block; }
-.rf-dusk .rf-legend { background: rgba(8,12,22,0.72); color: #E4DCCF; border-color: rgba(255,255,255,0.14); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.rf-dusk .rf-legend-title { color: #9FB0CB; border-color: rgba(255,255,255,0.18); }
+.rf-dusk .rf-legend { background: rgba(18,25,34,0.85); color: #E4DCCF; border-color: rgba(255,255,255,0.14); }
 .rf-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .rf-hint { color: #8C8073; font-weight: 500; }
 
@@ -1578,10 +1608,9 @@ const CSS = `
 .rf-message { font-size: 12.5px; color: #2E6B4F; animation: rf-fade .2s ease-out; }
 .rf-message-err { color: #AB3327; }
 .rf-open { width: 100%; padding: 12px; margin-top: auto; }
-.rf-dusk { background: radial-gradient(120% 90% at 50% 40%, #0E1A30 0%, #070B16 55%, #03050B 100%); }
+.rf-dusk { background: radial-gradient(110% 90% at 55% 45%, #2A3340 0%, #1A2029 60%, #11151B 100%); }
 .rf-dusk .rf-hint { color: #A79D90; }
-.rf-dusk .rf-mbar { background: linear-gradient(rgba(5,8,16,.92) 60%, rgba(5,8,16,0)); }
-.rf-dusk .rf-mbar .rf-eyebrow { color: #F2B880; }
+.rf-dusk .rf-mbar { background: linear-gradient(#1A2029 70%, rgba(26,32,41,0)); }
 .rf-dusk .rf-mbar-name { color: #FFFFFF; }
 .rf-error { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 14px; color: #6E6153; z-index: 3; }
 

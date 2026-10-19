@@ -6,22 +6,29 @@ Toute l'entreprise en direct sur une vraie planète en 3D. Le process de l'entre
 
 Option payante (module privé `relief`) : accordée par l'admin plateforme (`organization_modules.enabled`), puis activée par l'admin de l'entreprise (`activated`).
 
-## La planète
+## La planète (accueil et arrivée)
 
-Le même moteur partout (`lib/relief/globe.ts`, three.js) : la Terre texturée (NASA Blue Marble le jour, lumières des villes la nuit, océans qui brillent, nuages, halo bleu de l'atmosphère, étoiles), avec le jour et la nuit placés selon la vraie position du soleil. Au-dessus des Alpes, une pièce en haute définition (`public/globe/alps-day.jpg` + `alps-height.png`, générées par `scripts/panorama-alps.py` à partir du relief réel — AWS Terrain Tiles — et des lacs de Natural Earth) : le relief est éclairé par le soleil du moment, les lacs brillent. La Suisse est tracée en blanc (`lib/relief/globeData.ts`, régénéré par `scripts/panorama-globe-data.mjs`).
+`lib/relief/globe.ts` (three.js) : la Terre texturée (NASA Blue Marble, nuages), en ton clair sur les pages claires (éclairée depuis le spectateur, couleurs adoucies, sans halo bleu). Au-dessus des Alpes, une pièce en haute définition (`public/globe/alps-day.jpg` + `alps-height.png`, `scripts/panorama-alps.py`). La Suisse est tracée en blanc (`lib/relief/globeData.ts`) ; le siège et les projets sont de petites lumières reliées par des arcs.
 
-Sur la planète : le siège comme une balise blanche (une lumière chaude vue de loin), chaque projet comme un petit faisceau de lumière à l'adresse de sa localité (vert dans les temps, orange tâche en retard, rouge en retard, gris terminé), un anneau qui pulse là où quelqu'un est planifié aujourd'hui ou si le projet est en retard, des arcs depuis le siège avec des impulsions qui partent vers les projets. Les localités sont géocodées (open-meteo, en cache) ; sans adresse, les projets se placent autour du siège.
+## Le monde (plein écran)
 
-Les images sont servies depuis `public/globe/` (même origine, CSP inchangée) ; sources et licences dans `public/globe/README.md`.
+`lib/relief/terrain.ts` : un morceau de planète posé comme une maquette. Un disque du vrai relief de la région (`public/globe/ch-terrain.png`, altitudes et lacs de la Suisse et de ses bords, `scripts/panorama-terrain.py`), coloré en prés, forêts, alpages, rochers et neige, avec ses strates sur la tranche et son ombre sur la table, éclairé par un soleil qui projette les ombres des montagnes. La taille du disque suit les projets (la plupart y tiennent ; un projet très éloigné se place au bord, dans sa direction).
+
+- Chaque projet est un petit bâtiment à sa localité : un étage par étape du process — étapes faites en blanc, étape en cours dans la couleur de son état (vert dans les temps, orange tâche en retard, rouge en retard), étapes à venir en verre. Socle gris quand il est terminé.
+- Le siège : le bâtiment sombre, avec sa plaque « Bureau · Entreprise ». Des arcs en pointillé le relient aux projets.
+- Les personnes planifiées aujourd'hui se tiennent à côté du bâtiment ; de petites lumières partent du siège vers ces projets ; un anneau pulse là où quelqu'un travaille ou si le projet est en retard.
+- Nuit (bouton lune) : lumière bleutée, fenêtres allumées.
+
+Les images sont servies depuis `public/globe/` (même origine) ; sources et licences dans `public/globe/README.md`.
 
 ## Sur l'accueil
 
-Tout en bas de l'accueil, quand l'option est active (`components/relief/PanoramaCard.tsx` + `PanoramaGlobeDom.tsx`) : la planète tourne seule, façon Shopify Live View. Quand la Suisse arrive, elle ralentit et plonge jusqu'à ce que le pays remplisse la vue, reste un moment, puis repart. Dans un coin : « Cantia Panorama », une ligne en direct (« 4 sur le terrain · 7 projets en cours ») et « Ouvrir le Panorama ». Avant la première construction : la planète seule et un petit bouton « Créer mon Panorama ». Un clic n'importe où ouvre `/panorama`.
+Tout en bas de l'accueil, quand l'option est active (`components/relief/PanoramaCard.tsx` + `PanoramaGlobeDom.tsx`) : la planète tourne seule sur un fond clair, façon Shopify Live View. Quand la Suisse arrive, elle ralentit et plonge jusqu'à ce que le pays remplisse la vue, reste un moment, puis repart. Dans un coin : « Cantia Panorama », une ligne en direct (« 4 sur le terrain · 7 projets en cours ») et « Ouvrir le Panorama ». Avant la première construction : la planète seule et un petit bouton « Créer mon Panorama ». Un clic n'importe où ouvre `/panorama`.
 
 ## Parcours
 
 1. **Offre** (`ReliefLocked`) tant que l'option n'est pas activée ; bouton « Activer » si elle est accordée et que l'utilisateur est admin.
-2. **Onboarding** (`ReliefOnboardingDom`, la planète en aperçu derrière le formulaire, qui plonge vers le siège avec des lumières d'exemple) :
+2. **Onboarding** (`ReliefOnboardingDom`, la planète claire en aperçu derrière le formulaire, qui plonge vers le siège avec des lumières d'exemple) :
    - **Le site** : l'adresse du site (reprise de `organizations.website`) ; « Lire mon site » appelle `relief-prefill`, qui lit la page d'accueil et jusqu'à 3 pages (prestations, à propos, méthode…) et propose les réponses. Pendant la lecture : liste d'étapes animée et balayage de la vue. Ensuite « Voici ce que nous avons compris » : activité, points compris, types de projets trouvés avec leur frise. On peut aussi continuer sans site.
    - 5 étapes à vérifier, marquées « D'après votre site » quand elles viennent du site :
      1. Activité en une phrase + modèle (Territoire / Studio / Atelier).
@@ -31,7 +38,7 @@ Tout en bas de l'accueil, quand l'option est active (`components/relief/Panorama
      5. Récit libre, dicté ou écrit (prérempli d'après le site).
    - Récapitulatif modifiable. Les réponses sont gardées (`relief_worlds.answers`).
 3. **Construction** : `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/panorama`.
-4. **La vue plein écran** (`ReliefDom`) : arrivée depuis l'espace jusqu'à la Suisse. On fait tourner la planète en glissant, on zoome à la molette ou à deux doigts ; le nom, l'étape et l'avancement de chaque projet flottent au-dessus de sa lumière ; toucher un projet (sur la planète ou dans la liste) ouvre sa fiche et y vole. Bouton lune / soleil : nuit (lumières des villes) ou plein jour sur la Suisse. Ordinateur : cartouche, liste à gauche, fiche à droite. Téléphone : la planète occupe l'écran, liste et fiche dans une feuille en bas. Tablette / petit écran : boutons en icônes, sans légende.
+4. **La vue plein écran** (`ReliefDom`) : la planète zoome depuis l'espace sur l'entreprise, puis on se pose sur son monde (fondu). On le fait tourner en glissant, on zoome à la molette ou à deux doigts, on le déplace au clic droit ou à deux doigts ; le nom, l'étape et l'avancement de chaque projet flottent au-dessus de son bâtiment ; toucher un projet (sur le monde ou dans la liste) ouvre sa fiche et s'en approche. Bouton lune / soleil : nuit ou jour. Ordinateur : cartouche, liste à gauche, fiche à droite. Téléphone : la planète occupe l'écran, liste et fiche dans une feuille en bas. Tablette / petit écran : boutons en icônes, sans légende.
 
 ## Faire avancer un projet
 
@@ -39,7 +46,7 @@ Tout en bas de l'accueil, quand l'option est active (`components/relief/Panorama
 - **À la voix** : bouton « Dire » (en-tête) : « Villa Dupont : gros œuvre terminé, on passe au second œuvre ». Le projet est trouvé par son nom (ou c'est celui ouvert), l'étape par son libellé, l'intention par quelques mots en FR/DE/IT (terminé, on passe à, fertig, jetzt, finito, passiamo a…). Parseur pur testé : `lib/relief/stages.ts`, `npm run test:maquette`.
 - **Type de projet** : choisi dans la fiche quand il y en a plusieurs ; sinon deviné d'après le nom du projet.
 - Tout membre peut faire avancer un projet (comme cocher une tâche) ; l'historique garde qui et quand (`relief_item_progress.history`).
-- La planète suit : le nom et l'étape au-dessus du projet changent tout de suite (temps réel).
+- Le monde suit : le bâtiment gagne son étage et le nom de l'étape change tout de suite (temps réel).
 - **Process éditable** depuis la vue plein écran (bouton « Process », admin) : types, étapes, durées habituelles et minimales ; enregistré sans reconstruction (`relief_save_answers`). « Refaire mon Panorama » est dans ce panneau.
 
 ## Calculs
@@ -50,11 +57,11 @@ Tout en bas de l'accueil, quand l'option est active (`components/relief/Panorama
 
 ## Les équipes du jour
 
-Chaque projet où quelqu'un est planifié aujourd'hui a un faisceau plus haut et un anneau qui pulse ; des impulsions partent du siège le long de l'arc vers chaque projet en cours. Sur l'accueil : « N sur le terrain ».
+Plein écran : les personnes planifiées aujourd'hui sur un projet se tiennent à côté de son bâtiment (jusqu'à 4), de petites lumières partent du siège le long de l'arc et un anneau pulse. Sur l'accueil : un anneau sur la lumière du projet et « N sur le terrain ».
 
 ## Modèles
 
-Le modèle choisi à l'onboarding donne le vocabulaire (chantier, projet, véhicule…) et le nom du siège (dépôt, bureau, atelier) ; sur la planète, tous les projets sont des lumières à leur adresse.
+Le modèle choisi à l'onboarding donne le vocabulaire (chantier, projet, véhicule…) et le nom du siège (dépôt, bureau, atelier) ; dans le monde, tous les projets sont des bâtiments à leur adresse.
 
 | Modèle | Pour qui |
 |---|---|
@@ -75,13 +82,14 @@ Le modèle choisi à l'onboarding donne le vocabulaire (chantier, projet, véhic
 | `lib/relief/process.ts` | Process type par métier, rôles proposés. |
 | `lib/relief/types.ts` | Le plan (`ReliefSpec`), les types de projets, les données de la scène. |
 | `lib/relief/data.ts` | Lecture des données, étape d'un projet, process, clôture, tâches, planning, lecture du site. |
-| `lib/relief/globe.ts` | La planète three.js (textures, jour / nuit, Alpes en haute définition, lumières des projets, arcs, noms, toucher, zoom). |
-| `lib/relief/sceneCss.ts` | Les noms des projets au-dessus de la planète. |
+| `lib/relief/globe.ts` | La planète three.js (accueil, onboarding, arrivée en plein écran). |
+| `lib/relief/terrain.ts` | Le monde plein écran : relief réel, bâtiments par étape, arcs, équipes, toucher, zoom, nuit. |
+| `lib/relief/sceneCss.ts` | Les noms des projets au-dessus du monde. |
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
 | `components/relief/ReliefOnboardingDom.tsx` | Onboarding (site, process par type, frise), construction, échec. |
 | `components/relief/ReliefDom.tsx` | Interface de la vue plein écran : fiche, tableau d'étapes, voix, éditeur de process. |
 | `components/relief/PanoramaCard.tsx`, `PanoramaGlobeDom.tsx` | La planète en bas de l'accueil. |
-| `public/globe/`, `scripts/panorama-alps.py`, `scripts/panorama-globe-data.mjs`, `lib/relief/globeData.ts` | Images de la Terre et des Alpes, contour suisse. |
+| `public/globe/`, `scripts/panorama-alps.py`, `scripts/panorama-terrain.py`, `scripts/panorama-globe-data.mjs`, `lib/relief/globeData.ts` | Images de la Terre et des Alpes, relief de la Suisse, contour suisse. |
 | `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
 | `app/(app)/panorama.tsx` | La page plein écran ; `relief.tsx` et `maquette.tsx` redirigent. |
 

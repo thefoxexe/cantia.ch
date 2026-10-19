@@ -15,3 +15,7 @@ The Alps up close (lon 3.5 to 13.5, lat 44.4 to 49.4), made by `scripts/panorama
 - `alps-height.png`: elevation (grey, 0 to 4800 m) and lakes (alpha), for the light of the sun on the slopes.
 
 Elevation: AWS Terrain Tiles (Mapzen terrarium; SRTM and other public sources). Lakes: Natural Earth 10m (public domain).
+
+The ground of the full-screen world, made by `scripts/panorama-terrain.py`:
+
+- `ch-terrain.png`: lon 5.6 to 10.9, lat 45.6 to 48.1; elevation in metres as R * 256 + G, lakes in B. Same sources (AWS Terrain Tiles, Natural Earth).

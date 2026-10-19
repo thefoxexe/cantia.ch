@@ -30,7 +30,7 @@ export default function PanoramaGlobeDom({ accent, points, hq, brand, line, acti
   useEffect(() => {
     if (!host.current) return;
     try {
-      globe.current = createGlobe(host.current, { mode: 'card', tone: 'neutral', accent, points, hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
+      globe.current = createGlobe(host.current, { mode: 'card', tone: 'light', accent, points, hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
     } catch {
       globe.current = null;
     }
@@ -79,19 +79,21 @@ export default function PanoramaGlobeDom({ accent, points, hq, brand, line, acti
 }
 
 const CSS = `
-.pg { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; cursor: pointer; outline: none; font-family: Archivo, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: radial-gradient(90% 120% at 50% 30%, #2A2926 0%, #1A1917 50%, #111110 100%); }
+.pg { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; cursor: pointer; outline: none; font-family: Archivo, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: radial-gradient(90% 120% at 50% 40%, #FBF8F2 0%, #F1EBE0 55%, #E7DFD1 100%); border: 1px solid #E6DED1; }
 .pg:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
 .pg-world { position: absolute; inset: 0; }
+.pg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 96px; background: linear-gradient(rgba(241,235,224,0), rgba(241,235,224,.92)); pointer-events: none; }
+.pg-corner, .pg-action { z-index: 1; }
 .pg-corner { position: absolute; left: 20px; bottom: 18px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; }
-.pg-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: #F2F0EC; }
+.pg-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: #1D1712; }
 .pg-dot { width: 7px; height: 7px; border-radius: 50%; background: #5FD39A; animation: pg-ping 1.8s infinite; }
-.pg-line { font-size: 13px; color: #ABA8A2; }
-.pg-action { position: absolute; right: 18px; bottom: 16px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; color: #F2F0EC; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(242,240,236,.22); background: rgba(17,17,16,.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .2s, border-color .2s; }
-.pg:hover .pg-action { background: rgba(242,240,236,.12); border-color: rgba(242,240,236,.4); }
+.pg-line { font-size: 13px; color: #6E6153; }
+.pg-action { position: absolute; right: 18px; bottom: 16px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; color: #1D1712; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(29,23,18,.18); background: rgba(255,253,249,.7); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .2s, border-color .2s; }
+.pg:hover .pg-action { background: #FFFDF9; border-color: rgba(29,23,18,.35); }
 .pg-action svg { transition: transform .2s; }
 .pg:hover .pg-action svg { transform: translateX(3px); }
-.pg-action-primary { background: #F2F0EC; color: #1A1917; border-color: #F2F0EC; }
-.pg:hover .pg-action-primary { background: #FFFFFF; color: #1A1917; }
+.pg-action-primary { background: #1D1712; color: #FFFFFF; border-color: #1D1712; }
+.pg:hover .pg-action-primary { background: #2B241D; color: #FFFFFF; }
 @keyframes pg-ping { 0% { box-shadow: 0 0 0 0 rgba(95,211,154,.6); } 80%, 100% { box-shadow: 0 0 0 8px rgba(95,211,154,0); } }
 @media (max-width: 520px) { .pg-corner { left: 14px; bottom: 58px; } .pg-action { left: 14px; right: 14px; bottom: 12px; justify-content: center; } }
 @media (prefers-reduced-motion: reduce) { .pg * { animation: none !important; transition: none !important; } }

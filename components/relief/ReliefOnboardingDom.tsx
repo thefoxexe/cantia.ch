@@ -116,7 +116,7 @@ export default function ReliefOnboardingDom(props: Props) {
   useEffect(() => {
     if (!stageRef.current) return;
     try {
-      relief.current = createGlobe(stageRef.current, { mode: 'card', accent: '#F2B880', points: previewPoints(), hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
+      relief.current = createGlobe(stageRef.current, { mode: 'card', tone: 'light', accent, points: previewPoints(), hq, still: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches });
     } catch {
       relief.current = null;
     }
@@ -877,7 +877,7 @@ function ModelArt({ kind }: { kind: ReliefTemplate }) {
 const CSS = `
 .ob-root { --ink: #1D1712; --ink2: #4A3F35; --ink3: #7C7062; --paper: #FBF8F2; --rule: #E6DDCF; position: relative; width: 100%; height: 100%; min-height: 100%; overflow: hidden; background: #EFE8DC; font-family: Archivo, system-ui, -apple-system, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
 .ob-root * { box-sizing: border-box; }
-.ob-world { position: absolute; inset: 0; z-index: 0; background: radial-gradient(110% 90% at 65% 40%, #13213A 0%, #0A1222 45%, #050912 100%); }
+.ob-world { position: absolute; inset: 0; z-index: 0; background: radial-gradient(110% 90% at 65% 45%, #FBF8F2 0%, #F1EBE0 55%, #E7DFD1 100%); }
 .ob-sweep { position: absolute; left: 0; right: 0; top: 0; height: 32%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,0), color-mix(in srgb, var(--accent) 18%, transparent) 85%, color-mix(in srgb, var(--accent) 70%, transparent) 99%, rgba(255,255,255,0)); animation: ob-sweep 2.6s cubic-bezier(.5,0,.5,1) infinite; }
 .ob-topbar { position: absolute; left: 0; right: 0; top: 0; z-index: 3; display: flex; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 18px 14px; pointer-events: none; }
 .ob-topbar > * { pointer-events: auto; }
