@@ -134,3 +134,35 @@ export async function getReliefGeo(locality: string | null | undefined, lang: 'f
     names: { landmark: (place?.landmarkNames ?? []).map((t) => t[li]), horizon: place?.horizon?.[li] ?? null },
   };
 }
+
+/** The town of a Swiss address: "Rue du Rhône 12, 1950 Sion" → "Sion". */
+export function townOf(address: string | null | undefined): string | null {
+  const a = (address ?? '').replace(/\s+/g, ' ').trim();
+  if (!a) return null;
+  const npa = /\b\d{4}\s+([A-Za-zÀ-ÿ'’.\- ]{2,40}?)(?:\s*,|\s*\(|$)/.exec(a);
+  if (npa) return npa[1].trim();
+  const parts = a.split(',').map((p) => p.trim()).filter(Boolean);
+  const last = parts[parts.length - 1] ?? '';
+  return /\d/.test(last) && parts.length > 1 ? parts[parts.length - 2] : last || null;
+}
+
+/** Where each address is (by its town), for the globe on the dashboard; unknown ones are left out. */
+export async function locateAddresses(addresses: { id: string; address: string | null }[]): Promise<Record<string, { lat: number; lon: number }>> {
+  const out: Record<string, { lat: number; lon: number }> = {};
+  const towns = new Map<string, string[]>();
+  for (const a of addresses) {
+    const t = townOf(a.address);
+    if (!t) continue;
+    towns.set(t, [...(towns.get(t) ?? []), a.id]);
+  }
+  const list = [...towns.entries()].slice(0, 30);
+  // A few at a time: the geocoder is a free public service.
+  for (let i = 0; i < list.length; i += 4) {
+    const found = await Promise.all(list.slice(i, i + 4).map(([t]) => geocode(t)));
+    found.forEach((f, k) => {
+      if (!f) return;
+      for (const id of list[i + k][1]) out[id] = { lat: f.lat, lon: f.lon };
+    });
+  }
+  return out;
+}

@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-// Cantia Maquette: reads the company's website (home page plus a few pages
+// Cantia Panorama: reads the company's website (home page plus a few pages
 // about its services and how it works) and proposes the onboarding answers
 // (components/relief/ReliefOnboardingDom.tsx): what the company does, the
 // kinds of projects it sells, the process of each with typical and minimum
@@ -30,7 +30,7 @@ const ROLES: Record<Locale, string[]> = {
   it: ['Direzione', 'Capo progetto', 'Capo cantiere', 'Squadra', 'Sviluppatore', 'Designer', 'Officina', 'Accoglienza', 'Contabilità', 'Cliente'],
 };
 
-const SYSTEM_PROMPT = `Tu prépares la « Maquette » d'une entreprise suisse cliente de Cantia : une maquette 3D vivante où chaque projet en cours avance selon le process réel de l'entreprise. On te donne le texte de son site internet. Tu proposes les réponses du questionnaire, que le responsable relira et corrigera.
+const SYSTEM_PROMPT = `Tu prépares le « Panorama » d'une entreprise suisse cliente de Cantia : une vue 3D vivante où chaque projet en cours avance selon le process réel de l'entreprise. On te donne le texte de son site internet. Tu proposes les réponses du questionnaire, que le responsable relira et corrigera.
 
 Tu réponds UNIQUEMENT par un objet JSON valide, sans texte autour :
 {
@@ -84,7 +84,7 @@ Deno.serve(async (req: Request) => {
       .eq('enabled', true)
       .eq('activated', true)
       .maybeSingle();
-    if (!grant) return json({ error: 'Cantia Maquette n’est pas activée pour votre entreprise.' }, 403);
+    if (!grant) return json({ error: 'Cantia Panorama n’est pas activé pour votre entreprise.' }, 403);
 
     const { data: org } = await admin.from('organizations').select('name, trade, website, locality').eq('id', organizationId).maybeSingle();
     const start = safeUrl(typeof body?.url === 'string' && body.url.trim() ? body.url : (org?.website ?? ''));

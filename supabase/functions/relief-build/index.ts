@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-// Builds a company's Cantia Maquette (code name relief): the owner dictates what the business
+// Builds a company's Cantia Panorama (code name relief): the owner dictates what the business
 // does and how a job goes from start to finish; Claude turns that, plus the
 // company's own records (sector, vocabulary, projects), into a world plan
 // (lib/relief/types.ts ReliefSpec) stored in relief_worlds.spec. Runs in the
@@ -51,7 +51,7 @@ const PLACE: Record<Template, Record<Locale, string>> = {
   atelier: { fr: 'Atelier', de: 'Werkstatt', it: 'Officina' },
 };
 
-const SYSTEM_PROMPT = `Tu conçois la « Maquette » d'une entreprise suisse cliente de Cantia : une maquette 3D vivante de l'entreprise, où chaque projet en cours est un élément, et où l'on voit l'avancement selon les étapes de son process.
+const SYSTEM_PROMPT = `Tu conçois le « Panorama » d'une entreprise suisse cliente de Cantia : une vue 3D vivante de l'entreprise, où chaque projet en cours est un élément, et où l'on voit l'avancement selon les étapes de son process.
 
 Tu réponds UNIQUEMENT par un objet JSON valide, sans texte autour, de cette forme :
 {
@@ -79,7 +79,7 @@ Styles possibles par modèle (choisis d'après le nom du projet) :
 
 Règles :
 - Écris dans la langue demandée, avec les mots de l'entreprise (ceux de la dictée), en phrases simples.
-- title : court, par ex. « La maquette de <nom de l'entreprise> » (sans le mot Relief).
+- title : le nom de l'entreprise, ou un titre court qui la décrit (jamais les mots Relief, Maquette ou Panorama).
 - tagline : une phrase qui dit ce que fait l'entreprise, telle que tu l'as comprise.
 - understood : 3 à 5 points courts : ce que tu as compris de l'activité, du process et de l'équipe.
 - vocabulary.item / items : comment l'entreprise appelle un projet (singulier / pluriel), en minuscules. vocabulary.place : sa base (dépôt, atelier, bureau…).
@@ -93,31 +93,31 @@ const LANG: Record<Locale, string> = { fr: 'français', de: 'allemand', it: 'ita
 
 const MAIL: Record<Locale, { subject: string; heading: string; intro: string; cta: string; notifTitle: string; failTitle: string; failBody: string }> = {
   fr: {
-    subject: 'Votre Cantia Maquette est prête',
-    heading: 'Votre maquette est prête',
-    intro: 'Nous avons construit la maquette vivante de votre entreprise, d’après ce que vous nous avez dit. Vos projets, votre planning et vos tâches y apparaissent déjà.',
-    cta: 'Ouvrir ma maquette',
-    notifTitle: 'Votre Cantia Maquette est prête',
-    failTitle: 'Votre Cantia Maquette n’a pas pu être construite',
-    failBody: 'Ouvrez Cantia Maquette pour relancer la construction.',
+    subject: 'Votre Cantia Panorama est prêt',
+    heading: 'Votre Panorama est prêt',
+    intro: 'Nous avons construit la vue vivante de votre entreprise, d’après ce que vous nous avez dit. Vos projets, votre planning et vos tâches y apparaissent déjà.',
+    cta: 'Ouvrir mon Panorama',
+    notifTitle: 'Votre Cantia Panorama est prêt',
+    failTitle: 'Votre Cantia Panorama n’a pas pu être construit',
+    failBody: 'Ouvrez Cantia Panorama pour relancer la construction.',
   },
   de: {
-    subject: 'Ihr Cantia Modell ist bereit',
-    heading: 'Ihr Modell ist bereit',
-    intro: 'Wir haben das lebendige Modell Ihres Unternehmens nach Ihren Angaben gebaut. Ihre Projekte, Ihre Planung und Ihre Aufgaben sind bereits darin.',
-    cta: 'Mein Modell öffnen',
-    notifTitle: 'Ihr Cantia Modell ist bereit',
-    failTitle: 'Ihr Cantia Modell konnte nicht gebaut werden',
-    failBody: 'Öffnen Sie Cantia Modell, um den Bau neu zu starten.',
+    subject: 'Ihr Cantia Panorama ist bereit',
+    heading: 'Ihr Panorama ist bereit',
+    intro: 'Wir haben die Live-Ansicht Ihres Unternehmens nach Ihren Angaben gebaut. Ihre Projekte, Ihre Planung und Ihre Aufgaben sind bereits darin.',
+    cta: 'Mein Panorama öffnen',
+    notifTitle: 'Ihr Cantia Panorama ist bereit',
+    failTitle: 'Ihr Cantia Panorama konnte nicht gebaut werden',
+    failBody: 'Öffnen Sie Cantia Panorama, um den Bau neu zu starten.',
   },
   it: {
-    subject: 'Il suo Cantia Plastico è pronto',
-    heading: 'Il suo plastico è pronto',
-    intro: 'Abbiamo costruito il plastico vivente della sua impresa, secondo quanto ci ha detto. I suoi progetti, la pianificazione e i compiti sono già presenti.',
-    cta: 'Aprire il mio plastico',
-    notifTitle: 'Il suo Cantia Plastico è pronto',
-    failTitle: 'Il suo Cantia Plastico non ha potuto essere costruito',
-    failBody: 'Apra Cantia Plastico per rilanciare la costruzione.',
+    subject: 'Il suo Cantia Panorama è pronto',
+    heading: 'Il suo Panorama è pronto',
+    intro: 'Abbiamo costruito la vista dal vivo della sua impresa, secondo quanto ci ha detto. I suoi progetti, la pianificazione e i compiti sono già presenti.',
+    cta: 'Aprire il mio Panorama',
+    notifTitle: 'Il suo Cantia Panorama è pronto',
+    failTitle: 'Il suo Cantia Panorama non ha potuto essere costruito',
+    failBody: 'Apra Cantia Panorama per rilanciare la costruzione.',
   },
 };
 
@@ -149,7 +149,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: member } = await userClient.from('organization_members').select('role').eq('organization_id', organizationId).eq('user_id', user.id).maybeSingle();
     if (!member || !['owner', 'admin'].includes(String(member.role))) {
-      return json({ error: 'Seuls le propriétaire et les administrateurs peuvent construire la maquette.' }, 403);
+      return json({ error: 'Seuls le propriétaire et les administrateurs peuvent construire le Panorama.' }, 403);
     }
 
     const { data: grant } = await admin
@@ -160,7 +160,7 @@ Deno.serve(async (req: Request) => {
       .eq('enabled', true)
       .eq('activated', true)
       .maybeSingle();
-    if (!grant) return json({ error: 'Cantia Maquette n’est pas activée pour votre entreprise.' }, 403);
+    if (!grant) return json({ error: 'Cantia Panorama n’est pas activé pour votre entreprise.' }, 403);
 
     const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', { p_organization_id: organizationId });
     if (quotaError) return json({ error: 'Accès refusé' }, 403);
@@ -258,7 +258,7 @@ async function notify(admin: any, p: { organizationId: string; worldId: string; 
     type,
     title,
     body,
-    link: '/maquette',
+    link: '/panorama',
     source_table: 'relief_worlds',
     source_id: p.worldId,
   });
@@ -277,11 +277,11 @@ async function sendReadyEmail(p: { userEmail: string | null; locale: Locale }, t
           <img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" />
         </div>
         <div style="padding: 32px;">
-          <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #A95C30;">Cantia Maquette</p>
+          <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #A95C30;">Cantia Panorama</p>
           <h1 style="margin: 0 0 16px; font-size: 22px; color: #231A12;">${escapeHtml(m.heading)}</h1>
           <p style="margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: #4A3F35;">${escapeHtml(m.intro)}</p>
           <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #231A12;"><strong>${escapeHtml(title)}</strong><br/>${escapeHtml(tagline)}</p>
-          <a href="${APP_URL}/maquette" style="display: inline-block; background: #A95C30; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 22px; border-radius: 8px;">${escapeHtml(m.cta)}</a>
+          <a href="${APP_URL}/panorama" style="display: inline-block; background: #A95C30; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 22px; border-radius: 8px;">${escapeHtml(m.cta)}</a>
         </div>
       </div>
       <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151;"><a href="https://cantia.ch" style="color: #A95C30; text-decoration: none; font-weight: 600;">cantia.ch</a></p>
@@ -410,7 +410,7 @@ function sanitize(o: Record<string, unknown>, ctx: { locale: Locale; orgName: st
   return {
     version: 1,
     template,
-    title: str(o.title, 60, `${ctx.orgName}`).replace(/relief/gi, 'maquette'),
+    title: str(o.title, 60, `${ctx.orgName}`).replace(/\b(relief|maquette)\b/gi, '').replace(/\s{2,}/g, ' ').trim() || ctx.orgName,
     tagline: str(o.tagline, 200, ''),
     understood: (Array.isArray(o.understood) ? o.understood : []).map((s) => str(s, 160, '')).filter(Boolean).slice(0, 6),
     vocabulary: {

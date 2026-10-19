@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 
-// Cantia Relief was renamed Cantia Maquette: old links and notifications
-// (/relief) land on the new screen.
+// Cantia Relief, then Maquette, is now Cantia Panorama: old links and
+// notifications (/relief) land on the new screen.
 export default function ReliefRedirect() {
-  return <Redirect href={'/maquette' as never} />;
+  return <Redirect href={'/panorama' as never} />;
 }

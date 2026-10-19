@@ -166,8 +166,8 @@ export default function AppLayout() {
   useEffect(() => setMounted(true), []);
   if (!mounted) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
-  // Cantia Maquette takes the whole screen: no menu, no assistant button.
-  if (pathname === '/maquette' || pathname === '/relief') {
+  // Cantia Panorama takes the whole screen: no menu, no assistant button.
+  if (pathname === '/panorama' || pathname === '/maquette' || pathname === '/relief') {
     return (
       <View style={{ flex: 1 }}>
         <Slot />

@@ -5,7 +5,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { isModuleEnabled } from '../../lib/modules';
-import { MaquetteCard } from '../../components/relief/MaquetteCard';
+import { PanoramaCard } from '../../components/relief/PanoramaCard';
 import { isOnline } from '../../lib/presence';
 import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
@@ -621,8 +621,6 @@ export default function DashboardScreen() {
         </View>
 
 
-        <MaquetteCard />
-
         {favoritesCard}
 
         {wide ? (
@@ -644,6 +642,8 @@ export default function DashboardScreen() {
             {teamCard}
           </View>
         )}
+
+        <PanoramaCard />
       </ScrollView>
     </AppScreen>
   );

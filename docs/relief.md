@@ -1,20 +1,20 @@
-# Cantia Maquette
+# Cantia Panorama
 
-(Nom de code dans le code et la base : `relief`. Allemand : Cantia Modell ; italien : Cantia Plastico.)
+(Nom de code dans le code et la base : `relief`. Même nom en allemand et en italien. Anciens noms : Relief, puis Maquette ; `/relief` et `/maquette` redirigent vers `/panorama`.)
 
-L'entreprise en maquette 3D vivante. Le process de l'entreprise est prérempli d'après son site internet, le responsable le corrige (types de projets, étapes, durées habituelles et minimales) ; l'IA choisit un modèle de monde et l'habille avec les mots de l'entreprise ; la scène est ensuite alimentée en direct par les vraies données : projets à leur étape, équipes du jour qui partent sur leurs projets, tâches, chiffres.
+Toute l'entreprise en direct et en 3D. Le process de l'entreprise est prérempli d'après son site internet, le responsable le corrige (types de projets, étapes, durées habituelles et minimales) ; l'IA choisit un modèle de monde et l'habille avec les mots de l'entreprise ; la vue est ensuite alimentée en direct par les vraies données : projets à leur étape, équipes du jour qui partent sur leurs projets, tâches, chiffres.
 
 Option payante (module privé `relief`) : accordée par l'admin plateforme (`organization_modules.enabled`), puis activée par l'admin de l'entreprise (`activated`).
 
-## Où on la trouve
+## Sur l'accueil : la planète
 
-Sur l'accueil, juste sous les boutons rapides, quand l'option est active (`components/relief/MaquetteCard.tsx` + `MaquetteCardDom.tsx`) : le petit monde de l'entreprise qui tourne tout seul (équipes qui partent sur leurs projets, bâtiments à leur étape, effet maquette) ; à côté, qui est sur le terrain aujourd'hui et où, la « ligne d'horizon » du process (combien de projets à chaque étape), projets en cours / en retard / à surveiller, et « Entrer dans la maquette ». Toute la carte est cliquable et ouvre `/maquette` en plein écran. Mise à jour en direct (projets, étapes, planning, tâches). Avant la première construction : le process type du métier en esquisse et « Créer la maquette ». Jamais de montants sur l'accueil. L'ancienne adresse `/relief` redirige.
+Tout en bas de l'accueil, quand l'option est active (`components/relief/PanoramaCard.tsx` + `PanoramaGlobeDom.tsx`, moteur `lib/relief/globe.ts`) : une planète en points, façon Shopify Live View, qui tourne seule. Quand la Suisse arrive, elle ralentit et plonge jusqu'à ce que le pays remplisse la vue (la Suisse allumée en points denses, chaque projet comme un petit faisceau de lumière à son adresse — couleur selon l'état, anneau qui pulse s'il y a quelqu'un aujourd'hui ou s'il est en retard —, des arcs depuis le siège avec des impulsions), reste un moment, puis repart. Dans un coin : « Cantia Panorama », une ligne en direct (« 4 sur le terrain · 7 projets en cours ») et « Ouvrir le Panorama ». Avant la première construction : la planète seule et un petit bouton « Créer mon Panorama ». Un clic n'importe où ouvre `/panorama`. Les adresses des projets sont placées par leur localité (géocodage open-meteo, en cache) ; sans adresse, autour du siège. Contours : Natural Earth via world-atlas, en masque de points (`lib/relief/globeData.ts`, régénéré par `scripts/panorama-globe-data.mjs`).
 
 ## Parcours
 
 1. **Offre** (`ReliefLocked`) tant que l'option n'est pas activée ; bouton « Activer » si elle est accordée et que l'utilisateur est admin.
 2. **Onboarding** (`ReliefOnboardingDom`, aperçu 3D en direct qui change à chaque réponse) :
-   - **Le site** : l'adresse du site (reprise de `organizations.website`) ; « Lire mon site » appelle `relief-prefill`, qui lit la page d'accueil et jusqu'à 3 pages (prestations, à propos, méthode…) et propose les réponses. Pendant la lecture : liste d'étapes animée et balayage de la maquette. Ensuite « Voici ce que nous avons compris » : activité, points compris, types de projets trouvés avec leur frise. On peut aussi continuer sans site.
+   - **Le site** : l'adresse du site (reprise de `organizations.website`) ; « Lire mon site » appelle `relief-prefill`, qui lit la page d'accueil et jusqu'à 3 pages (prestations, à propos, méthode…) et propose les réponses. Pendant la lecture : liste d'étapes animée et balayage de la vue 3D. Ensuite « Voici ce que nous avons compris » : activité, points compris, types de projets trouvés avec leur frise. On peut aussi continuer sans site.
    - 5 étapes à vérifier, marquées « D'après votre site » quand elles viennent du site :
      1. Activité en une phrase + modèle (Territoire / Studio / Atelier).
      2. Process **par type de projet** (jusqu'à 4 types, ex. « Site vitrine » et « Boutique en ligne ») : étapes (nom, responsable, validation client), **durée habituelle** et **durée minimum** en jours ouvrables, frise proportionnelle aux durées (minimum hachuré, validations client marquées).
@@ -22,8 +22,8 @@ Sur l'accueil, juste sous les boutons rapides, quand l'option est active (`compo
      4. Facturation : devis systématique ou non, quand on facture.
      5. Récit libre, dicté ou écrit (prérempli d'après le site).
    - Récapitulatif modifiable. Les réponses sont gardées (`relief_worlds.answers`).
-3. **Construction** : `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/maquette`.
-4. **La maquette** (`ReliefDom`) en plein écran. Ordinateur : cartouche, liste à gauche, fiche à droite. Téléphone : la 3D occupe l'écran, liste et fiche dans une feuille en bas. Tablette / petit écran : boutons en icônes, sans légende.
+3. **Construction** : `relief-build` répond tout de suite (202) et travaille en arrière-plan. À la fin : notification + e-mail « Cantia <noreply@cantia.ch> » avec le lien vers `/panorama`.
+4. **La vue plein écran** (`ReliefDom`) en plein écran. Ordinateur : cartouche, liste à gauche, fiche à droite. Téléphone : la 3D occupe l'écran, liste et fiche dans une feuille en bas. Tablette / petit écran : boutons en icônes, sans légende.
 
 ## Faire avancer un projet
 
@@ -31,8 +31,8 @@ Sur l'accueil, juste sous les boutons rapides, quand l'option est active (`compo
 - **À la voix** : bouton « Dire » (en-tête) : « Villa Dupont : gros œuvre terminé, on passe au second œuvre ». Le projet est trouvé par son nom (ou c'est celui ouvert), l'étape par son libellé, l'intention par quelques mots en FR/DE/IT (terminé, on passe à, fertig, jetzt, finito, passiamo a…). Parseur pur testé : `lib/relief/stages.ts`, `npm run test:maquette`.
 - **Type de projet** : choisi dans la fiche quand il y en a plusieurs ; sinon deviné d'après le nom du projet.
 - Tout membre peut faire avancer un projet (comme cocher une tâche) ; l'historique garde qui et quand (`relief_item_progress.history`).
-- La maquette suit : le bâtiment / le site / le poste se reconstruit à la nouvelle étape et « saute » avec un anneau.
-- **Process éditable** depuis la maquette (bouton « Process », admin) : types, étapes, durées habituelles et minimales ; enregistré sans reconstruction (`relief_save_answers`). « Refaire ma maquette » est dans ce panneau.
+- La vue suit : le bâtiment / le site / le poste se reconstruit à la nouvelle étape et « saute » avec un anneau.
+- **Process éditable** depuis la vue plein écran (bouton « Process », admin) : types, étapes, durées habituelles et minimales ; enregistré sans reconstruction (`relief_save_answers`). « Refaire mon Panorama » est dans ce panneau.
 
 ## Calculs
 
@@ -53,7 +53,7 @@ Chaque personne planifiée aujourd'hui sur un projet est une figurine (jambes et
 
 - **Lieu de l'entreprise** (`lib/relief/geo.ts`) : géocodage de `organizations.locality`, coordonnées LV95, altitude, canton dans le cartouche.
 - **Repères locaux en 3D** : monument et horizon de la ville derrière l'île, lac ou rivière devant (Lausanne, Genève, Sion, Zurich, Berne, Bâle, Lucerne, Montreux / Vevey, Fribourg, Neuchâtel, Delémont, Bienne, Lugano…).
-- **Lettrage de carte**, légende, flèche du nord, « Maquette schématique — pas à l'échelle ».
+- **Lettrage de carte**, légende, flèche du nord, « Vue schématique — pas à l’échelle ».
 - **Effet maquette** (tilt-shift) : le haut et le bas de l'image sont flous comme une photo de vraie maquette (sous les noms, pas dessus).
 - Mode nuit, câbles de données, balises, circulation : voir le moteur (`lib/relief/engine.ts`).
 
@@ -81,10 +81,10 @@ Chaque personne planifiée aujourd'hui sur un projet est une figurine (jambes et
 | `lib/relief/engine.ts` | La scène three.js (figurines, trajets, camionnettes, tilt-shift…). |
 | `lib/relief/copy.ts` | Textes FR / DE / IT. |
 | `components/relief/ReliefOnboardingDom.tsx` | Onboarding (site, process par type, frise), construction, échec. |
-| `components/relief/ReliefDom.tsx` | Interface de la maquette : fiche, tableau d'étapes, voix, éditeur de process. |
-| `components/relief/MaquetteCard.tsx`, `MaquetteCardDom.tsx` | La carte de l'accueil. |
+| `components/relief/ReliefDom.tsx` | Interface de la vue plein écran : fiche, tableau d'étapes, voix, éditeur de process. |
+| `components/relief/PanoramaCard.tsx`, `PanoramaGlobeDom.tsx`, `lib/relief/globe.ts`, `lib/relief/globeData.ts` | La planète en bas de l'accueil. |
 | `components/relief/ReliefScreens.tsx` | Offre et note pour les non-admins. |
-| `app/(app)/maquette.tsx` | La page plein écran ; `app/(app)/relief.tsx` redirige. |
+| `app/(app)/panorama.tsx` | La page plein écran ; `relief.tsx` et `maquette.tsx` redirigent. |
 
 ## Activer pour une entreprise
 
@@ -93,4 +93,4 @@ insert into organization_modules (organization_id, module_id, enabled, activated
 select '<organization_id>', id, true, false from modules where key = 'relief';
 ```
 
-L'admin de l'entreprise l'active ensuite depuis la page `/maquette`.
+L'admin de l'entreprise l'active ensuite depuis la page `/panorama`.
