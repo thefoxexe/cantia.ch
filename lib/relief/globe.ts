@@ -60,6 +60,8 @@ interface Options {
   onSelect?: (id: string | null) => void;
   /** No motion at all (reduced motion). */
   still?: boolean;
+  /** 'space': blue halo (full screen); 'neutral': a quiet grey halo (dashboard). */
+  tone?: 'space' | 'neutral';
 }
 
 /** Colours of the lights, by state (also for the legend). */
@@ -122,7 +124,7 @@ void main() {
 
 const EARTH_FRAG = `
 uniform sampler2D dayMap; uniform sampler2D nightMap; uniform sampler2D waterMap; uniform sampler2D bumpMap;
-uniform vec3 sunDir; uniform float ready;
+uniform vec3 sunDir; uniform float ready; uniform vec3 rim;
 varying vec2 vUv; varying vec3 vN; varying vec3 vP;
 void main() {
   vec3 n = normalize(vN);
@@ -142,7 +144,7 @@ void main() {
   vec3 dark = day * vec3(0.025, 0.035, 0.06) + lights;
   vec3 col = mix(dark, lit, dayMix);
   float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
-  col += vec3(0.1, 0.25, 0.6) * fres * (0.15 + 0.6 * dayMix);
+  col += rim * fres * (0.15 + 0.6 * dayMix);
   col = mix(vec3(0.01, 0.015, 0.04) + fres * 0.05, col, ready);
   gl_FragColor = linearToOutputTexel(vec4(col, 1.0));
 }`;
@@ -152,7 +154,7 @@ void main() {
 const ALPS = { w: 3.5, e: 13.5, s: 44.4, n: 49.4 };
 const ALPS_FRAG = `
 uniform sampler2D alpsMap; uniform sampler2D heightMap; uniform sampler2D nightMap;
-uniform vec3 sunDir; uniform float ready; uniform vec2 texel; uniform vec4 box;
+uniform vec3 sunDir; uniform float ready; uniform vec3 rim; uniform vec2 texel; uniform vec4 box;
 varying vec2 vUv; varying vec3 vN; varying vec3 vP;
 float hAt(vec2 uv) { return texture2D(heightMap, uv).r * 4800.0; }
 void main() {
@@ -178,7 +180,7 @@ void main() {
   vec3 dark = day * vec3(0.025, 0.035, 0.06) * (0.6 + 0.8 * max(dot(pn, normalize(vec3(-0.3, 0.8, 0.5))), 0.0)) + lights;
   vec3 col = mix(dark, lit, dayMix);
   float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
-  col += vec3(0.1, 0.25, 0.6) * fres * (0.15 + 0.6 * dayMix);
+  col += rim * fres * (0.15 + 0.6 * dayMix);
   float edge = smoothstep(0.0, 0.14, min(vUv.x, 1.0 - vUv.x)) * smoothstep(0.0, 0.2, min(vUv.y, 1.0 - vUv.y));
   gl_FragColor = linearToOutputTexel(vec4(col, edge * ready));
 }`;
@@ -219,8 +221,10 @@ export function createGlobe(host: HTMLElement, opts: Options): GlobeHandle {
   const blank = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
   blank.needsUpdate = true;
   const sunDir = new THREE.Vector3(1, 0, 0);
+  const neutral = opts.tone === 'neutral';
+  const rim = { value: neutral ? new THREE.Vector3(0.09, 0.09, 0.1) : new THREE.Vector3(0.1, 0.25, 0.6) };
   const earthMat = new THREE.ShaderMaterial({
-    uniforms: { dayMap: { value: blank }, nightMap: { value: blank }, waterMap: { value: blank }, bumpMap: { value: blank }, sunDir: { value: sunDir }, ready: { value: 0 } },
+    uniforms: { dayMap: { value: blank }, nightMap: { value: blank }, waterMap: { value: blank }, bumpMap: { value: blank }, sunDir: { value: sunDir }, ready: { value: 0 }, rim },
     vertexShader: EARTH_VERT,
     fragmentShader: EARTH_FRAG,
   });
@@ -251,6 +255,7 @@ export function createGlobe(host: HTMLElement, opts: Options): GlobeHandle {
   const alpsMat = new THREE.ShaderMaterial({
     uniforms: {
       alpsMap: { value: blank },
+      rim,
       heightMap: { value: blank },
       nightMap: earthMat.uniforms.nightMap,
       sunDir: { value: sunDir },
@@ -300,10 +305,10 @@ export function createGlobe(host: HTMLElement, opts: Options): GlobeHandle {
   const atmo = new THREE.Mesh(
     new THREE.SphereGeometry(1.1, 64, 48),
     new THREE.ShaderMaterial({
-      uniforms: { c: { value: new THREE.Color('#5AA0FF') }, sunDir: { value: sunDir } },
+      uniforms: { c: { value: new THREE.Color(neutral ? '#B9BCC2' : '#5AA0FF') }, k: { value: neutral ? 0.55 : 1.4 }, sunDir: { value: sunDir } },
       vertexShader: 'varying vec3 vN; varying vec3 vW; void main(){ vN = normalize(normalMatrix * normal); vW = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
       fragmentShader:
-        'uniform vec3 c; uniform vec3 sunDir; varying vec3 vN; varying vec3 vW; void main(){ float i = pow(clamp(0.66 - dot(vN, vec3(0.0,0.0,1.0)), 0.0, 1.0), 2.6); float day = 0.35 + 0.65 * smoothstep(-0.3, 0.4, dot(-vW, sunDir) * -1.0); gl_FragColor = vec4(c * i * 1.4 * day, i * day); }',
+        'uniform vec3 c; uniform float k; uniform vec3 sunDir; varying vec3 vN; varying vec3 vW; void main(){ float i = pow(clamp(0.66 - dot(vN, vec3(0.0,0.0,1.0)), 0.0, 1.0), 2.6); float day = 0.35 + 0.65 * smoothstep(-0.3, 0.4, dot(-vW, sunDir) * -1.0); gl_FragColor = vec4(c * i * k * day, i * day); }',
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
       transparent: true,
@@ -320,7 +325,7 @@ export function createGlobe(host: HTMLElement, opts: Options): GlobeHandle {
   }
   const starGeo = new THREE.BufferGeometry();
   starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: '#AFC2E4', size: 1.2, sizeAttenuation: false, transparent: true, opacity: 0.6, depthWrite: false })));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: neutral ? '#C8C6C1' : '#AFC2E4', size: 1.2, sizeAttenuation: false, transparent: true, opacity: neutral ? 0.35 : 0.6, depthWrite: false })));
 
   // Switzerland, outlined.
   const border = new THREE.Group();
