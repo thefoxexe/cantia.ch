@@ -166,15 +166,6 @@ export default function AppLayout() {
   useEffect(() => setMounted(true), []);
   if (!mounted) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
-  // Cantia Panorama takes the whole screen: no menu, no assistant button.
-  if (pathname === '/panorama' || pathname === '/maquette' || pathname === '/relief') {
-    return (
-      <View style={{ flex: 1 }}>
-        <Slot />
-      </View>
-    );
-  }
-
   if (width >= breakpoints.tablet) {
     return <DesktopShell sections={sections} />;
   }

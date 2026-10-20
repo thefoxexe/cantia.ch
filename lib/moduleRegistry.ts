@@ -21,12 +21,4 @@ export interface ModuleRegistryEntry {
   visibility: 'standard' | 'private' | 'experimental';
 }
 
-export const MODULE_REGISTRY: ModuleRegistryEntry[] = [
-  {
-    key: 'relief',
-    name: 'Cantia Panorama',
-    description: 'Toute l’entreprise en direct et en 3D : process prérempli depuis le site, projets à leur étape, équipes du jour, reliée au planning, aux tâches et à la facturation (docs/relief.md).',
-    route: '/panorama',
-    visibility: 'private',
-  },
-];
+export const MODULE_REGISTRY: ModuleRegistryEntry[] = [];
