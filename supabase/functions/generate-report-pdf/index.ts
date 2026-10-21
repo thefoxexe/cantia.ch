@@ -36,9 +36,9 @@ import { resolvePdfLocale, workTermWord, type PdfLocale } from '../_shared/pdf-i
 // What the company calls its jobs (organizations.work_term).
 // The report's own words, in the company's language.
 const REPORT_COPY: Record<PdfLocale, Record<string, string>> = {
-  fr: { title: 'RAPPORT DE {term}', client: 'Client : {v}', address: 'Adresse : {v}', project: '{term} : {v}', summary: 'EN BREF', attention: "POINT D'ATTENTION", next: 'SUITE ->', notes: 'NOTES', location: 'LOCALISATION', photos: 'PHOTOS ({n})', otherPhotos: 'AUTRES PHOTOS ({n})', signature: 'Signature', company: 'Entreprise', map: 'Localisation relative des photos (nord en haut, schéma non cartographique)' },
-  de: { title: 'RAPPORT – {term}', client: 'Kunde: {v}', address: 'Adresse: {v}', project: '{term}: {v}', summary: 'KURZ GESAGT', attention: 'ACHTUNG', next: 'NÄCHSTE SCHRITTE ->', notes: 'NOTIZEN', location: 'STANDORT', photos: 'FOTOS ({n})', otherPhotos: 'WEITERE FOTOS ({n})', signature: 'Unterschrift', company: 'Unternehmen', map: 'Relative Lage der Fotos (Norden oben, keine Karte)' },
-  it: { title: 'RAPPORTO DI {term}', client: 'Cliente: {v}', address: 'Indirizzo: {v}', project: '{term}: {v}', summary: 'IN BREVE', attention: 'PUNTO DI ATTENZIONE', next: 'SEGUITO ->', notes: 'NOTE', location: 'POSIZIONE', photos: 'FOTO ({n})', otherPhotos: 'ALTRE FOTO ({n})', signature: 'Firma', company: 'Azienda', map: 'Posizione relativa delle foto (nord in alto, schema non cartografico)' },
+  fr: { title: 'RAPPORT DE {term}', client: 'Client : {v}', address: 'Adresse : {v}', project: '{term} : {v}', summary: 'EN BREF', attention: "POINT D'ATTENTION", next: 'SUITE ->', notes: 'NOTES', location: 'LOCALISATION', photos: 'PHOTOS ({n})', otherPhotos: 'AUTRES PHOTOS ({n})', photosContinued: 'PHOTOS (suite)', signature: 'Signature', company: 'Entreprise', map: 'Localisation relative des photos (nord en haut, schéma non cartographique)' },
+  de: { title: 'RAPPORT – {term}', client: 'Kunde: {v}', address: 'Adresse: {v}', project: '{term}: {v}', summary: 'KURZ GESAGT', attention: 'ACHTUNG', next: 'NÄCHSTE SCHRITTE ->', notes: 'NOTIZEN', location: 'STANDORT', photos: 'FOTOS ({n})', otherPhotos: 'WEITERE FOTOS ({n})', photosContinued: 'FOTOS (Fortsetzung)', signature: 'Unterschrift', company: 'Unternehmen', map: 'Relative Lage der Fotos (Norden oben, keine Karte)' },
+  it: { title: 'RAPPORTO DI {term}', client: 'Cliente: {v}', address: 'Indirizzo: {v}', project: '{term}: {v}', summary: 'IN BREVE', attention: 'PUNTO DI ATTENZIONE', next: 'SEGUITO ->', notes: 'NOTE', location: 'POSIZIONE', photos: 'FOTO ({n})', otherPhotos: 'ALTRE FOTO ({n})', photosContinued: 'FOTO (continua)', signature: 'Firma', company: 'Azienda', map: 'Posizione relativa delle foto (nord in alto, schema non cartografico)' },
 };
 function rt(locale: PdfLocale, key: string, vars: Record<string, string | number> = {}): string {
   return (REPORT_COPY[locale][key] ?? REPORT_COPY.fr[key]).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
@@ -451,6 +451,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
         labelColor: MUTED,
         cardBorder: LINE,
         cardBg: WHITE,
+        continuedLabel: rt(locale, 'photosContinued'),
         onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia', locale),
       });
       page = state.page;
@@ -553,7 +554,7 @@ Deno.serve(async (req: Request) => {
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
     const brand = resolveBrand(template, org);
-    const footerText = resolveFooterText(template, org, orgHasCustomization(org));
+    const footerText = resolveFooterText(template, org, orgHasCustomization(org), resolvePdfLocale(org));
     const knownSections: SectionId[] = ['intro', 'photos', 'map', 'signature'];
     const sections = (Array.isArray(template.sections) ? template.sections : ['intro', 'photos', 'signature']).filter((s: string) =>
       knownSections.includes(s as SectionId),

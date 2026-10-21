@@ -447,6 +447,8 @@ export async function drawPhotoGrid(params: {
   // caller omits these and keeps the original MARGIN-based layout exactly.
   x?: number;
   width?: number;
+  // Heading repeated at the top of a continuation page.
+  continuedLabel?: string;
 }): Promise<{ page: PDFPage; pageNum: number; y: number }> {
   let { page, pageNum, y } = params;
   const { pdfDoc, admin, bucket, photos, font, fontBold, labelColor, cardBorder, cardBg } = params;
@@ -467,7 +469,7 @@ export async function drawPhotoGrid(params: {
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
-    drawText(page, 'PHOTOS (suite)', gridX, y, fontBold, 10, labelColor);
+    drawText(page, params.continuedLabel ?? 'PHOTOS (suite)', gridX, y, fontBold, 10, labelColor);
     y -= 20;
     col = 0;
   };
