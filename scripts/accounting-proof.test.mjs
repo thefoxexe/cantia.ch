@@ -1,5 +1,5 @@
 // The files a fiduciary takes out of Cantia, built from the journal of the
-// end-to-end check on the live database (scripts/fixtures/accounting-proof-journal.mjs).
+// end-to-end check on the live database (lib/accounting/sampleBooks.ts).
 // Set ACCOUNTING_PROOF_DIR to also write them to disk.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +10,7 @@ import { extVatRows, ech0217Report } from '../lib/accounting/extVat.ts';
 import { parseJournal, splitDelimited } from '../lib/accounting/ledgerImport.ts';
 import { buildAfcForm } from '../lib/vat/afcForm.ts';
 import { buildEch0217Xml } from '../lib/vat/ech0217.ts';
-import { CLIENT, JOURNAL, VAT_SUMMARY_Q3_2026 } from './fixtures/accounting-proof-journal.mjs';
+import { CLIENT, JOURNAL, VAT_SUMMARY_Q3_2026 } from '../lib/accounting/sampleBooks.ts';
 
 const OUT = process.env.ACCOUNTING_PROOF_DIR;
 const save = (name, content) => {

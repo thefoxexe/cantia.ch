@@ -8,6 +8,7 @@ import { ClosingMock, EntryMock, FirmMock, OverviewMock, PortalMock, ReportsMock
 import { useSiteCopy, type ChapterKey } from '../../lib/accounting/siteCopy';
 import { monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { RealFiles } from './landing/RealFiles';
 
 // accounting.cantia.ch home (FR at /, DE at /de, IT at /it): what the firm
 // workspace does, chapter by chapter, each with a mockup of the real screen.
@@ -95,7 +96,7 @@ export function AccountingLanding() {
       </Head>
 
       <Hero wide={wide} />
-      <Formats wide={wide} />
+      <RealFiles wide={wide} />
       <Chapters wide={wide} />
       <Kinds wide={wide} />
       <Calendar wide={wide} />
@@ -165,24 +166,6 @@ function Hero({ wide }: { wide: boolean }) {
           </View>
         </View>
         <OverviewMock wide={wide} />
-      </View>
-    </View>
-  );
-}
-
-function Formats({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  return (
-    <View style={styles.formatsWrap}>
-      <View style={[styles.inner, styles.formats, wide && styles.formatsWide]}>
-        <Text style={styles.formatsLabel}>{s.formats.label}</Text>
-        <View style={styles.formatsList}>
-          {s.formats.items.map((item) => (
-            <Text key={item} style={styles.formatItem}>
-              {item}
-            </Text>
-          ))}
-        </View>
       </View>
     </View>
   );

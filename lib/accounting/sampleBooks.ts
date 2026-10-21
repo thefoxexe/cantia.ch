@@ -1,12 +1,15 @@
-// The journal of the end-to-end check of 21.10.2026: a fiduciary keeps the
+// The books of the end-to-end check of 21.10.2026: a fiduciary keeps the
 // books of "Menuiserie Bonvin Sàrl" (outside Cantia) on the live database,
 // inside a transaction that was rolled back. These are the posted entries as
 // acc_ext_entries returned them; the VAT summary is acc_ext_vat_summary for
 // 01.07.–30.09.2026. Used by scripts/accounting-proof.test.mjs and by the
-// examples on accounting.cantia.ch.
+// real files shown on accounting.cantia.ch (components/accounting/landing/RealFiles.tsx).
+import type { ExportEntry } from './exports.ts';
+import type { ExtVatSummary } from './extVat.ts';
+
 export const CLIENT = { name: 'Menuiserie Bonvin Sàrl', ide_number: 'CHE-123.456.788' };
 
-export const JOURNAL = [
+export const JOURNAL: ExportEntry[] = [
   { entry_number: 1, entry_date: '2025-01-01', label: 'Apport en capital', external_reference: 'OUV-1', lines: [{ account_code: '1020', debit: 40000, credit: 0 }, { account_code: '2800', debit: 0, credit: 40000 }] },
   { entry_number: 2, entry_date: '2025-03-15', label: 'Facture 101 · Agencement Favre', external_reference: 'F101', lines: [{ account_code: '1100', debit: 10810, credit: 0 }, { account_code: '3400', debit: 0, credit: 10000, vat_code: 'V81' }, { account_code: '2200', debit: 0, credit: 810, label: 'TVA 8.1 %' }] },
   { entry_number: 3, entry_date: '2025-04-10', label: 'Paiement facture 101', external_reference: 'F101', lines: [{ account_code: '1020', debit: 10810, credit: 0 }, { account_code: '1100', debit: 0, credit: 10810 }] },
@@ -21,7 +24,7 @@ export const JOURNAL = [
   { entry_number: 12, entry_date: '2026-09-30', label: 'Décompte TVA 01.07.2026 – 30.09.2026', external_reference: 'TVA-2026-T3', lines: [{ account_code: '2200', debit: 972, credit: 0 }, { account_code: '1170', debit: 0, credit: 243 }, { account_code: '1171', debit: 0, credit: 162 }, { account_code: '2201', debit: 0, credit: 567 }] },
 ];
 
-export const VAT_SUMMARY_Q3_2026 = {
+export const VAT_SUMMARY_Q3_2026: ExtVatSummary = {
   codes: [
     { vat_code: 'I81', net: 2000, lines: 1 },
     { vat_code: 'M81', net: 3000, lines: 1 },

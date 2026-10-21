@@ -433,21 +433,21 @@ export function formatMinutes(min: number): string {
 export const DEFAULT_TEMPLATES: Record<'fr' | 'de' | 'it', { name: string; kind: WorkKind; steps: string[] }[]> = {
   fr: [
     { name: 'Bouclement annuel', kind: 'closing', steps: ['Relevés bancaires et postaux reçus', 'Rapprochement bancaire', 'Débiteurs et ducroire', 'Créanciers et charges à payer', 'Stock et travaux en cours', 'Actifs transitoires et passifs transitoires', 'Amortissements', 'Impôts et provisions', 'Bilan et compte de résultat', 'Annexe et rapport', 'Validation par le client', 'Assemblée générale / approbation'] },
-    { name: 'Décompte TVA', kind: 'vat', steps: ['Écritures du trimestre complètes', 'Contrôle des codes TVA', 'Concordance chiffre d’affaires', 'Impôt préalable vérifié', 'Décompte établi', 'Transmis à l’AFC (ePortal)', 'Paiement planifié'] },
+    { name: 'Décompte TVA', kind: 'vat', steps: ['Écritures du trimestre complètes', 'Contrôle des codes TVA', 'Concordance chiffre d’affaires', 'Impôt préalable vérifié', 'Décompte établi', 'Déposé sur le portail de l’AFC', 'Paiement planifié'] },
     { name: 'Salaires de fin d’année', kind: 'payroll', steps: ['Salaires de décembre contrôlés', 'Certificats de salaire', 'Déclaration AVS', 'Déclaration LAA / LAAC / IJM', 'Attestation LPP', 'Impôt à la source (décompte annuel)'] },
     { name: 'Déclaration d’impôt', kind: 'tax', steps: ['Documents reçus', 'Bouclement validé', 'Déclaration remplie', 'Contrôle', 'Signature du client', 'Envoi à l’administration'] },
     { name: 'Nouveau mandat', kind: 'onboarding', steps: ['Lettre de mission signée', 'Documents d’identification (LBA)', 'Accès aux banques', 'Reprise des soldes d’ouverture', 'Profil TVA et salaires'] },
   ],
   de: [
     { name: 'Jahresabschluss', kind: 'closing', steps: ['Bank- und Postauszüge erhalten', 'Bankabstimmung', 'Debitoren und Delkredere', 'Kreditoren und Abgrenzungen', 'Vorräte und angefangene Arbeiten', 'Aktive und passive Rechnungsabgrenzungen', 'Abschreibungen', 'Steuern und Rückstellungen', 'Bilanz und Erfolgsrechnung', 'Anhang und Bericht', 'Freigabe durch den Kunden', 'Generalversammlung / Genehmigung'] },
-    { name: 'MWST-Abrechnung', kind: 'vat', steps: ['Buchungen des Quartals vollständig', 'MWST-Codes geprüft', 'Umsatzabstimmung', 'Vorsteuer geprüft', 'Abrechnung erstellt', 'An ESTV übermittelt (ePortal)', 'Zahlung geplant'] },
+    { name: 'MWST-Abrechnung', kind: 'vat', steps: ['Buchungen des Quartals vollständig', 'MWST-Codes geprüft', 'Umsatzabstimmung', 'Vorsteuer geprüft', 'Abrechnung erstellt', 'Im ESTV-Portal eingereicht', 'Zahlung geplant'] },
     { name: 'Lohn Jahresende', kind: 'payroll', steps: ['Dezemberlöhne geprüft', 'Lohnausweise', 'AHV-Lohnmeldung', 'UVG / UVGZ / KTG-Meldung', 'BVG-Bestätigung', 'Quellensteuer (Jahresabrechnung)'] },
     { name: 'Steuererklärung', kind: 'tax', steps: ['Unterlagen erhalten', 'Abschluss freigegeben', 'Erklärung ausgefüllt', 'Kontrolle', 'Unterschrift des Kunden', 'Versand an die Verwaltung'] },
     { name: 'Neues Mandat', kind: 'onboarding', steps: ['Mandatsvertrag unterzeichnet', 'Identifikation (GwG)', 'Bankzugänge', 'Eröffnungssaldi übernommen', 'MWST- und Lohnprofil'] },
   ],
   it: [
     { name: 'Chiusura annuale', kind: 'closing', steps: ['Estratti bancari e postali ricevuti', 'Riconciliazione bancaria', 'Debitori e delcredere', 'Creditori e ratei passivi', 'Scorte e lavori in corso', 'Ratei e risconti', 'Ammortamenti', 'Imposte e accantonamenti', 'Bilancio e conto economico', 'Allegato e rapporto', 'Convalida del cliente', 'Assemblea generale / approvazione'] },
-    { name: 'Rendiconto IVA', kind: 'vat', steps: ['Registrazioni del trimestre complete', 'Codici IVA controllati', 'Concordanza della cifra d’affari', 'Imposta precedente verificata', 'Rendiconto allestito', 'Trasmesso all’AFC (ePortal)', 'Pagamento pianificato'] },
+    { name: 'Rendiconto IVA', kind: 'vat', steps: ['Registrazioni del trimestre complete', 'Codici IVA controllati', 'Concordanza della cifra d’affari', 'Imposta precedente verificata', 'Rendiconto allestito', 'Depositato sul portale dell’AFC', 'Pagamento pianificato'] },
     { name: 'Salari di fine anno', kind: 'payroll', steps: ['Salari di dicembre controllati', 'Certificati di salario', 'Dichiarazione AVS', 'Dichiarazione LAINF / LAINFC / IGM', 'Attestazione LPP', 'Imposta alla fonte (conteggio annuale)'] },
     { name: 'Dichiarazione d’imposta', kind: 'tax', steps: ['Documenti ricevuti', 'Chiusura convalidata', 'Dichiarazione compilata', 'Controllo', 'Firma del cliente', 'Invio all’amministrazione'] },
     { name: 'Nuovo mandato', kind: 'onboarding', steps: ['Lettera d’incarico firmata', 'Identificazione (LRD)', 'Accessi bancari', 'Saldi di apertura ripresi', 'Profilo IVA e salari'] },

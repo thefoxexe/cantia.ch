@@ -296,7 +296,7 @@ function ApprovalCard({ token, approval: a, accent, onDone }: { token: string; a
         <>
           <TextInput value={name} onChangeText={setName} placeholder={t.signName} placeholderTextColor={colors.textMuted} style={styles.input} maxLength={120} autoComplete="name" />
           <Text style={styles.label}>{t.signHere}</Text>
-          <SignaturePad onChange={setSignature} labels={{ hint: t.signHere, saved: '✓', clear: t.clear }} />
+          <SignaturePad onChange={setSignature} labels={{ hint: t.signHint, saved: '✓', clear: t.clear }} />
           <Text style={styles.small}>{t.legal}</Text>
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Pressable onPress={() => decide(true)} disabled={busy || !name.trim() || !signature} style={[styles.cta, { backgroundColor: accent }, (busy || !name.trim() || !signature) && { opacity: 0.45 }]}>

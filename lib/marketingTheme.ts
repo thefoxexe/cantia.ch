@@ -12,13 +12,14 @@ export const marketingFonts = {
 };
 
 // RN Web passes unknown style keys straight through to CSS, so fontStretch
-// selects the condensed cut of the variable Archivo font on web. The fonts
-// are only loaded on web (app/+html.tsx), so native app screens that share
-// these styles (e.g. PageHeader) keep the system font there.
+// selects the condensed cut of the variable Archivo font on web, and the
+// fallback stack keeps a sans / monospace face if the web font does not load.
+// The fonts are only loaded on web (app/+html.tsx), so native app screens
+// that share these styles (e.g. PageHeader) keep the system font there.
 export const displayType = (Platform.OS === 'web'
-  ? { fontFamily: marketingFonts.display, fontStretch: '66%' }
+  ? { fontFamily: `${marketingFonts.display}, system-ui, sans-serif`, fontStretch: '66%' }
   : {}) as unknown as TextStyle;
 
 export const monoType = (Platform.OS === 'web'
-  ? { fontFamily: marketingFonts.mono, fontStretch: '85%' }
+  ? { fontFamily: `"${marketingFonts.mono}", ui-monospace, Menlo, Consolas, monospace`, fontStretch: '85%' }
   : {}) as unknown as TextStyle;
