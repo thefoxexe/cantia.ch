@@ -27,7 +27,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: projects } = await admin
     .from('projects')
-    .select('id, organization_id, name')
+    .select('id, organization_id, name, organizations(locale)')
     .eq('auto_daily_report_enabled', true)
     .eq('status', 'active');
 
@@ -56,14 +56,22 @@ Deno.serve(async (req: Request) => {
       if (m.user_id && m.full_name) authorNames[m.user_id] = m.full_name;
     }
 
-    const dateLabel = new Date().toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    // Written in the company's language.
+    const orgLocale = (project as { organizations?: { locale?: string | null } | null }).organizations?.locale;
+    const lang = orgLocale === 'de' ? 'de' : orgLocale === 'it' ? 'it' : 'fr';
+    const copy = {
+      fr: { member: 'Membre', title: (d: string) => `Rapport automatique du ${d}`, sep: ' : ' },
+      de: { member: 'Mitglied', title: (d: string) => `Automatischer Rapport vom ${d}`, sep: ': ' },
+      it: { member: 'Membro', title: (d: string) => `Rapporto automatico del ${d}`, sep: ': ' },
+    }[lang];
+    const dateLabel = new Date().toLocaleDateString(`${lang}-CH`, { day: '2-digit', month: '2-digit', year: 'numeric' });
     const noteLines = entries
       .filter((e) => (e.type === 'note' && e.body) || (e.type === 'voice' && e.transcript))
       .map((e) => {
-        const author = (e.created_by && authorNames[e.created_by]) || 'Membre';
-        const when = new Date(e.created_at).toLocaleString('fr-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const author = (e.created_by && authorNames[e.created_by]) || copy.member;
+        const when = new Date(e.created_at).toLocaleString(`${lang}-CH`, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         const text = e.type === 'voice' ? e.transcript : e.body;
-        return `[${when}] ${author} : ${text}`;
+        return `[${when}] ${author}${copy.sep}${text}`;
       });
 
     const { data: report, error: reportError } = await admin
@@ -71,7 +79,7 @@ Deno.serve(async (req: Request) => {
       .insert({
         organization_id: project.organization_id,
         project_id: project.id,
-        title: `Rapport automatique du ${dateLabel}`,
+        title: copy.title(dateLabel),
         notes: noteLines.join('\n\n') || null,
       })
       .select()

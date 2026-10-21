@@ -5,7 +5,8 @@ import { confirm } from '../../lib/confirm';
 import { deleteTemplate, listTemplates, updateTemplate, type ScheduleTemplate } from '../../lib/schedule/api';
 import { fill } from '../../lib/schedule/copy';
 import { useScheduleCopy } from '../../lib/schedule/useCopy';
-import { VILLA_TEMPLATE, templateStats, type TemplateData } from '../../lib/schedule/templates';
+import { templateStats, villaTemplate, type TemplateData } from '../../lib/schedule/templates';
+import { getAppLocale } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { tradeColor } from './GanttView';
 
@@ -109,7 +110,7 @@ export function TemplatesCatalog({ organizationId, canManage, userId }: { organi
       {error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
       {list && !list.length ? <Text style={styles.meta}>{c.noTemplates}</Text> : null}
       {(list ?? []).map((t) => card(t.id, t.name, t.description, t.data, t))}
-      {card('villa', c.createVilla, null, VILLA_TEMPLATE)}
+      {card('villa', c.createVilla, null, villaTemplate(getAppLocale()))}
     </ScrollView>
   );
 }

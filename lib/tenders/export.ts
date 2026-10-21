@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { lineAmount, tenderTotals } from './calc.ts';
 import { unitLabel } from './units.ts';
 import type { TenderBundle } from './api';
+import { apiText } from '../apiText';
 
 export function tenderSheetRows(b: TenderBundle): (string | number | null)[][] {
   const posByNode = new Map(b.positions.map((p) => [p.node_id, p]));
@@ -59,7 +60,7 @@ export function exportTenderXlsx(b: TenderBundle) {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Métré');
   const name = `${b.tender.name.replace(/[^\w\- ]+/g, '').trim() || 'metre'}.xlsx`;
-  if (Platform.OS !== 'web') return { error: 'Export disponible sur ordinateur.' };
+  if (Platform.OS !== 'web') return { error: apiText('Export disponible sur ordinateur.') };
   const data = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
   const url = URL.createObjectURL(new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
   const a = document.createElement('a');

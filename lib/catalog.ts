@@ -7,6 +7,7 @@
 // (an explicit user choice), never by silently averaging/overwriting from
 // whatever was typed most recently.
 import { supabase } from './supabase';
+import { apiText } from './apiText';
 
 export interface CatalogEntry {
   id?: string; // catalog_items.id — present once loaded from the DB, needed to persist a price update
@@ -242,7 +243,7 @@ const PRICE_HEADERS = ['prix', 'prixunitaire', 'prixunit', 'tarif', 'pu', 'monta
 export function parseCatalogCsv(text: string): ParsedCsv {
   const lines = text.split(/\r\n|\r|\n/).filter((l) => l.trim().length > 0);
   if (lines.length < 2) {
-    return { items: [], skipped: 0, error: 'Le fichier est vide ou ne contient aucune ligne de données.' };
+    return { items: [], skipped: 0, error: apiText('Le fichier est vide ou ne contient aucune ligne de données.') };
   }
 
   const commaCount = (lines[0].match(/,/g) || []).length;
@@ -258,7 +259,7 @@ export function parseCatalogCsv(text: string): ParsedCsv {
     detailIdx = -1;
   }
   if (titleIdx === -1) {
-    return { items: [], skipped: 0, error: "Impossible de détecter une colonne de titre ou de description dans ce fichier." };
+    return { items: [], skipped: 0, error: apiText("Impossible de détecter une colonne de titre ou de description dans ce fichier.") };
   }
   const unitIdx = headerCells.findIndex((h) => UNIT_HEADERS.includes(h));
   const priceIdx = headerCells.findIndex((h) => PRICE_HEADERS.includes(h));
@@ -327,7 +328,7 @@ export function metreItemsFromTable(headerCellsRaw: string[], dataRows: string[]
     detailIdx = -1;
   }
   if (titleIdx === -1) {
-    return { items: [], skipped: 0, error: "Impossible de détecter une colonne de désignation dans ce fichier." };
+    return { items: [], skipped: 0, error: apiText("Impossible de détecter une colonne de désignation dans ce fichier.") };
   }
   const refIdx = headerCells.findIndex((h) => REFERENCE_HEADERS.includes(h));
   const qtyIdx = headerCells.findIndex((h) => QUANTITY_HEADERS.includes(h));
@@ -359,7 +360,7 @@ export function metreItemsFromTable(headerCellsRaw: string[], dataRows: string[]
 export function parseMetreCsv(text: string): ParsedMetreCsv {
   const lines = text.split(/\r\n|\r|\n/).filter((l) => l.trim().length > 0);
   if (lines.length < 2) {
-    return { items: [], skipped: 0, error: 'Le fichier est vide ou ne contient aucune ligne de données.' };
+    return { items: [], skipped: 0, error: apiText('Le fichier est vide ou ne contient aucune ligne de données.') };
   }
   const commaCount = (lines[0].match(/,/g) || []).length;
   const semicolonCount = (lines[0].match(/;/g) || []).length;

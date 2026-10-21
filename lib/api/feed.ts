@@ -4,6 +4,8 @@ import { assetFileInfo, normalizeImageOrientation } from '../imageAsset';
 import { generateReportPdf } from './pdf';
 import { polishReportNotes } from './ai';
 import type { FeedEntry } from '../types';
+import { getAppLocale } from '../translations';
+import { apiText } from '../apiText';
 
 export async function listFeedEntries(projectId: string): Promise<FeedEntry[]> {
   const { data } = await supabase
@@ -87,7 +89,7 @@ export async function addPhotoEntry(params: {
   const { uri, ext, contentType } = await normalizeImageOrientation(params.uri, raw.contentType);
   const subPath = `feed/${params.projectId}/${Date.now()}.${ext}`;
   const { path, error: uploadError } = await uploadToOrgBucket(params.organizationId, subPath, uri, contentType);
-  if (!path) return { error: uploadError ?? "Échec de l'envoi de la photo", entry: null };
+  if (!path) return { error: uploadError ?? apiText("Échec de l'envoi de la photo"), entry: null };
 
   const { data, error } = await supabase
     .from('feed_entries')
@@ -127,7 +129,7 @@ export async function addVoiceEntry(params: {
     params.uri,
     params.mimeType,
   );
-  if (!path) return { error: uploadError ?? "Échec de l'envoi du message vocal", entry: null };
+  if (!path) return { error: uploadError ?? apiText("Échec de l'envoi du message vocal"), entry: null };
 
   const { data, error } = await supabase
     .from('feed_entries')
@@ -170,7 +172,7 @@ export async function generateReportFromFeed(params: {
     .filter((e) => (e.type === 'note' && e.body) || (e.type === 'voice' && e.transcript))
     .map((e) => {
       const author = (e.created_by && params.authorNames[e.created_by]) || 'Membre';
-      const when = new Date(e.created_at).toLocaleString('fr-CH', {
+      const when = new Date(e.created_at).toLocaleString(`${getAppLocale()}-CH`, {
         day: '2-digit',
         month: '2-digit',
         hour: '2-digit',
@@ -192,7 +194,7 @@ export async function generateReportFromFeed(params: {
     .select()
     .single();
 
-  if (reportError || !report) return { reportId: null, error: reportError?.message ?? 'Échec de la création du rapport' };
+  if (reportError || !report) return { reportId: null, error: reportError?.message ?? apiText('Échec de la création du rapport') };
 
   const photoEntries = sorted.filter((e) => e.type === 'photo' && e.storage_path);
   for (let i = 0; i < photoEntries.length; i++) {
@@ -227,12 +229,12 @@ export async function generateReportFromFeed(params: {
     if (polished) {
       await supabase.from('reports').update({ notes: polished, structured_content: structured }).eq('id', report.id);
     } else {
-      polishWarning = `Rapport créé avec les notes brutes (non reformulées) : ${polishError ?? 'échec de la rédaction IA'}. Vous pouvez réessayer depuis la fiche du rapport.`;
+      polishWarning = apiText('Rapport créé avec les notes brutes (non reformulées) : {{reason}}. Vous pouvez réessayer depuis la fiche du rapport.', { reason: polishError ?? apiText('échec de la rédaction IA') });
     }
   }
 
   const { error: pdfError } = await generateReportPdf(report.id);
-  if (pdfError) return { reportId: report.id, error: `Rapport créé, mais la génération du PDF a échoué : ${pdfError}` };
+  if (pdfError) return { reportId: report.id, error: apiText('Rapport créé, mais la génération du PDF a échoué : {{reason}}', { reason: pdfError }) };
 
   return { reportId: report.id, error: polishWarning };
 }

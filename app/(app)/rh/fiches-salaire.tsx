@@ -30,6 +30,7 @@ import { downloadFile } from '../../../lib/downloadFile';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { SendToFiduciaryModal } from '../../../components/SendToFiduciaryModal';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
+import { payrollLabel } from '../../../lib/payroll/standardLabels';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollWageType } from '../../../lib/types';
 
@@ -431,7 +432,7 @@ export default function PayrollSlipsScreen() {
                       </Pressable>
                     ) : null}
                     {canDownload && slip && (slip.status === 'validee' || slip.status === 'payee') ? (
-                      <Pressable onPress={() => setFiduciaryFor(item)} hitSlop={8} style={styles.pdfBtn} accessibilityLabel="Envoyer au fiduciaire">
+                      <Pressable onPress={() => setFiduciaryFor(item)} hitSlop={8} style={styles.pdfBtn} accessibilityLabel={t('uiMisc.sendToFiduciary')}>
                         <Feather name="send" size={14} color={colors.text} />
                       </Pressable>
                     ) : null}
@@ -474,7 +475,7 @@ export default function PayrollSlipsScreen() {
                   {lines.map((l) => (
                     <View key={l.id} style={styles.lineRow}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.lineLabel}>{l.wage_type_label}</Text>
+                        <Text style={styles.lineLabel}>{payrollLabel(l.wage_type_label, getAppLocale())}</Text>
                         {l.note ? <Text style={styles.lineNote}>{l.note}</Text> : null}
                       </View>
                       <Text style={[styles.lineAmount, l.wage_type_kind === 'net_adjustment' && Number(l.amount_chf) < 0 ? styles.lineAmountNegative : null]}>
@@ -496,7 +497,7 @@ export default function PayrollSlipsScreen() {
                     onPress={() => setNewWageTypeId(w.id)}
                     style={[styles.chip, newWageTypeId === w.id && styles.chipActive]}
                   >
-                    <Text style={[styles.chipText, newWageTypeId === w.id && styles.chipTextActive]}>{w.label}</Text>
+                    <Text style={[styles.chipText, newWageTypeId === w.id && styles.chipTextActive]}>{payrollLabel(w.label, getAppLocale())}</Text>
                   </Pressable>
                 ))}
               </View>

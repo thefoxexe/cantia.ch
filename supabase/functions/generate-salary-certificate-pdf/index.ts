@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFFont, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
+import { payrollLabel } from '../_shared/payroll-labels.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -417,7 +418,7 @@ Deno.serve(async (req: Request) => {
     // sup, bonus, indemnité vacances — so the recipient can see how the
     // brut was made up, not just its final figure.
     for (const l of wageAdditionLines) {
-      row(l.label, `+ ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
+      row(payrollLabel(l.label, locale), `+ ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
     }
 
     y -= 6;
@@ -425,7 +426,7 @@ Deno.serve(async (req: Request) => {
     y -= 10;
 
     for (const l of lines) {
-      row(l.label, `- ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
+      row(payrollLabel(l.label, locale), `- ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
     }
 
     if (totalNetAdjustments !== 0) {

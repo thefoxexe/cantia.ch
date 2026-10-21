@@ -2,6 +2,7 @@ import { supabase } from '../supabase';
 import { factureSubtotals } from './subtotals';
 import { invokeFunction } from './functions';
 import { getLatestCashSnapshot } from './treasury';
+import { getAppLocale } from '../translations';
 
 // Real double-entry bookkeeping (Cahier des charges V2, Lot 1) — every
 // operation Cantia already knows about (factures, encaissements, dépenses)
@@ -479,9 +480,63 @@ function nextDay(iso: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+// Words of the CSV exports and of the errors below, in the reader's language.
+const EXPORT_COPY = {
+  fr: {
+    journalHeader: ['N°', 'Date', 'Journal', 'Libellé', 'Compte', 'Débit', 'Crédit'],
+    vatTitle: 'Feuille de travail TVA (à reporter manuellement dans le portail AFC — Décompte TVA pro) — {p}',
+    method: 'Méthode', mode: 'Mode',
+    tdfn: 'Taux de la dette fiscale nette', effective: 'Méthode effective',
+    collected: 'Contre-prestations reçues', invoiced: 'Contre-prestations convenues',
+    sales: "Chiffre d'affaires", code: 'Code', rate: 'Taux', base: 'Base HT (CHF)', vat: 'TVA (CHF)',
+    salesTotal: "Total chiffre d'affaires imposable",
+    input: 'TVA préalable déductible', inputTotal: 'Total TVA préalable',
+    net: 'Montant TVA net dû (ou crédit si négatif)', rounded: 'Arrondi aux 5 centimes',
+    payrollFailed: 'Échec de la comptabilisation des salaires',
+    echEffectiveOnly: "L'export eCH-0217 n'est disponible que pour la méthode effective.",
+    echInvoicedOnly: 'L’export eCH-0217 requiert le mode "contre-prestations convenues" — le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".',
+    echUid: 'Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789) — impossible de générer le fichier eCH-0217.',
+  },
+  de: {
+    journalHeader: ['Nr.', 'Datum', 'Journal', 'Buchungstext', 'Konto', 'Soll', 'Haben'],
+    vatTitle: 'MWST-Arbeitsblatt (manuell ins ESTV-Portal zu übertragen – MWST-Abrechnung) – {p}',
+    method: 'Methode', mode: 'Modus',
+    tdfn: 'Saldosteuersatz', effective: 'Effektive Methode',
+    collected: 'Vereinnahmte Entgelte', invoiced: 'Vereinbarte Entgelte',
+    sales: 'Umsatz', code: 'Ziffer', rate: 'Satz', base: 'Basis exkl. MWST (CHF)', vat: 'MWST (CHF)',
+    salesTotal: 'Total steuerbarer Umsatz',
+    input: 'Abziehbare Vorsteuer', inputTotal: 'Total Vorsteuer',
+    net: 'Geschuldeter MWST-Betrag (oder Guthaben, wenn negativ)', rounded: 'Auf 5 Rappen gerundet',
+    payrollFailed: 'Verbuchung der Löhne fehlgeschlagen',
+    echEffectiveOnly: 'Der eCH-0217-Export ist nur für die effektive Methode verfügbar.',
+    echInvoicedOnly: 'Der eCH-0217-Export erfordert den Modus «vereinbarte Entgelte» – das MWST-Register von Cantia wird noch nicht auf Basis «vereinnahmt» berechnet.',
+    echUid: 'UID-Nummer fehlt oder ist ungültig (erwartetes Format: CHE-123.456.789) – die eCH-0217-Datei kann nicht erstellt werden.',
+  },
+  it: {
+    journalHeader: ['N.', 'Data', 'Giornale', 'Descrizione', 'Conto', 'Dare', 'Avere'],
+    vatTitle: "Foglio di lavoro IVA (da riportare manualmente nel portale AFC — Rendiconto IVA) — {p}",
+    method: 'Metodo', mode: 'Modalità',
+    tdfn: 'Aliquota saldo', effective: 'Metodo effettivo',
+    collected: 'Controprestazioni ricevute', invoiced: 'Controprestazioni convenute',
+    sales: "Cifra d'affari", code: 'Cifra', rate: 'Aliquota', base: 'Base IVA escl. (CHF)', vat: 'IVA (CHF)',
+    salesTotal: "Totale cifra d'affari imponibile",
+    input: 'Imposta precedente deducibile', inputTotal: 'Totale imposta precedente',
+    net: 'Importo IVA netto dovuto (o credito se negativo)', rounded: 'Arrotondato ai 5 centesimi',
+    payrollFailed: 'Contabilizzazione dei salari non riuscita',
+    echEffectiveOnly: "L'esportazione eCH-0217 è disponibile solo per il metodo effettivo.",
+    echInvoicedOnly: "L'esportazione eCH-0217 richiede la modalità «controprestazioni convenute» — il registro IVA di Cantia non è ancora calcolato sulla base «ricevute».",
+    echUid: 'Numero IDI mancante o non valido (formato atteso: CHE-123.456.789) — impossibile generare il file eCH-0217.',
+  },
+};
+
+function exportCopy() {
+  const lang = getAppLocale();
+  return lang === 'de' ? EXPORT_COPY.de : lang === 'it' ? EXPORT_COPY.it : EXPORT_COPY.fr;
+}
+
 export function entriesToCsv(entries: AccountingEntryWithLines[]): string {
   const escape = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const lines = [['N°', 'Date', 'Journal', 'Libellé', 'Compte', 'Débit', 'Crédit'].map(escape).join(';')];
+  const lines = [exportCopy().journalHeader.map(escape).join(';')];
   for (const e of entries) {
     for (const l of e.lines) {
       lines.push(
@@ -572,7 +627,7 @@ export async function postPayrollMonth(organizationId: string, year: number, mon
     year,
     month,
   });
-  if (error || !data) return { posted: 0, skipped: 0, errors: [], error: error ?? 'Échec de la comptabilisation des salaires' };
+  if (error || !data) return { posted: 0, skipped: 0, errors: [], error: error ?? exportCopy().payrollFailed };
   return { posted: data.posted ?? 0, skipped: data.skipped ?? 0, errors: data.errors ?? [], error: null };
 }
 
@@ -789,24 +844,25 @@ export async function getVatCodeDrilldown(organizationId: string, vatCode: strin
 // format compliance.
 export function vatWorksheetToCsv(report: VatLedgerReport, periodLabel: string, settings: VatSettings | null): string {
   const escape = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const c = exportCopy();
   const lines: string[] = [];
-  lines.push(escape(`Feuille de travail TVA (à reporter manuellement dans le portail AFC — Décompte TVA pro) — ${periodLabel}`));
+  lines.push(escape(c.vatTitle.replace('{p}', periodLabel)));
   lines.push('');
   if (settings) {
-    lines.push(escape(`Méthode : ${settings.vatMethod === 'tdfn' ? 'Taux de la dette fiscale nette' : 'Méthode effective'} · Mode : ${settings.vatBasisDefault === 'collected' ? 'Contre-prestations reçues' : 'Contre-prestations convenues'}`));
+    lines.push(escape(`${c.method} : ${settings.vatMethod === 'tdfn' ? c.tdfn : c.effective} · ${c.mode} : ${settings.vatBasisDefault === 'collected' ? c.collected : c.invoiced}`));
     lines.push('');
   }
-  lines.push(['Chiffre d\'affaires', 'Code', 'Taux', 'Base HT (CHF)', 'TVA (CHF)'].map(escape).join(';'));
+  lines.push([c.sales, c.code, c.rate, c.base, c.vat].map(escape).join(';'));
   for (const r of report.salesRows) lines.push(['', r.code, `${r.rate}%`, r.base.toFixed(2), r.amount.toFixed(2)].map(escape).join(';'));
-  lines.push(['Total chiffre d\'affaires imposable', '', '', report.totalSalesBase.toFixed(2), report.totalSalesVat.toFixed(2)].map(escape).join(';'));
+  lines.push([c.salesTotal, '', '', report.totalSalesBase.toFixed(2), report.totalSalesVat.toFixed(2)].map(escape).join(';'));
   lines.push('');
-  lines.push(['TVA préalable déductible', 'Code', 'Taux', 'Base HT (CHF)', 'TVA (CHF)'].map(escape).join(';'));
+  lines.push([c.input, c.code, c.rate, c.base, c.vat].map(escape).join(';'));
   for (const r of report.deductibleRows) lines.push(['', r.code, `${r.rate}%`, r.base.toFixed(2), r.amount.toFixed(2)].map(escape).join(';'));
-  lines.push(['Total TVA préalable', '', '', report.totalDeductibleBase.toFixed(2), report.totalDeductibleVat.toFixed(2)].map(escape).join(';'));
+  lines.push([c.inputTotal, '', '', report.totalDeductibleBase.toFixed(2), report.totalDeductibleVat.toFixed(2)].map(escape).join(';'));
   lines.push('');
-  lines.push(['Montant TVA net dû (ou crédit si négatif)', '', '', '', report.netVatDue.toFixed(2)].map(escape).join(';'));
+  lines.push([c.net, '', '', '', report.netVatDue.toFixed(2)].map(escape).join(';'));
   if (settings?.vatRounding === 'cinq_centimes' && report.roundedNetVatDue !== report.netVatDue) {
-    lines.push(['Arrondi aux 5 centimes', '', '', '', report.roundedNetVatDue.toFixed(2)].map(escape).join(';'));
+    lines.push([c.rounded, '', '', '', report.roundedNetVatDue.toFixed(2)].map(escape).join(';'));
   }
   return lines.join('\n');
 }
@@ -902,14 +958,14 @@ export function buildEch0217Xml(
   report: VatLedgerReport,
 ): Ech0217Result {
   if (vatSettings.vatMethod !== 'effective') {
-    throw new Error("L'export eCH-0217 n'est disponible que pour la méthode effective.");
+    throw new Error(exportCopy().echEffectiveOnly);
   }
   if (vatSettings.vatBasisDefault !== 'invoiced') {
-    throw new Error('L’export eCH-0217 requiert le mode "contre-prestations convenues" — le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".');
+    throw new Error(exportCopy().echInvoicedOnly);
   }
   const uid = parseSwissUid(organization.ide_number);
   if (!uid) {
-    throw new Error('Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789) — impossible de générer le fichier eCH-0217.');
+    throw new Error(exportCopy().echUid);
   }
 
   const warnings: string[] = [];

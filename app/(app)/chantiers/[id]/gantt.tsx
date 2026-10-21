@@ -611,7 +611,7 @@ export default function ChantierGanttScreen() {
           {history.length === 0 ? <Text style={kit.hint}>{c.historyEmpty}</Text> : null}
           {history.map((h) => (
             <View key={h.id} style={styles.histRow}>
-              <Text style={[kit.hint, { width: 110 }]}>{new Date(h.created_at).toLocaleString('fr-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
+              <Text style={[kit.hint, { width: 110 }]}>{new Date(h.created_at).toLocaleString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</Text>
               <Text style={[kit.body, { flex: 1 }]}>
                 <Text style={{ fontWeight: '700' }}>{h.item_name ?? '—'}</Text> · {c.field[h.field as keyof typeof c.field] ?? h.field}
                 {h.field !== 'created' && h.field !== 'deleted' ? ` : ${h.old_value ?? '—'} → ${h.new_value ?? '—'}` : ''}
@@ -725,7 +725,7 @@ function PdfSheet({ c, project, items, links, workdays, rolled, today, onClose }
         from: from < to ? from : to,
         to: to > from ? to : from,
         today,
-        generatedAt: `${now.toLocaleDateString('fr-CH')} ${now.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })}`,
+        generatedAt: `${now.toLocaleDateString(`${getAppLocale()}-CH`)} ${now.toLocaleTimeString(`${getAppLocale()}-CH`, { hour: '2-digit', minute: '2-digit' })}`,
         brand: brand && organization ? { name: organization.name, logoPng: organization.logo_url ? await logoAsPng(await getSignedUrl(organization.logo_url)) : null } : null,
       });
       save(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `${base}.pdf`);

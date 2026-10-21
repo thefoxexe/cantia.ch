@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { PDFDocument, PDFFont, PDFPage, RGB, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
+import { payrollLabel } from '../_shared/payroll-labels.ts';
 
 const BUCKET = 'opus-storage';
 
@@ -352,7 +353,7 @@ Deno.serve(async (req: Request) => {
     }
     row(pdfT(locale, 'grossSalary'), formatChf(gross), { bold: true });
     for (const l of wageAdditionLines) {
-      row(l.label, `+ ${formatChf(Math.round(l.amount * 100) / 100)}`, { size: 9.5, color: MUTED });
+      row(payrollLabel(l.label, locale), `+ ${formatChf(Math.round(l.amount * 100) / 100)}`, { size: 9.5, color: MUTED });
     }
 
     y -= 6;
@@ -360,7 +361,7 @@ Deno.serve(async (req: Request) => {
     y -= 10;
 
     for (const l of lines) {
-      const label = l.ratePercent != null ? `${l.label} (${l.ratePercent}%)` : l.label;
+      const label = l.ratePercent != null ? `${payrollLabel(l.label, locale)} (${l.ratePercent}%)` : payrollLabel(l.label, locale);
       row(label, `- ${formatChf(l.amount)}`, { size: 9.5, color: MUTED });
     }
 

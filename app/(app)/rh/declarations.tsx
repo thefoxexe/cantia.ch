@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { listGhostEmployees, listPayrollSlipsForYear, type PayrollSlip } from '../../../lib/api/payroll';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
+import { payrollLabel } from '../../../lib/payroll/standardLabels';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 interface EmployeeRow {
@@ -87,7 +88,7 @@ export default function PayrollDeclarationsScreen() {
   }, [slips, names]);
 
   function buildCsv(): string {
-    const header = ['Employé', 'Brut', ...labels, 'Cotisations totales', 'Coût employeur', 'Net', 'Mois inclus'];
+    const header = [t('payrollDeclarations.csvEmployee'), t('payrollDeclarations.gross'), ...labels.map((l) => payrollLabel(l, getAppLocale())), t('payrollDeclarations.totalDeductions'), t('payrollDeclarations.employerCost'), t('payrollDeclarations.net'), t('payrollDeclarations.csvMonths')];
     const lines = [header.join(';')];
     for (const r of rows) {
       const cells = [
@@ -196,7 +197,7 @@ export default function PayrollDeclarationsScreen() {
                         .filter((l) => (r.byLabel.get(l) ?? 0) !== 0)
                         .map((l) => (
                           <View key={l} style={styles.labelChip}>
-                            <Text style={styles.labelChipText}>{l}: {chf(r.byLabel.get(l) ?? 0)}</Text>
+                            <Text style={styles.labelChipText}>{payrollLabel(l, getAppLocale())}: {chf(r.byLabel.get(l) ?? 0)}</Text>
                           </View>
                         ))}
                     </View>

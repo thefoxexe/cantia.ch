@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type { DevisTrame, DevisTrameItem } from '../types';
+import { apiText } from '../apiText';
 
 export interface TrameItemInput {
   description: string;
@@ -48,7 +49,7 @@ export async function createTrame(
     .insert({ organization_id: organizationId, name })
     .select('id')
     .single();
-  if (insertError || !created) return { id: null, error: insertError?.message ?? 'Échec de la création.' };
+  if (insertError || !created) return { id: null, error: insertError?.message ?? apiText('Échec de la création.') };
 
   const { error: itemsError } = await insertItems(created.id, items);
   if (itemsError) return { id: created.id, error: itemsError };

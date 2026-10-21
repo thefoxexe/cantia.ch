@@ -16,6 +16,7 @@
 // (see the reconciliation functions' own comments: a suggested match is
 // never booked automatically).
 import { XMLParser } from 'fast-xml-parser';
+import { apiText } from './apiText';
 
 export interface BankStatementEntry {
   date: string; // booking date, ISO yyyy-mm-dd
@@ -157,24 +158,24 @@ export function parseCamtStatement(xml: string): ParsedCamtStatement {
     const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_', textNodeName: '#text', trimValues: true });
     doc = parser.parse(xml);
   } catch {
-    return { ...empty, error: "Ce fichier n'est pas un XML valide." };
+    return { ...empty, error: apiText("Ce fichier n'est pas un XML valide.") };
   }
 
   const document = doc?.Document;
   if (!document) {
-    return { ...empty, error: "Ce fichier ne ressemble pas à un relevé bancaire ISO 20022 (élément racine <Document> introuvable)." };
+    return { ...empty, error: apiText("Ce fichier ne ressemble pas à un relevé bancaire ISO 20022 (élément racine <Document> introuvable).") };
   }
 
   const isStatement = !!document.BkToCstmrStmt;
   const isNotification = !!document.BkToCstmrDbtCdtNtfctn;
   if (!isStatement && !isNotification) {
-    return { ...empty, error: "Ce fichier ne correspond ni à un camt.053 ni à un camt.054 (message racine reconnu introuvable)." };
+    return { ...empty, error: apiText("Ce fichier ne correspond ni à un camt.053 ni à un camt.054 (message racine reconnu introuvable).") };
   }
 
   const format: 'camt053' | 'camt054' = isStatement ? 'camt053' : 'camt054';
   const container = isStatement ? asArray(document.BkToCstmrStmt.Stmt)[0] : asArray(document.BkToCstmrDbtCdtNtfctn.Ntfctn)[0];
   if (!container) {
-    return { ...empty, format, error: 'Aucun relevé exploitable trouvé dans ce fichier.' };
+    return { ...empty, format, error: apiText('Aucun relevé exploitable trouvé dans ce fichier.') };
   }
 
   const accountIban = textOf(container.Acct?.Id?.IBAN) ?? null;
@@ -195,7 +196,7 @@ export function parseCamtStatement(xml: string): ParsedCamtStatement {
 
   const entries = parseEntries(asArray(container.Ntry));
   if (entries.length === 0) {
-    return { format, accountIban, currency, statementFrom, statementTo, openingBalance, closingBalance, entries: [], error: 'Aucune écriture exploitable trouvée dans ce relevé.' };
+    return { format, accountIban, currency, statementFrom, statementTo, openingBalance, closingBalance, entries: [], error: apiText('Aucune écriture exploitable trouvée dans ce relevé.') };
   }
 
   return { format, accountIban, currency, statementFrom, statementTo, openingBalance, closingBalance, entries, error: null };

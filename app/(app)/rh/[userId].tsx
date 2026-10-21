@@ -31,7 +31,8 @@ import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
 import { SituationCard } from '../../../components/payroll/SituationCard';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
-import { useTranslation } from '../../../lib/translations';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
+import { payrollLabel } from '../../../lib/payroll/standardLabels';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, PayrollTreiziemeMode, SalaryType } from '../../../lib/types';
 
@@ -535,7 +536,7 @@ export default function PayrollProfileScreen() {
                   <View key={t.id} style={styles.deductionRow}>
                     <Switch value={draftEnabled[t.id] ?? true} onChange={(v) => { setDraftEnabled((prev) => ({ ...prev, [t.id]: v })); markDirty(); }} />
                     <Text style={[styles.deductionLabel, !(draftEnabled[t.id] ?? true) && styles.deductionLabelDisabled]} numberOfLines={1}>
-                      {t.label}
+                      {payrollLabel(t.label, getAppLocale())}
                     </Text>
                     <TextInput
                       style={styles.deductionInput}
@@ -591,7 +592,7 @@ export default function PayrollProfileScreen() {
                 <View style={styles.breakdownRows}>
                   <BreakdownRow label={t('payrollProfile.grossSalary')} value={annualSummary.gross} bold />
                   {annualSummary.lines.map((l, i) => (
-                    <BreakdownRow key={i} label={`− ${l.label}`} value={-l.amount} />
+                    <BreakdownRow key={i} label={`− ${payrollLabel(l.label, getAppLocale())}`} value={-l.amount} />
                   ))}
                   <View style={styles.breakdownDivider} />
                   <BreakdownRow label={t('payrollProfile.netSalary')} value={annualSummary.net} bold accent />

@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import { factureSubtotals } from './subtotals';
 import type { CashSnapshot, Expense, Organization, RecurringExpense, RecurringExpenseFrequency, TreasuryForecast, TreasuryForecastItem } from '../types';
+import { apiText } from '../apiText';
 
 export async function getLatestCashSnapshot(organizationId: string): Promise<CashSnapshot | null> {
   const { data } = await supabase
@@ -174,7 +175,7 @@ export async function buildForecast(organization: Organization, days = 90): Prom
       if (remaining <= 0) continue;
       items.push({
         kind: 'facture',
-        label: `${f.number ?? 'Facture'} — ${f.client_name}`,
+        label: `${f.number ?? apiText('Facture')} — ${f.client_name}`,
         amount: remaining,
         date: f.due_date,
         overdue: f.due_date < today,
@@ -215,7 +216,7 @@ export async function buildForecast(organization: Organization, days = 90): Prom
   // --- Factures sous-traitants non payées : sorties ------------------------
   for (const inv of subInvoicesRes.data ?? []) {
     if (!inv.amount) continue;
-    const companyName = (inv as any).project_subcontractors?.subcontractors?.company_name ?? 'Sous-traitant';
+    const companyName = (inv as any).project_subcontractors?.subcontractors?.company_name ?? apiText('Sous-traitant');
     items.push({
       kind: 'sous-traitant',
       label: companyName,

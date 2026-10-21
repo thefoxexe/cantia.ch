@@ -9,6 +9,8 @@ import { buildEch0217Xml, getVatReportByCode, getVatSettings, vatWorksheetToCsv,
 import { countDraftEntries, lastTdfnRates, listVatDeclarations, saveVatDeclaration, type VatDeclaration } from '../../../lib/api/vatDeclarations';
 import { buildAfcForm, FIGURE_LABELS, periodsFor, type AfcForm, type FormLine, type VatAdjustments, type VatPeriod } from '../../../lib/vat/afcForm.ts';
 import { figureLabels, fill, useVatCopy } from '../../../lib/vat/vatCopy';
+import { vatPeriodName, vatWarningText } from '../../../lib/vat/figureLabels';
+import { getAppLocale } from '../../../lib/translations';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import { AppScreen, Button, LoadingScreen, PageHeader } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -168,7 +170,7 @@ export default function VatReturnScreen() {
 
   function downloadCsv() {
     if (!ledger || !period) return;
-    downloadTextFile(`tva-${period.key}.csv`, vatWorksheetToCsv(ledger, `${period.label} ${year}`, settings));
+    downloadTextFile(`tva-${period.key}.csv`, vatWorksheetToCsv(ledger, `${vatPeriodName(period.key, period.label, getAppLocale())} ${year}`, settings));
   }
 
   if (!organization) return <LoadingScreen />;
@@ -200,7 +202,7 @@ export default function VatReturnScreen() {
         {form.warnings.filter((w) => !w.includes('299')).map((w, i) => (
           <View key={`w${i}`} style={styles.checkRow}>
             <Feather name="alert-circle" size={15} color={colors.warning} />
-            <Text style={styles.checkText}>{w}</Text>
+            <Text style={styles.checkText}>{vatWarningText(w, getAppLocale())}</Text>
           </View>
         ))}
       </View>
@@ -292,7 +294,7 @@ export default function VatReturnScreen() {
                   const active = p.key === selectedKey;
                   return (
                     <Pressable key={p.key} onPress={() => setSelectedKey(p.key)} style={[styles.periodCard, active && styles.periodCardActive]}>
-                      <Text style={styles.periodName}>{p.label}</Text>
+                      <Text style={styles.periodName}>{vatPeriodName(p.key, p.label, getAppLocale())}</Text>
                       <Text style={styles.periodDates}>
                         {dmy(p.start).slice(0, 5)} – {dmy(p.end).slice(0, 5)}
                       </Text>
@@ -311,7 +313,7 @@ export default function VatReturnScreen() {
                   <View style={styles.hero}>
                     <View style={{ flex: 1, minWidth: 220, gap: 6 }}>
                       <Text style={styles.heroPeriod}>
-                        {period.label} {year}
+                        {vatPeriodName(period.key, period.label, getAppLocale())} {year}
                       </Text>
                       <Text style={styles.heroDates}>
                         {dmy(period.start)} – {dmy(period.end)}

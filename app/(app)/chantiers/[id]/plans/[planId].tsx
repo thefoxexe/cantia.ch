@@ -17,6 +17,7 @@ import { distancePt, formatMeasure, impliedScale, mainValue, parseScale, type Ca
 import { createMeasure, loadPlan, pageObjects, setCalibration, setMeasureDeleted, updateMeasure, updatePlan, type LoadedPlan, type MeasuredObject, type PlanPage } from '../../../../../lib/tenders/plansApi';
 import { usePlanCopy } from '../../../../../lib/tenders/planCopy';
 import { fill } from '../../../../../lib/tenders/copy';
+import { i18next } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import { monoType } from '../../../../../lib/marketingTheme';
 
@@ -750,7 +751,7 @@ function MeasureDetail({
             {o.note ? ` · ${o.note}` : ''}
           </Text>
         </View>
-        <Pressable onPress={onClose} accessibilityLabel="Fermer" hitSlop={8}>
+        <Pressable onPress={onClose} accessibilityLabel={i18next.t('uiMisc.close')} hitSlop={8}>
           <Feather name="x" size={16} color={colors.textMuted} />
         </Pressable>
       </View>

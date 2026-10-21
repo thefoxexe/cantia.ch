@@ -19,7 +19,7 @@ import {
   listExpenseTypes,
   listWageTypes,
   listWorkTypes,
-  OPTIONAL_EXPENSE_CATALOG,
+  buildOptionalExpenseCatalog,
   restoreStandardPayrollCatalog,
   restoreStandardWageTypes,
   updateDeductionType,
@@ -29,7 +29,8 @@ import {
 } from '../../../lib/api/payroll';
 import { Button, Card, Container, PageHeader, AppScreen, Switch } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
-import { useTranslation } from '../../../lib/translations';
+import { getAppLocale, useTranslation } from '../../../lib/translations';
+import { payrollLabel } from '../../../lib/payroll/standardLabels';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type {
   CertificateBox,
@@ -247,7 +248,7 @@ export default function PayrollSettingsScreen() {
   const optionalDeductionCatalog = buildOptionalDeductionCatalog(rates).filter(
     (item) => !deductionTypes.some((d) => d.label.toLowerCase() === item.label.toLowerCase()),
   );
-  const optionalExpenseCatalog = OPTIONAL_EXPENSE_CATALOG.filter(
+  const optionalExpenseCatalog = buildOptionalExpenseCatalog().filter(
     (item) => !expenseTypes.some((e) => e.label.toLowerCase() === item.label.toLowerCase()),
   );
   const optionalWageCatalog = buildOptionalWageCatalog().filter(
@@ -385,7 +386,7 @@ export default function PayrollSettingsScreen() {
             loading={loading}
             rows={workTypes.map((w) => ({
               id: w.id,
-              label: w.label,
+              label: payrollLabel(w.label, getAppLocale()),
               meta: w.hourly_rate_chf != null ? `CHF ${w.hourly_rate_chf.toFixed(2)}/h` : null,
               active: w.active,
               onPress: () => openEditWork(w),
@@ -399,7 +400,7 @@ export default function PayrollSettingsScreen() {
             loading={loading}
             rows={expenseTypes.map((e) => ({
               id: e.id,
-              label: e.label,
+              label: payrollLabel(e.label, getAppLocale()),
               meta: e.unit === 'km' && e.rate_chf != null ? `CHF ${e.rate_chf.toFixed(2)}/km` : t('payrollSettings.freeAmount'),
               active: e.active,
               onPress: () => openEditExpense(e),
@@ -413,7 +414,7 @@ export default function PayrollSettingsScreen() {
             loading={loading}
             rows={deductionTypes.map((d) => ({
               id: d.id,
-              label: d.label,
+              label: payrollLabel(d.label, getAppLocale()),
               meta: d.default_rate_percent != null ? `${d.default_rate_percent}%` : null,
               active: d.active,
               onPress: () => openEditDeduction(d),
@@ -427,7 +428,7 @@ export default function PayrollSettingsScreen() {
             loading={loading}
             rows={wageTypes.map((w) => ({
               id: w.id,
-              label: w.label,
+              label: payrollLabel(w.label, getAppLocale()),
               meta:
                 w.mode === 'recurring_rate' && w.default_rate_percent != null
                   ? `${w.default_rate_percent}%`
@@ -717,7 +718,7 @@ function CatalogRow({
           {checked ? <Feather name="check" size={14} color={colors.surface} /> : null}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.rowLabel}>{item.label}</Text>
+          <Text style={styles.rowLabel}>{payrollLabel(item.label, getAppLocale())}</Text>
           <Text style={styles.catalogHint}>{item.hint}</Text>
         </View>
       </Pressable>

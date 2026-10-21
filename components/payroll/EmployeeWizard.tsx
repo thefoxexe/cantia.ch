@@ -15,6 +15,8 @@ import { localityForNpa } from '../../lib/swissPostalCodes';
 import { fill, useWizardCopy } from '../../lib/payroll/wizardCopy';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { PayrollProfile } from '../../lib/types';
+import { payrollReasonText } from '../../lib/payroll/reasonText';
+import { getAppLocale } from '../../lib/translations';
 
 // « Ajouter un employé » (creates a payroll-only employee) and « Situation &
 // charges » (any employee, app member or not): the employer answers a few
@@ -401,8 +403,8 @@ export function EmployeeWizard({
                 <Text style={styles.bannerText}>{c.autoBanner}</Text>
               </View>
               <Panel icon="shield" title={c.lawTitle} foot={c.lawFoot}>
-                <Rate label="AVS / AI / APG" value={`${rates.avsAiApgPercent} % + ${rates.avsAiApgPercent} %`} />
-                <Rate label="AC (chômage)" value={`${rates.acPercent} % + ${rates.acPercent} %`} />
+                <Rate label={c.avsLabel} value={`${rates.avsAiApgPercent} % + ${rates.avsAiApgPercent} %`} />
+                <Rate label={c.acLabel} value={`${rates.acPercent} % + ${rates.acPercent} %`} />
                 <Rate
                   label={payroll.age != null && payroll.lpp.applies ? fill(c.lppAge, { pct: payroll.lpp.creditPercent, age: payroll.age }) : c.lppNone}
                   value={
@@ -413,15 +415,15 @@ export function EmployeeWizard({
                 />
               </Panel>
               <View style={styles.toggles}>
-                <Toggle label={c.lppInsured} hint={fill(c.lppHint, { threshold: rates.lppEntryThresholdChf.toLocaleString('fr-CH') })} value={d.lppInsured} onChange={(v) => set('lppInsured', v)} />
+                <Toggle label={c.lppInsured} hint={fill(c.lppHint, { threshold: rates.lppEntryThresholdChf.toLocaleString(`${getAppLocale()}-CH`) })} value={d.lppInsured} onChange={(v) => set('lppInsured', v)} />
               </View>
               <Panel icon="heart" title={c.laaTitle} foot={c.laaFoot}>
-                <Rate label="AANP (employé)" value={`${overrides.aanpPercent ?? DEFAULT_LAA.aanpPercent} %`} />
-                <Rate label="AAP (employeur)" value={`${overrides.aapPercent ?? DEFAULT_LAA.aapPercent} %`} />
+                <Rate label={c.aanpEmployee} value={`${overrides.aanpPercent ?? DEFAULT_LAA.aanpPercent} %`} />
+                <Rate label={c.aapEmployer} value={`${overrides.aapPercent ?? DEFAULT_LAA.aapPercent} %`} />
               </Panel>
               <Panel icon="users" title={fill(c.cafTitle, { canton: situation.workCanton })} foot={c.cafFoot}>
-                <Rate label="Employeur" value={`${Number((overrides.cafEmployerPercent ?? caf.cafEmployerPercent).toFixed(3))} %`} />
-                {caf.cafEmployeePercent > 0 ? <Rate label="Employé" value={`${caf.cafEmployeePercent} %`} /> : null}
+                <Rate label={c.rateEmployer} value={`${Number((overrides.cafEmployerPercent ?? caf.cafEmployerPercent).toFixed(3))} %`} />
+                {caf.cafEmployeePercent > 0 ? <Rate label={c.rateEmployee} value={`${caf.cafEmployeePercent} %`} /> : null}
               </Panel>
               <Pressable onPress={() => setAdvanced((v) => !v)} style={styles.advancedHead}>
                 <Feather name="sliders" size={16} color={colors.text} />
@@ -475,12 +477,12 @@ export function EmployeeWizard({
                     ) : (
                       <Text style={styles.summaryText}>{fill(c.whtRateLine, { rate: payroll.wht.ratePercent })}</Text>
                     )}
-                    <Text style={styles.hint}>{payroll.wht.reason}</Text>
+                    <Text style={styles.hint}>{payrollReasonText(payroll.wht.reason, getAppLocale())}</Text>
                   </>
                 ) : (
                   <>
                     <Text style={styles.pill}>{c.whtNot}</Text>
-                    <Text style={styles.summaryText}>{payroll.wht.reason}</Text>
+                    <Text style={styles.summaryText}>{payrollReasonText(payroll.wht.reason, getAppLocale())}</Text>
                   </>
                 )}
               </Summary>

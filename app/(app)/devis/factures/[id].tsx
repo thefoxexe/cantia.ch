@@ -289,7 +289,7 @@ export default function FactureDetailScreen() {
       return;
     }
     setActionsOpen(false);
-    const { error: dlError } = await downloadFile(url, `Facture ${facture?.number || facture?.client_name}.pdf`);
+    const { error: dlError } = await downloadFile(url, t('uiMisc.invoiceFile', { name: facture?.number || facture?.client_name }));
     if (dlError) setError(dlError);
     load();
   }
@@ -799,7 +799,7 @@ export default function FactureDetailScreen() {
           onClose={() => setFiduciaryOpen(false)}
           orgId={organization.id}
           kind="invoice"
-          title={`Facture ${facture.number ?? ''} · ${facture.client_name}`.replace('  ', ' ')}
+          title={t('uiMisc.invoiceTitle', { number: facture.number ?? '', client: facture.client_name }).replace('  ', ' ')}
           amountChf={total}
           docDate={facture.created_at?.slice(0, 10) ?? null}
           sourceTable="factures"
@@ -807,7 +807,7 @@ export default function FactureDetailScreen() {
           getFile={async () => {
             const { url, error: genError } = await generateFacturePdf(id);
             if (genError || !url) return { file: null, error: genError ?? t('factureDetail.pdfGenFailed') };
-            return { file: { uri: url, name: `Facture ${facture.number || facture.client_name}.pdf`, mimeType: 'application/pdf' }, error: null };
+            return { file: { uri: url, name: t('uiMisc.invoiceFile', { name: facture.number || facture.client_name }), mimeType: 'application/pdf' }, error: null };
           }}
         />
       ) : null}

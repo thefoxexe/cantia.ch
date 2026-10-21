@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { StatusBadge } from '../ui';
-import { useTranslation } from '../../lib/translations';
+import { useTranslation, getAppLocale } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Project } from '../../lib/types';
 
@@ -67,7 +67,7 @@ export function ChantierDesk({ project, coverUrl, items }: { project: Project; c
   const featured = items.filter((it) => it.featured);
   const modules = items.filter((it) => !it.featured);
   const stepIndex = STEPS.indexOf(project.status as (typeof STEPS)[number]);
-  const day = (iso: string) => new Date(iso).toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const day = (iso: string) => new Date(iso).toLocaleDateString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit', year: 'numeric' });
   const actionFor = (key: string) =>
     key === 'feed'
       ? { label: t('chantierHub.newNote'), route: `/(app)/chantiers/${id}/feed` }

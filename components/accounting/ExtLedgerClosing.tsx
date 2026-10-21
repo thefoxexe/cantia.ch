@@ -12,7 +12,7 @@ import { ledger, type FiscalYear, type Statements, type VatReturn, type VatSumma
 import { deadlineKey, ech0217Report, extVatRows, vatSetup } from '../../lib/accounting/extVat';
 import { useLedgerCopy } from '../../lib/accounting/ledgerCopy';
 import { FIGURE_LABELS, buildAfcForm, periodsFor, type FormLine, type VatAdjustments, type VatPeriod } from '../../lib/vat/afcForm';
-import { LABELS_DE, LABELS_IT } from '../../lib/vat/figureLabels';
+import { LABELS_DE, LABELS_IT, vatPeriodName, vatWarningText } from '../../lib/vat/figureLabels';
 import { buildEch0217Xml } from '../../lib/api/accounting';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { monoType } from '../../lib/marketingTheme';
@@ -91,7 +91,7 @@ export function VatView({ client, isAdmin, onChanged }: { client: ExternalClient
           const on = p.key === selected;
           return (
             <Pressable key={p.key} onPress={() => setSelected(p.key)} style={[st.period, on && st.periodOn]}>
-              <Text style={[ps.bodyStrong, on && { color: colors.primaryDark }]}>{p.label}</Text>
+              <Text style={[ps.bodyStrong, on && { color: colors.primaryDark }]}>{vatPeriodName(p.key, p.label, locale)}</Text>
               <Text style={ps.small}>{`${isoToSwiss(p.start)} – ${isoToSwiss(p.end)}`}</Text>
               <View style={ps.actions}>
                 <Pill label={t.statuses[s]} tone={tone(s)} />
@@ -157,6 +157,7 @@ function VatPeriodPanel({
 }) {
   const l = useLedgerCopy();
   const t = l.vat;
+  const { locale } = useAccCopy();
   const [summary, setSummary] = useState<VatSummary | null>(null);
   const [drafts, setDrafts] = useState(0);
   const [adj, setAdj] = useState<Record<string, string>>(() =>
@@ -276,7 +277,7 @@ function VatPeriodPanel({
     <View style={{ gap: spacing.md }}>
       <View style={st.twoCols}>
         <View style={[st.col, { flexBasis: 560, flexGrow: 2 }]}>
-          <Panel title={`${period.label} ${period.start.slice(0, 4)}`}>
+          <Panel title={`${vatPeriodName(period.key, period.label, locale)} ${period.start.slice(0, 4)}`}>
             <View style={[st.figRow, st.figHead]}>
               <Text style={st.figNo}>{t.cols.figure}</Text>
               <Text style={[ps.label, { flex: 1 }]}>{t.cols.label}</Text>

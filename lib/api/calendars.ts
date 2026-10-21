@@ -3,6 +3,7 @@
 import { Linking, Platform } from 'react-native';
 import { supabase } from '../supabase';
 import { invokeFunction } from './functions';
+import { apiText } from '../apiText';
 
 export type CalendarProvider = 'google' | 'microsoft';
 
@@ -28,7 +29,7 @@ export async function listMyCalendars(organizationId: string, userId: string): P
 export async function connectCalendar(organizationId: string, provider: CalendarProvider): Promise<string | null> {
   const returnTo = Platform.OS === 'web' && typeof window !== 'undefined' ? `${window.location.origin}/planning` : 'https://app.cantia.ch/planning';
   const { data, error } = await invokeFunction<{ url: string }>('calendar-sync', { action: 'connect', organization_id: organizationId, provider, return_to: returnTo });
-  if (error || !data?.url) return error ?? 'Connexion impossible.';
+  if (error || !data?.url) return error ?? apiText('Connexion impossible.');
   if (Platform.OS === 'web') window.location.href = data.url;
   else await Linking.openURL(data.url);
   return null;

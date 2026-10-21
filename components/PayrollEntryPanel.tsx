@@ -29,6 +29,7 @@ import { PayrollDateFilter, type DateRange } from './PayrollDateFilter';
 import { ProjectPicker } from './ProjectPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { payrollLabel } from '../lib/payroll/standardLabels';
 import type { PayrollExpenseType, PayrollWorkType, Project } from '../lib/types';
 
 interface PickItem {
@@ -942,7 +943,7 @@ export function PayrollEntryPanel({
                 <View style={{ flex: 1 }}>
                   <Text style={styles.entryDate}>{new Date(`${e.expense_date}T00:00:00`).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                   <Text style={styles.entryMeta}>
-                    {e.expense_type_label ?? t('payrollEntry.expenseFallback')}
+                    {e.expense_type_label ? payrollLabel(e.expense_type_label, getAppLocale()) : t('payrollEntry.expenseFallback')}
                     {e.expense_type_unit === 'km' && e.quantity ? ` · ${e.quantity} km` : ''}
                     {e.project_name ? ` · ${e.project_name}` : ''}
                   </Text>
@@ -972,7 +973,7 @@ export function PayrollEntryPanel({
                   {expenseTypes.map((et) => (
                     <Pressable key={et.id} onPress={() => selectExpenseType(et.id)} style={[styles.chip, expenseTypeId === et.id && styles.chipActive]}>
                       <Text style={[styles.chipText, expenseTypeId === et.id && styles.chipTextActive]}>
-                        {et.label}
+                        {payrollLabel(et.label, getAppLocale())}
                         {et.unit === 'km' && et.rate_chf != null ? ` (CHF ${et.rate_chf.toFixed(2)}/km)` : ''}
                       </Text>
                     </Pressable>

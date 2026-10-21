@@ -24,6 +24,8 @@ import type {
   PayrollWorkType,
   SwissSocialInsuranceRates,
 } from '../types';
+import { getAppLocale } from '../translations';
+import { apiText } from '../apiText';
 
 // Identifies who a payroll profile/deduction/PDF belongs to — either a
 // real app user or a payroll-only "ghost employee" (see
@@ -298,6 +300,66 @@ export async function deleteWageType(id: string): Promise<{ error: string | null
   return { error: error?.message ?? null };
 }
 
+// The catalog's explanations, in the reader's language. The labels stay
+// French (they are what gets stored, see payroll/standardLabels.ts).
+type CatalogHintKey =
+  | 'indemnite_vacances' | 'lpp' | 'impot_source' | 'ac_solidarite' | 'aap' | 'caf_employeur'
+  | 'repas' | 'deplacement_justificatif' | 'formation';
+
+function catalogHint(key: CatalogHintKey, rates: SwissSocialInsuranceRates | null): string {
+  const lang = getAppLocale();
+  const n = (v: number) => v.toLocaleString(`${lang}-CH`);
+  const year = rates?.year ?? '';
+  const coord = rates ? n(rates.lpp_coordination_deduction_chf) : '';
+  const cap = rates ? n(rates.ac_cap_chf) : '';
+  const fr: Record<CatalogHintKey, string> = {
+    indemnite_vacances: "Pour un salaire horaire sans jours de vacances fixes : 8.33% pour 4 semaines de vacances (minimum légal adulte, art. 329a CO), 10.64% pour 5 semaines (minimum légal < 20 ans, ou accordé contractuellement). Doit figurer séparément sur le décompte de salaire — jamais inclus silencieusement dans le taux horaire.",
+    lpp: rates
+      ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${year} : CHF ${coord}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations). La part employeur (au moins égale à la part salarié, souvent plus) dépend du règlement de votre caisse — à définir ci-dessous.`
+      : "Dépend de l'âge de l'employé et de votre caisse de pension — ajustez le taux par employé (fiche de l'employé → Cotisations).",
+    impot_source: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations). Aucune part employeur : il ne s'agit que d'une retenue reversée au fisc.",
+    ac_solidarite: rates
+      ? `Uniquement sur la part du salaire annuel dépassant CHF ${cap} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil. Part employeur égale à la part salarié (paritaire, comme l'AC de base).`
+      : 'Uniquement sur la part du salaire annuel dépassant le plafond AC — rarissime en PME.',
+    aap: "100% à la charge de l'employeur par la loi (LAA) — aucune retenue sur le salaire. Le taux dépend de votre assureur-accidents et de la classe de risque de votre branche : reportez-le depuis votre police d'assurance.",
+    caf_employeur: "100% à la charge de l'employeur par la loi (LAFam) — aucune retenue sur le salaire. Le taux dépend de votre caisse de compensation cantonale : reportez-le depuis votre décompte de cotisations.",
+    repas: "Indemnité forfaitaire de représentation (repas d'affaires, invitations) — case 13.2.1.",
+    deplacement_justificatif: 'Remboursement de frais réels sur présentation de justificatifs (billets, hôtel) — case 13.1.1.',
+    formation: "Contribution de l'employeur au perfectionnement professionnel de l'employé — case 13.3.",
+  };
+  const de: Record<CatalogHintKey, string> = {
+    indemnite_vacances: 'Für einen Stundenlohn ohne feste Ferientage: 8.33% für 4 Wochen Ferien (gesetzliches Minimum für Erwachsene, Art. 329a OR), 10.64% für 5 Wochen (gesetzliches Minimum unter 20 Jahren oder vertraglich vereinbart). Muss auf der Lohnabrechnung separat ausgewiesen werden – nie stillschweigend im Stundenlohn enthalten.',
+    lpp: rates
+      ? `Gesetzliches Minimum (Arbeitnehmeranteil, die Hälfte des Satzes unten): 3.5% mit 25–34 Jahren, 5% mit 35–44, 7.5% mit 45–54, 9% mit 55–65 – abhängig vom Alter, Ihre Pensionskasse kann mehr vorsehen. Koordinationsabzug ${year}: CHF ${coord}/Jahr. Passen Sie den Satz pro Mitarbeitenden an (Mitarbeiterblatt → Beiträge). Der Arbeitgeberanteil (mindestens gleich hoch wie der Arbeitnehmeranteil, oft mehr) richtet sich nach dem Reglement Ihrer Kasse – unten festzulegen.`
+      : 'Abhängig vom Alter der Mitarbeitenden und Ihrer Pensionskasse – passen Sie den Satz pro Mitarbeitenden an (Mitarbeiterblatt → Beiträge).',
+    impot_source: 'Abhängig vom kantonalen Tarif der Mitarbeitenden – übernehmen Sie den Satz aus der Abrechnung Ihrer kantonalen Steuerverwaltung oder verwenden Sie einen festen Betrag pro Mitarbeitenden (Mitarbeiterkonto → Beiträge). Kein Arbeitgeberanteil: Es handelt sich nur um einen Abzug, der an die Steuerbehörde weitergeleitet wird.',
+    ac_solidarite: rates
+      ? `Nur auf dem Teil des Jahreslohns über CHF ${cap} – in KMU sehr selten. Fügen Sie dies nur für Mitarbeitende hinzu, deren Lohn diese Grenze überschreitet. Arbeitgeberanteil gleich hoch wie der Arbeitnehmeranteil (paritätisch, wie die normale ALV).`
+      : 'Nur auf dem Teil des Jahreslohns über dem ALV-Höchstbetrag – in KMU sehr selten.',
+    aap: 'Von Gesetzes wegen zu 100% vom Arbeitgeber getragen (UVG) – kein Lohnabzug. Der Satz hängt von Ihrem Unfallversicherer und der Risikoklasse Ihrer Branche ab: Übernehmen Sie ihn aus Ihrer Versicherungspolice.',
+    caf_employeur: 'Von Gesetzes wegen zu 100% vom Arbeitgeber getragen (FamZG) – kein Lohnabzug. Der Satz hängt von Ihrer kantonalen Ausgleichskasse ab: Übernehmen Sie ihn aus Ihrer Beitragsabrechnung.',
+    repas: 'Pauschale Repräsentationsspesen (Geschäftsessen, Einladungen) – Ziffer 13.2.1.',
+    deplacement_justificatif: 'Rückerstattung effektiver Kosten gegen Beleg (Billette, Hotel) – Ziffer 13.1.1.',
+    formation: 'Beitrag des Arbeitgebers an die berufliche Weiterbildung der Mitarbeitenden – Ziffer 13.3.',
+  };
+  const it: Record<CatalogHintKey, string> = {
+    indemnite_vacances: "Per un salario orario senza giorni di vacanza fissi: 8.33% per 4 settimane di vacanza (minimo legale per adulti, art. 329a CO), 10.64% per 5 settimane (minimo legale sotto i 20 anni, o concordato per contratto). Deve figurare separatamente sul conteggio salariale — mai incluso tacitamente nella tariffa oraria.",
+    lpp: rates
+      ? `Minimo legale (quota dipendente, metà dell'aliquota qui sotto): 3.5% a 25-34 anni, 5% a 35-44, 7.5% a 45-54, 9% a 55-65 — dipende dall'età e la vostra cassa può prevedere di più. Deduzione di coordinamento ${year}: CHF ${coord}/anno. Adattate l'aliquota per dipendente (scheda del dipendente → Contributi). La quota del datore di lavoro (almeno pari a quella del dipendente, spesso di più) dipende dal regolamento della vostra cassa — da definire qui sotto.`
+      : "Dipende dall'età del dipendente e dalla vostra cassa pensione — adattate l'aliquota per dipendente (scheda del dipendente → Contributi).",
+    impot_source: "Dipende dalla tariffa cantonale del dipendente — riportate l'aliquota dal conteggio della vostra amministrazione fiscale cantonale, oppure usate un importo fisso per dipendente (Conto del dipendente → Contributi). Nessuna quota del datore di lavoro: si tratta solo di una trattenuta versata al fisco.",
+    ac_solidarite: rates
+      ? `Solo sulla parte del salario annuo che supera CHF ${cap} — rarissimo nelle PMI. Aggiungetelo solo per un dipendente il cui salario supera questa soglia. Quota del datore di lavoro pari a quella del dipendente (paritetica, come l'AD di base).`
+      : "Solo sulla parte del salario annuo che supera il massimale AD — rarissimo nelle PMI.",
+    aap: "Per legge al 100% a carico del datore di lavoro (LAINF) — nessuna trattenuta sul salario. L'aliquota dipende dal vostro assicuratore infortuni e dalla classe di rischio del vostro settore: riportatela dalla vostra polizza.",
+    caf_employeur: "Per legge al 100% a carico del datore di lavoro (LAFam) — nessuna trattenuta sul salario. L'aliquota dipende dalla vostra cassa di compensazione cantonale: riportatela dal vostro conteggio dei contributi.",
+    repas: "Indennità forfettaria di rappresentanza (pranzi d'affari, inviti) — cifra 13.2.1.",
+    deplacement_justificatif: 'Rimborso delle spese effettive su presentazione dei giustificativi (biglietti, albergo) — cifra 13.1.1.',
+    formation: "Contributo del datore di lavoro al perfezionamento professionale del dipendente — cifra 13.3.",
+  };
+  return (lang === 'de' ? de : lang === 'it' ? it : fr)[key];
+}
+
 export interface StandardWageCatalogItem {
   key: string;
   label: string;
@@ -321,7 +383,7 @@ export function buildOptionalWageCatalog(): StandardWageCatalogItem[] {
       label: 'Indemnité vacances (salaire horaire)',
       kind: 'addition',
       defaultRatePercent: null,
-      hint: "Pour un salaire horaire sans jours de vacances fixes : 8.33% pour 4 semaines de vacances (minimum légal adulte, art. 329a CO), 10.64% pour 5 semaines (minimum légal < 20 ans, ou accordé contractuellement). Doit figurer séparément sur le décompte de salaire — jamais inclus silencieusement dans le taux horaire.",
+      hint: catalogHint('indemnite_vacances', null),
     },
   ];
 }
@@ -393,9 +455,7 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       defaultRatePercent: null,
       employerRatePercent: null,
       certificateBox: 'box10_1',
-      hint: rates
-        ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${rates.year} : CHF ${rates.lpp_coordination_deduction_chf.toLocaleString('fr-CH')}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations). La part employeur (au moins égale à la part salarié, souvent plus) dépend du règlement de votre caisse — à définir ci-dessous.`
-        : "Dépend de l'âge de l'employé et de votre caisse de pension — ajustez le taux par employé (fiche de l'employé → Cotisations).",
+      hint: catalogHint('lpp', rates),
     },
     {
       key: 'impot_source',
@@ -403,7 +463,7 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       defaultRatePercent: null,
       employerRatePercent: null,
       certificateBox: 'box12',
-      hint: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations). Aucune part employeur : il ne s'agit que d'une retenue reversée au fisc.",
+      hint: catalogHint('impot_source', rates),
     },
     {
       key: 'ac_solidarite',
@@ -411,9 +471,7 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       defaultRatePercent: rates?.ac_solidarity_employee_percent ?? null,
       employerRatePercent: rates?.ac_solidarity_employee_percent ?? null,
       certificateBox: 'box9',
-      hint: rates
-        ? `Uniquement sur la part du salaire annuel dépassant CHF ${rates.ac_cap_chf.toLocaleString('fr-CH')} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil. Part employeur égale à la part salarié (paritaire, comme l'AC de base).`
-        : "Uniquement sur la part du salaire annuel dépassant le plafond AC — rarissime en PME.",
+      hint: catalogHint('ac_solidarite', rates),
     },
     {
       // Accident professionnel (LAA de base) : 100% à la charge de
@@ -426,7 +484,7 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       defaultRatePercent: 0,
       employerRatePercent: null,
       certificateBox: null,
-      hint: "100% à la charge de l'employeur par la loi (LAA) — aucune retenue sur le salaire. Le taux dépend de votre assureur-accidents et de la classe de risque de votre branche : reportez-le depuis votre police d'assurance.",
+      hint: catalogHint('aap', rates),
     },
     {
       // Allocations familiales : 100% employeur par la loi (LAFam) — la
@@ -439,7 +497,7 @@ export function buildOptionalDeductionCatalog(rates: SwissSocialInsuranceRates |
       defaultRatePercent: 0,
       employerRatePercent: null,
       certificateBox: null,
-      hint: "100% à la charge de l'employeur par la loi (LAFam) — aucune retenue sur le salaire. Le taux dépend de votre caisse de compensation cantonale : reportez-le depuis votre décompte de cotisations.",
+      hint: catalogHint('caf_employeur', rates),
     },
   ];
 }
@@ -456,32 +514,34 @@ export interface StandardExpenseCatalogItem {
 // Kilométrage is already part of the automatic base catalog — these are
 // the other common expense types an org can opt into from the same
 // picker, each pre-mapped to its real case-13 sub-box.
-export const OPTIONAL_EXPENSE_CATALOG: StandardExpenseCatalogItem[] = [
-  {
-    key: 'repas',
-    label: 'Repas / représentation',
-    unit: 'forfait',
-    rateChf: null,
-    certificateSubbox: '13_2_1',
-    hint: 'Indemnité forfaitaire de représentation (repas d\'affaires, invitations) — case 13.2.1.',
-  },
-  {
-    key: 'deplacement_justificatif',
-    label: 'Frais de déplacement / logement (sur justificatifs)',
-    unit: 'forfait',
-    rateChf: null,
-    certificateSubbox: '13_1_1',
-    hint: 'Remboursement de frais réels sur présentation de justificatifs (billets, hôtel) — case 13.1.1.',
-  },
-  {
-    key: 'formation',
-    label: 'Formation continue',
-    unit: 'forfait',
-    rateChf: null,
-    certificateSubbox: '13_3',
-    hint: "Contribution de l'employeur au perfectionnement professionnel de l'employé — case 13.3.",
-  },
-];
+export function buildOptionalExpenseCatalog(): StandardExpenseCatalogItem[] {
+  return [
+    {
+      key: 'repas',
+      label: 'Repas / représentation',
+      unit: 'forfait',
+      rateChf: null,
+      certificateSubbox: '13_2_1',
+      hint: catalogHint('repas', null),
+    },
+    {
+      key: 'deplacement_justificatif',
+      label: 'Frais de déplacement / logement (sur justificatifs)',
+      unit: 'forfait',
+      rateChf: null,
+      certificateSubbox: '13_1_1',
+      hint: catalogHint('deplacement_justificatif', null),
+    },
+    {
+      key: 'formation',
+      label: 'Formation continue',
+      unit: 'forfait',
+      rateChf: null,
+      certificateSubbox: '13_3',
+      hint: catalogHint('formation', null),
+    },
+  ];
+}
 
 // ==========================================================================
 // Time entries — chantier + type de travail + either a plain hours figure
@@ -1685,12 +1745,12 @@ function periodLabel(dateStr: string, granularity: ExportGranularity): string {
   const d = new Date(`${dateStr}T00:00:00`);
   if (granularity === 'day') return dateStr;
   if (granularity === 'month') {
-    return d.toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(`${getAppLocale()}-CH`, { month: 'long', year: 'numeric' });
   }
   const start = startOfWeek(d);
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
-  const fmt = (x: Date) => x.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit' });
+  const fmt = (x: Date) => x.toLocaleDateString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit' });
   return `Semaine du ${fmt(start)} au ${fmt(end)}`;
 }
 
@@ -1701,8 +1761,8 @@ export function groupHoursForExport(
   const totals = new Map<string, ExportRow>();
   for (const entry of entries) {
     const period = periodLabel(entry.entry_date, granularity);
-    const projectName = entry.project_name ?? 'Sans chantier';
-    const workTypeLabel = entry.work_type_label ?? 'Non précisé';
+    const projectName = entry.project_name ?? apiText('Sans chantier');
+    const workTypeLabel = entry.work_type_label ?? apiText('Non précisé');
     const key = `${period}__${projectName}__${workTypeLabel}`;
     const existing = totals.get(key);
     if (existing) {

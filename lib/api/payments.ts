@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { compactIban } from '../iban';
+import { apiText } from '../apiText';
 
 // ==========================================================================
 // §6.5 "PAIN.001" — ISO 20022 Customer Credit Transfer Initiation files for
@@ -66,7 +67,7 @@ export async function listPayableSubcontractorInvoices(organizationId: string): 
   return (data ?? []).map((inv: any) => ({
     sourceType: 'subcontractor_invoice' as const,
     sourceId: inv.id,
-    creditorName: inv.company_name ?? 'Sous-traitant',
+    creditorName: inv.company_name ?? apiText('Sous-traitant'),
     creditorIban: inv.iban,
     amount: Number(inv.amount),
     remittanceInfo: `Facture du ${inv.invoice_date ?? ''}`.trim(),
@@ -81,7 +82,7 @@ export async function listPayableExpenseReimbursements(organizationId: string): 
   return (data ?? []).map((e: any) => ({
     sourceType: 'payroll_expense' as const,
     sourceId: e.id,
-    creditorName: e.employee_name ?? 'Employé',
+    creditorName: e.employee_name ?? apiText('Employé'),
     creditorIban: e.iban,
     amount: Number(e.amount_chf),
     remittanceInfo: e.note || `Note de frais du ${e.expense_date ?? ''}`.trim(),
@@ -221,14 +222,14 @@ export async function createPaymentBatch(
   userId: string | undefined,
 ): Promise<{ batchId: string | null; xml: string | null; error: string | null }> {
   const invalid = items.find((i) => !i.creditorIban || !isValidIban(i.creditorIban));
-  if (invalid) return { batchId: null, xml: null, error: `IBAN manquant ou invalide pour ${invalid.creditorName}` };
-  if (!isValidIban(debtorIban)) return { batchId: null, xml: null, error: "IBAN de l'entreprise manquant ou invalide (Compte > Entreprise)" };
-  if (!items.length) return { batchId: null, xml: null, error: 'Sélectionnez au moins un paiement' };
+  if (invalid) return { batchId: null, xml: null, error: apiText('IBAN manquant ou invalide pour {{name}}', { name: invalid.creditorName }) };
+  if (!isValidIban(debtorIban)) return { batchId: null, xml: null, error: apiText("IBAN de l'entreprise manquant ou invalide (Compte > Entreprise)") };
+  if (!items.length) return { batchId: null, xml: null, error: apiText('Sélectionnez au moins un paiement') };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(executionDate) || Number.isNaN(Date.parse(executionDate))) {
     return { batchId: null, xml: null, error: "Date d'exécution invalide (format attendu : AAAA-MM-JJ)" };
   }
   if (executionDate < today()) {
-    return { batchId: null, xml: null, error: "La date d'exécution ne peut pas être dans le passé" };
+    return { batchId: null, xml: null, error: apiText("La date d'exécution ne peut pas être dans le passé") };
   }
 
   const itemsWithRef = items.map((i, idx) => ({ ...i, endToEndId: `${i.sourceType.slice(0, 4).toUpperCase()}-${i.sourceId.slice(0, 8)}-${idx}` }));
@@ -239,7 +240,7 @@ export async function createPaymentBatch(
     .insert({ organization_id: organizationId, kind, execution_date: executionDate, debtor_iban: debtorIban, message_id: messageId, control_sum: controlSum, created_by: userId })
     .select('id')
     .single();
-  if (batchError || !batch) return { batchId: null, xml: null, error: batchError?.message ?? 'Ordre de paiement non créé' };
+  if (batchError || !batch) return { batchId: null, xml: null, error: batchError?.message ?? apiText('Ordre de paiement non créé') };
 
   const { error: itemsError } = await supabase.from('payment_batch_items').insert(
     itemsWithRef.map((i, idx) => ({

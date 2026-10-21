@@ -177,3 +177,39 @@ export const VILLA_TEMPLATE: TemplateData = {
   ]),
   links: VILLA.flatMap((ph) => ph.tasks.flatMap(([key, , , , after]) => after.map((a) => [a, key] as [string, string]))),
 };
+
+// The villa template in German and Italian (names and trades), for the
+// catalogue shown to German- and Italian-speaking companies.
+const VILLA_WORDS: Record<string, { de: string; it: string }> = {
+  Préparation: { de: 'Vorbereitung', it: 'Preparazione' },
+  'Installation et préparation': { de: 'Installation und Vorbereitung', it: 'Installazione e preparazione' },
+  'Installation de chantier': { de: 'Baustelleninstallation', it: 'Installazione di cantiere' },
+  'Gros œuvre': { de: 'Rohbau', it: 'Rustico' },
+  Terrassement: { de: 'Erdarbeiten', it: 'Scavi' },
+  'Fondations et radier': { de: 'Fundamente und Bodenplatte', it: 'Fondazioni e platea' },
+  'Maçonnerie / béton': { de: 'Maurerarbeiten / Beton', it: 'Opere murarie / calcestruzzo' },
+  'Murs et dalle du rez-de-chaussée': { de: 'Wände und Decke Erdgeschoss', it: 'Muri e soletta del pianterreno' },
+  'Murs et dalle de l’étage': { de: 'Wände und Decke Obergeschoss', it: 'Muri e soletta del piano superiore' },
+  Enveloppe: { de: 'Gebäudehülle', it: 'Involucro' },
+  Charpente: { de: 'Zimmerarbeiten', it: 'Carpenteria' },
+  'Couverture et mise hors d’eau': { de: 'Bedachung und Wasserdichtigkeit', it: 'Copertura e messa all’asciutto' },
+  Couverture: { de: 'Bedachung', it: 'Copertura' },
+  'Fenêtres et étanchéité extérieure': { de: 'Fenster und äussere Abdichtung', it: 'Finestre e impermeabilizzazione esterna' },
+  'Fenêtres / façade': { de: 'Fenster / Fassade', it: 'Finestre / facciata' },
+  'Second œuvre': { de: 'Ausbau', it: 'Finiture interne' },
+  'Installations techniques': { de: 'Haustechnik', it: 'Impianti tecnici' },
+  Électricité: { de: 'Elektro', it: 'Elettricità' },
+  'Cloisons et plâtrerie': { de: 'Trennwände und Gipserarbeiten', it: 'Pareti divisorie e gessatura' },
+  Plâtrerie: { de: 'Gipserarbeiten', it: 'Gessatura' },
+  Chape: { de: 'Unterlagsboden', it: 'Massetto' },
+  'Carrelage, peinture et finitions': { de: 'Plattenarbeiten, Malerarbeiten und Abschluss', it: 'Piastrelle, pittura e finiture' },
+  Peinture: { de: 'Malerarbeiten', it: 'Pittura' },
+  'Fin de chantier': { de: 'Bauende', it: 'Fine cantiere' },
+  Réception: { de: 'Abnahme', it: 'Collaudo' },
+};
+
+export function villaTemplate(lang: string): TemplateData {
+  if (lang !== 'de' && lang !== 'it') return VILLA_TEMPLATE;
+  const tr = (s: string | null) => (s && VILLA_WORDS[s] ? VILLA_WORDS[s][lang] : s);
+  return { items: VILLA_TEMPLATE.items.map((i) => ({ ...i, name: tr(i.name) ?? i.name, trade: tr(i.trade) })), links: VILLA_TEMPLATE.links };
+}

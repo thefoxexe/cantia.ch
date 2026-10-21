@@ -12,6 +12,7 @@ import type { PriceSuggestion } from '../../lib/tenders/pricing';
 import type { PositionBreakdown, PositionPrice, QuantitySource, TenderNode, TenderPosition, ZoneLabel } from '../../lib/tenders/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { monoType } from '../../lib/marketingTheme';
+import { getAppLocale } from '../../lib/translations';
 
 export interface DetailProps {
   c: TenderCopy;
@@ -302,7 +303,7 @@ export function TenderDetail(p: DetailProps) {
           ) : (
             history.map((h) => (
               <Text key={h.id} style={kit.hint}>
-                {new Date(h.at).toLocaleString('fr-CH', { dateStyle: 'short', timeStyle: 'short' })} · {c.fields[h.field] ?? h.field} : {h.old_value ?? '—'} → {h.new_value ?? '—'}
+                {new Date(h.at).toLocaleString(`${getAppLocale()}-CH`, { dateStyle: 'short', timeStyle: 'short' })} · {c.fields[h.field] ?? h.field} : {h.old_value ?? '—'} → {h.new_value ?? '—'}
               </Text>
             ))
           )

@@ -1,5 +1,6 @@
 import { supabase, STORAGE_BUCKET } from '../supabase';
 import { uploadToOrgBucket } from './storage';
+import { apiText } from '../apiText';
 
 // Paramètres › Fiduciaire (client side of Cantia Accounting). Every call is
 // checked in the database (owners and admins of the company only), see
@@ -132,7 +133,7 @@ export async function getFiduciaryRequests(orgId: string): Promise<FiduciaryRequ
 export async function addFiduciaryRequestFile(orgId: string, requestId: string, file: { uri: string; name: string; mimeType?: string | null; size?: number | null }): Promise<{ error: string | null }> {
   const safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-120);
   const { path, error } = await uploadToOrgBucket(orgId, `fiduciary-requests/${requestId}/${Date.now()}-${safe}`, file.uri, file.mimeType ?? 'application/octet-stream');
-  if (error || !path) return { error: error ?? 'Upload failed' };
+  if (error || !path) return { error: error ?? apiText('Upload failed') };
   const { error: rpcError } = await supabase.rpc('org_add_request_file', { p_request: requestId, p_path: path, p_name: file.name, p_size: file.size ?? null });
   return { error: rpcError?.message ?? null };
 }

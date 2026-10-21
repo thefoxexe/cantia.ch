@@ -14,6 +14,7 @@ import type {
   ZoneLabel,
   NodeType,
 } from './types.ts';
+import { apiText } from '../apiText';
 
 const num = (v: unknown): number | null => (v == null || v === '' ? null : Number(v));
 
@@ -284,7 +285,7 @@ export async function setPrices(tenderId: string, rows: { positionId: string; un
 // the stored, trigger-computed figures — not from the screen.
 export async function createOfferDevis(tenderId: string, opts: { clientName: string; clientId?: string | null; includeUnpriced: boolean }) {
   const { bundle, error } = await loadTender(tenderId);
-  if (!bundle) return { devisId: null, error: error ?? 'Métré introuvable' };
+  if (!bundle) return { devisId: null, error: error ?? apiText('Métré introuvable') };
   const { tender, nodes, positions, prices } = bundle;
   const priceByPos = new Map(prices.map((p) => [p.position_id, p]));
   const { data: project } = await supabase.from('projects').select('client_name').eq('id', tender.project_id).maybeSingle();
@@ -301,7 +302,7 @@ export async function createOfferDevis(tenderId: string, opts: { clientName: str
     })
     .select('id')
     .single();
-  if (devErr || !devis) return { devisId: null, error: devErr?.message ?? 'Création du devis impossible' };
+  if (devErr || !devis) return { devisId: null, error: devErr?.message ?? apiText('Création du devis impossible') };
   const order = new Map(nodes.map((n, i) => [n.id, i]));
   const items = positions
     .filter((p) => !p.excluded && p.quantity_selected != null)

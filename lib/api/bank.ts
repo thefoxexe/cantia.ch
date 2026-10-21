@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { type BankStatementEntry, type ParsedCamtStatement, buildDedupeKey, fingerprintText } from '../bankStatement';
+import { apiText } from '../apiText';
 
 // Cahier des charges V2, Lot 3 §6.1-6.3 — persists what the statement
 // importer used to only hold in memory, so a re-imported file (or an
@@ -150,7 +151,7 @@ export async function importCamtStatement(
     })
     .select('id')
     .single();
-  if (!importRow) return { bankAccountId: account.id, imported: 0, duplicates: 0, alreadyImported: false, error: importError?.message ?? 'Import impossible' };
+  if (!importRow) return { bankAccountId: account.id, imported: 0, duplicates: 0, alreadyImported: false, error: importError?.message ?? apiText('Import impossible') };
 
   const rows = parsed.entries.map((e: BankStatementEntry) => ({
     organization_id: organizationId,
@@ -485,7 +486,7 @@ export async function applyAutoPostRule(
   }
 
   const { data: expenseRow, error: expenseError } = await supabase.from(table).insert(payload).select('id').single();
-  if (expenseError || !expenseRow) return { error: expenseError?.message ?? 'Dépense non créée' };
+  if (expenseError || !expenseRow) return { error: expenseError?.message ?? apiText('Dépense non créée') };
 
   // The posting trigger can skip posting silently (missing fiscal year or
   // account mapping — it logs a warning, not an error, so the INSERT
@@ -495,7 +496,7 @@ export async function applyAutoPostRule(
   // unmatched so a human notices instead of assuming the rule handled it.
   const lineId = await findAutoPostedEntryLine(organizationId, 'facture_fournisseur', expenseRow.id, bankAccountingAccountId);
   if (!lineId) {
-    return { error: `Dépense créée pour "${label}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant) — à vérifier manuellement dans Comptabilité.` };
+    return { error: apiText('Dépense créée pour "{{label}}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant) — à vérifier manuellement dans Comptabilité.', { label }) };
   }
   await linkBankTransactionToEntryLine(transaction.id, lineId);
   await supabase.rpc('record_bank_rule_application', { p_transaction_id: transaction.id, p_rule_id: rule.id, p_expense_id: expenseRow.id });

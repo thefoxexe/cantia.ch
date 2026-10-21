@@ -31,9 +31,18 @@ import {
   wrapText,
   type LogoPlacement,
 } from '../_shared/pdf-helpers.ts';
+import { resolvePdfLocale, workTermWord, type PdfLocale } from '../_shared/pdf-i18n.ts';
 
 // What the company calls its jobs (organizations.work_term).
-const WORK_TERM_LABEL: Record<string, string> = { chantier: 'Chantier', projet: 'Projet', mandat: 'Mandat', dossier: 'Dossier' };
+// The report's own words, in the company's language.
+const REPORT_COPY: Record<PdfLocale, Record<string, string>> = {
+  fr: { title: 'RAPPORT DE {term}', client: 'Client : {v}', address: 'Adresse : {v}', project: '{term} : {v}', summary: 'EN BREF', attention: "POINT D'ATTENTION", next: 'SUITE ->', notes: 'NOTES', location: 'LOCALISATION', photos: 'PHOTOS ({n})', otherPhotos: 'AUTRES PHOTOS ({n})', signature: 'Signature', company: 'Entreprise', map: 'Localisation relative des photos (nord en haut, schéma non cartographique)' },
+  de: { title: 'RAPPORT – {term}', client: 'Kunde: {v}', address: 'Adresse: {v}', project: '{term}: {v}', summary: 'KURZ GESAGT', attention: 'ACHTUNG', next: 'NÄCHSTE SCHRITTE ->', notes: 'NOTIZEN', location: 'STANDORT', photos: 'FOTOS ({n})', otherPhotos: 'WEITERE FOTOS ({n})', signature: 'Unterschrift', company: 'Unternehmen', map: 'Relative Lage der Fotos (Norden oben, keine Karte)' },
+  it: { title: 'RAPPORTO DI {term}', client: 'Cliente: {v}', address: 'Indirizzo: {v}', project: '{term}: {v}', summary: 'IN BREVE', attention: 'PUNTO DI ATTENZIONE', next: 'SEGUITO ->', notes: 'NOTE', location: 'POSIZIONE', photos: 'FOTO ({n})', otherPhotos: 'ALTRE FOTO ({n})', signature: 'Firma', company: 'Azienda', map: 'Posizione relativa delle foto (nord in alto, schema non cartografico)' },
+};
+function rt(locale: PdfLocale, key: string, vars: Record<string, string | number> = {}): string {
+  return (REPORT_COPY[locale][key] ?? REPORT_COPY.fr[key]).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
+}
 
 // Fixed (not brand-tinted) — an anomaly flag reads the same regardless of
 // which brand color the org picked, same way lib/theme.ts's warning token
@@ -109,6 +118,7 @@ function drawGpsMap(
   points: { lat: number; lng: number }[],
   font: PDFFont,
   brand: RGB,
+  locale: PdfLocale = 'fr',
 ) {
   page.drawRectangle({ x, y: y - height, width, height, borderColor: LINE, borderWidth: 1, color: PAPER_ALT });
 
@@ -137,7 +147,7 @@ function drawGpsMap(
   drawText(page, 'N', x + width / 2 - 3, y - 12, font, 8, MUTED);
   drawText(
     page,
-    'Localisation relative des photos (nord en haut, schéma non cartographique)',
+    rt(locale, 'map'),
     x,
     y - height - 12,
     font,
@@ -155,12 +165,13 @@ function drawGpsMap(
 // row's base_layout value still resolves without a migration.
 async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   const { pdfDoc, admin, font, fontBold, org, report, photos, logoImg, signatureImg, signatureLabel, brand, logoPlacement, footerText, sections } = ctx;
+  const locale = resolvePdfLocale(org);
   let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
   let pageNum = 1;
 
   const newPage = () => {
-    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
+    drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia', locale);
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     pageNum += 1;
     y = PAGE_HEIGHT - MARGIN;
@@ -190,7 +201,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       y -= h + 14;
     }
   }
-  drawText(page, org?.name ?? 'Entreprise', MARGIN, y, fontBold, 16, brand);
+  drawText(page, org?.name ?? rt(locale, 'company'), MARGIN, y, fontBold, 16, brand);
   y -= 15;
   const contactLine = [formatOrgAddress(org), org?.phone, org?.email].filter(Boolean).join(' · ');
   if (contactLine) {
@@ -202,9 +213,9 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   y -= 26;
 
   // What the company calls its jobs (organizations.work_term, lib/vocabulary.ts).
-  const workTerm = WORK_TERM_LABEL[org?.work_term as string] ?? 'Chantier';
-  drawText(page, `RAPPORT DE ${workTerm.toUpperCase()}`, MARGIN, y, fontBold, 8.5, MUTED);
-  drawTextRight(page, formatDate(report.created_at), PAGE_WIDTH - MARGIN, y, font, 8.5, MUTED);
+  const workTerm = workTermWord(locale, org?.work_term as string);
+  drawText(page, rt(locale, 'title', { term: workTerm.toUpperCase() }), MARGIN, y, fontBold, 8.5, MUTED);
+  drawTextRight(page, formatDate(report.created_at, locale), PAGE_WIDTH - MARGIN, y, font, 8.5, MUTED);
   y -= 22;
   // Wrapped rather than a single fixed line: the AI now writes a
   // descriptive title (e.g. "Pose des meubles bas et adaptation de
@@ -220,9 +231,9 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
 
   const project = report.projects;
   const metaLines = [
-    project?.name ? `${workTerm} : ${project.name}` : null,
-    project?.client_name ? `Client : ${project.client_name}` : null,
-    project?.address ? `Adresse : ${project.address}` : null,
+    project?.name ? rt(locale, 'project', { term: workTerm, v: project.name }) : null,
+    project?.client_name ? rt(locale, 'client', { v: project.client_name }) : null,
+    project?.address ? rt(locale, 'address', { v: project.address }) : null,
   ].filter(Boolean) as string[];
   if (metaLines.length) {
     const boxTop = y;
@@ -283,7 +294,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           if (y < MARGIN + chipH + 40) newPage();
           page.drawRectangle({ x: MARGIN, y: y - chipH, width: PAGE_WIDTH - 2 * MARGIN, height: chipH, color: tint(brand, 0.88) });
           let cy = y - 16;
-          drawText(page, 'EN BREF', MARGIN + 10, cy, fontBold, 8, brand);
+          drawText(page, rt(locale, 'summary'), MARGIN + 10, cy, fontBold, 8, brand);
           cy -= 16;
           for (const line of chipLines) {
             drawText(page, line, MARGIN + 10, cy, font, 10, INK);
@@ -348,7 +359,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           const iconCy = boxTop - 16;
           page.drawEllipse({ x: iconCx, y: iconCy, xScale: 7.5, yScale: 7.5, color: WARNING });
           drawText(page, '!', iconCx - 2, iconCy - 4, fontBold, 10, WHITE);
-          drawText(page, "POINT D'ATTENTION", textX, boxTop - 13, fontBold, 8.5, WARNING);
+          drawText(page, rt(locale, 'attention'), textX, boxTop - 13, fontBold, 8.5, WARNING);
           let ty = boxTop - 27;
           for (const line of lines) {
             drawText(page, line, textX, ty, font, 9.8, INK);
@@ -366,7 +377,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
           const lines = wrapText(structured.next_steps, font, 9.8, PAGE_WIDTH - 2 * MARGIN - 60);
           const h = lines.length * 13.5 + 8;
           if (y < MARGIN + h + 20) newPage();
-          drawText(page, 'SUITE ->', MARGIN, y, fontBold, 8.5, brand);
+          drawText(page, rt(locale, 'next'), MARGIN, y, fontBold, 8.5, brand);
           let ty = y;
           for (const line of lines) {
             drawText(page, line, MARGIN + 52, ty, font, 9.8, INK);
@@ -386,7 +397,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       // rapports/[reportId].tsx's saveEdits) — identical to the original
       // flat-paragraph rendering.
       if (!report.notes?.trim()) return;
-      sectionLabel('NOTES');
+      sectionLabel(rt(locale, 'notes'));
       y -= 20;
       const lines = wrapRichText(report.notes, font, fontBold, 10, PAGE_WIDTH - 2 * MARGIN);
       for (const line of lines) {
@@ -411,9 +422,9 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       if (spread < 0.0001 && spreadLng < 0.0001) return;
       const MAP_H = 160;
       if (y < MARGIN + MAP_H + 40) newPage();
-      sectionLabel('LOCALISATION');
+      sectionLabel(rt(locale, 'location'));
       y -= 16;
-      drawGpsMap(page, MARGIN, y, PAGE_WIDTH - 2 * MARGIN, MAP_H, points, font, brand);
+      drawGpsMap(page, MARGIN, y, PAGE_WIDTH - 2 * MARGIN, MAP_H, points, font, brand, locale);
       y -= MAP_H + 20;
     },
     photos: async () => {
@@ -424,7 +435,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
       const remaining = photos.filter((_, i) => !usedPhotoIndexes.has(i));
       if (!remaining.length) return;
       if (y < MARGIN + 240) newPage();
-      const label = usedPhotoIndexes.size > 0 ? `AUTRES PHOTOS (${remaining.length})` : `PHOTOS (${remaining.length})`;
+      const label = rt(locale, usedPhotoIndexes.size > 0 ? 'otherPhotos' : 'photos', { n: remaining.length });
       sectionLabel(label);
       y -= 20;
       const state = await drawPhotoGrid({
@@ -440,7 +451,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
         labelColor: MUTED,
         cardBorder: LINE,
         cardBg: WHITE,
-        onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia'),
+        onNewPage: (p, n) => drawFooter(p, font, n, footerText ?? org?.name ?? 'Cantia', locale),
       });
       page = state.page;
       pageNum = state.pageNum;
@@ -462,7 +473,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
     },
   });
 
-  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia');
+  drawFooter(page, font, pageNum, footerText ?? org?.name ?? 'Cantia', locale);
   return pdfDoc.save();
 }
 
@@ -537,7 +548,8 @@ Deno.serve(async (req: Request) => {
       const bytes = await fetchStorageBytes(admin, BUCKET, creator.signature_url);
       if (bytes) signatureImg = await embedImageSmart(pdfDoc, bytes.bytes, bytes.contentType);
     }
-    const signatureLabel = creator?.full_name ? `Signature ${creator.full_name}` : 'Signature';
+    const signatureWord = rt(resolvePdfLocale(org), 'signature');
+    const signatureLabel = creator?.full_name ? `${signatureWord} ${creator.full_name}` : signatureWord;
 
     const template = await resolvePdfTemplate(admin, report.organization_id, 'report', report.template_id);
     const brand = resolveBrand(template, org);

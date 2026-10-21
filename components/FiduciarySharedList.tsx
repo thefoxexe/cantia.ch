@@ -7,6 +7,7 @@ import { listSharedDocuments, withdrawSharedDocument, type SharedDocument } from
 import { getSignedUrl } from '../lib/api/storage';
 import { downloadFile } from '../lib/downloadFile';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { getAppLocale } from '../lib/translations';
 
 // Paramètres › Fiduciaire: send any document + what was already sent
 // (with « consulté » once the fiduciary opened its documents).
@@ -55,7 +56,7 @@ export function FiduciarySharedList({ orgId, firmNames }: { orgId: string; firmN
               {r.title}
             </Text>
             <Text style={styles.small}>
-              {firmNames[r.firm_id] ?? ''} · {new Date(r.created_at).toLocaleDateString('fr-CH')} · {r.seen_at ? c.seen : c.notSeen}
+              {firmNames[r.firm_id] ?? ''} · {new Date(r.created_at).toLocaleDateString(`${getAppLocale()}-CH`)} · {r.seen_at ? c.seen : c.notSeen}
             </Text>
           </View>
           {r.file_path ? (

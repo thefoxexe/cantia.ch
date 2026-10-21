@@ -12,6 +12,7 @@ import type { OcrFields } from './parser/ocrLayout.ts';
 import { loadPdfLib } from '../loadPdfLib';
 import { applyFill, contactWrites, detectContactFields, detectFieldLines, fieldLinesFromOcr, planFill, type ContactField, type ContactKey, type FillNode, type PdfLibLike } from './pdfFill.ts';
 import type { TenderBundle } from './api.ts';
+import { apiText } from '../apiText';
 
 export type QuantityBasis = 'document' | 'selected';
 
@@ -62,13 +63,13 @@ export function bidderOf(bundle: TenderBundle): BidderValues {
 
 export async function exportFilledSoumission(bundle: TenderBundle, basis: QuantityBasis): Promise<FilledResult> {
   const empty = { filled: 0, unpriced: 0, notPlaced: 0, total: 0 };
-  if (Platform.OS !== 'web') return { error: 'Disponible sur ordinateur.', ...empty };
+  if (Platform.OS !== 'web') return { error: apiText('Disponible sur ordinateur.'), ...empty };
   try {
     const { data: docs } = await supabase.from('tender_documents').select('file_id, file_name, detected').eq('tender_id', bundle.tender.id).eq('role', 'soumission').not('file_id', 'is', null).limit(1);
     const src = docs?.[0];
-    if (!src?.file_id) return { error: 'Ce métré n’a pas de PDF de soumission d’origine.', ...empty };
+    if (!src?.file_id) return { error: apiText('Ce métré n’a pas de PDF de soumission d’origine.'), ...empty };
     const url = await fileSignedUrl(src.file_id);
-    if (!url) return { error: 'PDF d’origine introuvable.', ...empty };
+    if (!url) return { error: apiText('PDF d’origine introuvable.'), ...empty };
     const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
 
     const [pdfjs, pdfLib] = await Promise.all([loadPdfJs(), loadPdfLib()]);
@@ -77,7 +78,7 @@ export async function exportFilledSoumission(bundle: TenderBundle, basis: Quanti
     let lines = text.scanned ? [] : detectFieldLines(text);
     if (text.scanned) {
       const ocr = (src.detected as { ocr_fields?: OcrFields[] } | null)?.ocr_fields;
-      if (!ocr?.length) return { error: 'Ce scan a été importé avant la lecture des cases : réimportez la soumission pour obtenir le PDF rempli, ou utilisez l’export Excel.', ...empty };
+      if (!ocr?.length) return { error: apiText('Ce scan a été importé avant la lecture des cases : réimportez la soumission pour obtenir le PDF rempli, ou utilisez l’export Excel.'), ...empty };
       lines = fieldLinesFromOcr(ocr, text.pages);
     }
     const heights = new Map(text.pages.map((p) => [p.page, p.height]));

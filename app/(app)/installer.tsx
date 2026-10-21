@@ -3,84 +3,72 @@ import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card, PageHeader, AppScreen } from '../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { getAppLocale, type AppLocale } from '../../lib/translations';
 
 type IconName = keyof typeof Feather.glyphMap;
-
-interface Guide {
-  icon: IconName;
-  title: string;
-  steps: string[];
-}
 
 // Cantia isn't on the App Store / Play Store yet — this walks the user
 // through adding the web app to their home screen instead, per-browser,
 // since there's no PWA manifest/service worker set up for a native install
 // prompt. Detection is best-effort (UA sniffing) with a sensible fallback.
-function detectGuide(): Guide {
-  if (Platform.OS !== 'web' || typeof navigator === 'undefined') {
-    return GUIDES.other;
-  }
+type GuideKey = 'ios' | 'android' | 'desktop' | 'other';
+
+function detectGuide(): GuideKey {
+  if (Platform.OS !== 'web' || typeof navigator === 'undefined') return 'other';
   const ua = navigator.userAgent || '';
-  const isIOS = /iPad|iPhone|iPod/.test(ua);
-  const isAndroid = /Android/.test(ua);
-  if (isIOS) return GUIDES.ios;
-  if (isAndroid) return GUIDES.android;
-  return GUIDES.desktop;
+  if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
 }
 
-const GUIDES: Record<'ios' | 'android' | 'desktop' | 'other', Guide> = {
-  ios: {
-    icon: 'share',
-    title: 'Sur iPhone / iPad (Safari)',
-    steps: [
-      "Ouvrez cantia.ch dans Safari",
-      'Appuyez sur le bouton Partager (le carré avec la flèche vers le haut)',
-      "Faites défiler et appuyez sur « Sur l'écran d'accueil »",
-      'Confirmez avec « Ajouter »',
-    ],
+const ICONS: Record<GuideKey, IconName> = { ios: 'share', android: 'more-vertical', desktop: 'monitor', other: 'globe' };
+
+const COPY: Record<AppLocale, { header: string; lead: string; other: string; guides: Record<GuideKey, { title: string; steps: string[] }> }> = {
+  fr: {
+    header: "Installer l'app",
+    lead: "Cantia n'est pas encore sur l'App Store ni le Play Store — en attendant, ajoutez-la à votre écran d'accueil pour l'ouvrir en un geste, comme une vraie application.",
+    other: 'Autre appareil ?',
+    guides: {
+      ios: { title: 'Sur iPhone / iPad (Safari)', steps: ['Ouvrez cantia.ch dans Safari', 'Appuyez sur le bouton Partager (le carré avec la flèche vers le haut)', "Faites défiler et appuyez sur « Sur l'écran d'accueil »", 'Confirmez avec « Ajouter »'] },
+      android: { title: 'Sur Android (Chrome)', steps: ['Ouvrez cantia.ch dans Chrome', 'Appuyez sur le menu ⋮ en haut à droite', "Appuyez sur « Ajouter à l'écran d'accueil »", 'Confirmez avec « Ajouter »'] },
+      desktop: { title: 'Sur ordinateur (Chrome / Edge)', steps: ['Ouvrez cantia.ch dans votre navigateur', "Cliquez sur l'icône d'installation dans la barre d'adresse (ou le menu ⋮)", '« Installer Cantia »', "L'app s'ouvre ensuite dans sa propre fenêtre, comme une app native"] },
+      other: { title: 'Depuis votre navigateur', steps: ['Ouvrez cantia.ch', "Cherchez l'option « Ajouter à l'écran d'accueil » ou « Installer » dans le menu du navigateur", 'Confirmez'] },
+    },
   },
-  android: {
-    icon: 'more-vertical',
-    title: 'Sur Android (Chrome)',
-    steps: [
-      'Ouvrez cantia.ch dans Chrome',
-      'Appuyez sur le menu ⋮ en haut à droite',
-      "Appuyez sur « Ajouter à l'écran d'accueil »",
-      'Confirmez avec « Ajouter »',
-    ],
+  de: {
+    header: 'App installieren',
+    lead: 'Cantia ist noch nicht im App Store oder Play Store – fügen Sie die App bis dahin zu Ihrem Startbildschirm hinzu, um sie wie eine echte App mit einem Tipp zu öffnen.',
+    other: 'Anderes Gerät?',
+    guides: {
+      ios: { title: 'Auf iPhone / iPad (Safari)', steps: ['Öffnen Sie cantia.ch in Safari', 'Tippen Sie auf «Teilen» (das Quadrat mit dem Pfeil nach oben)', 'Scrollen Sie und tippen Sie auf «Zum Home-Bildschirm»', 'Bestätigen Sie mit «Hinzufügen»'] },
+      android: { title: 'Auf Android (Chrome)', steps: ['Öffnen Sie cantia.ch in Chrome', 'Tippen Sie oben rechts auf das Menü ⋮', 'Tippen Sie auf «Zum Startbildschirm hinzufügen»', 'Bestätigen Sie mit «Hinzufügen»'] },
+      desktop: { title: 'Am Computer (Chrome / Edge)', steps: ['Öffnen Sie cantia.ch in Ihrem Browser', 'Klicken Sie auf das Installationssymbol in der Adressleiste (oder im Menü ⋮)', '«Cantia installieren»', 'Die App öffnet sich danach in einem eigenen Fenster, wie eine native App'] },
+      other: { title: 'Über Ihren Browser', steps: ['Öffnen Sie cantia.ch', 'Suchen Sie im Browsermenü die Option «Zum Startbildschirm hinzufügen» oder «Installieren»', 'Bestätigen'] },
+    },
   },
-  desktop: {
-    icon: 'monitor',
-    title: 'Sur ordinateur (Chrome / Edge)',
-    steps: [
-      'Ouvrez cantia.ch dans votre navigateur',
-      "Cliquez sur l'icône d'installation dans la barre d'adresse (ou le menu ⋮)",
-      '« Installer Cantia »',
-      'L\'app s\'ouvre ensuite dans sa propre fenêtre, comme une app native',
-    ],
-  },
-  other: {
-    icon: 'globe',
-    title: 'Depuis votre navigateur',
-    steps: [
-      'Ouvrez cantia.ch',
-      "Cherchez l'option « Ajouter à l'écran d'accueil » ou « Installer » dans le menu du navigateur",
-      'Confirmez',
-    ],
+  it: {
+    header: "Installa l'app",
+    lead: "Cantia non è ancora sull'App Store né sul Play Store: nel frattempo aggiungetela alla schermata Home per aprirla con un tocco, come una vera app.",
+    other: 'Altro dispositivo?',
+    guides: {
+      ios: { title: 'Su iPhone / iPad (Safari)', steps: ['Aprite cantia.ch in Safari', 'Toccate il pulsante Condividi (il quadrato con la freccia verso l’alto)', 'Scorrete e toccate «Aggiungi alla schermata Home»', 'Confermate con «Aggiungi»'] },
+      android: { title: 'Su Android (Chrome)', steps: ['Aprite cantia.ch in Chrome', 'Toccate il menu ⋮ in alto a destra', 'Toccate «Aggiungi a schermata Home»', 'Confermate con «Aggiungi»'] },
+      desktop: { title: 'Sul computer (Chrome / Edge)', steps: ['Aprite cantia.ch nel browser', "Cliccate sull'icona di installazione nella barra degli indirizzi (o nel menu ⋮)", '«Installa Cantia»', "L'app si apre poi nella sua finestra, come un'app nativa"] },
+      other: { title: 'Dal vostro browser', steps: ['Aprite cantia.ch', 'Cercate l’opzione «Aggiungi alla schermata Home» o «Installa» nel menu del browser', 'Confermate'] },
+    },
   },
 };
 
 export default function InstallerScreen() {
-  const guide = useMemo(() => detectGuide(), []);
+  const current = useMemo(() => detectGuide(), []);
+  const copy = COPY[getAppLocale()] ?? COPY.fr;
+  const guide = { icon: ICONS[current], ...copy.guides[current] };
 
   return (
     <AppScreen>
-      <PageHeader title="Installer l'app" />
+      <PageHeader title={copy.header} />
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.lead}>
-          Cantia n'est pas encore sur l'App Store ni le Play Store — en attendant, ajoutez-la à votre écran d'accueil
-          pour l'ouvrir en un geste, comme une vraie application.
-        </Text>
+        <Text style={styles.lead}>{copy.lead}</Text>
 
         <Card style={styles.guideCard}>
           <View style={styles.guideHeader}>
@@ -99,18 +87,18 @@ export default function InstallerScreen() {
           ))}
         </Card>
 
-        <Text style={styles.otherTitle}>Autre appareil ?</Text>
+        <Text style={styles.otherTitle}>{copy.other}</Text>
         {(['ios', 'android', 'desktop'] as const)
-          .filter((key) => GUIDES[key].title !== guide.title)
+          .filter((key) => key !== current)
           .map((key) => (
             <Card key={key} style={styles.otherCard}>
               <View style={styles.guideHeader}>
                 <View style={styles.guideIconSmall}>
-                  <Feather name={GUIDES[key].icon} size={15} color={colors.textMuted} />
+                  <Feather name={ICONS[key]} size={15} color={colors.textMuted} />
                 </View>
-                <Text style={styles.otherCardTitle}>{GUIDES[key].title}</Text>
+                <Text style={styles.otherCardTitle}>{copy.guides[key].title}</Text>
               </View>
-              {GUIDES[key].steps.map((step, i) => (
+              {copy.guides[key].steps.map((step, i) => (
                 <Text key={i} style={styles.otherStep}>
                   {i + 1}. {step}
                 </Text>

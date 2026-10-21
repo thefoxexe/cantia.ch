@@ -15,7 +15,7 @@ import { DEFAULT_NOTIFICATION_ICON, DEFAULT_NOTIFICATION_TONE, NOTIFICATION_ICON
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Notification } from '../../../lib/types';
-import { applyWorkTerm } from '../../../lib/vocabulary';
+import { getAppLocale, i18next, useTranslation } from '../../../lib/translations';
 
 function dayLabel(iso: string): string {
   const date = new Date(iso);
@@ -23,12 +23,13 @@ function dayLabel(iso: string): string {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-  if (sameDay(date, today)) return "Aujourd'hui";
-  if (sameDay(date, yesterday)) return 'Hier';
-  return date.toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long' });
+  if (sameDay(date, today)) return i18next.t('notificationsPage.today');
+  if (sameDay(date, yesterday)) return i18next.t('notificationsPage.yesterday');
+  return date.toLocaleDateString(`${getAppLocale()}-CH`, { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const { user, organization } = useAuth();
   const router = useRouter();
   const [items, setItems] = useState<Notification[]>([]);
@@ -91,12 +92,12 @@ export default function NotificationsScreen() {
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
         <PageHeader
-          title="Notifications"
+          title={t('notificationsPage.title')}
           backTo="/(app)"
           right={
             unreadCount > 0 ? (
               <Pressable onPress={handleMarkAllRead} hitSlop={8}>
-                <Text style={styles.headerAction}>Tout marquer comme lu</Text>
+                <Text style={styles.headerAction}>{t('notificationsPage.markAllRead')}</Text>
               </Pressable>
             ) : undefined
           }
@@ -104,7 +105,7 @@ export default function NotificationsScreen() {
 
         {items.length === 0 ? (
           <Card style={{ marginTop: spacing.lg }}>
-            <EmptyState title="Aucune notification" subtitle={applyWorkTerm("Devis à relancer, factures en retard, messages de chantier : tout apparaîtra ici.", "fr")} />
+            <EmptyState title={t('notificationsPage.emptyTitle')} subtitle={t('notificationsPage.emptySubtitle')} />
           </Card>
         ) : (
           <View style={{ gap: spacing.lg, marginTop: spacing.lg }}>
@@ -143,7 +144,7 @@ export default function NotificationsScreen() {
             ))}
 
             {items.length >= limit ? (
-              <Button title="Charger plus" variant="secondary" onPress={() => setLimit((l) => l + 50)} />
+              <Button title={t('notificationsPage.loadMore')} variant="secondary" onPress={() => setLimit((l) => l + 50)} />
             ) : null}
           </View>
         )}

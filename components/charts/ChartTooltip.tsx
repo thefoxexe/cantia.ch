@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, radius } from '../../lib/theme';
+import { getAppLocale } from '../../lib/translations';
 
 // Shared floating tooltip rendered by every chart's pointerConfig
 // (react-native-gifted-charts) — click-and-drag across a chart to scrub
@@ -8,7 +9,7 @@ import { colors, radius } from '../../lib/theme';
 export function ChartTooltip({ value, dateLabel, color, formatValue }: { value: number; dateLabel?: string; color: string; formatValue?: (v: number) => string }) {
   return (
     <View style={styles.tooltip}>
-      <Text style={[styles.value, { color }]}>{formatValue ? formatValue(value) : value.toLocaleString('fr-CH')}</Text>
+      <Text style={[styles.value, { color }]}>{formatValue ? formatValue(value) : value.toLocaleString(`${getAppLocale()}-CH`)}</Text>
       {dateLabel ? <Text style={styles.date}>{dateLabel}</Text> : null}
     </View>
   );

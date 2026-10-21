@@ -5,6 +5,7 @@
 // its bytes into IndexedDB (unlike localStorage, IndexedDB stores Blobs
 // directly and isn't capped at a few MB).
 const DB_NAME = 'cantia-offline';
+import { apiText } from '../apiText';
 const STORE_NAME = 'pending-photos';
 const REF_PREFIX = 'idb:';
 
@@ -41,7 +42,7 @@ export async function resolvePersistedPhoto(ref: string): Promise<string> {
     req.onsuccess = () => resolve(req.result as Blob | undefined);
     req.onerror = () => reject(req.error);
   });
-  if (!blob) throw new Error('Photo en attente introuvable dans le stockage local.');
+  if (!blob) throw new Error(apiText('Photo en attente introuvable dans le stockage local.'));
   return URL.createObjectURL(blob);
 }
 

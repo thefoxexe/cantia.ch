@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import { deleteFromOrgBucket, uploadToOrgBucket } from './storage';
 import type { ProjectSubcontractor, Subcontractor, SubcontractorAssignmentStatus, SubcontractorInvoice } from '../types';
+import { apiText } from '../apiText';
 
 export async function listSubcontractors(organizationId: string): Promise<Subcontractor[]> {
   const { data } = await supabase
@@ -68,7 +69,7 @@ export async function uploadInsuranceDoc(
     fileUri,
     contentType,
   );
-  if (error || !path) return { error: error ?? 'Échec du téléversement' };
+  if (error || !path) return { error: error ?? apiText('Échec du téléversement') };
   const { error: updateError } = await supabase
     .from('subcontractors')
     .update({ insurance_doc_path: path, insurance_expires_on: expiresOn })
@@ -150,7 +151,7 @@ export async function addSubcontractorInvoice(
     fileUri,
     contentType,
   );
-  if (uploadError || !path) return { invoice: null, error: uploadError ?? 'Échec du téléversement' };
+  if (uploadError || !path) return { invoice: null, error: uploadError ?? apiText('Échec du téléversement') };
 
   const { data, error } = await supabase
     .from('subcontractor_invoices')

@@ -3,6 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '../supabase';
 import { invokeFunction } from './functions';
 import type { Integration } from '../types';
+import { apiText } from '../apiText';
 
 // Fixed landing page bexio-oauth-callback redirects to once the token
 // exchange is done — unlike Stripe Checkout's success_url, this can't vary
@@ -28,7 +29,7 @@ export async function getIntegration(organizationId: string, provider: 'bexio' =
 
 export async function connectBexio(organizationId: string): Promise<{ outcome: BexioConnectOutcome; error: string | null }> {
   const { data, error } = await invokeFunction<{ url: string }>('bexio-oauth-start', { organization_id: organizationId });
-  if (error || !data?.url) return { outcome: 'error', error: error ?? "Impossible de démarrer la connexion Bexio." };
+  if (error || !data?.url) return { outcome: 'error', error: error ?? apiText("Impossible de démarrer la connexion Bexio.") };
 
   if (Platform.OS === 'web') {
     window.location.assign(data.url);

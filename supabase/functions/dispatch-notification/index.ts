@@ -44,6 +44,16 @@ const TONE_COLORS: Record<Tone, { fg: string; bg: string }> = {
   neutral: { fg: '#A95C30', bg: '#F5DECB' },
 };
 
+// The e-mail around the notification, in the recipient's language (the
+// title and body are already translated by the notifications_localize
+// trigger).
+type Lang = 'fr' | 'de' | 'it';
+const EMAIL_COPY: Record<Lang, { open: string; footer: string; regards: string }> = {
+  fr: { open: 'Ouvrir dans Cantia', footer: 'Cantia — le logiciel suisse pour piloter vos chantiers et vos projets', regards: 'Meilleures salutations' },
+  de: { open: 'In Cantia öffnen', footer: 'Cantia — die Schweizer Software für Ihre Baustellen und Projekte', regards: 'Freundliche Grüsse' },
+  it: { open: 'Apri in Cantia', footer: 'Cantia — il software svizzero per gestire cantieri e progetti', regards: 'Cordiali saluti' },
+};
+
 function buildBrandedNotificationEmail(params: {
   title: string;
   body: string;
@@ -51,8 +61,10 @@ function buildBrandedNotificationEmail(params: {
   orgName: string;
   signature: string;
   tone: Tone;
+  lang: Lang;
 }): string {
-  const { title, body, linkUrl, orgName, signature, tone } = params;
+  const { title, body, linkUrl, orgName, signature, tone, lang } = params;
+  const copy = EMAIL_COPY[lang];
   const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
   const eyebrowColor = TONE_COLORS[tone].fg;
   return `
@@ -66,13 +78,13 @@ function buildBrandedNotificationEmail(params: {
           <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(title)}</p>
           <p style="margin: 0 0 28px; font-size: 15px; line-height: 1.6; color: #231A12;">${textToHtmlLines(body)}</p>
           <p style="margin: 0 0 28px; text-align: center;">
-            <a href="${linkUrl}" style="display: inline-block; background: #A95C30; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">Ouvrir dans Cantia</a>
+            <a href="${linkUrl}" style="display: inline-block; background: #A95C30; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">${copy.open}</a>
           </p>
           <p style="margin: 0; padding-top: 20px; border-top: 1px solid #E6D8C2; font-size: 13px; line-height: 1.6; color: #6E6151;">${textToHtmlLines(signature)}</p>
         </div>
       </div>
       <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
-        Cantia — le logiciel suisse pour piloter vos chantiers et vos projets<br/>
+        ${copy.footer}<br/>
         <a href="https://cantia.ch" style="color: #A95C30; text-decoration: none; font-weight: 600;">cantia.ch</a>
       </p>
     </div>
@@ -164,9 +176,12 @@ Deno.serve(async (req: Request) => {
       const { data: userRes } = await admin.auth.admin.getUserById(notif.user_id);
       const email = userRes?.user?.email;
       if (apiKey && email) {
-        const { data: org } = await admin.from('organizations').select('name, email_signature').eq('id', notif.organization_id).single();
+        const { data: org } = await admin.from('organizations').select('name, email_signature, locale').eq('id', notif.organization_id).single();
+        const { data: member } = await admin.from('organization_members').select('locale').eq('organization_id', notif.organization_id).eq('user_id', notif.user_id).maybeSingle();
+        const raw = String(member?.locale || org?.locale || 'fr');
+        const lang: Lang = raw === 'de' || raw === 'it' ? raw : 'fr';
         const orgName = org?.name ?? 'Cantia';
-        const signature = String(org?.email_signature ?? '').trim() || `Meilleures salutations,\n${orgName}`;
+        const signature = String(org?.email_signature ?? '').trim() || `${EMAIL_COPY[lang].regards},\n${orgName}`;
         const appPath = String(notif.link ?? '/').replace('/(app)', '') || '/';
         const tone = TONE_BY_TYPE[notif.type as string] ?? 'neutral';
         const html = buildBrandedNotificationEmail({
@@ -176,6 +191,7 @@ Deno.serve(async (req: Request) => {
           orgName,
           signature,
           tone,
+          lang,
         });
         const { ok, error } = await sendResendEmail({
           apiKey,

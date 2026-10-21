@@ -2,6 +2,7 @@ import { invokeFunction } from './functions';
 import { factureSubtotals } from './subtotals';
 import { supabase } from '../supabase';
 import type { Facture, FacturePayment, FactureStatus } from '../types';
+import { apiText } from '../apiText';
 
 export async function sendFactureReminder(factureId: string, customMessage?: string): Promise<{ sent: boolean; error: string | null }> {
   const { data, error } = await invokeFunction<{ sent: boolean }>('send-facture-reminder', {
@@ -32,7 +33,7 @@ export async function addLateFeeToFacture(
   value: number,
 ): Promise<{ amount: number | null; error: string | null }> {
   const { data: facture, error: factureError } = await supabase.from('factures').select('vat_rate').eq('id', factureId).single();
-  if (factureError || !facture) return { amount: null, error: factureError?.message ?? 'Facture introuvable' };
+  if (factureError || !facture) return { amount: null, error: factureError?.message ?? apiText('Facture introuvable') };
 
   const [{ data: items }, { data: payments }] = await Promise.all([
     supabase.from('facture_items').select('quantity, unit_price, sort_order').eq('facture_id', factureId),
@@ -44,7 +45,7 @@ export async function addLateFeeToFacture(
   const remaining = Math.max(0, Math.round((total - paid) * 100) / 100);
 
   const amount = feeType === 'percent' ? Math.round(((remaining * value) / 100) * 100) / 100 : Math.round(value * 100) / 100;
-  if (!(amount > 0)) return { amount: null, error: 'Montant de frais invalide.' };
+  if (!(amount > 0)) return { amount: null, error: apiText('Montant de frais invalide.') };
 
   const nextSort = (items ?? []).reduce((max, it) => Math.max(max, it.sort_order ?? 0), 0) + 1;
   const { error } = await supabase.from('facture_items').insert({
@@ -124,7 +125,7 @@ export async function createFactureFromLines(params: {
     })
     .select('id')
     .single();
-  if (insertError || !created) return { id: null, error: insertError?.message ?? 'Échec de la création de la facture.' };
+  if (insertError || !created) return { id: null, error: insertError?.message ?? apiText('Échec de la création de la facture.') };
 
   if (params.lines.length) {
     const { error: itemsError } = await supabase.from('facture_items').insert(

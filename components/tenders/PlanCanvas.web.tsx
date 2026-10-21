@@ -3,6 +3,7 @@ import { loadPdfJs } from '../../lib/tenders/pdfjs';
 import { clamp01, distancePt, formatMeasure, isComplete, mainValue, measure, snapOrtho, type MeasureKind, type PageSize, type Point } from '../../lib/tenders/geometry';
 import type { MeasuredObject } from '../../lib/tenders/plansApi';
 import { colors } from '../../lib/theme';
+import { i18next } from '../../lib/translations';
 
 // A plan page drawn with pdf.js plus an SVG layer for the measures. The page
 // sits in a scrollable box (scroll / trackpad to move, Ctrl + wheel or the
@@ -375,7 +376,7 @@ export function PlanCanvas(props: PlanCanvasProps) {
         </svg>
         {busy && !error ? (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', color: colors.textMuted, fontSize: 13 }}>
-            Chargement du plan…
+            {i18next.t('uiMisc.planLoading')}
           </div>
         ) : null}
         {error ? <div style={{ position: 'absolute', left: 12, top: 12, color: colors.danger, fontSize: 13 }}>{error}</div> : null}

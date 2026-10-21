@@ -16,6 +16,7 @@ import { listVatDeclarations } from './vatDeclarations';
 import { listBankAccounts } from './bank';
 import { periodsFor, type Periodicity } from '../vat/afcForm.ts';
 import { CLOSING_ACCOUNTS, type AccrualInput, type AssetInput, type ClosingEntryProposal, type LegalForm } from '../accounting/closing.ts';
+import { apiText } from '../apiText';
 
 // Data + actions of the year-end closing assistant
 // (app/(app)/compta/bouclement.tsx). What the company types in is kept in
@@ -161,13 +162,13 @@ export async function createClosingDrafts(
 ): Promise<{ generated: Record<string, string>; error: string | null }> {
   const [accounts, journals] = await Promise.all([listAccounts(organizationId, true), listJournals(organizationId)]);
   const journal = journals.find((j) => j.code === 'OD') ?? journals.find((j) => j.kind === 'custom') ?? journals[0];
-  if (!journal) return { generated: previous, error: 'Aucun journal comptable : créez d’abord la comptabilité (Comptabilité › Paramètres).' };
+  if (!journal) return { generated: previous, error: apiText('Aucun journal comptable : créez d’abord la comptabilité (Comptabilité › Paramètres).') };
 
   const byCode = new Map(accounts.map((a) => [a.code, a.id]));
   const needed = [...new Set(proposals.flatMap((p) => p.lines.map((l) => l.account)))].filter((code) => !byCode.has(code));
   for (const code of needed) {
     const def = CLOSING_ACCOUNTS[code];
-    if (!def) return { generated: previous, error: `Compte ${code} introuvable dans votre plan comptable.` };
+    if (!def) return { generated: previous, error: apiText('Compte {{code}} introuvable dans votre plan comptable.', { code }) };
     const { error } = await createAccount(organizationId, { code, label: def.label, classNum: def.classNum, type: def.type, normalBalance: def.normalBalance });
     if (error) return { generated: previous, error };
   }
@@ -183,7 +184,7 @@ export async function createClosingDrafts(
       else if (data) continue; // already posted: leave it alone
     }
     const { id: entryId, error } = await createDraftEntry({ organizationId, fiscalYearId: fy.id, journalId: journal.id, entryDate: fy.end_date, label: p.label, externalReference: `bouclement:${p.key}` });
-    if (error || !entryId) return { generated, error: error ?? 'Écriture non créée' };
+    if (error || !entryId) return { generated, error: error ?? apiText('Écriture non créée') };
     let order = 0;
     for (const l of p.lines) {
       const { error: lineError } = await addEntryLine({ entryId, accountId: id.get(l.account)!, debit: l.debit, credit: l.credit, label: l.label, sortOrder: order++ });

@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type { OrganizationRole } from '../types';
+import { apiText } from '../apiText';
 
 export interface RolePermissions {
   canViewFinances: boolean;
@@ -51,7 +52,7 @@ export async function createOrgRole(
   if (maxRoles != null && (count ?? 0) >= maxRoles) {
     return {
       role: null,
-      error: `Limite de ${maxRoles} rôles atteinte pour votre offre. Passez à Équipe pour créer des rôles personnalisés en nombre illimité.`,
+      error: apiText('Limite de {{max}} rôles atteinte pour votre offre. Passez à Équipe pour créer des rôles personnalisés en nombre illimité.', { max: maxRoles }),
     };
   }
 

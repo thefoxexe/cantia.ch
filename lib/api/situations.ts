@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import type { ChantierSituation, ChantierSituationItem, Devis, DevisItem } from '../types';
+import { apiText } from '../apiText';
 
 export async function listSituations(projectId: string): Promise<ChantierSituation[]> {
   const { data } = await supabase
@@ -65,9 +66,9 @@ export async function createSituationDraft(params: {
     supabase.from('devis_items').select('*').eq('devis_id', params.devisId).order('sort_order', { ascending: true }),
     supabase.from('chantier_situations').select('id', { count: 'exact', head: true }).eq('devis_id', params.devisId),
   ]);
-  if (!devis) return { situationId: null, error: 'Devis introuvable' };
+  if (!devis) return { situationId: null, error: apiText('Devis introuvable') };
   const items = (devisItems ?? []) as DevisItem[];
-  if (items.length === 0) return { situationId: null, error: 'Ce devis ne contient aucune ligne à suivre.' };
+  if (items.length === 0) return { situationId: null, error: apiText('Ce devis ne contient aucune ligne à suivre.') };
 
   const previousPercents = await previousPercentsByDevisItem(params.devisId);
   const situationIndex = (existingCount.count ?? 0) + 1;
@@ -88,7 +89,7 @@ export async function createSituationDraft(params: {
     .select()
     .single();
 
-  if (situationError || !situation) return { situationId: null, error: situationError?.message ?? 'Échec de la création de la situation' };
+  if (situationError || !situation) return { situationId: null, error: situationError?.message ?? apiText('Échec de la création de la situation') };
 
   const itemsPayload = items.map((it, i) => {
     const previous = previousPercents.get(it.id) ?? 0;

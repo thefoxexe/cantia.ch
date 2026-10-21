@@ -3,6 +3,7 @@ import { Link } from 'expo-router';
 import { Button, Container, Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { colors, fontSize, spacing } from '../lib/theme';
+import { i18next } from '../lib/translations';
 import { displayType, marketingFonts } from '../lib/marketingTheme';
 
 // Expo Router's built-in convention for a 404 — any unmatched route renders
@@ -15,15 +16,12 @@ export default function NotFoundScreen() {
       <MarketingNav />
       <ScrollView contentContainerStyle={styles.scroll}>
         <Container style={styles.container}>
-          <Text style={styles.kicker}>Erreur 404</Text>
-          <Text style={styles.title}>Cette page n'existe pas ou plus</Text>
-          <Text style={styles.text}>
-            Le lien est peut-être mal orthographié, ou la page a été déplacée. Retrouvez ce que vous cherchiez depuis
-            l'accueil.
-          </Text>
+          <Text style={styles.kicker}>{i18next.t('notFoundPage.kicker')}</Text>
+          <Text style={styles.title}>{i18next.t('notFoundPage.title')}</Text>
+          <Text style={styles.text}>{i18next.t('notFoundPage.text')}</Text>
           <View style={styles.actions}>
             <Link href="/" asChild>
-              <Button title="Retour à l'accueil" onPress={() => {}} />
+              <Button title={i18next.t('uiMisc.backHome')} onPress={() => {}} />
             </Link>
           </View>
         </Container>

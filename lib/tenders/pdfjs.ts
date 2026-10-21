@@ -4,6 +4,7 @@
 
 import { Platform } from 'react-native';
 import type { PdfJsLike } from './parser/extract.ts';
+import { apiText } from '../apiText';
 
 const VERSION = '3.11.174';
 const BASE = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${VERSION}`;
@@ -15,7 +16,7 @@ export interface PdfJsWeb extends PdfJsLike {
 let loading: Promise<PdfJsWeb> | null = null;
 
 export function loadPdfJs(): Promise<PdfJsWeb> {
-  if (Platform.OS !== 'web' || typeof document === 'undefined') return Promise.reject(new Error('Disponible sur ordinateur (navigateur) uniquement.'));
+  if (Platform.OS !== 'web' || typeof document === 'undefined') return Promise.reject(new Error(apiText('Disponible sur ordinateur (navigateur) uniquement.')));
   const w = window as unknown as { pdfjsLib?: PdfJsWeb };
   if (w.pdfjsLib) return Promise.resolve(w.pdfjsLib);
   if (loading) return loading;
@@ -31,7 +32,7 @@ export function loadPdfJs(): Promise<PdfJsWeb> {
     };
     script.onerror = () => {
       loading = null;
-      reject(new Error('Impossible de charger le lecteur PDF. Vérifiez votre connexion.'));
+      reject(new Error(apiText('Impossible de charger le lecteur PDF. Vérifiez votre connexion.')));
     };
     document.head.appendChild(script);
   });

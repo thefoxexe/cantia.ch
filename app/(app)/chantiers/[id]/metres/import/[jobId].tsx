@@ -423,7 +423,7 @@ function BlockingQuestions({ c, questions, answers, nodes, onAnswer }: { c: Tend
         const sample = nodes.find((n) => n.key === q.nodeKeys[0]);
         return (
           <View key={q.id} style={{ gap: 6 }}>
-            <Text style={kit.body}>{q.prompt}</Text>
+            <Text style={kit.body}>{q.kind === 'unit' ? (q.id.slice(5) && q.id.slice(5) !== 'none' ? fill(c.unitQuestion, { raw: q.id.slice(5) }) : c.unitQuestionNoRaw) : q.prompt}</Text>
             {sample ? <Text style={kit.hint}>{`${sample.displayReference ?? ''} — ${sample.title}`}</Text> : null}
             <View style={kit.row}>
               {(q.choices ?? UNIT_CHOICES).map((u) => (

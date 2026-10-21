@@ -3,19 +3,19 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
-import { applyWorkTerm } from '../../../lib/vocabulary';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { DashboardTask, DashboardTaskCategory } from '../../../lib/types';
+import { getAppLocale, i18next, useTranslation } from '../../../lib/translations';
 
 const CATEGORY_META: Record<DashboardTaskCategory, { label: string; fg: string; bg: string }> = {
-  general: { label: 'Général', fg: colors.textMuted, bg: colors.surfaceAlt },
-  administratif: { label: 'Administratif', fg: colors.primary, bg: colors.primarySoft },
-  chantier: { label: 'Chantier', fg: colors.accent, bg: colors.accentSoft },
-  client: { label: 'Client', fg: colors.success, bg: colors.successSoft },
-  urgent: { label: 'Urgent', fg: colors.danger, bg: colors.dangerSoft },
+  general: { label: 'catGeneral', fg: colors.textMuted, bg: colors.surfaceAlt },
+  administratif: { label: 'catAdmin', fg: colors.primary, bg: colors.primarySoft },
+  chantier: { label: 'catChantier', fg: colors.accent, bg: colors.accentSoft },
+  client: { label: 'catClient', fg: colors.success, bg: colors.successSoft },
+  urgent: { label: 'catUrgent', fg: colors.danger, bg: colors.dangerSoft },
 };
 
 const CATEGORY_ORDER: DashboardTaskCategory[] = ['general', 'urgent', 'chantier', 'client', 'administratif'];
@@ -23,12 +23,15 @@ type FilterKey = 'all' | DashboardTaskCategory;
 
 type DueKey = 'none' | 'today' | 'tomorrow' | 'friday' | 'nextweek';
 const DUE_OPTIONS: { value: DueKey; label: string }[] = [
-  { value: 'none', label: 'Aucune' },
-  { value: 'today', label: 'Aujourd’hui' },
-  { value: 'tomorrow', label: 'Demain' },
-  { value: 'friday', label: 'Vendredi' },
-  { value: 'nextweek', label: 'Dans une semaine' },
+  { value: 'none', label: 'dueNone' },
+  { value: 'today', label: 'dueToday' },
+  { value: 'tomorrow', label: 'dueTomorrow' },
+  { value: 'friday', label: 'dueFriday' },
+  { value: 'nextweek', label: 'dueNextWeek' },
 ];
+
+// Labels above are keys under "tasksPage" in lib/translations.
+const tp = (key: string, vars?: Record<string, unknown>) => String(i18next.t(`tasksPage.${key}`, vars as never));
 
 function todayIso(): string {
   return isoOf(new Date());
@@ -48,9 +51,9 @@ function dueDate(key: DueKey): string | null {
 }
 
 function formatDue(iso: string): string {
-  if (iso === todayIso()) return 'Aujourd’hui';
-  const label = new Date(`${iso}T12:00:00`).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'short' });
-  return iso < todayIso() ? `En retard · ${label}` : label;
+  if (iso === todayIso()) return tp('dueToday');
+  const label = new Date(`${iso}T12:00:00`).toLocaleDateString(`${getAppLocale()}-CH`, { weekday: 'short', day: 'numeric', month: 'short' });
+  return iso < todayIso() ? tp('late', { date: label }) : label;
 }
 
 function OptionRow<T extends string | null>({ label, value, onChange, options }: { label: string; value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
@@ -73,6 +76,7 @@ function OptionRow<T extends string | null>({ label, value, onChange, options }:
 
 export default function TachesScreen() {
   const { organization, user, role } = useAuth();
+  useTranslation();
   const isAdmin = role === 'owner' || role === 'admin';
   const [tasks, setTasks] = useState<DashboardTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +123,7 @@ export default function TachesScreen() {
   );
   const done = useMemo(() => tasks.filter((t) => t.done && matches(t)), [tasks, matches]);
   const projectName = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects]);
-  const memberName = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.full_name || 'Membre'])), [members]);
+  const memberName = useMemo(() => Object.fromEntries(members.map((m) => [m.user_id, m.full_name || tp('member')])), [members]);
 
   async function handleAdd() {
     const title = newTitle.trim();
@@ -161,7 +165,7 @@ export default function TachesScreen() {
   }
 
   async function handleDelete(task: DashboardTask) {
-    const ok = await confirm('Supprimer cette tâche ?', task.title);
+    const ok = await confirm(tp('deleteConfirm'), task.title);
     if (!ok) return;
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
     const { error: err } = await supabase.from('dashboard_tasks').delete().eq('id', task.id);
@@ -183,7 +187,7 @@ export default function TachesScreen() {
           <Text style={[styles.taskTitle, task.done && styles.taskTitleDone]}>{task.title}</Text>
           <View style={styles.metaRow}>
             <View style={[styles.categoryPill, { backgroundColor: meta.bg }]}>
-              <Text style={[styles.categoryPillText, { color: meta.fg }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
+              <Text style={[styles.categoryPillText, { color: meta.fg }]}>{tp(meta.label)}</Text>
             </View>
             {task.project_id && projectName[task.project_id] ? (
               <Text style={styles.metaText}>
@@ -197,7 +201,7 @@ export default function TachesScreen() {
             ) : null}
             {task.assigned_to ? (
               <Text style={styles.metaText}>
-                <Feather name="user" size={11} /> {memberName[task.assigned_to] ?? 'Membre'}
+                <Feather name="user" size={11} /> {memberName[task.assigned_to] ?? tp('member')}
               </Text>
             ) : null}
           </View>
@@ -214,15 +218,15 @@ export default function TachesScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title="Tâches" backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>La liste de tâches partagée par toute l'équipe.</Text>
+        <PageHeader title={tp('title')} backTo="/(app)" />
+        <Text style={styles.pageSubtitle}>{tp('subtitle')}</Text>
 
         <Card style={styles.addCard}>
           <View style={styles.addRow}>
             <TextInput
               value={newTitle}
               onChangeText={setNewTitle}
-              placeholder="Ajouter une tâche…"
+              placeholder={tp('addPlaceholder')}
               placeholderTextColor={colors.textMuted}
               style={styles.addInput}
               onSubmitEditing={handleAdd}
@@ -242,26 +246,26 @@ export default function TachesScreen() {
                   onPress={() => setNewCategory(cat)}
                   style={[styles.categoryChip, { backgroundColor: active ? meta.bg : colors.surfaceAlt }]}
                 >
-                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{applyWorkTerm(meta.label, 'fr')}</Text>
+                  <Text style={[styles.categoryChipText, { color: active ? meta.fg : colors.textMuted }]}>{tp(meta.label)}</Text>
                 </Pressable>
               );
             })}
           </View>
           {projects.length ? (
             <OptionRow
-              label={applyWorkTerm('Chantier', 'fr')}
+              label={tp('project')}
               value={newProject}
               onChange={setNewProject}
-              options={[{ value: null, label: 'Aucun' }, ...projects.map((p) => ({ value: p.id, label: p.name }))]}
+              options={[{ value: null, label: tp('noProject') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]}
             />
           ) : null}
-          <OptionRow label="Échéance" value={newDue} onChange={(v) => setNewDue(v as DueKey)} options={DUE_OPTIONS} />
+          <OptionRow label={tp('due')} value={newDue} onChange={(v) => setNewDue(v as DueKey)} options={DUE_OPTIONS.map((o) => ({ ...o, label: tp(o.label) }))} />
           {members.length > 1 ? (
             <OptionRow
-              label="Pour"
+              label={tp('for')}
               value={newAssignee}
               onChange={setNewAssignee}
-              options={[{ value: null, label: 'Toute l’équipe' }, ...members.map((m) => ({ value: m.user_id, label: m.full_name || 'Membre' }))]}
+              options={[{ value: null, label: tp('wholeTeam') }, ...members.map((m) => ({ value: m.user_id, label: m.full_name || tp('member') }))]}
             />
           ) : null}
         </Card>
@@ -270,11 +274,11 @@ export default function TachesScreen() {
 
         <View style={styles.filterRow}>
           <Pressable onPress={() => setFilter('all')} style={[styles.filterChip, filter === 'all' && styles.filterChipActive]}>
-            <Text style={[styles.filterChipText, filter === 'all' && styles.filterChipTextActive]}>Toutes</Text>
+            <Text style={[styles.filterChipText, filter === 'all' && styles.filterChipTextActive]}>{tp('all')}</Text>
           </Pressable>
           {CATEGORY_ORDER.map((cat) => (
             <Pressable key={cat} onPress={() => setFilter(cat)} style={[styles.filterChip, filter === cat && styles.filterChipActive]}>
-              <Text style={[styles.filterChipText, filter === cat && styles.filterChipTextActive]}>{applyWorkTerm(CATEGORY_META[cat].label, 'fr')}</Text>
+              <Text style={[styles.filterChipText, filter === cat && styles.filterChipTextActive]}>{tp(CATEGORY_META[cat].label)}</Text>
             </Pressable>
           ))}
         </View>
@@ -282,10 +286,10 @@ export default function TachesScreen() {
         {projects.length ? (
           <View style={styles.filterRow}>
             <Pressable onPress={() => setProjectFilter('all')} style={[styles.filterChip, projectFilter === 'all' && styles.filterChipActive]}>
-              <Text style={[styles.filterChipText, projectFilter === 'all' && styles.filterChipTextActive]}>{applyWorkTerm('Tous les chantiers', 'fr')}</Text>
+              <Text style={[styles.filterChipText, projectFilter === 'all' && styles.filterChipTextActive]}>{tp('allProjects')}</Text>
             </Pressable>
             <Pressable onPress={() => setProjectFilter('')} style={[styles.filterChip, projectFilter === '' && styles.filterChipActive]}>
-              <Text style={[styles.filterChipText, projectFilter === '' && styles.filterChipTextActive]}>{applyWorkTerm('Sans chantier', 'fr')}</Text>
+              <Text style={[styles.filterChipText, projectFilter === '' && styles.filterChipTextActive]}>{tp('withoutProject')}</Text>
             </Pressable>
             {projects.map((p) => (
               <Pressable key={p.id} onPress={() => setProjectFilter(p.id)} style={[styles.filterChip, projectFilter === p.id && styles.filterChipActive]}>
@@ -302,7 +306,7 @@ export default function TachesScreen() {
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.sm }} showsVerticalScrollIndicator={false}>
             {open.length === 0 && done.length === 0 ? (
-              <EmptyState title="Aucune tâche" subtitle="Ajoutez la première tâche de l'équipe ci-dessus." />
+              <EmptyState title={tp('emptyTitle')} subtitle={tp('emptySubtitle')} />
             ) : (
               <>
                 {open.map((task) => (
@@ -312,7 +316,7 @@ export default function TachesScreen() {
                   <>
                     <Pressable onPress={() => setShowDone((v) => !v)} style={styles.doneToggle}>
                       <Feather name={showDone ? 'chevron-down' : 'chevron-right'} size={14} color={colors.textMuted} />
-                      <Text style={styles.doneToggleText}>Terminées ({done.length})</Text>
+                      <Text style={styles.doneToggleText}>{tp('done', { count: done.length })}</Text>
                     </Pressable>
                     {showDone ? done.map((task) => <TaskRow key={task.id} task={task} />) : null}
                   </>

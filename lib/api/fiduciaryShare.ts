@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import { getFiduciaries } from './fiduciary';
 import { uploadToOrgBucket } from './storage';
+import { apiText } from '../apiText';
 
 // « Envoyer au fiduciaire »: a document of the company goes to a fiduciary
 // that has ACTIVE access on Cantia (table fiduciary_shared_documents,
@@ -69,7 +70,7 @@ export async function shareWithFiduciary(input: ShareInput): Promise<{ error: st
   if (input.file) {
     const safe = input.file.name.normalize('NFD').replace(/[^\w.\- ]+/g, '_').slice(-120) || 'document';
     const { path, error } = await uploadToOrgBucket(input.orgId, `fiduciary-shared/${Date.now()}-${safe}`, input.file.uri, input.file.mimeType ?? 'application/octet-stream');
-    if (error || !path) return { error: error ?? 'Upload failed' };
+    if (error || !path) return { error: error ?? apiText('Upload failed') };
     filePath = path;
   }
   const { error } = await supabase.from('fiduciary_shared_documents').insert({

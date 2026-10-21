@@ -13,6 +13,7 @@ import { ocrDocument } from './ocr.ts';
 import type { OcrFields } from './parser/ocrLayout.ts';
 import { loadPdfJs, sha256Hex } from './pdfjs.ts';
 import type { ParseResult } from './parser/types.ts';
+import { apiText } from '../apiText';
 
 export type ImportStep = 'reading' | 'uploading' | 'extracting' | 'ocr' | 'parsing' | 'saving' | 'done';
 
@@ -46,7 +47,7 @@ export async function importSoumission(
   try {
     onProgress({ step: 'reading' });
     const bytes = await readBytes(picked);
-    if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return { jobId: null, error: 'Ce fichier n’est pas un PDF.' };
+    if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return { jobId: null, error: apiText('Ce fichier n’est pas un PDF.') };
     const sha = await sha256Hex(bytes);
 
     // 1. Original kept as a chantier document, untouched.
@@ -55,20 +56,20 @@ export async function importSoumission(
     const subPath = `projects/${projectId}/soumissions/${Date.now()}-${safe}`;
     const blobUrl = typeof URL !== 'undefined' && picked.file ? URL.createObjectURL(picked.file) : picked.uri;
     const { path, error: upErr } = await uploadToOrgBucket(organizationId, subPath, blobUrl, 'application/pdf');
-    if (!path) return { jobId: null, error: upErr ?? 'Envoi impossible' };
+    if (!path) return { jobId: null, error: upErr ?? apiText('Envoi impossible') };
     const { data: fileRow, error: fileErr } = await supabase
       .from('files')
       .insert({ organization_id: organizationId, project_id: projectId, name: picked.name, storage_path: path, size_bytes: picked.size ?? bytes.length, mime_type: 'application/pdf', uploaded_by: userId })
       .select('id')
       .single();
-    if (fileErr || !fileRow) return { jobId: null, error: fileErr?.message ?? 'Enregistrement du fichier impossible' };
+    if (fileErr || !fileRow) return { jobId: null, error: fileErr?.message ?? apiText('Enregistrement du fichier impossible') };
 
     const { data: job, error: jobErr } = await supabase
       .from('tender_import_jobs')
       .insert({ project_id: projectId, file_id: fileRow.id, file_name: picked.name, sha256: sha, status: 'extracting', step: 'extracting', progress: 0.1, parser_version: PARSER_VERSION })
       .select('id')
       .single();
-    if (jobErr || !job) return { jobId: null, error: jobErr?.message ?? 'Création de l’import impossible' };
+    if (jobErr || !job) return { jobId: null, error: jobErr?.message ?? apiText('Création de l’import impossible') };
 
     const fail = async (message: string) => {
       await supabase.from('tender_import_jobs').update({ status: 'failed', error: message }).eq('id', job.id);

@@ -9,6 +9,7 @@ import { loadPdfJs } from './pdfjs.ts';
 import type { Calibration, MeasureKind, Point } from './geometry.ts';
 import { adjustScaleForPaper, detectPaperFormat, detectScale } from './planScale.ts';
 import { ocrPlanScale, renderPage } from './ocr.ts';
+import { apiText } from '../apiText';
 
 export interface SitePlanSummary {
   id: string;
@@ -163,7 +164,7 @@ export async function uploadPlan(
   try {
     onStep?.('reading');
     const bytes = await readBytes(picked);
-    if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return { planId: null, error: 'Ce fichier n’est pas un PDF.' };
+    if (bytes.length < 5 || String.fromCharCode(...bytes.slice(0, 5)) !== '%PDF-') return { planId: null, error: apiText('Ce fichier n’est pas un PDF.') };
     const pdfjs = await loadPdfJs();
     const doc = await pdfjs.getDocument({ data: bytes.slice() }).promise;
     const sizes: Array<{ w: number; h: number; rotation: number; calibration: Calibration | null }> = [];
@@ -207,13 +208,13 @@ export async function uploadPlan(
     const safe = picked.name.replace(/[^\w.\-]+/g, '_').slice(-120);
     const blobUrl = typeof URL !== 'undefined' && picked.file ? URL.createObjectURL(picked.file) : picked.uri;
     const { path, error: upErr } = await uploadToOrgBucket(organizationId, `projects/${projectId}/plans/${Date.now()}-${safe}`, blobUrl, 'application/pdf');
-    if (!path) return { planId: null, error: upErr ?? 'Envoi impossible' };
+    if (!path) return { planId: null, error: upErr ?? apiText('Envoi impossible') };
     const { data: fileRow, error: fileErr } = await supabase
       .from('files')
       .insert({ organization_id: organizationId, project_id: projectId, name: picked.name, storage_path: path, size_bytes: picked.size ?? bytes.length, mime_type: 'application/pdf', uploaded_by: userId })
       .select('id')
       .single();
-    if (fileErr || !fileRow) return { planId: null, error: fileErr?.message ?? 'Enregistrement du fichier impossible' };
+    if (fileErr || !fileRow) return { planId: null, error: fileErr?.message ?? apiText('Enregistrement du fichier impossible') };
 
     onStep?.('saving');
     let planId = fields.planId ?? null;
@@ -223,7 +224,7 @@ export async function uploadPlan(
         .insert({ project_id: projectId, name: (fields.name || picked.name.replace(/\.pdf$/i, '')).slice(0, 200), number: fields.number || null })
         .select('id')
         .single();
-      if (error || !plan) return { planId: null, error: error?.message ?? 'Création du plan impossible' };
+      if (error || !plan) return { planId: null, error: error?.message ?? apiText('Création du plan impossible') };
       planId = plan.id as string;
     }
     const { data: rev, error: revErr } = await supabase
@@ -231,7 +232,7 @@ export async function uploadPlan(
       .insert({ plan_id: planId, label: fields.label.slice(0, 60) || 'Rev A', file_id: fileRow.id, file_name: picked.name.slice(0, 300), page_count: sizes.length })
       .select('id')
       .single();
-    if (revErr || !rev) return { planId, error: revErr?.message ?? 'Création de la révision impossible' };
+    if (revErr || !rev) return { planId, error: revErr?.message ?? apiText('Création de la révision impossible') };
     const { error: pagesErr } = await supabase
       .from('site_plan_pages')
       .insert(sizes.map((s, i) => ({ revision_id: rev.id, page_index: i + 1, width_pt: Math.round(s.w * 1000) / 1000, height_pt: Math.round(s.h * 1000) / 1000, rotation: s.rotation, calibration: s.calibration })));
@@ -245,7 +246,7 @@ export async function uploadPlan(
 
 export async function loadPlan(planId: string, revisionId?: string | null): Promise<{ data: LoadedPlan | null; error: string | null }> {
   const { data: plan, error } = await supabase.from('site_plans').select('id, project_id, organization_id, name, number, active_revision_id').eq('id', planId).maybeSingle();
-  if (error || !plan) return { data: null, error: error?.message ?? 'Plan introuvable' };
+  if (error || !plan) return { data: null, error: error?.message ?? apiText('Plan introuvable') };
   const { data: revs } = await supabase.from('site_plan_revisions').select('id, label, file_id, file_name, page_count, uploaded_at').eq('plan_id', planId).order('uploaded_at', { ascending: false });
   const revisions = (revs ?? []) as PlanRevision[];
   const revId = revisionId ?? plan.active_revision_id ?? revisions[0]?.id ?? null;

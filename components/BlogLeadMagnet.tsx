@@ -8,10 +8,42 @@ import { supabase } from '../lib/supabase';
 import { isMarketingHost } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
+import { getAppLocale } from '../lib/translations';
+
+const COPY = {
+  fr: {
+    readyTitle: 'Votre modèle est prêt',
+    readyText: 'Le téléchargement a démarré. Si rien ne s’ouvre, utilisez le lien ci-dessous.',
+    email: 'Email',
+    placeholder: 'votre@email.ch',
+    honeypot: 'Ne pas remplir',
+    error: 'Un problème est survenu, réessayez dans un instant.',
+    disclaimer: 'Un seul email, aucun spam. Utilisé uniquement pour vous envoyer ce modèle et, occasionnellement, du contenu utile de ce type.',
+  },
+  de: {
+    readyTitle: 'Ihre Vorlage ist bereit',
+    readyText: 'Der Download wurde gestartet. Falls sich nichts öffnet, verwenden Sie den Link unten.',
+    email: 'E-Mail',
+    placeholder: 'ihre@email.ch',
+    honeypot: 'Nicht ausfüllen',
+    error: 'Ein Problem ist aufgetreten, versuchen Sie es gleich nochmals.',
+    disclaimer: 'Eine einzige E-Mail, kein Spam. Nur verwendet, um Ihnen diese Vorlage und gelegentlich ähnliche nützliche Inhalte zu senden.',
+  },
+  it: {
+    readyTitle: 'Il vostro modello è pronto',
+    readyText: 'Il download è iniziato. Se non si apre nulla, usate il link qui sotto.',
+    email: 'E-mail',
+    placeholder: 'vostra@email.ch',
+    honeypot: 'Non compilare',
+    error: 'Si è verificato un problema, riprovate tra un istante.',
+    disclaimer: 'Una sola e-mail, niente spam. Usata solo per inviarvi questo modello e, occasionalmente, contenuti utili di questo tipo.',
+  },
+};
 
 type LeadMagnetBlock = Extract<BlogPost['blocks'][number], { type: 'leadmagnet' }>;
 
 export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMagnetBlock; sourceSlug: string; category: string }) {
+  const c = COPY[getAppLocale()] ?? COPY.fr;
   const [email, setEmail] = useState('');
   const [botField, setBotField] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'delivered' | 'error'>('idle');
@@ -46,8 +78,8 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
         <View style={styles.deliveredIcon}>
           <Feather name="check" size={18} color={colors.success} />
         </View>
-        <Text style={styles.deliveredTitle}>Votre modèle est prêt</Text>
-        <Text style={styles.deliveredText}>Le téléchargement a démarré. Si rien ne s’ouvre, utilisez le lien ci-dessous.</Text>
+        <Text style={styles.deliveredTitle}>{c.readyTitle}</Text>
+        <Text style={styles.deliveredText}>{c.readyText}</Text>
         <Button title={block.fileLabel} variant="secondary" onPress={() => Linking.openURL(block.fileUrl)} style={styles.deliveredButton} />
       </View>
     );
@@ -63,10 +95,10 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
       <View style={styles.formRow}>
         <View style={styles.fieldWrap}>
           <Field
-            label="Email"
+            label={c.email}
             value={email}
             onChangeText={setEmail}
-            placeholder="votre@email.ch"
+            placeholder={c.placeholder}
             autoCapitalize="none"
             keyboardType="email-address"
           />
@@ -74,10 +106,10 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
         <Button title={block.buttonLabel} onPress={handleSubmit} loading={status === 'sending'} disabled={!canSubmit} style={styles.submitButton} />
       </View>
       <View style={styles.honeypot} accessible={false} importantForAccessibility="no-hide-descendants">
-        <Field label="Ne pas remplir" value={botField} onChangeText={setBotField} tabIndex={-1} />
+        <Field label={c.honeypot} value={botField} onChangeText={setBotField} tabIndex={-1} />
       </View>
-      {status === 'error' ? <Text style={styles.errorText}>Un problème est survenu, réessayez dans un instant.</Text> : null}
-      <Text style={styles.disclaimer}>Un seul email, aucun spam. Utilisé uniquement pour vous envoyer ce modèle et, occasionnellement, du contenu utile de ce type.</Text>
+      {status === 'error' ? <Text style={styles.errorText}>{c.error}</Text> : null}
+      <Text style={styles.disclaimer}>{c.disclaimer}</Text>
     </View>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MicrosoftLogo } from './MicrosoftLogo';
 import { useAuth } from '../lib/auth-context';
+import { i18next } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 // Off until the Azure app registration + Supabase provider setup is
@@ -36,7 +37,7 @@ export function MicrosoftSignInButton() {
         ) : (
           <>
             <MicrosoftLogo size={16} />
-            <Text style={styles.text}>Continuer avec Microsoft</Text>
+            <Text style={styles.text}>{i18next.t('uiMisc.microsoft')}</Text>
           </>
         )}
       </Pressable>

@@ -2,6 +2,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import type { PayLine, SwissPayroll } from '../../lib/payroll/swissEngine.ts';
 import { fill, useWizardCopy } from '../../lib/payroll/wizardCopy';
+import { payrollLabel } from '../../lib/payroll/standardLabels';
+import { getAppLocale } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { monoType } from '../../lib/marketingTheme';
 
@@ -35,7 +37,7 @@ export function SalarySimulator({ payroll }: { payroll: SwissPayroll }) {
       <Text style={styles.section}>{c.simEmployee}</Text>
       <View style={styles.block}>
         {payroll.employee.map((l) => (
-          <Row key={l.key} label={l.label} rate={rate(l)} value={`−${chf(l.amount)}`} negative />
+          <Row key={l.key} label={payrollLabel(l.label, getAppLocale())} rate={rate(l)} value={`−${chf(l.amount)}`} negative />
         ))}
         <Row label={c.simTotalDed} value={`−${chf(payroll.totalDeductions)}`} strong negative />
         {payroll.familyAllowance > 0 ? <Row label={c.simAllowances} value={`+${chf(payroll.familyAllowance)}`} positive /> : null}
@@ -54,7 +56,7 @@ export function SalarySimulator({ payroll }: { payroll: SwissPayroll }) {
       <Text style={styles.section}>{c.simEmployer}</Text>
       <View style={styles.block}>
         {payroll.employer.map((l) => (
-          <Row key={l.key} label={l.label} rate={rate(l)} value={`+${chf(l.amount)}`} />
+          <Row key={l.key} label={payrollLabel(l.label, getAppLocale())} rate={rate(l)} value={`+${chf(l.amount)}`} />
         ))}
         <Row label={c.simTotalEr} value={`+${chf(payroll.totalEmployer)}`} strong />
       </View>

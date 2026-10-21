@@ -2,6 +2,7 @@
 // bundle). Used to fill soumission PDFs and to export the construction
 // schedule.
 import type { PdfLibLike } from './tenders/pdfFill';
+import { apiText } from './apiText';
 
 let loading: Promise<PdfLibLike> | null = null;
 export function loadPdfLib(): Promise<PdfLibLike> {
@@ -15,7 +16,7 @@ export function loadPdfLib(): Promise<PdfLibLike> {
     s.onload = () => ((window as unknown as { PDFLib?: PdfLibLike }).PDFLib ? resolve((window as unknown as { PDFLib: PdfLibLike }).PDFLib) : reject(new Error('pdf-lib introuvable')));
     s.onerror = () => {
       loading = null;
-      reject(new Error('Impossible de charger l’outil PDF. Vérifiez votre connexion.'));
+      reject(new Error(apiText('Impossible de charger l’outil PDF. Vérifiez votre connexion.')));
     };
     document.head.appendChild(s);
   });
