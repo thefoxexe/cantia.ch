@@ -213,7 +213,7 @@ export function Field({
   onFocus,
   onBlur,
   ...props
-}: { label: string } & TextInputProps) {
+}: { label: string; ref?: React.Ref<TextInput> } & TextInputProps) {
   const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>
@@ -233,6 +233,12 @@ export function Field({
       />
     </View>
   );
+}
+
+// Enter on a field that isn't the last of its form: submits on a computer,
+// like any web form; on a phone it moves on to the next field instead.
+export function enterGoesTo(next: React.RefObject<TextInput | null>, submit: () => void) {
+  return () => (Platform.OS === 'web' ? submit() : next.current?.focus());
 }
 
 export function EmptyState({ title, subtitle }: { title: string; subtitle?: string }) {

@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { useRef, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
-import { Button, Field, Screen } from '../../components/ui';
+import { Button, Field, Screen, enterGoesTo } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { displayType } from '../../lib/marketingTheme';
@@ -21,7 +21,10 @@ export default function UpdatePasswordScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const confirmRef = useRef<TextInput>(null);
+
   async function handleSubmit() {
+    if (loading) return;
     setError(null);
     if (password.length < 6) {
       setError(t('authUpdatePassword.passwordTooShort'));
@@ -54,6 +57,8 @@ export default function UpdatePasswordScreen() {
             value={password}
             onChangeText={setPassword}
             placeholder={t('authUpdatePassword.passwordPlaceholderMin')}
+            returnKeyType="next"
+            onSubmitEditing={enterGoesTo(confirmRef, handleSubmit)}
           />
           <Field
             label={t('authUpdatePassword.confirmPasswordLabel')}
@@ -61,6 +66,9 @@ export default function UpdatePasswordScreen() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             placeholder={t('authUpdatePassword.passwordPlaceholderMin')}
+            ref={confirmRef}
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Button title={t('authUpdatePassword.submit')} onPress={handleSubmit} loading={loading} style={{ marginTop: spacing.sm }} />

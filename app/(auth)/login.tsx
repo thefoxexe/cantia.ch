@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
-import { BackToSiteButton, Button, Field, Screen } from '../../components/ui';
+import { BackToSiteButton, Button, Field, Screen, enterGoesTo } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { siteHomeHref } from '../../lib/appHost';
@@ -18,8 +18,10 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
 
   async function handleSubmit() {
+    if (loading) return;
     setError(null);
     setLoading(true);
     const { error } = await signIn(email.trim(), password);
@@ -51,6 +53,8 @@ export default function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder={t('authLogin.emailPlaceholder')}
+              returnKeyType="next"
+              onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
             />
             <Field
               label={t('authLogin.passwordLabel')}
@@ -58,6 +62,9 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder={t('authLogin.passwordPlaceholder')}
+              ref={passwordRef}
+              returnKeyType="go"
+              onSubmitEditing={handleSubmit}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Button title={t('authLogin.submit')} onPress={handleSubmit} loading={loading} />

@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
-import { BackToSiteButton, Button, Field, Screen } from '../../components/ui';
+import { BackToSiteButton, Button, Field, Screen, enterGoesTo } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { siteHomeHref } from '../../lib/appHost';
@@ -43,7 +43,11 @@ export default function SignupScreen() {
   // in its cookie and applied at signup (lib/siteAnalytics.ts), without
   // showing the partner's code on the form.
 
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
   async function handleSubmit() {
+    if (loading) return;
     setError(null);
     if (!fullName.trim()) {
       setError(t('authSignup.nameRequired'));
@@ -100,6 +104,8 @@ export default function SignupScreen() {
               onChangeText={setFullName}
               placeholder={t('authSignup.namePlaceholder')}
               autoCapitalize="words"
+              returnKeyType="next"
+              onSubmitEditing={enterGoesTo(emailRef, handleSubmit)}
             />
             <Field
               label={t('authSignup.emailLabel')}
@@ -108,6 +114,9 @@ export default function SignupScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder={t('authSignup.emailPlaceholder')}
+              ref={emailRef}
+              returnKeyType="next"
+              onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
             />
             <Field
               label={t('authSignup.passwordLabel')}
@@ -115,6 +124,9 @@ export default function SignupScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder={t('authSignup.passwordPlaceholderMin')}
+              ref={passwordRef}
+              returnKeyType="go"
+              onSubmitEditing={handleSubmit}
             />
             <Pressable onPress={() => setNewsletterOptIn((v) => !v)} style={styles.checkboxRow} hitSlop={4}>
               <View style={[styles.checkbox, newsletterOptIn && styles.checkboxChecked]}>

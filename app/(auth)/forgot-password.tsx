@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen() {
   const [sent, setSent] = useState(false);
 
   async function handleSubmit() {
-    if (!email.trim()) return;
+    if (!email.trim() || loading) return;
     setError(null);
     setLoading(true);
     const { error } = await resetPassword(email.trim());
@@ -52,6 +52,8 @@ export default function ForgotPasswordScreen() {
                   value={email}
                   onChangeText={setEmail}
                   placeholder={t('authForgotPassword.emailPlaceholder')}
+                  returnKeyType="send"
+                  onSubmitEditing={handleSubmit}
                 />
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <Button title={t('authForgotPassword.submit')} onPress={handleSubmit} loading={loading} disabled={!email.trim()} />

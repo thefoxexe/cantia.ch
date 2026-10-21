@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Head from 'expo-router/head';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, Field } from '../components/ui';
+import { Button, Field, enterGoesTo } from '../components/ui';
 import { PartnersNav, PartnersPage, useIsWide } from '../components/partners/PartnersChrome';
 import { usePartnersCopy } from '../lib/partners/locale';
 import { fill } from '../lib/partners/copy';
@@ -41,7 +41,12 @@ export default function PartnersAuth() {
     if (session) router.replace('/espace');
   }, [session, router]);
 
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
   async function handleLogin() {
+    if (busy) return;
     if (!email || !password) return setError(copy.auth.missing);
     setBusy(true);
     setError(null);
@@ -51,6 +56,7 @@ export default function PartnersAuth() {
   }
 
   async function handleSignup() {
+    if (busy) return;
     if (!firstName.trim() || !lastName.trim() || !email || !password) return setError(copy.auth.missing);
     if (password.length < 8) return setError(copy.auth.shortPassword);
     setBusy(true);
@@ -151,14 +157,14 @@ export default function PartnersAuth() {
               {mode === 'signup' ? (
                 <View style={styles.row}>
                   <View style={styles.half}>
-                    <Field label={copy.auth.firstName} value={firstName} onChangeText={setFirstName} autoComplete="given-name" />
+                    <Field label={copy.auth.firstName} value={firstName} onChangeText={setFirstName} autoComplete="given-name" returnKeyType="next" onSubmitEditing={enterGoesTo(lastNameRef, handleSignup)} />
                   </View>
                   <View style={styles.half}>
-                    <Field label={copy.auth.lastName} value={lastName} onChangeText={setLastName} autoComplete="family-name" />
+                    <Field label={copy.auth.lastName} value={lastName} onChangeText={setLastName} autoComplete="family-name" ref={lastNameRef} returnKeyType="next" onSubmitEditing={enterGoesTo(emailRef, handleSignup)} />
                   </View>
                 </View>
               ) : null}
-              <Field label={copy.auth.email} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoComplete="email" />
+              <Field label={copy.auth.email} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoComplete="email" ref={emailRef} returnKeyType="next" onSubmitEditing={enterGoesTo(passwordRef, mode === 'login' ? handleLogin : handleSignup)} />
               <Field
                 label={copy.auth.password}
                 value={password}
@@ -166,6 +172,8 @@ export default function PartnersAuth() {
                 secureTextEntry
                 placeholder={mode === 'signup' ? copy.auth.passwordHint : undefined}
                 autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                ref={passwordRef}
+                returnKeyType="go"
                 onSubmitEditing={mode === 'login' ? handleLogin : handleSignup}
               />
               <Button title={mode === 'login' ? copy.auth.login : copy.auth.signup} onPress={mode === 'login' ? handleLogin : handleSignup} loading={busy} />

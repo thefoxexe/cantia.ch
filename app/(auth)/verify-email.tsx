@@ -26,7 +26,7 @@ export default function VerifyEmailScreen() {
   const [resendHint, setResendHint] = useState<string | null>(null);
 
   async function handleVerify() {
-    if (!email || !code.trim()) return;
+    if (!email || !code.trim() || verifying) return;
     setVerifying(true);
     setError(null);
     const { error: err } = await verifySignupCode(email, code.trim());
@@ -82,6 +82,8 @@ export default function VerifyEmailScreen() {
               onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
               keyboardType="number-pad"
               placeholder={t('authVerifyEmail.codePlaceholder')}
+              returnKeyType="go"
+              onSubmitEditing={handleVerify}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             {resendHint ? <Text style={styles.success}>{resendHint}</Text> : null}
