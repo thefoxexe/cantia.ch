@@ -57,7 +57,7 @@ export const TERMS_COPY: Record<
     },
     showcase: {
       title: 'Votre logo sur partners.cantia.ch',
-      text: 'Apparaissez parmi les partenaires officiels de Cantia, avec un lien vers votre site. Votre logo est publié après validation par notre équipe.',
+      text: 'Si vous le souhaitez, présentez votre entreprise sur partners.cantia.ch, avec un lien vers votre site. Votre logo est publié après validation par notre équipe.',
       logo: 'Logo (PNG, JPG, SVG ou WebP, 2 Mo max.)',
       choose: 'Choisir un logo',
       change: 'Changer',
@@ -95,7 +95,7 @@ export const TERMS_COPY: Record<
     },
     showcase: {
       title: 'Ihr Logo auf partners.cantia.ch',
-      text: 'Erscheinen Sie unter den offiziellen Partnern von Cantia, mit einem Link zu Ihrer Website. Ihr Logo wird nach Prüfung durch unser Team veröffentlicht.',
+      text: 'Wenn Sie möchten, stellen Sie Ihr Unternehmen auf partners.cantia.ch vor, mit einem Link zu Ihrer Website. Ihr Logo wird nach Prüfung durch unser Team veröffentlicht.',
       logo: 'Logo (PNG, JPG, SVG oder WebP, max. 2 MB)',
       choose: 'Logo wählen',
       change: 'Ändern',
@@ -133,7 +133,7 @@ export const TERMS_COPY: Record<
     },
     showcase: {
       title: 'Il suo logo su partners.cantia.ch',
-      text: 'Appaia tra i partner ufficiali di Cantia, con un link al suo sito. Il logo viene pubblicato dopo la convalida del nostro team.',
+      text: 'Se lo desidera, presenti la sua impresa su partners.cantia.ch, con un link al suo sito. Il logo viene pubblicato dopo la convalida del nostro team.',
       logo: 'Logo (PNG, JPG, SVG o WebP, max. 2 MB)',
       choose: 'Scegliere un logo',
       change: 'Cambiare',

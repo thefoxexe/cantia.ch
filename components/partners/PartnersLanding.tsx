@@ -3,23 +3,27 @@ import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-nati
 import Head from 'expo-router/head';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import Svg, { Circle, Defs, Path, Text as SvgText, TextPath } from 'react-native-svg';
 import { PAGE_MAX, PartnersNav, PartnersPage, useIsWide } from './PartnersChrome';
 import { usePartnersCopy } from '../../lib/partners/locale';
-import { CONTACT_EMAIL, LANDING_COPY } from '../../lib/partners/landingCopy';
+import { CONTACT_EMAIL, LANDING_COPY, type LandingCopy } from '../../lib/partners/landingCopy';
 import { getShowcase, partnerLogoUrl, type ShowcaseEntry } from '../../lib/partners/api';
-import { BrandMark, BRAND_DISPLAY_FONT } from '../brand/Logo';
+import { QrCode } from './QrCode';
+import { BrandMark } from '../brand/Logo';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
-// partners.cantia.ch landing (October 2026): a business partner programme
-// for resellers, fiduciaries, integrators and suppliers. No product
-// screenshot and no public commission rate: terms are agreed with each
-// partner. Approved partners' logos appear on the wall.
+// partners.cantia.ch landing (October 2026): a recommendation programme for
+// fiduciaries, resellers, suppliers and consultants, said plainly. It is
+// starting: no label, no "official partner", no empty logo wall. The hero
+// shows how one recommendation is followed, with the real rules; approved
+// partners' logos appear only once there are some. No public commission
+// rate: terms are agreed with each partner.
 
 const ORIGIN = 'https://partners.cantia.ch';
 const INK = '#120E0B';
 const SAND = '#E8DCCB';
 const COPPER = '#D9895A';
+const COPPER_DEEP = '#A95C30';
+const PAPER = '#FBF6EE';
 
 const heading = { fontFamily: 'Archivo, system-ui, sans-serif', fontWeight: '700' as const };
 const mono = { fontFamily: '"Martian Mono", ui-monospace, monospace' };
@@ -38,10 +42,6 @@ export function PartnersLanding() {
   useEffect(() => {
     getShowcase().then(setWall);
   }, []);
-
-  // Fill the wall to a full row with "your logo here" tiles.
-  const perRow = wide ? 4 : 2;
-  const empty = perRow - (wall.length % perRow);
 
   return (
     <PartnersPage nav={<PartnersNav landing cta />}>
@@ -80,7 +80,7 @@ export function PartnersLanding() {
       {/* Hero */}
       <View style={styles.hero}>
         <View style={[styles.inner, styles.heroInner, wide && styles.heroInnerWide]}>
-          <View style={[{ gap: spacing.lg }, wide && { flex: 1.35 }]}>
+          <View style={[{ gap: spacing.lg }, wide && { flex: 1.15 }]}>
             <Text style={styles.heroEyebrow}>{c.hero.eyebrow}</Text>
             <Text style={[styles.heroTitle, !wide && styles.heroTitleNarrow]} role="heading" aria-level={1}>
               {c.hero.title}
@@ -97,32 +97,61 @@ export function PartnersLanding() {
             </View>
             <Text style={styles.heroNote}>{c.hero.note}</Text>
           </View>
-          <View style={[styles.sealWrap, wide && { flex: 1 }]}>
-            <Seal top={c.seal.top} bottom={c.seal.bottom} size={wide ? 340 : 260} />
-            <Text style={styles.sealCaption}>{c.seal.caption}</Text>
+          <View style={wide ? { flex: 1 } : null}>
+            <Trace t={c.trace} />
           </View>
         </View>
-        <View style={styles.heroStrip}>
-          <View style={[styles.inner, styles.stripInner]}>
-            {c.profiles.items.map((p, i) => (
-              <Text key={p.title} style={styles.stripItem}>
-                {i ? '·  ' : ''}
-                {p.title}
-              </Text>
+      </View>
+
+      {/* Where we are, said plainly */}
+      <View style={[styles.inner, styles.section, wide && styles.split]}>
+        <View style={[{ gap: spacing.md }, wide && { flex: 1 }]}>
+          <Text style={styles.eyebrow}>{c.honest.eyebrow}</Text>
+          <Text style={styles.h2} role="heading" aria-level={2}>
+            {c.honest.title}
+          </Text>
+        </View>
+        <View style={[{ gap: spacing.xl }, wide && { flex: 1, paddingTop: 30 }]}>
+          <Text style={styles.lead}>{c.honest.text}</Text>
+          <View style={styles.facts}>
+            {c.honest.facts.map((f) => (
+              <View key={f.k} style={styles.fact}>
+                <Text style={styles.factK}>{f.k}</Text>
+                <Text style={styles.factV}>{f.v}</Text>
+              </View>
             ))}
           </View>
         </View>
       </View>
 
-      {/* Statement */}
-      <View style={[styles.inner, styles.section, wide && styles.split]}>
-        <View style={[{ gap: spacing.md }, wide && { flex: 1 }]}>
-          <Text style={styles.eyebrow}>{c.statement.eyebrow}</Text>
-          <Text style={styles.h2} role="heading" aria-level={2}>
-            {c.statement.title}
-          </Text>
+      {/* What partners recommend */}
+      <View style={[styles.inner, styles.section]}>
+        <Text style={styles.eyebrow}>{c.products.eyebrow}</Text>
+        <Text style={styles.h2} role="heading" aria-level={2}>
+          {c.products.title}
+        </Text>
+        <View style={[{ gap: spacing.md, marginTop: spacing.lg }, wide && { flexDirection: 'row' }]}>
+          {c.products.items.map((p, i) => (
+            <View key={p.name} style={[styles.product, i === 1 && styles.productAlt, wide && { flex: 1 }]}>
+              <View style={styles.productHead}>
+                <BrandMark size={30} tone={i === 1 ? 'white' : 'color'} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={[styles.productName, i === 1 && { color: '#FBF6EE' }]}>{p.name}</Text>
+                  <Text style={[styles.productWho, i === 1 && { color: COPPER }]}>{p.who}</Text>
+                </View>
+              </View>
+              <Text style={[styles.productText, i === 1 && { color: '#CDBFAE' }]}>{p.text}</Text>
+              <View style={{ gap: 10 }}>
+                {p.points.map((pt) => (
+                  <View key={pt} style={styles.point}>
+                    <Feather name="check" size={15} color={i === 1 ? COPPER : colors.primary} />
+                    <Text style={[styles.pointText, i === 1 && { color: '#FBF6EE' }]}>{pt}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
-        <Text style={[styles.lead, wide && { flex: 1, paddingTop: 34 }]}>{c.statement.text}</Text>
       </View>
 
       {/* Pillars */}
@@ -143,7 +172,7 @@ export function PartnersLanding() {
       </View>
 
       {/* Profiles, dark band */}
-      <View style={[styles.band, { marginTop: 96 }]}>
+      <View style={[styles.band, { marginTop: 112 }]}>
         <View style={[styles.inner, { gap: spacing.md }]}>
           <Text style={[styles.eyebrow, { color: COPPER }]}>{c.profiles.eyebrow}</Text>
           <Text style={[styles.h2, { color: '#FBF6EE', maxWidth: 760 }]} role="heading" aria-level={2}>
@@ -183,55 +212,43 @@ export function PartnersLanding() {
         </View>
       </View>
 
-      {/* Partner wall */}
-      <View style={[styles.inner, styles.section]} nativeID="partenaires">
-        <View style={[{ gap: spacing.md }, wide && { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }]}>
-          <View style={{ gap: spacing.sm, maxWidth: 640 }}>
-            <Text style={styles.eyebrow}>{c.wall.eyebrow}</Text>
-            <Text style={styles.h2} role="heading" aria-level={2}>
-              {c.wall.title}
-            </Text>
-            <Text style={styles.body}>{c.wall.text}</Text>
+      {/* Partners who chose to appear here: only once there are some. */}
+      {wall.length ? (
+        <View style={[styles.inner, styles.section]} nativeID="partenaires">
+          <Text style={styles.eyebrow}>{c.wall.eyebrow}</Text>
+          <Text style={styles.h2} role="heading" aria-level={2}>
+            {c.wall.title}
+          </Text>
+          <View style={[styles.wall, { marginTop: spacing.xl }]}>
+            {wall.map((p) => (
+              <Pressable
+                key={p.logo_path}
+                onPress={() => p.website && Linking.openURL(p.website.startsWith('http') ? p.website : `https://${p.website}`)}
+                style={({ hovered }: any) => [styles.tile, { width: wide ? '24.2%' : '48.5%' } as any, hovered && p.website ? styles.tileHover : null]}
+                accessibilityRole={p.website ? 'link' : undefined}
+                accessibilityLabel={p.name}
+              >
+                <View style={styles.tileLogo}>
+                  {Platform.OS === 'web' ? (
+                    // eslint-disable-next-line jsx-a11y/alt-text
+                    <img src={partnerLogoUrl(p.logo_path)} alt={p.name} loading="lazy" style={{ maxWidth: '78%', maxHeight: 64, objectFit: 'contain' }} />
+                  ) : (
+                    <Text style={styles.tileName}>{p.name}</Text>
+                  )}
+                </View>
+                <Text style={styles.tileName} numberOfLines={1}>
+                  {p.name}
+                </Text>
+                {p.tagline ? (
+                  <Text style={styles.tileTag} numberOfLines={2}>
+                    {p.tagline}
+                  </Text>
+                ) : null}
+              </Pressable>
+            ))}
           </View>
         </View>
-        <View style={[styles.wall, { marginTop: spacing.xl }]}>
-          {wall.map((p) => (
-            <Pressable
-              key={p.logo_path}
-              onPress={() => p.website && Linking.openURL(p.website.startsWith('http') ? p.website : `https://${p.website}`)}
-              style={({ hovered }: any) => [styles.tile, { width: wide ? '24.2%' : '48.5%' } as any, hovered && p.website ? styles.tileHover : null]}
-              accessibilityRole={p.website ? 'link' : undefined}
-              accessibilityLabel={p.name}
-            >
-              <View style={styles.tileLogo}>
-                {Platform.OS === 'web' ? (
-                  // eslint-disable-next-line jsx-a11y/alt-text
-                  <img src={partnerLogoUrl(p.logo_path)} alt={p.name} loading="lazy" style={{ maxWidth: '78%', maxHeight: 64, objectFit: 'contain' }} />
-                ) : (
-                  <Text style={styles.tileName}>{p.name}</Text>
-                )}
-              </View>
-              <Text style={styles.tileName} numberOfLines={1}>
-                {p.name}
-              </Text>
-              {p.tagline ? (
-                <Text style={styles.tileTag} numberOfLines={2}>
-                  {p.tagline}
-                </Text>
-              ) : null}
-            </Pressable>
-          ))}
-          {Array.from({ length: empty }).map((_, i) => (
-            <Link key={`empty-${i}`} href={'/connexion?mode=signup' as any} style={[styles.tile, styles.tileEmpty, { width: wide ? '24.2%' : '48.5%' } as any]}>
-              <View style={{ alignItems: 'center', gap: 6 }}>
-                <Feather name="plus" size={20} color={colors.primary} />
-                <Text style={styles.tileEmptyTitle}>{c.wall.yours}</Text>
-                <Text style={styles.tileTag}>{c.wall.yoursText}</Text>
-              </View>
-            </Link>
-          ))}
-        </View>
-      </View>
+      ) : null}
 
       {/* FAQ */}
       <View style={[styles.inner, styles.section, wide && styles.split]}>
@@ -273,37 +290,46 @@ export function PartnersLanding() {
   );
 }
 
-// The partner label: a seal with the Cantia mark.
-function Seal({ top, bottom, size }: { top: string; bottom: string; size: number }) {
-  const r = size / 2;
-  const tr = r - 34;
+// How one recommendation is followed, step by step, with the real rules of
+// the programme (an example, labelled as such). The QR code is drawn by the
+// same component as the partner's own one in their space.
+function Trace({ t }: { t: LandingCopy['trace'] }) {
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }} aria-hidden>
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute' }}>
-        <Defs>
-          <Path id="sealTop" d={`M ${r - tr} ${r} A ${tr} ${tr} 0 0 1 ${r + tr} ${r}`} />
-          <Path id="sealBottom" d={`M ${r - tr} ${r} A ${tr} ${tr} 0 0 0 ${r + tr} ${r}`} />
-        </Defs>
-        <Circle cx={r} cy={r} r={r - 2} fill="none" stroke="rgba(217,137,90,0.55)" strokeWidth={1} />
-        <Circle cx={r} cy={r} r={r - 12} fill="none" stroke="rgba(232,220,203,0.18)" strokeWidth={1} />
-        <Circle cx={r} cy={r} r={r - 58} fill="rgba(255,255,255,0.025)" stroke="rgba(217,137,90,0.35)" strokeWidth={1} />
-        <SvgText fill={SAND} fontSize={size * 0.043} letterSpacing={size * 0.012} fontFamily="Michroma, Archivo, sans-serif">
-          <TextPath href="#sealTop" startOffset="50%" textAnchor="middle">
-            {top}
-          </TextPath>
-        </SvgText>
-        <SvgText fill={COPPER} fontSize={size * 0.036} letterSpacing={size * 0.012} fontFamily="Michroma, Archivo, sans-serif" dy={size * 0.035}>
-          <TextPath href="#sealBottom" startOffset="50%" textAnchor="middle">
-            {bottom}
-          </TextPath>
-        </SvgText>
-        <Circle cx={r - tr} cy={r} r={2.5} fill={COPPER} />
-        <Circle cx={r + tr} cy={r} r={2.5} fill={COPPER} />
-      </Svg>
-      <View style={{ alignItems: 'center', gap: 10 }}>
-        <BrandMark size={size * 0.24} tone="white" />
-        <Text style={[styles.sealWord, { fontSize: size * 0.04 }]}>PARTNERS</Text>
+    <View style={styles.trace}>
+      <View style={styles.traceHead}>
+        <Text style={styles.traceLabel}>{t.label}</Text>
+        <Text style={styles.traceChip}>{t.example}</Text>
       </View>
+      <View style={styles.linkRow}>
+        <View style={styles.qr}>
+          <QrCode value="https://cantia.ch" size={76} color={INK} />
+        </View>
+        <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+          <Text style={styles.linkLabel}>{t.linkLabel}</Text>
+          <Text style={styles.linkUrl} numberOfLines={1}>
+            cantia.ch/?ref=<Text style={{ color: COPPER_DEEP }}>{t.code}</Text>
+          </Text>
+        </View>
+      </View>
+      <View style={{ paddingTop: 6 }}>
+        {t.steps.map((st, i) => {
+          const last = i === t.steps.length - 1;
+          return (
+            <View key={st.title} style={styles.tStep}>
+              <Text style={styles.tWhen}>{st.when}</Text>
+              <View style={styles.tRail}>
+                <View style={[styles.tDot, last && styles.tDotLast]} />
+                {!last ? <View style={styles.tLine} /> : null}
+              </View>
+              <View style={[styles.tBody, last && { paddingBottom: 0 }]}>
+                <Text style={styles.tTitle}>{st.title}</Text>
+                <Text style={styles.tText}>{st.text}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+      <Text style={styles.traceFoot}>{t.foot}</Text>
     </View>
   );
 }
@@ -328,9 +354,9 @@ const styles = StyleSheet.create({
 
   hero: { backgroundColor: INK, overflow: 'hidden' },
   heroInner: { paddingTop: 72, paddingBottom: 64, gap: 48 },
-  heroInnerWide: { flexDirection: 'row', alignItems: 'center', paddingTop: 112, paddingBottom: 104, gap: 64 },
+  heroInnerWide: { flexDirection: 'row', alignItems: 'center', paddingTop: 104, paddingBottom: 112, gap: 72 },
   heroEyebrow: { ...mono, fontSize: 11.5, letterSpacing: 2, textTransform: 'uppercase', color: COPPER },
-  heroTitle: { ...heading, fontSize: 60, lineHeight: 64, letterSpacing: -1.8, color: '#FBF6EE' },
+  heroTitle: { ...heading, fontSize: 54, lineHeight: 59, letterSpacing: -1.6, color: '#FBF6EE' },
   heroTitleNarrow: { fontSize: 38, lineHeight: 43, letterSpacing: -0.9 },
   heroText: { fontSize: 18, lineHeight: 29, color: '#CDBFAE', maxWidth: 560 },
   heroNote: { ...mono, fontSize: 11, color: '#8E7D6B', letterSpacing: 0.4 },
@@ -339,12 +365,39 @@ const styles = StyleSheet.create({
   ctaPrimaryText: { fontSize: fontSize.md, fontWeight: '800', color: INK },
   ctaGhost: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(232,220,203,0.35)' },
   ctaGhostText: { fontSize: fontSize.md, fontWeight: '700', color: SAND },
-  sealWrap: { alignItems: 'center', gap: spacing.lg },
-  sealCaption: { ...mono, fontSize: 10.5, lineHeight: 16, color: '#8E7D6B', textAlign: 'center', maxWidth: 260 },
-  sealWord: { fontFamily: BRAND_DISPLAY_FONT, color: SAND, letterSpacing: 4 },
-  heroStrip: { borderTopWidth: 1, borderTopColor: 'rgba(232,220,203,0.12)' },
-  stripInner: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, paddingVertical: 20 },
-  stripItem: { ...mono, fontSize: 11.5, letterSpacing: 1.2, textTransform: 'uppercase', color: '#BFAF9C' },
+
+  trace: { backgroundColor: PAPER, borderRadius: 18, padding: 22, gap: 16, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 40, shadowOffset: { width: 0, height: 24 } },
+  traceHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  traceLabel: { ...mono, flex: 1, fontSize: 10.5, letterSpacing: 1.4, textTransform: 'uppercase', color: '#6B5A49' },
+  traceChip: { ...mono, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: COPPER_DEEP, borderWidth: 1, borderColor: 'rgba(169,92,48,0.45)', borderRadius: 999, paddingVertical: 3, paddingHorizontal: 9 },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 12, backgroundColor: '#F1E8DA' },
+  qr: { padding: 4, backgroundColor: '#FFFFFF', borderRadius: 8 },
+  linkLabel: { fontSize: 12.5, fontWeight: '700', color: '#6B5A49' },
+  linkUrl: { ...mono, fontSize: 12.5, color: INK },
+  tStep: { flexDirection: 'row', gap: 12 },
+  tWhen: { ...mono, width: 50, fontSize: 11, lineHeight: 20, color: '#8E7D6B', textAlign: 'right' },
+  tRail: { width: 12, alignItems: 'center' },
+  tDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 2, borderColor: INK, backgroundColor: PAPER, marginTop: 5 },
+  tDotLast: { backgroundColor: COPPER, borderColor: COPPER },
+  tLine: { flex: 1, width: 1.5, backgroundColor: '#D6C8B5', marginVertical: 3 },
+  tBody: { flex: 1, minWidth: 0, gap: 2, paddingBottom: 16 },
+  tTitle: { fontSize: 14.5, lineHeight: 20, fontWeight: '800', color: INK },
+  tText: { fontSize: 13, lineHeight: 19, color: '#5E4E3F' },
+  traceFoot: { fontSize: 12, lineHeight: 18, color: '#6B5A49', borderTopWidth: 1, borderTopColor: '#E4D8C6', paddingTop: 12 },
+
+  facts: { borderTopWidth: 1, borderTopColor: colors.text },
+  fact: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: spacing.md, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexWrap: 'wrap' },
+  factK: { ...mono, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.textMuted },
+  factV: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, textAlign: 'right', flexShrink: 1 },
+
+  product: { padding: 28, gap: 18, borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  productAlt: { backgroundColor: INK, borderColor: INK },
+  productHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  productName: { ...heading, fontSize: 24, lineHeight: 28, color: colors.text },
+  productWho: { ...mono, fontSize: 10.5, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.primary, marginTop: 3 },
+  productText: { fontSize: 16, lineHeight: 25, color: colors.textMuted },
+  point: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  pointText: { flex: 1, fontSize: 15, lineHeight: 21, color: colors.text },
 
   eyebrow: { ...mono, fontSize: 11, letterSpacing: 1.8, textTransform: 'uppercase', color: colors.primary },
   h2: { ...heading, fontSize: 38, lineHeight: 44, letterSpacing: -0.9, color: colors.text },
@@ -370,8 +423,6 @@ const styles = StyleSheet.create({
   tileLogo: { height: 72, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   tileName: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text, textAlign: 'center' },
   tileTag: { fontSize: fontSize.xs, lineHeight: 16, color: colors.textMuted, textAlign: 'center' },
-  tileEmpty: { borderStyle: 'dashed', backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center', display: 'flex' as any },
-  tileEmptyTitle: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
 
   faq: { borderTopWidth: 1, borderTopColor: colors.text },
   faqItem: { borderBottomWidth: 1, borderBottomColor: colors.border },
