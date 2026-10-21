@@ -205,7 +205,38 @@ export const acc = {
       p_last_name: lastName ?? null,
     }),
   activatePartner: () => call<unknown>('acc_activate_partner'),
+  findFirms: (query: string) => call<FirmMatch[]>('acc_find_firms', { p_query: query }),
+  requestJoin: (firmId: string, firstName: string, lastName: string, message: string) =>
+    call<string>('acc_request_join', { p_firm: firmId, p_first_name: firstName, p_last_name: lastName, p_message: message || null }),
+  myJoinRequest: () => call<MyJoinRequest | null>('acc_my_join_request'),
+  cancelJoinRequest: () => call<null>('acc_cancel_join_request'),
+  joinRequests: () => call<JoinRequest[]>('acc_join_requests'),
+  respondJoinRequest: (id: string, accept: boolean, role: 'ADMIN' | 'MEMBER') =>
+    call<null>('acc_respond_join_request', { p_id: id, p_accept: accept, p_role: role }),
 };
+
+export interface FirmMatch {
+  id: string;
+  name: string;
+  city: string | null;
+}
+
+export interface MyJoinRequest {
+  id: string;
+  firm_id: string;
+  firm_name: string;
+  firm_city: string | null;
+  created_at: string;
+}
+
+export interface JoinRequest {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  message: string | null;
+  created_at: string;
+}
 
 export const accAdmin = {
   am: () => call<boolean>('acc_am_admin'),

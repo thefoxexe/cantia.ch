@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Head from 'expo-router/head';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AccNav, AccPage } from '../components/accounting/AccountingChrome';
-import { AccountingOnboarding } from '../components/accounting/Onboarding';
+import { AccountingStart } from '../components/accounting/Onboarding';
 import { Cockpit } from '../components/accounting/Cockpit';
 import { AccShell, SECTIONS, type SectionKey } from '../components/accounting/Shell';
 import { useAccCopy } from '../lib/accounting/locale';
@@ -51,7 +51,7 @@ export default function AccountingSpace() {
           <meta name="robots" content="noindex" />
         </Head>
         <View style={styles.onboarding}>
-          <AccountingOnboarding defaults={{ firstName: meta?.first_name ?? first ?? '', lastName: meta?.last_name ?? rest.join(' ') }} onDone={load} />
+          <AccountingStart defaults={{ firstName: meta?.first_name ?? first ?? '', lastName: meta?.last_name ?? rest.join(' ') }} onDone={load} />
         </View>
       </AccPage>
     );

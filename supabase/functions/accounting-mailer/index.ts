@@ -125,6 +125,94 @@ function build(kind: string, l: Locale, p: Payload): Mail | null {
           url: `${ACCOUNTING_URL}/invitation?token=${p.token}`,
         },
       }[l];
+    case 'join_request': {
+      const who = esc(p.contact_name);
+      const mail = esc(p.details);
+      const note = p.title ? `« ${esc(p.title)} »` : null;
+      return {
+        fr: {
+          subject: `${who} demande à rejoindre ${firm}`,
+          title: `${who} veut rejoindre votre équipe.`,
+          paragraphs: [
+            `${who} (${mail}) a un compte Cantia et demande à rejoindre l’espace de ${firm}.`,
+            ...(note ? [note] : []),
+            'Dans Équipe, choisissez son rôle puis acceptez ou refusez. Tant que vous n’avez pas accepté, cette personne ne voit aucun mandant.',
+          ],
+          cta: 'Voir la demande',
+          url: `${ACCOUNTING_URL}/espace?tab=team`,
+        },
+        de: {
+          subject: `${who} möchte ${firm} beitreten`,
+          title: `${who} möchte Ihrem Team beitreten.`,
+          paragraphs: [
+            `${who} (${mail}) hat ein Cantia-Konto und möchte dem Bereich von ${firm} beitreten.`,
+            ...(note ? [note] : []),
+            'Wählen Sie unter Team die Rolle und nehmen Sie an oder lehnen Sie ab. Solange Sie nicht annehmen, sieht diese Person keine Mandanten.',
+          ],
+          cta: 'Anfrage ansehen',
+          url: `${ACCOUNTING_URL}/espace?tab=team`,
+        },
+        it: {
+          subject: `${who} chiede di unirsi a ${firm}`,
+          title: `${who} vuole unirsi al suo team.`,
+          paragraphs: [
+            `${who} (${mail}) ha un account Cantia e chiede di unirsi allo spazio di ${firm}.`,
+            ...(note ? [note] : []),
+            'In Team scelga il ruolo, poi accetti o rifiuti. Finché non accetta, questa persona non vede alcun mandante.',
+          ],
+          cta: 'Vedere la richiesta',
+          url: `${ACCOUNTING_URL}/espace?tab=team`,
+        },
+      }[l];
+    }
+    case 'join_accepted':
+      return {
+        fr: {
+          subject: `Vous faites partie de ${firm}`,
+          title: `Bienvenue chez ${firm}${p.first_name ? `, ${esc(p.first_name)}` : ''}.`,
+          paragraphs: [`Votre demande a été acceptée : vous êtes ${roleLabel(p.role)} dans l’espace Cantia de ${firm}.`, 'Connectez-vous pour retrouver les mandants, les travaux et les échéances du cabinet.'],
+          cta: 'Ouvrir l’espace du cabinet',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+        de: {
+          subject: `Sie gehören jetzt zu ${firm}`,
+          title: `Willkommen bei ${firm}${p.first_name ? `, ${esc(p.first_name)}` : ''}.`,
+          paragraphs: [`Ihre Anfrage wurde angenommen: Sie sind ${roleLabel(p.role)} im Cantia-Bereich von ${firm}.`, 'Melden Sie sich an, um die Mandanten, Arbeiten und Fristen der Treuhand zu sehen.'],
+          cta: 'Bereich der Treuhand öffnen',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+        it: {
+          subject: `Fa ora parte di ${firm}`,
+          title: `Benvenuto da ${firm}${p.first_name ? `, ${esc(p.first_name)}` : ''}.`,
+          paragraphs: [`La sua richiesta è stata accettata: è ${roleLabel(p.role)} nello spazio Cantia di ${firm}.`, 'Acceda per ritrovare i mandanti, i lavori e le scadenze dello studio.'],
+          cta: 'Aprire lo spazio dello studio',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+      }[l];
+    case 'join_declined':
+      return {
+        fr: {
+          subject: `Votre demande pour rejoindre ${firm}`,
+          title: 'Votre demande n’a pas été acceptée.',
+          paragraphs: [`Un responsable de ${firm} a refusé votre demande pour rejoindre son espace Cantia.`, 'S’il s’agit d’une erreur, contactez directement le cabinet. Vous pouvez aussi créer l’espace de votre propre fiduciaire.'],
+          cta: 'Ouvrir Cantia Accounting',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+        de: {
+          subject: `Ihre Anfrage, ${firm} beizutreten`,
+          title: 'Ihre Anfrage wurde nicht angenommen.',
+          paragraphs: [`Eine verantwortliche Person von ${firm} hat Ihre Anfrage abgelehnt.`, 'Falls es sich um einen Irrtum handelt, kontaktieren Sie die Treuhand direkt. Sie können auch den Bereich Ihrer eigenen Treuhand erstellen.'],
+          cta: 'Cantia Accounting öffnen',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+        it: {
+          subject: `La sua richiesta di unirsi a ${firm}`,
+          title: 'La sua richiesta non è stata accettata.',
+          paragraphs: [`Un responsabile di ${firm} ha rifiutato la sua richiesta.`, 'Se si tratta di un errore, contatti direttamente lo studio. Può anche creare lo spazio della sua fiduciaria.'],
+          cta: 'Aprire Cantia Accounting',
+          url: `${ACCOUNTING_URL}/espace`,
+        },
+      }[l];
     case 'client_invite_firm':
       return {
         fr: {

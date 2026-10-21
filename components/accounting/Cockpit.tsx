@@ -25,6 +25,7 @@ import {
   type DocumentRow,
   type Firm,
   type Invitation,
+  type JoinRequest,
   type Mandant,
   type Me,
   type Team,
@@ -48,7 +49,7 @@ export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Ta
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [m, d, i, r, a] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations(), work.requests(), pro.approvals()]);
+    const [m, d, i, r, a, j] = await Promise.all([acc.mandants(), acc.dashboard(), acc.invitations(), work.requests(), pro.approvals(), acc.joinRequests()]);
     setMandants(m.data ?? []);
     setDashboard(d.data);
     setInvitations((i.data ?? []).filter((x) => x.kind === 'NEW_CLIENT'));
@@ -56,6 +57,7 @@ export function Cockpit({ me, tab, onGo, onReload, onCounts }: { me: Me; tab: Ta
       clients: (m.data ?? []).filter((x) => x.status === 'PENDING_FIRM').length,
       requests: (r.data ?? []).filter((x) => x.status === 'answered').length,
       approvals: (a.data ?? []).filter((x) => x.status !== 'pending' && x.decided_at && Date.now() - new Date(x.decided_at).getTime() < 3 * 86400000).length,
+      team: (j.data ?? []).length,
     });
   }, [onCounts]);
 
@@ -506,6 +508,8 @@ function TeamTab({ me }: { me: Me }) {
   const isAdmin = isOwner || me.role === 'ADMIN';
   const [team, setTeam] = useState<Team | null>(null);
   const [audit, setAudit] = useState<AuditRow[]>([]);
+  const [joinReqs, setJoinReqs] = useState<JoinRequest[]>([]);
+  const [joinRoles, setJoinRoles] = useState<Record<string, 'ADMIN' | 'MEMBER'>>({});
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER');
   const [confirm, setConfirm] = useState<string | null>(null);
@@ -513,9 +517,14 @@ function TeamTab({ me }: { me: Me }) {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [tm, au] = await Promise.all([acc.team(), isAdmin ? acc.audit() : Promise.resolve({ data: [] as AuditRow[], error: null })]);
+    const [tm, au, jr] = await Promise.all([
+      acc.team(),
+      isAdmin ? acc.audit() : Promise.resolve({ data: [] as AuditRow[], error: null }),
+      isAdmin ? acc.joinRequests() : Promise.resolve({ data: [] as JoinRequest[], error: null }),
+    ]);
     setTeam(tm.data);
     setAudit(au.data ?? []);
+    setJoinReqs(jr.data ?? []);
   }, [isAdmin]);
 
   useEffect(() => {
@@ -536,6 +545,32 @@ function TeamTab({ me }: { me: Me }) {
   return (
     <View style={styles.stack}>
       {message ? <Text style={message.error ? styles.error : styles.success}>{message.text}</Text> : null}
+      {isAdmin && joinReqs.length ? (
+        <View style={[styles.card, styles.highlight]}>
+          <Text style={styles.cardTitle}>{t.joinTitle}</Text>
+          <Text style={styles.small}>{t.joinText}</Text>
+          {joinReqs.map((j) => {
+            const jr = joinRoles[j.id] ?? 'MEMBER';
+            return (
+              <View key={j.id} style={styles.memberRow}>
+                <View style={{ flex: 1, minWidth: 200 }}>
+                  <Text style={styles.body}>{`${j.first_name} ${j.last_name}`}</Text>
+                  <Text style={styles.small}>{`${j.email} · ${formatDate(j.created_at, locale)}`}</Text>
+                  {j.message ? <Text style={[styles.small, { fontStyle: 'italic' }]}>{`« ${j.message} »`}</Text> : null}
+                </View>
+                <View style={styles.chips}>
+                  <Chip label={t.roles.MEMBER} on={jr === 'MEMBER'} onPress={() => setJoinRoles((x) => ({ ...x, [j.id]: 'MEMBER' }))} />
+                  {isOwner ? <Chip label={t.roles.ADMIN} on={jr === 'ADMIN'} onPress={() => setJoinRoles((x) => ({ ...x, [j.id]: 'ADMIN' }))} /> : null}
+                </View>
+                <Button title={t.joinAccept} icon="check" loading={busy} onPress={() => run(() => acc.respondJoinRequest(j.id, true, jr), t.joinAccepted)} />
+                <Pressable onPress={() => run(() => acc.respondJoinRequest(j.id, false, 'MEMBER'), t.joinDeclined)} disabled={busy}>
+                  <Text style={styles.linkDanger}>{t.joinDecline}</Text>
+                </Pressable>
+              </View>
+            );
+          })}
+        </View>
+      ) : null}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{t.title}</Text>
         {team.members.map((m) => (
