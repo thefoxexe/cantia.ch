@@ -3,9 +3,12 @@
 // scripts/accounting-exports.test.mjs).
 //
 // A two-line entry (one debit, one credit) is one row with both accounts.
-// A split entry (more lines) becomes one row per line, each with only its
-// debit OR credit account and the same document number: the "collective
-// booking" every one of these programs reads.
+// An entry whose VAT was separated (base line with a VAT code, the VAT on
+// 2200 / 1170 / 1171, one counter line) is written the way these programs
+// book it: one row with the amount including VAT and the VAT code, the
+// program posting the VAT itself. Any other split entry becomes one row per
+// line, each with only its debit OR credit account and the same document
+// number: the "collective booking" every one of these programs reads.
 
 export interface ExportLine {
   account_code: string;
@@ -50,6 +53,11 @@ export function entryRows(entries: ExportEntry[]): ExportRow[] {
       rows.push({ date: e.entry_date, doc, text: e.label, debit: debits[0].account_code, credit: credits[0].account_code, amount: round2(Number(debits[0].debit)), vat });
       continue;
     }
+    const gross = grossVatRow(lines);
+    if (gross) {
+      rows.push({ date: e.entry_date, doc, text: e.label, ...gross });
+      continue;
+    }
     for (const l of lines) {
       const isDebit = Number(l.debit) > 0;
       rows.push({
@@ -64,6 +72,42 @@ export function entryRows(entries: ExportEntry[]): ExportRow[] {
     }
   }
   return rows;
+}
+
+const VAT_ACCOUNTS = ['2200', '1170', '1171'];
+
+// Base line + VAT line + counter line → one row, amount including VAT.
+// The code is the base line's (V81, M81, I81…) or, for entries posted by
+// Cantia itself, the one on the VAT line (V-NORM…), rewritten as the
+// standard code of the rate actually booked.
+const RATE_CODES: Record<string, string> = { '8.1': '81', '2.6': '26', '3.8': '38', '7.7': '77', '2.5': '25', '3.7': '37' };
+
+function grossVatRow(lines: ExportLine[]): { debit: string; credit: string; amount: number; vat: string } | null {
+  if (lines.length !== 3) return null;
+  const vatLines = lines.filter((l) => VAT_ACCOUNTS.includes(l.account_code));
+  if (vatLines.length !== 1) return null;
+  const v = vatLines[0];
+  const others = lines.filter((l) => l !== v);
+  const vIsCredit = Number(v.credit) > 0;
+  const base = others.find((l) => (Number(l.credit) > 0) === vIsCredit);
+  const counter = others.find((l) => (Number(l.credit) > 0) !== vIsCredit);
+  if (!base || !counter) return null;
+  const sale = v.account_code === '2200';
+  if (sale !== vIsCredit) return null;
+  const baseAmount = Number(base.debit) + Number(base.credit);
+  const tax = Number(v.debit) + Number(v.credit);
+  const amount = round2(Number(counter.debit) + Number(counter.credit));
+  if (!baseAmount || round2(baseAmount + tax) !== amount) return null;
+  let code = base.vat_code && /^[VMI](81|26|38|77|25|37)$/.test(base.vat_code) ? base.vat_code : null;
+  if (!code && v.vat_code && !base.vat_code) {
+    const digits = RATE_CODES[String(Math.round((tax / baseAmount) * 1000) / 10)];
+    if (!digits) return null;
+    code = `${sale ? 'V' : v.account_code === '1171' ? 'I' : 'M'}${digits}`;
+  }
+  if (!code || (code.startsWith('V') !== sale)) return null;
+  return vIsCredit
+    ? { debit: counter.account_code, credit: base.account_code, amount, vat: code }
+    : { debit: base.account_code, credit: counter.account_code, amount, vat: code };
 }
 
 const swissDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;

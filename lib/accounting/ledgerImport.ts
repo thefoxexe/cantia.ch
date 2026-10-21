@@ -3,6 +3,7 @@
 // any CSV / Excel journal), its chart of accounts and its opening balances,
 // and building the lines of a quick entry with Swiss VAT. Pure functions
 // (Node tests in scripts/ext-ledger.test.mjs); the screen reads the file.
+import { classifyVatCode } from './extVat.ts';
 
 export interface LedgerLine {
   account_code: string;
@@ -266,10 +267,7 @@ export function parseJournal(rows: unknown[][]): ParsedJournal {
           date,
           reference: doc || null,
           label: text || doc || 'Écriture',
-          lines: [
-            { account_code: dAcc, debit: amount, credit: 0, label: null, vat_code: vat },
-            { account_code: cAcc, debit: 0, credit: amount, label: null, vat_code: null },
-          ],
+          lines: grossVatLines(dAcc, cAcc, amount, vat),
         });
         continue;
       }
@@ -300,6 +298,33 @@ export function parseJournal(rows: unknown[][]): ParsedJournal {
   }
   flush();
   return { entries, errors, skipped, layout: c.layout };
+}
+
+// A row with both accounts and a VAT code carries the amount including VAT
+// (Banana, Abacus, Winbiz post the VAT from the code): the VAT goes to 2200
+// (sales) or 1170 / 1171 (input tax), the base line keeps the code.
+function grossVatLines(dAcc: string, cAcc: string, amount: number, vat: string | null): LedgerLine[] {
+  const k = vat ? classifyVatCode(vat) : null;
+  if (!k || !k.rate) {
+    return [
+      { account_code: dAcc, debit: amount, credit: 0, label: null, vat_code: vat },
+      { account_code: cAcc, debit: 0, credit: amount, label: null, vat_code: null },
+    ];
+  }
+  const tax = vatIncluded(amount, k.rate);
+  const net = round2(amount - tax);
+  if (k.category.startsWith('vente')) {
+    return [
+      { account_code: dAcc, debit: amount, credit: 0, label: null, vat_code: null },
+      { account_code: cAcc, debit: 0, credit: net, label: null, vat_code: vat },
+      { account_code: '2200', debit: 0, credit: tax, label: `TVA ${k.rate} %`, vat_code: null },
+    ];
+  }
+  return [
+    { account_code: dAcc, debit: net, credit: 0, label: null, vat_code: vat },
+    { account_code: k.category === 'achat_investissement' ? '1171' : '1170', debit: tax, credit: 0, label: `TVA ${k.rate} %`, vat_code: null },
+    { account_code: cAcc, debit: 0, credit: amount, label: null, vat_code: null },
+  ];
 }
 
 // ── chart of accounts and opening balances ─────────────────────────────
