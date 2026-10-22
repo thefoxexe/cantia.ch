@@ -6,10 +6,11 @@ import * as Linking from 'expo-linking';
 import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
+import { AdminSignupOrigin } from '../../../components/AdminSignupOrigin';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
-import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
-import type { AdminOrgEvent } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, getOrganizationOrigin, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import type { AdminOrgEvent, AdminOrgOrigin } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
@@ -123,13 +124,17 @@ export default function AdminOrganizationDetailScreen() {
   const [grantingTrial, setGrantingTrial] = useState(false);
   const [events, setEvents] = useState<AdminOrgEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+  const [origin, setOrigin] = useState<AdminOrgOrigin | null>(null);
+  const [originError, setOriginError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
-    const [d, mods, ev] = await Promise.all([getOrganizationDetail(id), listModules(), getOrganizationEvents(id)]);
+    const [d, mods, ev, orig] = await Promise.all([getOrganizationDetail(id), listModules(), getOrganizationEvents(id), getOrganizationOrigin(id)]);
     setDetail(d.detail);
     setAllModules(mods.rows);
     setEvents(ev.rows);
+    setOrigin(orig.origin);
+    setOriginError(orig.error);
     setEventsLoading(false);
     setError(d.error ?? mods.error);
     setLoading(false);
@@ -276,6 +281,15 @@ export default function AdminOrganizationDetailScreen() {
             </Text>
           </View>
         </View>
+
+        <Text style={styles.sectionTitle}>Provenance de l'inscription</Text>
+        {origin ? (
+          <AdminSignupOrigin origin={origin} />
+        ) : (
+          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>
+            {originError ? `Provenance indisponible : ${originError}` : 'Aucune donnée de provenance.'}
+          </Text>
+        )}
 
         {org.stripe_customer_id || org.promo_code_used ? (
           <>

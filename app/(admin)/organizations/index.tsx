@@ -8,8 +8,10 @@ import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
+import { SignupChannelChip } from '../../../components/AdminSignupOrigin';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getOrgBillingStatuses, getOrganizationDetail, listOrganizations } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, getSignupChannels, listOrganizations } from '../../../lib/api/admin';
+import type { SignupChannel } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
@@ -69,10 +71,14 @@ function escapeCsv(value: string): string {
   return /[;"\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
-function buildOrganizationsCsv(orgs: AdminOrganizationSummary[], billing: Record<string, AdminOrgBillingStatus>): string {
+function buildOrganizationsCsv(
+  orgs: AdminOrganizationSummary[],
+  billing: Record<string, AdminOrgBillingStatus>,
+  channels: Record<string, SignupChannel>,
+): string {
   const header = [
     'Nom', 'Adresse', 'NPA', 'Localité', 'E-mail', 'Téléphone', 'Propriétaire',
-    'Plan', 'Statut', "Essai jusqu'au", 'Prochain paiement', 'Montant (CHF)', 'Membres', 'Créée le',
+    'Plan', 'Statut', "Essai jusqu'au", 'Prochain paiement', 'Montant (CHF)', 'Membres', 'Créée le', 'Provenance',
   ];
   const rows = orgs.map((org) => {
     const b = billing[org.id];
@@ -91,6 +97,7 @@ function buildOrganizationsCsv(orgs: AdminOrganizationSummary[], billing: Record
       b?.next_invoice_amount_chf != null ? b.next_invoice_amount_chf.toFixed(2) : '',
       String(org.member_count),
       formatDateShort(org.created_at),
+      channels[org.id] ? [channels[org.id].label, channels[org.id].detail].filter(Boolean).join(' · ') : '',
     ]
       .map((v) => escapeCsv(v))
       .join(';');
@@ -137,6 +144,7 @@ function DetailField({ icon, label, value }: { icon: keyof typeof Feather.glyphM
 function OrgCard({
   org,
   billing,
+  channel,
   expanded,
   onToggle,
   onOpenDetail,
@@ -145,6 +153,7 @@ function OrgCard({
 }: {
   org: AdminOrganizationSummary;
   billing: AdminOrgBillingStatus | undefined;
+  channel: SignupChannel | undefined;
   expanded: boolean;
   onToggle: () => void;
   onOpenDetail: () => void;
@@ -169,6 +178,11 @@ function OrgCard({
             {' · '}Créée il y a {formatTenure(org.created_at)}
           </Text>
           {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
+          {channel && channel.key !== 'unknown' ? (
+            <View style={styles.channelLine}>
+              <SignupChannelChip channel={channel} compact />
+            </View>
+          ) : null}
         </View>
         <PaymentStatusIcon status={billing} />
         <AdminOrgStatusPill org={org} />
@@ -184,6 +198,11 @@ function OrgCard({
             <DetailField icon="credit-card" label="Carte enregistrée" value={card ?? 'Aucune'} />
             <DetailField icon="calendar" label="Créée le" value={formatDateShort(org.created_at)} />
             <DetailField icon="hash" label="Identifiant" value={org.id} />
+            <DetailField
+              icon="compass"
+              label="Provenance de l'inscription"
+              value={channel ? [channel.label, channel.detail].filter(Boolean).join(' · ') : '—'}
+            />
           </View>
 
           <Text style={styles.membersTitle}>Membres</Text>
@@ -228,6 +247,7 @@ export default function AdminOrganizationsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
+  const [channels, setChannels] = useState<Record<string, SignupChannel>>({});
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [membersByOrg, setMembersByOrg] = useState<Record<string, AdminOrganizationMember[]>>({});
   const [membersLoadingIds, setMembersLoadingIds] = useState<Set<string>>(new Set());
@@ -265,6 +285,7 @@ export default function AdminOrganizationsList() {
     // Non-blocking: the list renders immediately, real Stripe payment-method
     // status trickles in a moment later once this bulk call resolves.
     getOrgBillingStatuses(r.map((o) => o.id)).then(({ statuses }) => setBilling(statuses));
+    getSignupChannels(r.map((o) => o.id)).then(({ channels: c }) => setChannels(c));
   }, []);
 
   useEffect(() => {
@@ -291,7 +312,7 @@ export default function AdminOrganizationsList() {
   const [exporting, setExporting] = useState(false);
   async function handleExport() {
     setExporting(true);
-    const csv = buildOrganizationsCsv(filteredRows, billing);
+    const csv = buildOrganizationsCsv(filteredRows, billing, channels);
     const { error: err } = await downloadTextFile(`cantia-entreprises-${new Date().toISOString().slice(0, 10)}.csv`, csv);
     if (err) setError(err);
     setExporting(false);
@@ -369,6 +390,7 @@ export default function AdminOrganizationsList() {
                 key={item.id}
                 org={item}
                 billing={billing[item.id]}
+                channel={channels[item.id]}
                 expanded={expandedIds.has(item.id)}
                 onToggle={() => toggleExpanded(item.id)}
                 onOpenDetail={() => router.push(`/(admin)/organizations/${item.id}` as any)}
@@ -384,6 +406,10 @@ export default function AdminOrganizationsList() {
 }
 
 const styles = StyleSheet.create({
+  channelLine: {
+    flexDirection: 'row',
+    marginTop: 6,
+  },
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,

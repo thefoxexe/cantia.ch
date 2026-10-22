@@ -8,7 +8,7 @@ import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, i18next, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
 import { setWorkTerm, type WorkTerm } from './vocabulary';
-import { getStoredAttribution, getStoredFiduciaryInvite, getStoredReferral } from './siteAnalytics';
+import { getStoredAttribution, getStoredFiduciaryInvite, getStoredOrigin, getStoredReferral } from './siteAnalytics';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -507,6 +507,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       if (fiduciaryInvite && orgId) {
         await supabase.rpc('org_claim_fiduciary_invite', { p_org: orgId, p_token: fiduciaryInvite });
+      }
+      // Where the signup came from, for the admin dashboard: the first
+      // visit on cantia.ch (only kept when cookies were accepted) and the
+      // surface it happened on. Never blocks the signup.
+      if (orgId) {
+        const origin = Platform.OS === 'web' ? getStoredOrigin() : null;
+        const { error: originError } = await supabase.rpc('record_signup_origin', {
+          p_org: orgId,
+          p_visitor_id: origin?.visitor_id ?? null,
+          p_landing_path: origin?.landing_path ?? null,
+          p_landing_referrer: origin?.referrer ?? null,
+          p_first_seen_at: origin?.first_seen_at ?? null,
+          p_host: Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.hostname : Platform.OS,
+        });
+        if (originError) console.warn('[signup] origin not recorded:', originError.message);
       }
       // Chantier / projet / mandat / dossier, asked on the same screen.
       // and the trades inside the sector.

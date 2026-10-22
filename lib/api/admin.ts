@@ -69,6 +69,73 @@ export async function getOrganizationDetail(orgId: string): Promise<{ detail: Ad
   return { detail: error ? null : (data as AdminOrganizationDetail), error: logRpcError('admin_get_organization_detail', error) };
 }
 
+export interface SignupChannel {
+  key: 'partner' | 'fiduciary' | 'google_ads' | 'campaign' | 'search' | 'social' | 'ai' | 'website' | 'blog' | 'direct' | 'site' | 'unknown';
+  label: string;
+  detail: string | null;
+}
+
+export interface AdminOrgOrigin {
+  channel: SignupChannel;
+  created_at: string;
+  // Where the company was created: a web hostname (app.cantia.ch, …) or
+  // 'ios' / 'android'. Null for companies created before it was recorded.
+  host: string | null;
+  owner: {
+    email: string;
+    account_created_at: string;
+    provider: string | null;
+    signup_source: string | null;
+    newsletter: boolean | null;
+  } | null;
+  campaign: {
+    utm_source: string | null;
+    utm_medium: string | null;
+    utm_campaign: string | null;
+    utm_content: string | null;
+    utm_term: string | null;
+    gclid: boolean;
+  } | null;
+  signup_referrer: string | null;
+  first_visit: { landing_path: string | null; referrer: string | null; at: string | null } | null;
+  journey: {
+    pageviews: number;
+    days: number;
+    first_at: string | null;
+    last_at: string | null;
+    pages: { path: string; at: string; views: number }[];
+    referrers: string[];
+    actions: { page: string; kind: string; at: string }[];
+  } | null;
+  partner: {
+    name: string | null;
+    code: string | null;
+    source: string | null;
+    first_click_at: string | null;
+    attributed_at: string | null;
+    clicks: { landing_page: string | null; referrer: string | null; at: string }[];
+  } | null;
+  fiduciaries: { firm: string; city: string | null; source: string; status: string; requested_at: string | null }[];
+  blog_leads: { slug: string | null; at: string }[];
+}
+
+// Where a company's signup came from — the channel plus every trace the
+// platform already keeps (first visit, pages seen before signing up,
+// campaign, partner link, fiduciary invitation, blog lead).
+export async function getOrganizationOrigin(orgId: string): Promise<{ origin: AdminOrgOrigin | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_get_organization_origin', { p_org: orgId });
+  return { origin: error ? null : (data as AdminOrgOrigin), error: logRpcError('admin_get_organization_origin', error) };
+}
+
+export async function getSignupChannels(organizationIds: string[]): Promise<{ channels: Record<string, SignupChannel>; error: string | null }> {
+  if (organizationIds.length === 0) return { channels: {}, error: null };
+  const { data, error } = await supabase.rpc('admin_signup_channels', { p_ids: organizationIds });
+  const err = logRpcError('admin_signup_channels', error);
+  const channels: Record<string, SignupChannel> = {};
+  for (const row of (data ?? []) as { organization_id: string; channel: SignupChannel }[]) channels[row.organization_id] = row.channel;
+  return { channels, error: err };
+}
+
 export interface AdminOrgEvent {
   id: string;
   event_type: 'activated' | 'trial_started' | 'plan_changed' | 'canceled';

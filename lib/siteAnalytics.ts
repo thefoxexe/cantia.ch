@@ -5,7 +5,10 @@ import { startSessionReplay, stopSessionReplay } from './sessionReplay';
 // Self-hosted pageview logging for the marketing site — no third-party
 // script, no ad-tracking cookie. The visitor id is a random UUID kept in
 // localStorage purely to compute "unique visitors" (deduping repeat visits
-// from the same browser); it never leaves this domain and carries no PII.
+// from the same browser); it carries no PII. Once cookies are accepted, it
+// also rides in the "cantia_origin" cookie (see captureOrigin) so a company
+// created on app.cantia.ch can be linked back to the pages its owner saw on
+// cantia.ch beforehand — shown to platform admins only.
 // Gated to isMarketingHost() so the authenticated app (app.cantia.ch) is
 // never counted as "site traffic".
 //
@@ -128,8 +131,11 @@ export function setCookieConsent(value: CookieConsent): void {
     gtag?.('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
     const attr = takePending<Attribution>(PENDING_ATTR_KEY);
     if (attr && !readCookie(ATTR_COOKIE)) writeSharedCookie(ATTR_COOKIE, attr);
+    const origin = takePending<StoredOrigin>(PENDING_ORIGIN_KEY);
+    if (origin && !readCookie(ORIGIN_COOKIE)) writeSharedCookie(ORIGIN_COOKIE, origin);
   } else {
     takePending(PENDING_ATTR_KEY);
+    takePending(PENDING_ORIGIN_KEY);
   }
 }
 
@@ -160,6 +166,52 @@ function captureAttribution(): void {
   if (!attr) return;
   if (getCookieConsent() === 'accepted') writeSharedCookie(ATTR_COOKIE, attr);
   else if (getCookieConsent() === null) stashPending(PENDING_ATTR_KEY, attr);
+}
+
+// First visit on cantia.ch: landing page, the outside site it came from,
+// when, and the anonymous visitor id of the pageview log. Same consent rule
+// as the campaign cookie. Recorded on the company at signup
+// (record_signup_origin) so the admin dashboard can show where it came
+// from and the pages seen before signing up.
+const ORIGIN_COOKIE = 'cantia_origin';
+const PENDING_ORIGIN_KEY = 'cantia_origin_pending';
+
+export interface StoredOrigin {
+  visitor_id: string;
+  landing_path: string;
+  referrer: string | null;
+  first_seen_at: string;
+}
+
+function captureOrigin(path: string): void {
+  if (readCookie(ORIGIN_COOKIE)) return;
+  const consent = getCookieConsent();
+  if (consent === 'refused') return;
+  const ref = document.referrer || null;
+  let external: string | null = null;
+  try {
+    external = ref && !new URL(ref).hostname.endsWith('cantia.ch') ? ref.slice(0, 300) : null;
+  } catch {
+    external = null;
+  }
+  const origin: StoredOrigin = {
+    visitor_id: getVisitorId(),
+    landing_path: (path + window.location.search).slice(0, 300),
+    referrer: external,
+    first_seen_at: new Date().toISOString(),
+  };
+  if (consent === 'accepted') writeSharedCookie(ORIGIN_COOKIE, origin);
+  else stashPending(PENDING_ORIGIN_KEY, origin);
+}
+
+export function getStoredOrigin(): StoredOrigin | null {
+  const raw = readCookie(ORIGIN_COOKIE);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as StoredOrigin;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -295,6 +347,7 @@ export function trackPageview(path: string): void {
   lastTrackedPath = path;
 
   captureAttribution();
+  captureOrigin(path);
   // Recorded per-pageview from the live URL (not the persisted cookie) so
   // the traffic log shows exactly which campaign params arrived on which
   // page, independent of first-touch attribution used for signups.
