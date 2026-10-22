@@ -24,18 +24,16 @@ type Key = 'banana' | 'abacus' | 'winbiz' | 'xml' | 'form';
 type File = { name: string; mime: string; content: string };
 type SoftwareId = 'banana' | 'abacus' | 'winbiz' | 'csv' | 'afc' | 'bexio';
 
-// Real logos where we have the files (Banana: from Banana Accounting's own
-// public repository; Bexio: the one used by the integration page).
-const LOGOS: Partial<Record<SoftwareId, ImageSourcePropType>> = {
+// The real logos of the software and of the AFC portal (assets/software).
+const LOGOS: Record<SoftwareId, ImageSourcePropType> = {
   banana: require('../../../assets/software/banana.png'),
+  abacus: require('../../../assets/software/abacus.png'),
+  winbiz: require('../../../assets/software/winbiz.png'),
+  csv: require('../../../assets/software/excel.png'),
+  afc: require('../../../assets/software/confederation.png'),
   bexio: require('../../../assets/integrations/bexio-logo.png'),
 };
-const ICONS: Partial<Record<SoftwareId, keyof typeof Feather.glyphMap>> = {
-  csv: 'grid',
-  afc: 'send',
-  abacus: 'file-text',
-  winbiz: 'file-text',
-};
+const TAB_LOGO: Record<Key, SoftwareId> = { banana: 'banana', abacus: 'abacus', winbiz: 'winbiz', xml: 'afc', form: 'afc' };
 
 const LINE = '#EDE3D3';
 const SOFT = '#FBF7F0';
@@ -163,10 +161,10 @@ export function RealFiles({ wide }: { wide: boolean }) {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
                 {(Object.keys(t.tabs) as Key[]).map((k) => {
                   const on = tab === k;
-                  const logo = k === 'banana' ? LOGOS.banana : null;
+                  const logo = LOGOS[TAB_LOGO[k]];
                   return (
                     <Pressable key={k} onPress={() => setTab(k)} style={[styles.tab, on && styles.tabOn]} accessibilityRole="tab" aria-selected={on}>
-                      {logo ? <Image source={logo} style={styles.tabLogo} /> : null}
+                      <Image source={logo} style={styles.tabLogo} resizeMode="contain" />
                       <Text style={[styles.tabText, on && styles.tabTextOn]}>{t.tabs[k]}</Text>
                     </Pressable>
                   );
@@ -208,11 +206,9 @@ export function RealFiles({ wide }: { wide: boolean }) {
 }
 
 function SoftwareMark({ id }: { id: SoftwareId }) {
-  const logo = LOGOS[id];
-  if (logo) return <Image source={logo} style={styles.logo} accessibilityIgnoresInvertColors />;
   return (
-    <View style={styles.iconBox}>
-      <Feather name={ICONS[id] ?? 'file'} size={17} color={colors.primary} />
+    <View style={styles.logoBox}>
+      <Image source={LOGOS[id]} style={styles.logo} resizeMode="contain" accessibilityIgnoresInvertColors />
     </View>
   );
 }
@@ -359,8 +355,8 @@ const styles = StyleSheet.create({
   list: { marginTop: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden' },
   swRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, paddingHorizontal: 16 },
   swRowLine: { borderTopWidth: 1, borderTopColor: LINE },
-  logo: { width: 36, height: 36, borderRadius: 9 },
-  iconBox: { width: 36, height: 36, borderRadius: 9, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  logoBox: { width: 42, height: 42, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: LINE, alignItems: 'center', justifyContent: 'center' },
+  logo: { width: 30, height: 30 },
   swName: { fontSize: 15, fontWeight: '800', color: colors.text },
   swWhat: { fontSize: 13, lineHeight: 18, color: colors.textMuted },
   swFile: { maxWidth: 150, backgroundColor: SOFT, borderWidth: 1, borderColor: LINE, borderRadius: 6, paddingVertical: 4, paddingHorizontal: 8 },
@@ -375,7 +371,7 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', gap: 4, padding: 3, backgroundColor: SOFT, borderWidth: 1, borderColor: LINE, borderRadius: 8 },
   tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 6 },
   tabOn: { backgroundColor: colors.surface, shadowColor: '#2B211A', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } },
-  tabLogo: { width: 15, height: 15, borderRadius: 4 },
+  tabLogo: { width: 15, height: 15 },
   tabText: { fontSize: 12.5, fontWeight: '700', color: colors.textMuted },
   tabTextOn: { color: colors.text },
 

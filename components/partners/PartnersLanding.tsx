@@ -7,16 +7,15 @@ import { PAGE_MAX, PartnersNav, PartnersPage, useIsWide } from './PartnersChrome
 import { usePartnersCopy } from '../../lib/partners/locale';
 import { CONTACT_EMAIL, LANDING_COPY, type LandingCopy } from '../../lib/partners/landingCopy';
 import { getShowcase, partnerLogoUrl, type ShowcaseEntry } from '../../lib/partners/api';
-import { QrCode } from './QrCode';
 import { BrandMark } from '../brand/Logo';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
-// partners.cantia.ch landing (October 2026): a partnership first, in the
-// colours of the app. The hero shows the partner space as it is (link, QR,
-// what the Cantia team does with the partner, clients under anonymous
-// references, no amounts); the page then explains who does what around a
-// client, what the programme is today, and only then, plainly, how partners
-// are paid. Approved partners' logos appear only once there are some.
+// partners.cantia.ch landing (October 2026): a long-term business
+// partnership, in the colours of the app. The hero shows the written
+// framework of a partnership (as consigned in the partner space); the page
+// then presents three ways of working together, Cantia's commitments, where
+// the programme stands and, plainly, the terms. No affiliation vocabulary.
+// Approved partners' logos appear only once there are some.
 
 const ORIGIN = 'https://partners.cantia.ch';
 const LINE = '#EDE3D3';
@@ -95,42 +94,50 @@ export function PartnersLanding() {
             <Text style={styles.heroNote}>{c.hero.note}</Text>
           </View>
           <View style={wide ? { flex: 1.08 } : null}>
-            <SpaceMock t={c.space} wide={wide} />
+            <CharterMock t={c.charter} />
           </View>
         </View>
       </View>
 
-      {/* Who does what around a client */}
+      {/* Three ways of working together */}
       <View style={[styles.inner, styles.section]}>
-        <Text style={styles.eyebrow}>{c.together.eyebrow}</Text>
+        <Text style={styles.eyebrow}>{c.kinds.eyebrow}</Text>
         <Text style={[styles.h2, { maxWidth: 760 }]} role="heading" aria-level={2}>
-          {c.together.title}
+          {c.kinds.title}
         </Text>
-        <Text style={[styles.lead, { maxWidth: 640 }]}>{c.together.text}</Text>
-        <View style={[styles.together, wide && styles.togetherWide]}>
-          <Side title={c.together.you.title} items={c.together.you.items} icon="user" wide={wide} />
-          <View style={[styles.clientCol, wide && { flex: 0.9 }]}>
-            {wide ? <View style={styles.joinLine} /> : null}
-            <View style={styles.clientCard}>
-              <View style={styles.clientIcon}>
-                <Feather name="briefcase" size={20} color={colors.primary} />
+        <Text style={[styles.lead, { maxWidth: 640 }]}>{c.kinds.text}</Text>
+        <View style={[{ gap: spacing.md, marginTop: spacing.xl }, wide && { flexDirection: 'row' }]}>
+          {c.kinds.items.map((k, i) => (
+            <View key={k.name} style={[styles.kind, wide && { flex: 1 }]}>
+              <View style={styles.kindHead}>
+                <Text style={styles.kindNum}>{String(i + 1).padStart(2, '0')}</Text>
+                <Text style={styles.kindName}>{k.name}</Text>
               </View>
-              <Text style={styles.clientTitle}>{c.together.client.title}</Text>
-              <Text style={styles.clientText}>{c.together.client.text}</Text>
+              <Text style={styles.kindWho}>{k.who}</Text>
+              <View style={styles.kindBlock}>
+                <Text style={styles.kindLabel}>{c.kinds.you}</Text>
+                <Text style={styles.kindText}>{k.you}</Text>
+              </View>
+              <View style={[styles.kindBlock, styles.kindBlockUs]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <BrandMark size={14} />
+                  <Text style={styles.kindLabel}>{c.kinds.us}</Text>
+                </View>
+                <Text style={styles.kindText}>{k.us}</Text>
+              </View>
             </View>
-          </View>
-          <Side title={c.together.us.title} items={c.together.us.items} brand wide={wide} />
+          ))}
         </View>
       </View>
 
       {/* What the partnership brings */}
       <View style={[styles.inner, styles.section]}>
-        <Text style={styles.eyebrow}>{c.pillars.eyebrow}</Text>
+        <Text style={styles.eyebrow}>{c.commitments.eyebrow}</Text>
         <Text style={[styles.h2, { maxWidth: 720 }]} role="heading" aria-level={2}>
-          {c.pillars.title}
+          {c.commitments.title}
         </Text>
         <View style={[styles.grid, { marginTop: spacing.xl }]}>
-          {c.pillars.items.map((p, i) => (
+          {c.commitments.items.map((p, i) => (
             <View key={p.title} style={[styles.pillar, wide ? { width: '23.5%' as any } : { width: '100%' }]}>
               <View style={styles.pillarIcon}>
                 <Feather name={PILLAR_ICONS[i]} size={18} color={colors.primary} />
@@ -193,25 +200,6 @@ export function PartnersLanding() {
         </View>
       </View>
 
-      {/* Profiles */}
-      <View style={[styles.band, { marginTop: 112 }]}>
-        <View style={[styles.inner, { gap: spacing.md }]}>
-          <Text style={styles.eyebrow}>{c.profiles.eyebrow}</Text>
-          <Text style={[styles.h2, { maxWidth: 760 }]} role="heading" aria-level={2}>
-            {c.profiles.title}
-          </Text>
-          <Text style={styles.body}>{c.profiles.text}</Text>
-          <View style={[styles.grid, { marginTop: spacing.lg }]}>
-            {c.profiles.items.map((p) => (
-              <View key={p.title} style={[styles.profile, wide ? { width: '48.8%' as any } : { width: '100%' }]}>
-                <Text style={styles.pillarTitle}>{p.title}</Text>
-                <Text style={styles.body}>{p.text}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-
       {/* Process */}
       <View style={[styles.inner, styles.section]}>
         <Text style={styles.eyebrow}>{c.process.eyebrow}</Text>
@@ -234,16 +222,16 @@ export function PartnersLanding() {
         </View>
       </View>
 
-      {/* How partners are paid, plainly */}
+      {/* Terms, said plainly */}
       <View style={[styles.inner, styles.section]}>
         <View style={[styles.money, wide && styles.moneyWide]}>
           <View style={[{ gap: spacing.sm }, wide && { flex: 1.2 }]}>
-            <Text style={styles.eyebrow}>{c.money.eyebrow}</Text>
-            <Text style={styles.h3}>{c.money.title}</Text>
-            <Text style={styles.body}>{c.money.text}</Text>
+            <Text style={styles.eyebrow}>{c.terms.eyebrow}</Text>
+            <Text style={styles.h3}>{c.terms.title}</Text>
+            <Text style={styles.body}>{c.terms.text}</Text>
           </View>
           <View style={[{ gap: 12 }, wide && { flex: 1 }]}>
-            {c.money.facts.map((f) => (
+            {c.terms.facts.map((f) => (
               <View key={f} style={styles.point}>
                 <Feather name="check-circle" size={16} color={colors.success} />
                 <Text style={styles.pointText}>{f}</Text>
@@ -333,120 +321,47 @@ export function PartnersLanding() {
 
 const PILLAR_ICONS: (keyof typeof Feather.glyphMap)[] = ['message-circle', 'monitor', 'trending-up', 'shield'];
 
-function Side({ title, items, icon, brand, wide }: { title: string; items: string[]; icon?: keyof typeof Feather.glyphMap; brand?: boolean; wide: boolean }) {
+// The written framework of a partnership, as consigned in the partner
+// space (example). Decorative: the same facts are written out on the page.
+function CharterMock({ t }: { t: LandingCopy['charter'] }) {
   return (
-    <View style={[styles.side, wide && { flex: 1 }]}>
-      <View style={styles.sideHead}>
-        {brand ? (
-          <BrandMark size={28} />
-        ) : (
-          <View style={styles.sideIcon}>
-            <Feather name={icon ?? 'user'} size={15} color={colors.text} />
+    <View style={styles.charter} aria-hidden>
+      <View style={styles.charterHead}>
+        <View style={styles.marks}>
+          <View style={styles.markCantia}>
+            <BrandMark size={22} />
           </View>
-        )}
-        <Text style={styles.sideTitle}>{title}</Text>
+          <Text style={styles.times}>×</Text>
+          <View style={styles.markPartner}>
+            <Text style={styles.markPartnerText}>R</Text>
+          </View>
+        </View>
+        <Text style={styles.example}>{t.example}</Text>
       </View>
-      <View style={{ gap: 12 }}>
-        {items.map((it) => (
-          <View key={it} style={styles.point}>
-            <Feather name="check" size={15} color={colors.primary} />
-            <Text style={styles.pointText}>{it}</Text>
+      <View style={{ gap: 2 }}>
+        <Text style={styles.charterTitle}>{t.title}</Text>
+        <Text style={styles.charterParty}>
+          {t.partner} <Text style={{ color: colors.textMuted, fontWeight: '500' }}>· {t.partnerMeta}</Text>
+        </Text>
+      </View>
+      <View>
+        {t.rows.map((r) => (
+          <View key={r.k} style={styles.charterRow}>
+            <Text style={styles.charterK}>{r.k}</Text>
+            <View style={{ flex: 1, minWidth: 0, gap: 5 }}>
+              {r.v.map((v) => (
+                <View key={v} style={styles.charterV}>
+                  {r.v.length > 1 ? <Feather name="check" size={13} color={colors.primary} style={{ marginTop: 2 }} /> : null}
+                  <Text style={styles.charterVText}>{v}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         ))}
       </View>
-    </View>
-  );
-}
-
-// The partner space as it is (partners.cantia.ch/espace), with example data
-// and without the amounts. Decorative: the same facts are written out on the
-// page. The QR code is drawn by the same component as the partner's own one.
-function SpaceMock({ t, wide }: { t: LandingCopy['space']; wide: boolean }) {
-  return (
-    <View style={styles.window} aria-hidden>
-      <View style={styles.bar}>
-        <View style={styles.dots}>
-          {[0, 1, 2].map((i) => (
-            <View key={i} style={styles.dot} />
-          ))}
-        </View>
-        <View style={styles.url}>
-          <Feather name="lock" size={9} color={colors.textMuted} />
-          <Text style={styles.urlText}>partners.cantia.ch/espace</Text>
-        </View>
-        <View style={{ width: 42 }} />
-      </View>
-      <View style={styles.appHead}>
-        <BrandMark size={20} />
-        <Text style={styles.appBrand}>PARTNERS</Text>
-        <View style={{ flex: 1 }} />
-        {wide
-          ? t.tabs.map((tab, i) => (
-              <Text key={tab} style={[styles.appTab, i === 0 && styles.appTabOn]} numberOfLines={1}>
-                {tab}
-              </Text>
-            ))
-          : null}
-      </View>
-      <View style={styles.appBody}>
-        <View style={styles.helloRow}>
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.hello}>{t.hello}</Text>
-            <Text style={styles.helloSub} numberOfLines={1}>
-              {t.firm}
-            </Text>
-          </View>
-          <Text style={styles.example}>{t.example}</Text>
-        </View>
-
-        <View style={[{ gap: 12 }, wide && { flexDirection: 'row' }]}>
-          <View style={[styles.card, wide && { flex: 1 }]}>
-            <Text style={styles.cardTitle}>{t.linkTitle}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={styles.qr}>
-                <QrCode value="https://cantia.ch" size={64} color={colors.text} />
-              </View>
-              <View style={{ flex: 1, minWidth: 0, gap: 8 }}>
-                <Text style={styles.linkUrl} numberOfLines={2}>
-                  cantia.ch/?ref=<Text style={{ color: colors.primary }}>{t.code}</Text>
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-                  <View style={styles.miniBtn}>
-                    <Feather name="copy" size={11} color={colors.text} />
-                    <Text style={styles.miniBtnText}>{t.copy}</Text>
-                  </View>
-                  <View style={styles.miniBtn}>
-                    <Feather name="download" size={11} color={colors.text} />
-                    <Text style={styles.miniBtnText}>{t.kit}</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-          <View style={[styles.card, wide && { flex: 1 }]}>
-            <Text style={styles.cardTitle}>{t.teamTitle}</Text>
-            {t.team.map((it) => (
-              <View key={it} style={styles.teamRow}>
-                <Feather name="check-circle" size={13} color={colors.success} style={{ marginTop: 2 }} />
-                <Text style={styles.teamText}>{it}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t.clientsTitle}</Text>
-          {t.clients.map(([ref, plan, status], i) => (
-            <View key={ref} style={[styles.clientRow, i > 0 && { borderTopWidth: 1, borderTopColor: '#F4ECE0' }]}>
-              <Text style={styles.ref}>{ref}</Text>
-              <Text style={styles.plan} numberOfLines={1}>
-                {plan}
-              </Text>
-              <Text style={[styles.status, i === 2 && styles.statusTrial]}>{status}</Text>
-            </View>
-          ))}
-          <Text style={styles.clientsNote}>{t.clientsNote}</Text>
-        </View>
+      <View style={styles.charterFoot}>
+        <View style={styles.statusDot} />
+        <Text style={styles.charterStatus}>{t.status}</Text>
       </View>
     </View>
   );
@@ -484,46 +399,33 @@ const styles = StyleSheet.create({
   ctaGhost: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   ctaGhostText: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
 
-  window: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: '#E3D6C1',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#2B211A',
-    shadowOpacity: 0.12,
-    shadowRadius: 48,
-    shadowOffset: { width: 0, height: 24 },
-  },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.md, paddingVertical: 9, backgroundColor: SOFT, borderBottomWidth: 1, borderBottomColor: LINE },
-  dots: { flexDirection: 'row', gap: 6, width: 42 },
-  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#E2D5C2' },
-  url: { flex: 1, maxWidth: 320, alignSelf: 'center', marginHorizontal: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.surface, borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: LINE },
-  urlText: { fontSize: 11, color: colors.textMuted },
-  appHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: LINE },
-  appBrand: { fontSize: 10, fontWeight: '700', letterSpacing: 2, color: colors.primary },
-  appTab: { fontSize: 12, fontWeight: '600', color: colors.textMuted, paddingVertical: 4, paddingHorizontal: 8 },
-  appTabOn: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 5, fontWeight: '700' },
-  appBody: { padding: 16, gap: 12, backgroundColor: '#FFFDF9' },
-  helloRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  hello: { fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
-  helloSub: { fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
+  charter: { backgroundColor: colors.surface, borderWidth: 1, borderColor: '#E3D6C1', borderRadius: 14, padding: 24, gap: 18, shadowColor: '#2B211A', shadowOpacity: 0.1, shadowRadius: 40, shadowOffset: { width: 0, height: 20 } },
+  charterHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  marks: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  markCantia: { width: 40, height: 40, borderRadius: 10, borderWidth: 1, borderColor: LINE, backgroundColor: SOFT, alignItems: 'center', justifyContent: 'center' },
+  times: { fontSize: 16, color: colors.textMuted },
+  markPartner: { width: 40, height: 40, borderRadius: 10, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
+  markPartnerText: { color: '#FFFFFF', fontWeight: '800', fontSize: 16 },
   example: { fontSize: 10, fontWeight: '700', color: colors.textMuted, letterSpacing: 0.4, textTransform: 'uppercase', borderWidth: 1, borderColor: LINE, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: SOFT },
-  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: LINE, borderRadius: 8, padding: 12, gap: 8 },
-  cardTitle: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase', color: colors.textMuted },
-  qr: { padding: 4, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: LINE, borderRadius: 6 },
-  linkUrl: { ...mono, fontSize: 11.5, color: colors.text },
-  miniBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: LINE, borderRadius: 5, paddingVertical: 4, paddingHorizontal: 8, backgroundColor: SOFT },
-  miniBtnText: { fontSize: 11, fontWeight: '700', color: colors.text },
-  teamRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
-  teamText: { flex: 1, fontSize: 12.5, lineHeight: 18, color: colors.text },
-  clientRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
-  ref: { ...mono, width: 74, fontSize: 11.5, color: colors.text },
-  plan: { flex: 1, fontSize: 12.5, color: colors.textMuted },
-  status: { fontSize: 11, fontWeight: '700', color: colors.success, backgroundColor: colors.successSoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' },
-  statusTrial: { color: colors.warning, backgroundColor: colors.warningSoft },
-  clientsNote: { fontSize: 11.5, color: colors.textMuted, paddingTop: 4 },
+  charterTitle: { ...mono, fontSize: 11, letterSpacing: 1.6, textTransform: 'uppercase', color: colors.primary },
+  charterParty: { fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
+  charterRow: { flexDirection: 'row', gap: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: LINE },
+  charterK: { width: 128, fontSize: 12, fontWeight: '700', color: colors.textMuted, lineHeight: 18 },
+  charterV: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
+  charterVText: { flex: 1, fontSize: 13.5, lineHeight: 19, color: colors.text },
+  charterFoot: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 12, borderTopWidth: 1, borderTopColor: LINE },
+  statusDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success },
+  charterStatus: { fontSize: 12.5, fontWeight: '700', color: colors.success },
+
+  kind: { padding: 24, gap: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  kindHead: { flexDirection: 'row', alignItems: 'baseline', gap: 10 },
+  kindNum: { ...mono, fontSize: 12, color: colors.primary },
+  kindName: { ...heading, fontSize: 24, color: colors.text },
+  kindWho: { ...mono, fontSize: 10.5, letterSpacing: 1.1, textTransform: 'uppercase', color: colors.textMuted, marginTop: -6 },
+  kindBlock: { gap: 6, paddingTop: 12, borderTopWidth: 1, borderTopColor: LINE },
+  kindBlockUs: { backgroundColor: SOFT, borderTopWidth: 0, borderRadius: 10, padding: 12 },
+  kindLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase', color: colors.textMuted },
+  kindText: { fontSize: 14.5, lineHeight: 21, color: colors.text },
 
   h2: { ...heading, fontSize: 38, lineHeight: 44, letterSpacing: -0.9, color: colors.text },
   h3: { ...heading, fontSize: 26, lineHeight: 32, letterSpacing: -0.4, color: colors.text },
@@ -531,18 +433,6 @@ const styles = StyleSheet.create({
   body: { fontSize: fontSize.md, lineHeight: 24, color: colors.textMuted },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.xl },
 
-  together: { marginTop: spacing.xl, gap: spacing.md },
-  togetherWide: { flexDirection: 'row', alignItems: 'stretch', gap: 20 },
-  side: { padding: 24, gap: 16, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  sideHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  sideIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
-  sideTitle: { ...heading, fontSize: 20, color: colors.text },
-  clientCol: { justifyContent: 'center' },
-  joinLine: { position: 'absolute', left: -20, right: -20, top: '50%', height: 2, backgroundColor: colors.primarySoft },
-  clientCard: { alignItems: 'center', gap: 8, padding: 24, borderRadius: 14, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: '#EBC9AE' },
-  clientIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-  clientTitle: { ...heading, fontSize: 18, color: colors.text, textAlign: 'center' },
-  clientText: { fontSize: 14.5, lineHeight: 22, color: '#4E4034', textAlign: 'center' },
 
   pillar: { gap: spacing.sm, padding: 20, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   pillarIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
@@ -562,8 +452,6 @@ const styles = StyleSheet.create({
   point: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   pointText: { flex: 1, fontSize: 15, lineHeight: 21, color: colors.text },
 
-  band: { backgroundColor: colors.surfaceAlt, paddingVertical: 88, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border },
-  profile: { gap: 8, padding: spacing.xl, borderWidth: 1, borderColor: '#E3D2B8', borderRadius: radius.lg, backgroundColor: colors.surface },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs },
   stepDot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
