@@ -34,6 +34,7 @@ import { usePartnerSession } from '../lib/partners/session';
 import { supabase } from '../lib/supabase';
 import { displayType, monoType } from '../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+import { trackFiduciary, useTrackFiduciary } from '../lib/accounting/usage';
 
 // One client of the firm (accounting.cantia.ch/mandant?id=...). A dedicated,
 // light view: nothing from the construction side (photos, planning, notes,
@@ -107,6 +108,7 @@ export default function MandantPage() {
   const [me, setMe] = useState<Me | null>(null);
   const [client, setClient] = useState<ClientHeader | null | undefined>(undefined);
   const [section, setSection] = useState<Section>(params.tab && params.tab in SECTION_PERMISSION ? (params.tab as Section) : 'overview');
+  useTrackFiduciary(params.ext ? null : `client:${section}`);
   const w = useWorkCopy();
   const sectionLabel = (sec: Section) =>
     sec === 'overview'
@@ -490,6 +492,7 @@ function Accounting({ orgId, name, range, canExport }: { orgId: string; name: st
   const exportEntries = useCallback(async () => {
     setBusy('entries');
     const entries = await listEntries(orgId, { periodStart: range.start, periodEnd: range.end });
+    trackFiduciary('export:entries-csv');
     await downloadTextFile(`${slug}-ecritures-${period}.csv`, entriesToCsv(entries));
     setBusy(null);
   }, [orgId, range, slug, period]);
@@ -498,6 +501,7 @@ function Accounting({ orgId, name, range, canExport }: { orgId: string; name: st
     setBusy('trial');
     const rows = await getTrialBalance(orgId, range.start, range.end);
     const csv = ['Compte;Libellé;Solde ouverture;Débit;Crédit;Solde final', ...rows.map((r) => [r.code, `"${r.label.replace(/"/g, '""')}"`, r.openingBalance, r.debitMovements, r.creditMovements, r.closingBalance].join(';'))].join('\n');
+    trackFiduciary('export:balance-csv');
     await downloadTextFile(`${slug}-balance-${period}.csv`, csv);
     setBusy(null);
   }, [orgId, range, slug, period]);
@@ -506,6 +510,7 @@ function Accounting({ orgId, name, range, canExport }: { orgId: string; name: st
     if (!data?.vat) return;
     setBusy('vat');
     const settings = await getVatSettings(orgId);
+    trackFiduciary('export:vat-csv');
     await downloadTextFile(`${slug}-tva-${period}.csv`, vatWorksheetToCsv(data.vat, `${range.start} – ${range.end}`, settings));
     setBusy(null);
   }, [orgId, range, slug, period, data]);

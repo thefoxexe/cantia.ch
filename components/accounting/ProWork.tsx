@@ -29,6 +29,7 @@ import {
 import { parseDuration, useProCopy } from '../../lib/accounting/proCopy';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary } from '../../lib/accounting/usage';
 
 // ---------------------------------------------------------------------------
 // Work: checklists per client and period.
@@ -503,6 +504,7 @@ export function TimeSection({ me, client, embedded = false }: { me: Me; client?:
         [isoToSwiss(e.entry_date), esc(e.client_name), esc(e.description ?? ''), formatMinutes(e.minutes), e.minutes, e.billable ? '1' : '0', e.rate_chf ?? '', amountOf(e).toFixed(2), e.status, esc(e.user_name ?? '')].join(';'),
       ),
     ];
+    trackFiduciary('export:time-csv');
     await downloadTextFile(`temps-${range.from}_${range.to}.csv`, '﻿' + lines.join('\r\n'));
   }
 

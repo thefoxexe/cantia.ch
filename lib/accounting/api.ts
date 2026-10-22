@@ -268,7 +268,39 @@ export const accAdmin = {
     call<null>('acc_admin_set_firm', { p_firm: id, p_status: patch.status ?? null, p_verified: patch.verified ?? null }),
   addNote: (id: string, body: string) => call<null>('acc_admin_add_note', { p_firm: id, p_body: body }),
   removeAccess: (accessId: string, reason: string) => call<null>('acc_admin_remove_access', { p_access_id: accessId, p_reason: reason }),
+  activity: () => call<FirmActivity[]>('acc_admin_firms_activity'),
+  usage: (id: string) => call<FirmUsage>('acc_admin_firm_usage', { p_firm: id }),
 };
+
+// Super Admin › Fiduciaires: presence and usage (see fiduciary_usage migration).
+export interface FirmActivity {
+  firm_id: string;
+  last_seen_at: string | null;
+  last_sign_in_at: string | null;
+  last_action_at: string | null;
+  active_days_30: number;
+  views_30: number;
+  features_used: number;
+  features_total: number;
+}
+
+export interface FirmUsage {
+  features: { key: string; count: number; last_at: string | null; extra: string | null }[];
+  members: {
+    user_id: string;
+    name: string | null;
+    email: string;
+    role: string;
+    joined_at: string;
+    last_seen_at: string | null;
+    last_sign_in_at: string | null;
+    active_days_30: number;
+    top_areas: string[];
+  }[];
+  areas: { area: string; views: number; users: number; days: number; last_at: string }[];
+  daily: { day: string; views: number; users: number }[];
+  recent: { at: string; kind: 'action' | 'screen'; key: string; actor: string | null; client?: string | null; views?: number }[];
+}
 
 // Partner figures of the signed-in user (same functions as partners.cantia.ch).
 export async function partnerSummary(): Promise<{ active: boolean; code: string | null; brought: number; earned: number; available: number }> {

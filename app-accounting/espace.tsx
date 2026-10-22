@@ -12,6 +12,7 @@ import { useProCopy } from '../lib/accounting/proCopy';
 import { acc, type Me } from '../lib/accounting/api';
 import { usePartnerSession } from '../lib/partners/session';
 import { colors, spacing } from '../lib/theme';
+import { useTrackFiduciary } from '../lib/accounting/usage';
 
 // accounting.cantia.ch/espace: onboarding for a new fiduciary, then the
 // workspace. Signed-out visitors go to the sign-in page. The section is in
@@ -36,6 +37,8 @@ export default function AccountingSpace() {
     if (session === null) router.replace('/connexion');
     else if (session) load();
   }, [session, router, load]);
+
+  useTrackFiduciary(me ? `space:${tab}` : null);
 
   const go = useCallback((next: SectionKey) => router.setParams({ tab: next }), [router]);
 

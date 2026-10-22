@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button } from '../../../components/ui';
-import { accAdmin, formatChf, formatDate } from '../../../lib/accounting/api';
+import { accAdmin, formatChf, formatDate, type FirmActivity, type FirmUsage } from '../../../lib/accounting/api';
+import { FiduciaryUsagePanel, freshnessColor, relativeTime } from '../../../components/AdminFiduciaryUsage';
 import { displayType } from '../../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -23,11 +24,14 @@ export default function AdminFiduciaires() {
   const [firms, setFirms] = useState<Firms>([]);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<string | null>(null);
+  const [activity, setActivity] = useState<Record<string, FirmActivity>>({});
+  const [sort, setSort] = useState<'recent' | 'activity'>('activity');
 
   const load = useCallback(async () => {
-    const [o, f] = await Promise.all([accAdmin.overview(), accAdmin.firms()]);
+    const [o, f, a] = await Promise.all([accAdmin.overview(), accAdmin.firms(), accAdmin.activity()]);
     setOverview(o.data);
     setFirms(f.data ?? []);
+    setActivity(Object.fromEntries((a.data ?? []).map((r) => [r.firm_id, r])));
   }, []);
 
   useEffect(() => {
@@ -38,7 +42,15 @@ export default function AdminFiduciaires() {
   }, [load]);
 
   const q = query.trim().toLowerCase();
-  const list = firms.filter((f) => !q || [f.name, f.city, f.owner_email].filter(Boolean).join(' ').toLowerCase().includes(q));
+  const lastActive = (id: string) => {
+    const a = activity[id];
+    const t = [a?.last_seen_at, a?.last_action_at, a?.last_sign_in_at].filter(Boolean).map((d) => new Date(d as string).getTime());
+    return t.length ? Math.max(...t) : 0;
+  };
+  const list = firms
+    .filter((f) => !q || [f.name, f.city, f.owner_email].filter(Boolean).join(' ').toLowerCase().includes(q))
+    .sort((a, b) => (sort === 'activity' ? lastActive(b.id) - lastActive(a.id) : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+  const active7 = firms.filter((f) => Date.now() - lastActive(f.id) < 7 * 86400000).length;
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
@@ -57,6 +69,7 @@ export default function AdminFiduciaires() {
               <View style={styles.kpis}>
                 <Kpi label="Fiduciaires" value={String(overview.firms)} hint={`${overview.firms_new_30d} en 30 jours`} />
                 <Kpi label="Actives" value={String(overview.firms_active)} hint="au moins un mandant" />
+                <Kpi label="Utilisées cette semaine" value={String(active7)} hint="présence ou action < 7 jours" />
                 <Kpi label="Mandants liés" value={String(overview.linked_clients)} />
                 <Kpi label="Clients acquis" value={String(overview.acquired_clients)} />
                 <Kpi label="MRR acquis" value={formatChf(overview.acquired_mrr_chf)} />
@@ -65,6 +78,19 @@ export default function AdminFiduciaires() {
               </View>
             ) : null}
             <TextInput value={query} onChangeText={setQuery} placeholder="Rechercher une fiduciaire, une ville, un e-mail…" placeholderTextColor={colors.textMuted} style={styles.input} />
+            <View style={styles.sortRow}>
+              <Text style={styles.small}>Trier par</Text>
+              {(
+                [
+                  ['activity', 'Dernière activité'],
+                  ['recent', 'Inscription la plus récente'],
+                ] as const
+              ).map(([k, label]) => (
+                <Pressable key={k} onPress={() => setSort(k)} style={[styles.sortChip, sort === k && styles.sortChipActive]}>
+                  <Text style={[styles.sortChipText, sort === k && styles.sortChipTextActive]}>{label}</Text>
+                </Pressable>
+              ))}
+            </View>
             {list.length === 0 ? <Text style={styles.muted}>Aucune fiduciaire.</Text> : null}
             {list.map((f) => (
               <View key={f.id} style={styles.card}>
@@ -88,6 +114,7 @@ export default function AdminFiduciaires() {
                   <Metric label="Invitations" value={f.invitations} />
                   <Metric label="Clients acquis" value={f.acquired} />
                 </View>
+                <ActivityLine a={activity[f.id]} />
                 {open === f.id ? <FirmDetail id={f.id} onChanged={load} /> : null}
               </View>
             ))}
@@ -97,14 +124,38 @@ export default function AdminFiduciaires() {
   );
 }
 
+// Presence and usage at a glance, on every card.
+function ActivityLine({ a }: { a: FirmActivity | undefined }) {
+  if (!a) return null;
+  const seen = a.last_seen_at ?? a.last_sign_in_at;
+  return (
+    <View style={styles.activity}>
+      <View style={[styles.activityDot, { backgroundColor: freshnessColor(seen) }]} />
+      <Text style={styles.activityText}>
+        <Text style={styles.activityStrong}>Vu {relativeTime(seen)}</Text>
+        {'  ·  '}Dernière action {relativeTime(a.last_action_at)}
+        {'  ·  '}
+        {a.active_days_30} j actifs / 30
+        {'  ·  '}
+        {a.features_used} / {a.features_total} fonctions utilisées
+      </Text>
+    </View>
+  );
+}
+
 function FirmDetail({ id, onChanged }: { id: string; onChanged: () => void }) {
   const [detail, setDetail] = useState<Record<string, any> | null>(null);
+  const [usage, setUsage] = useState<FirmUsage | null>(null);
   const [note, setNote] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const load = useCallback(async () => setDetail((await accAdmin.firm(id)).data), [id]);
+  const load = useCallback(async () => {
+    const [d, u] = await Promise.all([accAdmin.firm(id), accAdmin.usage(id)]);
+    setDetail(d.data);
+    setUsage(u.data);
+  }, [id]);
   useEffect(() => {
     load();
   }, [load]);
@@ -132,6 +183,13 @@ function FirmDetail({ id, onChanged }: { id: string; onChanged: () => void }) {
       <Text style={styles.small}>
         {[firm.phone, firm.address, [firm.postal_code, firm.city].filter(Boolean).join(' '), firm.ide_number, firm.website, firm.mandates_range ? `${firm.mandates_range} mandats` : null, (firm.software ?? []).join(', ')].filter(Boolean).join(' · ')}
       </Text>
+
+      {usage ? (
+        <View style={styles.usageCard}>
+          <Text style={styles.usageTitle}>Utilisation</Text>
+          <FiduciaryUsagePanel usage={usage} />
+        </View>
+      ) : null}
 
       <Block title="Membres">
         {(detail.members ?? []).map((m: any) => (
@@ -274,4 +332,15 @@ const styles = StyleSheet.create({
   muted: { fontSize: fontSize.sm, color: colors.textMuted },
   warn: { fontSize: 12, color: colors.danger, fontWeight: '700' },
   link: { fontSize: fontSize.sm, color: colors.danger, fontWeight: '700' },
+  sortRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
+  sortChip: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingVertical: 5, paddingHorizontal: 12, backgroundColor: colors.surface },
+  sortChipActive: { backgroundColor: colors.primarySoft, borderColor: colors.primarySoft },
+  sortChipText: { fontSize: 12, fontWeight: '600', color: colors.text },
+  sortChipTextActive: { color: colors.primary, fontWeight: '700' },
+  activity: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.bg, borderRadius: radius.md, paddingVertical: 8, paddingHorizontal: spacing.md },
+  activityDot: { width: 8, height: 8, borderRadius: 4 },
+  activityText: { flex: 1, fontSize: 12, color: colors.textMuted },
+  activityStrong: { fontWeight: '700', color: colors.text },
+  usageCard: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.sm },
+  usageTitle: { fontSize: fontSize.md, fontWeight: '800', color: colors.text },
 });

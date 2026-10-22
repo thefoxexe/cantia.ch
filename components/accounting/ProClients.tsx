@@ -45,6 +45,7 @@ import { getTrialBalance } from '../../lib/api/accounting';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary } from '../../lib/accounting/usage';
 
 const CANTONS = ['AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR', 'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG', 'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH'];
 
@@ -390,6 +391,7 @@ export function ExportPanel({ org, name, range }: { org: string; name: string; r
       const rows = await loadPostedEntries(org, range.start, range.end);
       if (!rows.length) return setMessage({ text: t.none, error: true });
       const out = formatEntries(format, rows);
+      trackFiduciary(`export:${format}`);
       await downloadTextFile(`${slug}-${format}-${range.start}_${range.end}.${out.extension}`, out.content);
       setMessage({ text: fill(t.done, { count: rows.length }), error: false });
     } catch (e) {
@@ -408,6 +410,7 @@ export function ExportPanel({ org, name, range }: { org: string; name: string; r
       rows.filter((r) => r.type === 'actif' || r.type === 'passif').map((r) => ({ code: r.code, label: r.label, balance: r.closingBalance })),
       range.end,
     );
+    trackFiduciary(`export:${format}-balances`);
     await downloadTextFile(`${slug}-${format}-soldes-${range.end}.${format === 'banana' ? 'txt' : 'csv'}`, content);
     setBusy(null);
   }

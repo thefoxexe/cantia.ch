@@ -44,6 +44,7 @@ import { useProCopy } from '../../lib/accounting/proCopy';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary, useTrackFiduciary } from '../../lib/accounting/usage';
 
 // The books of a client outside Cantia, kept by the firm
 // (supabase/migrations/20261009090000_fiduciary_ledger.sql): journal with
@@ -66,6 +67,7 @@ const num = (s: string) => parseAmount(s) ?? 0;
 export function ExtLedger({ me, client, onChanged }: { me: Me; client: ExternalClient; onChanged: () => void }) {
   const l = useLedgerCopy();
   const [view, setView] = useState<LedgerView>('journal');
+  useTrackFiduciary(`ledger:${view}`);
   const [period, setPeriod] = useState<LedgerPeriod>('fy');
   const [accounts, setAccounts] = useState<LedgerAccount[] | null>(null);
   const [ledgerFor, setLedgerFor] = useState<string | null>(null);
@@ -722,6 +724,7 @@ function AccountLedgerView({ ext, code, range, name, onBack }: { ext: string; co
       [isoToSwiss(range.start), '', '', t.opening, '', '', '', Number(data.opening).toFixed(2)].join(';'),
       ...data.rows.map((r) => [isoToSwiss(r.entry_date), r.entry_number, csvCell(r.reference), csvCell(r.label), csvCell(r.counterpart), Number(r.debit) ? Number(r.debit).toFixed(2) : '', Number(r.credit) ? Number(r.credit).toFixed(2) : '', Number(r.balance).toFixed(2)].join(';')),
     ].join('\r\n');
+    trackFiduciary('export:ledger-account');
     await downloadTextFile(`${slugOf(name)}-grand-livre-${code}-${range.start}_${range.end}.csv`, '﻿' + csv + '\r\n');
   }
 
@@ -838,6 +841,7 @@ function ReportsView({ client, range, firmName }: { client: ExternalClient; rang
       [c.account, l.accounts.label, c.opening, c.debit, c.credit, c.closing].join(';'),
       ...data!.trial.map((r) => [r.code, csvCell(r.label), Number(r.opening).toFixed(2), Number(r.debit).toFixed(2), Number(r.credit).toFixed(2), Number(r.closing).toFixed(2)].join(';')),
     ].join('\r\n');
+    trackFiduciary('export:balance');
     await downloadTextFile(`${slugOf(client.name)}-balance-${range.start}_${range.end}.csv`, '﻿' + csv + '\r\n');
   }
 
@@ -976,6 +980,7 @@ function ExtExportPanel({ client, range }: { client: ExternalClient; range: { st
       const rows = await loadExtPostedEntries(client.id, range.start, range.end);
       if (!rows.length) return setMessage({ text: exportsCopy.none, error: true });
       const out = formatEntries(format, rows);
+      trackFiduciary(`export:${format}`);
       await downloadTextFile(`${slug}-${format}-${range.start}_${range.end}.${out.extension}`, out.content);
       setMessage({ text: fill(exportsCopy.done, { count: rows.length }), error: false });
     } catch (e) {
@@ -992,6 +997,7 @@ function ExtExportPanel({ client, range }: { client: ExternalClient; range: { st
       (data ?? []).filter((r) => r.type === 'actif' || r.type === 'passif').map((r) => ({ code: r.code, label: r.label, balance: Number(r.closing) })),
       range.end,
     );
+    trackFiduciary(`export:${format}-balances`);
     await downloadTextFile(`${slug}-${format}-soldes-${range.end}.${format === 'banana' ? 'txt' : 'csv'}`, content);
     setBusy(null);
   }

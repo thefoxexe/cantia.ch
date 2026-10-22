@@ -33,6 +33,7 @@ import {
 import { openPartnerSpace } from '../../lib/api/partners';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary, useTrackFiduciary } from '../../lib/accounting/usage';
 
 export { SECTIONS as TABS, type SectionKey as Tab } from './Shell';
 
@@ -136,6 +137,7 @@ function Kpi({ icon, label, value, warn = false, onPress }: { icon: keyof typeof
 
 export async function openDocument(path: string | null) {
   if (!path) return;
+  trackFiduciary('document:open');
   const url = await signedDocumentUrl(path);
   if (!url) return;
   if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(url, '_blank', 'noopener');
@@ -215,6 +217,7 @@ function ClientsTab({
   const [sort, setSort] = useState<Sort>('name');
   const [adding, setAdding] = useState(false);
   const [view, setView] = useState<'list' | 'portfolio'>('list');
+  useTrackFiduciary(view === 'portfolio' ? 'clients:portfolio' : null);
   const p = useProCopy();
 
   const list = useMemo(() => {

@@ -17,6 +17,7 @@ import { buildEch0217Xml } from '../../lib/api/accounting';
 import { downloadTextFile } from '../../lib/downloadFile';
 import { monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary } from '../../lib/accounting/usage';
 
 // The VAT returns and the annual closing of a client outside Cantia
 // (supabase/migrations/20261009120000_fiduciary_ledger_closing_vat.sql).
@@ -201,6 +202,7 @@ function VatPeriodPanel({
         { vatLiable: true, vatMethod: 'effective', vatBasisDefault: 'invoiced', vatPeriodicity: periodicity, vatLiableSince: null, vatRounding: fiveCents ? 'cinq_centimes' : 'aucun', ideNumber: ide || null },
         ech0217Report(built!.rows),
       );
+      trackFiduciary('export:vat-xml');
       await downloadTextFile(`${slugOf(client.name)}-tva-${deadlineKey(period.key)}.xml`, res.xml, 'application/xml');
       setMessage(res.warnings.length ? { text: res.warnings.join(' '), error: true } : null);
     } catch (e) {
@@ -213,6 +215,7 @@ function VatPeriodPanel({
       [x.figure, `"${(labels[x.figure] ?? '').replace(/"/g, '""')}"`, x.turnover != null ? x.turnover.toFixed(2) : '', x.rate != null ? String(x.rate) : '', (x.tax ?? x.amount ?? 0).toFixed(2)].join(';'),
     );
     const head = [t.cols.figure, t.cols.label, t.cols.turnover, t.cols.rate, t.cols.tax].join(';');
+    trackFiduciary('export:vat-csv');
     await downloadTextFile(`${slugOf(client.name)}-decompte-tva-${deadlineKey(period.key)}.csv`, '﻿' + [head, ...rows].join('\r\n') + '\r\n');
   }
 
@@ -542,6 +545,7 @@ export async function printAnnualAccounts(client: ExternalClient, firmName: stri
   const { data: prev } = await ledger.statements(client.id, dayBefore(cur.fy_start));
   const html = annualAccountsHtml(client, firmName, cur, prev && (prev.assets.length || prev.income.length || prev.expenses.length) ? prev : null, locale, l);
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    trackFiduciary('export:annual-accounts');
     const w = window.open('', '_blank');
     if (w) {
       w.document.open();
@@ -552,6 +556,7 @@ export async function printAnnualAccounts(client: ExternalClient, firmName: stri
       return;
     }
   }
+  trackFiduciary('export:annual-accounts');
   await downloadTextFile(`${slugOf(client.name)}-comptes-annuels-${to}.html`, html, 'text/html');
 }
 

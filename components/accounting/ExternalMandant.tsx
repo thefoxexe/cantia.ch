@@ -17,6 +17,7 @@ import { useProCopy } from '../../lib/accounting/proCopy';
 import { useLedgerCopy } from '../../lib/accounting/ledgerCopy';
 import { displayType } from '../../lib/marketingTheme';
 import { colors, fontSize, spacing } from '../../lib/theme';
+import { useTrackFiduciary } from '../../lib/accounting/usage';
 
 type Tab = 'overview' | 'ledger' | 'work' | 'requests' | 'deadlines' | 'approvals' | 'time' | 'notes' | 'settings';
 const TABS: Tab[] = ['overview', 'ledger', 'work', 'requests', 'deadlines', 'approvals', 'time', 'notes', 'settings'];
@@ -31,6 +32,7 @@ export function ExternalMandant({ me, id, initialTab }: { me: Me; id: string; in
   const wide = useIsWide(900);
   const [client, setClient] = useState<ExternalClient | null | undefined>(undefined);
   const [tab, setTab] = useState<Tab>(TABS.includes(initialTab as Tab) ? (initialTab as Tab) : 'overview');
+  useTrackFiduciary(`external:${tab}`);
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
   const isAdmin = me.role === 'OWNER' || me.role === 'ADMIN';

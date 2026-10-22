@@ -28,6 +28,7 @@ import { clientHref, pro, refFromKey, type ClientRef } from '../../lib/accountin
 import { ClientPicker, useClientOptions } from './ProShared';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { trackFiduciary } from '../../lib/accounting/usage';
 
 // ---------------------------------------------------------------------------
 // Small building blocks shared by the workspace screens.
@@ -89,6 +90,7 @@ function Tag({ label, tone }: { label: string; tone: 'neutral' | 'primary' | 'su
 }
 
 async function openFile(path: string) {
+  trackFiduciary('document:open');
   const url = await signedDocumentUrl(path);
   if (!url) return;
   if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(url, '_blank', 'noopener');

@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { BRAND_DISPLAY_FONT, BRAND_TERRACOTTA, BrandLockup, BrandLogo } from '../brand/Logo';
+import { useFiduciaryPresence } from '../../lib/accounting/usage';
 
 // The signed-in frame of accounting.cantia.ch: a fixed sidebar on large
 // screens, a top bar with a menu on phones, and ONE scrolling area for the
@@ -55,6 +56,7 @@ export function AccShell({
   const wide = useIsWide(1024);
   const [menuOpen, setMenuOpen] = useState(false);
   const isAdmin = me?.role === 'OWNER' || me?.role === 'ADMIN';
+  useFiduciaryPresence(!!me);
   const sections = SECTIONS.filter((s) => s !== 'settings' || isAdmin);
 
   function go(key: SectionKey) {
