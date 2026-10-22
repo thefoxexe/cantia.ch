@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { releaseHydrationViewport } from '../../lib/hydrationViewport';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Slot, usePathname, useRouter } from 'expo-router';
+import { Slot, usePathname, useRouter, useSegments } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../lib/auth-context';
+import { routeArea, trackOrgScreen } from '../../lib/api/usage';
 import { isModuleEnabled } from '../../lib/modules';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
@@ -134,6 +135,12 @@ export default function AppLayout() {
   const pathname = usePathname();
   const { t } = useTranslation();
   const { organization, canViewFinances, canManageDevis, canManagePayroll, permissions } = useAuth();
+  // Super Admin › Entreprises: which screens this company uses.
+  const segments = useSegments();
+  const area = routeArea(segments as string[]);
+  useEffect(() => {
+    if (organization?.id) trackOrgScreen(organization.id, area);
+  }, [organization?.id, area]);
   const devisEnabled = isModuleEnabled(organization?.enabled_modules, 'devis');
   const planningEnabled = isModuleEnabled(organization?.enabled_modules, 'planning') && permissions.planning;
   // Unlike Planning, RH & Salaires has no view permission gate: every member

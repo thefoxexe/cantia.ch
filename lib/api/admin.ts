@@ -21,6 +21,7 @@ import type {
   TutorialChapterStatus,
 } from '../types';
 import type { SocialScene } from '../socialIllustrations';
+import type { UsageData } from '../../components/AdminUsagePanel';
 
 // All admin_* RPCs re-check is_platform_admin() server-side and raise if the
 // caller isn't one — this client layer never has to guess who's allowed to
@@ -134,6 +135,33 @@ export async function getSignupChannels(organizationIds: string[]): Promise<{ ch
   const channels: Record<string, SignupChannel> = {};
   for (const row of (data ?? []) as { organization_id: string; channel: SignupChannel }[]) channels[row.organization_id] = row.channel;
   return { channels, error: err };
+}
+
+export interface AdminOrgActivity {
+  organization_id: string;
+  last_seen_at: string | null;
+  last_sign_in_at: string | null;
+  last_action_at: string | null;
+  active_days_30: number;
+  views_30: number;
+  features_used: number;
+  features_total: number;
+}
+
+// Presence and usage per company for the Entreprises list (see the
+// org_usage migration).
+export async function getOrgsActivity(organizationIds: string[]): Promise<{ activity: Record<string, AdminOrgActivity>; error: string | null }> {
+  if (organizationIds.length === 0) return { activity: {}, error: null };
+  const { data, error } = await supabase.rpc('admin_orgs_activity', { p_ids: organizationIds });
+  const activity: Record<string, AdminOrgActivity> = {};
+  for (const row of (data ?? []) as AdminOrgActivity[]) activity[row.organization_id] = row;
+  return { activity, error: logRpcError('admin_orgs_activity', error) };
+}
+
+// People, 30-day activity, features, screens and latest actions of one company.
+export async function getOrganizationUsage(orgId: string): Promise<{ usage: UsageData | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_org_usage', { p_org: orgId });
+  return { usage: error ? null : (data as UsageData), error: logRpcError('admin_org_usage', error) };
 }
 
 export interface AdminOrgEvent {

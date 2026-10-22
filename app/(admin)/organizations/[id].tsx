@@ -7,9 +7,11 @@ import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminSignupOrigin } from '../../../components/AdminSignupOrigin';
+import { OrgUsagePanel } from '../../../components/AdminOrgUsage';
+import type { UsageData } from '../../../components/AdminUsagePanel';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
-import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, getOrganizationOrigin, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, getOrganizationOrigin, getOrganizationUsage, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
 import type { AdminOrgEvent, AdminOrgOrigin } from '../../../lib/api/admin';
 import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
@@ -126,10 +128,20 @@ export default function AdminOrganizationDetailScreen() {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [origin, setOrigin] = useState<AdminOrgOrigin | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<UsageData | null>(null);
+  const [usageError, setUsageError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
-    const [d, mods, ev, orig] = await Promise.all([getOrganizationDetail(id), listModules(), getOrganizationEvents(id), getOrganizationOrigin(id)]);
+    const [d, mods, ev, orig, use] = await Promise.all([
+      getOrganizationDetail(id),
+      listModules(),
+      getOrganizationEvents(id),
+      getOrganizationOrigin(id),
+      getOrganizationUsage(id),
+    ]);
+    setUsage(use.usage);
+    setUsageError(use.error);
     setDetail(d.detail);
     setAllModules(mods.rows);
     setEvents(ev.rows);
@@ -281,6 +293,17 @@ export default function AdminOrganizationDetailScreen() {
             </Text>
           </View>
         </View>
+
+        <Text style={styles.sectionTitle}>Utilisation</Text>
+        {usage ? (
+          <View style={styles.usageCard}>
+            <OrgUsagePanel usage={usage} />
+          </View>
+        ) : (
+          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>
+            {usageError ? `Utilisation indisponible : ${usageError}` : 'Aucune donnée d’utilisation.'}
+          </Text>
+        )}
 
         <Text style={styles.sectionTitle}>Provenance de l'inscription</Text>
         {origin ? (
@@ -518,6 +541,15 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
     marginTop: spacing.md,
+  },
+  usageCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.xl,
   },
   billingCard: {
     gap: spacing.sm,

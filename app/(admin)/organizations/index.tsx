@@ -9,9 +9,10 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
 import { SignupChannelChip } from '../../../components/AdminSignupOrigin';
+import { freshnessColor, relativeTime } from '../../../components/AdminUsagePanel';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
-import { getOrgBillingStatuses, getOrganizationDetail, getSignupChannels, listOrganizations } from '../../../lib/api/admin';
-import type { SignupChannel } from '../../../lib/api/admin';
+import { getOrgBillingStatuses, getOrganizationDetail, getOrgsActivity, getSignupChannels, listOrganizations } from '../../../lib/api/admin';
+import type { AdminOrgActivity, SignupChannel } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
@@ -117,10 +118,11 @@ const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
   { key: 'past_due', label: 'Paiement en retard' },
 ];
 
-type SortKey = 'recent' | 'name' | 'members';
+type SortKey = 'recent' | 'activity' | 'name' | 'members';
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'recent', label: 'Plus récentes' },
+  { key: 'activity', label: 'Dernière activité' },
   { key: 'name', label: 'Nom' },
   { key: 'members', label: 'Plus de membres' },
 ];
@@ -145,6 +147,7 @@ function OrgCard({
   org,
   billing,
   channel,
+  activity,
   expanded,
   onToggle,
   onOpenDetail,
@@ -154,6 +157,7 @@ function OrgCard({
   org: AdminOrganizationSummary;
   billing: AdminOrgBillingStatus | undefined;
   channel: SignupChannel | undefined;
+  activity: AdminOrgActivity | undefined;
   expanded: boolean;
   onToggle: () => void;
   onOpenDetail: () => void;
@@ -178,6 +182,19 @@ function OrgCard({
             {' · '}Créée il y a {formatTenure(org.created_at)}
           </Text>
           {line ? <Text style={styles.rowBillingLine}>{line}</Text> : null}
+          {activity ? (
+            <View style={styles.activityLine}>
+              <View style={[styles.activityDot, { backgroundColor: freshnessColor(activity.last_seen_at ?? activity.last_sign_in_at) }]} />
+              <Text style={styles.activityText} numberOfLines={2}>
+                <Text style={styles.activityStrong}>Vu {relativeTime(activity.last_seen_at ?? activity.last_sign_in_at)}</Text>
+                {' · '}dernière action {relativeTime(activity.last_action_at)}
+                {' · '}
+                {activity.active_days_30} j actifs / 30
+                {' · '}
+                {activity.features_used}/{activity.features_total} fonctions
+              </Text>
+            </View>
+          ) : null}
           {channel && channel.key !== 'unknown' ? (
             <View style={styles.channelLine}>
               <SignupChannelChip channel={channel} compact />
@@ -248,6 +265,7 @@ export default function AdminOrganizationsList() {
   const [error, setError] = useState<string | null>(null);
   const [billing, setBilling] = useState<Record<string, AdminOrgBillingStatus>>({});
   const [channels, setChannels] = useState<Record<string, SignupChannel>>({});
+  const [activity, setActivity] = useState<Record<string, AdminOrgActivity>>({});
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [membersByOrg, setMembersByOrg] = useState<Record<string, AdminOrganizationMember[]>>({});
   const [membersLoadingIds, setMembersLoadingIds] = useState<Set<string>>(new Set());
@@ -286,6 +304,7 @@ export default function AdminOrganizationsList() {
     // status trickles in a moment later once this bulk call resolves.
     getOrgBillingStatuses(r.map((o) => o.id)).then(({ statuses }) => setBilling(statuses));
     getSignupChannels(r.map((o) => o.id)).then(({ channels: c }) => setChannels(c));
+    getOrgsActivity(r.map((o) => o.id)).then(({ activity: a }) => setActivity(a));
   }, []);
 
   useEffect(() => {
@@ -302,9 +321,17 @@ export default function AdminOrganizationsList() {
     const sorted = [...base];
     if (sortBy === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name, 'fr-CH'));
     else if (sortBy === 'members') sorted.sort((a, b) => b.member_count - a.member_count);
+    else if (sortBy === 'activity') {
+      const last = (id: string) => {
+        const a = activity[id];
+        const t = [a?.last_seen_at, a?.last_action_at, a?.last_sign_in_at].filter(Boolean).map((d) => new Date(d as string).getTime());
+        return t.length ? Math.max(...t) : 0;
+      };
+      sorted.sort((a, b) => last(b.id) - last(a.id));
+    }
     else sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     return sorted;
-  }, [rows, statusFilter, sortBy]);
+  }, [rows, statusFilter, sortBy, activity]);
 
   // Exports exactly what's currently on screen — the search box and status
   // chips above act as the targeting step (e.g. "Inscription incomplète" or
@@ -391,6 +418,7 @@ export default function AdminOrganizationsList() {
                 org={item}
                 billing={billing[item.id]}
                 channel={channels[item.id]}
+                activity={activity[item.id]}
                 expanded={expandedIds.has(item.id)}
                 onToggle={() => toggleExpanded(item.id)}
                 onOpenDetail={() => router.push(`/(admin)/organizations/${item.id}` as any)}
@@ -406,6 +434,26 @@ export default function AdminOrganizationsList() {
 }
 
 const styles = StyleSheet.create({
+  activityLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  activityDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  activityText: {
+    flex: 1,
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+  },
+  activityStrong: {
+    fontWeight: '700',
+    color: colors.text,
+  },
   channelLine: {
     flexDirection: 'row',
     marginTop: 6,
