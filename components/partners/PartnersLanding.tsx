@@ -11,22 +11,19 @@ import { QrCode } from './QrCode';
 import { BrandMark } from '../brand/Logo';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 
-// partners.cantia.ch landing (October 2026): a recommendation programme for
-// fiduciaries, resellers, suppliers and consultants, said plainly. It is
-// starting: no label, no "official partner", no empty logo wall. The hero
-// shows how one recommendation is followed, with the real rules; approved
-// partners' logos appear only once there are some. No public commission
-// rate: terms are agreed with each partner.
+// partners.cantia.ch landing (October 2026): a partnership first, in the
+// colours of the app. The hero shows the partner space as it is (link, QR,
+// what the Cantia team does with the partner, clients under anonymous
+// references, no amounts); the page then explains who does what around a
+// client, what the programme is today, and only then, plainly, how partners
+// are paid. Approved partners' logos appear only once there are some.
 
 const ORIGIN = 'https://partners.cantia.ch';
-const INK = '#120E0B';
-const SAND = '#E8DCCB';
-const COPPER = '#D9895A';
-const COPPER_DEEP = '#A95C30';
-const PAPER = '#FBF6EE';
+const LINE = '#EDE3D3';
+const SOFT = '#FBF7F0';
 
-const heading = { fontFamily: 'Archivo, system-ui, sans-serif', fontWeight: '700' as const };
-const mono = { fontFamily: '"Martian Mono", ui-monospace, monospace' };
+const heading = { fontFamily: 'Archivo, system-ui, sans-serif', fontWeight: '800' as const };
+const mono = { fontFamily: '"Martian Mono", ui-monospace, Menlo, monospace' };
 
 function mail() {
   Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Cantia Partners')}`);
@@ -80,8 +77,8 @@ export function PartnersLanding() {
       {/* Hero */}
       <View style={styles.hero}>
         <View style={[styles.inner, styles.heroInner, wide && styles.heroInnerWide]}>
-          <View style={[{ gap: spacing.lg }, wide && { flex: 1.15 }]}>
-            <Text style={styles.heroEyebrow}>{c.hero.eyebrow}</Text>
+          <View style={[{ gap: spacing.lg }, wide && { flex: 1 }]}>
+            <Text style={styles.eyebrow}>{c.hero.eyebrow}</Text>
             <Text style={[styles.heroTitle, !wide && styles.heroTitleNarrow]} role="heading" aria-level={1}>
               {c.hero.title}
             </Text>
@@ -92,14 +89,56 @@ export function PartnersLanding() {
               </Link>
               <Pressable onPress={mail} style={styles.ctaGhost} accessibilityRole="link">
                 <Text style={styles.ctaGhostText}>{c.hero.secondary}</Text>
-                <Feather name="arrow-up-right" size={16} color={SAND} />
+                <Feather name="arrow-up-right" size={16} color={colors.text} />
               </Pressable>
             </View>
             <Text style={styles.heroNote}>{c.hero.note}</Text>
           </View>
-          <View style={wide ? { flex: 1 } : null}>
-            <Trace t={c.trace} />
+          <View style={wide ? { flex: 1.08 } : null}>
+            <SpaceMock t={c.space} wide={wide} />
           </View>
+        </View>
+      </View>
+
+      {/* Who does what around a client */}
+      <View style={[styles.inner, styles.section]}>
+        <Text style={styles.eyebrow}>{c.together.eyebrow}</Text>
+        <Text style={[styles.h2, { maxWidth: 760 }]} role="heading" aria-level={2}>
+          {c.together.title}
+        </Text>
+        <Text style={[styles.lead, { maxWidth: 640 }]}>{c.together.text}</Text>
+        <View style={[styles.together, wide && styles.togetherWide]}>
+          <Side title={c.together.you.title} items={c.together.you.items} icon="user" wide={wide} />
+          <View style={[styles.clientCol, wide && { flex: 0.9 }]}>
+            {wide ? <View style={styles.joinLine} /> : null}
+            <View style={styles.clientCard}>
+              <View style={styles.clientIcon}>
+                <Feather name="briefcase" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.clientTitle}>{c.together.client.title}</Text>
+              <Text style={styles.clientText}>{c.together.client.text}</Text>
+            </View>
+          </View>
+          <Side title={c.together.us.title} items={c.together.us.items} brand wide={wide} />
+        </View>
+      </View>
+
+      {/* What the partnership brings */}
+      <View style={[styles.inner, styles.section]}>
+        <Text style={styles.eyebrow}>{c.pillars.eyebrow}</Text>
+        <Text style={[styles.h2, { maxWidth: 720 }]} role="heading" aria-level={2}>
+          {c.pillars.title}
+        </Text>
+        <View style={[styles.grid, { marginTop: spacing.xl }]}>
+          {c.pillars.items.map((p, i) => (
+            <View key={p.title} style={[styles.pillar, wide ? { width: '23.5%' as any } : { width: '100%' }]}>
+              <View style={styles.pillarIcon}>
+                <Feather name={PILLAR_ICONS[i]} size={18} color={colors.primary} />
+              </View>
+              <Text style={styles.pillarTitle}>{p.title}</Text>
+              <Text style={styles.body}>{p.text}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
@@ -134,18 +173,18 @@ export function PartnersLanding() {
           {c.products.items.map((p, i) => (
             <View key={p.name} style={[styles.product, i === 1 && styles.productAlt, wide && { flex: 1 }]}>
               <View style={styles.productHead}>
-                <BrandMark size={30} tone={i === 1 ? 'white' : 'color'} />
+                <BrandMark size={30} />
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={[styles.productName, i === 1 && { color: '#FBF6EE' }]}>{p.name}</Text>
-                  <Text style={[styles.productWho, i === 1 && { color: COPPER }]}>{p.who}</Text>
+                  <Text style={styles.productName}>{p.name}</Text>
+                  <Text style={styles.productWho}>{p.who}</Text>
                 </View>
               </View>
-              <Text style={[styles.productText, i === 1 && { color: '#CDBFAE' }]}>{p.text}</Text>
+              <Text style={styles.productText}>{p.text}</Text>
               <View style={{ gap: 10 }}>
                 {p.points.map((pt) => (
                   <View key={pt} style={styles.point}>
-                    <Feather name="check" size={15} color={i === 1 ? COPPER : colors.primary} />
-                    <Text style={[styles.pointText, i === 1 && { color: '#FBF6EE' }]}>{pt}</Text>
+                    <Feather name="check" size={15} color={colors.primary} />
+                    <Text style={styles.pointText}>{pt}</Text>
                   </View>
                 ))}
               </View>
@@ -154,36 +193,19 @@ export function PartnersLanding() {
         </View>
       </View>
 
-      {/* Pillars */}
-      <View style={[styles.inner, styles.section]}>
-        <Text style={styles.eyebrow}>{c.pillars.eyebrow}</Text>
-        <Text style={[styles.h2, { maxWidth: 720 }]} role="heading" aria-level={2}>
-          {c.pillars.title}
-        </Text>
-        <View style={[styles.grid, { marginTop: spacing.xl }]}>
-          {c.pillars.items.map((p, i) => (
-            <View key={p.title} style={[styles.pillar, wide ? { width: '23.5%' as any } : { width: '100%' }]}>
-              <Text style={styles.pillarNum}>{String(i + 1).padStart(2, '0')}</Text>
-              <Text style={styles.pillarTitle}>{p.title}</Text>
-              <Text style={styles.body}>{p.text}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Profiles, dark band */}
+      {/* Profiles */}
       <View style={[styles.band, { marginTop: 112 }]}>
         <View style={[styles.inner, { gap: spacing.md }]}>
-          <Text style={[styles.eyebrow, { color: COPPER }]}>{c.profiles.eyebrow}</Text>
-          <Text style={[styles.h2, { color: '#FBF6EE', maxWidth: 760 }]} role="heading" aria-level={2}>
+          <Text style={styles.eyebrow}>{c.profiles.eyebrow}</Text>
+          <Text style={[styles.h2, { maxWidth: 760 }]} role="heading" aria-level={2}>
             {c.profiles.title}
           </Text>
-          <Text style={[styles.body, { color: '#BFAF9C' }]}>{c.profiles.text}</Text>
+          <Text style={styles.body}>{c.profiles.text}</Text>
           <View style={[styles.grid, { marginTop: spacing.lg }]}>
             {c.profiles.items.map((p) => (
               <View key={p.title} style={[styles.profile, wide ? { width: '48.8%' as any } : { width: '100%' }]}>
-                <Text style={styles.profileTitle}>{p.title}</Text>
-                <Text style={[styles.body, { color: '#CDBFAE' }]}>{p.text}</Text>
+                <Text style={styles.pillarTitle}>{p.title}</Text>
+                <Text style={styles.body}>{p.text}</Text>
               </View>
             ))}
           </View>
@@ -209,6 +231,25 @@ export function PartnersLanding() {
               <Text style={styles.body}>{p.text}</Text>
             </View>
           ))}
+        </View>
+      </View>
+
+      {/* How partners are paid, plainly */}
+      <View style={[styles.inner, styles.section]}>
+        <View style={[styles.money, wide && styles.moneyWide]}>
+          <View style={[{ gap: spacing.sm }, wide && { flex: 1.2 }]}>
+            <Text style={styles.eyebrow}>{c.money.eyebrow}</Text>
+            <Text style={styles.h3}>{c.money.title}</Text>
+            <Text style={styles.body}>{c.money.text}</Text>
+          </View>
+          <View style={[{ gap: 12 }, wide && { flex: 1 }]}>
+            {c.money.facts.map((f) => (
+              <View key={f} style={styles.point}>
+                <Feather name="check-circle" size={16} color={colors.success} />
+                <Text style={styles.pointText}>{f}</Text>
+              </View>
+            ))}
+          </View>
         </View>
       </View>
 
@@ -270,7 +311,7 @@ export function PartnersLanding() {
         <View style={[styles.final, wide && styles.finalWide]}>
           <View style={[{ gap: spacing.sm }, wide && { flex: 1 }]}>
             <Text style={styles.finalTitle}>{c.final.title}</Text>
-            <Text style={[styles.body, { color: '#CDBFAE', maxWidth: 520 }]}>{c.final.text}</Text>
+            <Text style={[styles.body, { maxWidth: 520 }]}>{c.final.text}</Text>
             <Text style={styles.finalMail} selectable>
               {CONTACT_EMAIL}
             </Text>
@@ -281,7 +322,7 @@ export function PartnersLanding() {
             </Link>
             <Pressable onPress={mail} style={styles.ctaGhost}>
               <Text style={styles.ctaGhostText}>{c.final.write}</Text>
-              <Feather name="arrow-up-right" size={16} color={SAND} />
+              <Feather name="arrow-up-right" size={16} color={colors.text} />
             </Pressable>
           </View>
         </View>
@@ -290,46 +331,123 @@ export function PartnersLanding() {
   );
 }
 
-// How one recommendation is followed, step by step, with the real rules of
-// the programme (an example, labelled as such). The QR code is drawn by the
-// same component as the partner's own one in their space.
-function Trace({ t }: { t: LandingCopy['trace'] }) {
+const PILLAR_ICONS: (keyof typeof Feather.glyphMap)[] = ['message-circle', 'monitor', 'trending-up', 'shield'];
+
+function Side({ title, items, icon, brand, wide }: { title: string; items: string[]; icon?: keyof typeof Feather.glyphMap; brand?: boolean; wide: boolean }) {
   return (
-    <View style={styles.trace}>
-      <View style={styles.traceHead}>
-        <Text style={styles.traceLabel}>{t.label}</Text>
-        <Text style={styles.traceChip}>{t.example}</Text>
+    <View style={[styles.side, wide && { flex: 1 }]}>
+      <View style={styles.sideHead}>
+        {brand ? (
+          <BrandMark size={28} />
+        ) : (
+          <View style={styles.sideIcon}>
+            <Feather name={icon ?? 'user'} size={15} color={colors.text} />
+          </View>
+        )}
+        <Text style={styles.sideTitle}>{title}</Text>
       </View>
-      <View style={styles.linkRow}>
-        <View style={styles.qr}>
-          <QrCode value="https://cantia.ch" size={76} color={INK} />
-        </View>
-        <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
-          <Text style={styles.linkLabel}>{t.linkLabel}</Text>
-          <Text style={styles.linkUrl} numberOfLines={1}>
-            cantia.ch/?ref=<Text style={{ color: COPPER_DEEP }}>{t.code}</Text>
-          </Text>
-        </View>
+      <View style={{ gap: 12 }}>
+        {items.map((it) => (
+          <View key={it} style={styles.point}>
+            <Feather name="check" size={15} color={colors.primary} />
+            <Text style={styles.pointText}>{it}</Text>
+          </View>
+        ))}
       </View>
-      <View style={{ paddingTop: 6 }}>
-        {t.steps.map((st, i) => {
-          const last = i === t.steps.length - 1;
-          return (
-            <View key={st.title} style={styles.tStep}>
-              <Text style={styles.tWhen}>{st.when}</Text>
-              <View style={styles.tRail}>
-                <View style={[styles.tDot, last && styles.tDotLast]} />
-                {!last ? <View style={styles.tLine} /> : null}
+    </View>
+  );
+}
+
+// The partner space as it is (partners.cantia.ch/espace), with example data
+// and without the amounts. Decorative: the same facts are written out on the
+// page. The QR code is drawn by the same component as the partner's own one.
+function SpaceMock({ t, wide }: { t: LandingCopy['space']; wide: boolean }) {
+  return (
+    <View style={styles.window} aria-hidden>
+      <View style={styles.bar}>
+        <View style={styles.dots}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={styles.dot} />
+          ))}
+        </View>
+        <View style={styles.url}>
+          <Feather name="lock" size={9} color={colors.textMuted} />
+          <Text style={styles.urlText}>partners.cantia.ch/espace</Text>
+        </View>
+        <View style={{ width: 42 }} />
+      </View>
+      <View style={styles.appHead}>
+        <BrandMark size={20} />
+        <Text style={styles.appBrand}>PARTNERS</Text>
+        <View style={{ flex: 1 }} />
+        {wide
+          ? t.tabs.map((tab, i) => (
+              <Text key={tab} style={[styles.appTab, i === 0 && styles.appTabOn]} numberOfLines={1}>
+                {tab}
+              </Text>
+            ))
+          : null}
+      </View>
+      <View style={styles.appBody}>
+        <View style={styles.helloRow}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.hello}>{t.hello}</Text>
+            <Text style={styles.helloSub} numberOfLines={1}>
+              {t.firm}
+            </Text>
+          </View>
+          <Text style={styles.example}>{t.example}</Text>
+        </View>
+
+        <View style={[{ gap: 12 }, wide && { flexDirection: 'row' }]}>
+          <View style={[styles.card, wide && { flex: 1 }]}>
+            <Text style={styles.cardTitle}>{t.linkTitle}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={styles.qr}>
+                <QrCode value="https://cantia.ch" size={64} color={colors.text} />
               </View>
-              <View style={[styles.tBody, last && { paddingBottom: 0 }]}>
-                <Text style={styles.tTitle}>{st.title}</Text>
-                <Text style={styles.tText}>{st.text}</Text>
+              <View style={{ flex: 1, minWidth: 0, gap: 8 }}>
+                <Text style={styles.linkUrl} numberOfLines={2}>
+                  cantia.ch/?ref=<Text style={{ color: colors.primary }}>{t.code}</Text>
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+                  <View style={styles.miniBtn}>
+                    <Feather name="copy" size={11} color={colors.text} />
+                    <Text style={styles.miniBtnText}>{t.copy}</Text>
+                  </View>
+                  <View style={styles.miniBtn}>
+                    <Feather name="download" size={11} color={colors.text} />
+                    <Text style={styles.miniBtnText}>{t.kit}</Text>
+                  </View>
+                </View>
               </View>
             </View>
-          );
-        })}
+          </View>
+          <View style={[styles.card, wide && { flex: 1 }]}>
+            <Text style={styles.cardTitle}>{t.teamTitle}</Text>
+            {t.team.map((it) => (
+              <View key={it} style={styles.teamRow}>
+                <Feather name="check-circle" size={13} color={colors.success} style={{ marginTop: 2 }} />
+                <Text style={styles.teamText}>{it}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{t.clientsTitle}</Text>
+          {t.clients.map(([ref, plan, status], i) => (
+            <View key={ref} style={[styles.clientRow, i > 0 && { borderTopWidth: 1, borderTopColor: '#F4ECE0' }]}>
+              <Text style={styles.ref}>{ref}</Text>
+              <Text style={styles.plan} numberOfLines={1}>
+                {plan}
+              </Text>
+              <Text style={[styles.status, i === 2 && styles.statusTrial]}>{status}</Text>
+            </View>
+          ))}
+          <Text style={styles.clientsNote}>{t.clientsNote}</Text>
+        </View>
       </View>
-      <Text style={styles.traceFoot}>{t.foot}</Text>
     </View>
   );
 }
@@ -352,38 +470,83 @@ const styles = StyleSheet.create({
   section: { marginTop: 112, gap: spacing.md },
   split: { flexDirection: 'row', gap: 64 },
 
-  hero: { backgroundColor: INK, overflow: 'hidden' },
-  heroInner: { paddingTop: 72, paddingBottom: 64, gap: 48 },
-  heroInnerWide: { flexDirection: 'row', alignItems: 'center', paddingTop: 104, paddingBottom: 112, gap: 72 },
-  heroEyebrow: { ...mono, fontSize: 11.5, letterSpacing: 2, textTransform: 'uppercase', color: COPPER },
-  heroTitle: { ...heading, fontSize: 54, lineHeight: 59, letterSpacing: -1.6, color: '#FBF6EE' },
-  heroTitleNarrow: { fontSize: 38, lineHeight: 43, letterSpacing: -0.9 },
-  heroText: { fontSize: 18, lineHeight: 29, color: '#CDBFAE', maxWidth: 560 },
-  heroNote: { ...mono, fontSize: 11, color: '#8E7D6B', letterSpacing: 0.4 },
+  hero: { backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: colors.border },
+  heroInner: { paddingTop: 56, paddingBottom: 64, gap: 48 },
+  heroInnerWide: { flexDirection: 'row', alignItems: 'center', paddingTop: 88, paddingBottom: 96, gap: 64 },
+  eyebrow: { ...mono, fontSize: 11.5, letterSpacing: 1.8, textTransform: 'uppercase', color: colors.primary },
+  heroTitle: { ...heading, fontSize: 54, lineHeight: 59, letterSpacing: -1.6, color: colors.text },
+  heroTitleNarrow: { fontSize: 37, lineHeight: 42, letterSpacing: -0.9 },
+  heroText: { fontSize: 18, lineHeight: 29, color: '#4E4034', maxWidth: 560 },
+  heroNote: { ...mono, fontSize: 11, color: colors.textMuted, letterSpacing: 0.4 },
   ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md, marginTop: spacing.sm },
-  ctaPrimary: { backgroundColor: COPPER, paddingVertical: 15, paddingHorizontal: 24, borderRadius: radius.md },
-  ctaPrimaryText: { fontSize: fontSize.md, fontWeight: '800', color: INK },
-  ctaGhost: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(232,220,203,0.35)' },
-  ctaGhostText: { fontSize: fontSize.md, fontWeight: '700', color: SAND },
+  ctaPrimary: { backgroundColor: colors.primary, paddingVertical: 15, paddingHorizontal: 24, borderRadius: radius.md },
+  ctaPrimaryText: { fontSize: fontSize.md, fontWeight: '800', color: '#FFFFFF' },
+  ctaGhost: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 20, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  ctaGhostText: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
 
-  trace: { backgroundColor: PAPER, borderRadius: 18, padding: 22, gap: 16, shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 40, shadowOffset: { width: 0, height: 24 } },
-  traceHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  traceLabel: { ...mono, flex: 1, fontSize: 10.5, letterSpacing: 1.4, textTransform: 'uppercase', color: '#6B5A49' },
-  traceChip: { ...mono, fontSize: 10, letterSpacing: 0.8, textTransform: 'uppercase', color: COPPER_DEEP, borderWidth: 1, borderColor: 'rgba(169,92,48,0.45)', borderRadius: 999, paddingVertical: 3, paddingHorizontal: 9 },
-  linkRow: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 12, backgroundColor: '#F1E8DA' },
-  qr: { padding: 4, backgroundColor: '#FFFFFF', borderRadius: 8 },
-  linkLabel: { fontSize: 12.5, fontWeight: '700', color: '#6B5A49' },
-  linkUrl: { ...mono, fontSize: 12.5, color: INK },
-  tStep: { flexDirection: 'row', gap: 12 },
-  tWhen: { ...mono, width: 50, fontSize: 11, lineHeight: 20, color: '#8E7D6B', textAlign: 'right' },
-  tRail: { width: 12, alignItems: 'center' },
-  tDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 2, borderColor: INK, backgroundColor: PAPER, marginTop: 5 },
-  tDotLast: { backgroundColor: COPPER, borderColor: COPPER },
-  tLine: { flex: 1, width: 1.5, backgroundColor: '#D6C8B5', marginVertical: 3 },
-  tBody: { flex: 1, minWidth: 0, gap: 2, paddingBottom: 16 },
-  tTitle: { fontSize: 14.5, lineHeight: 20, fontWeight: '800', color: INK },
-  tText: { fontSize: 13, lineHeight: 19, color: '#5E4E3F' },
-  traceFoot: { fontSize: 12, lineHeight: 18, color: '#6B5A49', borderTopWidth: 1, borderTopColor: '#E4D8C6', paddingTop: 12 },
+  window: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: '#E3D6C1',
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#2B211A',
+    shadowOpacity: 0.12,
+    shadowRadius: 48,
+    shadowOffset: { width: 0, height: 24 },
+  },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.md, paddingVertical: 9, backgroundColor: SOFT, borderBottomWidth: 1, borderBottomColor: LINE },
+  dots: { flexDirection: 'row', gap: 6, width: 42 },
+  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#E2D5C2' },
+  url: { flex: 1, maxWidth: 320, alignSelf: 'center', marginHorizontal: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.surface, borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: LINE },
+  urlText: { fontSize: 11, color: colors.textMuted },
+  appHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: LINE },
+  appBrand: { fontSize: 10, fontWeight: '700', letterSpacing: 2, color: colors.primary },
+  appTab: { fontSize: 12, fontWeight: '600', color: colors.textMuted, paddingVertical: 4, paddingHorizontal: 8 },
+  appTabOn: { color: colors.primary, backgroundColor: colors.primarySoft, borderRadius: 5, fontWeight: '700' },
+  appBody: { padding: 16, gap: 12, backgroundColor: '#FFFDF9' },
+  helloRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  hello: { fontSize: 20, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
+  helloSub: { fontSize: 12.5, color: colors.textMuted, marginTop: 2 },
+  example: { fontSize: 10, fontWeight: '700', color: colors.textMuted, letterSpacing: 0.4, textTransform: 'uppercase', borderWidth: 1, borderColor: LINE, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: SOFT },
+  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: LINE, borderRadius: 8, padding: 12, gap: 8 },
+  cardTitle: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase', color: colors.textMuted },
+  qr: { padding: 4, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: LINE, borderRadius: 6 },
+  linkUrl: { ...mono, fontSize: 11.5, color: colors.text },
+  miniBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: LINE, borderRadius: 5, paddingVertical: 4, paddingHorizontal: 8, backgroundColor: SOFT },
+  miniBtnText: { fontSize: 11, fontWeight: '700', color: colors.text },
+  teamRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
+  teamText: { flex: 1, fontSize: 12.5, lineHeight: 18, color: colors.text },
+  clientRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
+  ref: { ...mono, width: 74, fontSize: 11.5, color: colors.text },
+  plan: { flex: 1, fontSize: 12.5, color: colors.textMuted },
+  status: { fontSize: 11, fontWeight: '700', color: colors.success, backgroundColor: colors.successSoft, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' },
+  statusTrial: { color: colors.warning, backgroundColor: colors.warningSoft },
+  clientsNote: { fontSize: 11.5, color: colors.textMuted, paddingTop: 4 },
+
+  h2: { ...heading, fontSize: 38, lineHeight: 44, letterSpacing: -0.9, color: colors.text },
+  h3: { ...heading, fontSize: 26, lineHeight: 32, letterSpacing: -0.4, color: colors.text },
+  lead: { fontSize: 18, lineHeight: 30, color: '#4E4034' },
+  body: { fontSize: fontSize.md, lineHeight: 24, color: colors.textMuted },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.xl },
+
+  together: { marginTop: spacing.xl, gap: spacing.md },
+  togetherWide: { flexDirection: 'row', alignItems: 'stretch', gap: 20 },
+  side: { padding: 24, gap: 16, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  sideHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sideIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  sideTitle: { ...heading, fontSize: 20, color: colors.text },
+  clientCol: { justifyContent: 'center' },
+  joinLine: { position: 'absolute', left: -20, right: -20, top: '50%', height: 2, backgroundColor: colors.primarySoft },
+  clientCard: { alignItems: 'center', gap: 8, padding: 24, borderRadius: 14, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: '#EBC9AE' },
+  clientIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  clientTitle: { ...heading, fontSize: 18, color: colors.text, textAlign: 'center' },
+  clientText: { fontSize: 14.5, lineHeight: 22, color: '#4E4034', textAlign: 'center' },
+
+  pillar: { gap: spacing.sm, padding: 20, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  pillarIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  pillarTitle: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text },
 
   facts: { borderTopWidth: 1, borderTopColor: colors.text },
   fact: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: spacing.md, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexWrap: 'wrap' },
@@ -391,7 +554,7 @@ const styles = StyleSheet.create({
   factV: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, textAlign: 'right', flexShrink: 1 },
 
   product: { padding: 28, gap: 18, borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  productAlt: { backgroundColor: INK, borderColor: INK },
+  productAlt: { backgroundColor: colors.surfaceAlt, borderColor: '#E3D2B8' },
   productHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   productName: { ...heading, fontSize: 24, lineHeight: 28, color: colors.text },
   productWho: { ...mono, fontSize: 10.5, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.primary, marginTop: 3 },
@@ -399,23 +562,16 @@ const styles = StyleSheet.create({
   point: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   pointText: { flex: 1, fontSize: 15, lineHeight: 21, color: colors.text },
 
-  eyebrow: { ...mono, fontSize: 11, letterSpacing: 1.8, textTransform: 'uppercase', color: colors.primary },
-  h2: { ...heading, fontSize: 38, lineHeight: 44, letterSpacing: -0.9, color: colors.text },
-  lead: { fontSize: 18, lineHeight: 30, color: '#4E4034' },
-  body: { fontSize: fontSize.md, lineHeight: 24, color: colors.textMuted },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.xl },
-  pillar: { gap: spacing.sm, paddingTop: spacing.lg, borderTopWidth: 1, borderTopColor: colors.text },
-  pillarNum: { ...mono, fontSize: 12, color: colors.primary },
-  pillarTitle: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text },
-
-  band: { backgroundColor: INK, paddingVertical: 96 },
-  profile: { gap: 8, padding: spacing.xl, borderWidth: 1, borderColor: 'rgba(232,220,203,0.14)', borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.02)' },
-  profileTitle: { fontSize: fontSize.lg, fontWeight: '800', color: '#FBF6EE' },
+  band: { backgroundColor: colors.surfaceAlt, paddingVertical: 88, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border },
+  profile: { gap: 8, padding: spacing.xl, borderWidth: 1, borderColor: '#E3D2B8', borderRadius: radius.lg, backgroundColor: colors.surface },
 
   stepHead: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs },
   stepDot: { width: 36, height: 36, borderRadius: 18, borderWidth: 1.5, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
   stepDotText: { ...mono, fontSize: 13, fontWeight: '700', color: colors.primary },
   stepLine: { flex: 1, height: 1, backgroundColor: colors.border, marginLeft: spacing.md },
+
+  money: { padding: 28, gap: spacing.xl, borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  moneyWide: { flexDirection: 'row', alignItems: 'center', padding: 40, gap: 56 },
 
   wall: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
   tile: { minHeight: 168, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 6, justifyContent: 'center' },
@@ -430,8 +586,8 @@ const styles = StyleSheet.create({
   faqQ: { flex: 1, fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
   faqA: { fontSize: fontSize.md, lineHeight: 25, color: colors.textMuted, paddingBottom: spacing.lg, maxWidth: 720 },
 
-  final: { backgroundColor: INK, borderRadius: 16, padding: 32, gap: spacing.xl },
+  final: { backgroundColor: colors.primarySoft, borderRadius: 16, padding: 32, gap: spacing.xl, borderWidth: 1, borderColor: '#EBC9AE' },
   finalWide: { flexDirection: 'row', alignItems: 'center', padding: 56, gap: 56 },
-  finalTitle: { ...heading, fontSize: 34, lineHeight: 40, letterSpacing: -0.6, color: '#FBF6EE' },
-  finalMail: { ...mono, fontSize: 13, color: COPPER, marginTop: spacing.xs },
+  finalTitle: { ...heading, fontSize: 34, lineHeight: 40, letterSpacing: -0.6, color: colors.text },
+  finalMail: { ...mono, fontSize: 13, color: colors.primary, marginTop: spacing.xs },
 });

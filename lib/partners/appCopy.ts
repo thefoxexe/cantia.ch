@@ -15,9 +15,9 @@ const fr = {
     benefitsTitle: 'Vos avantages',
     nextTitle: 'À débloquer au niveau {level}',
     benefits: {
-      MEMBER: ['Commission personnelle convenue avec Cantia', 'Espace partenaire, lien et code QR', 'Versements mensuels dès CHF 30'],
-      CONFIRMED: ['Démonstration de Cantia pour vos clients, avec l’équipe', 'Supports de présentation sur demande', 'Accès anticipé aux nouveautés'],
-      PREMIUM: ['Interlocuteur dédié chez Cantia', 'Mise en avant de votre entreprise sur partners.cantia.ch', 'Priorité sur les demandes de vos clients', 'Votre avis compte dans les prochaines fonctionnalités'],
+      MEMBER: ['Espace partenaire, lien et code QR', 'Démonstration de Cantia pour vos clients, avec l’équipe', 'Supports de présentation sur demande', 'Votre avis compte dans les prochaines fonctionnalités', 'Accès anticipé aux nouveautés', 'Conditions convenues avec Cantia, versements mensuels dès CHF 30'],
+      CONFIRMED: ['Priorité sur les demandes de vos clients'],
+      PREMIUM: ['Interlocuteur dédié chez Cantia'],
     },
   },
   milestones: {
@@ -92,9 +92,9 @@ const de: AppCopy = {
     benefitsTitle: 'Ihre Vorteile',
     nextTitle: 'Freischalten auf Stufe {level}',
     benefits: {
-      MEMBER: ['Persönliche, mit Cantia vereinbarte Provision', 'Partnerbereich, Link und QR-Code', 'Monatliche Auszahlungen ab CHF 30'],
-      CONFIRMED: ['Cantia-Demo für Ihre Kunden, mit dem Team', 'Präsentationsunterlagen auf Anfrage', 'Früher Zugang zu Neuheiten'],
-      PREMIUM: ['Persönliche Ansprechperson bei Cantia', 'Präsentation Ihres Unternehmens auf partners.cantia.ch', 'Priorität bei Anfragen Ihrer Kunden', 'Mitsprache bei neuen Funktionen'],
+      MEMBER: ['Partnerbereich, Link und QR-Code', 'Cantia-Demo für Ihre Kunden, mit dem Team', 'Präsentationsunterlagen auf Anfrage', 'Mitsprache bei neuen Funktionen', 'Früher Zugang zu Neuheiten', 'Mit Cantia vereinbarte Konditionen, monatliche Auszahlungen ab CHF 30'],
+      CONFIRMED: ['Priorität bei Anfragen Ihrer Kunden'],
+      PREMIUM: ['Persönliche Ansprechperson bei Cantia'],
     },
   },
   milestones: {
@@ -167,9 +167,9 @@ const it: AppCopy = {
     benefitsTitle: 'I suoi vantaggi',
     nextTitle: 'Da sbloccare al livello {level}',
     benefits: {
-      MEMBER: ['Commissione personale concordata con Cantia', 'Spazio partner, link e codice QR', 'Versamenti mensili da CHF 30'],
-      CONFIRMED: ['Dimostrazione di Cantia per i suoi clienti, con il team', 'Materiale di presentazione su richiesta', 'Accesso anticipato alle novità'],
-      PREMIUM: ['Interlocutore dedicato presso Cantia', 'Presentazione della sua impresa su partners.cantia.ch', 'Priorità sulle richieste dei suoi clienti', 'Voce in capitolo sulle nuove funzionalità'],
+      MEMBER: ['Spazio partner, link e codice QR', 'Dimostrazione di Cantia per i suoi clienti, con il team', 'Materiale di presentazione su richiesta', 'Voce in capitolo sulle nuove funzionalità', 'Accesso anticipato alle novità', 'Condizioni concordate con Cantia, versamenti mensili da CHF 30'],
+      CONFIRMED: ['Priorità sulle richieste dei suoi clienti'],
+      PREMIUM: ['Interlocutore dedicato presso Cantia'],
     },
   },
   milestones: {

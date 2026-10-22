@@ -20,9 +20,10 @@ const num: TextStyle = { ...monoType, fontVariant: ['tabular-nums'] };
 
 // ------------------------------------------------------------ frames
 
-export function Window({ url, children, maxWidth = 640 }: { url: string; children: ReactNode; maxWidth?: number }) {
+// interactive: the content is usable (tabs, buttons), so it stays visible to screen readers.
+export function Window({ url, children, maxWidth = 640, interactive = false }: { url: string; children: ReactNode; maxWidth?: number; interactive?: boolean }) {
   return (
-    <View style={[f.window, { maxWidth }]} aria-hidden>
+    <View style={[f.window, { maxWidth }]} aria-hidden={!interactive}>
       <View style={f.bar}>
         <View style={f.dots}>
           {[0, 1, 2].map((i) => (
