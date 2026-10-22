@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
-import { supabase } from '../lib/supabase';
 import { Screen } from '../components/ui';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
@@ -44,21 +43,6 @@ function LandingContent() {
   const pageHref = useCallback((slug: string) => `${localePrefix}/${slug}`, [localePrefix]);
   const solutionHref = useCallback((slug: string) => `${localePrefix}/solutions/${slug}`, [localePrefix]);
 
-  // Real, live count — public/anon-readable (landing_stats RLS), auto-kept
-  // current by DB triggers on organizations insert/delete. Null while
-  // loading so the line only renders once there's a real number to show,
-  // never a flash of "+0" or a stale hardcoded figure.
-  const [orgCount, setOrgCount] = useState<number | null>(null);
-  useEffect(() => {
-    supabase
-      .from('landing_stats')
-      .select('organizations_count')
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.organizations_count != null) setOrgCount(data.organizations_count);
-      });
-  }, []);
-  const trustCountText = orgCount != null ? t.hero.trustCount.replace('{{count}}', String(orgCount)) : null;
 
   const { width, height } = useWindowDimensions();
   const isMobile = width < breakpoints.tablet;
@@ -155,7 +139,6 @@ function LandingContent() {
                   </Pressable>
                 </View>
                 <Text style={styles.heroFacts}>{t.hero.facts.join(isMobile ? '\n' : '   ·   ')}</Text>
-                {trustCountText ? <Text style={styles.heroFacts}>{trustCountText}</Text> : null}
               </ScrollReveal>
             </View>
 

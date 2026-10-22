@@ -67,7 +67,6 @@ interface Dict {
     cta: string;
     secondaryCta: string;
     facts: string[];
-    trustCount: string;
     // The drawing title block ("cartouche") under the hero.
     cartouche: { label: string; value: string }[];
   };
@@ -257,7 +256,6 @@ const fr: Dict = {
     cta: 'Essayer 14 jours',
     secondaryCta: 'Voir les tarifs',
     facts: ['Dès CHF 39.– par mois', '14 jours d’essai, sans engagement', 'Données hébergées à Zurich'],
-    trustCount: '+{{count}} entreprises suisses nous font déjà confiance',
     cartouche: [
       { label: 'Objet', value: 'Gestion de chantiers et de projets' },
       { label: 'Pour', value: 'Entreprises de 1 à 25 personnes' },
@@ -745,7 +743,6 @@ const de: Dict = {
     cta: '14 Tage testen',
     secondaryCta: 'Preise ansehen',
     facts: ['Ab CHF 39.– pro Monat', '14 Tage Testphase, ohne Verpflichtung', 'Daten in Zürich gehostet'],
-    trustCount: '+{{count}} Schweizer Unternehmen vertrauen uns bereits',
     cartouche: [
       { label: 'Gegenstand', value: 'Baustellen- und Projektverwaltung' },
       { label: 'Für', value: 'Unternehmen mit 1 bis 25 Personen' },
@@ -1233,7 +1230,6 @@ const it: Dict = {
     cta: 'Provi 14 giorni',
     secondaryCta: 'Vedere i prezzi',
     facts: ['Da CHF 39.– al mese', '14 giorni di prova, senza impegno', 'Dati ospitati a Zurigo'],
-    trustCount: '+{{count}} imprese svizzere si fidano già di noi',
     cartouche: [
       { label: 'Oggetto', value: 'Gestione di cantieri e progetti' },
       { label: 'Per', value: 'Imprese da 1 a 25 persone' },
