@@ -1,0 +1,16 @@
+# Cantia Partners
+
+> Cantia Partners (https://partners.cantia.ch) est le programme de partenariat de Cantia, le logiciel suisse de gestion pour les PME du bâtiment et les fiduciaires. Il s'adresse aux fiduciaires, intégrateurs, fournisseurs et associations professionnelles qui accompagnent des PME suisses et veulent travailler avec Cantia dans la durée, avec un cadre écrit et une équipe disponible.
+
+Faits utiles :
+- Trois formes de partenariat : conseil (recommander Cantia à ses clients), intégration (mettre en place et former), réseau (associations et fournisseurs).
+- Un échange avec l'équipe d'abord, puis un cadre de partenariat écrit.
+- Chaque partenaire a un espace avec son lien, son QR code et des supports de présentation, une démo avec l'équipe et un accès anticipé aux nouveautés.
+- En français, allemand et italien.
+
+## Liens
+
+- [Accueil](https://partners.cantia.ch/) — aussi en [allemand](https://partners.cantia.ch/de) et en [italien](https://partners.cantia.ch/it)
+- [Devenir partenaire](https://partners.cantia.ch/connexion)
+- [Application Cantia](https://cantia.ch) — détails : https://cantia.ch/llms.txt
+- [Cantia Accounting pour les fiduciaires](https://accounting.cantia.ch)

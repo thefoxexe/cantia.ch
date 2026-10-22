@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { robotsTxt } from './ai-robots.mjs';
 
 // Static export of accounting.cantia.ch (Cantia Fiduciaires / Treuhand /
 // Fiduciari): Expo Router rooted at app-accounting/ (ACCOUNTING_BUILD=1, see
@@ -32,10 +33,9 @@ for (const entry of [
 // Every route has its own prerendered HTML; anything else goes home.
 const routes = ['connexion', 'espace', 'mandant', 'invitation', 'depot', 'de', 'it'];
 writeFileSync(path.join(outputDir, '_redirects'), [...routes.map((r) => `/${r}  /${r}.html  200`), '/*  /  302', ''].join('\n'));
-writeFileSync(
-  path.join(outputDir, 'robots.txt'),
-  'User-agent: *\nDisallow: /connexion\nDisallow: /espace\nDisallow: /mandant\nDisallow: /invitation\nDisallow: /depot\n\nSitemap: https://accounting.cantia.ch/sitemap.xml\n',
-);
+// What AI assistants read first about this site (llmstxt.org).
+copyFileSync(path.join(rootDir, 'scripts', 'llms', 'accounting.txt'), path.join(outputDir, 'llms.txt'));
+writeFileSync(path.join(outputDir, 'robots.txt'), robotsTxt({ disallow: ['/connexion', '/espace', '/mandant', '/invitation', '/depot'], sitemap: 'https://accounting.cantia.ch/sitemap.xml' }));
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(
   path.join(outputDir, 'sitemap.xml'),

@@ -1,0 +1,26 @@
+# Cantia Accounting
+
+> Cantia Accounting (https://accounting.cantia.ch) est un logiciel gratuit pour les fiduciaires suisses : la comptabilité de tous les mandants, le décompte TVA de l'AFC avec le fichier eCH-0217, le bouclement et les comptes annuels N / N-1, les pièces et signatures des clients par lien privé, les travaux, les échéances, le temps et les honoraires. Gratuit, sans limite de mandants ni de collaborateurs. Hébergé en Suisse. En français, allemand et italien.
+
+Faits utiles :
+- Éditeur : Cantia, Suisse. Même compte que l'application Cantia (https://cantia.ch).
+- Prix : gratuit pour les fiduciaires, avec tous leurs collaborateurs et mandants. Les clients qui utilisent l'application Cantia paient leur abonnement habituel ; les autres n'ont rien à payer pour envoyer leurs pièces.
+- Pour qui : fiduciaires, comptables indépendants et cabinets d'expertise comptable en Suisse.
+
+## Fonctions
+
+- Comptabilité des mandants qui n'utilisent pas Cantia : plan comptable PME suisse, saisie des écritures avec TVA séparée automatiquement, journal, grand livre, balance, bilan et compte de résultat avec l'exercice précédent, indicateurs (EBIT, liquidités, quick ratio).
+- Import des écritures et soldes depuis Banana, Abacus, Winbiz ou un fichier CSV ; exports dans ces mêmes formats.
+- Décompte TVA de l'AFC rempli chiffre par chiffre (méthode effective ou taux de la dette fiscale nette), fichier eCH-0217 pour le portail de l'AFC, écriture de TVA passée automatiquement.
+- Bouclement annuel : contrôles, clôture, report du résultat, réouverture si besoin, comptes annuels imprimables.
+- Mandants qui utilisent Cantia : accès en direct à leurs factures, dépenses, pièces et comptabilité selon les droits qu'ils donnent ; écritures proposées par la fiduciaire et validées par le client.
+- Pièces et signatures : le client envoie ses pièces et signe depuis son téléphone par un lien privé, sans créer de compte ; demandes de documents avec relances.
+- Organisation du cabinet : travaux par mandat avec modèles de processus, échéances (TVA, comptes, impôts), saisie du temps et honoraires à facturer, équipe et droits par mandant.
+- Annuaire « Trouver une fiduciaire » pour les entreprises sur Cantia.
+
+## Liens
+
+- [Accueil](https://accounting.cantia.ch/) — aussi en [allemand](https://accounting.cantia.ch/de) et en [italien](https://accounting.cantia.ch/it)
+- [Créer un espace](https://accounting.cantia.ch/connexion)
+- [Application Cantia pour les entreprises](https://cantia.ch) — détails : https://cantia.ch/llms.txt
+- [Cantia Partners](https://partners.cantia.ch)

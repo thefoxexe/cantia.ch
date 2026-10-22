@@ -1,23 +1,68 @@
 # Cantia
 
-> Cantia est un logiciel de gestion de chantier pour les artisans et entreprises du bâtiment en Suisse. Il regroupe en un seul endroit : rapports de chantier générés automatiquement par IA à partir de notes et photos géolocalisées, devis professionnels, facturation avec QR-facture suisse et acomptes, documents de chantier classés en arborescence, galerie photos, fil d'actualité collaboratif (notes, photos, messages vocaux), métré poste par poste, planning d'équipe, gestion RH (heures et salaires), et suivi de la rentabilité par chantier (devisé comparé au coût réel). Disponible sur le web et en application mobile (Android/iOS).
+> Cantia est un logiciel suisse de gestion pour les PME du bâtiment et les indépendants : devis, factures avec QR-facture, chantiers, rapports de chantier rédigés par IA, planning d'équipe et planning de chantier (Gantt), soumissions et métrés, heures et salaires suisses, trésorerie, comptabilité et TVA. Une seule application web, en français, allemand et italien, avec des données hébergées en Suisse (Zurich). Dès CHF 39.– par mois, 14 jours d'essai sans engagement.
 
-Cantia s'adresse aux entreprises de construction, artisans indépendants et corps de métier du bâtiment (maçonnerie, électricité, plomberie, charpente, peinture, etc.) en Suisse. Les données sont hébergées en Suisse (Zurich). Facturation en francs suisses (CHF), TVA suisse.
+Cantia s'adresse aux entreprises de construction et aux artisans en Suisse (maçonnerie, électricité, plomberie, chauffage, peinture, menuiserie, charpente, toiture, carrelage, plâtrerie, façades, génie civil, entreprise générale…), et aussi à d'autres PME de services qui font des devis et des factures (nettoyage, conciergerie, garages, déménagement, informatique, graphisme, photographie, traiteurs, consultants, formateurs).
 
-## Pages principales
+Faits utiles :
+- Éditeur : Cantia, Suisse. Site : https://cantia.ch. Application : https://app.cantia.ch.
+- Langues : français, allemand, italien. Monnaie : CHF. TVA suisse (taux 8,1 %, 2,6 %, 3,8 %), entreprises assujetties ou non.
+- Hébergement des données en Suisse (Zurich).
+- Plateformes : application web (ordinateur, tablette, téléphone), installable sur l'écran d'accueil du téléphone. Applications App Store et Google Play en développement.
+- Essai : 14 jours avec toutes les fonctions, sans engagement, résiliable en ligne.
 
-- [Accueil](https://cantia.ch/): présentation du produit, fonctionnalités, tarifs.
-- [Devis](https://cantia.ch/solutions/devis): dictée vocale, catalogue de prix, signature, suivi de statut.
-- [Facturation & QR-facture](https://cantia.ch/solutions/facturation): bulletin QR suisse conforme, référence structurée, suivi des paiements.
-- [Rapports de chantier](https://cantia.ch/solutions/rapports-chantier): notes vocales, photos géolocalisées, rédaction par IA.
-- [Dictée vocale](https://cantia.ch/solutions/dictee-vocale): transcription côté serveur utilisée dans devis, rapports et fil de chantier.
-- [Planning](https://cantia.ch/solutions/planning): calendrier d'équipe par membre et par jour.
-- [RH & Salaires](https://cantia.ch/solutions/rh-salaires): heures par chantier, frais professionnels, fiches de salaire.
-- [Rentabilité](https://cantia.ch/solutions/rentabilite): comparaison devisé vs coût réel (matériel et main d'œuvre) par chantier.
-- [Téléchargement](https://cantia.ch/telechargement): accès web et futures applications mobiles.
-- [Confidentialité](https://cantia.ch/confidentialite): politique de confidentialité et protection des données.
-- [Mentions légales](https://cantia.ch/mentions-legales): éditeur, hébergement, propriété intellectuelle.
+## Plans et tarifs (CHF, hors TVA)
 
-## Plans et tarifs
+- Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue.
+- Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio.
+- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis.
+- Sur mesure : sur demande, au-delà de 25 personnes.
+Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://cantia.ch/tarifs
 
-Cantia propose trois plans payants (Essentiel, Équipe, Entreprise), facturés mensuellement ou annuellement en CHF, avec stockage cloud, nombre de membres et fonctionnalités croissants selon le plan. Chaque nouveau compte commence par 14 jours d'essai complet, sans code promotionnel. Un plan sur mesure (contact direct) existe pour les besoins au-delà d'Entreprise. Il n'existe pas de plan gratuit permanent.
+## Fonctions
+
+- [Devis](https://cantia.ch/solutions/devis) : dictée vocale, catalogue de prix, modèles, signature électronique par le client, relances automatiques, suivi d'ouverture.
+- [Facturation et QR-facture](https://cantia.ch/solutions/facturation) : QR-facture suisse, acomptes, situations, relances d'impayés, import de relevé bancaire.
+- [Rapports de chantier](https://cantia.ch/solutions/rapports-chantier) : notes vocales et photos géolocalisées, rapport rédigé par IA.
+- [Dictée vocale](https://cantia.ch/solutions/dictee-vocale) : dans les devis, les rapports et le fil de chantier.
+- [Planning](https://cantia.ch/solutions/planning) : planning d'équipe par personne et par jour, synchronisé avec Google Agenda.
+- Planning de chantier (Gantt) : phases, tâches, dépendances, jours fériés cantonaux, export PDF, Excel et MS Project, lien de partage.
+- Soumissions et métrés : import des soumissions PDF, métré poste par poste, mesures sur plans, chiffrage, export du PDF de soumission rempli.
+- [Travaux supplémentaires](https://cantia.ch/solutions/travaux-supplementaires) : signés par le client sur place.
+- [Rentabilité](https://cantia.ch/solutions/rentabilite) : devisé comparé au coût réel (matériel et main-d'œuvre) par chantier.
+- [RH et salaires](https://cantia.ch/solutions/rh-salaires) : heures par chantier, fiches de salaire suisses (AVS/AI/APG, AC, LPP, LAA, IJM, impôt à la source, allocations familiales), absences.
+- [Trésorerie](https://cantia.ch/solutions/tresorerie) : solde, encaissements, projection.
+- Comptabilité : écritures, TVA (décompte AFC), bouclement annuel, envoi des pièces à la fiduciaire.
+- [Intégrations](https://cantia.ch/integrations) : Bexio (synchronisation automatique), Google Agenda.
+- Portail client : le client consulte et signe ses documents par lien, sans compte.
+
+## Pages par métier
+
+- [Tous les métiers](https://cantia.ch/metiers)
+- [Logiciel de gestion de chantier](https://cantia.ch/logiciel-chantier)
+- [Maçon](https://cantia.ch/macon), [Électricien](https://cantia.ch/electricien), [Plombier](https://cantia.ch/plombier), [Chauffagiste](https://cantia.ch/chauffagiste), [Peintre](https://cantia.ch/peintre), [Menuisier](https://cantia.ch/menuisier), [Charpentier](https://cantia.ch/charpentier), [Couvreur](https://cantia.ch/couvreur), [Carreleur](https://cantia.ch/carreleur), [Plâtrier](https://cantia.ch/platrier), [Façadier](https://cantia.ch/facadier), [Ferblantier](https://cantia.ch/ferblantier), [Paysagiste](https://cantia.ch/paysagiste), [Génie civil](https://cantia.ch/genie-civil), [Entreprise générale](https://cantia.ch/entreprise-generale), [Rénovation](https://cantia.ch/entreprise-renovation)
+- Autres PME : [Nettoyage](https://cantia.ch/entreprise-nettoyage), [Conciergerie](https://cantia.ch/conciergerie), [Garage](https://cantia.ch/garagiste), [Déménagement](https://cantia.ch/demenageur), [Informatique](https://cantia.ch/informaticien), [Graphiste](https://cantia.ch/graphiste), [Photographe](https://cantia.ch/photographe), [Traiteur](https://cantia.ch/traiteur), [Consultant](https://cantia.ch/consultant), [Formateur](https://cantia.ch/formateur)
+
+## Outils gratuits
+
+- [Calculateur de salaire suisse](https://cantia.ch/calculateur-salaire)
+- [Calcul du taux horaire](https://cantia.ch/outils/calcul-taux-horaire), [TVA](https://cantia.ch/outils/calcul-tva), [marge](https://cantia.ch/outils/calcul-marge), [intérêts de retard](https://cantia.ch/outils/interets-de-retard), [indemnité de vacances](https://cantia.ch/outils/indemnite-vacances)
+
+## Guides et comparatifs
+
+- [Bexio ou Cantia pour une entreprise du bâtiment](https://cantia.ch/blog/bexio-vs-cantia-logiciel-batiment)
+- [Calculer le prix d'un devis de rénovation en Suisse](https://cantia.ch/blog/calculer-prix-devis-renovation-suisse)
+- [La QR-facture en 2026](https://cantia.ch/blog/qr-facture-obligatoire-2026)
+- [Suivre la rentabilité d'un chantier sans Excel](https://cantia.ch/blog/suivre-rentabilite-chantier-sans-excel)
+- [Tous les articles](https://cantia.ch/blog)
+- [Centre d'aide](https://cantia.ch/aide)
+
+## Autres produits Cantia
+
+- [Cantia Accounting](https://accounting.cantia.ch) : logiciel gratuit pour les fiduciaires suisses (comptabilité des mandants, décompte TVA AFC avec fichier eCH-0217, bouclement, exports Banana, Abacus et Winbiz, pièces et signatures par lien). Détails : https://accounting.cantia.ch/llms.txt
+- [Cantia Partners](https://partners.cantia.ch) : programme de partenariat pour fiduciaires, intégrateurs et associations professionnelles.
+
+## Contact et informations légales
+
+- [Contact](https://cantia.ch/contact)
+- [Conditions générales](https://cantia.ch/conditions-generales), [Confidentialité](https://cantia.ch/confidentialite), [Mentions légales](https://cantia.ch/mentions-legales)
