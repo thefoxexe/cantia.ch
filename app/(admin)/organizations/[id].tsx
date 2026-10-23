@@ -13,7 +13,9 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { Feather } from '@expo/vector-icons';
 import { getOrgBillingStatuses, getOrganizationDetail, getOrganizationEvents, getOrganizationOrigin, getOrganizationUsage, grantTrial, listModules, setOrganizationModule } from '../../../lib/api/admin';
 import type { AdminOrgEvent, AdminOrgOrigin } from '../../../lib/api/admin';
-import { ORG_MODULES, PROJECT_MODULES } from '../../../lib/modules';
+import { ORG_MODULES, PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, defaultProjectModules, projectModulesFor, type ModuleKey } from '../../../lib/modules';
+import { supabase } from '../../../lib/supabase';
+import type { Plan } from '../../../lib/types';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
@@ -129,6 +131,7 @@ export default function AdminOrganizationDetailScreen() {
   const [origin, setOrigin] = useState<AdminOrgOrigin | null>(null);
   const [originError, setOriginError] = useState<string | null>(null);
   const [usage, setUsage] = useState<UsageData | null>(null);
+  const [planFlags, setPlanFlags] = useState<Plan | null>(null);
   const [usageError, setUsageError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -141,6 +144,10 @@ export default function AdminOrganizationDetailScreen() {
       getOrganizationUsage(id),
     ]);
     setUsage(use.usage);
+    if (d.detail?.organization.plan_id) {
+      const { data: planRow } = await supabase.from('plans').select('*').eq('id', d.detail.organization.plan_id).maybeSingle();
+      setPlanFlags((planRow as Plan | null) ?? null);
+    }
     setUsageError(use.error);
     setDetail(d.detail);
     setAllModules(mods.rows);
@@ -427,6 +434,26 @@ export default function AdminOrganizationDetailScreen() {
                 <Text style={styles.chipText}>{STANDARD_MODULE_LABELS.get(key) ?? key}</Text>
               </View>
             ))
+          )}
+        </View>
+
+        <Text style={styles.sectionTitle}>Outils des nouveaux chantiers</Text>
+        <View style={styles.chipRow}>
+          {projectModulesFor(org).length === 0 || defaultProjectModules(org).length === 0 ? (
+            <Text style={styles.emptyText}>Aucun outil coché d'office.</Text>
+          ) : (
+            defaultProjectModules(org).map((key) => {
+              const field = PROJECT_MODULE_PLAN_GATED[key as ModuleKey];
+              const planBlocked = !!field && planFlags !== null && !planFlags[field];
+              return (
+                <View key={key} style={[styles.chip, planBlocked && { opacity: 0.45 }]}>
+                  <Text style={styles.chipText}>
+                    {STANDARD_MODULE_LABELS.get(key) ?? key}
+                    {planBlocked ? ' · pas dans son plan' : ''}
+                  </Text>
+                </View>
+              );
+            })
           )}
         </View>
 

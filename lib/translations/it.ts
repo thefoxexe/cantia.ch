@@ -1029,7 +1029,7 @@ export const it: TranslationDict = {
     documents: { label: 'Documenti', description: 'Raccoglitore di cartelle e file.' },
     photos: { label: 'Foto', description: 'Galleria fotografica filtrabile, con una mappa degli scatti.' },
     devis: { label: 'Preventivi', description: 'Creazione di preventivi e monitoraggio dello stato.' },
-    metre: { label: 'Compilare un capitolato', description: 'Importate il capitolato ricevuto, inserite i prezzi e rinviate il PDF compilato.' },
+    metre: { label: 'Compilare un capitolato (beta)', description: 'Importate il capitolato ricevuto, inserite i prezzi e rinviate il PDF compilato. 3 al mese con Team, illimitati con Impresa.' },
     gantt: { label: 'Programma lavori', description: 'Fasi, attività, dipendenze e avanzamento (Gantt).' },
     planning: { label: 'Pianificazione', description: 'Chi va su quale cantiere, e quando.' },
     profitability: { label: 'Redditività', description: 'Preventivato vs costo reale (materiale + manodopera).' },

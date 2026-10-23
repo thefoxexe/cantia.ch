@@ -1026,7 +1026,7 @@ export const de: TranslationDict = {
     documents: { label: 'Dokumente', description: 'Ordner- und Dateiablage.' },
     photos: { label: 'Fotos', description: 'Filterbare Fotogalerie mit Aufnahmeort-Karte.' },
     devis: { label: 'Offerten', description: 'Offertenerstellung und Statusverfolgung.' },
-    metre: { label: 'Leistungsverzeichnis ausfüllen', description: 'Erhaltenes LV importieren, Preise eintragen und das ausgefüllte PDF zurücksenden.' },
+    metre: { label: 'Leistungsverzeichnis ausfüllen (Beta)', description: 'Erhaltenes LV importieren, Preise eintragen und das ausgefüllte PDF zurücksenden. 3 pro Monat mit Team, unbegrenzt mit Unternehmen.' },
     gantt: { label: 'Bauprogramm', description: 'Phasen, Aufgaben, Abhängigkeiten und Fortschritt (Gantt).' },
     planning: { label: 'Planung', description: 'Wer geht wann auf welche Baustelle.' },
     profitability: { label: 'Rentabilität', description: 'Offeriert vs. effektive Kosten (Material + Arbeit).' },

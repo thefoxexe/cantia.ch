@@ -1007,7 +1007,7 @@ export const fr = {
     documents: { label: 'Documents', description: 'Classeur de dossiers et fichiers.' },
     photos: { label: 'Photos', description: 'Galerie photo filtrable, avec une carte des prises de vue.' },
     devis: { label: 'Devis', description: 'Création de devis et suivi de statut.' },
-    metre: { label: 'Remplir une soumission', description: 'Importez la soumission reçue, mettez vos prix et renvoyez le PDF rempli.' },
+    metre: { label: 'Remplir une soumission (bêta)', description: 'Importez la soumission reçue, mettez vos prix et renvoyez le PDF rempli. 3 par mois avec Équipe, illimité avec Entreprise.' },
     gantt: { label: 'Planning de chantier', description: 'Phases, tâches, dépendances et avancement (Gantt).' },
     planning: { label: 'Planning', description: 'Qui va sur quel chantier, et quand.' },
     profitability: { label: 'Rentabilité', description: 'Devisé vs coût réel (matériel + main d’œuvre).' },

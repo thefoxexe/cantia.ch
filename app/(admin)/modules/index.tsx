@@ -7,6 +7,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listModules } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
 import { displayType } from '../../../lib/marketingTheme';
+import { AdminBuiltInModules } from '../../../components/AdminBuiltInModules';
 
 const VISIBILITY_LABEL: Record<string, string> = { standard: 'Standard', private: 'Privé', experimental: 'Beta' };
 const STATUS_LABEL: Record<string, string> = { active: 'Actif', beta: 'Beta', disabled: 'Désactivé' };
@@ -51,6 +52,9 @@ export default function AdminModulesList() {
           directement dans la conversation — le module et son entrée ici sont livrés ensemble.
         </Text>
 
+        <AdminBuiltInModules />
+
+        <Text style={styles.sectionTitle}>Modules sur mesure</Text>
         {error ? <AdminErrorBanner message={error} /> : null}
 
         {loading ? (
@@ -87,6 +91,7 @@ export default function AdminModulesList() {
 }
 
 const styles = StyleSheet.create({
+  sectionTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text, marginBottom: spacing.sm },
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
