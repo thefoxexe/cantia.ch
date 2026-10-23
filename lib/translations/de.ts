@@ -2716,8 +2716,8 @@ export const de: TranslationDict = {
     },
     planHighlights: {
       solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', '2 anpassbare Teamrollen'],
-      equipe: ['Alles aus Basis, ohne Limiten', 'Personal, Planung, Rentabilität & Liquidität', 'Bexio-Integration', 'Unbegrenzte individuelle Teamrollen'],
-      pro: ['Alles aus Team inklusive', 'Unbegrenzte erweiterte Rollen', 'Priority-Support'],
+      equipe: ['Alles aus Basis, ohne Limiten', 'Personal, Planung, Rentabilität & Liquidität', 'Bexio-Integration', 'Leistungsverzeichnisse ausfüllen (Beta): 3 pro Monat', 'Unbegrenzte individuelle Teamrollen'],
+      pro: ['Alles aus Team inklusive', 'Unbegrenzte Leistungsverzeichnisse (Beta)', 'Unbegrenzte erweiterte Rollen', 'Priority-Support'],
       'custom-besson': [
         'Bexio-Integration (Buchhaltungs-Synchronisation)',
         'Rentabilität pro Baustelle in Echtzeit',
@@ -3603,6 +3603,8 @@ export const de: TranslationDict = {
     compareMembers: 'Mitglieder',
     compareAi: 'KI-Sprachassistent',
     comparePlanning: 'Planung, Personal & Liquidität',
+    compareTenders: 'Leistungsverzeichnis ausfüllen (Beta)',
+    compareTendersPerMonth: '{{count}} pro Monat',
     compareBexio: 'Bexio-Integration',
     compareDocLocale: 'Dokumentsprache pro Kunde',
     comparePrioritySupport: 'Priority-Support',

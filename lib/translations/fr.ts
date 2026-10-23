@@ -2702,8 +2702,8 @@ export const fr = {
     },
     planHighlights: {
       solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', "2 rôles d'équipe modifiables"],
-      equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', "Rôles d'équipe personnalisés illimités"],
-      pro: ['Tout Équipe inclus', 'Rôles avancés illimités', 'Support prioritaire'],
+      equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', 'Remplir une soumission (bêta) : 3 par mois', "Rôles d'équipe personnalisés illimités"],
+      pro: ['Tout Équipe inclus', 'Soumissions illimitées (bêta)', 'Rôles avancés illimités', 'Support prioritaire'],
       'custom-besson': [
         'Intégration Bexio (synchronisation comptable)',
         'Rentabilité par chantier en temps réel',
@@ -3589,6 +3589,8 @@ export const fr = {
     compareMembers: 'Membres',
     compareAi: 'Assistant vocal IA',
     comparePlanning: 'Planning, RH & trésorerie',
+    compareTenders: 'Remplir une soumission (bêta)',
+    compareTendersPerMonth: '{{count}} par mois',
     compareBexio: 'Intégration Bexio',
     compareDocLocale: 'Langue des documents par client',
     comparePrioritySupport: 'Support prioritaire',

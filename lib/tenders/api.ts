@@ -91,6 +91,19 @@ export async function duplicateTender(id: string, name: string) {
   return { id: (data as string | null) ?? null, error: error?.message ?? null };
 }
 
+// Beta: from the Équipe plan, 3 soumissions (PDF imports) a month; null
+// limit = unlimited (Entreprise). See the tender_quota migration.
+export interface TenderQuota {
+  allowed: boolean;
+  limit: number | null;
+  used: number;
+}
+
+export async function tenderQuota(organizationId: string): Promise<TenderQuota | null> {
+  const { data } = await supabase.rpc('org_tender_quota', { p_org: organizationId });
+  return (data as TenderQuota | null) ?? null;
+}
+
 export async function canEditTenders(organizationId: string): Promise<boolean> {
   const { data } = await supabase.rpc('org_has_tenders', { org_id: organizationId });
   return data === true;

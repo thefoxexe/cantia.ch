@@ -1,6 +1,6 @@
 # Cantia
 
-> Cantia est un logiciel suisse de gestion pour les PME du bâtiment et les indépendants : devis, factures avec QR-facture, chantiers, rapports de chantier rédigés par IA, planning d'équipe et planning de chantier (Gantt), soumissions et métrés, heures et salaires suisses, trésorerie, comptabilité et TVA. Une seule application web, en français, allemand et italien, avec des données hébergées en Suisse (Zurich). Dès CHF 39.– par mois, 14 jours d'essai sans engagement.
+> Cantia est un logiciel suisse de gestion pour les PME du bâtiment et les indépendants : devis, factures avec QR-facture, chantiers, rapports de chantier rédigés par IA, planning d'équipe et planning de chantier (Gantt), remplissage des soumissions (bêta), heures et salaires suisses, trésorerie, comptabilité et TVA. Une seule application web, en français, allemand et italien, avec des données hébergées en Suisse (Zurich). Dès CHF 39.– par mois, 14 jours d'essai sans engagement.
 
 Cantia s'adresse aux entreprises de construction et aux artisans en Suisse (maçonnerie, électricité, plomberie, chauffage, peinture, menuiserie, charpente, toiture, carrelage, plâtrerie, façades, génie civil, entreprise générale…), et aussi à d'autres PME de services qui font des devis et des factures (nettoyage, conciergerie, garages, déménagement, informatique, graphisme, photographie, traiteurs, consultants, formateurs).
 
@@ -14,8 +14,8 @@ Faits utiles :
 ## Plans et tarifs (CHF, hors TVA)
 
 - Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue.
-- Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio.
-- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis.
+- Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio, et 3 soumissions remplies par mois (bêta).
+- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis et les soumissions illimitées (bêta).
 - Sur mesure : sur demande, au-delà de 25 personnes.
 Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://cantia.ch/tarifs
 
@@ -27,7 +27,7 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 - [Dictée vocale](https://cantia.ch/solutions/dictee-vocale) : dans les devis, les rapports et le fil de chantier.
 - [Planning](https://cantia.ch/solutions/planning) : planning d'équipe par personne et par jour, synchronisé avec Google Agenda.
 - Planning de chantier (Gantt) : phases, tâches, dépendances, jours fériés cantonaux, export PDF, Excel et MS Project, lien de partage.
-- Soumissions et métrés : import des soumissions PDF, métré poste par poste, mesures sur plans, chiffrage, export du PDF de soumission rempli.
+- Remplir une soumission (bêta) : importer le PDF de soumission reçu (CAN ou non), mettre ses prix poste par poste et ressortir le PDF d'origine rempli avec les prix, montants, reports et totaux. Dès le plan Équipe (3 soumissions par mois), illimité avec Entreprise. Réservé aux entreprises du bâtiment.
 - [Travaux supplémentaires](https://cantia.ch/solutions/travaux-supplementaires) : signés par le client sur place.
 - [Rentabilité](https://cantia.ch/solutions/rentabilite) : devisé comparé au coût réel (matériel et main-d'œuvre) par chantier.
 - [RH et salaires](https://cantia.ch/solutions/rh-salaires) : heures par chantier, fiches de salaire suisses (AVS/AI/APG, AC, LPP, LAA, IJM, impôt à la source, allocations familiales), absences.

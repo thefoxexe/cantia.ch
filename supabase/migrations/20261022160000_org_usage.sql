@@ -91,8 +91,7 @@ as $$
     (31, 'agenda', 'Agenda Google / Outlook', 'calendar_connections'),
     (32, 'ia', 'Dictée vocale / IA', 'ai_usage_log'),
     (33, 'fiduciaire', 'Documents envoyés au fiduciaire', 'fiduciary_shared_documents'),
-    (34, 'invitations', 'Invitations d’équipe', 'organization_invites'),
-    (35, 'maquette', 'Cantia Panorama', 'relief_worlds')
+    (34, 'invitations', 'Invitations d’équipe', 'organization_invites')
   ) v(ord, key, label, tbl);
 $$;
 

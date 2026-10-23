@@ -2724,8 +2724,8 @@ export const it: TranslationDict = {
     },
     planHighlights: {
       solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura e personalizzazione del marchio', "2 ruoli di team modificabili"],
-      equipe: ['Tutto Essenziale, senza limiti', 'Personale, pianificazione, redditività e liquidità', 'Integrazione Bexio', "Ruoli di team personalizzati illimitati"],
-      pro: ['Tutto Team incluso', 'Ruoli avanzati illimitati', 'Supporto prioritario'],
+      equipe: ['Tutto Essenziale, senza limiti', 'Personale, pianificazione, redditività e liquidità', 'Integrazione Bexio', 'Compilare capitolati (beta): 3 al mese', "Ruoli di team personalizzati illimitati"],
+      pro: ['Tutto Team incluso', 'Capitolati illimitati (beta)', 'Ruoli avanzati illimitati', 'Supporto prioritario'],
       'custom-besson': [
         'Integrazione Bexio (sincronizzazione contabile)',
         'Redditività per cantiere in tempo reale',
@@ -3611,6 +3611,8 @@ export const it: TranslationDict = {
     compareMembers: 'Membri',
     compareAi: 'Assistente vocale IA',
     comparePlanning: 'Pianificazione, personale e liquidità',
+    compareTenders: 'Compilare un capitolato (beta)',
+    compareTendersPerMonth: '{{count}} al mese',
     compareBexio: 'Integrazione Bexio',
     compareDocLocale: 'Lingua dei documenti per cliente',
     comparePrioritySupport: 'Supporto prioritario',

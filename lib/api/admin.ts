@@ -188,10 +188,16 @@ export async function setOrganizationModule(orgId: string, moduleKey: string, en
   return { error: logRpcError('admin_set_organization_module', error) };
 }
 
+// Retired products still present in the database until their rows are
+// deleted (Cantia Panorama: supabase/migrations/20261020100000_drop_panorama.sql,
+// disabled meanwhile). Never shown anywhere.
+const RETIRED_MODULE_KEYS = new Set(['relief']);
+
 export async function listModules(): Promise<{ rows: AdminModuleSummary[]; error: string | null }> {
   const { data, error } = await supabase.rpc('admin_list_modules');
   const err = logRpcError('admin_list_modules', error);
-  return { rows: err || !data ? [] : (data as AdminModuleSummary[]), error: err };
+  const rows = err || !data ? [] : (data as AdminModuleSummary[]);
+  return { rows: rows.filter((m) => !RETIRED_MODULE_KEYS.has(m.key)), error: err };
 }
 
 export async function listUsers(

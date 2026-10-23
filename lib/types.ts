@@ -62,6 +62,7 @@ export interface Plan {
   has_sales_tracking?: boolean;
   // Remplir une soumission (tous les plans depuis le 07.10.2026).
   has_tenders?: boolean;
+  max_tenders_per_month?: number | null;
   // Planning de chantier (Équipe, Entreprise, Sur mesure).
   has_site_schedule?: boolean;
 }

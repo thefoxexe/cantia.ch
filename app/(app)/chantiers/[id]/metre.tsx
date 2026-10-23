@@ -10,7 +10,7 @@ import { FeatureHint } from '../../../../components/FeatureHint';
 import { PlansSection } from '../../../../components/tenders/PlansSection';
 import { LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { Btn, Chip, Field, Sheet, kit, usePhone } from '../../../../components/admin/ledger/kit';
-import { canEditTenders, createTender, deleteTender, duplicateTender, listTenders, type TenderSummary } from '../../../../lib/tenders/api';
+import { canEditTenders, createTender, deleteTender, duplicateTender, listTenders, tenderQuota, type TenderQuota, type TenderSummary } from '../../../../lib/tenders/api';
 import { fill, useTenderCopy } from '../../../../lib/tenders/copy';
 import { formatChf } from '../../../../lib/tenders/numbers';
 import type { TenderKind } from '../../../../lib/tenders/types';
@@ -38,10 +38,18 @@ export default function ChantierMetresScreen() {
   const { user } = useAuth();
   const [pending, setPending] = useState<ImportJob[]>([]);
   const [progress, setProgress] = useState<ImportProgress | null>(null);
+  const [quota, setQuota] = useState<TenderQuota | null>(null);
+  const quotaReached = !!quota && quota.limit != null && quota.used >= quota.limit;
 
   const load = useCallback(async () => {
     if (!project) return;
-    const [{ tenders: list, error: err }, can, jobs] = await Promise.all([listTenders(id), canEditTenders(project.organization_id), pendingImports(id)]);
+    const [{ tenders: list, error: err }, can, jobs, q] = await Promise.all([
+      listTenders(id),
+      canEditTenders(project.organization_id),
+      pendingImports(id),
+      tenderQuota(project.organization_id),
+    ]);
+    setQuota(q);
     setTenders(list);
     setError(err);
     setEditable(can);
@@ -55,9 +63,14 @@ export default function ChantierMetresScreen() {
     const a = result.assets[0] as DocumentPicker.DocumentPickerAsset & { file?: File };
     setError(null);
     setProgress({ step: 'reading' });
+    if (quotaReached) return;
     const { jobId, error: err } = await importSoumission(id, project.organization_id, user?.id ?? null, { name: a.name, uri: a.uri, size: a.size, mimeType: a.mimeType, file: a.file ?? null }, setProgress);
     setProgress(null);
-    if (err && !jobId) return setError(err);
+    // The insert policy refuses an import once the month's quota is used.
+    if (err && !jobId) {
+      load();
+      return setError(/row-level security/i.test(err) && quota?.limit != null ? fill(c.quotaReached, { limit: quota.limit }) : err);
+    }
     if (jobId) router.push(`/(app)/chantiers/${id}/metres/import/${jobId}` as any);
   }
 
@@ -120,13 +133,32 @@ export default function ChantierMetresScreen() {
         ) : null}
 
         <View style={styles.toolbar}>
-          <Text style={kit.eyebrow}>{c.moduleTitle}</Text>
+          <View style={[kit.row, { alignItems: 'center' }]}>
+            <Text style={kit.eyebrow}>{c.moduleTitle}</Text>
+            <View style={styles.beta}>
+              <Text style={styles.betaText}>{c.beta}</Text>
+            </View>
+          </View>
           {editable ? (
             <View style={kit.row}>
-              {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress} /> : null}
+              {Platform.OS === 'web' ? <Btn label={c.importPdf} icon="upload" variant="primary" onPress={startImport} disabled={!!progress || quotaReached} /> : null}
             </View>
           ) : null}
         </View>
+
+        {canEdit && quota?.limit != null ? (
+          quotaReached ? (
+            <View style={styles.upsell}>
+              <View style={styles.upsellIcon}>
+                <Feather name="lock" size={16} color={colors.primary} />
+              </View>
+              <Text style={[kit.muted, { flex: 1, minWidth: 200 }]}>{fill(c.quotaReached, { limit: quota.limit })}</Text>
+              <Btn label={c.quotaCta} icon="arrow-right" variant="primary" onPress={() => router.push('/(app)/compte/facturation' as any)} />
+            </View>
+          ) : (
+            <Text style={kit.hint}>{fill(c.quota, { used: quota.used, limit: quota.limit })}</Text>
+          )
+        ) : null}
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
         {editable ? (
@@ -342,6 +374,8 @@ function CreateTenderSheet({ onClose, onCreate }: { onClose: () => void; onCreat
 const styles = StyleSheet.create({
   page: { padding: spacing.xl, gap: spacing.lg, maxWidth: 980, width: '100%', alignSelf: 'center', paddingBottom: spacing.xxl * 2 },
   toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md, flexWrap: 'wrap' },
+  beta: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.warningSoft },
+  betaText: { fontSize: 10, fontWeight: '800', color: colors.warning, letterSpacing: 0.5, textTransform: 'uppercase' },
   upsell: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flexWrap: 'wrap', padding: spacing.lg, borderRadius: radius.xl, backgroundColor: colors.primarySoft },
   upsellIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
   upsellTitle: { fontSize: fontSize.md, fontWeight: '800', color: colors.text },

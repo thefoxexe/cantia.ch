@@ -77,6 +77,14 @@ function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): Compar
       ),
     },
     { label: t('planPage.comparePlanning'), cells: cellFor((p) => p.has_planning, (v) => ({ bool: v })) },
+    {
+      // Beta: Équipe 3 a month, Entreprise unlimited (plans.max_tenders_per_month).
+      label: t('planPage.compareTenders'),
+      cells: cellFor(
+        (p) => (p.has_tenders ? (p.max_tenders_per_month ?? 0) : null),
+        (v) => (v == null ? { bool: false } : v > 0 ? { text: t('planPage.compareTendersPerMonth', { count: v }) } : { text: t('planPage.compareUnlimited') }),
+      ),
+    },
     { label: t('planPage.compareBexio'), cells: cellFor((p) => p.has_bexio_integration, (v) => ({ bool: v })) },
     { label: t('planPage.compareDocLocale'), cells: cellFor((p) => p.has_document_locale_override, (v) => ({ bool: v })) },
     {
