@@ -1,5 +1,10 @@
+# One repository, three Netlify sites: cantia.ch + app.cantia.ch (this build),
+# partners.cantia.ch (environment variable CANTIA_SURFACE=partners ->
+# scripts/build-partners.mjs) and accounting.cantia.ch (CANTIA_SURFACE=accounting
+# -> scripts/build-accounting.mjs). Each has its own route root and its own
+# _redirects, which Netlify reads before the rules below.
 [build]
-  command = "node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs"
+  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs && node scripts/write-version.mjs; fi"
   publish = "dist"
 
 [build.environment]
@@ -20,6 +25,102 @@
 # `node scripts/generate-netlify-redirects.mjs` after adding a route to
 # scripts/seo-routes.mjs instead.
 
+# Health endpoints for Better Stack (docs/health-monitoring.md): proxied to
+# the Supabase "health" function, so monitors use a stable Cantia URL
+# (https://app.cantia.ch/api/health, /api/health/live, /api/health/ready).
+# Status codes (200 / 503) and bodies pass through unchanged.
+[[redirects]]
+  from = "/api/health/live"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health/live"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/health/ready"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health/ready"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/health"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/health"
+  status = 200
+  force = true
+
+# Google / Microsoft send people back here after they allow Cantia to use
+# their calendar (supabase/functions/calendar-sync). A cantia.ch address, so
+# the consent screens and Google's app verification only involve our domain.
+[[redirects]]
+  from = "/api/calendar/callback"
+  to = "https://krijilwxhdlzflvnvrtl.supabase.co/functions/v1/calendar-sync"
+  status = 200
+  force = true
+
+# Campaign landing page behind the "présentation en 37 secondes" e-mail
+# (app/presentation.tsx). Deliberately not in scripts/seo-routes.mjs: no
+# sitemap entry, and kept out of search engines.
+[[redirects]]
+  from = "/presentation"
+  to = "/presentation.html"
+  status = 200
+
+# PostHog (session replay on cantia.ch, lib/sessionReplay.ts) reached through
+# our own domain, so tracking protection and ad blockers don't drop it.
+# Only used after the visitor accepted cookies.
+[[redirects]]
+  from = "/ingest/static/*"
+  to = "https://eu-assets.i.posthog.com/static/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ingest/array/*"
+  to = "https://eu-assets.i.posthog.com/array/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/ingest/*"
+  to = "https://eu.i.posthog.com/:splat"
+  status = 200
+  force = true
+
+# Browser protections on every page (cantia.ch and app.cantia.ch share this
+# export). SAMEORIGIN, not DENY: the app's maps are srcdoc iframes of its own.
+# Camera / microphone / location stay allowed for the app itself (photos,
+# dictation, voice notes, site position), refused to any embedded page.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), microphone=(self), geolocation=(self), payment=(), usb=(), interest-cohort=()"
+    # Content-Security-Policy in observation mode: browsers only report what
+    # it would block. Checked enforcing on the main marketing and app pages
+    # (no violation) — switch the name to Content-Security-Policy once the
+    # less common flows (PDF import, maps, payments) have been watched.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://krijilwxhdlzflvnvrtl.supabase.co wss://krijilwxhdlzflvnvrtl.supabase.co https://api.open-meteo.com https://geocoding-api.open-meteo.com https://api3.geo.admin.ch https://api-adresse.data.gouv.fr https://www.googletagmanager.com https://www.google.com https://googleads.g.doubleclick.net https://cdnjs.cloudflare.com https://unpkg.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://td.doubleclick.net; worker-src 'self' blob: https://cdnjs.cloudflare.com; media-src 'self' blob: data: https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
+
+[[headers]]
+  for = "/presentation*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# Shared plannings (cantia.ch/planning-partage/<token>): never indexed.
+[[headers]]
+  for = "/planning-partage/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-store"
+    Access-Control-Allow-Origin = "*"
+
 # app.cantia.ch shares this export, but its "/" is the signed-in app's entry
 # (it redirects to the dashboard or the login screen), never the marketing
 # homepage — serve the client-rendered shell there instead of the
@@ -31,6 +132,7 @@
   status = 200
   force = true
 
+# BEGIN generated routes (scripts/generate-netlify-redirects.mjs — do not hand-edit)
 [[redirects]]
   from = "/tarifs"
   to = "/tarifs/index.html"
@@ -1400,6 +1502,7 @@
   from = "/it/aide/portail-client"
   to = "/it/aide/portail-client/index.html"
   status = 200
+# END generated routes
 
 # Static screenshots under public/aide/*.png share the "/aide/" prefix with
 # the dynamic /aide/[id] route above — without this explicit pass-through,
@@ -1432,6 +1535,13 @@
 [[redirects]]
   from = "/it/blog/*"
   to = "/it/blog/:splat/index.html"
+  status = 200
+
+# Shared planning links: the client-rendered shell with a real 200 (link
+# previews and some mail clients give up on a 404).
+[[redirects]]
+  from = "/planning-partage/*"
+  to = "/app-shell.html"
   status = 200
 
 # SPA fallback for every other route (the actual app, auth screens, etc.) —
