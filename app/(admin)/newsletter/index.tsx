@@ -1,22 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listUsers } from '../../../lib/api/admin';
 import {
-  getSubscribedCount,
   getUnsubscribedUserIds,
-  filterUserIds,
-  filterOwnerIds,
   listCampaigns,
   listScheduledSends,
   cancelScheduledSend,
   scheduleNewsletterSendV2,
+  type AudienceRow,
   type LangVariants,
   type NewsletterCampaign,
   type ScheduledCampaign,
 } from '../../../lib/api/newsletter';
-import { AdminEmailAudience, type AudienceAddition } from '../../../components/AdminEmailAudience';
+import { AdminEmailAudience, PLAN_LABEL, ago, sectorLabel } from '../../../components/AdminEmailAudience';
 import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEmailStudio';
 import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
@@ -28,23 +26,7 @@ import { displayType } from '../../../lib/marketingTheme';
 
 type SendMode = 'now' | 'schedule';
 
-const PLAN_FILTERS: { id: string; label: string }[] = [
-  { id: 'solo', label: 'Essentiel' },
-  { id: 'equipe', label: 'Équipe' },
-  { id: 'pro', label: 'Entreprise' },
-];
 
-// Account-lifecycle segments — resolve to the org OWNER only (see
-// lib/api/newsletter.ts's filterOwnerIds), not every member: these are
-// about the account's billing state, not a per-member newsletter
-// preference. "Toujours abonnés" (subscribed:true) still applies, same
-// default-safe rule as every other quick filter.
-const ORG_STATUS_FILTERS: { status: string; label: string }[] = [
-  { status: 'canceled', label: 'Résiliés' },
-  { status: 'trialing', label: 'En essai' },
-  { status: 'decouverte', label: 'Plan découverte (sans carte)' },
-  { status: 'incomplete', label: 'Inscription incomplète' },
-];
 
 const PERSONAS: { key: SenderPersona; label: string; from: string }[] = [
   { key: 'newsletter', label: 'Newsletter', from: 'newsletter@cantia.ch' },
@@ -77,16 +59,11 @@ function formatDateTime(iso: string): string {
 // own comment): "Envoyer un test" is the preview, since RN has no built-in
 // HTML renderer to show one live.
 //
-// Targeting is a single running selection (selectedIds) built up by quick
-// filters and/or the manual search picker, rather than a single mode —
-// each quick filter is just a button that adds matching ids to it. Plan/
-// newsletter-preference filters add every consenting member; account-
-// lifecycle filters (résiliés, essai, découverte, incomplet) add only the
-// org owner. Every quick filter defaults to subscribed-only; the one
-// exception is the explicit "+ Non-abonnés" button, the only path that can
-// add someone who opted out, and doing so requires checking a confirmation
-// box before sending — this screen can't accidentally mail someone who
-// opted out.
+// Recipients = the people the criteria select (AdminEmailAudience, live),
+// minus the ones removed by hand, plus the ones added by hand from the
+// search. Every criterion defaults to subscribed-only; including people who
+// opted out is an explicit choice and needs the confirmation box before a
+// newsletter-persona send.
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
@@ -98,22 +75,30 @@ export default function AdminNewsletterScreen() {
     de: { subject: '', html: '' },
     it: { subject: '', html: '' },
   });
-  const [localeById, setLocaleById] = useState<Map<string, string>>(new Map());
-  const [audienceLabels, setAudienceLabels] = useState<string[]>([]);
+  const [audienceRows, setAudienceRows] = useState<AudienceRow[]>([]);
+  const [audienceText, setAudienceText] = useState('');
+  // Hand edits on top of the criteria.
+  const [extras, setExtras] = useState<Map<string, { name: string; meta: string; unsubscribed: boolean }>>(new Map());
+  const [removed, setRemoved] = useState<Set<string>>(new Set());
+  const [showRecipients, setShowRecipients] = useState(false);
   const [fromPersona, setFromPersona] = useState<SenderPersona>('newsletter');
-  const [subscribedCount, setSubscribedCount] = useState<number | null>(null);
 
   const [search, setSearch] = useState('');
   const [rows, setRows] = useState<AdminUserSummary[]>([]);
   const [unsubscribedIds, setUnsubscribedIds] = useState<Set<string>>(new Set());
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [filterBusy, setFilterBusy] = useState<string | null>(null);
 
-  // True once a selected id is known (from the manual list or the
-  // "+ Non-abonnés" filter) to be unsubscribed — gates the confirmation
-  // checkbox required to send to it.
-  const [includesUnsubscribed, setIncludesUnsubscribed] = useState(false);
+  const selectedIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of audienceRows) if (!removed.has(r.user_id)) ids.add(r.user_id);
+    for (const id of extras.keys()) ids.add(id);
+    return ids;
+  }, [audienceRows, removed, extras]);
+  const localeById = useMemo(() => new Map(audienceRows.map((r) => [r.user_id, r.locale as string])), [audienceRows]);
+  // Gates the confirmation box required to send a newsletter to people who
+  // opted out.
+  const includesUnsubscribed =
+    audienceRows.some((r) => !r.subscribed && !removed.has(r.user_id)) || [...extras.values()].some((e) => e.unsubscribed);
   const [confirmUnsubscribed, setConfirmUnsubscribed] = useState(false);
 
   const [testEmail, setTestEmail] = useState('');
@@ -142,7 +127,6 @@ export default function AdminNewsletterScreen() {
   const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
-    getSubscribedCount().then(setSubscribedCount);
     if (user?.email) setTestEmail(user.email);
   }, [user?.email]);
 
@@ -194,65 +178,52 @@ export default function AdminNewsletterScreen() {
     setCancelingId(null);
   }
 
-  function addIds(ids: string[], unsubscribed: boolean) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      for (const id of ids) next.add(id);
-      return next;
-    });
-    if (unsubscribed && ids.length > 0) setIncludesUnsubscribed(true);
-  }
-
-  async function handlePlanFilter(key: string, planIds: string[] | undefined, subscribed: boolean | undefined) {
-    setFilterBusy(key);
-    const ids = await filterUserIds({ planIds, subscribed });
-    addIds(ids, subscribed === false);
-    setFilterBusy(null);
-  }
-
-  async function handleOrgStatusFilter(status: string) {
-    setFilterBusy(status);
-    const ids = await filterOwnerIds({ orgStatus: status, subscribed: true });
-    addIds(ids, false);
-    setFilterBusy(null);
-  }
-
-  function toggleSelected(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else {
-        next.add(id);
-        if (unsubscribedIds.has(id)) setIncludesUnsubscribed(true);
+  function toggleSelected(u: AdminUserSummary) {
+    const id = u.user_id;
+    const inAudience = audienceRows.some((r) => r.user_id === id);
+    if (selectedIds.has(id)) {
+      if (extras.has(id)) {
+        setExtras((prev) => {
+          const next = new Map(prev);
+          next.delete(id);
+          return next;
+        });
+      } else {
+        setRemoved((prev) => new Set(prev).add(id));
       }
-      return next;
-    });
-  }
-
-  function clearSelection() {
-    setSelectedIds(new Set());
-    setIncludesUnsubscribed(false);
-    setConfirmUnsubscribed(false);
-    setAudienceLabels([]);
-  }
-
-  function handleAudience(a: AudienceAddition) {
-    const ids = a.rows.map((r) => r.user_id);
-    setLocaleById((prev) => {
-      const next = new Map(prev);
-      for (const r of a.rows) next.set(r.user_id, r.locale);
-      return next;
-    });
-    if (a.replace) {
-      setSelectedIds(new Set(ids));
-      setIncludesUnsubscribed(a.includesUnsubscribed);
-      setConfirmUnsubscribed(false);
-      setAudienceLabels([a.label]);
+    } else if (inAudience) {
+      setRemoved((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     } else {
-      addIds(ids, a.includesUnsubscribed);
-      setAudienceLabels((prev) => (prev.includes(a.label) ? prev : [...prev, a.label]));
+      setExtras((prev) => new Map(prev).set(id, { name: u.full_name || u.email, meta: `${u.email} · ${u.organization_name}`, unsubscribed: unsubscribedIds.has(id) }));
     }
   }
+
+  function removeRecipient(id: string) {
+    if (extras.has(id)) {
+      setExtras((prev) => {
+        const next = new Map(prev);
+        next.delete(id);
+        return next;
+      });
+    } else {
+      setRemoved((prev) => new Set(prev).add(id));
+    }
+  }
+
+  function resetHandEdits() {
+    setExtras(new Map());
+    setRemoved(new Set());
+  }
+
+  const handleAudienceChange = useCallback((rows: AudienceRow[], label: string) => {
+    setAudienceRows(rows);
+    setAudienceText(label);
+    setConfirmUnsubscribed(false);
+  }, []);
 
   const currentSubject = lang === 'fr' ? subject : variants[lang].subject;
   const currentHtml = lang === 'fr' ? html : variants[lang].html;
@@ -288,7 +259,12 @@ export default function AdminNewsletterScreen() {
     }
   }
 
-  const audienceLabel = audienceLabels.length ? audienceLabels.join(' + ') : selectedIds.size ? 'Sélection manuelle' : null;
+  const removedCount = audienceRows.filter((r) => removed.has(r.user_id)).length;
+  const audienceLabel = selectedIds.size
+    ? [audienceText || 'Tous les clients', extras.size ? `+ ${extras.size} ajouté${extras.size > 1 ? 's' : ''} à la main` : '', removedCount ? `− ${removedCount} retiré${removedCount > 1 ? 's' : ''}` : '']
+        .filter(Boolean)
+        .join(' ')
+    : null;
 
   async function handleSendTest() {
     if (!subject.trim() || !html.trim() || !testEmail.trim()) return;
@@ -402,64 +378,71 @@ export default function AdminNewsletterScreen() {
         </View>
         <Text style={styles.hint}>Les réponses arrivent toujours sur info@cantia.ch.</Text>
 
-        <AdminEmailAudience onAdd={handleAudience} />
+        <AdminEmailAudience onChange={handleAudienceChange} />
 
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Destinataires</Text>
-          {selectedIds.size > 0 ? (
-            <Pressable onPress={clearSelection} hitSlop={6}>
-              <Text style={styles.clearLink}>Tout désélectionner ({selectedIds.size})</Text>
-            </Pressable>
-          ) : null}
-        </View>
-
-        {selectedIds.size > 0 ? (
-          <View style={styles.selectionBox}>
+        <View style={styles.selectionBox}>
+          <View style={styles.sectionHeaderRow}>
             <Text style={styles.selectionTitle}>
               {selectedIds.size} destinataire{selectedIds.size > 1 ? 's' : ''}
               {audienceLabel ? <Text style={styles.selectionSub}>  ·  {audienceLabel}</Text> : null}
             </Text>
-            <View style={styles.filterRow}>
-              {(['fr', 'de', 'it'] as const).map((l) =>
-                selectionByLang[l] ? (
-                  <Text key={l} style={[styles.langBadge, l !== 'fr' && !langReady(l) && styles.langBadgeWarn]}>
-                    {l.toUpperCase()} {selectionByLang[l]}
-                    {l === 'fr' ? '' : langReady(l) ? ' · version prête' : ' · recevront le FR'}
-                  </Text>
-                ) : null,
-              )}
-              {selectionByLang.unknown ? <Text style={styles.langBadge}>{selectionByLang.unknown} ajoutés à la main (langue de leur compte)</Text> : null}
-            </View>
+            {extras.size || removedCount ? (
+              <Pressable onPress={resetHandEdits} hitSlop={6}>
+                <Text style={styles.clearLink}>Annuler les ajouts et retraits</Text>
+              </Pressable>
+            ) : null}
           </View>
-        ) : null}
-
-        <Text style={styles.filterLabel}>Raccourcis : abonnement newsletter / plan</Text>
-        <View style={styles.filterRow}>
-          <FilterChip
-            label={`Tous les abonnés${subscribedCount != null ? ` (${subscribedCount})` : ''}`}
-            busy={filterBusy === 'all'}
-            onPress={() => handlePlanFilter('all', undefined, true)}
-          />
-          {PLAN_FILTERS.map((p) => (
-            <FilterChip key={p.id} label={p.label} busy={filterBusy === p.id} onPress={() => handlePlanFilter(p.id, [p.id], true)} />
-          ))}
-          <FilterChip
-            label="Non-abonnés"
-            warning
-            busy={filterBusy === 'unsub'}
-            onPress={() => handlePlanFilter('unsub', undefined, false)}
-          />
-        </View>
-
-        <Text style={styles.filterLabel}>Raccourcis : situation du compte (au propriétaire de l'entreprise)</Text>
-        <View style={styles.filterRow}>
-          {ORG_STATUS_FILTERS.map((f) => (
-            <FilterChip key={f.status} label={f.label} busy={filterBusy === f.status} onPress={() => handleOrgStatusFilter(f.status)} />
-          ))}
+          <View style={styles.filterRow}>
+            {(['fr', 'de', 'it'] as const).map((l) =>
+              selectionByLang[l] ? (
+                <Text key={l} style={[styles.langBadge, l !== 'fr' && !langReady(l) && styles.langBadgeWarn]}>
+                  {l.toUpperCase()} {selectionByLang[l]}
+                  {l === 'fr' ? '' : langReady(l) ? ' · version prête' : ' · recevront le FR'}
+                </Text>
+              ) : null,
+            )}
+            {selectionByLang.unknown ? <Text style={styles.langBadge}>{selectionByLang.unknown} ajoutés à la main (langue de leur compte)</Text> : null}
+          </View>
+          {selectedIds.size ? (
+            <Pressable onPress={() => setShowRecipients((v) => !v)} hitSlop={6} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Feather name={showRecipients ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} />
+              <Text style={styles.clearLink}>{showRecipients ? 'Masquer la liste' : 'Voir la liste et retirer des personnes'}</Text>
+            </Pressable>
+          ) : null}
+          {showRecipients ? (
+            <View style={styles.recipientList}>
+              {[
+                ...audienceRows
+                  .filter((r) => !removed.has(r.user_id))
+                  .map((r) => ({
+                    id: r.user_id,
+                    name: r.full_name || r.email,
+                    meta: `${r.organization_name} · ${sectorLabel(r.trade)} · ${PLAN_LABEL[r.plan_id ?? ''] ?? r.plan_id ?? '—'} · ${r.locale.toUpperCase()} · actif ${ago(r.last_active_at)}`,
+                    unsubscribed: !r.subscribed,
+                  })),
+                ...[...extras.entries()].map(([id, e]) => ({ id, name: e.name, meta: `${e.meta} · ajouté à la main`, unsubscribed: e.unsubscribed })),
+              ].map((r) => (
+                <View key={r.id} style={styles.recipientRow}>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={styles.userName} numberOfLines={1}>
+                      {r.name}
+                    </Text>
+                    <Text style={styles.userMeta} numberOfLines={1}>
+                      {r.meta}
+                    </Text>
+                  </View>
+                  {r.unsubscribed ? <Text style={styles.unsubTag}>désabonné</Text> : null}
+                  <Pressable onPress={() => removeRecipient(r.id)} hitSlop={8} accessibilityLabel="Retirer">
+                    <Feather name="x" size={16} color={colors.textMuted} />
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.pickerBox}>
-          <Field label="Rechercher pour ajouter individuellement" placeholder="Nom, e-mail ou entreprise…" value={search} onChangeText={setSearch} />
+          <Field label="Ajouter ou retirer une personne précise" placeholder="Nom, e-mail ou entreprise…" value={search} onChangeText={setSearch} />
           {loadingUsers ? (
             <Text style={styles.hint}>Chargement…</Text>
           ) : (
@@ -470,7 +453,7 @@ export default function AdminNewsletterScreen() {
                 return (
                   <Pressable
                     key={`${u.user_id}-${u.organization_id}`}
-                    onPress={() => toggleSelected(u.user_id)}
+                    onPress={() => toggleSelected(u)}
                     style={[styles.userRow, isSelected && styles.userRowSelected]}
                   >
                     <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
@@ -731,14 +714,6 @@ export default function AdminNewsletterScreen() {
   );
 }
 
-function FilterChip({ label, onPress, busy, warning }: { label: string; onPress: () => void; busy?: boolean; warning?: boolean }) {
-  return (
-    <Pressable onPress={onPress} disabled={busy} style={[styles.filterChip, warning && styles.filterChipWarning]}>
-      <Feather name="plus" size={12} color={warning ? colors.danger : colors.primary} />
-      <Text style={[styles.filterChipText, warning && styles.filterChipTextWarning]}>{busy ? '…' : label}</Text>
-    </Pressable>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -756,6 +731,8 @@ const styles = StyleSheet.create({
   selectionSub: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted },
   langBadge: { fontSize: 11, fontWeight: '700', color: colors.text, backgroundColor: colors.surface, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, overflow: 'hidden' },
   langBadgeWarn: { color: colors.warning },
+  recipientList: { maxHeight: 360, overflow: 'scroll' as any, borderTopWidth: 1, borderTopColor: colors.border, marginTop: 4 },
+  recipientRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

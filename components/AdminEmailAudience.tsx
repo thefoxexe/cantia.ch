@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { getEmailAudience, type AudienceFilters, type AudienceRow } from '../lib/api/newsletter';
@@ -8,8 +8,9 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 // Super Admin › E-mails: build an audience from what Cantia knows about each
 // company (sector and trades, plan, account status, language, activity,
-// modules used, sign-up channel), see who it is, then add it to the
-// selection. Internal tool: French only.
+// modules used, sign-up channel). Whatever the criteria select IS the
+// recipient list: every change is reported to the screen live (onChange).
+// Internal tool: French only.
 
 const PLANS: { id: string; label: string }[] = [
   { id: 'solo', label: 'Essentiel' },
@@ -18,7 +19,7 @@ const PLANS: { id: string; label: string }[] = [
   { id: 'decouverte', label: 'Découverte' },
   { id: 'custom', label: 'Sur mesure' },
 ];
-const PLAN_LABEL: Record<string, string> = Object.fromEntries(PLANS.map((p) => [p.id, p.label]));
+export const PLAN_LABEL: Record<string, string> = Object.fromEntries(PLANS.map((p) => [p.id, p.label]));
 
 const STATUSES: { id: string; label: string }[] = [
   { id: 'active', label: 'Abonné actif' },
@@ -76,15 +77,15 @@ const SINCE: { days: number | null; label: string }[] = [
   { days: 90, label: '3 derniers mois' },
 ];
 
-function specialtyLabel(key: string): string {
+export function specialtyLabel(key: string): string {
   return (fr.specialties as Record<string, string>)[key] ?? key;
 }
 
-function sectorLabel(trade: string | null): string {
+export function sectorLabel(trade: string | null): string {
   return sectorOf(trade)?.label ?? trade ?? 'Sans secteur';
 }
 
-function ago(iso: string | null): string {
+export function ago(iso: string | null): string {
   if (!iso) return 'jamais';
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
   if (days <= 0) return 'aujourd’hui';
@@ -98,14 +99,7 @@ function toggle<T>(list: T[], v: T): T[] {
   return list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
 }
 
-export interface AudienceAddition {
-  rows: AudienceRow[];
-  label: string;
-  includesUnsubscribed: boolean;
-  replace: boolean;
-}
-
-export function AdminEmailAudience({ onAdd }: { onAdd: (a: AudienceAddition) => void }) {
+export function AdminEmailAudience({ onChange }: { onChange: (rows: AudienceRow[], label: string) => void }) {
   const [base, setBase] = useState<AudienceRow[] | null>(null);
   const [sectors, setSectors] = useState<string[]>([]);
   const [specialties, setSpecialties] = useState<string[]>([]);
@@ -124,7 +118,6 @@ export function AdminEmailAudience({ onAdd }: { onAdd: (a: AudienceAddition) => 
   const [rows, setRows] = useState<AudienceRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showList, setShowList] = useState(false);
 
   // Counts on the chips: everyone, before any filter.
   useEffect(() => {
@@ -234,17 +227,23 @@ export function AdminEmailAudience({ onAdd }: { onAdd: (a: AudienceAddition) => 
     setWithUnsubscribed(false);
   }
 
-  function add(replace: boolean) {
-    if (!rows?.length) return;
-    onAdd({ rows, label, includesUnsubscribed: breakdown.unsubscribed > 0, replace });
-  }
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  useEffect(() => {
+    if (rows) onChangeRef.current(rows, label);
+    // label follows the same criteria as rows; report once the rows are in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows]);
 
   return (
     <View style={styles.card}>
       <View style={styles.headRow}>
         <View style={{ flex: 1, minWidth: 200 }}>
-          <Text style={styles.title}>Ciblage</Text>
-          <Text style={styles.hint}>Combinez les critères : chaque groupe réduit la liste, plusieurs choix dans un groupe s’additionnent.</Text>
+          <Text style={styles.title}>Destinataires</Text>
+          <Text style={styles.hint}>
+            Choisissez à qui envoyer : les personnes qui correspondent deviennent les destinataires. Chaque groupe réduit la liste, plusieurs choix dans
+            un groupe s’additionnent. Sans critère : tous les clients abonnés.
+          </Text>
         </View>
         {activeCount > 0 ? (
           <Pressable onPress={reset} hitSlop={6}>
@@ -390,47 +389,9 @@ export function AdminEmailAudience({ onAdd }: { onAdd: (a: AudienceAddition) => 
             </View>
           ) : null}
         </View>
-        <View style={styles.actions}>
-          <Pressable onPress={() => add(false)} disabled={!rows?.length} style={[styles.btn, !rows?.length && { opacity: 0.4 }]}>
-            <Feather name="plus" size={14} color="#fff" />
-            <Text style={styles.btnText}>Ajouter à la sélection</Text>
-          </Pressable>
-          <Pressable onPress={() => add(true)} disabled={!rows?.length} style={[styles.btnGhost, !rows?.length && { opacity: 0.4 }]}>
-            <Text style={styles.btnGhostText}>Remplacer la sélection</Text>
-          </Pressable>
-        </View>
       </View>
       {error ? <Text style={[styles.muted, { color: colors.danger }]}>{error}</Text> : null}
 
-      {rows?.length ? (
-        <Pressable onPress={() => setShowList((v) => !v)} style={styles.moreToggle} hitSlop={4}>
-          <Feather name={showList ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} />
-          <Text style={styles.link}>{showList ? 'Masquer la liste' : 'Voir qui c’est'}</Text>
-        </Pressable>
-      ) : null}
-      {showList && rows ? (
-        <View style={styles.list}>
-          {rows.slice(0, 60).map((r) => (
-            <View key={r.user_id} style={styles.listRow}>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.listName} numberOfLines={1}>
-                  {r.full_name || r.email}
-                  <Text style={styles.listMeta}>  {r.locale.toUpperCase()}{r.role === 'owner' ? ' · propriétaire' : ''}</Text>
-                </Text>
-                <Text style={styles.listMeta} numberOfLines={1}>
-                  {r.organization_name} · {sectorLabel(r.trade)}
-                  {r.specialties?.length ? ` (${r.specialties.slice(0, 3).map(specialtyLabel).join(', ')})` : ''}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.listMeta}>{PLAN_LABEL[r.plan_id ?? ''] ?? r.plan_id ?? '—'}</Text>
-                <Text style={styles.listMeta}>{ago(r.last_active_at)}</Text>
-              </View>
-            </View>
-          ))}
-          {rows.length > 60 ? <Text style={styles.muted}>… et {rows.length - 60} autres.</Text> : null}
-        </View>
-      ) : null}
     </View>
   );
 }
