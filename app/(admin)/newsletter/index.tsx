@@ -17,6 +17,8 @@ import {
   type ScheduledCampaign,
 } from '../../../lib/api/newsletter';
 import { AdminEmailAudience, type AudienceAddition } from '../../../components/AdminEmailAudience';
+import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEmailStudio';
+import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
@@ -277,6 +279,15 @@ export default function AdminNewsletterScreen() {
     }
     return counts;
   })();
+  function handleStudio(r: StudioResult) {
+    if (r.lang === 'fr') {
+      setSubject(r.subject);
+      setHtml(r.html);
+    } else {
+      setVariants((prev) => ({ ...prev, [r.lang]: { subject: r.subject, html: r.html } }));
+    }
+  }
+
   const audienceLabel = audienceLabels.length ? audienceLabels.join(' + ') : selectedIds.size ? 'Sélection manuelle' : null;
 
   async function handleSendTest() {
@@ -391,55 +402,6 @@ export default function AdminNewsletterScreen() {
         </View>
         <Text style={styles.hint}>Les réponses arrivent toujours sur info@cantia.ch.</Text>
 
-        <Text style={styles.filterLabel}>Langue du message</Text>
-        <View style={styles.sendModeRow}>
-          {LANGS.map((l) => (
-            <Pressable key={l.id} onPress={() => setLang(l.id)} style={[styles.sendModeChip, lang === l.id && styles.sendModeChipActive]}>
-              <Text style={[styles.sendModeChipText, lang === l.id && styles.sendModeChipTextActive]}>
-                {l.label}
-                {langReady(l.id) ? ' ✓' : l.id === 'fr' ? '' : ' (optionnel)'}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <Text style={styles.hint}>
-          {lang === 'fr'
-            ? 'Le message de base. Chaque personne reçoit la version de sa langue si elle existe, sinon celle-ci.'
-            : `Reçue par les personnes en ${lang === 'de' ? 'allemand' : 'italien'}. Laissez vide pour leur envoyer la version française.`}
-        </Text>
-
-        <Field
-          label={lang === 'fr' ? 'Sujet' : `Sujet (${lang.toUpperCase()})`}
-          value={currentSubject}
-          onChangeText={setCurrentSubject}
-          placeholder={lang === 'de' ? 'Neu bei Cantia, {{prenom}}' : lang === 'it' ? 'Novità da Cantia, {{prenom}}' : 'Quoi de neuf chez Cantia, {{prenom}} ?'}
-        />
-
-        <Field
-          label={lang === 'fr' ? 'Contenu HTML' : `Contenu HTML (${lang.toUpperCase()})`}
-          value={currentHtml}
-          onChangeText={setCurrentHtml}
-          placeholder="Collez votre HTML ici…"
-          multiline
-          numberOfLines={14}
-          style={styles.htmlInput}
-        />
-
-        <View style={styles.varBox}>
-          <Text style={styles.varTitle}>Personnalisation</Text>
-          <Text style={styles.hint}>
-            À écrire dans le sujet ou le HTML, remplacé pour chaque personne. Valeur de secours si l’info manque : {'{{prenom|Madame, Monsieur}}'}.
-          </Text>
-          <View style={styles.filterRow}>
-            {VARIABLES.map((v) => (
-              <Pressable key={v.token} onPress={() => setCurrentHtml(currentHtml + v.token)} style={styles.varChip}>
-                <Text style={styles.varToken}>{v.token}</Text>
-                <Text style={styles.varLabel}>{v.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
         <AdminEmailAudience onAdd={handleAudience} />
 
         <View style={styles.sectionHeaderRow}>
@@ -549,6 +511,66 @@ export default function AdminNewsletterScreen() {
             </Text>
           </View>
         ) : null}
+
+        <Text style={styles.sectionTitle}>Message</Text>
+
+        <AdminEmailStudio audience={audienceLabel} current={{ subject, html }} onResult={handleStudio} />
+
+        <Text style={styles.filterLabel}>Langue du message</Text>
+        <View style={styles.sendModeRow}>
+          {LANGS.map((l) => (
+            <Pressable key={l.id} onPress={() => setLang(l.id)} style={[styles.sendModeChip, lang === l.id && styles.sendModeChipActive]}>
+              <Text style={[styles.sendModeChipText, lang === l.id && styles.sendModeChipTextActive]}>
+                {l.label}
+                {langReady(l.id) ? ' ✓' : l.id === 'fr' ? '' : ' (optionnel)'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <Text style={styles.hint}>
+          {lang === 'fr'
+            ? 'Le message de base. Chaque personne reçoit la version de sa langue si elle existe, sinon celle-ci.'
+            : `Reçue par les personnes en ${lang === 'de' ? 'allemand' : 'italien'}. Laissez vide pour leur envoyer la version française.`}
+        </Text>
+
+        <Field
+          label={lang === 'fr' ? 'Sujet' : `Sujet (${lang.toUpperCase()})`}
+          value={currentSubject}
+          onChangeText={setCurrentSubject}
+          placeholder={lang === 'de' ? 'Neu bei Cantia, {{prenom}}' : lang === 'it' ? 'Novità da Cantia, {{prenom}}' : 'Quoi de neuf chez Cantia, {{prenom}} ?'}
+        />
+
+        <Field
+          label={lang === 'fr' ? 'Contenu HTML' : `Contenu HTML (${lang.toUpperCase()})`}
+          value={currentHtml}
+          onChangeText={setCurrentHtml}
+          placeholder="Collez votre HTML ici…"
+          multiline
+          numberOfLines={14}
+          style={styles.htmlInput}
+        />
+
+        <View style={styles.varBox}>
+          <Text style={styles.varTitle}>Personnalisation</Text>
+          <Text style={styles.hint}>
+            À écrire dans le sujet ou le HTML, remplacé pour chaque personne. Valeur de secours si l’info manque : {'{{prenom|Madame, Monsieur}}'}.
+          </Text>
+          <View style={styles.filterRow}>
+            {VARIABLES.map((v) => (
+              <Pressable key={v.token} onPress={() => setCurrentHtml(currentHtml + v.token)} style={styles.varChip}>
+                <Text style={styles.varToken}>{v.token}</Text>
+                <Text style={styles.varLabel}>{v.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <AdminEmailPreview
+          subject={currentSubject}
+          html={currentHtml}
+          from={PERSONAS.find((p) => p.key === fromPersona)?.label === 'Newsletter' ? 'Cantia Newsletter' : 'Cantia'}
+          emptyHint={lang === 'fr' ? 'Collez votre HTML ou demandez à Claude de l’écrire : l’aperçu s’affiche ici.' : 'Pas encore de version dans cette langue : les destinataires recevront le français.'}
+        />
 
         <Text style={styles.filterLabel}>Quand</Text>
         <View style={styles.sendModeRow}>
