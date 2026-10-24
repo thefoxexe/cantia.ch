@@ -60,7 +60,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Das ist das Prinzip der Funktion «Leistungsverzeichnis ausfüllen» von Cantia, in der Beta: Das erhaltene PDF wird importiert, Ihre Preise werden vorgeschlagen, Sie passen an, und das Original-PDF kommt ausgefüllt zurück. Ab dem Plan Team (3 Leistungsverzeichnisse pro Monat), unbegrenzt im Plan Entreprise.',
+      text: 'Das ist das Prinzip der Funktion «Leistungsverzeichnis ausfüllen» von Cantia, in der Beta: Das erhaltene PDF wird importiert, Ihre Preise werden vorgeschlagen, Sie passen an, und das Original-PDF kommt ausgefüllt zurück. 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

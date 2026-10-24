@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Con Cantia (beta)' },
     {
       type: 'p',
-      text: 'Quando compilate un capitolato in Cantia, ribasso, sconto e IVA si impostano nel riepilogo; i totali vengono ricalcolati e scritti al loro posto nel PDF originale. Funzione in beta, dal piano Team (3 capitolati al mese), illimitata con Entreprise.',
+      text: 'Quando compilate un capitolato in Cantia, ribasso, sconto e IVA si impostano nel riepilogo; i totali vengono ricalcolati e scritti al loro posto nel PDF originale. Funzione in beta: 1 di prova con Essenziale, 3 al mese con Team, illimitata con Entreprise.',
     },
     {
       type: 'cta',

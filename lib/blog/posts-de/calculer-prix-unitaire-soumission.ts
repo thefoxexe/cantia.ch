@@ -64,7 +64,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Wenn Sie in Cantia ein importiertes Leistungsverzeichnis ausfüllen, werden für jede Position Ihre Katalogpreise und die Preise aus früheren Leistungsverzeichnissen vorgeschlagen. Sie passen an die Baustelle an, und das Original-PDF kommt ausgefüllt zurück. Funktion in der Beta, ab dem Plan Team (3 Leistungsverzeichnisse pro Monat), unbegrenzt im Plan Entreprise.',
+      text: 'Wenn Sie in Cantia ein importiertes Leistungsverzeichnis ausfüllen, werden für jede Position Ihre Katalogpreise und die Preise aus früheren Leistungsverzeichnissen vorgeschlagen. Sie passen an die Baustelle an, und das Original-PDF kommt ausgefüllt zurück. Funktion in der Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

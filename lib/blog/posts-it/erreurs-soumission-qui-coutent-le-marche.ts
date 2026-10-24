@@ -65,7 +65,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Con Cantia (beta)' },
     {
       type: 'p',
-      text: 'Cantia riprende le posizioni del PDF ricevuto e vi lascia compilare solo i prezzi: le quantità del documento restano intatte, importi, riporti e totali vengono calcolati e il riepilogo mostra cosa resta da calcolare. Il PDF originale esce compilato. In beta, dal piano Team (3 capitolati al mese), illimitato con Entreprise.',
+      text: 'Cantia riprende le posizioni del PDF ricevuto e vi lascia compilare solo i prezzi: le quantità del documento restano intatte, importi, riporti e totali vengono calcolati e il riepilogo mostra cosa resta da calcolare. Il PDF originale esce compilato. In beta: 1 di prova con Essenziale, 3 al mese con Team, illimitato con Entreprise.',
     },
     {
       type: 'cta',

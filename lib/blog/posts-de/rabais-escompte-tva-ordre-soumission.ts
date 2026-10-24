@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Mit Cantia (Beta)' },
     {
       type: 'p',
-      text: 'Wenn Sie ein Leistungsverzeichnis in Cantia ausfüllen, werden Rabatt, Skonto und MWST in der Zusammenstellung eingestellt; die Totale werden neu berechnet und an ihrer Stelle ins Original-PDF geschrieben. Funktion in der Beta, ab dem Plan Team (3 Leistungsverzeichnisse pro Monat), unbegrenzt im Plan Entreprise.',
+      text: 'Wenn Sie ein Leistungsverzeichnis in Cantia ausfüllen, werden Rabatt, Skonto und MWST in der Zusammenstellung eingestellt; die Totale werden neu berechnet und an ihrer Stelle ins Original-PDF geschrieben. Funktion in der Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

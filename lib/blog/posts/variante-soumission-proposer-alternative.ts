@@ -45,7 +45,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Avec Cantia (bêta)' },
     {
       type: 'p',
-      text: 'Vous remplissez l’offre de base dans le PDF d’origine avec Cantia, puis vous pouvez dupliquer la soumission pour chiffrer votre variante sans toucher à l’offre de base. Fonction en bêta, dès le plan Équipe (3 soumissions par mois), illimitée avec Entreprise.',
+      text: 'Vous remplissez l’offre de base dans le PDF d’origine avec Cantia, puis vous pouvez dupliquer la soumission pour chiffrer votre variante sans toucher à l’offre de base. Fonction en bêta : 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimitée avec Entreprise.',
     },
     {
       type: 'cta',

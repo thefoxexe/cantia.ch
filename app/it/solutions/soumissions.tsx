@@ -56,7 +56,7 @@ export default function SoumissionsSolutionPageIt() {
         },
         {
           question: 'In quali piani è disponibile?',
-          answer: 'Dal piano Team, con 3 capitolati al mese. Il piano Entreprise li rende illimitati. Non è inclusa nel piano Essenziale.',
+          answer: 'Con il piano Essenziale potete provarne uno. Il piano Team ne offre 3 al mese, il piano Entreprise un numero illimitato.',
         },
         {
           question: 'Quali capitolati si possono importare?',
@@ -83,7 +83,7 @@ export default function SoumissionsSolutionPageIt() {
         { href: '/it/solutions/rentabilite', label: 'Redditività per cantiere' },
       ]}
       closingTitle="Rispondete a più capitolati, con meno serate al computer"
-      closingText="Compilare un capitolato è in beta, dal piano Team (3 al mese) e illimitato con il piano Entreprise. 14 giorni di prova, senza impegno."
+      closingText="Compilare un capitolato è in beta: 1 di prova con Essenziale, 3 al mese con Team e illimitato con Entreprise. 14 giorni di prova, senza impegno."
     />
   );
 }

@@ -13,9 +13,9 @@ Faits utiles :
 
 ## Plans et tarifs (CHF, hors TVA)
 
-- Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue.
+- Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue, comptabilité et TVA, 1 soumission à l'essai (bêta).
 - Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio, et 3 soumissions remplies par mois (bêta).
-- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis et les soumissions illimitées (bêta).
+- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis, les relances de devis automatiques, les soumissions illimitées (bêta), 40 Go de stockage et le support prioritaire.
 - Sur mesure : sur demande, au-delà de 25 personnes.
 Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://cantia.ch/tarifs
 
@@ -27,7 +27,7 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 - [Dictée vocale](https://cantia.ch/solutions/dictee-vocale) : dans les devis, les rapports et le fil de chantier.
 - [Planning](https://cantia.ch/solutions/planning) : planning d'équipe par personne et par jour, synchronisé avec Google Agenda.
 - Planning de chantier (Gantt) : phases, tâches, dépendances, jours fériés cantonaux, export PDF, Excel et MS Project, lien de partage.
-- [Remplir une soumission (bêta)](https://cantia.ch/solutions/soumissions) : importer le PDF de soumission reçu (CAN ou non), mettre ses prix poste par poste et ressortir le PDF d'origine rempli avec les prix, montants, reports et totaux. Dès le plan Équipe (3 soumissions par mois), illimité avec Entreprise. Réservé aux entreprises du bâtiment.
+- [Remplir une soumission (bêta)](https://cantia.ch/solutions/soumissions) : importer le PDF de soumission reçu (CAN ou non), mettre ses prix poste par poste et ressortir le PDF d'origine rempli avec les prix, montants, reports et totaux. 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise. Réservé aux entreprises du bâtiment.
 - [Travaux supplémentaires](https://cantia.ch/solutions/travaux-supplementaires) : signés par le client sur place.
 - [Rentabilité](https://cantia.ch/solutions/rentabilite) : devisé comparé au coût réel (matériel et main-d'œuvre) par chantier.
 - [RH et salaires](https://cantia.ch/solutions/rh-salaires) : heures par chantier, fiches de salaire suisses (AVS/AI/APG, AC, LPP, LAA, IJM, impôt à la source, allocations familiales), absences.

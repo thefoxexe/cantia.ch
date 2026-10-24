@@ -53,7 +53,7 @@ export default function SoumissionsSolutionPage() {
         },
         {
           question: 'Dans quels plans la fonction est-elle disponible ?',
-          answer: 'Dès le plan Équipe, avec 3 soumissions par mois. Le plan Entreprise les rend illimitées. Elle n’est pas incluse dans le plan Essentiel.',
+          answer: 'Le plan Essentiel permet d’en essayer une. Le plan Équipe en donne 3 par mois, le plan Entreprise un nombre illimité.',
         },
         {
           question: 'Quelles soumissions peut-on importer ?',
@@ -80,7 +80,7 @@ export default function SoumissionsSolutionPage() {
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
       ]}
       closingTitle="Répondez à plus de soumissions, en moins de soirées"
-      closingText="Remplir une soumission est en bêta, dès le plan Équipe (3 soumissions par mois) et illimité avec le plan Entreprise. 14 jours d’essai, sans engagement."
+      closingText="Remplir une soumission est en bêta : 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise. 14 jours d’essai, sans engagement."
     />
   );
 }

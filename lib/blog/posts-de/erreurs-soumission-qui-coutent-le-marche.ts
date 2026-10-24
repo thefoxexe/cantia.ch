@@ -65,7 +65,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Mit Cantia (Beta)' },
     {
       type: 'p',
-      text: 'Cantia übernimmt die Positionen aus dem erhaltenen PDF und lässt Sie nur die Preise ausfüllen: Die Mengen des Dokuments bleiben unverändert, Beträge, Überträge und Totale werden berechnet, und die Zusammenstellung zeigt, was noch zu kalkulieren ist. Das Original-PDF kommt ausgefüllt zurück. In der Beta, ab dem Plan Team (3 Leistungsverzeichnisse pro Monat), unbegrenzt im Plan Entreprise.',
+      text: 'Cantia übernimmt die Positionen aus dem erhaltenen PDF und lässt Sie nur die Preise ausfüllen: Die Mengen des Dokuments bleiben unverändert, Beträge, Überträge und Totale werden berechnet, und die Zusammenstellung zeigt, was noch zu kalkulieren ist. Das Original-PDF kommt ausgefüllt zurück. In der Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

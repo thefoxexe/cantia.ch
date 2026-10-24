@@ -63,6 +63,9 @@ export interface Plan {
   // Remplir une soumission (tous les plans depuis le 07.10.2026).
   has_tenders?: boolean;
   max_tenders_per_month?: number | null;
+  // Lifetime allowance instead of a monthly one (Essentiel: 1 to try).
+  max_tenders_total?: number | null;
+  max_org_roles?: number | null;
   // Planning de chantier (Équipe, Entreprise, Sur mesure).
   has_site_schedule?: boolean;
 }

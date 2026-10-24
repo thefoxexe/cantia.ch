@@ -45,7 +45,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Mit Cantia (Beta)' },
     {
       type: 'p',
-      text: 'Sie füllen das Grundangebot mit Cantia direkt im Original-PDF aus und können das Leistungsverzeichnis danach duplizieren, um Ihre Variante zu kalkulieren, ohne das Grundangebot anzutasten. Funktion in der Beta, ab dem Plan Team (3 Leistungsverzeichnisse pro Monat), unbegrenzt im Plan Entreprise.',
+      text: 'Sie füllen das Grundangebot mit Cantia direkt im Original-PDF aus und können das Leistungsverzeichnis danach duplizieren, um Ihre Variante zu kalkulieren, ohne das Grundangebot anzutasten. Funktion in der Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

@@ -26,7 +26,7 @@ export const post: BlogPost = {
         ['Calculs et reports', 'À la main', 'Automatiques', 'Automatiques', 'Automatiques'],
         ['Réutilisation des prix', 'Mémoire', 'Copier-coller', 'Bibliothèque de prix', 'Catalogue et historique proposés'],
         ['Document rendu', 'PDF scanné', 'Tableau à part ou recopie', 'Formulaire exporté', 'PDF d’origine rempli'],
-        ['Coût et prise en main', 'Nul', 'Faible', 'Élevé, formation', 'Inclus dès le plan Équipe'],
+        ['Coût et prise en main', 'Nul', 'Faible', 'Élevé, formation', '1 à l’essai avec Essentiel, puis dès Équipe'],
       ],
     },
     { type: 'h2', text: 'Quand le papier suffit' },
@@ -47,7 +47,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'L’entre-deux : partir du PDF reçu' },
     {
       type: 'p',
-      text: 'La fonction « Remplir une soumission » de Cantia, en bêta, part du document que vous recevez vraiment : le PDF. Les positions, unités et quantités sont reprises, même d’un scan, avec un écran de vérification. Vous mettez vos prix au clavier, vos prix habituels sont proposés, et le PDF d’origine ressort rempli avec prix unitaires, montants, reports et totaux. Dès le plan Équipe avec 3 soumissions par mois, illimitée avec le plan Entreprise.',
+      text: 'La fonction « Remplir une soumission » de Cantia, en bêta, part du document que vous recevez vraiment : le PDF. Les positions, unités et quantités sont reprises, même d’un scan, avec un écran de vérification. Vous mettez vos prix au clavier, vos prix habituels sont proposés, et le PDF d’origine ressort rempli avec prix unitaires, montants, reports et totaux. 1 soumission d’essai avec le plan Essentiel, 3 par mois avec Équipe, illimitée avec le plan Entreprise.',
     },
     {
       type: 'callout',
@@ -72,7 +72,7 @@ export const post: BlogPost = {
     },
     {
       question: 'Combien de soumissions peut-on remplir avec Cantia ?',
-      answer: '3 par mois avec le plan Équipe, sans limite avec le plan Entreprise. La fonction n’est pas incluse dans le plan Essentiel.',
+      answer: 'Une à l’essai avec le plan Essentiel, 3 par mois avec le plan Équipe, sans limite avec le plan Entreprise.',
     },
   ],
   relatedSlugs: ['remplir-soumission-pdf-architecte', 'bexio-vs-cantia-logiciel-batiment', 'temps-repondre-soumission-rentable'],

@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Cosa fa Cantia (beta)' },
     {
       type: 'p',
-      text: 'In Cantia importate il capitolato PDF così come l’avete ricevuto, CPN o no, anche scansionato. Capitoli, posizioni, unità e quantità vengono ripresi; una schermata di verifica vi mostra cosa è stato letto. Poi inserite i prezzi da tastiera, con i vostri prezzi abituali proposti, e Cantia scrive prezzi unitari, importi, riporti e totali nel PDF originale. La funzione è in beta, dal piano Team (3 capitolati al mese) e illimitata con il piano Entreprise.',
+      text: 'In Cantia importate il capitolato PDF così come l’avete ricevuto, CPN o no, anche scansionato. Capitoli, posizioni, unità e quantità vengono ripresi; una schermata di verifica vi mostra cosa è stato letto. Poi inserite i prezzi da tastiera, con i vostri prezzi abituali proposti, e Cantia scrive prezzi unitari, importi, riporti e totali nel PDF originale. La funzione è in beta: 1 di prova con il piano Essenziale, 3 al mese con Team e illimitata con il piano Entreprise.',
     },
     {
       type: 'cta',

@@ -40,6 +40,8 @@ export default function ChantierMetresScreen() {
   const [progress, setProgress] = useState<ImportProgress | null>(null);
   const [quota, setQuota] = useState<TenderQuota | null>(null);
   const quotaReached = !!quota && quota.limit != null && quota.used >= quota.limit;
+  // Essentiel: one soumission to try, for good (not per month).
+  const trial = quota?.period === 'total';
 
   const load = useCallback(async () => {
     if (!project) return;
@@ -69,7 +71,7 @@ export default function ChantierMetresScreen() {
     // The insert policy refuses an import once the month's quota is used.
     if (err && !jobId) {
       load();
-      return setError(/row-level security/i.test(err) && quota?.limit != null ? fill(c.quotaReached, { limit: quota.limit }) : err);
+      return setError(/row-level security/i.test(err) && quota?.limit != null ? (trial ? c.quotaTrialReached : fill(c.quotaReached, { limit: quota.limit })) : err);
     }
     if (jobId) router.push(`/(app)/chantiers/${id}/metres/import/${jobId}` as any);
   }
@@ -152,11 +154,11 @@ export default function ChantierMetresScreen() {
               <View style={styles.upsellIcon}>
                 <Feather name="lock" size={16} color={colors.primary} />
               </View>
-              <Text style={[kit.muted, { flex: 1, minWidth: 200 }]}>{fill(c.quotaReached, { limit: quota.limit })}</Text>
-              <Btn label={c.quotaCta} icon="arrow-right" variant="primary" onPress={() => router.push('/(app)/compte/facturation' as any)} />
+              <Text style={[kit.muted, { flex: 1, minWidth: 200 }]}>{trial ? c.quotaTrialReached : fill(c.quotaReached, { limit: quota.limit })}</Text>
+              <Btn label={trial ? c.trialCta : c.quotaCta} icon="arrow-right" variant="primary" onPress={() => router.push('/(app)/compte/facturation' as any)} />
             </View>
           ) : (
-            <Text style={kit.hint}>{fill(c.quota, { used: quota.used, limit: quota.limit })}</Text>
+            <Text style={kit.hint}>{fill(trial ? c.quotaTrial : c.quota, { used: quota.used, limit: quota.limit })}</Text>
           )
         ) : null}
 

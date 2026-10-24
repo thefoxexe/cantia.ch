@@ -50,7 +50,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Importez votre prochaine soumission, CAN ou non',
-      text: 'Positions, unités et quantités reprises, vos prix proposés, le PDF d’origine rempli. En bêta dès le plan Équipe.',
+      text: 'Positions, unités et quantités reprises, vos prix proposés, le PDF d’origine rempli. En bêta, une à l’essai dès le plan Essentiel.',
       buttonLabel: 'Essayer Cantia',
     },
   ],

@@ -56,7 +56,7 @@ export default function SoumissionsSolutionPageDe() {
         },
         {
           question: 'In welchen Plänen ist die Funktion enthalten?',
-          answer: 'Ab dem Plan Team, mit 3 Leistungsverzeichnissen pro Monat. Im Plan Entreprise unbegrenzt. Im Plan Basis nicht enthalten.',
+          answer: 'Im Plan Basis können Sie eines testen. Der Plan Team bietet 3 pro Monat, der Plan Entreprise unbegrenzt viele.',
         },
         {
           question: 'Welche Leistungsverzeichnisse lassen sich importieren?',
@@ -83,7 +83,7 @@ export default function SoumissionsSolutionPageDe() {
         { href: '/de/solutions/rentabilite', label: 'Rentabilität pro Baustelle' },
       ]}
       closingTitle="Mehr Ausschreibungen beantworten, mit weniger Abendarbeit"
-      closingText="Leistungsverzeichnis ausfüllen ist in Beta, ab dem Plan Team (3 pro Monat) und unbegrenzt im Plan Entreprise. 14 Tage testen, ohne Verpflichtung."
+      closingText="Leistungsverzeichnis ausfüllen ist in Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team und unbegrenzt im Plan Entreprise. 14 Tage testen, ohne Verpflichtung."
     />
   );
 }

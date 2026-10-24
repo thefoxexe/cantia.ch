@@ -26,7 +26,7 @@ export const post: BlogPost = {
         ['Calcoli e riporti', 'A mano', 'Automatici', 'Automatici', 'Automatici'],
         ['Riutilizzo dei prezzi', 'Memoria', 'Copia e incolla', 'Biblioteca prezzi', 'Catalogo e storico proposti'],
         ['Documento consegnato', 'PDF scansionato', 'Tabella a parte o trascrizione', 'Modulo esportato', 'PDF originale compilato'],
-        ['Costo e apprendimento', 'Nullo', 'Basso', 'Elevato, formazione', 'Incluso dal piano Team'],
+        ['Costo e apprendimento', 'Nullo', 'Basso', 'Elevato, formazione', '1 di prova con Essenziale, poi dal piano Team'],
       ],
     },
     { type: 'h2', text: 'Quando basta la carta' },
@@ -47,7 +47,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La via di mezzo: partire dal PDF ricevuto' },
     {
       type: 'p',
-      text: 'La funzione «Compilare un capitolato» di Cantia, in beta, parte dal documento che ricevete davvero: il PDF. Posizioni, unità e quantità vengono riprese, anche da una scansione, con una schermata di verifica. Inserite i prezzi da tastiera, i vostri prezzi abituali vengono proposti e il PDF originale esce compilato con prezzi unitari, importi, riporti e totali. Dal piano Team con 3 capitolati al mese, illimitata con il piano Entreprise.',
+      text: 'La funzione «Compilare un capitolato» di Cantia, in beta, parte dal documento che ricevete davvero: il PDF. Posizioni, unità e quantità vengono riprese, anche da una scansione, con una schermata di verifica. Inserite i prezzi da tastiera, i vostri prezzi abituali vengono proposti e il PDF originale esce compilato con prezzi unitari, importi, riporti e totali. 1 di prova con il piano Essenziale, 3 al mese con Team, illimitata con il piano Entreprise.',
     },
     {
       type: 'callout',
@@ -72,7 +72,7 @@ export const post: BlogPost = {
     },
     {
       question: 'Quanti capitolati si possono compilare con Cantia?',
-      answer: '3 al mese con il piano Team, senza limite con il piano Entreprise. La funzione non è inclusa nel piano Essenziale.',
+      answer: 'Uno di prova con il piano Essenziale, 3 al mese con il piano Team, senza limite con il piano Entreprise.',
     },
   ],
   relatedSlugs: ['remplir-soumission-pdf-architecte', 'bexio-vs-cantia-logiciel-batiment', 'temps-repondre-soumission-rentable'],

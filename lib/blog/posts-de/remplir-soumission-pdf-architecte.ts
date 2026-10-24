@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Was Cantia macht (Beta)' },
     {
       type: 'p',
-      text: 'In Cantia importieren Sie das Leistungsverzeichnis als PDF, so wie Sie es erhalten haben, nach NPK oder nicht, auch gescannt. Kapitel, Positionen, Einheiten und Mengen werden übernommen; eine Prüfansicht zeigt Ihnen, was gelesen wurde. Danach geben Sie die Preise über die Tastatur ein, Ihre üblichen Preise werden vorgeschlagen, und Cantia schreibt Einheitspreise, Beträge, Überträge und Totale ins Original-PDF. Die Funktion ist in der Beta, ab dem Plan Team (3 Leistungsverzeichnisse pro Monat) und unbegrenzt im Plan Entreprise.',
+      text: 'In Cantia importieren Sie das Leistungsverzeichnis als PDF, so wie Sie es erhalten haben, nach NPK oder nicht, auch gescannt. Kapitel, Positionen, Einheiten und Mengen werden übernommen; eine Prüfansicht zeigt Ihnen, was gelesen wurde. Danach geben Sie die Preise über die Tastatur ein, Ihre üblichen Preise werden vorgeschlagen, und Cantia schreibt Einheitspreise, Beträge, Überträge und Totale ins Original-PDF. Die Funktion ist in der Beta: 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team und unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'cta',

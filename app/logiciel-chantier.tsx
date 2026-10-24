@@ -67,7 +67,7 @@ const FEATURES: { icon: IconName; title: string; text: string; href: string }[] 
   { icon: 'users', title: 'RH & salaires', text: 'Heures, absences et fiches de salaire suisses générées automatiquement.', href: '/solutions/rh-salaires' },
   { icon: 'credit-card', title: 'Trésorerie', text: 'Projection à 90 jours sur factures, salaires et charges à venir.', href: '/solutions/tresorerie' },
   { icon: 'plus-circle', title: 'Travaux supplémentaires', text: 'Signature client sur tablette, facturés séparément du devis initial.', href: '/solutions/travaux-supplementaires' },
-  { icon: 'clipboard', title: 'Soumissions (bêta)', text: 'La soumission PDF de l’architecte, remplie avec vos prix et renvoyée telle quelle. Dès le plan Équipe.', href: '/solutions/soumissions' },
+  { icon: 'clipboard', title: 'Soumissions (bêta)', text: 'La soumission PDF de l’architecte, remplie avec vos prix et renvoyée telle quelle. Une à l’essai dès le plan Essentiel.', href: '/solutions/soumissions' },
 ];
 
 const FAQ: { question: string; answer: string }[] = [

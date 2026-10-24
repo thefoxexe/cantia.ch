@@ -1898,7 +1898,7 @@ export const BLOG_SEO_DE = [
       },
       {
         "q": "Wie viele Leistungsverzeichnisse kann man mit Cantia ausfüllen?",
-        "a": "3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise. Im Plan Basis ist die Funktion nicht enthalten."
+        "a": "Eines zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise."
       }
     ],
     "publishedAt": "2026-10-24"

@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Ce que fait Cantia (bêta)' },
     {
       type: 'p',
-      text: 'Dans Cantia, vous importez la soumission PDF telle que vous l’avez reçue, CAN ou non, même scannée. Les chapitres, positions, unités et quantités sont repris ; un écran de vérification vous montre ce qui a été lu. Vous saisissez ensuite les prix au clavier, avec vos prix habituels proposés, et Cantia écrit les prix unitaires, montants, reports et totaux dans le PDF d’origine. La fonction est en bêta, dès le plan Équipe (3 soumissions par mois) et illimitée avec le plan Entreprise.',
+      text: 'Dans Cantia, vous importez la soumission PDF telle que vous l’avez reçue, CAN ou non, même scannée. Les chapitres, positions, unités et quantités sont repris ; un écran de vérification vous montre ce qui a été lu. Vous saisissez ensuite les prix au clavier, avec vos prix habituels proposés, et Cantia écrit les prix unitaires, montants, reports et totaux dans le PDF d’origine. La fonction est en bêta : 1 soumission d’essai avec le plan Essentiel, 3 par mois avec Équipe, illimitée avec le plan Entreprise.',
     },
     {
       type: 'cta',

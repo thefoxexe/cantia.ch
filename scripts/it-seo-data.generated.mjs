@@ -1898,7 +1898,7 @@ export const BLOG_SEO_IT = [
       },
       {
         "q": "Quanti capitolati si possono compilare con Cantia?",
-        "a": "3 al mese con il piano Team, senza limite con il piano Entreprise. La funzione non è inclusa nel piano Essenziale."
+        "a": "Uno di prova con il piano Essenziale, 3 al mese con il piano Team, senza limite con il piano Entreprise."
       }
     ],
     "publishedAt": "2026-10-24"

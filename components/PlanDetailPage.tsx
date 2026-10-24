@@ -77,14 +77,25 @@ function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): Compar
       ),
     },
     { label: t('planPage.comparePlanning'), cells: cellFor((p) => p.has_planning, (v) => ({ bool: v })) },
+    { label: t('planPage.compareProfitability'), cells: cellFor((p) => p.has_profitability, (v) => ({ bool: v })) },
+    { label: t('planPage.compareSiteSchedule'), cells: cellFor((p) => !!p.has_site_schedule, (v) => ({ bool: v })) },
     {
-      // Beta: Équipe 3 a month, Entreprise unlimited (plans.max_tenders_per_month).
+      // Beta: Essentiel 1 to try (max_tenders_total), Équipe 3 a month,
+      // Entreprise unlimited.
       label: t('planPage.compareTenders'),
       cells: cellFor(
-        (p) => (p.has_tenders ? (p.max_tenders_per_month ?? 0) : null),
-        (v) => (v == null ? { bool: false } : v > 0 ? { text: t('planPage.compareTendersPerMonth', { count: v }) } : { text: t('planPage.compareUnlimited') }),
+        (p) => (p.has_tenders ? { total: p.max_tenders_total ?? null, month: p.max_tenders_per_month ?? null } : null),
+        (v) =>
+          v == null
+            ? { bool: false }
+            : v.total
+              ? { text: t('planPage.compareTendersTrial', { count: v.total }) }
+              : v.month
+                ? { text: t('planPage.compareTendersPerMonth', { count: v.month }) }
+                : { text: t('planPage.compareUnlimited') },
       ),
     },
+    { label: t('planPage.compareSalesTracking'), cells: cellFor((p) => !!p.has_sales_tracking, (v) => ({ bool: v })) },
     { label: t('planPage.compareBexio'), cells: cellFor((p) => p.has_bexio_integration, (v) => ({ bool: v })) },
     { label: t('planPage.compareDocLocale'), cells: cellFor((p) => p.has_document_locale_override, (v) => ({ bool: v })) },
     {

@@ -45,7 +45,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Con Cantia (beta)' },
     {
       type: 'p',
-      text: 'Compilate l’offerta di base nel PDF originale con Cantia, poi potete duplicare il capitolato per calcolare la vostra variante senza toccare l’offerta di base. Funzione in beta, dal piano Team (3 capitolati al mese), illimitata con Entreprise.',
+      text: 'Compilate l’offerta di base nel PDF originale con Cantia, poi potete duplicare il capitolato per calcolare la vostra variante senza toccare l’offerta di base. Funzione in beta: 1 di prova con Essenziale, 3 al mese con Team, illimitata con Entreprise.',
     },
     {
       type: 'cta',

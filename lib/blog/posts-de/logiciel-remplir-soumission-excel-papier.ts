@@ -26,7 +26,7 @@ export const post: BlogPost = {
         ['Berechnungen und Überträge', 'Von Hand', 'Automatisch', 'Automatisch', 'Automatisch'],
         ['Wiederverwendung der Preise', 'Gedächtnis', 'Kopieren und Einfügen', 'Preisbibliothek', 'Katalog und Historie vorgeschlagen'],
         ['Eingereichtes Dokument', 'Gescanntes PDF', 'Separate Tabelle oder Abschrift', 'Exportiertes Formular', 'Ausgefülltes Original-PDF'],
-        ['Kosten und Einarbeitung', 'Keine', 'Gering', 'Hoch, Schulung', 'Ab dem Plan Team inbegriffen'],
+        ['Kosten und Einarbeitung', 'Keine', 'Gering', 'Hoch, Schulung', '1 zum Testen mit Basis, dann ab Team'],
       ],
     },
     { type: 'h2', text: 'Wann Papier genügt' },
@@ -47,7 +47,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Der Mittelweg: vom erhaltenen PDF ausgehen' },
     {
       type: 'p',
-      text: 'Die Funktion «Leistungsverzeichnis ausfüllen» von Cantia, in der Beta, geht von dem Dokument aus, das Sie tatsächlich erhalten: dem PDF. Positionen, Einheiten und Mengen werden übernommen, auch aus einem Scan, mit einer Prüfansicht. Sie geben Ihre Preise über die Tastatur ein, Ihre üblichen Preise werden vorgeschlagen, und das Original-PDF kommt mit Einheitspreisen, Beträgen, Überträgen und Totalen ausgefüllt zurück. Ab dem Plan Team mit 3 Leistungsverzeichnissen pro Monat, unbegrenzt im Plan Entreprise.',
+      text: 'Die Funktion «Leistungsverzeichnis ausfüllen» von Cantia, in der Beta, geht von dem Dokument aus, das Sie tatsächlich erhalten: dem PDF. Positionen, Einheiten und Mengen werden übernommen, auch aus einem Scan, mit einer Prüfansicht. Sie geben Ihre Preise über die Tastatur ein, Ihre üblichen Preise werden vorgeschlagen, und das Original-PDF kommt mit Einheitspreisen, Beträgen, Überträgen und Totalen ausgefüllt zurück. 1 zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
     {
       type: 'callout',
@@ -72,7 +72,7 @@ export const post: BlogPost = {
     },
     {
       question: 'Wie viele Leistungsverzeichnisse kann man mit Cantia ausfüllen?',
-      answer: '3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise. Im Plan Basis ist die Funktion nicht enthalten.',
+      answer: 'Eines zum Testen im Plan Basis, 3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise.',
     },
   ],
   relatedSlugs: ['remplir-soumission-pdf-architecte', 'bexio-vs-cantia-logiciel-batiment', 'temps-repondre-soumission-rentable'],

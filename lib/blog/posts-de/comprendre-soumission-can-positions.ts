@@ -50,7 +50,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Importieren Sie Ihr nächstes Leistungsverzeichnis, mit oder ohne NPK',
-      text: 'Positionen, Einheiten und Mengen übernommen, Ihre Preise vorgeschlagen, das Original-PDF ausgefüllt. In der Beta ab dem Plan Team.',
+      text: 'Positionen, Einheiten und Mengen übernommen, Ihre Preise vorgeschlagen, das Original-PDF ausgefüllt. In der Beta, eines zum Testen ab dem Plan Basis.',
       buttonLabel: '14 Tage testen',
     },
   ],

@@ -37,6 +37,7 @@ export default function SoumissionsScreen() {
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [picking, setPicking] = useState(false);
   const quotaReached = !!quota && quota.limit != null && quota.used >= quota.limit;
+  const trial = quota?.period === 'total';
 
   const load = useCallback(async () => {
     if (!organization) return;
@@ -120,11 +121,11 @@ export default function SoumissionsScreen() {
           quotaReached ? (
             <View style={styles.upsell}>
               <Feather name="lock" size={16} color={colors.primary} />
-              <Text style={[kit.muted, { flex: 1, minWidth: 200 }]}>{t('soumissionsPage.quotaReached', { limit: quota.limit })}</Text>
-              <Btn label={t('soumissionsPage.upsellCta')} icon="arrow-right" variant="primary" onPress={() => router.push('/(app)/compte/facturation' as any)} />
+              <Text style={[kit.muted, { flex: 1, minWidth: 200 }]}>{trial ? t('soumissionsPage.quotaTrialReached') : t('soumissionsPage.quotaReached', { limit: quota.limit })}</Text>
+              <Btn label={trial ? t('soumissionsPage.trialCta') : t('soumissionsPage.upsellCta')} icon="arrow-right" variant="primary" onPress={() => router.push('/(app)/compte/facturation' as any)} />
             </View>
           ) : (
-            <Text style={kit.hint}>{t('soumissionsPage.quota', { used: quota.used, limit: quota.limit })}</Text>
+            <Text style={kit.hint}>{t(trial ? 'soumissionsPage.quotaTrial' : 'soumissionsPage.quota', { used: quota.used, limit: quota.limit })}</Text>
           )
         ) : null}
 

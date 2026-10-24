@@ -60,7 +60,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Avec Cantia (bêta)' },
     {
       type: 'p',
-      text: 'Quand vous remplissez une soumission dans Cantia, le rabais, l’escompte et la TVA se règlent sur le récapitulatif ; les totaux sont recalculés et écrits à leur place dans le PDF d’origine. Fonction en bêta, dès le plan Équipe (3 soumissions par mois), illimitée avec Entreprise.',
+      text: 'Quand vous remplissez une soumission dans Cantia, le rabais, l’escompte et la TVA se règlent sur le récapitulatif ; les totaux sont recalculés et écrits à leur place dans le PDF d’origine. Fonction en bêta : 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimitée avec Entreprise.',
     },
     {
       type: 'cta',

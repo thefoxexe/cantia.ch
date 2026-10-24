@@ -50,7 +50,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Importate il vostro prossimo capitolato, CPN o no',
-      text: 'Posizioni, unità e quantità riprese, i vostri prezzi proposti, il PDF originale compilato. In beta dal piano Team.',
+      text: 'Posizioni, unità e quantità riprese, i vostri prezzi proposti, il PDF originale compilato. In beta, uno di prova dal piano Essenziale.',
       buttonLabel: 'Provare 14 giorni',
     },
   ],

@@ -403,10 +403,10 @@ export const ROUTES = [
     path: 'solutions/soumissions',
     title: 'Remplir une soumission PDF avec vos prix (bêta) | Cantia',
     description:
-      "Importez la soumission reçue de l'architecte, mettez vos prix au clavier et renvoyez le PDF d'origine rempli : prix unitaires, montants, reports et totaux. Dès le plan Équipe.",
+      "Importez la soumission reçue de l'architecte, mettez vos prix au clavier et renvoyez le PDF d'origine rempli : prix unitaires, montants, reports et totaux. Une à l’essai dès le plan Essentiel.",
     faq: [
       { q: 'Qu’est-ce que « Remplir une soumission » dans Cantia ?', a: 'Une fonction en bêta pour répondre aux soumissions reçues en PDF : Cantia reprend les positions du document, vous mettez vos prix, et vous obtenez le PDF d’origine rempli avec les prix unitaires, montants, reports et totaux.' },
-      { q: 'Dans quels plans la fonction est-elle disponible ?', a: 'Dès le plan Équipe, avec 3 soumissions par mois. Le plan Entreprise les rend illimitées. Elle n’est pas incluse dans le plan Essentiel.' },
+      { q: 'Dans quels plans la fonction est-elle disponible ?', a: 'Le plan Essentiel permet d’en essayer une. Le plan Équipe en donne 3 par mois, le plan Entreprise un nombre illimité.' },
       { q: 'Quelles soumissions peut-on importer ?', a: 'Les soumissions en PDF, structurées selon le CAN ou non, y compris les documents scannés. Cantia ne crée pas de soumission vierge : la fonction sert à répondre à celles que vous recevez.' },
       { q: 'Peut-on remplir une soumission depuis un téléphone ?', a: 'Sur téléphone, les soumissions se consultent. L’import et la saisie des prix se font sur ordinateur.' },
     ],
@@ -581,7 +581,7 @@ export const ROUTES = [
     faq: [
       { q: 'Faut-il un logiciel spécial pour répondre aux soumissions en Suisse ?', a: 'Non. Beaucoup de petites entreprises les remplissent à la main ou dans Excel. Un outil fait surtout gagner du temps et supprime les erreurs de calcul et de report.' },
       { q: 'Cantia lit-il les fichiers de soumission CRBX ou SIA 451 ?', a: 'Pas encore : l’import porte aujourd’hui sur les soumissions en PDF, CAN ou non. C’est le format que la plupart des petites entreprises reçoivent.' },
-      { q: 'Combien de soumissions peut-on remplir avec Cantia ?', a: '3 par mois avec le plan Équipe, sans limite avec le plan Entreprise. La fonction n’est pas incluse dans le plan Essentiel.' },
+      { q: 'Combien de soumissions peut-on remplir avec Cantia ?', a: 'Une à l’essai avec le plan Essentiel, 3 par mois avec le plan Équipe, sans limite avec le plan Entreprise.' },
     ],
   },
   {
@@ -3415,10 +3415,10 @@ export const ROUTES = [
     path: 'de/solutions/soumissions',
     title: 'Leistungsverzeichnis als PDF mit Ihren Preisen ausfüllen (Beta) | Cantia',
     description:
-      'Importieren Sie das erhaltene Leistungsverzeichnis des Architekten, setzen Sie Ihre Preise per Tastatur ein und senden Sie das ausgefüllte Original-PDF zurück: Einheitspreise, Beträge, Überträge und Totale. Ab dem Plan Team.',
+      'Importieren Sie das erhaltene Leistungsverzeichnis des Architekten, setzen Sie Ihre Preise per Tastatur ein und senden Sie das ausgefüllte Original-PDF zurück: Einheitspreise, Beträge, Überträge und Totale. Eines zum Testen ab dem Plan Basis.',
     faq: [
       { q: 'Was ist «Leistungsverzeichnis ausfüllen» in Cantia?', a: 'Eine Beta-Funktion, um auf erhaltene Leistungsverzeichnisse im PDF-Format zu antworten: Cantia übernimmt die Positionen, Sie setzen Ihre Preise ein und erhalten das Original-PDF mit Einheitspreisen, Beträgen, Überträgen und Totalen.' },
-      { q: 'In welchen Plänen ist die Funktion enthalten?', a: 'Ab dem Plan Team, mit 3 Leistungsverzeichnissen pro Monat. Im Plan Entreprise unbegrenzt. Im Plan Basis nicht enthalten.' },
+      { q: 'In welchen Plänen ist die Funktion enthalten?', a: 'Im Plan Basis können Sie eines testen. Der Plan Team bietet 3 pro Monat, der Plan Entreprise unbegrenzt viele.' },
       { q: 'Welche Leistungsverzeichnisse lassen sich importieren?', a: 'Leistungsverzeichnisse als PDF, nach NPK gegliedert oder nicht, auch gescannte Dokumente. Cantia erstellt keine leeren Leistungsverzeichnisse.' },
     ],
   },
@@ -3673,10 +3673,10 @@ export const ROUTES = [
     path: 'it/solutions/soumissions',
     title: 'Compilare un capitolato PDF con i vostri prezzi (beta) | Cantia',
     description:
-      "Importate il capitolato ricevuto dall'architetto, inserite i prezzi da tastiera e rinviate il PDF originale compilato: prezzi unitari, importi, riporti e totali. Dal piano Team.",
+      "Importate il capitolato ricevuto dall'architetto, inserite i prezzi da tastiera e rinviate il PDF originale compilato: prezzi unitari, importi, riporti e totali. Uno di prova dal piano Essenziale.",
     faq: [
       { q: 'Che cos’è «Compilare un capitolato» in Cantia?', a: 'Una funzione in beta per rispondere ai capitolati ricevuti in PDF: Cantia riprende le posizioni del documento, voi inserite i prezzi e ottenete il PDF originale compilato con prezzi unitari, importi, riporti e totali.' },
-      { q: 'In quali piani è disponibile?', a: 'Dal piano Team, con 3 capitolati al mese. Il piano Entreprise li rende illimitati. Non è inclusa nel piano Essenziale.' },
+      { q: 'In quali piani è disponibile?', a: 'Con il piano Essenziale potete provarne uno. Il piano Team ne offre 3 al mese, il piano Entreprise un numero illimitato.' },
       { q: 'Quali capitolati si possono importare?', a: 'I capitolati in PDF, strutturati secondo il CPN o no, compresi i documenti scansionati. Cantia non crea capitolati vuoti.' },
     ],
   },

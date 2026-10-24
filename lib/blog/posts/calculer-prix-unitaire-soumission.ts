@@ -64,7 +64,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Dans Cantia, quand vous remplissez une soumission importée, vos prix de catalogue et ceux de vos soumissions précédentes sont proposés pour chaque position. Vous ajustez au chantier, et le PDF d’origine ressort rempli. Fonction en bêta, dès le plan Équipe (3 soumissions par mois), illimitée avec Entreprise.',
+      text: 'Dans Cantia, quand vous remplissez une soumission importée, vos prix de catalogue et ceux de vos soumissions précédentes sont proposés pour chaque position. Vous ajustez au chantier, et le PDF d’origine ressort rempli. Fonction en bêta : 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimitée avec Entreprise.',
     },
     {
       type: 'cta',

@@ -64,7 +64,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'In Cantia, quando compilate un capitolato importato, per ogni posizione vengono proposti i prezzi del vostro catalogo e quelli dei capitolati precedenti. Adattate al cantiere e il PDF originale esce compilato. Funzione in beta, dal piano Team (3 capitolati al mese), illimitata con Entreprise.',
+      text: 'In Cantia, quando compilate un capitolato importato, per ogni posizione vengono proposti i prezzi del vostro catalogo e quelli dei capitolati precedenti. Adattate al cantiere e il PDF originale esce compilato. Funzione in beta: 1 di prova con Essenziale, 3 al mese con Team, illimitata con Entreprise.',
     },
     {
       type: 'cta',

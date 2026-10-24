@@ -91,12 +91,14 @@ export async function duplicateTender(id: string, name: string) {
   return { id: (data as string | null) ?? null, error: error?.message ?? null };
 }
 
-// Beta: from the Équipe plan, 3 soumissions (PDF imports) a month; null
-// limit = unlimited (Entreprise). See the tender_quota migration.
+// Beta: Essentiel gets 1 soumission (PDF import) to try, for good
+// (period 'total'); Équipe 3 a month; null limit = unlimited (Entreprise).
+// See the tender_quota and tender_trial migrations.
 export interface TenderQuota {
   allowed: boolean;
   limit: number | null;
   used: number;
+  period?: 'month' | 'total';
 }
 
 export async function tenderQuota(organizationId: string): Promise<TenderQuota | null> {

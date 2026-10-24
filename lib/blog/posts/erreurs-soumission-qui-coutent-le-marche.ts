@@ -65,7 +65,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Avec Cantia (bêta)' },
     {
       type: 'p',
-      text: 'Cantia reprend les positions du PDF reçu et ne vous laisse remplir que les prix : les quantités du document restent intactes, les montants, reports et totaux sont calculés, et le récapitulatif montre ce qui reste à chiffrer. Le PDF d’origine ressort rempli. En bêta, dès le plan Équipe (3 soumissions par mois), illimité avec Entreprise.',
+      text: 'Cantia reprend les positions du PDF reçu et ne vous laisse remplir que les prix : les quantités du document restent intactes, les montants, reports et totaux sont calculés, et le récapitulatif montre ce qui reste à chiffrer. Le PDF d’origine ressort rempli. En bêta : 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise.',
     },
     {
       type: 'cta',

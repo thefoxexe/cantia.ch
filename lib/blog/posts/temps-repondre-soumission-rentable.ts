@@ -60,7 +60,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'C’est le principe de la fonction « Remplir une soumission » de Cantia, en bêta : le PDF reçu est importé, vos prix sont proposés, vous ajustez et le PDF d’origine ressort rempli. Dès le plan Équipe (3 soumissions par mois), illimitée avec Entreprise.',
+      text: 'C’est le principe de la fonction « Remplir une soumission » de Cantia, en bêta : le PDF reçu est importé, vos prix sont proposés, vous ajustez et le PDF d’origine ressort rempli. 1 soumission d’essai avec Essentiel, 3 par mois avec Équipe, illimitée avec Entreprise.',
     },
     {
       type: 'cta',

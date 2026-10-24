@@ -60,7 +60,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'È il principio della funzione «Compilare un capitolato» di Cantia, in beta: il PDF ricevuto viene importato, i vostri prezzi vengono proposti, voi adattate e il PDF originale esce compilato. Dal piano Team (3 capitolati al mese), illimitata con Entreprise.',
+      text: 'È il principio della funzione «Compilare un capitolato» di Cantia, in beta: il PDF ricevuto viene importato, i vostri prezzi vengono proposti, voi adattate e il PDF originale esce compilato. 1 di prova con Essenziale, 3 al mese con Team, illimitata con Entreprise.',
     },
     {
       type: 'cta',
