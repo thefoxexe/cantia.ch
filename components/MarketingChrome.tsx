@@ -316,6 +316,7 @@ export function MarketingFooter({
             { label: t.footer.platformChantiers, href: `${localePrefix}/solutions/rapports-chantier` },
             { label: t.footer.platformRh, href: `${localePrefix}/solutions/rh-salaires` },
             { label: t.footer.platformRentabilite, href: `${localePrefix}/solutions/rentabilite` },
+            { label: t.footer.platformSoumissions, href: `${localePrefix}/solutions/soumissions` },
           ],
         },
         {

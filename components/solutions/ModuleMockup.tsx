@@ -15,6 +15,7 @@ export type ModuleMockupKind =
   | 'rentabilite'
   | 'rh-salaires'
   | 'travaux-supplementaires'
+  | 'soumissions'
   | 'tresorerie';
 
 // Illustrated (not photographic) mockup of the module in question, built
@@ -65,6 +66,8 @@ function MockupContent({ kind }: { kind: ModuleMockupKind }) {
       return <TravauxSupContent />;
     case 'tresorerie':
       return <TresorerieContent />;
+    case 'soumissions':
+      return <SoumissionsContent />;
   }
 }
 
@@ -306,6 +309,47 @@ function TravauxSupContent() {
   );
 }
 
+// Invented positions, not taken from any real soumission or CAN text.
+function SoumissionsContent() {
+  const { t } = useTranslation();
+  const lines = [
+    { no: '111.101', label: t('solutionMockup.soumissionLine1'), qty: '45 m²', pu: '18.50', amount: "832.50" },
+    { no: '112.204', label: t('solutionMockup.soumissionLine2'), qty: '12.5 m³', pu: '214.00', amount: "2'675.00" },
+    { no: '113.310', label: t('solutionMockup.soumissionLine3'), qty: '86 m²', pu: '96.00', amount: "8'256.00" },
+  ];
+  return (
+    <View style={styles.stack}>
+      <ScreenHeader icon="file-text" title={t('solutionMockup.soumissionTitle')} />
+      <View style={styles.card}>
+        {lines.map((l) => (
+          <View key={l.no} style={styles.tenderRow}>
+            <Text style={styles.tenderNo}>{l.no}</Text>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.lineLabel} numberOfLines={1}>{l.label}</Text>
+              <Text style={styles.tenderMeta}>{l.qty} × {l.pu}</Text>
+            </View>
+            <Text style={styles.linePrice}>{l.amount}</Text>
+          </View>
+        ))}
+        <View style={styles.divider} />
+        <View style={styles.lineRow}>
+          <Text style={styles.totalLabel}>{t('solutionMockup.soumissionTotal')}</Text>
+          <Text style={styles.totalPrice}>{"11'764.—"}</Text>
+        </View>
+      </View>
+      <View style={styles.pillRow}>
+        <View style={[styles.pill, { backgroundColor: colors.warningSoft }]}>
+          <Text style={[styles.pillText, { color: colors.warning }]}>{t('solutionMockup.soumissionBeta')}</Text>
+        </View>
+        <View style={[styles.pill, { backgroundColor: colors.successSoft }]}>
+          <Feather name="check-circle" size={10} color={colors.success} />
+          <Text style={[styles.pillText, { color: colors.success }]}>{t('solutionMockup.soumissionFilled')}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 function TresorerieContent() {
   const { t } = useTranslation();
   const rows: { label: string; date: string; amount: string; color: string }[] = [
@@ -386,6 +430,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   stack: { gap: spacing.sm },
+  tenderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: 2 },
+  tenderNo: { fontFamily: marketingFonts.body, fontSize: 9, fontWeight: '700', color: colors.textMuted, width: 44 },
+  tenderMeta: { fontFamily: marketingFonts.body, fontSize: 9, color: colors.textMuted, marginTop: 1 },
   screenHeader: {
     flexDirection: 'row',
     alignItems: 'center',

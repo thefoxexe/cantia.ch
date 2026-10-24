@@ -213,6 +213,7 @@ interface Dict {
     platformChantiers: string;
     platformRh: string;
     platformRentabilite: string;
+    platformSoumissions: string;
     discoverTitle: string;
     discoverFeatures: string;
     discoverPricing: string;
@@ -412,7 +413,7 @@ const fr: Dict = {
           { title: 'Clients', text: 'Retrouvez les coordonnées du client et réutilisez-les dans vos documents.' },
           { title: 'Catalogue de prestations', text: 'Mémorisez descriptions, prix et unités ; repérez les écarts de prix.' },
           { title: 'Modèles de devis', text: 'Repartez de vos prestations habituelles et adaptez les quantités.' },
-          { title: 'Métrés', text: 'Détaillez les quantités nécessaires au chiffrage.' },
+          { title: 'Soumissions (bêta)', text: 'Importez la soumission PDF reçue, mettez vos prix et renvoyez le PDF d’origine rempli. Dès le plan Équipe.' },
           { title: 'Devis et signature', text: 'Préparez le PDF, partagez-le et suivez son statut jusqu’à l’acceptation.' },
         ],
       },
@@ -700,6 +701,7 @@ const fr: Dict = {
     platformChantiers: 'Chantiers & rapports',
     platformRh: 'RH & salaires',
     platformRentabilite: 'Rentabilité',
+    platformSoumissions: 'Soumissions (bêta)',
     discoverTitle: 'Découvrir Cantia',
     discoverFeatures: 'Toutes les fonctionnalités',
     discoverPricing: 'Tarifs',
@@ -899,7 +901,7 @@ const de: Dict = {
           { title: 'Kunden', text: 'Finden Sie die Kontaktdaten des Kunden und verwenden Sie sie in Ihren Dokumenten wieder.' },
           { title: 'Leistungskatalog', text: 'Speichern Sie Beschreibungen, Preise und Einheiten; erkennen Sie Preisabweichungen.' },
           { title: 'Offertvorlagen', text: 'Gehen Sie von Ihren gewohnten Leistungen aus und passen Sie die Mengen an.' },
-          { title: 'Aufmasse', text: 'Detaillieren Sie die für die Kalkulation nötigen Mengen.' },
+          { title: 'Leistungsverzeichnisse (Beta)', text: 'Importieren Sie das erhaltene LV als PDF, setzen Sie Ihre Preise ein und senden Sie das ausgefüllte Original zurück. Ab dem Plan Team.' },
           { title: 'Offerte und Unterschrift', text: 'Bereiten Sie das PDF vor, teilen Sie es und verfolgen Sie den Status bis zur Annahme.' },
         ],
       },
@@ -1187,6 +1189,7 @@ const de: Dict = {
     platformChantiers: 'Baustellen & Rapporte',
     platformRh: 'Personal & Lohn',
     platformRentabilite: 'Rentabilität',
+    platformSoumissions: 'Leistungsverzeichnisse (Beta)',
     discoverTitle: 'Cantia entdecken',
     discoverFeatures: 'Alle Funktionen',
     discoverPricing: 'Preise',
@@ -1386,7 +1389,7 @@ const it: Dict = {
           { title: 'Clienti', text: 'Ritrovi i dati di contatto del cliente e li riutilizzi nei suoi documenti.' },
           { title: 'Catalogo di prestazioni', text: 'Memorizzi descrizioni, prezzi e unità; individui gli scostamenti di prezzo.' },
           { title: 'Modelli di preventivo', text: 'Riparta dalle sue prestazioni abituali e adatti le quantità.' },
-          { title: 'Computi metrici', text: 'Dettagli le quantità necessarie per la quantificazione.' },
+          { title: 'Capitolati (beta)', text: 'Importate il capitolato PDF ricevuto, inserite i prezzi e rinviate il PDF originale compilato. Dal piano Team.' },
           { title: 'Preventivo e firma', text: 'Prepari il PDF, lo condivida e ne segua lo stato fino all’accettazione.' },
         ],
       },
@@ -1674,6 +1677,7 @@ const it: Dict = {
     platformChantiers: 'Cantieri & rapporti',
     platformRh: 'Personale & salari',
     platformRentabilite: 'Redditività',
+    platformSoumissions: 'Capitolati (beta)',
     discoverTitle: 'Scopri Cantia',
     discoverFeatures: 'Tutte le funzionalità',
     discoverPricing: 'Prezzi',

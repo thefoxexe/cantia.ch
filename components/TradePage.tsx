@@ -35,6 +35,8 @@ export function TradePage({ slug }: { slug: string }) {
     { icon: 'folder', title: t('tradePage.secondaryDocumentsTitle'), text: t(general ? 'tradePage.generalDocumentsText' : 'tradePage.secondaryDocumentsText') },
     { icon: 'list', title: t('tradePage.secondaryCatalogueTitle'), text: t('tradePage.secondaryCatalogueText') },
     { icon: 'zap', title: t('tradePage.secondaryIntegrationsTitle'), text: t('tradePage.secondaryIntegrationsText') },
+    // Building trades answer soumissions (beta, from the Équipe plan).
+    ...(general ? [] : [{ icon: 'clipboard' as const, title: t('tradePage.secondarySoumissionsTitle'), text: t('tradePage.secondarySoumissionsText') }]),
   ];
 
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;

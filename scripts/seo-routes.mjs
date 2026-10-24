@@ -400,6 +400,18 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'solutions/soumissions',
+    title: 'Remplir une soumission PDF avec vos prix (bêta) | Cantia',
+    description:
+      "Importez la soumission reçue de l'architecte, mettez vos prix au clavier et renvoyez le PDF d'origine rempli : prix unitaires, montants, reports et totaux. Dès le plan Équipe.",
+    faq: [
+      { q: 'Qu’est-ce que « Remplir une soumission » dans Cantia ?', a: 'Une fonction en bêta pour répondre aux soumissions reçues en PDF : Cantia reprend les positions du document, vous mettez vos prix, et vous obtenez le PDF d’origine rempli avec les prix unitaires, montants, reports et totaux.' },
+      { q: 'Dans quels plans la fonction est-elle disponible ?', a: 'Dès le plan Équipe, avec 3 soumissions par mois. Le plan Entreprise les rend illimitées. Elle n’est pas incluse dans le plan Essentiel.' },
+      { q: 'Quelles soumissions peut-on importer ?', a: 'Les soumissions en PDF, structurées selon le CAN ou non, y compris les documents scannés. Cantia ne crée pas de soumission vierge : la fonction sert à répondre à celles que vous recevez.' },
+      { q: 'Peut-on remplir une soumission depuis un téléphone ?', a: 'Sur téléphone, les soumissions se consultent. L’import et la saisie des prix se font sur ordinateur.' },
+    ],
+  },
+  {
     path: 'solutions/tresorerie',
     title: 'Trésorerie prévisionnelle pour le bâtiment | Cantia',
     description:
@@ -3312,6 +3324,17 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'de/solutions/soumissions',
+    title: 'Leistungsverzeichnis als PDF mit Ihren Preisen ausfüllen (Beta) | Cantia',
+    description:
+      'Importieren Sie das erhaltene Leistungsverzeichnis des Architekten, setzen Sie Ihre Preise per Tastatur ein und senden Sie das ausgefüllte Original-PDF zurück: Einheitspreise, Beträge, Überträge und Totale. Ab dem Plan Team.',
+    faq: [
+      { q: 'Was ist «Leistungsverzeichnis ausfüllen» in Cantia?', a: 'Eine Beta-Funktion, um auf erhaltene Leistungsverzeichnisse im PDF-Format zu antworten: Cantia übernimmt die Positionen, Sie setzen Ihre Preise ein und erhalten das Original-PDF mit Einheitspreisen, Beträgen, Überträgen und Totalen.' },
+      { q: 'In welchen Plänen ist die Funktion enthalten?', a: 'Ab dem Plan Team, mit 3 Leistungsverzeichnissen pro Monat. Im Plan Entreprise unbegrenzt. Im Plan Basis nicht enthalten.' },
+      { q: 'Welche Leistungsverzeichnisse lassen sich importieren?', a: 'Leistungsverzeichnisse als PDF, nach NPK gegliedert oder nicht, auch gescannte Dokumente. Cantia erstellt keine leeren Leistungsverzeichnisse.' },
+    ],
+  },
+  {
     path: 'de/solutions/travaux-supplementaires',
     title: 'Zusatzarbeiten für Schweizer Handwerker | Cantia',
     description:
@@ -3556,6 +3579,17 @@ export const ROUTES = [
       { q: 'Cantia calcola automaticamente i contributi sociali svizzeri?', a: "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF configurabili e da un'aliquota d'imposta alla fonte per dipendente — le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone." },
       { q: 'Come esporta un dipendente il proprio foglio ore?', a: "Dal modulo HR & Salari, scegliendo la granularità — giornaliera, settimanale o mensile — poi scaricando un file CSV." },
       { q: 'Il modulo HR & Salari è incluso in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
+    ],
+  },
+  {
+    path: 'it/solutions/soumissions',
+    title: 'Compilare un capitolato PDF con i vostri prezzi (beta) | Cantia',
+    description:
+      "Importate il capitolato ricevuto dall'architetto, inserite i prezzi da tastiera e rinviate il PDF originale compilato: prezzi unitari, importi, riporti e totali. Dal piano Team.",
+    faq: [
+      { q: 'Che cos’è «Compilare un capitolato» in Cantia?', a: 'Una funzione in beta per rispondere ai capitolati ricevuti in PDF: Cantia riprende le posizioni del documento, voi inserite i prezzi e ottenete il PDF originale compilato con prezzi unitari, importi, riporti e totali.' },
+      { q: 'In quali piani è disponibile?', a: 'Dal piano Team, con 3 capitolati al mese. Il piano Entreprise li rende illimitati. Non è inclusa nel piano Essenziale.' },
+      { q: 'Quali capitolati si possono importare?', a: 'I capitolati in PDF, strutturati secondo il CPN o no, compresi i documenti scansionati. Cantia non crea capitolati vuoti.' },
     ],
   },
   {
