@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#333;font-family:'Archivo',sans-serif}
+  .s{width:1080px;height:1350px;position:relative;overflow:hidden;margin:0 0 40px;padding:92px 96px 70px;display:flex;flex-direction:column}
+  .mono{font-family:'Martian Mono',monospace;text-transform:uppercase;letter-spacing:.14em}
+  .d{font-stretch:extra-condensed;font-weight:900;line-height:.9;letter-spacing:-.005em}
+  .kick{font-size:22px;display:flex;gap:14px;align-items:center}
+  h1{margin-top:26px;font-size:120px}
+  h1 em{font-style:normal}
+  .sub{margin-top:24px;font-size:30px;line-height:1.35;max-width:860px}
+  .art{margin-top:42px}
+  .pts{margin-top:auto;display:grid;gap:14px;padding-bottom:34px}
+  .pt{display:flex;gap:16px;align-items:baseline;font-size:27px;line-height:1.3;font-weight:600}
+  .pt b{font-family:'Martian Mono',monospace;font-size:17px;font-weight:600}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .foot img{height:40px}
+  .prog{flex:1;height:4px;border-radius:4px;position:relative;margin:0 10px}
+  .prog i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+  .count{font-size:19px}
+  .badge{font-family:'Martian Mono',monospace;font-size:17px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 13px;border-radius:999px}
+  .tag{display:inline-block;font-family:'Martian Mono',monospace;font-size:16px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:8px;margin-top:22px}
+
+  /* Dark set: côté chantier */
+  .dk{background:#16120E;color:#F7F1E6}
+  .dk .kick{color:#D9895A}
+  .dk h1 em{color:#D9895A}
+  .dk .sub{color:#C9BBA8}
+  .dk .pt b{color:#D9895A}
+  .dk .prog{background:#2E261E}
+  .dk .prog i{background:#D9895A}
+  .dk .count{color:#9C8D7A}
+  .dk .badge{background:#3A2A1C;color:#E8B36A}
+  .dk .tag{background:#2A231C;color:#E8B36A}
+  .panel{background:#211B15;border:1.5px solid #3A3027;border-radius:20px;padding:28px 30px}
+
+  /* Cream set: côté bureau */
+  .cr{background:#F7F1E6;color:#231A12}
+  .cr .kick{color:#A95C30}
+  .cr h1 em{color:#A95C30}
+  .cr .sub{color:#5E5246}
+  .cr .pt b{color:#A95C30}
+  .cr .prog{background:#E6D8C2}
+  .cr .prog i{background:#A95C30}
+  .cr .count{color:#6E6153}
+  .cr .tag{background:#F3E8D6;color:#9C6510}
+  .sheet{background:#fff;border:1.5px solid #E6D8C2;border-radius:20px;padding:28px 32px;box-shadow:0 24px 50px rgba(35,26,18,.10)}
+
+  /* covers */
+  .cover h1{font-size:150px}
+  .list{margin-top:56px;display:grid;gap:0}
+  .li{display:flex;gap:26px;align-items:baseline;padding:20px 0;font-size:38px;font-weight:700;border-top:1.5px solid}
+  .dk .li{border-color:#3A3027}
+  .cr .li{border-color:#E6D8C2}
+  .li b{font-family:'Martian Mono',monospace;font-size:20px;font-weight:600;width:44px}
+  .dk .li b{color:#D9895A}
+  .cr .li b{color:#A95C30}
+  .swipe{margin-top:auto;padding-bottom:30px;font-size:22px;display:flex;align-items:center;gap:12px}
+
+  /* gantt */
+  .g{display:grid;grid-template-columns:230px 1fr;row-gap:18px;font-size:23px;align-items:center}
+  .g .lab{color:#C9BBA8;white-space:nowrap}
+  .g .lab.ph{color:#F7F1E6;font-weight:800}
+  .g .track{position:relative;height:30px}
+  .g .bar{position:absolute;top:3px;height:24px;border-radius:6px;background:#A95C30}
+  .g .bar.ph{top:9px;height:12px;background:#F7F1E6;opacity:.85}
+  .g .bar.done{background:#5C7A5C}
+  .g .mile{position:absolute;top:2px;width:22px;height:22px;background:#E8B36A;transform:rotate(45deg)}
+  .g .hol{position:absolute;top:-6px;bottom:-6px;width:28px;background:repeating-linear-gradient(135deg,#3A3027 0 6px,transparent 6px 12px)}
+  .ghead{display:grid;grid-template-columns:230px 1fr;font-family:'Martian Mono',monospace;font-size:14px;color:#9C8D7A;margin-bottom:16px}
+  .ghead .wk{display:grid;grid-template-columns:repeat(6,1fr)}
+
+  /* share link */
+  .link{display:flex;align-items:center;gap:16px;background:#2A231C;border-radius:14px;padding:18px 20px;font-family:'Martian Mono',monospace;font-size:19px;color:#F7F1E6}
+  .opt{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #3A3027;font-size:24px}
+  .tog{width:56px;height:32px;border-radius:999px;background:#A95C30;position:relative}
+  .tog:after{content:'';position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#fff}
+  .tog.off{background:#3A3027}
+  .tog.off:after{right:auto;left:4px;background:#9C8D7A}
+
+  /* calendar */
+  .cal{display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;gap:0}
+  .evt{border-radius:12px;padding:18px 18px;margin-bottom:14px;font-size:25px;line-height:1.25}
+  .evt small{display:block;font-family:'Martian Mono',monospace;font-size:14px;opacity:.75;margin-top:3px}
+  .arrows{text-align:center;font-size:44px;color:#D9895A;font-weight:900}
+
+  /* payslip */
+  .ps .row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px dashed #E6D8C2;font-size:24px}
+  .ps .row span:last-child{font-family:'Martian Mono',monospace;font-size:20px;font-weight:600;color:#A95C30;text-transform:uppercase;letter-spacing:.06em;align-self:center}
+  .ps .hd{display:flex;justify-content:space-between;font-weight:800;font-size:26px;padding-bottom:12px;border-bottom:2px solid #231A12}
+
+  /* vat */
+  .vat .row{display:grid;grid-template-columns:90px 1fr;gap:16px;padding:17px 0;border-bottom:1px solid #EFE6D8;font-size:27px;align-items:center}
+  .vat .row b{font-family:'Martian Mono',monospace;font-size:18px;color:#A95C30}
+  .vat .row.end{border-bottom:none;font-weight:800}
+
+  /* checklist */
+  .ck{display:flex;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid #EFE6D8;font-size:29px}
+  .ck i{width:34px;height:34px;border-radius:9px;border:2px solid #A95C30;display:flex;align-items:center;justify-content:center;font-style:normal;color:#fff;font-size:22px;font-weight:900;flex:none}
+  .ck i.on{background:#A95C30}
+  .ck.end{border-bottom:none}
+
+  /* fiduciary */
+  .chips{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  .chip{font-size:24px;font-weight:700;padding:10px 18px;border-radius:999px;background:#F3E8D6;color:#7C3B21}
+  .flow{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center}
+  .box{background:#fff;border:1.5px solid #E6D8C2;border-radius:18px;padding:30px 28px;font-size:26px;line-height:1.35}
+  .box h3{font-size:38px;font-stretch:extra-condensed;font-weight:900;margin-bottom:8px}
+  .ar{text-align:center;font-size:40px;color:#A95C30;font-weight:900}
+
+  /* cta */
+  .cta h1{font-size:146px}
+  .btn{display:inline-flex;align-items:center;gap:14px;margin-top:46px;padding:24px 36px;border-radius:16px;font-size:32px;font-weight:800}
+  .dk .btn{background:#D9895A;color:#16120E}
+  .cr .btn{background:#A95C30;color:#fff}
+  .tools{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .tool{font-size:23px;font-weight:600;padding:16px 18px;border-radius:14px;background:#fff;border:1.5px solid #E6D8C2}
+</style>
+</head>
+<body>
+
+<!-- ============ CARROUSEL A · CÔTÉ CHANTIER ============ -->
+
+<section class="s dk cover" id="a1">
+  <div class="kick mono">Nouveautés Cantia · Automne 2026</div>
+  <h1 class="d">Ce qui change sur vos <em>chantiers.</em></h1>
+  <div class="list">
+    <div class="li"><b>01</b>Remplir une soumission</div>
+    <div class="li"><b>02</b>Le planning de chantier</div>
+    <div class="li"><b>03</b>Le planning partagé par lien</div>
+    <div class="li"><b>04</b>Votre Google Agenda relié</div>
+    <div class="li"><b>05</b>Des chantiers mieux rangés</div>
+  </div>
+  <div class="swipe mono" style="color:#D9895A">Glissez <span style="font-size:30px">→</span></div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:14.3%"></i></div><span class="count mono">01 / 07</span></div>
+</section>
+
+<section class="s dk" id="a2">
+  <div class="kick"><span class="mono">01 · Soumissions</span><span class="badge">Bêta</span></div>
+  <h1 class="d">La soumission PDF, remplie <em>avec vos prix.</em></h1>
+  <div class="sub">Importez le PDF reçu de l’architecte, CAN ou non, même scanné. Mettez vos prix, Cantia remplit le document d’origine.</div>
+  <div class="art panel" style="font-size:25px;padding:34px 34px">
+    <div style="display:grid;grid-template-columns:110px 1fr 70px 110px 130px;gap:12px;padding:10px 0;border-bottom:1.5px solid #F7F1E6;font-family:'Martian Mono',monospace;font-size:14px;color:#9C8D7A;text-transform:uppercase"><span>Pos.</span><span>Description</span><span>Unité</span><span style="text-align:right">PU</span><span style="text-align:right">Montant</span></div>
+    <div style="display:grid;grid-template-columns:110px 1fr 70px 110px 130px;gap:12px;padding:16px 0;border-bottom:1px solid #3A3027;align-items:center"><span style="font-family:'Martian Mono';font-size:15px;color:#9C8D7A">211.311</span><span>Mur briques 15 cm</span><span>m²</span><span style="text-align:right;color:#E8B36A;font-weight:800">137.29</span><span style="text-align:right;color:#E8B36A;font-weight:800">11’532.36</span></div>
+    <div style="display:grid;grid-template-columns:110px 1fr 70px 110px 130px;gap:12px;padding:16px 0;border-bottom:1px solid #3A3027;align-items:center"><span style="font-family:'Martian Mono';font-size:15px;color:#9C8D7A">211.312</span><span>Mur briques 12 cm</span><span>m²</span><span style="text-align:right;color:#E8B36A;font-weight:800">118.60</span><span style="text-align:right;color:#E8B36A;font-weight:800">5’514.90</span></div>
+    <div style="display:grid;grid-template-columns:110px 1fr 70px 110px 130px;gap:12px;padding:16px 0;align-items:center"><span style="font-family:'Martian Mono';font-size:15px;color:#9C8D7A">211.420</span><span>Linteau préfabriqué</span><span>pce</span><span style="text-align:right;color:#E8B36A;font-weight:800">96.00</span><span style="text-align:right;color:#E8B36A;font-weight:800">1’152.00</span></div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Prix unitaires, montants, reports et totaux calculés pour vous</div>
+    <div class="pt"><b>→</b>1 à l’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:28.6%"></i></div><span class="count mono">02 / 07</span></div>
+</section>
+
+<section class="s dk" id="a3">
+  <div class="kick mono">02 · Planning de chantier</div>
+  <h1 class="d">Tout le chantier <em>sur une frise.</em></h1>
+  <div class="sub">Phases, tâches et jalons, liés entre eux. Une date bouge ? Cantia propose de décaler la suite.</div>
+  <div class="art panel">
+    <div class="ghead"><span></span><div class="wk"><span>S38</span><span>S39</span><span>S40</span><span>S41</span><span>S42</span><span>S43</span></div></div>
+    <div class="g">
+      <span class="lab ph">Gros œuvre</span><div class="track"><div class="bar ph" style="left:0;width:58%"></div></div>
+      <span class="lab">Terrassement</span><div class="track"><div class="bar done" style="left:0;width:18%"></div></div>
+      <span class="lab">Fondations</span><div class="track"><div class="bar" style="left:18%;width:22%"></div><div class="hol" style="left:24%"></div></div>
+      <span class="lab">Murs</span><div class="track"><div class="bar" style="left:40%;width:18%"></div></div>
+      <span class="lab ph">Second œuvre</span><div class="track"><div class="bar ph" style="left:58%;width:42%"></div></div>
+      <span class="lab">Électricité</span><div class="track"><div class="bar" style="left:58%;width:20%;background:#D97B41"></div></div>
+      <span class="lab">Réception</span><div class="track"><div class="mile" style="left:96%"></div></div>
+    </div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Jours fériés cantonaux pris en compte</div>
+    <div class="pt"><b>→</b>Export PDF, Excel et MS Project · import Excel et MS Project</div>
+    <div class="pt"><b>→</b>Vos modèles de planning, réutilisés d’un chantier à l’autre</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:42.9%"></i></div><span class="count mono">03 / 07</span></div>
+</section>
+
+<section class="s dk" id="a4">
+  <div class="kick mono">03 · Partage</div>
+  <h1 class="d">Le planning envoyé <em>par lien.</em></h1>
+  <div class="sub">Le maître d’ouvrage ou un sous-traitant ouvre le planning à jour, sans compte et sans rien installer.</div>
+  <div class="art panel">
+    <div class="link"><span style="color:#D9895A">🔗</span>cantia.ch/planning-partage/…</div>
+    <div style="margin-top:14px">
+      <div class="opt"><span>Lecture seule</span><div class="tog"></div></div>
+      <div class="opt"><span>Avec le logo de l’entreprise</span><div class="tog"></div></div>
+      <div class="opt"><span>Expire dans 30 jours</span><div class="tog"></div></div>
+      <div class="opt" style="border-bottom:none"><span style="color:#E58B7C">Désactiver le lien</span><div class="tog off"></div></div>
+    </div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Toujours la dernière version, plus de PDF qui circulent</div>
+    <div class="pt"><b>→</b>Vous coupez l’accès quand vous voulez</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:57.1%"></i></div><span class="count mono">04 / 07</span></div>
+</section>
+
+<section class="s dk" id="a5">
+  <div class="kick mono">04 · Agenda</div>
+  <h1 class="d">Votre planning et Google Agenda, <em>dans les deux sens.</em></h1>
+  <div class="sub">Ce que vous planifiez dans Cantia apparaît dans votre agenda, et vos rendez-vous arrivent dans votre planning.</div>
+  <div class="art cal">
+    <div class="panel" style="padding:26px">
+      <div class="mono" style="font-size:15px;color:#9C8D7A;margin-bottom:14px">Cantia · Planning</div>
+      <div class="evt" style="background:#A95C30">Villa Martin · chape<small>Mar · 07:30</small></div>
+      <div class="evt" style="background:#3A3027">Rendez-vous privé<small>Mar · 16:00</small></div>
+    </div>
+    <div class="arrows">⇄</div>
+    <div class="panel" style="padding:26px;background:#F7F1E6;border-color:#F7F1E6;color:#231A12">
+      <div class="mono" style="font-size:15px;color:#6E6153;margin-bottom:14px">Google Agenda</div>
+      <div class="evt" style="background:#F5DECB">Villa Martin · chape<small>Mar · 07:30</small></div>
+      <div class="evt" style="background:#E2E8ED">Dentiste<small>Mar · 16:00</small></div>
+    </div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Vos rendez-vous restent privés : l’équipe voit seulement « Rendez-vous privé »</div>
+    <div class="pt"><b>→</b>Chacun relie son propre agenda · Outlook arrive bientôt</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:71.4%"></i></div><span class="count mono">05 / 07</span></div>
+</section>
+
+<section class="s dk" id="a6">
+  <div class="kick mono">05 · Chantiers</div>
+  <h1 class="d">Des chantiers <em>mieux rangés.</em></h1>
+  <div class="sub">Chaque chantier a son numéro, ses dossiers et sa fiche complète. Et l’accueil montre ce qui compte aujourd’hui.</div>
+  <div class="art panel">
+    <div style="display:flex;flex-direction:column;gap:18px;font-size:28px">
+      <div style="display:flex;gap:14px;align-items:center"><span style="font-size:28px">📁</span><b>2026-014 · Villa Martin</b><span style="margin-left:auto;color:#E8B36A">★</span></div>
+      <div style="padding-left:44px;display:grid;gap:10px;color:#C9BBA8">
+        <span>📁 Plans</span><span>📁 Soumission</span><span>📁 Photos du chantier</span><span>📁 Factures fournisseurs</span>
+      </div>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:6px"><span style="font-size:28px">📁</span><b>2026-015 · Immeuble Gare</b></div>
+    </div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Contacts triés : particuliers, entreprises, sous-traitants</div>
+    <div class="pt"><b>→</b>Accueil : le planning du jour et les tâches de vos chantiers</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:85.7%"></i></div><span class="count mono">06 / 07</span></div>
+</section>
+
+<section class="s dk cta" id="a7">
+  <div class="kick mono">À vous de jouer</div>
+  <h1 class="d">Essayez-le sur votre <em>prochain chantier.</em></h1>
+  <div class="sub">14 jours d’essai avec toutes les fonctions, sans engagement. Données hébergées en Suisse. En français, allemand et italien.</div>
+  <div><span class="btn">cantia.ch <span>→</span></span></div>
+  <div class="pts" style="margin-top:auto">
+    <div class="pt"><b>→</b>Soumission et planning de chantier : réservés aux entreprises du bâtiment</div>
+    <div class="pt"><b>→</b>Planning de chantier dès le plan Équipe</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png"><div class="prog"><i style="width:100%"></i></div><span class="count mono">07 / 07</span></div>
+</section>
+
+<!-- ============ CARROUSEL B · CÔTÉ BUREAU ============ -->
+
+<section class="s cr cover" id="b1">
+  <div class="kick mono">Nouveautés Cantia · Automne 2026</div>
+  <h1 class="d">Ce qui change <em>au bureau.</em></h1>
+  <div class="list">
+    <div class="li"><b>01</b>Les salaires suisses</div>
+    <div class="li"><b>02</b>La TVA au format AFC</div>
+    <div class="li"><b>03</b>Un bouclement guidé</div>
+    <div class="li"><b>04</b>La trésorerie en courbe</div>
+    <div class="li"><b>05</b>Votre fiduciaire dans Cantia</div>
+  </div>
+  <div class="swipe mono" style="color:#A95C30">Glissez <span style="font-size:30px">→</span></div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:14.3%"></i></div><span class="count mono">01 / 07</span></div>
+</section>
+
+<section class="s cr" id="b2">
+  <div class="kick mono">01 · Salaires</div>
+  <h1 class="d">Des fiches de salaire <em>vraiment suisses.</em></h1>
+  <div class="sub">Toutes les déductions calculées, l’impôt à la source compris. Les heures viennent directement des chantiers.</div>
+  <div class="art sheet ps">
+    <div class="hd"><span>Fiche de salaire · Octobre</span><span style="font-family:'Martian Mono';font-size:16px;color:#A95C30;align-self:center">CALCULÉ</span></div>
+    <div class="row"><span>AVS / AI / APG</span><span>Inclus</span></div>
+    <div class="row"><span>Assurance chômage (AC)</span><span>Inclus</span></div>
+    <div class="row"><span>Prévoyance professionnelle (LPP)</span><span>Inclus</span></div>
+    <div class="row"><span>Accidents (LAA) · perte de gain (IJM)</span><span>Inclus</span></div>
+    <div class="row"><span>Impôt à la source</span><span>barèmes AFC</span></div>
+    <div class="row" style="border-bottom:none"><span>Allocations familiales</span><span>Inclus</span></div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Un parcours guidé pour ajouter un employé et faire son premier salaire</div>
+    <div class="pt"><b>→</b>Dès le plan Équipe</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:28.6%"></i></div><span class="count mono">02 / 07</span></div>
+</section>
+
+<section class="s cr" id="b3">
+  <div class="kick mono">02 · TVA</div>
+  <h1 class="d">Le décompte TVA, <em>chiffre par chiffre.</em></h1>
+  <div class="sub">Cantia prépare votre décompte avec les mêmes chiffres que le formulaire de l’AFC, à partir de vos factures et dépenses.</div>
+  <div class="art sheet vat">
+    <div class="row"><b>200</b><span>Total des contre-prestations</span></div>
+    <div class="row"><b>230</b><span>Prestations sans TVA</span></div>
+    <div class="row"><b>303</b><span>Taux normal 8,1 %</span></div>
+    <div class="row"><b>400</b><span>Impôt préalable</span></div>
+    <div class="row end"><b>500</b><span>Montant à payer</span></div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Seulement si vous êtes assujetti : sinon, aucune TVA sur vos documents</div>
+    <div class="pt"><b>→</b>Les écritures se font toutes seules depuis vos devis, factures et dépenses</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:42.9%"></i></div><span class="count mono">03 / 07</span></div>
+</section>
+
+<section class="s cr" id="b4">
+  <div class="kick mono">03 · Bouclement</div>
+  <h1 class="d">Le bouclement, <em>étape par étape.</em></h1>
+  <div class="sub">Un assistant vous guide à la fin de l’année et prépare les écritures. Vous validez, puis vous transmettez.</div>
+  <div class="art sheet">
+    <div class="ck"><i class="on">✓</i>Amortissements</div>
+    <div class="ck"><i class="on">✓</i>Débiteurs douteux (ducroire)</div>
+    <div class="ck"><i class="on">✓</i>Charges et produits à reporter</div>
+    <div class="ck"><i>&nbsp;</i>Travaux en cours</div>
+    <div class="ck end"><i>&nbsp;</i>Provision pour impôts</div>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Une page « Fiscalité &amp; provisions » pour anticiper ce que vous devrez</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:57.1%"></i></div><span class="count mono">04 / 07</span></div>
+</section>
+
+<section class="s cr" id="b5">
+  <div class="kick mono">04 · Trésorerie</div>
+  <h1 class="d">Voyez venir <em>votre compte.</em></h1>
+  <div class="sub">La courbe de votre solde, et sa projection : factures à encaisser, salaires, sous-traitants, dépenses récurrentes.</div>
+  <div class="art sheet" style="padding:26px 26px 18px">
+    <svg viewBox="0 0 820 300" width="100%" height="390" style="display:block">
+      <line x1="0" y1="250" x2="820" y2="250" stroke="#E6D8C2" stroke-width="2"/>
+      <line x1="0" y1="170" x2="820" y2="170" stroke="#F1E6D5" stroke-width="2"/>
+      <line x1="0" y1="90" x2="820" y2="90" stroke="#F1E6D5" stroke-width="2"/>
+      <path d="M0 190 C60 170 110 200 170 160 S270 120 330 140 S420 110 470 100" fill="none" stroke="#A95C30" stroke-width="7" stroke-linecap="round"/>
+      <path d="M470 100 C530 90 560 150 620 135 S730 70 820 60" fill="none" stroke="#A95C30" stroke-width="7" stroke-dasharray="4 16" stroke-linecap="round"/>
+      <line x1="470" y1="20" x2="470" y2="250" stroke="#231A12" stroke-width="2" stroke-dasharray="6 8"/>
+      <circle cx="470" cy="100" r="13" fill="#A95C30" stroke="#fff" stroke-width="5"/>
+      <text x="482" y="40" font-family="Martian Mono" font-size="17" fill="#231A12" letter-spacing="2">AUJOURD’HUI</text>
+      <text x="0" y="285" font-family="Martian Mono" font-size="16" fill="#6E6153">Passé</text>
+      <text x="820" y="285" font-family="Martian Mono" font-size="16" fill="#6E6153" text-anchor="end">Projection 90 jours</text>
+    </svg>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Les mois serrés repérés avant qu’ils arrivent</div>
+    <div class="pt"><b>→</b>Dès le plan Équipe</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:71.4%"></i></div><span class="count mono">05 / 07</span></div>
+</section>
+
+<section class="s cr" id="b6">
+  <div class="kick mono">05 · Fiduciaire</div>
+  <h1 class="d">Votre fiduciaire, <em>dans la boucle.</em></h1>
+  <div class="sub">Avec Cantia Accounting, gratuit pour les fiduciaires, votre fiduciaire retrouve vos pièces et vos chiffres sans les redemander.</div>
+  <div class="art flow">
+    <div class="box"><h3>Vous</h3>Factures, dépenses, justificatifs et salaires dans Cantia</div>
+    <div class="ar">→</div>
+    <div class="box"><h3>Votre fiduciaire</h3>Contrôle, décompte TVA et bouclement depuis son propre espace</div>
+  </div>
+  <div class="chips">
+    <span class="chip">Envoi des pièces en un clic</span><span class="chip">Export Banana, Abacus, Winbiz</span><span class="chip">Fichier TVA eCH-0217</span><span class="chip">Signature par lien</span>
+  </div>
+  <div class="pts">
+    <div class="pt"><b>→</b>Votre fiduciaire n’est pas sur Cantia ? Invitez-la, c’est gratuit pour elle</div>
+  </div>
+  <div class="foot"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:85.7%"></i></div><span class="count mono">06 / 07</span></div>
+</section>
+
+<section class="s cr cta" id="b7">
+  <div class="kick mono">À vous de jouer</div>
+  <h1 class="d">Moins de paperasse, <em>plus de chantier.</em></h1>
+  <div class="sub">14 jours d’essai avec toutes les fonctions, sans engagement. Données hébergées en Suisse. En français, allemand et italien.</div>
+  <div><span class="btn">cantia.ch <span>→</span></span></div>
+  <div class="mono" style="margin-top:48px;font-size:19px;color:#A95C30">Outils gratuits, sans compte · cantia.ch/outils</div>
+  <div class="tools">
+    <div class="tool">Calculateur de salaire</div><div class="tool">Taux horaire réel</div>
+    <div class="tool">TVA et marge</div><div class="tool">Intérêts de retard</div>
+  </div>
+  <div class="foot" style="margin-top:auto"><img src="../../../assets/brand/logo.png"><div class="prog"><i style="width:100%"></i></div><span class="count mono">07 / 07</span></div>
+</section>
+
+</body>
+</html>
