@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { cleanVariants, loadRecipients, renderFor, type Locale } from '../_shared/campaign-render.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,21 +41,6 @@ async function sendResendEmail(params: { apiKey: string; from: string; replyTo?:
   return { ok: res.ok };
 }
 
-async function listAllAuthUserEmails(admin: ReturnType<typeof createClient>): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
-  let page = 1;
-  // listUsers pages at up to 1000/page — loop until a short page signals
-  // the end, same pagination contract Supabase documents for this call.
-  for (;;) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error || !data?.users?.length) break;
-    for (const u of data.users) if (u.email) map.set(u.id, u.email);
-    if (data.users.length < 1000) break;
-    page += 1;
-  }
-  return map;
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -75,7 +61,8 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_platform_admin');
     if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
-    const { subject, html, userIds, includeUnsubscribed, testEmail, fromPersona } = await req.json();
+    const { subject, html, userIds, includeUnsubscribed, testEmail, testLocale, fromPersona, variants: rawVariants, audienceLabel } = await req.json();
+    const variants = cleanVariants(rawVariants);
     if (!subject || !html) return json({ error: 'Sujet et contenu requis.' }, 400);
 
     const persona = fromPersona === 'info' ? 'info' : 'newsletter';
@@ -84,8 +71,17 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get('RESEND_API_KEY');
     if (!apiKey) return json({ error: 'Service mail non configuré.' }, 500);
 
+    // The test is rendered for the admin themselves, in the language picked
+    // in the composer, so the placeholders and translations can be checked.
     if (testEmail) {
-      const { ok } = await sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [testEmail], subject: `[TEST] ${subject}`, html });
+      const me = (await loadRecipients(admin, [user.id])).get(user.id);
+      const locale: Locale = testLocale === 'de' || testLocale === 'it' ? testLocale : 'fr';
+      const msg = renderFor(
+        { userId: user.id, email: testEmail, fullName: me?.fullName ?? '', firstName: me?.firstName ?? '', company: me?.company ?? '', planId: me?.planId ?? null, locale },
+        { subject, html },
+        variants,
+      );
+      const { ok } = await sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [testEmail], subject: `[TEST] ${msg.subject}`, html: msg.html });
       if (!ok) return json({ error: "Échec de l'envoi du test." }, 500);
       return json({ sent: 1, skipped: 0, total: 1 });
     }
@@ -114,20 +110,25 @@ Deno.serve(async (req: Request) => {
       finalIds = targetIds.filter((id) => subMap.get(id) !== false);
     }
 
-    const emailMap = await listAllAuthUserEmails(admin);
-    const emails = finalIds.map((id) => emailMap.get(id)).filter((e): e is string => !!e);
-    const skipped = targetIds.length - emails.length;
+    const recipients = await loadRecipients(admin, finalIds);
+    const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
+    const skipped = targetIds.length - list.length;
 
     const CHUNK = 20;
     let sent = 0;
     const sentEmails: string[] = [];
-    for (let i = 0; i < emails.length; i += CHUNK) {
-      const chunk = emails.slice(i, i + CHUNK);
-      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [to], subject, html })));
-      results.forEach((r, idx) => {
-        if (r.ok) {
+    for (let i = 0; i < list.length; i += CHUNK) {
+      const chunk = list.slice(i, i + CHUNK);
+      const results = await Promise.all(
+        chunk.map((r) => {
+          const msg = renderFor(r, { subject, html }, variants);
+          return sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [r.email], subject: msg.subject, html: msg.html });
+        }),
+      );
+      results.forEach((res, idx) => {
+        if (res.ok) {
           sent += 1;
-          sentEmails.push(chunk[idx]);
+          sentEmails.push(chunk[idx].email);
         }
       });
     }
@@ -145,6 +146,8 @@ Deno.serve(async (req: Request) => {
         sent_count: sent,
         skipped_count: skipped,
         total_count: targetIds.length,
+        variants,
+        audience_label: typeof audienceLabel === 'string' ? audienceLabel.slice(0, 300) : null,
       });
     } catch (err) {
       console.error('newsletter_campaigns insert failed', err);

@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { cleanVariants, loadRecipients, renderFor } from '../_shared/campaign-render.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,12 +10,9 @@ const corsHeaders = {
 // Internal-only — invoked by pg_net from dispatch_scheduled_newsletter_sends()
 // (the cron every 5 minutes, see 20260911210000_scheduled_newsletter_sends.sql),
 // never by a client directly. Same dispatch-secret pattern as
-// send-trial-ended-email/send-signup-reminder-email. This duplicates
-// send-newsletter-campaign's actual sending logic rather than calling it —
-// self-contained functions can't import from each other in this deploy
-// setup, and the two entry points differ enough (one reads a client-built
-// request, this one reads a stored row) that sharing code would need the
-// same ../_shared import the deploy tool can't resolve anyway.
+// send-trial-ended-email/send-signup-reminder-email. Recipients and the
+// per-language, personalised message come from _shared/campaign-render.ts,
+// like send-newsletter-campaign.
 const DISPATCH_SECRET = Deno.env.get('DISPATCH_SECRET');
 
 const FROM_BY_PERSONA: Record<string, string> = {
@@ -31,19 +29,6 @@ async function sendResendEmail(params: { apiKey: string; from: string; replyTo?:
   });
   if (!res.ok) console.error('Resend error', res.status, await res.text());
   return { ok: res.ok };
-}
-
-async function listAllAuthUserEmails(admin: ReturnType<typeof createClient>): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
-  let page = 1;
-  for (;;) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error || !data?.users?.length) break;
-    for (const u of data.users) if (u.email) map.set(u.id, u.email);
-    if (data.users.length < 1000) break;
-    page += 1;
-  }
-  return map;
 }
 
 Deno.serve(async (req: Request) => {
@@ -97,20 +82,26 @@ Deno.serve(async (req: Request) => {
       finalIds = targetIds.filter((id) => subMap.get(id) !== false);
     }
 
-    const emailMap = await listAllAuthUserEmails(admin);
-    const emails = finalIds.map((id) => emailMap.get(id)).filter((e): e is string => !!e);
-    const skipped = targetIds.length - emails.length;
+    const variants = cleanVariants(claimed.variants);
+    const recipients = await loadRecipients(admin, finalIds);
+    const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
+    const skipped = targetIds.length - list.length;
 
     const CHUNK = 20;
     let sent = 0;
     const sentEmails: string[] = [];
-    for (let i = 0; i < emails.length; i += CHUNK) {
-      const chunk = emails.slice(i, i + CHUNK);
-      const results = await Promise.all(chunk.map((to) => sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [to], subject: claimed.subject, html: claimed.html })));
-      results.forEach((r, idx) => {
-        if (r.ok) {
+    for (let i = 0; i < list.length; i += CHUNK) {
+      const chunk = list.slice(i, i + CHUNK);
+      const results = await Promise.all(
+        chunk.map((r) => {
+          const msg = renderFor(r, { subject: claimed.subject, html: claimed.html }, variants);
+          return sendResendEmail({ apiKey, from, replyTo: REPLY_TO, to: [r.email], subject: msg.subject, html: msg.html });
+        }),
+      );
+      results.forEach((res, idx) => {
+        if (res.ok) {
           sent += 1;
-          sentEmails.push(chunk[idx]);
+          sentEmails.push(chunk[idx].email);
         }
       });
     }
@@ -128,6 +119,8 @@ Deno.serve(async (req: Request) => {
         sent_count: sent,
         skipped_count: skipped,
         total_count: targetIds.length,
+        variants,
+        audience_label: claimed.audience_label ?? null,
       });
     } catch (err) {
       console.error('newsletter_campaigns insert failed', err);

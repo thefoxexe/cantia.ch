@@ -57,6 +57,20 @@ export function sectorOf(trade: string | null | undefined): Sector | null {
   return SECTORS.find((s) => s.label === trade) ?? (trade === 'Services & conseil' ? SECTORS.find((s) => s.key === 'conseil')! : trade === 'Nettoyage & entretien' ? SECTORS.find((s) => s.key === 'nettoyage')! : trade === 'Artisanat & fabrication' ? SECTORS.find((s) => s.key === 'artisanat')! : null);
 }
 
+// Every organization.trade value that belongs to a sector, legacy labels
+// included (used to target a sector in Super Admin › E-mails).
+export function tradeValuesForSector(key: string): string[] {
+  const sector = SECTORS.find((s) => s.key === key);
+  if (!sector) return [];
+  const legacy: Record<string, string[]> = {
+    construction: LEGACY_BUILDING,
+    conseil: ['Services & conseil'],
+    nettoyage: ['Nettoyage & entretien'],
+    artisanat: ['Artisanat & fabrication'],
+  };
+  return [sector.label, ...(legacy[key] ?? [])];
+}
+
 export function isBuildingTrade(trade: string | null | undefined): boolean {
   return sectorOf(trade)?.key === 'construction';
 }

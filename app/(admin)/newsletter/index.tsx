@@ -9,12 +9,14 @@ import {
   filterUserIds,
   filterOwnerIds,
   listCampaigns,
-  scheduleNewsletterSend,
   listScheduledSends,
   cancelScheduledSend,
+  scheduleNewsletterSendV2,
+  type LangVariants,
   type NewsletterCampaign,
   type ScheduledCampaign,
 } from '../../../lib/api/newsletter';
+import { AdminEmailAudience, type AudienceAddition } from '../../../components/AdminEmailAudience';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
@@ -47,6 +49,21 @@ const PERSONAS: { key: SenderPersona; label: string; from: string }[] = [
   { key: 'info', label: 'Info (support)', from: 'info@cantia.ch' },
 ];
 
+type Lang = 'fr' | 'de' | 'it';
+const LANGS: { id: Lang; label: string }[] = [
+  { id: 'fr', label: 'Français' },
+  { id: 'de', label: 'Deutsch' },
+  { id: 'it', label: 'Italiano' },
+];
+
+// Filled in per recipient by the send function (_shared/campaign-render.ts).
+const VARIABLES: { token: string; label: string }[] = [
+  { token: '{{prenom}}', label: 'Prénom' },
+  { token: '{{nom}}', label: 'Nom complet' },
+  { token: '{{entreprise}}', label: 'Entreprise' },
+  { token: '{{plan}}', label: 'Plan (dans sa langue)' },
+];
+
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
@@ -72,6 +89,15 @@ export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
   const [html, setHtml] = useState('');
+  // FR is the base message; DE/IT versions are optional and go to the people
+  // whose language it is (the others get FR).
+  const [lang, setLang] = useState<Lang>('fr');
+  const [variants, setVariants] = useState<Record<'de' | 'it', { subject: string; html: string }>>({
+    de: { subject: '', html: '' },
+    it: { subject: '', html: '' },
+  });
+  const [localeById, setLocaleById] = useState<Map<string, string>>(new Map());
+  const [audienceLabels, setAudienceLabels] = useState<string[]>([]);
   const [fromPersona, setFromPersona] = useState<SenderPersona>('newsletter');
   const [subscribedCount, setSubscribedCount] = useState<number | null>(null);
 
@@ -205,13 +231,59 @@ export default function AdminNewsletterScreen() {
     setSelectedIds(new Set());
     setIncludesUnsubscribed(false);
     setConfirmUnsubscribed(false);
+    setAudienceLabels([]);
   }
+
+  function handleAudience(a: AudienceAddition) {
+    const ids = a.rows.map((r) => r.user_id);
+    setLocaleById((prev) => {
+      const next = new Map(prev);
+      for (const r of a.rows) next.set(r.user_id, r.locale);
+      return next;
+    });
+    if (a.replace) {
+      setSelectedIds(new Set(ids));
+      setIncludesUnsubscribed(a.includesUnsubscribed);
+      setConfirmUnsubscribed(false);
+      setAudienceLabels([a.label]);
+    } else {
+      addIds(ids, a.includesUnsubscribed);
+      setAudienceLabels((prev) => (prev.includes(a.label) ? prev : [...prev, a.label]));
+    }
+  }
+
+  const currentSubject = lang === 'fr' ? subject : variants[lang].subject;
+  const currentHtml = lang === 'fr' ? html : variants[lang].html;
+  function setCurrentSubject(v: string) {
+    if (lang === 'fr') setSubject(v);
+    else setVariants((prev) => ({ ...prev, [lang]: { ...prev[lang as 'de' | 'it'], subject: v } }));
+  }
+  function setCurrentHtml(v: string) {
+    if (lang === 'fr') setHtml(v);
+    else setVariants((prev) => ({ ...prev, [lang]: { ...prev[lang as 'de' | 'it'], html: v } }));
+  }
+  const readyVariants: LangVariants | null = (() => {
+    const out: LangVariants = {};
+    for (const l of ['de', 'it'] as const) if (variants[l].subject.trim() && variants[l].html.trim()) out[l] = variants[l];
+    return Object.keys(out).length ? out : null;
+  })();
+  const langReady = (l: Lang) => (l === 'fr' ? !!(subject.trim() && html.trim()) : !!readyVariants?.[l]);
+  const selectionByLang = (() => {
+    const counts: Record<string, number> = { fr: 0, de: 0, it: 0, unknown: 0 };
+    for (const id of selectedIds) {
+      const l = localeById.get(id);
+      if (l === 'fr' || l === 'de' || l === 'it') counts[l] += 1;
+      else counts.unknown += 1;
+    }
+    return counts;
+  })();
+  const audienceLabel = audienceLabels.length ? audienceLabels.join(' + ') : selectedIds.size ? 'Sélection manuelle' : null;
 
   async function handleSendTest() {
     if (!subject.trim() || !html.trim() || !testEmail.trim()) return;
     setSendingTest(true);
     setError(null);
-    const { error: err } = await sendNewsletterTest(subject.trim(), html, testEmail.trim(), fromPersona);
+    const { error: err } = await sendNewsletterTest(subject.trim(), html, testEmail.trim(), fromPersona, { variants: readyVariants, testLocale: lang });
     setSendingTest(false);
     if (err) setError(err);
   }
@@ -242,13 +314,15 @@ export default function AdminNewsletterScreen() {
       setSending(true);
       setError(null);
       setScheduleConfirmed(null);
-      const { error: err } = await scheduleNewsletterSend({
+      const { error: err } = await scheduleNewsletterSendV2({
         subject: subject.trim(),
         html,
         userIds: Array.from(selectedIds),
         fromPersona,
         includeUnsubscribed: effectiveIncludeUnsubscribed,
         scheduledAt: iso,
+        variants: readyVariants,
+        audienceLabel,
       });
       setSending(false);
       if (err) {
@@ -271,6 +345,8 @@ export default function AdminNewsletterScreen() {
       userIds: Array.from(selectedIds),
       includeUnsubscribed: effectiveIncludeUnsubscribed,
       fromPersona,
+      variants: readyVariants,
+      audienceLabel,
     });
     setSending(false);
     if (err) {
@@ -295,8 +371,8 @@ export default function AdminNewsletterScreen() {
           <Text style={styles.title}>E-mails</Text>
         </View>
         <Text style={styles.hint}>
-          Envoyez un e-mail ciblé à vos clients — newsletter, grandes nouveautés, ou un mot ponctuel à quelques comptes précis (ex. ceux qui ont
-          résilié). Le HTML collé ci-dessous est envoyé tel quel.
+          Envoyez un e-mail ciblé à vos clients : newsletter, nouveauté pour un métier précis, relance des comptes inactifs ou un mot à ceux qui ont
+          résilié. Le HTML collé est envoyé tel quel, avec le prénom et l’entreprise de chacun, dans sa langue si vous avez préparé la version.
         </Text>
 
         {error ? <AdminErrorBanner message={error} /> : null}
@@ -315,17 +391,56 @@ export default function AdminNewsletterScreen() {
         </View>
         <Text style={styles.hint}>Les réponses arrivent toujours sur info@cantia.ch.</Text>
 
-        <Field label="Sujet" value={subject} onChangeText={setSubject} placeholder="Quoi de neuf chez Cantia ?" />
+        <Text style={styles.filterLabel}>Langue du message</Text>
+        <View style={styles.sendModeRow}>
+          {LANGS.map((l) => (
+            <Pressable key={l.id} onPress={() => setLang(l.id)} style={[styles.sendModeChip, lang === l.id && styles.sendModeChipActive]}>
+              <Text style={[styles.sendModeChipText, lang === l.id && styles.sendModeChipTextActive]}>
+                {l.label}
+                {langReady(l.id) ? ' ✓' : l.id === 'fr' ? '' : ' (optionnel)'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <Text style={styles.hint}>
+          {lang === 'fr'
+            ? 'Le message de base. Chaque personne reçoit la version de sa langue si elle existe, sinon celle-ci.'
+            : `Reçue par les personnes en ${lang === 'de' ? 'allemand' : 'italien'}. Laissez vide pour leur envoyer la version française.`}
+        </Text>
 
         <Field
-          label="Contenu HTML"
-          value={html}
-          onChangeText={setHtml}
+          label={lang === 'fr' ? 'Sujet' : `Sujet (${lang.toUpperCase()})`}
+          value={currentSubject}
+          onChangeText={setCurrentSubject}
+          placeholder={lang === 'de' ? 'Neu bei Cantia, {{prenom}}' : lang === 'it' ? 'Novità da Cantia, {{prenom}}' : 'Quoi de neuf chez Cantia, {{prenom}} ?'}
+        />
+
+        <Field
+          label={lang === 'fr' ? 'Contenu HTML' : `Contenu HTML (${lang.toUpperCase()})`}
+          value={currentHtml}
+          onChangeText={setCurrentHtml}
           placeholder="Collez votre HTML ici…"
           multiline
           numberOfLines={14}
           style={styles.htmlInput}
         />
+
+        <View style={styles.varBox}>
+          <Text style={styles.varTitle}>Personnalisation</Text>
+          <Text style={styles.hint}>
+            À écrire dans le sujet ou le HTML, remplacé pour chaque personne. Valeur de secours si l’info manque : {'{{prenom|Madame, Monsieur}}'}.
+          </Text>
+          <View style={styles.filterRow}>
+            {VARIABLES.map((v) => (
+              <Pressable key={v.token} onPress={() => setCurrentHtml(currentHtml + v.token)} style={styles.varChip}>
+                <Text style={styles.varToken}>{v.token}</Text>
+                <Text style={styles.varLabel}>{v.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        <AdminEmailAudience onAdd={handleAudience} />
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Destinataires</Text>
@@ -336,7 +451,27 @@ export default function AdminNewsletterScreen() {
           ) : null}
         </View>
 
-        <Text style={styles.filterLabel}>Par abonnement newsletter / plan</Text>
+        {selectedIds.size > 0 ? (
+          <View style={styles.selectionBox}>
+            <Text style={styles.selectionTitle}>
+              {selectedIds.size} destinataire{selectedIds.size > 1 ? 's' : ''}
+              {audienceLabel ? <Text style={styles.selectionSub}>  ·  {audienceLabel}</Text> : null}
+            </Text>
+            <View style={styles.filterRow}>
+              {(['fr', 'de', 'it'] as const).map((l) =>
+                selectionByLang[l] ? (
+                  <Text key={l} style={[styles.langBadge, l !== 'fr' && !langReady(l) && styles.langBadgeWarn]}>
+                    {l.toUpperCase()} {selectionByLang[l]}
+                    {l === 'fr' ? '' : langReady(l) ? ' · version prête' : ' · recevront le FR'}
+                  </Text>
+                ) : null,
+              )}
+              {selectionByLang.unknown ? <Text style={styles.langBadge}>{selectionByLang.unknown} ajoutés à la main (langue de leur compte)</Text> : null}
+            </View>
+          </View>
+        ) : null}
+
+        <Text style={styles.filterLabel}>Raccourcis : abonnement newsletter / plan</Text>
         <View style={styles.filterRow}>
           <FilterChip
             label={`Tous les abonnés${subscribedCount != null ? ` (${subscribedCount})` : ''}`}
@@ -354,7 +489,7 @@ export default function AdminNewsletterScreen() {
           />
         </View>
 
-        <Text style={styles.filterLabel}>Par situation d'abonnement (au propriétaire de l'entreprise)</Text>
+        <Text style={styles.filterLabel}>Raccourcis : situation du compte (au propriétaire de l'entreprise)</Text>
         <View style={styles.filterRow}>
           {ORG_STATUS_FILTERS.map((f) => (
             <FilterChip key={f.status} label={f.label} busy={filterBusy === f.status} onPress={() => handleOrgStatusFilter(f.status)} />
@@ -520,7 +655,13 @@ export default function AdminNewsletterScreen() {
                     <Text style={styles.historyMeta}>
                       Prévu le {formatDateTime(s.scheduled_at)} · depuis {s.from_persona === 'info' ? 'info@cantia.ch' : 'newsletter@cantia.ch'} ·{' '}
                       {s.user_ids.length} destinataire{s.user_ids.length > 1 ? 's' : ''}
+                      {s.variants ? ` · FR${s.variants.de ? '/DE' : ''}${s.variants.it ? '/IT' : ''}` : ''}
                     </Text>
+                    {s.audience_label ? (
+                      <Text style={styles.historyMeta} numberOfLines={1}>
+                        {s.audience_label}
+                      </Text>
+                    ) : null}
                   </View>
                   <Pressable onPress={() => handleCancelScheduled(s.id)} disabled={cancelingId === s.id} hitSlop={6}>
                     <Text style={styles.cancelScheduledText}>{cancelingId === s.id ? '…' : 'Annuler'}</Text>
@@ -546,7 +687,13 @@ export default function AdminNewsletterScreen() {
                     </Text>
                     <Text style={styles.historyMeta}>
                       {formatDateTime(c.created_at)} · depuis {c.from_persona === 'info' ? 'info@cantia.ch' : 'newsletter@cantia.ch'}
+                      {c.variants ? ` · FR${c.variants.de ? '/DE' : ''}${c.variants.it ? '/IT' : ''}` : ''}
                     </Text>
+                    {c.audience_label ? (
+                      <Text style={styles.historyMeta} numberOfLines={1}>
+                        {c.audience_label}
+                      </Text>
+                    ) : null}
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={styles.historyCount}>{c.sent_count} envoyé{c.sent_count > 1 ? 's' : ''}</Text>
@@ -575,8 +722,18 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
-    maxWidth: 720,
+    maxWidth: 820,
   },
+  varBox: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: 4, marginBottom: spacing.lg },
+  varTitle: { fontSize: fontSize.sm, fontWeight: '800', color: colors.text },
+  varChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bg },
+  varToken: { fontSize: fontSize.xs, fontWeight: '800', color: colors.primary, fontFamily: Platform.OS === 'web' ? 'monospace' : undefined },
+  varLabel: { fontSize: 10, color: colors.textMuted },
+  selectionBox: { borderRadius: radius.md, backgroundColor: colors.primarySoft, padding: spacing.md, gap: 6, marginBottom: spacing.lg },
+  selectionTitle: { fontSize: fontSize.md, fontWeight: '800', color: colors.text },
+  selectionSub: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted },
+  langBadge: { fontSize: 11, fontWeight: '700', color: colors.text, backgroundColor: colors.surface, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, overflow: 'hidden' },
+  langBadgeWarn: { color: colors.warning },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

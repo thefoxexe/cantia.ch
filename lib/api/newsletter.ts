@@ -69,6 +69,8 @@ export interface NewsletterCampaign {
   skipped_count: number;
   total_count: number;
   created_at: string;
+  variants?: LangVariants | null;
+  audience_label?: string | null;
 }
 
 // Simple send history — "qui a reçu quoi, quand, quel sujet" — shown at
@@ -76,7 +78,7 @@ export interface NewsletterCampaign {
 export async function listCampaigns(limit = 20): Promise<NewsletterCampaign[]> {
   const { data } = await supabase
     .from('newsletter_campaigns')
-    .select('id, subject, from_persona, sent_by, recipient_emails, sent_count, skipped_count, total_count, created_at')
+    .select('id, subject, from_persona, sent_by, recipient_emails, sent_count, skipped_count, total_count, created_at, variants, audience_label')
     .order('created_at', { ascending: false })
     .limit(limit);
   return (data ?? []) as NewsletterCampaign[];
@@ -91,6 +93,8 @@ export interface ScheduledCampaign {
   scheduled_at: string;
   status: 'pending' | 'sent' | 'failed' | 'canceled';
   created_at: string;
+  variants?: LangVariants | null;
+  audience_label?: string | null;
 }
 
 // Freezes the recipient list at scheduling time — the same array the
@@ -126,4 +130,79 @@ export async function listScheduledSends(): Promise<ScheduledCampaign[]> {
 export async function cancelScheduledSend(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_cancel_scheduled_newsletter_send', { p_id: id });
   return { error: error?.message ?? null };
+}
+
+// Super Admin › E-mails, advanced targeting (admin_email_audience): every
+// filter optional, AND between filters, OR inside one. Returns one row per
+// person (their own company, the one they own first).
+export interface AudienceFilters {
+  trades?: string[];
+  specialties?: string[];
+  plans?: string[];
+  statuses?: string[];
+  locales?: string[];
+  owners_only?: boolean;
+  activity?: 'active7' | 'active30' | 'inactive30' | 'never';
+  used?: string[];
+  not_used?: string[];
+  channels?: string[];
+  created_days?: number;
+  subscribed?: boolean | null;
+}
+
+export interface AudienceRow {
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  organization_id: string;
+  organization_name: string;
+  trade: string | null;
+  specialties: string[];
+  plan_id: string | null;
+  subscription_status: string;
+  role: string;
+  locale: 'fr' | 'de' | 'it' | string;
+  subscribed: boolean;
+  last_active_at: string | null;
+  channel: string | null;
+}
+
+export async function getEmailAudience(filters: AudienceFilters): Promise<{ rows: AudienceRow[]; error: string | null }> {
+  const clean: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(filters)) {
+    if (v == null) continue;
+    if (Array.isArray(v) && v.length === 0) continue;
+    clean[k] = v;
+  }
+  const { data, error } = await supabase.rpc('admin_email_audience', { p_filters: clean });
+  return { rows: (data ?? []) as AudienceRow[], error: error?.message ?? null };
+}
+
+export interface LangVersion {
+  subject: string;
+  html: string;
+}
+export type LangVariants = Partial<Record<'de' | 'it', LangVersion>>;
+
+export async function scheduleNewsletterSendV2(params: {
+  subject: string;
+  html: string;
+  userIds: string[];
+  fromPersona: 'newsletter' | 'info';
+  includeUnsubscribed: boolean;
+  scheduledAt: string;
+  variants: LangVariants | null;
+  audienceLabel: string | null;
+}): Promise<{ id: string | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_schedule_newsletter_send_v2', {
+    p_subject: params.subject,
+    p_html: params.html,
+    p_user_ids: params.userIds,
+    p_from_persona: params.fromPersona,
+    p_include_unsubscribed: params.includeUnsubscribed,
+    p_scheduled_at: params.scheduledAt,
+    p_variants: params.variants,
+    p_audience_label: params.audienceLabel,
+  });
+  return { id: error ? null : (data as string), error: error?.message ?? null };
 }
