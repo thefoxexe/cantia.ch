@@ -49,6 +49,18 @@ export const post: BlogPost = {
       text: 'Cantia conserve l’historique complet des chantiers réalisés, utile pour constituer les références demandées dans un dossier de soumission publique.',
       buttonLabel: 'Essayer 14 jours',
     },
+    {
+      type: 'linklist',
+      title: 'Répondre aux soumissions : nos guides',
+      items: [
+        { label: 'Remplir une soumission PDF reçue de l’architecte, sans tout recopier', slug: 'remplir-soumission-pdf-architecte' },
+        { label: 'Les 8 erreurs qui coûtent le marché', slug: 'erreurs-soumission-qui-coutent-le-marche' },
+        { label: 'Calculer un prix unitaire de soumission', slug: 'calculer-prix-unitaire-soumission' },
+        { label: 'Rabais, escompte, TVA : dans quel ordre ?', slug: 'rabais-escompte-tva-ordre-soumission' },
+        { label: 'Lire une soumission CAN', slug: 'comprendre-soumission-can-positions' },
+        { label: 'Proposer une variante sans être écarté', slug: 'variante-soumission-proposer-alternative' },
+      ],
+    },
   ],
   faq: [
     {

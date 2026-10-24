@@ -497,6 +497,94 @@ export const ROUTES = [
       "Devis, facturation, RH, juridique, comparatifs : des réponses précises aux questions que se posent les artisans et entreprises du bâtiment en Suisse.",
   },
   {
+    path: 'blog/remplir-soumission-pdf-architecte',
+    title: 'Remplir une soumission PDF reçue de l’architecte, sans tout recopier | Cantia',
+    description:
+      'L’architecte envoie un PDF de 40 pages et attend vos prix dedans. Méthode pour chiffrer vite, éviter les erreurs de report et renvoyer le document attendu.',
+    faq: [
+      { q: 'Peut-on modifier les quantités d’une soumission ?', a: 'En principe non : les quantités servent à comparer les offres. Si une quantité vous paraît fausse, signalez-le par écrit à l’architecte ou proposez une remarque, sans modifier la ligne. Certaines positions demandent en revanche d’indiquer la quantité : celles-là se remplissent.' },
+      { q: 'Faut-il rendre la soumission dans son format d’origine ?', a: 'Le plus souvent oui, c’est ce que demande l’architecte ou l’adjudicateur. Un tableau à part ou un devis dans votre propre format complique la comparaison et peut, sur un marché public, rendre l’offre non conforme.' },
+      { q: 'Cantia crée-t-il des soumissions vierges ?', a: 'Non. La fonction sert à répondre aux soumissions que vous recevez : vous importez le PDF, mettez vos prix et récupérez le PDF rempli.' },
+    ],
+  },
+  {
+    path: 'blog/erreurs-soumission-qui-coutent-le-marche',
+    title: 'Soumissions : les 8 erreurs qui coûtent le marché (ou la marge) | Cantia',
+    description:
+      'Position oubliée, report de page faux, unité mal lue, escompte au mauvais endroit : les erreurs qui font écarter une soumission ou la gagner à perte, et comment les éviter.',
+    faq: [
+      { q: 'Une offre avec une position vide est-elle automatiquement écartée ?', a: 'Pas toujours, mais c’est un risque réel : selon les règles de l’appel d’offres, elle peut être considérée comme incomplète. Sur un marché privé, l’architecte vous demandera au mieux de compléter, au pire comparera en considérant la position comme incluse.' },
+      { q: 'Peut-on corriger une soumission après l’avoir rendue ?', a: 'Sur un marché public, les modifications après dépôt sont très encadrées et le prix ne se renégocie en principe pas librement. Mieux vaut contrôler avant l’envoi que compter sur une correction après.' },
+      { q: 'Comment éviter les erreurs de report de page ?', a: 'En ne les faisant pas à la main : un tableur ou un outil qui calcule les montants et reporte les sous-totaux automatiquement supprime ce risque.' },
+    ],
+  },
+  {
+    path: 'blog/calculer-prix-unitaire-soumission',
+    title: 'Calculer un prix unitaire de soumission : la méthode position par position | Cantia',
+    description:
+      'Main-d’œuvre, matériaux, machines, frais généraux, risques et marge : comment construire un prix unitaire défendable pour chaque position d’une soumission suisse.',
+    faq: [
+      { q: 'Quel taux de frais généraux appliquer ?', a: 'Il se calcule à partir de vos comptes : total des frais qui ne sont pas liés à un chantier précis, divisé par le volume de travail productif. Il n’existe pas de taux universel ; reprenez-le chaque année avec votre bouclement.' },
+      { q: 'Faut-il intégrer les installations de chantier dans les prix unitaires ?', a: 'Seulement si la soumission ne prévoit pas de positions dédiées. Quand des positions d’installation de chantier existent, chiffrez-les là, sinon vous les payez deux fois ou pas du tout.' },
+      { q: 'Comment savoir si un prix unitaire était juste ?', a: 'En comparant après coup les heures et le matériel réellement consommés au calcul de départ. Le suivi de rentabilité par chantier sert exactement à ça.' },
+    ],
+  },
+  {
+    path: 'blog/rabais-escompte-tva-ordre-soumission',
+    title: 'Rabais, escompte, TVA : dans quel ordre sur le récapitulatif d’une soumission ? | Cantia',
+    description:
+      'Rabais et escompte ne sont pas la même chose, et l’ordre du calcul change le total. Exemple chiffré du récapitulatif d’une soumission suisse, de la somme brute au total TTC.',
+    faq: [
+      { q: 'La TVA se calcule-t-elle avant ou après l’escompte ?', a: 'Le plus souvent après les remises, sur le montant net. Mais le récapitulatif de la soumission prévaut : suivez l’ordre qu’il indique.' },
+      { q: 'Faut-il accorder un escompte sur une soumission ?', a: 'Ce n’est pas une obligation. Certaines soumissions prévoient la ligne et vous laissent fixer le taux, d’autres l’imposent. Un escompte n’a de sens que si vous tenez à être payé vite.' },
+      { q: 'Quel taux de TVA appliquer sur des travaux de construction ?', a: 'En règle générale le taux normal de 8,1 %. Une entreprise non assujettie à la TVA n’en facture pas.' },
+    ],
+  },
+  {
+    path: 'blog/comprendre-soumission-can-positions',
+    title: 'Lire une soumission CAN : chapitres, positions et textes à compléter | Cantia',
+    description:
+      'Ce que signifient les numéros, les chapitres, les positions réservées et les textes à compléter d’une soumission établie selon le CAN, pour chiffrer sans rien oublier.',
+    faq: [
+      { q: 'Que veut dire CAN ?', a: 'Catalogue des articles normalisés, publié par le CRB. C’est la version française du NPK (Normpositionen-Katalog) utilisé en Suisse alémanique.' },
+      { q: 'Faut-il une licence pour lire une soumission CAN ?', a: 'En principe non : vous recevez le document de l’architecte et vous le remplissez. Les licences du CRB concernent surtout ceux qui rédigent des soumissions ou utilisent le catalogue dans un logiciel.' },
+      { q: 'Cantia lit-il aussi les soumissions sans CAN ?', a: 'Oui. L’import fonctionne avec les soumissions CAN et avec celles que l’architecte a rédigées lui-même, y compris les documents scannés, avec un écran de vérification.' },
+    ],
+  },
+  {
+    path: 'blog/variante-soumission-proposer-alternative',
+    title: 'Proposer une variante dans une soumission, sans faire écarter son offre | Cantia',
+    description:
+      'Vous connaissez une solution moins chère ou plus rapide que celle de l’architecte ? Comment la proposer en variante, à côté d’une offre de base complète, sur un marché privé ou public.',
+    faq: [
+      { q: 'Peut-on remplacer un produit imposé par un équivalent ?', a: 'Seulement si la soumission l’autorise (mention « ou équivalent ») ou en variante, à côté de l’offre de base. Remplacer sans le dire rend l’offre non comparable.' },
+      { q: 'Une variante peut-elle être plus chère que l’offre de base ?', a: 'Oui, si elle apporte autre chose : durabilité, délai, entretien. Expliquez clairement ce que le maître d’ouvrage gagne en échange.' },
+      { q: 'Les variantes sont-elles toujours admises sur un marché public ?', a: 'Non. Elles sont en principe admises, mais l’adjudicateur peut les restreindre ou les exclure dans l’appel d’offres. Les conditions du dossier font foi.' },
+    ],
+  },
+  {
+    path: 'blog/temps-repondre-soumission-rentable',
+    title: 'Combien coûte une soumission à votre entreprise, et quand ne pas répondre | Cantia',
+    description:
+      'Heures de chiffrage, taux de réussite, coût réel d’une offre gagnée : un calcul simple pour décider à quelles soumissions répondre et comment y passer moins de temps.',
+    faq: [
+      { q: 'Quel est un bon taux de réussite sur les soumissions ?', a: 'Il dépend du métier, de la région et du type de marché. L’important est de connaître le vôtre et de le suivre dans le temps, pour savoir où vous gagnez.' },
+      { q: 'Peut-on facturer le chiffrage d’une soumission ?', a: 'En règle générale non, la réponse à une soumission est gratuite. Une étude ou un projet demandé en plus peut faire l’objet d’un accord séparé, à convenir avant.' },
+      { q: 'Comment savoir pourquoi on a perdu une soumission ?', a: 'Demandez le résultat et, si possible, votre rang. Sur un marché public, l’adjudication est communiquée et peut être motivée ; sur un marché privé, un appel à l’architecte suffit souvent.' },
+    ],
+  },
+  {
+    path: 'blog/logiciel-remplir-soumission-excel-papier',
+    title: 'Papier, Excel ou logiciel : la bonne façon de remplir ses soumissions en 2026 | Cantia',
+    description:
+      'Comparatif concret des trois façons de répondre aux soumissions dans une PME du bâtiment suisse : temps passé, risques d’erreur, réutilisation des prix et document rendu.',
+    faq: [
+      { q: 'Faut-il un logiciel spécial pour répondre aux soumissions en Suisse ?', a: 'Non. Beaucoup de petites entreprises les remplissent à la main ou dans Excel. Un outil fait surtout gagner du temps et supprime les erreurs de calcul et de report.' },
+      { q: 'Cantia lit-il les fichiers de soumission CRBX ou SIA 451 ?', a: 'Pas encore : l’import porte aujourd’hui sur les soumissions en PDF, CAN ou non. C’est le format que la plupart des petites entreprises reçoivent.' },
+      { q: 'Combien de soumissions peut-on remplir avec Cantia ?', a: '3 par mois avec le plan Équipe, sans limite avec le plan Entreprise. La fonction n’est pas incluse dans le plan Essentiel.' },
+    ],
+  },
+  {
     path: 'blog/prix-contrat-nettoyage-bureaux-suisse-calcul',
     title: 'Calculer le prix d’un contrat de nettoyage de bureaux : la méthode | Cantia',
     description:

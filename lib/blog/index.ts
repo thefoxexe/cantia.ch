@@ -256,6 +256,14 @@ import { post as p252 } from './posts/annulation-reservation-photographe-acompte
 import { post as p253 } from './posts/salaire-personnel-extra-evenementiel-traiteur';
 import { post as p254 } from './posts/forfait-ou-temps-passe-consultant-suisse';
 import { post as p255 } from './posts/formateur-independant-suisse-tva-facture';
+import { post as soum1 } from './posts/remplir-soumission-pdf-architecte';
+import { post as soum2 } from './posts/erreurs-soumission-qui-coutent-le-marche';
+import { post as soum3 } from './posts/calculer-prix-unitaire-soumission';
+import { post as soum4 } from './posts/rabais-escompte-tva-ordre-soumission';
+import { post as soum5 } from './posts/comprendre-soumission-can-positions';
+import { post as soum6 } from './posts/variante-soumission-proposer-alternative';
+import { post as soum7 } from './posts/temps-repondre-soumission-rentable';
+import { post as soum8 } from './posts/logiciel-remplir-soumission-excel-papier';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -264,6 +272,7 @@ import { post as p255 } from './posts/formateur-independant-suisse-tva-facture';
 // scripts/seo-routes.mjs for the one place metadata still needs a matching
 // entry, following the same pattern as /solutions/*.
 export const BLOG_POSTS: BlogPost[] = [
+  soum1, soum2, soum3, soum4, soum5, soum6, soum7, soum8,
   p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
   p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
   p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70,

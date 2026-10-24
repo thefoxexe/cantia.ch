@@ -27,7 +27,7 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 - [Dictée vocale](https://cantia.ch/solutions/dictee-vocale) : dans les devis, les rapports et le fil de chantier.
 - [Planning](https://cantia.ch/solutions/planning) : planning d'équipe par personne et par jour, synchronisé avec Google Agenda.
 - Planning de chantier (Gantt) : phases, tâches, dépendances, jours fériés cantonaux, export PDF, Excel et MS Project, lien de partage.
-- Remplir une soumission (bêta) : importer le PDF de soumission reçu (CAN ou non), mettre ses prix poste par poste et ressortir le PDF d'origine rempli avec les prix, montants, reports et totaux. Dès le plan Équipe (3 soumissions par mois), illimité avec Entreprise. Réservé aux entreprises du bâtiment.
+- [Remplir une soumission (bêta)](https://cantia.ch/solutions/soumissions) : importer le PDF de soumission reçu (CAN ou non), mettre ses prix poste par poste et ressortir le PDF d'origine rempli avec les prix, montants, reports et totaux. Dès le plan Équipe (3 soumissions par mois), illimité avec Entreprise. Réservé aux entreprises du bâtiment.
 - [Travaux supplémentaires](https://cantia.ch/solutions/travaux-supplementaires) : signés par le client sur place.
 - [Rentabilité](https://cantia.ch/solutions/rentabilite) : devisé comparé au coût réel (matériel et main-d'œuvre) par chantier.
 - [RH et salaires](https://cantia.ch/solutions/rh-salaires) : heures par chantier, fiches de salaire suisses (AVS/AI/APG, AC, LPP, LAA, IJM, impôt à la source, allocations familiales), absences.
@@ -54,6 +54,7 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 - [Calculer le prix d'un devis de rénovation en Suisse](https://cantia.ch/blog/calculer-prix-devis-renovation-suisse)
 - [La QR-facture en 2026](https://cantia.ch/blog/qr-facture-obligatoire-2026)
 - [Suivre la rentabilité d'un chantier sans Excel](https://cantia.ch/blog/suivre-rentabilite-chantier-sans-excel)
+- [Remplir une soumission PDF reçue de l'architecte](https://cantia.ch/blog/remplir-soumission-pdf-architecte), [calculer un prix unitaire](https://cantia.ch/blog/calculer-prix-unitaire-soumission), [lire une soumission CAN](https://cantia.ch/blog/comprendre-soumission-can-positions), [les erreurs qui coûtent le marché](https://cantia.ch/blog/erreurs-soumission-qui-coutent-le-marche)
 - [Tous les articles](https://cantia.ch/blog)
 - [Centre d'aide](https://cantia.ch/aide)
 
