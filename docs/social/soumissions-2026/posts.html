@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#333;font-family:'Archivo',sans-serif}
+  .post{width:1080px;height:1350px;position:relative;overflow:hidden;margin:0 0 40px;padding:92px 96px 76px;display:flex;flex-direction:column}
+  .mono{font-family:'Martian Mono',monospace;text-transform:uppercase;letter-spacing:.14em}
+  .display{font-stretch:extra-condensed;font-weight:900;line-height:.9;letter-spacing:-.005em}
+  .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between}
+  .foot img{height:44px}
+  .foot .mono{font-size:20px}
+  .kicker{display:flex;gap:16px;align-items:center;font-size:22px}
+  h1{margin-top:28px}
+
+  /* 1 — cream, the filled PDF */
+  .p1{background:#F7F1E6;color:#231A12}
+  .p1 .kicker .mono{color:#A95C30}
+  .badge{font-family:'Martian Mono',monospace;font-size:18px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;border-radius:999px;background:#F3E8D6;color:#9C6510}
+  .p1 h1{font-size:128px}
+  .p1 h1 em{font-style:normal;color:#A95C30}
+  .sheet{margin:46px 40px 0;background:#fff;border:2px solid #E6D8C2;border-radius:18px;box-shadow:0 30px 60px rgba(35,26,18,.12);padding:30px 36px 20px;transform:rotate(-1.2deg)}
+  .sheet .head{display:flex;justify-content:space-between;font-size:20px;color:#6E6153;border-bottom:2px solid #231A12;padding-bottom:12px;margin-bottom:4px}
+  .sheet .head b{color:#231A12}
+  .row{display:grid;grid-template-columns:96px 1fr 56px 86px 112px 136px;gap:12px;align-items:center;font-size:20px;padding:12px 0;border-bottom:1px solid #EFE6D8;white-space:nowrap}
+  .row .n{font-family:'Martian Mono',monospace;font-size:15px;color:#6E6153}
+  .row .num{text-align:right;font-variant-numeric:tabular-nums}
+  .fill{background:#F5DECB;color:#7C3B21;font-weight:800;border-radius:6px;padding:3px 8px;text-align:right;font-variant-numeric:tabular-nums}
+  .row.th{font-size:14px;color:#6E6153;font-family:'Martian Mono',monospace;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #E6D8C2}
+  .row.total{border-bottom:none;font-weight:800}
+  .steps{margin-top:44px;display:flex;gap:16px;align-items:center;font-size:25px;font-weight:700;white-space:nowrap}
+  .steps .arrow{color:#A95C30;font-weight:900}
+
+  /* 2 — dark, the unit price */
+  .p2{background:#16120E;color:#F7F1E6}
+  .p2 .kicker{color:#D9895A}
+  .p2 h1{font-size:124px}
+  .p2 h1 em{font-style:normal;color:#D9895A}
+  .p2 .sub{margin-top:26px;font-size:29px;line-height:1.35;color:#C9BBA8;max-width:820px}
+  .bars{margin-top:46px}
+  .bar{display:grid;grid-template-columns:270px 1fr 140px;gap:22px;align-items:center;margin-bottom:24px}
+  .bar .lab{font-size:28px;font-weight:700}
+  .bar .lab small{display:block;font-family:'Martian Mono',monospace;font-size:15px;color:#9C8D7A;font-weight:400;letter-spacing:.06em;margin-top:4px}
+  .bar .track{height:28px;background:#2A231C;border-radius:8px;overflow:hidden}
+  .bar .fillb{height:100%;background:#A95C30;border-radius:8px}
+  .bar .v{text-align:right;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .sum{margin-top:10px;border-top:2px solid #F7F1E6;padding-top:18px;display:flex;justify-content:space-between;align-items:baseline}
+  .sum .mono{font-size:22px;color:#D9895A}
+  .sum .big{font-stretch:extra-condensed;font-weight:900;font-size:112px;line-height:1}
+  .sum .big small{font-size:40px;font-weight:700;margin-left:10px;font-stretch:normal}
+  .p2 .note{margin-top:14px;font-size:20px;color:#9C8D7A}
+  .p2 .foot .mono{color:#9C8D7A}
+
+  /* 3 — terracotta, the order of discounts */
+  .p3{background:#A95C30;color:#FFF8F0}
+  .p3 .kicker{color:#F5DECB}
+  .p3 h1{font-size:126px}
+  .ticket{margin:44px 24px 0;background:#FFFDF9;color:#231A12;border-radius:20px;padding:34px 44px;box-shadow:0 30px 70px rgba(60,20,5,.35)}
+  .line{display:flex;justify-content:space-between;align-items:baseline;font-size:29px;padding:12px 0;border-bottom:1px dashed #E6D8C2;font-variant-numeric:tabular-nums}
+  .line .step{font-family:'Martian Mono',monospace;font-size:17px;color:#A95C30;margin-right:14px}
+  .line.minus .amt{color:#AB3327}
+  .line.sub{font-weight:800}
+  .line.grand{border-bottom:none;border-top:3px solid #231A12;margin-top:6px;padding-top:18px;font-size:38px;font-weight:900}
+  .p3 .rule{margin-top:36px;font-size:27px;line-height:1.35;font-weight:600}
+  .p3 .foot .mono{color:#F5DECB}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="post p1" id="p1">
+  <div class="kicker"><span class="mono">Nouveau dans Cantia</span><span class="badge">Bêta</span></div>
+  <h1 class="display">La soumission de l’architecte, remplie <em>avec vos prix.</em></h1>
+  <div class="sheet">
+    <div class="head"><span><b>Soumission</b> · Lot maçonnerie</span><span>Page 12 / 38</span></div>
+    <div class="row th"><span>Pos.</span><span>Description</span><span>Unité</span><span class="num">Qté</span><span class="num">PU CHF</span><span class="num">Montant</span></div>
+    <div class="row"><span class="n">211.311</span><span>Mur briques 15 cm</span><span>m²</span><span class="num">84.00</span><span class="fill">137.29</span><span class="fill">11’532.36</span></div>
+    <div class="row"><span class="n">211.312</span><span>Mur briques 12 cm</span><span>m²</span><span class="num">46.50</span><span class="fill">118.60</span><span class="fill">5’514.90</span></div>
+    <div class="row"><span class="n">211.420</span><span>Linteau préfabriqué</span><span>pce</span><span class="num">12.00</span><span class="fill">96.00</span><span class="fill">1’152.00</span></div>
+    <div class="row"><span class="n">211.510</span><span>Crépi intérieur</span><span>m²</span><span class="num">130.50</span><span class="fill">32.40</span><span class="fill">4’228.20</span></div>
+    <div class="row total"><span></span><span>Report page 13</span><span></span><span></span><span></span><span class="fill">22’427.46</span></div>
+  </div>
+  <div class="steps"><span>Importer le PDF reçu</span><span class="arrow">→</span><span>Mettre vos prix</span><span class="arrow">→</span><span>Renvoyer l’original rempli</span></div>
+  <div class="foot"><img src="../../../assets/brand/logo.png" alt="Cantia"><span class="mono" style="color:#6E6153">cantia.ch</span></div>
+</section>
+
+<!-- 2 -->
+<section class="post p2" id="p2">
+  <div class="kicker mono">Calcul · Soumission</div>
+  <h1 class="display">D’où vient un prix unitaire <em>juste ?</em></h1>
+  <div class="sub">Mur en briques 15 cm, au m². Chaque prix de votre soumission doit pouvoir se décomposer comme ça.</div>
+  <div class="bars">
+    <div class="bar"><div class="lab">Main-d’œuvre<small>0,9 h × 78.–</small></div><div class="track"><div class="fillb" style="width:100%"></div></div><div class="v">70.20</div></div>
+    <div class="bar"><div class="lab">Matériaux<small>+ 5 % de pertes</small></div><div class="track"><div class="fillb" style="width:54.8%"></div></div><div class="v">38.50</div></div>
+    <div class="bar"><div class="lab">Machines<small>échafaudage, malaxeur</small></div><div class="track"><div class="fillb" style="width:6.8%"></div></div><div class="v">4.80</div></div>
+    <div class="bar"><div class="lab">Frais généraux<small>12 %</small></div><div class="track"><div class="fillb" style="width:19.4%;background:#D97B41"></div></div><div class="v">13.62</div></div>
+    <div class="bar"><div class="lab">Marge<small>8 %</small></div><div class="track"><div class="fillb" style="width:14.5%;background:#D97B41"></div></div><div class="v">10.17</div></div>
+  </div>
+  <div class="sum"><span class="mono">Prix unitaire</span><span class="big">137.29<small>CHF / m²</small></span></div>
+  <div class="note">Exemple chiffré à titre indicatif : rendements, coût horaire et frais varient selon votre entreprise.</div>
+  <div class="foot"><img src="../../../assets/brand/logo-on-dark.png" alt="Cantia"><span class="mono">cantia.ch/blog</span></div>
+</section>
+
+<!-- 3 -->
+<section class="post p3" id="p3">
+  <div class="kicker mono">Soumission · Récapitulatif</div>
+  <h1 class="display">Rabais, escompte, TVA : l’ordre change le total.</h1>
+  <div class="ticket">
+    <div class="line"><span>Total brut des chapitres</span><span class="amt">100’000.00</span></div>
+    <div class="line minus"><span><span class="step">01</span>Rabais 3 %</span><span class="amt">− 3’000.00</span></div>
+    <div class="line sub"><span>Après rabais</span><span class="amt">97’000.00</span></div>
+    <div class="line minus"><span><span class="step">02</span>Escompte 2 %</span><span class="amt">− 1’940.00</span></div>
+    <div class="line sub"><span>Net hors TVA</span><span class="amt">95’060.00</span></div>
+    <div class="line"><span><span class="step">03</span>TVA 8,1 %</span><span class="amt">7’699.86</span></div>
+    <div class="line grand"><span>Total TTC</span><span>CHF 102’759.86</span></div>
+  </div>
+  <div class="rule">L’ordre le plus courant. Mais c’est toujours le récapitulatif de la soumission qui fait foi.</div>
+  <div class="foot"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><span class="mono">cantia.ch/blog</span></div>
+</section>
+
+</body>
+</html>
