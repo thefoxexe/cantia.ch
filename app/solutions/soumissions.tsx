@@ -5,8 +5,8 @@ export default function SoumissionsSolutionPage() {
   return (
     <SolutionPage
       kicker="Remplir une soumission · Bêta"
-      title="La soumission reçue, remplie avec vos prix — sans recopier une seule position"
-      subtitle="L’architecte vous envoie une soumission en PDF. Cantia en reprend les positions, vous mettez vos prix, et vous renvoyez le PDF d’origine rempli : prix unitaires, montants, reports de page et totaux à leur place."
+      title="La soumission reçue, remplie avec vos prix"
+      subtitle="Sans recopier une seule position : l’architecte vous envoie une soumission en PDF, Cantia en reprend les positions, vous mettez vos prix, et vous renvoyez le PDF d’origine rempli : prix unitaires, montants, reports de page et totaux à leur place."
       visual={<ModuleMockup kind="soumissions" />}
       features={[
         {

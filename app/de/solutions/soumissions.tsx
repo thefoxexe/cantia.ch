@@ -8,7 +8,7 @@ export default function SoumissionsSolutionPageDe() {
   return (
     <SolutionPage
       kicker="Leistungsverzeichnis ausfüllen · Beta"
-      title="Das erhaltene Leistungsverzeichnis, mit Ihren Preisen ausgefüllt — ohne eine Position abzutippen"
+      title="Das erhaltene LV, mit Ihren Preisen ausgefüllt"
       subtitle="Der Architekt schickt Ihnen ein Leistungsverzeichnis als PDF. Cantia übernimmt die Positionen, Sie setzen Ihre Preise ein und senden das Original-PDF ausgefüllt zurück: Einheitspreise, Beträge, Überträge und Totale am richtigen Ort."
       visual={<ModuleMockup kind="soumissions" />}
       features={[

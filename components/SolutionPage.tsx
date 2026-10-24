@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from './ui';
@@ -242,7 +242,19 @@ const styles = StyleSheet.create({
   },
   kickerPill: { alignSelf: 'flex-start', marginBottom: spacing.lg },
   kickerText: { ...monoType, fontSize: 11, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4 },
-  title: { ...displayType, fontSize: 60, fontWeight: '800', color: colors.text, letterSpacing: -0.3, lineHeight: 58, maxWidth: 680 } as unknown as ViewStyle,
+  // Scales with the screen on web (60px on desktop down to ~36px on a phone)
+  // so long words ("soumission", "Leistungsverzeichnis") never overflow;
+  // hyphenation as a last resort for German compounds.
+  title: {
+    ...displayType,
+    fontSize: Platform.OS === 'web' ? ('clamp(34px, 9.5vw, 60px)' as unknown as number) : 44,
+    lineHeight: Platform.OS === 'web' ? ('clamp(36px, 9.8vw, 60px)' as unknown as number) : 46,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: -0.3,
+    maxWidth: 680,
+    ...(Platform.OS === 'web' ? { overflowWrap: 'break-word', hyphens: 'auto' } : null),
+  } as unknown as ViewStyle,
   subtitle: { fontFamily: marketingFonts.body, fontSize: 18, color: '#4A3D31', marginTop: spacing.lg, lineHeight: 28, maxWidth: 560 },
   ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
   section: {

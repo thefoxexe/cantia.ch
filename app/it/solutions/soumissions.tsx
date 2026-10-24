@@ -8,7 +8,7 @@ export default function SoumissionsSolutionPageIt() {
   return (
     <SolutionPage
       kicker="Compilare un capitolato · Beta"
-      title="Il capitolato ricevuto, compilato con i vostri prezzi — senza ricopiare una sola posizione"
+      title="Il capitolato ricevuto, compilato con i vostri prezzi"
       subtitle="L’architetto vi invia un capitolato in PDF. Cantia ne riprende le posizioni, voi inserite i prezzi e rinviate il PDF originale compilato: prezzi unitari, importi, riporti di pagina e totali al loro posto."
       visual={<ModuleMockup kind="soumissions" />}
       features={[
