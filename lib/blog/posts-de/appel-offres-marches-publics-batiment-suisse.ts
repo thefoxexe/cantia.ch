@@ -49,6 +49,18 @@ export const post: BlogPost = {
       text: 'Cantia bewahrt die vollständige Historie der ausgeführten Baustellen auf, nützlich für den Nachweis der in einem öffentlichen Ausschreibungsdossier geforderten Referenzen.',
       buttonLabel: '14 Tage testen',
     },
+    {
+      type: 'linklist',
+      title: 'Auf Leistungsverzeichnisse antworten: unsere Ratgeber',
+      items: [
+        { label: 'Ein Leistungsverzeichnis im PDF ausfüllen, ohne alles abzutippen', slug: 'remplir-soumission-pdf-architecte' },
+        { label: 'Die 8 Fehler, die den Auftrag kosten', slug: 'erreurs-soumission-qui-coutent-le-marche' },
+        { label: 'Einheitspreise im Leistungsverzeichnis berechnen', slug: 'calculer-prix-unitaire-soumission' },
+        { label: 'Rabatt, Skonto, MWST: in welcher Reihenfolge?', slug: 'rabais-escompte-tva-ordre-soumission' },
+        { label: 'Ein Leistungsverzeichnis nach NPK lesen', slug: 'comprendre-soumission-can-positions' },
+        { label: 'Eine Unternehmervariante anbieten', slug: 'variante-soumission-proposer-alternative' },
+      ],
+    },
   ],
   faq: [
     {

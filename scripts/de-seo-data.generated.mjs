@@ -420,6 +420,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-07-28"
   },
   {
+    "path": "de/blog/calculer-prix-unitaire-soumission",
+    "title": "Einheitspreise im Leistungsverzeichnis berechnen: die Methode Position für Position | Cantia",
+    "description": "Arbeit, Material, Maschinen, Gemeinkosten, Risiken und Marge: wie man für jede Position eines Schweizer Leistungsverzeichnisses einen vertretbaren Einheitspreis aufbaut.",
+    "faq": [
+      {
+        "q": "Welchen Gemeinkostensatz soll man anwenden?",
+        "a": "Er wird aus Ihrer Buchhaltung berechnet: Summe der Kosten, die keiner bestimmten Baustelle zugeordnet sind, geteilt durch das produktive Arbeitsvolumen. Einen allgemeingültigen Satz gibt es nicht; überprüfen Sie ihn jedes Jahr mit dem Jahresabschluss."
+      },
+      {
+        "q": "Gehören Baustelleninstallationen in die Einheitspreise?",
+        "a": "Nur wenn das Leistungsverzeichnis keine eigenen Positionen dafür vorsieht. Gibt es Positionen für die Baustelleninstallation, kalkulieren Sie sie dort, sonst bezahlen Sie sie doppelt oder gar nicht."
+      },
+      {
+        "q": "Wie weiss man, ob ein Einheitspreis richtig war?",
+        "a": "Indem man im Nachhinein die tatsächlich verbrauchten Stunden und das Material mit der ursprünglichen Berechnung vergleicht. Genau dafür ist die Rentabilitätskontrolle pro Baustelle da."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "de/blog/cantia-adapte-metier-specifique-batiment",
     "title": "Ein Beruf zu speziell für eine Standardsoftware? Nicht unbedingt | Cantia",
     "description": "Manche Berufe im Bauwesen haben Bedürfnisse, die Standardwerkzeuge nie ganz abdecken. Wie eine massgeschneiderte Funktion diese Lücke schliessen kann.",
@@ -618,6 +638,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-07-26"
+  },
+  {
+    "path": "de/blog/comprendre-soumission-can-positions",
+    "title": "Ein Leistungsverzeichnis nach NPK lesen: Kapitel, Positionen und Ergänzungstexte | Cantia",
+    "description": "Was Nummern, Kapitel, Eventualpositionen und Ergänzungstexte in einem Leistungsverzeichnis nach NPK bedeuten, damit Sie kalkulieren können, ohne etwas zu vergessen.",
+    "faq": [
+      {
+        "q": "Was bedeutet NPK?",
+        "a": "Normpositionen-Katalog, herausgegeben vom CRB. In der Romandie heisst er CAN (Catalogue des articles normalisés), im Tessin CPN."
+      },
+      {
+        "q": "Braucht man eine Lizenz, um ein NPK-Leistungsverzeichnis zu lesen?",
+        "a": "Grundsätzlich nicht: Sie erhalten das Dokument vom Architekten und füllen es aus. Die Lizenzen des CRB betreffen vor allem jene, die Leistungsverzeichnisse verfassen oder den Katalog in einer Software nutzen."
+      },
+      {
+        "q": "Liest Cantia auch Leistungsverzeichnisse ohne NPK?",
+        "a": "Ja. Der Import funktioniert mit NPK-Leistungsverzeichnissen und mit solchen, die der Architekt selbst verfasst hat, auch mit gescannten Dokumenten, mit einer Prüfansicht."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "de/blog/contrat-ecrit-petits-travaux-quand-necessaire",
@@ -1158,6 +1198,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-08-09"
+  },
+  {
+    "path": "de/blog/erreurs-soumission-qui-coutent-le-marche",
+    "title": "Leistungsverzeichnisse: die 8 Fehler, die den Auftrag (oder die Marge) kosten | Cantia",
+    "description": "Vergessene Position, falscher Seitenübertrag, falsch gelesene Einheit, Skonto am falschen Ort: Fehler, die ein Angebot ausschliessen oder einen Auftrag mit Verlust bringen, und wie man sie vermeidet.",
+    "faq": [
+      {
+        "q": "Wird ein Angebot mit einer leeren Position automatisch ausgeschlossen?",
+        "a": "Nicht immer, aber das Risiko ist real: Je nach Ausschreibungsbedingungen kann es als unvollständig gelten. Bei einem privaten Auftrag bittet Sie der Architekt bestenfalls um Ergänzung, schlimmstenfalls vergleicht er, als wäre die Position inbegriffen."
+      },
+      {
+        "q": "Kann man ein Leistungsverzeichnis nach der Eingabe noch korrigieren?",
+        "a": "Bei einem öffentlichen Auftrag sind Änderungen nach der Eingabe streng geregelt, und der Preis wird grundsätzlich nicht frei nachverhandelt. Besser vor dem Versand kontrollieren, als auf eine Korrektur danach zu hoffen."
+      },
+      {
+        "q": "Wie vermeidet man Fehler beim Seitenübertrag?",
+        "a": "Indem man sie nicht von Hand macht: Eine Tabellenkalkulation oder ein Werkzeug, das Beträge berechnet und Seitentotale automatisch überträgt, beseitigt dieses Risiko."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "de/blog/essai-gratuit-logiciel-facturation-suisse",
@@ -1824,6 +1884,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-07-04"
   },
   {
+    "path": "de/blog/logiciel-remplir-soumission-excel-papier",
+    "title": "Papier, Excel oder Software: Leistungsverzeichnisse richtig ausfüllen im Jahr 2026 | Cantia",
+    "description": "Konkreter Vergleich der drei Arten, in einem Schweizer Bau-KMU auf Leistungsverzeichnisse zu antworten: Zeitaufwand, Fehlerrisiko, Wiederverwendung der Preise und eingereichtes Dokument.",
+    "faq": [
+      {
+        "q": "Braucht man in der Schweiz eine spezielle Software, um auf Leistungsverzeichnisse zu antworten?",
+        "a": "Nein. Viele kleine Unternehmen füllen sie von Hand oder in Excel aus. Ein Werkzeug spart vor allem Zeit und beseitigt Rechen- und Übertragsfehler."
+      },
+      {
+        "q": "Liest Cantia CRBX- oder SIA-451-Dateien?",
+        "a": "Noch nicht: Der Import betrifft heute Leistungsverzeichnisse als PDF, mit oder ohne NPK. Das ist das Format, das die meisten kleinen Unternehmen erhalten."
+      },
+      {
+        "q": "Wie viele Leistungsverzeichnisse kann man mit Cantia ausfüllen?",
+        "a": "3 pro Monat im Plan Team, unbegrenzt im Plan Entreprise. Im Plan Basis ist die Funktion nicht enthalten."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "de/blog/logiciel-simple-debuter-independant-batiment",
     "title": "Eine einfache Software für den Start, ohne Stunden mit dem Verständnis zu verbringen | Cantia",
     "description": "Die Einfachheit eines Tools zeigt sich nicht auf der Startseite, sondern an der Zeit, die es braucht, um eine erste Offerte zu erstellen, ohne eine Anleitung gelesen zu haben.",
@@ -2384,6 +2464,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-07-08"
   },
   {
+    "path": "de/blog/rabais-escompte-tva-ordre-soumission",
+    "title": "Rabatt, Skonto, MWST: in welcher Reihenfolge in der Zusammenstellung eines Leistungsverzeichnisses? | Cantia",
+    "description": "Rabatt und Skonto sind nicht dasselbe, und die Reihenfolge verändert das Total. Rechenbeispiel einer Schweizer Zusammenstellung, von der Bruttosumme bis zum Total inklusive MWST.",
+    "faq": [
+      {
+        "q": "Wird die MWST vor oder nach dem Skonto berechnet?",
+        "a": "Meistens nach den Abzügen, auf dem Nettobetrag. Massgebend ist aber die Zusammenstellung des Leistungsverzeichnisses: Folgen Sie der dort angegebenen Reihenfolge."
+      },
+      {
+        "q": "Muss man in einem Leistungsverzeichnis Skonto gewähren?",
+        "a": "Das ist keine Pflicht. Manche Leistungsverzeichnisse sehen die Zeile vor und lassen Sie den Satz bestimmen, andere schreiben ihn vor. Ein Skonto ergibt nur Sinn, wenn Ihnen eine schnelle Zahlung wichtig ist."
+      },
+      {
+        "q": "Welcher MWST-Satz gilt für Bauarbeiten?",
+        "a": "In der Regel der Normalsatz von 8,1 %. Ein nicht mehrwertsteuerpflichtiges Unternehmen verrechnet keine MWST."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "de/blog/reception-travaux-proces-verbal-chantier",
     "title": "Bauabnahme: warum das Protokoll den Kunden ebenso schützt wie den Unternehmer | Cantia",
     "description": "Die Bauabnahme löst die Garantiefrist aus, überträgt die Gefahr und legt die festgestellten Mängel fest. Ohne schriftliches Protokoll wird dieser entscheidende Moment unmöglich zu beweisen.",
@@ -2442,6 +2542,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-02-26"
+  },
+  {
+    "path": "de/blog/remplir-soumission-pdf-architecte",
+    "title": "Ein Leistungsverzeichnis im PDF vom Architekten ausfüllen, ohne alles abzutippen | Cantia",
+    "description": "Der Architekt schickt ein PDF mit 40 Seiten und erwartet Ihre Preise darin. Eine Methode, um schnell zu kalkulieren, Übertragsfehler zu vermeiden und das verlangte Dokument zurückzugeben.",
+    "faq": [
+      {
+        "q": "Darf man die Mengen eines Leistungsverzeichnisses ändern?",
+        "a": "Grundsätzlich nicht: Die Mengen dienen dem Vergleich der Angebote. Wenn Ihnen eine Menge falsch erscheint, melden Sie es dem Architekten schriftlich oder fügen Sie eine Bemerkung hinzu, ohne die Zeile zu ändern. Einige Positionen verlangen hingegen eine Mengenangabe: Diese füllen Sie aus."
+      },
+      {
+        "q": "Muss das Leistungsverzeichnis im Originalformat zurückgegeben werden?",
+        "a": "Meistens ja, das verlangen Architekt oder Vergabestelle. Eine separate Tabelle oder eine Offerte im eigenen Format erschwert den Vergleich und kann ein Angebot bei einem öffentlichen Auftrag nicht konform machen."
+      },
+      {
+        "q": "Erstellt Cantia leere Leistungsverzeichnisse?",
+        "a": "Nein. Die Funktion dient dazu, auf erhaltene Leistungsverzeichnisse zu antworten: PDF importieren, Preise einsetzen, ausgefülltes PDF zurückerhalten."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "de/blog/resiliation-contrat-entreprise-chantier-en-cours",
@@ -2628,6 +2748,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-02-05"
   },
   {
+    "path": "de/blog/temps-repondre-soumission-rentable",
+    "title": "Was eine Submission Ihr Unternehmen kostet, und wann Sie besser nicht offerieren | Cantia",
+    "description": "Kalkulationsstunden, Erfolgsquote, echte Kosten eines gewonnenen Auftrags: eine einfache Rechnung, um zu entscheiden, auf welche Leistungsverzeichnisse Sie antworten und wie Sie dabei Zeit sparen.",
+    "faq": [
+      {
+        "q": "Was ist eine gute Erfolgsquote bei Submissionen?",
+        "a": "Sie hängt von Gewerk, Region und Art des Auftrags ab. Wichtig ist, die eigene Quote zu kennen und über die Zeit zu verfolgen, um zu wissen, wo Sie gewinnen."
+      },
+      {
+        "q": "Kann man die Kalkulation einer Submission in Rechnung stellen?",
+        "a": "In der Regel nicht, die Antwort auf eine Submission ist kostenlos. Eine zusätzlich verlangte Studie oder Planung kann Gegenstand einer separaten Vereinbarung sein, die vorher zu treffen ist."
+      },
+      {
+        "q": "Wie erfährt man, warum man eine Submission verloren hat?",
+        "a": "Fragen Sie nach dem Ergebnis und wenn möglich nach Ihrem Rang. Bei einem öffentlichen Auftrag wird der Zuschlag eröffnet und kann begründet werden; bei einem privaten genügt oft ein Anruf beim Architekten."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "de/blog/travail-au-noir-batiment-suisse-risques-controles",
     "title": "Schwarzarbeit im Baugewerbe: Was ein Unternehmen wirklich riskiert | Cantia",
     "description": "Das Baugewerbe gehört zu den am stärksten von der BGSA kontrollierten Branchen. 2025 fanden über 14’000 Betriebskontrollen statt: Die Sanktionen gehen weit über die Busse hinaus.",
@@ -2726,6 +2866,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-03-02"
+  },
+  {
+    "path": "de/blog/variante-soumission-proposer-alternative",
+    "title": "Eine Unternehmervariante anbieten, ohne das eigene Angebot zu gefährden | Cantia",
+    "description": "Sie kennen eine günstigere oder schnellere Lösung als die des Architekten? So bieten Sie sie als Variante an, neben einem vollständigen Grundangebot, bei privaten wie öffentlichen Aufträgen.",
+    "faq": [
+      {
+        "q": "Darf man ein vorgeschriebenes Produkt durch ein gleichwertiges ersetzen?",
+        "a": "Nur wenn das Leistungsverzeichnis es erlaubt (Vermerk «oder gleichwertig») oder als Variante neben dem Grundangebot. Stillschweigend ersetzen macht das Angebot unvergleichbar."
+      },
+      {
+        "q": "Darf eine Variante teurer sein als das Grundangebot?",
+        "a": "Ja, wenn sie etwas anderes bringt: Dauerhaftigkeit, Frist, Unterhalt. Erklären Sie klar, was die Bauherrschaft dafür gewinnt."
+      },
+      {
+        "q": "Sind Varianten bei öffentlichen Aufträgen immer zugelassen?",
+        "a": "Nein. Sie sind grundsätzlich zugelassen, aber die Vergabestelle kann sie in der Ausschreibung einschränken oder ausschliessen. Massgebend sind die Bedingungen der Ausschreibungsunterlagen."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "de/blog/vitesse-reponse-devis-taux-conversion-batiment",
@@ -3726,6 +3886,7 @@ export const BLOG_DATES_FR = {
   "calculer-prix-de-revient-chantier-batiment": "2026-07-03",
   "calculer-prix-devis-renovation-suisse": "2026-01-12",
   "calculer-prix-horaire-reel-ouvrier-batiment": "2026-07-28",
+  "calculer-prix-unitaire-soumission": "2026-10-24",
   "cantia-adapte-metier-specifique-batiment": "2026-08-15",
   "cantia-vs-cresus-facturation": "2026-09-30",
   "cantia-vs-klara": "2026-09-30",
@@ -3748,6 +3909,7 @@ export const BLOG_DATES_FR = {
   "combien-coute-logiciel-gestion-chantier-roi": "2026-07-16",
   "comment-facturer-premiers-clients-debut-activite": "2026-07-26",
   "comparer-devis-fournisseurs-materiaux-methode": "2026-10-09",
+  "comprendre-soumission-can-positions": "2026-10-24",
   "construction-modulaire-prefabriquee-suisse": "2026-10-11",
   "contrat-ecrit-petits-travaux-quand-necessaire": "2026-05-18",
   "contrat-entreprise-vs-mandat-artisan": "2026-03-19",
@@ -3806,6 +3968,7 @@ export const BLOG_DATES_FR = {
   "duree-validite-devis-non-signe-combien-temps": "2026-06-09",
   "entretien-annuel-employe-batiment-comment-faire": "2026-10-08",
   "erreurs-choisir-premier-logiciel-gestion": "2026-08-09",
+  "erreurs-soumission-qui-coutent-le-marche": "2026-10-24",
   "essai-gratuit-logiciel-facturation-suisse": "2026-08-06",
   "estimer-chantier-a-distance-devis-photo": "2026-05-25",
   "etablir-certificat-salaire-lohnausweis-premier-employe": "2026-09-22",
@@ -3861,6 +4024,7 @@ export const BLOG_DATES_FR = {
   "logiciel-gestion-evolutif-grandit-avec-entreprise": "2026-08-10",
   "logiciel-gestion-societe-individuelle-suisse": "2026-07-29",
   "logiciel-gestion-tout-en-un-petite-entreprise-suisse": "2026-07-04",
+  "logiciel-remplir-soumission-excel-papier": "2026-10-24",
   "logiciel-signature-electronique-chantier": "2026-10-01",
   "logiciel-simple-debuter-independant-batiment": "2026-07-19",
   "logiciel-standard-vs-solution-personnalisee-batiment": "2026-08-19",
@@ -3907,6 +4071,7 @@ export const BLOG_DATES_FR = {
   "provoquer-bouche-a-oreille-artisan": "2026-09-29",
   "qr-facture-obligatoire-2026": "2026-01-19",
   "quel-logiciel-choisir-demarrer-entreprise-construction": "2026-07-08",
+  "rabais-escompte-tva-ordre-soumission": "2026-10-24",
   "racheter-entreprise-batiment-existante-suisse": "2026-10-10",
   "raison-individuelle-sarl-sa-quel-statut-batiment": "2026-09-08",
   "reception-travaux-proces-verbal-chantier": "2026-08-21",
@@ -3914,6 +4079,7 @@ export const BLOG_DATES_FR = {
   "reemploi-materiaux-economie-circulaire-batiment": "2026-10-08",
   "relancer-client-devis-sans-reponse": "2026-09-29",
   "relancer-client-facture-impayee-sans-perdre-client": "2026-02-26",
+  "remplir-soumission-pdf-architecte": "2026-10-24",
   "renovation-apres-sinistre-degat-eau-assurance": "2026-10-11",
   "renovation-batiment-historique-protege-suisse": "2026-10-11",
   "repondre-appel-offres-public-batiment-etapes": "2026-09-28",
@@ -3934,6 +4100,7 @@ export const BLOG_DATES_FR = {
   "sous-traitant-batiment-suisse-contrat-facturation": "2026-02-12",
   "succession-familiale-entreprise-artisanale-batiment": "2026-10-10",
   "suivre-rentabilite-chantier-sans-excel": "2026-02-05",
+  "temps-repondre-soumission-rentable": "2026-10-24",
   "transmettre-entreprise-batiment-retraite": "2026-10-09",
   "travail-au-noir-batiment-suisse-risques-controles": "2026-04-30",
   "travailleur-detache-batiment-suisse-regles": "2026-09-27",
@@ -3944,6 +4111,7 @@ export const BLOG_DATES_FR = {
   "vacances-employe-batiment-cct-jours": "2026-09-27",
   "vacances-non-prises-fin-annee-batiment-cct": "2026-07-31",
   "validite-devis-signe-prix-qui-bouge": "2026-03-02",
+  "variante-soumission-proposer-alternative": "2026-10-24",
   "vitesse-reponse-devis-taux-conversion-batiment": "2026-09-05",
   "whatsapp-gestion-equipe-chantier-limites": "2026-04-13"
 };

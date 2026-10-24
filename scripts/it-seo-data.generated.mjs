@@ -420,6 +420,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-07-28"
   },
   {
+    "path": "it/blog/calculer-prix-unitaire-soumission",
+    "title": "Calcolare un prezzo unitario di capitolato: il metodo posizione per posizione | Cantia",
+    "description": "Manodopera, materiali, macchine, spese generali, rischi e margine: come costruire un prezzo unitario difendibile per ogni posizione di un capitolato svizzero.",
+    "faq": [
+      {
+        "q": "Quale tasso di spese generali applicare?",
+        "a": "Si calcola dalla vostra contabilità: totale delle spese non legate a un cantiere preciso, diviso per il volume di lavoro produttivo. Non esiste un tasso universale; riprendetelo ogni anno con la chiusura dei conti."
+      },
+      {
+        "q": "Le installazioni di cantiere vanno incluse nei prezzi unitari?",
+        "a": "Solo se il capitolato non prevede posizioni dedicate. Quando esistono posizioni per l’installazione di cantiere, calcolatele lì, altrimenti le pagate due volte o per niente."
+      },
+      {
+        "q": "Come sapere se un prezzo unitario era giusto?",
+        "a": "Confrontando a posteriori le ore e il materiale realmente consumati con il calcolo di partenza. Il controllo della redditività per cantiere serve esattamente a questo."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "it/blog/cantia-adapte-metier-specifique-batiment",
     "title": "Un mestiere troppo specifico per un software standard? Non necessariamente | Cantia",
     "description": "Alcuni mestieri dell’edilizia hanno esigenze che gli strumenti standard non coprono mai del tutto. Come una funzionalità su misura può colmare questo divario.",
@@ -618,6 +638,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-07-26"
+  },
+  {
+    "path": "it/blog/comprendre-soumission-can-positions",
+    "title": "Leggere un capitolato CPN: capitoli, posizioni e testi da completare | Cantia",
+    "description": "Cosa significano numeri, capitoli, posizioni riservate e testi da completare in un capitolato redatto secondo il CPN, per calcolare senza dimenticare nulla.",
+    "faq": [
+      {
+        "q": "Cosa vuol dire CPN?",
+        "a": "Catalogo delle posizioni normalizzate, pubblicato dal CRB. È la versione italiana del NPK (Normpositionen-Katalog) usato nella Svizzera tedesca, in francese CAN."
+      },
+      {
+        "q": "Serve una licenza per leggere un capitolato CPN?",
+        "a": "In linea di principio no: ricevete il documento dall’architetto e lo compilate. Le licenze del CRB riguardano soprattutto chi redige capitolati o usa il catalogo in un software."
+      },
+      {
+        "q": "Cantia legge anche i capitolati senza CPN?",
+        "a": "Sì. L’importazione funziona con i capitolati CPN e con quelli redatti dall’architetto stesso, compresi i documenti scansionati, con una schermata di verifica."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/contrat-ecrit-petits-travaux-quand-necessaire",
@@ -1158,6 +1198,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-08-09"
+  },
+  {
+    "path": "it/blog/erreurs-soumission-qui-coutent-le-marche",
+    "title": "Capitolati: gli 8 errori che costano l’appalto (o il margine) | Cantia",
+    "description": "Posizione dimenticata, riporto di pagina sbagliato, unità letta male, sconto nel posto sbagliato: gli errori che fanno escludere un’offerta o vincerla in perdita, e come evitarli.",
+    "faq": [
+      {
+        "q": "Un’offerta con una posizione vuota è esclusa automaticamente?",
+        "a": "Non sempre, ma il rischio è reale: secondo le regole del bando può essere considerata incompleta. In un appalto privato l’architetto vi chiederà nel migliore dei casi di completare, nel peggiore confronterà considerando la posizione inclusa."
+      },
+      {
+        "q": "Si può correggere un capitolato dopo averlo consegnato?",
+        "a": "In un appalto pubblico le modifiche dopo la consegna sono molto regolamentate e il prezzo in linea di principio non si rinegozia liberamente. Meglio controllare prima dell’invio che contare su una correzione dopo."
+      },
+      {
+        "q": "Come evitare gli errori di riporto di pagina?",
+        "a": "Non facendoli a mano: un foglio di calcolo o uno strumento che calcola gli importi e riporta i subtotali automaticamente elimina questo rischio."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/essai-gratuit-logiciel-facturation-suisse",
@@ -1824,6 +1884,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-07-04"
   },
   {
+    "path": "it/blog/logiciel-remplir-soumission-excel-papier",
+    "title": "Carta, Excel o software: il modo giusto di compilare i capitolati nel 2026 | Cantia",
+    "description": "Confronto concreto dei tre modi di rispondere ai capitolati in una PMI edile svizzera: tempo impiegato, rischio di errori, riutilizzo dei prezzi e documento consegnato.",
+    "faq": [
+      {
+        "q": "Serve un software speciale per rispondere ai capitolati in Svizzera?",
+        "a": "No. Molte piccole imprese li compilano a mano o in Excel. Uno strumento fa soprattutto risparmiare tempo ed elimina gli errori di calcolo e di riporto."
+      },
+      {
+        "q": "Cantia legge i file di capitolato CRBX o SIA 451?",
+        "a": "Non ancora: oggi l’importazione riguarda i capitolati in PDF, CPN o no. È il formato che riceve la maggior parte delle piccole imprese."
+      },
+      {
+        "q": "Quanti capitolati si possono compilare con Cantia?",
+        "a": "3 al mese con il piano Team, senza limite con il piano Entreprise. La funzione non è inclusa nel piano Essenziale."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "it/blog/logiciel-simple-debuter-independant-batiment",
     "title": "Un software semplice per iniziare, senza passare ore a capirlo | Cantia",
     "description": "La semplicità di uno strumento non si giudica sulla sua homepage, ma sul tempo necessario per emettere un primo preventivo senza aver letto un manuale d'uso.",
@@ -2384,6 +2464,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-07-08"
   },
   {
+    "path": "it/blog/rabais-escompte-tva-ordre-soumission",
+    "title": "Ribasso, sconto, IVA: in che ordine nel riepilogo di un capitolato? | Cantia",
+    "description": "Ribasso e sconto non sono la stessa cosa, e l’ordine del calcolo cambia il totale. Esempio con le cifre del riepilogo di un capitolato svizzero, dalla somma lorda al totale IVA inclusa.",
+    "faq": [
+      {
+        "q": "L’IVA si calcola prima o dopo lo sconto?",
+        "a": "Il più delle volte dopo le riduzioni, sull’importo netto. Ma prevale il riepilogo del capitolato: seguite l’ordine che indica."
+      },
+      {
+        "q": "Bisogna concedere uno sconto su un capitolato?",
+        "a": "Non è un obbligo. Alcuni capitolati prevedono la riga e vi lasciano fissare il tasso, altri lo impongono. Uno sconto ha senso solo se vi preme essere pagati in fretta."
+      },
+      {
+        "q": "Quale aliquota IVA applicare ai lavori di costruzione?",
+        "a": "Di regola l’aliquota normale dell’8,1 %. Un’impresa non assoggettata all’IVA non la fattura."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "it/blog/reception-travaux-proces-verbal-chantier",
     "title": "Consegna dei lavori: perché il verbale protegge tanto il cliente quanto l’imprenditore | Cantia",
     "description": "La consegna dei lavori fa scattare il termine di garanzia, trasferisce i rischi e fissa i difetti constatati. Senza verbale scritto, questo momento cruciale diventa impossibile da dimostrare.",
@@ -2442,6 +2542,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-02-26"
+  },
+  {
+    "path": "it/blog/remplir-soumission-pdf-architecte",
+    "title": "Compilare un capitolato PDF ricevuto dall’architetto, senza ricopiare tutto | Cantia",
+    "description": "L’architetto manda un PDF di 40 pagine e aspetta i vostri prezzi dentro. Un metodo per calcolare in fretta, evitare errori di riporto e restituire il documento richiesto.",
+    "faq": [
+      {
+        "q": "Si possono modificare le quantità di un capitolato?",
+        "a": "In linea di principio no: le quantità servono a confrontare le offerte. Se una quantità vi sembra sbagliata, segnalatelo per iscritto all’architetto o aggiungete un’osservazione, senza modificare la riga. Alcune posizioni chiedono invece di indicare la quantità: quelle si compilano."
+      },
+      {
+        "q": "Bisogna restituire il capitolato nel suo formato originale?",
+        "a": "Il più delle volte sì, è ciò che chiede l’architetto o il committente. Una tabella a parte o un preventivo nel vostro formato complica il confronto e, in un appalto pubblico, può rendere l’offerta non conforme."
+      },
+      {
+        "q": "Cantia crea capitolati vuoti?",
+        "a": "No. La funzione serve a rispondere ai capitolati che ricevete: importate il PDF, inserite i prezzi e ottenete il PDF compilato."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/resiliation-contrat-entreprise-chantier-en-cours",
@@ -2628,6 +2748,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-02-05"
   },
   {
+    "path": "it/blog/temps-repondre-soumission-rentable",
+    "title": "Quanto costa un capitolato alla vostra impresa, e quando non rispondere | Cantia",
+    "description": "Ore di calcolo, tasso di successo, costo reale di un appalto vinto: un calcolo semplice per decidere a quali capitolati rispondere e come dedicarvi meno tempo.",
+    "faq": [
+      {
+        "q": "Qual è un buon tasso di successo sui capitolati?",
+        "a": "Dipende dal mestiere, dalla regione e dal tipo di appalto. L’importante è conoscere il vostro e seguirlo nel tempo, per sapere dove vincete."
+      },
+      {
+        "q": "Si può fatturare il calcolo di un capitolato?",
+        "a": "Di regola no, la risposta a un capitolato è gratuita. Uno studio o un progetto chiesto in più può essere oggetto di un accordo separato, da concordare prima."
+      },
+      {
+        "q": "Come sapere perché si è perso un appalto?",
+        "a": "Chiedete il risultato e, se possibile, la vostra posizione in classifica. In un appalto pubblico l’aggiudicazione viene comunicata e può essere motivata; in un appalto privato spesso basta una telefonata all’architetto."
+      }
+    ],
+    "publishedAt": "2026-10-24"
+  },
+  {
     "path": "it/blog/travail-au-noir-batiment-suisse-risques-controles",
     "title": "Lavoro nero nell’edilizia: cosa rischia davvero un’azienda | Cantia",
     "description": "Il settore edile è tra i rami più controllati dalla LLN. Più di 14’000 controlli aziendali sono stati effettuati nel 2025: le sanzioni vanno ben oltre la multa.",
@@ -2726,6 +2866,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-03-02"
+  },
+  {
+    "path": "it/blog/variante-soumission-proposer-alternative",
+    "title": "Proporre una variante in un capitolato, senza far escludere la propria offerta | Cantia",
+    "description": "Conoscete una soluzione più economica o più rapida di quella dell’architetto? Come proporla in variante, accanto a un’offerta di base completa, in un appalto privato o pubblico.",
+    "faq": [
+      {
+        "q": "Si può sostituire un prodotto imposto con un equivalente?",
+        "a": "Solo se il capitolato lo consente (dicitura «o equivalente») o in variante, accanto all’offerta di base. Sostituire senza dirlo rende l’offerta non confrontabile."
+      },
+      {
+        "q": "Una variante può costare più dell’offerta di base?",
+        "a": "Sì, se porta qualcos’altro: durata, termini, manutenzione. Spiegate chiaramente cosa guadagna il committente in cambio."
+      },
+      {
+        "q": "Le varianti sono sempre ammesse negli appalti pubblici?",
+        "a": "No. Sono ammesse in linea di principio, ma il committente può limitarle o escluderle nel bando. Fanno fede le condizioni dell’incarto."
+      }
+    ],
+    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/vitesse-reponse-devis-taux-conversion-batiment",

@@ -49,6 +49,18 @@ export const post: BlogPost = {
       text: 'Cantia conserva lo storico completo dei cantieri realizzati, utile per costituire le referenze richieste in un fascicolo di offerta pubblica.',
       buttonLabel: 'Provare 14 giorni',
     },
+    {
+      type: 'linklist',
+      title: 'Rispondere ai capitolati: le nostre guide',
+      items: [
+        { label: 'Compilare un capitolato PDF senza ricopiare tutto', slug: 'remplir-soumission-pdf-architecte' },
+        { label: 'Gli 8 errori che costano l’appalto', slug: 'erreurs-soumission-qui-coutent-le-marche' },
+        { label: 'Calcolare un prezzo unitario di capitolato', slug: 'calculer-prix-unitaire-soumission' },
+        { label: 'Ribasso, sconto, IVA: in che ordine?', slug: 'rabais-escompte-tva-ordre-soumission' },
+        { label: 'Leggere un capitolato CPN', slug: 'comprendre-soumission-can-positions' },
+        { label: 'Proporre una variante senza essere esclusi', slug: 'variante-soumission-proposer-alternative' },
+      ],
+    },
   ],
   faq: [
     {

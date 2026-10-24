@@ -137,6 +137,14 @@ import { post as p135 } from './posts-it/pourquoi-modeles-figes-ne-conviennent-p
 import { post as p136 } from './posts-it/demander-fonctionnalite-sur-mesure-editeur-logiciel';
 import { post as p137 } from './posts-it/automatiser-suivi-administratif-entreprise-artisanale';
 import { post as p138 } from './posts-it/logiciel-construit-avec-vous-sur-mesure';
+import { post as p139 } from "./posts-it/remplir-soumission-pdf-architecte";
+import { post as p140 } from "./posts-it/erreurs-soumission-qui-coutent-le-marche";
+import { post as p141 } from "./posts-it/calculer-prix-unitaire-soumission";
+import { post as p142 } from "./posts-it/rabais-escompte-tva-ordre-soumission";
+import { post as p143 } from "./posts-it/comprendre-soumission-can-positions";
+import { post as p144 } from "./posts-it/variante-soumission-proposer-alternative";
+import { post as p145 } from "./posts-it/temps-repondre-soumission-rentable";
+import { post as p146 } from "./posts-it/logiciel-remplir-soumission-excel-papier";
 
 // Italian blog posts — mirrors lib/blog/index.ts one-for-one, sourced from
 // lib/blog/posts-it/<slug>.ts instead of lib/blog/posts/<slug>.ts. All 138
@@ -157,4 +165,5 @@ export const BLOG_POSTS_IT: BlogPost[] = [
   p111, p112, p113, p114, p115, p116, p117, p118, p119, p120,
   p121, p122, p123, p124, p125, p126, p127, p128, p129, p130,
   p131, p132, p133, p134, p135, p136, p137, p138,
+  p139, p140, p141, p142, p143, p144, p145, p146,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
