@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { generateEmail, translateEmail, type AiEmail } from '../lib/api/newsletterAi';
+import { useAuth } from '../lib/auth-context';
+import { useDictation } from '../lib/useDictation';
 import { extractPreheader } from './AdminEmailPreview';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
 // Super Admin › E-mails: « Rédiger avec Claude ». A brief becomes the FR
 // e-mail in Cantia's colours, then DE/IT versions if asked; a second box
 // revises the current e-mail. The result fills the composer fields, so the
-// admin can still edit the HTML by hand before sending.
+// admin can still edit the HTML by hand before sending. Brief and revision
+// can be dictated (lib/useDictation: recording + server transcription,
+// counted on the admin's own company AI quota).
 
 const KINDS: { id: string; label: string }[] = [
   { id: 'nouveaute', label: 'Nouveauté' },
@@ -51,6 +55,34 @@ export function AdminEmailStudio({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState<string | null>(null);
+  const { organization } = useAuth();
+  // Which field the current recording fills.
+  const [dictTarget, setDictTarget] = useState<'brief' | 'revision' | null>(null);
+  const dictation = useDictation((text) => {
+    const t = text.trim();
+    if (!t) return;
+    if (dictTarget === 'revision') setRevision((prev) => (prev.trim() ? `${prev.trim()} ${t}` : t));
+    else setBrief((prev) => (prev.trim() ? `${prev.trim()}\n${t}` : t));
+  });
+
+  async function toggleDictation(target: 'brief' | 'revision') {
+    setError(null);
+    if (dictation.listening) {
+      await dictation.stop();
+      setDictTarget(null);
+      return;
+    }
+    if (!organization) {
+      setError('La dictée a besoin d’une entreprise liée à votre compte.');
+      return;
+    }
+    setDictTarget(target);
+    const ok = await dictation.start('fr-FR');
+    if (!ok) {
+      setDictTarget(null);
+      setError('Micro refusé : autorisez le micro dans le navigateur.');
+    }
+  }
 
   async function translateAll(fr: AiEmail) {
     const wanted = (['de', 'it'] as const).filter((l) => langs[l]);
@@ -131,11 +163,20 @@ export function AdminEmailStudio({
 
       {open ? (
         <>
+          <View style={styles.briefHead}>
+            <Text style={styles.label}>Brief</Text>
+            <MicButton
+              listening={dictation.listening && dictTarget === 'brief'}
+              transcribing={dictation.transcribing && dictTarget === 'brief'}
+              disabled={!!busy || (dictation.listening && dictTarget !== 'brief')}
+              onPress={() => toggleDictation('brief')}
+            />
+          </View>
           <TextInput
             value={brief}
             onChangeText={setBrief}
             multiline
-            placeholder="Ex. : annoncer « Remplir une soumission » (bêta) aux entreprises du bâtiment : importer le PDF de l’architecte, mettre ses prix, ressortir le PDF rempli. 1 à l’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise."
+            placeholder="Écrivez ou dictez. Ex. : annoncer « Remplir une soumission » (bêta) aux entreprises du bâtiment : importer le PDF de l’architecte, mettre ses prix, ressortir le PDF rempli. 1 à l’essai avec Essentiel, 3 par mois avec Équipe, illimité avec Entreprise."
             placeholderTextColor={colors.textMuted}
             style={styles.brief}
           />
@@ -197,6 +238,13 @@ export function AdminEmailStudio({
                   style={[styles.input, { flex: 1, minWidth: 240 }]}
                   onSubmitEditing={revise}
                 />
+                <MicButton
+                  compact
+                  listening={dictation.listening && dictTarget === 'revision'}
+                  transcribing={dictation.transcribing && dictTarget === 'revision'}
+                  disabled={!!busy || (dictation.listening && dictTarget !== 'revision')}
+                  onPress={() => toggleDictation('revision')}
+                />
                 <Pressable onPress={revise} disabled={!!busy || !revision.trim()} style={[styles.btnGhost, (!!busy || !revision.trim()) && { opacity: 0.5 }]}>
                   <Text style={styles.btnGhostText}>Appliquer</Text>
                 </Pressable>
@@ -221,6 +269,33 @@ export function AdminEmailStudio({
         </>
       ) : null}
     </View>
+  );
+}
+
+function MicButton({
+  listening,
+  transcribing,
+  disabled,
+  onPress,
+  compact,
+}: {
+  listening: boolean;
+  transcribing: boolean;
+  disabled?: boolean;
+  onPress: () => void;
+  compact?: boolean;
+}) {
+  const label = listening ? 'Arrêter et transcrire' : transcribing ? 'Transcription…' : 'Dicter';
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || transcribing}
+      accessibilityLabel={label}
+      style={[styles.mic, listening && styles.micOn, (disabled || transcribing) && !listening && { opacity: 0.5 }]}
+    >
+      <Feather name={listening ? 'square' : transcribing ? 'loader' : 'mic'} size={14} color={listening ? '#fff' : colors.primary} />
+      {compact ? null : <Text style={[styles.micText, listening && { color: '#fff' }]}>{label}</Text>}
+    </Pressable>
   );
 }
 
@@ -264,4 +339,8 @@ const styles = StyleSheet.create({
   status: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: spacing.sm, borderRadius: radius.md, backgroundColor: colors.primarySoft },
   statusText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.primary },
   notes: { flexDirection: 'row', gap: 6, alignItems: 'flex-start' },
+  briefHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm, marginBottom: -4 },
+  mic: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.surface },
+  micOn: { backgroundColor: colors.danger, borderColor: colors.danger },
+  micText: { fontSize: fontSize.xs, fontWeight: '800', color: colors.primary },
 });
