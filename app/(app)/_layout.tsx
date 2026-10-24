@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../lib/auth-context';
+import { fillsSoumissions } from '../../lib/trades';
 import { routeArea, trackOrgScreen } from '../../lib/api/usage';
 import { isModuleEnabled } from '../../lib/modules';
 import { displayType, monoType } from '../../lib/marketingTheme';
@@ -53,6 +54,7 @@ function buildSections(
   treasuryEnabled: boolean,
   accountingEnabled: boolean,
   emailsVisible: boolean,
+  soumissionsVisible: boolean,
 ): NavSection[] {
   // What people open every day sits on top: home (tasks live there, no
   // separate entry), the mailbox and the planning.
@@ -83,6 +85,8 @@ function buildSections(
       title: t('nav.sectionChantiers'),
       links: [
         { href: '/(app)/chantiers', label: t('nav.chantiers'), icon: 'layers' as const },
+        // Every soumission across chantiers (building companies, beta).
+        ...(soumissionsVisible ? [{ href: '/(app)/soumissions', label: t('nav.soumissions'), icon: 'clipboard' as const }] : []),
         // Contacts (clients + sous-traitants) normally sits under Facturation;
         // without devis access it lands here, sous-traitants only.
         ...(!devisVisible && subcontractorsVisible ? [{ href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const }] : []),
@@ -165,7 +169,7 @@ export default function AppLayout() {
   useEffect(() => {
     salesTrackingReady().then(setSalesReady);
   }, []);
-  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady);
+  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady, fillsSoumissions(organization) && permissions.metre);
   // The signed-in app is private: its build-time HTML serves no one, and
   // hydrating it against the visitor's real session, screen and date only
   // produced mismatches (React error #418). Render it in the browser only.

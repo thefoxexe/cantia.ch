@@ -66,6 +66,7 @@ const WORDS: Record<string, string> = {
   taches: 'Tâches',
   'transfer-ownership': 'Transfert de propriété',
   tresorerie: 'Trésorerie',
+  soumissions: 'Soumissions',
   new: 'Nouveau',
 };
 
