@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="carrousels.css">
+<style>
+  /* product name next to the logo */
+  .prod{position:absolute;left:300px;bottom:58px;height:36px;line-height:36px;padding-left:18px;border-left:2px solid currentColor;font-size:26px;font-weight:700;letter-spacing:-.01em}
+
+  /* a printed accounting document */
+  .doc{font-family:'Liberation Sans',Arial,sans-serif;color:#111;padding:44px 50px;font-size:18px}
+  .doc .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:6px;font-size:15px;color:#444}
+  .doc .top b{font-size:22px;color:#111}
+  .doc table{width:100%;border-collapse:collapse}
+  .doc th{font-weight:400;font-size:14px;color:#555;text-align:left;border-bottom:1px solid #999;padding:8px 4px}
+  .doc td{padding:11px 4px;border-bottom:1px dotted #bbb}
+  .doc .r{text-align:right;font-variant-numeric:tabular-nums}
+  .doc tr.sub td{font-weight:700;border-bottom:1px solid #999}
+  .doc tr.tot td{font-weight:700;border-bottom:none;border-top:2px solid #111}
+  .doc .mono{font-family:'Liberation Mono',monospace;font-size:16px}
+  .doc .hl{background:#FCE7D6;padding:1px 5px}
+  .doc .foot{margin-top:16px;font-size:14px;color:#555}
+
+  /* file chip */
+  .chip{position:absolute;display:flex;align-items:center;gap:18px;background:#fff;color:#1E1914;border-radius:12px;padding:18px 24px;font-size:24px;box-shadow:0 18px 40px rgba(0,0,0,.28)}
+  .chip .ext{font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:6px 8px}
+  .chip small{display:block;font-size:17px;color:#8A7E70;margin-top:2px}
+
+  /* the client's phone */
+  .phone{position:absolute;width:560px;height:1000px;background:#fff;border:14px solid #15110E;border-radius:64px;overflow:hidden;font-family:'Liberation Sans',Arial,sans-serif;color:#1E1914;box-shadow:0 30px 70px rgba(30,10,0,.35)}
+  .phone .bar{background:#2E5E4E;color:#fff;padding:58px 34px 26px;font-size:17px}
+  .phone .bar b{display:block;font-size:26px;margin-top:4px}
+  .phone .in{padding:26px 30px}
+  .phone h5{font-size:16px;font-weight:700;color:#6B6157;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 12px}
+  .phone .req{border:1px solid #E6DFD5;border-radius:14px;padding:16px 18px;margin-bottom:12px;font-size:20px;line-height:1.3}
+  .phone .req small{display:block;font-size:16px;color:#8A7E70;margin-top:4px}
+  .phone .req.sent small{color:#2E7D4F}
+  .phone .btn{background:#2E5E4E;color:#fff;text-align:center;border-radius:12px;padding:16px;font-size:20px;font-weight:700;margin:6px 0 22px}
+  .phone .sign{border:1.5px dashed #BDB3A6;border-radius:14px;height:150px;position:relative}
+  .phone .sign span{position:absolute;left:18px;bottom:12px;font-size:15px;color:#8A7E70}
+
+  /* plain typographic list (roles, facts) */
+  .list{position:absolute;left:84px;right:84px}
+  .list .it{display:grid;grid-template-columns:300px 1fr;gap:30px;padding:28px 0;border-top:2px solid currentColor}
+  .list .it h3{font-size:40px;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+  .list .it h3 small{display:block;font-size:21px;font-weight:400;letter-spacing:0;margin-top:8px;opacity:.75}
+  .list .it p{font-size:27px;line-height:1.35}
+  .facts{position:absolute;left:84px;right:84px}
+  .facts div{display:flex;justify-content:space-between;gap:30px;padding:22px 0;border-top:1px solid #4A4038;font-size:30px}
+  .facts div span:first-child{color:#A99C8C}
+
+  /* partnership charter */
+  .charter{font-family:'Archivo',sans-serif;color:#1E1914;padding:46px 52px 40px}
+  .charter .top{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:14px;border-bottom:2px solid #1E1914}
+  .charter .top b{font-size:28px;letter-spacing:-.01em}
+  .charter .top span{font-size:17px;color:#8A7E70;border:1px solid #CFC5B8;border-radius:5px;padding:3px 9px}
+  .charter .who{padding:18px 0;font-size:22px;border-bottom:1px solid #E6DFD5}
+  .charter .who small{display:block;color:#8A7E70;font-size:18px;margin-top:2px}
+  .charter .row{display:grid;grid-template-columns:230px 1fr;gap:20px;padding:15px 0;border-bottom:1px solid #E6DFD5;font-size:20px;line-height:1.35}
+  .charter .row span:first-child{color:#8A7E70;font-size:18px}
+  .charter .status{margin-top:18px;font-size:18px;color:#2E7D4F;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- ================= CANTIA ACCOUNTING ================= -->
+
+<section class="s paper" id="c1">
+  <div class="pad" style="top:96px">
+    <div class="small" style="color:#8A7E70">Cantia Accounting, pour les fiduciaires</div>
+    <h1 class="xl" style="margin-top:22px">Tous vos mandants.<br>Un seul espace.</h1>
+    <p class="lead" style="margin-top:28px;max-width:800px;color:#4A4038">Saisie, TVA, bouclement, pièces et signatures. Gratuit pour les fiduciaires. Glissez.</p>
+  </div>
+  <div class="stage"><div class="sheet doc" style="left:170px;top:700px;width:860px;transform:rotate(-3deg)">
+    <div class="top"><span><b>Compte de résultat</b><br>Menuiserie Bonvin Sàrl</span><span>Exercice 2026</span></div>
+    <table>
+      <tr><th></th><th class="r">2026</th><th class="r">2025</th></tr>
+      <tr><td>Produits d’exploitation</td><td class="r">1’284’500</td><td class="r">1’176’200</td></tr>
+      <tr><td>Charges de matériel</td><td class="r">−412’300</td><td class="r">−398’100</td></tr>
+      <tr><td>Charges de personnel</td><td class="r">−538’900</td><td class="r">−502’400</td></tr>
+      <tr><td>Autres charges d’exploitation</td><td class="r">−164’200</td><td class="r">−151’900</td></tr>
+      <tr class="sub"><td>EBITDA</td><td class="r">169’100</td><td class="r">123’800</td></tr>
+      <tr><td>Amortissements</td><td class="r">−38’000</td><td class="r">−35’500</td></tr>
+      <tr class="tot"><td>Résultat d’exploitation (EBIT)</td><td class="r">131’100</td><td class="r">88’300</td></tr>
+    </table>
+  </div></div>
+  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="num">1/7</div>
+</section>
+
+<section class="s clay" id="c2">
+  <div class="pad" style="top:96px">
+    <h1>Votre mandant<br>est sur Banana&nbsp;?<br>Aucun souci.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px">Vous reprenez ses écritures, son plan comptable et ses soldes. Et s’il garde son logiciel, vous lui rendez tout dans son format.</p>
+  </div>
+  <div class="files" style="left:120px;right:120px;top:660px;color:#1E1914">
+    <div class="row"><span class="ext" style="font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:5px 8px">TXT</span><b>Banana</b><span class="when">écritures, plan comptable, soldes</span></div>
+    <div class="row"><span style="font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:5px 8px">CSV</span><b>Abacus</b><span class="when">écritures et soldes</span></div>
+    <div class="row"><span style="font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:5px 8px">CSV</span><b>Winbiz</b><span class="when">écritures et soldes</span></div>
+    <div class="row"><span style="font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:5px 8px">XLS</span><b>Excel / CSV</b><span class="when">tout journal à colonnes</span></div>
+    <div class="row" style="border-bottom:none;background:#F3EEE6;font-size:23px;color:#4A4038">Repris de Banana : 1’284 écritures, plan comptable et soldes · 0 erreur</div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Accounting</span>
+  <div class="num">2/7</div>
+</section>
+
+<section class="s paper" id="c3">
+  <div class="pad" style="top:96px">
+    <h1>Vous tapez le TTC.<br>Cantia fait <span class="mark">la TVA.</span></h1>
+    <p class="lead" style="margin-top:26px;max-width:860px;color:#4A4038">Plan comptable PME suisse, taux 8,1 %, 2,6 % et 3,8 %, comptes proposés pendant la frappe. Et la pièce suivante est prête.</p>
+  </div>
+  <div class="sheet doc" style="left:110px;top:660px;width:860px;transform:rotate(1.8deg)">
+    <div class="top"><span><b>Facture 212 · Cuisine Dupuis</b><br>Pièce F212 · 05.07.2026 · code TVA 8,1 %</span><span>Montant TTC<br><b class="hl" style="font-size:22px">12’972.00</b></span></div>
+    <table>
+      <tr><th>Compte</th><th></th><th class="r">Débit</th><th class="r">Crédit</th></tr>
+      <tr><td class="mono">1100</td><td>Débiteurs</td><td class="r">12’972.00</td><td></td></tr>
+      <tr><td class="mono">3400</td><td>Prestations de services</td><td></td><td class="r">12’000.00</td></tr>
+      <tr><td class="mono">2200</td><td>TVA due</td><td></td><td class="r"><span class="hl">972.00</span></td></tr>
+    </table>
+    <div class="foot">Écriture comptabilisée · modifications et extournes tracées, rien n’est effacé</div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="num">3/7</div>
+</section>
+
+<section class="s night" id="c4">
+  <div class="pad" style="top:96px">
+    <h1>Le décompte TVA, et le fichier pour l’AFC.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px;color:#CFC5B8">Rempli chiffre par chiffre depuis les écritures, contrôlé contre les comptes 2200, 1170 et 1171. Vous téléversez le fichier sur le portail.</p>
+  </div>
+  <div class="sheet afc" style="left:110px;top:640px;width:860px;transform:rotate(-1.6deg)">
+    <div class="top"><b>Décompte TVA · 3e trimestre 2026</b><span>Méthode effective</span></div>
+    <div class="ln"><span>200</span><span>Total des contre-prestations</span><span>12’000.00</span></div>
+    <div class="ln"><span>299</span><span>Chiffre d’affaires imposable</span><span>12’000.00</span></div>
+    <div class="ln"><span>303</span><span>Taux normal 8,1 %</span><span>972.00</span></div>
+    <div class="ln"><span>400</span><span>Impôt préalable, matériel et prestations</span><span>243.00</span></div>
+    <div class="ln"><span>405</span><span>Impôt préalable, investissements</span><span>162.00</span></div>
+    <div class="ln tot"><span>500</span><span>Montant à payer à l’AFC</span><span>567.00</span></div>
+  </div>
+  <div class="chip" style="left:520px;top:1080px;transform:rotate(2deg)"><span class="ext">XML</span><div>decompte-tva-2026-T3.xml<small>eCH-0217 v2.0.0</small></div></div>
+  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Accounting</span>
+  <div class="num">4/7</div>
+</section>
+
+<section class="s clay" id="c5">
+  <div class="pad" style="top:96px">
+    <h1>Les pièces arrivent du téléphone du client.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px">Un lien privé à vos couleurs. Il dépose ses relevés, en PDF ou en photo, et signe ses comptes. Sans compte, sans application.</p>
+  </div>
+  <div class="stage"><div class="phone" style="left:260px;top:600px;transform:rotate(-3deg)">
+    <div class="bar">Rossier &amp; Associés<b>Bonjour Menuiserie Bonvin</b></div>
+    <div class="in">
+      <h5>Demandé par votre fiduciaire</h5>
+      <div class="req">Relevés bancaires juillet à septembre<small>Pour le 15.10</small></div>
+      <div class="req sent">Contrat de leasing du véhicule<small>Envoyé le 02.10</small></div>
+      <div class="btn">Déposer des fichiers</div>
+      <h5>À signer · Comptes annuels 2025</h5>
+      <div class="sign">
+        <svg width="300" height="110" viewBox="0 0 300 110" style="position:absolute;left:40px;top:12px"><path d="M10 80 C 30 20, 50 20, 55 70 S 80 100, 95 50 S 120 10, 130 60 S 150 95, 170 55 C 185 30, 200 40, 210 62 S 250 70, 290 40" fill="none" stroke="#1E1914" stroke-width="3" stroke-linecap="round"/></svg>
+        <span>Signez ici</span>
+      </div>
+    </div>
+  </div></div>
+  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Accounting</span>
+  <div class="num">5/7</div>
+</section>
+
+<section class="s paper" id="c6">
+  <div class="pad" style="top:96px">
+    <h1>Avant de boucler, Cantia vérifie ce qui manque.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px;color:#4A4038">Puis le résultat passe au 2979, se reporte au 2970 au 1er janvier, et l’exercice se verrouille. Comptes annuels en PDF avec N-1.</p>
+  </div>
+  <div class="todo" style="left:130px;right:130px;top:640px;transform:rotate(1.2deg);font-size:33px">
+    <div><i class="on"></i>Aucun brouillon dans l’exercice</div>
+    <div><i class="on"></i>Décomptes TVA déposés : 4 / 4</div>
+    <div><i class="on"></i>Comptes 2200, 1170, 1171 soldés</div>
+    <div><i class="on"></i>Compte 9100 soldé</div>
+    <div><i class="on"></i>Exercice précédent bouclé</div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="num">6/7</div>
+</section>
+
+<section class="s night" id="c7">
+  <div class="pad" style="top:96px">
+    <h1 class="xl">CHF 0.<br>Pour tout<br>le cabinet.</h1>
+  </div>
+  <div class="cta">
+    <p class="lead" style="max-width:820px;color:#CFC5B8">Mandants et collaborateurs illimités, toutes les fonctions, sans carte bancaire. Hébergé en Suisse, en français, allemand et italien.</p>
+    <p style="margin-top:40px;font-size:80px;line-height:1;font-weight:800;letter-spacing:-.02em;color:#F2B489">accounting.cantia.ch</p>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Accounting</span>
+  <div class="num">7/7</div>
+</section>
+
+<!-- ================= CANTIA PARTNERS ================= -->
+
+<section class="s night" id="p1">
+  <div class="pad" style="top:96px">
+    <div class="small" style="color:#8A7E70">Cantia Partners</div>
+    <h1 class="xl" style="margin-top:22px;font-size:150px">Un partenariat sur la durée.</h1>
+  </div>
+  <div class="cta">
+    <p class="lead" style="max-width:840px;color:#CFC5B8">Fiduciaires, intégrateurs, fournisseurs, associations professionnelles : vous accompagnez des PME suisses depuis des années. Nous cherchons quelques partenaires pour travailler avec vous, autour de vos clients.</p>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Partners</span>
+  <div class="num">1/6</div>
+</section>
+
+<section class="s paper" id="p2">
+  <div class="pad" style="top:96px">
+    <h1>Trois façons de travailler ensemble.</h1>
+  </div>
+  <div class="list" style="top:420px">
+    <div class="it"><h3>Conseil<small>Fiduciaires, consultants</small></h3><p>Vous conseillez vos mandants et recommandez Cantia quand c’est utile. On fait la démo avec vous.</p></div>
+    <div class="it"><h3>Intégration<small>Revendeurs, intégrateurs</small></h3><p>Vous mettez Cantia en place chez vos clients. On forme votre équipe et vous avez une ligne directe.</p></div>
+    <div class="it"><h3>Réseau<small>Associations, fournisseurs</small></h3><p>Vous faites connaître Cantia à vos membres. On vient le présenter, avec des supports à votre nom.</p></div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Partners</span>
+  <div class="num">2/6</div>
+</section>
+
+<section class="s clay" id="p3">
+  <div class="pad" style="top:96px">
+    <h1>Vos clients restent vos clients.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px">Vous ne voyez jamais leurs données, leurs devis ou leurs chiffres. La relation reste la vôtre. Nous, on s’engage sur le reste :</p>
+  </div>
+  <div class="list" style="top:600px;color:#FFF7EF;font-size:1px">
+    <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Une ligne directe</b> avec l’équipe qui fait Cantia.</p></div>
+    <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Des démonstrations communes</b>, sur les vrais cas de vos clients.</p></div>
+    <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Votre avis dans le produit</b>, et les nouveautés avant tout le monde.</p></div>
+    <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Un accompagnement</b> au démarrage de vos clients.</p></div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Partners</span>
+  <div class="num">3/6</div>
+</section>
+
+<section class="s paper" id="p4">
+  <div class="pad" style="top:96px">
+    <h1>Un cadre écrit, défini avec vous.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px;color:#4A4038">Les rôles, les engagements et les conditions sont consignés dans votre espace partenaire. La rémunération est versée chaque mois.</p>
+  </div>
+  <div class="stage"><div class="sheet charter" style="left:130px;top:610px;width:820px;transform:rotate(-2deg)">
+    <div class="top"><b>Cadre du partenariat</b><span>Exemple</span></div>
+    <div class="who">Rossier &amp; Associés<small>Fiduciaire · Sion</small></div>
+    <div class="row"><span>Type</span><span>Partenariat conseil</span></div>
+    <div class="row"><span>Engagements de Cantia</span><span>Démonstrations faites ensemble · accompagnement au démarrage des clients · accès anticipé aux nouveautés · ligne directe</span></div>
+    <div class="row"><span>Engagements du partenaire</span><span>Présenter Cantia aux clients concernés · partager les retours du terrain</span></div>
+    <div class="row"><span>Conditions</span><span>Définies ensemble, consignées dans l’espace partenaire</span></div>
+    <div class="row" style="border-bottom:none"><span>Durée</span><span>Sans durée minimale</span></div>
+  </div></div>
+  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Partners</span>
+  <div class="num">4/6</div>
+</section>
+
+<section class="s night" id="p5">
+  <div class="pad" style="top:96px">
+    <h1>Un programme qui commence.</h1>
+    <p class="lead" style="margin-top:26px;max-width:860px;color:#CFC5B8">Cantia est une jeune entreprise suisse. Nous n’avons pas encore de réseau de partenaires à vous montrer, et nous ne ferons pas semblant. Les premiers partenaires travaillent directement avec l’équipe.</p>
+  </div>
+  <div class="facts" style="top:760px">
+    <div><span>Hébergement</span><span>Zurich, Suisse</span></div>
+    <div><span>Langues</span><span>Français · Deutsch · Italiano</span></div>
+    <div><span>Frais d’adhésion</span><span>Aucun</span></div>
+    <div><span>Durée minimale</span><span>Aucune</span></div>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Partners</span>
+  <div class="num">5/6</div>
+</section>
+
+<section class="s clay" id="p6">
+  <div class="pad" style="top:96px">
+    <h1 class="xl">Parlons-en.</h1>
+  </div>
+  <div class="cta">
+    <p class="lead" style="max-width:820px">Un échange d’abord, en visio ou en personne. Un cadre écrit ensuite. Rien n’est signé au premier rendez-vous.</p>
+    <p style="margin-top:40px;font-size:80px;line-height:1;font-weight:800;letter-spacing:-.02em">partners.cantia.ch</p>
+  </div>
+  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Partners</span>
+  <div class="num">6/6</div>
+</section>
+
+</body>
+</html>
