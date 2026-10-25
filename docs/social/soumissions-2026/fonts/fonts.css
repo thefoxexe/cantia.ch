@@ -79,3 +79,10 @@
   font-display: swap;
   src: url(xc900.ttf) format('truetype');
 }
+@font-face {
+  font-family: 'Michroma';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(michroma.woff2) format('woff2');
+}

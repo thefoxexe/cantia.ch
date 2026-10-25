@@ -6,7 +6,15 @@
 <link rel="stylesheet" href="carrousels.css">
 <style>
   /* product name next to the logo */
-  .prod{position:absolute;left:300px;bottom:58px;height:36px;line-height:36px;padding-left:18px;border-left:2px solid currentColor;font-size:26px;font-weight:700;letter-spacing:-.01em}
+  /* product lockup, built like BrandLockup in components/brand/Logo.tsx:
+     full logo (H = 48), then a dash and the product name in Michroma,
+     sized from the wordmark height t = 0.45 H */
+  .lockup{position:absolute;left:84px;bottom:52px;display:flex;align-items:center}
+  .lockup img{height:48px;width:259px;display:block}
+  .lockup i{width:11.9px;height:2px;margin:0 6.9px;background:#000}
+  .lockup b{font-family:'Michroma',sans-serif;font-weight:400;font-size:17px;line-height:22px;letter-spacing:2.72px;text-transform:uppercase;color:#A95C30;white-space:nowrap}
+  .lockup.white i{background:#fff}
+  .lockup.white b{color:#fff}
 
   /* a printed accounting document */
   .doc{font-family:'Liberation Sans',Arial,sans-serif;color:#111;padding:44px 50px;font-size:18px}
@@ -85,7 +93,7 @@
       <tr class="tot"><td>Résultat d’exploitation (EBIT)</td><td class="r">131’100</td><td class="r">88’300</td></tr>
     </table>
   </div></div>
-  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="lockup"><img src="../../../assets/brand/logo.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">1/7</div>
 </section>
 
@@ -101,7 +109,7 @@
     <div class="row"><span style="font-family:'Liberation Mono',monospace;font-size:15px;font-weight:700;background:#1E1914;color:#fff;border-radius:5px;padding:5px 8px">XLS</span><b>Excel / CSV</b><span class="when">tout journal à colonnes</span></div>
     <div class="row" style="border-bottom:none;background:#F3EEE6;font-size:23px;color:#4A4038">Repris de Banana : 1’284 écritures, plan comptable et soldes · 0 erreur</div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Accounting</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">2/7</div>
 </section>
 
@@ -120,7 +128,7 @@
     </table>
     <div class="foot">Écriture comptabilisée · modifications et extournes tracées, rien n’est effacé</div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="lockup"><img src="../../../assets/brand/logo.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">3/7</div>
 </section>
 
@@ -139,7 +147,7 @@
     <div class="ln tot"><span>500</span><span>Montant à payer à l’AFC</span><span>567.00</span></div>
   </div>
   <div class="chip" style="left:520px;top:1080px;transform:rotate(2deg)"><span class="ext">XML</span><div>decompte-tva-2026-T3.xml<small>eCH-0217 v2.0.0</small></div></div>
-  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Accounting</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">4/7</div>
 </section>
 
@@ -162,7 +170,7 @@
       </div>
     </div>
   </div></div>
-  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Accounting</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">5/7</div>
 </section>
 
@@ -178,7 +186,7 @@
     <div><i class="on"></i>Compte 9100 soldé</div>
     <div><i class="on"></i>Exercice précédent bouclé</div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Accounting</span>
+  <div class="lockup"><img src="../../../assets/brand/logo.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">6/7</div>
 </section>
 
@@ -190,7 +198,7 @@
     <p class="lead" style="max-width:820px;color:#CFC5B8">Mandants et collaborateurs illimités, toutes les fonctions, sans carte bancaire. Hébergé en Suisse, en français, allemand et italien.</p>
     <p style="margin-top:40px;font-size:80px;line-height:1;font-weight:800;letter-spacing:-.02em;color:#F2B489">accounting.cantia.ch</p>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Accounting</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Accounting</b></div>
   <div class="num">7/7</div>
 </section>
 
@@ -204,7 +212,7 @@
   <div class="cta">
     <p class="lead" style="max-width:840px;color:#CFC5B8">Fiduciaires, intégrateurs, fournisseurs, associations professionnelles : vous accompagnez des PME suisses depuis des années. Nous cherchons quelques partenaires pour travailler avec vous, autour de vos clients.</p>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Partners</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">1/6</div>
 </section>
 
@@ -217,7 +225,7 @@
     <div class="it"><h3>Intégration<small>Revendeurs, intégrateurs</small></h3><p>Vous mettez Cantia en place chez vos clients. On forme votre équipe et vous avez une ligne directe.</p></div>
     <div class="it"><h3>Réseau<small>Associations, fournisseurs</small></h3><p>Vous faites connaître Cantia à vos membres. On vient le présenter, avec des supports à votre nom.</p></div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Partners</span>
+  <div class="lockup"><img src="../../../assets/brand/logo.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">2/6</div>
 </section>
 
@@ -232,7 +240,7 @@
     <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Votre avis dans le produit</b>, et les nouveautés avant tout le monde.</p></div>
     <div class="it" style="grid-template-columns:1fr"><p style="font-size:34px"><b>Un accompagnement</b> au démarrage de vos clients.</p></div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Partners</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">3/6</div>
 </section>
 
@@ -250,7 +258,7 @@
     <div class="row"><span>Conditions</span><span>Définies ensemble, consignées dans l’espace partenaire</span></div>
     <div class="row" style="border-bottom:none"><span>Durée</span><span>Sans durée minimale</span></div>
   </div></div>
-  <img class="logo" src="../../../assets/brand/logo.png"><span class="prod" style="color:#B4643A">Partners</span>
+  <div class="lockup"><img src="../../../assets/brand/logo.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">4/6</div>
 </section>
 
@@ -265,7 +273,7 @@
     <div><span>Frais d’adhésion</span><span>Aucun</span></div>
     <div><span>Durée minimale</span><span>Aucune</span></div>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-on-dark.png"><span class="prod" style="color:#F2B489">Partners</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">5/6</div>
 </section>
 
@@ -277,7 +285,7 @@
     <p class="lead" style="max-width:820px">Un échange d’abord, en visio ou en personne. Un cadre écrit ensuite. Rien n’est signé au premier rendez-vous.</p>
     <p style="margin-top:40px;font-size:80px;line-height:1;font-weight:800;letter-spacing:-.02em">partners.cantia.ch</p>
   </div>
-  <img class="logo" src="../../../assets/brand/logo-white.png"><span class="prod">Partners</span>
+  <div class="lockup white"><img src="../../../assets/brand/logo-white.png" alt="Cantia"><i></i><b>Partners</b></div>
   <div class="num">6/6</div>
 </section>
 
