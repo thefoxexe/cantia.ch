@@ -3,7 +3,7 @@
 Deux carrousels de 7 slides, format 4:5 (1080 × 1350), dans `carrousels/`.
 À publier à quelques jours d’écart : d’abord « Côté chantier », puis « Côté bureau ».
 
-## Carrousel 1 · Côté chantier (fond noir)
+## Carrousel 1 · Côté chantier
 
 Fichiers : `cantia-nouveautes-chantier-01.png` à `-07.png`
 
@@ -23,7 +23,7 @@ Soumission et planning de chantier sont réservés aux entreprises du bâtiment.
 
 #Cantia #Construction #Batiment #Chantier #PlanningDeChantier #Soumission #Artisan #Entrepreneur #PME #Suisse #Romandie #LogicielSuisse
 
-## Carrousel 2 · Côté bureau (fond crème)
+## Carrousel 2 · Côté bureau
 
 Fichiers : `cantia-nouveautes-bureau-01.png` à `-07.png`
 
