@@ -4,7 +4,7 @@ const path = require('path');
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
   // section id prefix -> file name
-  const sets = { a: 'nouveautes-chantier', b: 'nouveautes-bureau', c: 'accounting', p: 'partners' };
+  const sets = { a: 'nouveautes-chantier', b: 'nouveautes-bureau', c: 'accounting', p: 'partners', e: 'entreprises' };
   let total = 0;
   for (const file of ['carrousels.html', 'produits.html']) {
     await page.goto('file://' + path.join(__dirname, file));

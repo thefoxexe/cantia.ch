@@ -1,6 +1,6 @@
 # Carrousels Instagram — Nouveautés Cantia (automne 2026)
 
-Quatre carrousels (7, 7, 7 et 6 slides), format 4:5 (1080 × 1350), dans `carrousels/`.
+Cinq carrousels (7, 7, 7, 6 et 7 slides), format 4:5 (1080 × 1350), dans `carrousels/`.
 À publier à quelques jours d’écart : d’abord « Côté chantier », puis « Côté bureau ».
 
 ## Carrousel 1 · Côté chantier
@@ -83,11 +83,32 @@ Le programme commence, et nous le disons franchement : les premiers partenaires 
 
 #Cantia #CantiaPartners #Partenariat #Fiduciaire #Integrateur #PME #Digitalisation #Suisse #Romandie #LogicielSuisse
 
+## Carrousel 5 · Cantia pour les entreprises
+
+Fichiers : `cantia-entreprises-01.png` à `-07.png`
+
+Description :
+
+Du devis au salaire, tout au même endroit. Le logiciel de gestion des PME suisses 🇨🇭 (glissez →)
+
+01 · Le devis : vous le dictez, vos prix viennent du catalogue, le client signe en ligne sans compte. Et vous voyez quand il l’ouvre.
+02 · La facture QR suisse, avec acomptes, situations et relances d’impayés. Importez votre relevé bancaire pour voir qui a payé.
+03 · Le rapport de chantier : une note vocale, quelques photos, l’IA rédige, vous relisez.
+04 · Les travaux supplémentaires signés par le client sur place, avant d’être faits.
+05 · Heures, salaires suisses, TVA, trésorerie et rentabilité de chaque chantier. Votre fiduciaire reçoit les pièces.
+
+Pour le bâtiment, et aussi le nettoyage, les garages, les services. En français, allemand et italien, données hébergées en Suisse.
+
+👉 14 jours d’essai avec toutes les fonctions, sans engagement, dès CHF 39.– par mois : cantia.ch (lien en bio)
+
+#Cantia #PME #Artisan #Entrepreneur #Construction #Batiment #Devis #Facture #QRFacture #Gestion #Suisse #Romandie #LogicielSuisse
+
 ## À vérifier avant de publier
 
 - Salaires, trésorerie et planning de chantier : dès le plan Équipe (indiqué sur les slides).
 - Outlook n’est pas encore disponible : la slide le dit (« arrive bientôt »). À mettre à jour quand il sera actif.
 - Les noms de chantiers (« Villa Martin », « Immeuble Gare »), numéros et montants sont des exemples.
+- Entreprises : les documents montrés (Rénov Habitat, Rochat Construction, Clair Net Services) sont les exemples de cantia.ch. Salaires, trésorerie et planning sont dès le plan Équipe (indiqué sur la slide 6).
 - Accounting et Partners : « Menuiserie Bonvin » et « Rossier & Associés » sont des exemples, repris des pages accounting.cantia.ch et partners.cantia.ch (le cadre de partenariat porte la mention « Exemple »).
 
 ## Rendu
