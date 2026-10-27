@@ -14,10 +14,10 @@ export async function sendNewsletterCampaign(params: {
   fromPersona: SenderPersona;
   variants?: LangVariants | null;
   audienceLabel?: string | null;
-}): Promise<{ sent: number; skipped: number; total: number; error: string | null }> {
-  const { data, error } = await invokeFunction<{ sent: number; skipped: number; total: number }>('send-newsletter-campaign', params);
-  if (error) return { sent: 0, skipped: 0, total: 0, error };
-  return { sent: data?.sent ?? 0, skipped: data?.skipped ?? 0, total: data?.total ?? 0, error: null };
+}): Promise<{ sent: number; skipped: number; failed: number; failReason: string | null; total: number; error: string | null }> {
+  const { data, error } = await invokeFunction<{ sent: number; skipped: number; failed?: number; failReason?: string | null; total: number }>('send-newsletter-campaign', params);
+  if (error) return { sent: 0, skipped: 0, failed: 0, failReason: null, total: 0, error };
+  return { sent: data?.sent ?? 0, skipped: data?.skipped ?? 0, failed: data?.failed ?? 0, failReason: data?.failReason ?? null, total: data?.total ?? 0, error: null };
 }
 
 export async function sendNewsletterTest(

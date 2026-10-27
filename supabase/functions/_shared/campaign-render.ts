@@ -39,15 +39,20 @@ function asLocale(v: unknown): Locale {
   return v === 'de' || v === 'it' ? v : 'fr';
 }
 
-export async function listAllAuthUserEmails(admin: SupabaseClient): Promise<Map<string, string>> {
+// E-mail of each given user, looked up one by one like every other mailer
+// here (getUserById). Listing all accounts with listUsers failed as a whole
+// (one bad auth row is enough) and silently skipped every recipient.
+export async function authEmailsFor(admin: SupabaseClient, userIds: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
-  let page = 1;
-  for (;;) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error || !data?.users?.length) break;
-    for (const u of data.users) if (u.email) map.set(u.id, u.email);
-    if (data.users.length < 1000) break;
-    page += 1;
+  const ids = Array.from(new Set(userIds));
+  for (let i = 0; i < ids.length; i += 10) {
+    await Promise.all(
+      ids.slice(i, i + 10).map(async (id) => {
+        const { data, error } = await admin.auth.admin.getUserById(id);
+        if (error) console.error('getUserById failed', id, error.message);
+        else if (data?.user?.email) map.set(id, data.user.email);
+      }),
+    );
   }
   return map;
 }
@@ -55,7 +60,7 @@ export async function listAllAuthUserEmails(admin: SupabaseClient): Promise<Map<
 // One entry per user with an e-mail. A user in several companies is shown
 // with the one they own, else the oldest membership.
 export async function loadRecipients(admin: SupabaseClient, userIds: string[]): Promise<Map<string, Recipient>> {
-  const emails = await listAllAuthUserEmails(admin);
+  const emails = await authEmailsFor(admin, userIds);
   const out = new Map<string, Recipient>();
   const rank = new Map<string, number>();
   for (let i = 0; i < userIds.length; i += 200) {

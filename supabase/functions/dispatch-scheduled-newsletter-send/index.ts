@@ -87,7 +87,9 @@ Deno.serve(async (req: Request) => {
     const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
     const skipped = targetIds.length - list.length;
 
-    const CHUNK = 20;
+    // 5 at a time with a pause, like send-newsletter-campaign: Resend
+    // rate-limits per second.
+    const CHUNK = 5;
     let sent = 0;
     const sentEmails: string[] = [];
     for (let i = 0; i < list.length; i += CHUNK) {
@@ -104,6 +106,7 @@ Deno.serve(async (req: Request) => {
           sentEmails.push(chunk[idx].email);
         }
       });
+      if (i + CHUNK < list.length) await new Promise((r) => setTimeout(r, 1100));
     }
 
     // Same history table the immediate-send path writes to, so a scheduled

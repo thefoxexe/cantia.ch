@@ -104,7 +104,7 @@ export default function AdminNewsletterScreen() {
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ sent: number; skipped: number; total: number } | null>(null);
+  const [result, setResult] = useState<{ sent: number; skipped: number; failed: number; failReason: string | null; total: number } | null>(null);
   const [scheduleConfirmed, setScheduleConfirmed] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -326,7 +326,7 @@ export default function AdminNewsletterScreen() {
     setError(null);
     setResult(null);
     setScheduleConfirmed(null);
-    const { sent, skipped, total, error: err } = await sendNewsletterCampaign({
+    const { sent, skipped, failed, failReason, total, error: err } = await sendNewsletterCampaign({
       subject: subject.trim(),
       html,
       userIds: Array.from(selectedIds),
@@ -340,7 +340,7 @@ export default function AdminNewsletterScreen() {
       setError(err);
       return;
     }
-    setResult({ sent, skipped, total });
+    setResult({ sent, skipped, failed, failReason, total });
     if (showHistory) loadHistory();
   }
 
@@ -606,10 +606,12 @@ export default function AdminNewsletterScreen() {
 
         {result ? (
           <View style={styles.resultBanner}>
-            <Feather name="check-circle" size={16} color={colors.success} />
+            <Feather name={result.sent > 0 ? 'check-circle' : 'alert-circle'} size={16} color={result.sent > 0 ? colors.success : colors.danger} />
             <Text style={styles.resultText}>
               {result.sent} e-mail{result.sent > 1 ? 's' : ''} envoyé{result.sent > 1 ? 's' : ''}
-              {result.skipped > 0 ? `, ${result.skipped} ignoré${result.skipped > 1 ? 's' : ''} (désabonnés)` : ''}.
+              {result.failed > 0 ? `, ${result.failed} en échec` : ''}
+              {result.skipped > 0 ? `, ${result.skipped} ignoré${result.skipped > 1 ? 's' : ''} (désabonnés ou sans adresse e-mail)` : ''}.
+              {result.failReason ? `\nRaison : ${result.failReason}` : ''}
             </Text>
           </View>
         ) : null}

@@ -31,14 +31,22 @@ const FROM_BY_PERSONA: Record<string, string> = {
 };
 const REPLY_TO = 'info@cantia.ch';
 
-async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
+async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: params.from, to: params.to, reply_to: params.replyTo, subject: params.subject, html: params.html }),
   });
-  if (!res.ok) console.error('Resend error', res.status, await res.text());
-  return { ok: res.ok };
+  if (res.ok) return { ok: true };
+  const text = await res.text();
+  console.error('Resend error', res.status, text);
+  let message = text;
+  try {
+    message = JSON.parse(text)?.message ?? text;
+  } catch {
+    // not JSON, keep the raw text
+  }
+  return { ok: false, error: `Resend ${res.status} : ${String(message).slice(0, 200)}` };
 }
 
 Deno.serve(async (req: Request) => {
@@ -114,8 +122,12 @@ Deno.serve(async (req: Request) => {
     const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
     const skipped = targetIds.length - list.length;
 
-    const CHUNK = 20;
+    // 5 at a time: Resend rate-limits per second, and a burst of 20 parallel
+    // calls can come back 429 for most of them.
+    const CHUNK = 5;
     let sent = 0;
+    let failed = 0;
+    let failReason: string | null = null;
     const sentEmails: string[] = [];
     for (let i = 0; i < list.length; i += CHUNK) {
       const chunk = list.slice(i, i + CHUNK);
@@ -129,8 +141,12 @@ Deno.serve(async (req: Request) => {
         if (res.ok) {
           sent += 1;
           sentEmails.push(chunk[idx].email);
+        } else {
+          failed += 1;
+          failReason ??= res.error ?? null;
         }
       });
+      if (i + CHUNK < list.length) await new Promise((r) => setTimeout(r, 1100));
     }
 
     // Best-effort — "qui a reçu quoi, quand" history shown at the bottom
@@ -153,7 +169,7 @@ Deno.serve(async (req: Request) => {
       console.error('newsletter_campaigns insert failed', err);
     }
 
-    return json({ sent, skipped, total: targetIds.length });
+    return json({ sent, skipped, failed, failReason, total: targetIds.length });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
