@@ -4,11 +4,12 @@ const path = require('path');
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
   // section id prefix -> file name
-  const sets = { a: 'nouveautes-chantier', b: 'nouveautes-bureau', c: 'accounting', p: 'partners', e: 'entreprises' };
+  const sets = { a: 'nouveautes-chantier', b: 'nouveautes-bureau', c: 'accounting', p: 'partners', e: 'entreprises', d: 'devis', f: 'facturation', r: 'rapports-chantier', s: 'salaires', o: 'outils-gratuits' };
   let total = 0;
-  for (const file of ['carrousels.html', 'produits.html']) {
+  for (const file of ['carrousels.html', 'produits.html', 'fonctions.html']) {
     await page.goto('file://' + path.join(__dirname, file));
     await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() => [...document.images].every((i) => i.complete));
     await page.waitForTimeout(800);
     const ids = await page.$$eval('section.s', (els) => els.map((e) => e.id));
     for (const id of ids) {
