@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#444;font-family:'Archivo',sans-serif}
+  .reel{width:1080px;height:1920px;position:relative;overflow:hidden;margin:0 0 40px;background:#1B1714;color:#F3EEE6}
+  .abs{position:absolute}
+  .cap{position:absolute;left:90px;right:90px;font-weight:800;letter-spacing:-.025em;line-height:.98}
+  .cap .w{display:inline-block;will-change:transform}
+  .sub{position:absolute;left:90px;right:90px;font-size:40px;line-height:1.3;font-weight:500}
+  .pill{position:absolute;display:inline-flex;align-items:center;gap:16px;padding:20px 30px;border-radius:999px;font-size:38px;font-weight:700;white-space:nowrap}
+  .cam{position:absolute;inset:0;overflow:hidden}
+  .cam img.doc{position:absolute;max-width:none;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .ring{position:absolute;border:6px solid #E0864F;border-radius:16px;box-shadow:0 0 0 12px rgba(224,134,79,.22)}
+  .big{position:absolute;left:0;right:0;text-align:center;font-weight:900;font-stretch:extra-condensed;letter-spacing:-.01em;line-height:1}
+  .end{position:absolute;inset:0;background:#B4643A;color:#FFF7EF}
+  .end .t{position:absolute;left:90px;right:90px;top:640px;font-size:120px;font-weight:800;letter-spacing:-.03em;line-height:.98}
+  .end .s{position:absolute;left:90px;right:90px;top:1040px;font-size:44px;line-height:1.3}
+  .end .u{position:absolute;left:90px;top:1220px;font-size:92px;font-weight:800;letter-spacing:-.02em}
+  .end img{position:absolute;left:90px;top:470px;height:64px}
+  .wave{position:absolute;left:140px;right:140px;height:260px;display:flex;align-items:center;justify-content:space-between}
+  .wave i{display:block;width:16px;border-radius:8px;background:#E0864F}
+  .phone{position:absolute;width:620px;height:1300px;border:18px solid #0E0B09;border-radius:86px;overflow:hidden;background:#fff;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+  .phone img{position:absolute;left:0;width:100%}
+  .row{position:absolute;left:120px;right:120px;display:flex;justify-content:space-between;font-size:46px;padding:22px 0;border-bottom:2px solid rgba(243,238,230,.18);font-variant-numeric:tabular-nums}
+  .row b{font-weight:800}
+  .scan{position:absolute;height:8px;background:#E0864F;box-shadow:0 0 30px 8px rgba(224,134,79,.6);border-radius:4px}
+  .big span{display:inline-block;background:#1B1714;color:#F3EEE6;padding:14px 40px 18px;border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .step{position:absolute;left:90px;top:180px;padding:16px 28px;border-radius:18px;background:#1B1714;color:#F3EEE6;font-size:44px;font-weight:800;letter-spacing:-.01em;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+  .step em{font-style:normal;color:#E0864F;margin-right:14px}
+</style>
+</head>
+<body>
+
+<!-- 1 · Le devis -->
+<section class="reel" id="r-devis">
+  <div class="cam"><img class="doc" src="../../../public/showcase/devis-signe.webp"></div>
+  <div class="ring" id="dv-ring"></div>
+  <div class="cap" id="dv-cap" style="top:300px;font-size:130px"></div>
+  <div class="pill" id="dv-pill" style="background:#F3EEE6;color:#1E1914;left:90px;top:1500px">🎙  « Carrelage sol et mur, 28 m² »</div>
+  <div class="big" id="dv-total" style="top:1430px;font-size:170px"></div>
+  <div class="step" id="dv-step"></div>
+  <div class="pill" id="dv-signed" style="background:#2E7D4F;color:#fff;left:90px;top:1500px">✓  Signé par le client · 17:42</div>
+  <div class="end" id="dv-end">
+    <img src="../../../assets/brand/logo-white.png">
+    <div class="t">Vos devis,<br>avec Cantia.</div>
+    <div class="s">Dictée, catalogue de prix, signature en ligne. 14 jours d’essai, sans engagement.</div>
+    <div class="u">cantia.ch</div>
+  </div>
+</section>
+
+<!-- 2 · La facture QR -->
+<section class="reel" id="r-facture">
+  <div class="cam"><img class="doc" src="../../../public/showcase/facture-exemple.png"></div>
+  <div class="ring" id="fa-ring"></div>
+  <div class="scan" id="fa-scan"></div>
+  <div class="cap" id="fa-cap" style="top:300px;font-size:130px"></div>
+  <div class="pill" id="fa-pill" style="background:#F3EEE6;color:#1E1914;left:90px;top:1500px">Montant, IBAN et référence : déjà remplis</div>
+  <div class="step" id="fa-step"></div>
+  <div class="pill" id="fa-paid" style="background:#2E7D4F;color:#fff;left:90px;top:1500px">✓  Facture F-2026-0154 · payée</div>
+  <div class="end" id="fa-end">
+    <img src="../../../assets/brand/logo-white.png">
+    <div class="t">La facture QR,<br>en un clic.</div>
+    <div class="s">Acomptes, relances et import du relevé bancaire, dans tous les plans. 14 jours d’essai.</div>
+    <div class="u">cantia.ch</div>
+  </div>
+</section>
+
+<!-- 3 · Le rapport de chantier -->
+<section class="reel" id="r-rapport">
+  <div class="cam"><img class="doc" src="../../../public/showcase/rapport-chantier.webp"></div>
+  <div class="ring" id="ra-ring"></div>
+  <div class="cap" id="ra-cap" style="top:300px;font-size:120px"></div>
+  <div class="wave" id="ra-wave" style="top:820px"></div>
+  <div class="step" id="ra-step"></div>
+  <div class="sub" id="ra-type" style="top:1180px;font-size:52px;line-height:1.3;font-weight:600"></div>
+  <div class="end" id="ra-end">
+    <img src="../../../assets/brand/logo-white.png">
+    <div class="t">Le rapport,<br>sans la soirée.</div>
+    <div class="s">Notes vocales, photos et IA. Vous relisez, il part au client. 14 jours d’essai.</div>
+    <div class="u">cantia.ch</div>
+  </div>
+</section>
+
+<!-- 4 · Le taux horaire -->
+<section class="reel" id="r-taux">
+  <div class="cap" id="ta-cap" style="top:240px;font-size:118px"></div>
+  <div class="phone" id="ta-phone" style="left:230px"><img src="captures/calcul-taux-horaire-full.png"></div>
+  <div class="big" id="ta-big" style="top:1520px;font-size:170px"></div>
+  <div class="end" id="ta-end">
+    <img src="../../../assets/brand/logo-white.png">
+    <div class="t">Calculez votre<br>vrai taux.</div>
+    <div class="s">Salaires, charges, frais, heures facturables et marge. Gratuit, sans compte.</div>
+    <div class="u" style="font-size:80px">cantia.ch/outils</div>
+  </div>
+</section>
+
+<!-- 5 · Le salaire brut → net -->
+<section class="reel" id="r-salaire">
+  <div class="cap" id="sa-cap" style="top:260px;font-size:130px"></div>
+  <div id="sa-rows"></div>
+  <div class="big" id="sa-big" style="top:1380px;font-size:210px"></div>
+  <div class="sub" id="sa-sub" style="top:1610px;text-align:center;color:#CFC5B8"></div>
+  <div class="end" id="sa-end">
+    <img src="../../../assets/brand/logo-white.png">
+    <div class="t">Du brut au net,<br>en 10 secondes.</div>
+    <div class="s">Le calculateur de salaire suisse gratuit. AVS, LPP selon l’âge, LAA, allocations, impôt à la source.</div>
+    <div class="u" style="font-size:66px">cantia.ch/calculateur-salaire</div>
+  </div>
+</section>
+
+<script>
+// Every reel is a pure function of time: frame(id, t) draws the picture at
+// t seconds, so the renderer can step through it at 30 images per second.
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const out = (p) => 1 - Math.pow(1 - p, 3);
+const seg = (t, a, b, f = ease) => f(clamp((t - a) / (b - a)));
+const lerp = (a, b, p) => a + (b - a) * p;
+const $ = (id) => document.getElementById(id);
+const chf = (v) => v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '’');
+
+// word-by-word title: each word rises in, then the whole line leaves
+function words(el, text, t, t0, t1, step = 0.12) {
+  if (el.dataset.text !== text) {
+    el.innerHTML = text.split(' ').map((w) => (w === '/' ? '<br>' : `<span class="w">${w}&nbsp;</span>`)).join('');
+    el.dataset.text = text;
+  }
+  const ws = el.querySelectorAll('.w');
+  ws.forEach((w, i) => {
+    const p = seg(t, t0 + i * step, t0 + i * step + 0.35, out);
+    const q = seg(t, t1, t1 + 0.3);
+    w.style.opacity = p * (1 - q);
+    w.style.transform = `translateY(${(1 - p) * 60 - q * 40}px)`;
+  });
+}
+function show(el, t, a, b, fade = 0.25) {
+  const p = seg(t, a, a + fade, out) * (1 - seg(t, b - fade, b));
+  el.style.opacity = p;
+  el.style.transform = `translateY(${(1 - seg(t, a, a + fade, out)) * 40}px)`;
+}
+// camera on an 800 px basis document: centre (cx, cy) at screen (540, sy), width w on screen W
+function cam(reel, view, docAspect) {
+  const img = reel.querySelector('img.doc');
+  const s = view.W / view.w;
+  img.style.width = 800 * s + 'px';
+  img.style.left = 540 - view.cx * s + 'px';
+  img.style.top = view.sy - view.cy * s + 'px';
+  img.style.transform = `rotate(${view.r || 0}deg)`;
+  img.style.transformOrigin = `${view.cx * s}px ${view.cy * s}px`;
+  img.style.opacity = view.o ?? 1;
+  return s;
+}
+function lerpView(a, b, p) {
+  const o = {};
+  for (const k of Object.keys(a)) o[k] = lerp(a[k], b[k] ?? a[k], p);
+  return o;
+}
+function ringAt(el, view, s, r, o) {
+  el.style.left = 540 + (r.x - view.cx) * s - 14 + 'px';
+  el.style.top = view.sy + (r.y - view.cy) * s - 14 + 'px';
+  el.style.width = r.w * s + 28 + 'px';
+  el.style.height = r.h * s + 28 + 'px';
+  el.style.opacity = o;
+}
+function steps(el, t, list) {
+  const cur = list.find(([a, b]) => t >= a && t < b);
+  if (!cur) { el.style.opacity = 0; return; }
+  const [a, b, n, text] = cur;
+  if (el.dataset.k !== text) { el.innerHTML = `<em>${n}</em>${text}`; el.dataset.k = text; }
+  const p = seg(t, a, a + 0.3, out) * (1 - seg(t, b - 0.25, b));
+  el.style.opacity = p;
+  el.style.transform = `translateX(${(1 - seg(t, a, a + 0.3, out)) * -60}px)`;
+}
+function endCard(el, t, a) {
+  const p = seg(t, a, a + 0.5);
+  el.style.clipPath = `inset(${(1 - p) * 100}% 0 0 0)`;
+  el.style.display = p > 0 ? 'block' : 'none';
+  el.querySelectorAll('.t,.s,.u,img').forEach((c, i) => {
+    const q = seg(t, a + 0.35 + i * 0.12, a + 0.8 + i * 0.12, out);
+    c.style.opacity = q;
+    c.style.transform = `translateY(${(1 - q) * 50}px)`;
+  });
+}
+
+const REELS = {
+  'r-devis': { dur: 15, f(t) {
+    const R = $('r-devis');
+    const V = [
+      { t: 2.0, v: { cx: 400, cy: 560, w: 800, W: 900, sy: 1050, r: -4, o: 1 } },
+      { t: 3.6, v: { cx: 400, cy: 475, w: 760, W: 1100, sy: 960, r: 0, o: 1 } },
+      { t: 6.2, v: { cx: 590, cy: 640, w: 360, W: 1000, sy: 980, r: 0, o: 1 } },
+      { t: 9.0, v: { cx: 620, cy: 770, w: 300, W: 980, sy: 1000, r: 0, o: 1 } },
+    ];
+    let view = { ...V[0].v, o: seg(t, 1.6, 2.2) };
+    for (let i = 1; i < V.length; i++) if (t > V[i - 1].t) view = lerpView(V[i - 1].v, V[i].v, seg(t, V[i - 1].t, V[i].t));
+    if (t < 1.6) view.o = 0;
+    view.sy += (1 - seg(t, 1.6, 2.4, out)) * 400;
+    const s = cam(R, view);
+    words($('dv-cap'), 'Un devis. / Envoyé ce soir.', t, 0.1, 1.7);
+    ringAt($('dv-ring'), view, s, { x: 58, y: 458, w: 690, h: 36 }, seg(t, 4.0, 4.3) * (1 - seg(t, 5.8, 6.0)));
+    show($('dv-pill'), t, 4.0, 6.0);
+    const p = seg(t, 6.4, 7.8, out);
+    $('dv-total').innerHTML = t > 6.3 && t < 9 ? '<span>' + chf(11393.75 * p) + ' CHF</span>' : '';
+    steps($('dv-step'), t, [[2.4, 6.0, '1', 'Vous dictez'], [6.0, 9.6, '2', 'Les totaux se calculent'], [9.6, 12.4, '3', 'Le client signe en ligne']]);
+    $('dv-total').style.opacity = seg(t, 6.3, 6.5) * (1 - seg(t, 8.6, 8.9));
+    // the client's signature is drawn from left to right
+    ringAt($('dv-ring'), view, s, t > 6 ? { x: 522, y: 712, w: 200, h: 120 } : { x: 58, y: 458, w: 690, h: 36 },
+      t < 6 ? seg(t, 4.0, 4.3) * (1 - seg(t, 5.8, 6.0)) : seg(t, 10.0, 10.3) * (1 - seg(t, 12.2, 12.4)));
+    show($('dv-signed'), t, 10.2, 12.4);
+    endCard($('dv-end'), t, 12.4);
+  } },
+
+  'r-facture': { dur: 13, f(t) {
+    const R = $('r-facture');
+    const A = { cx: 400, cy: 560, w: 800, W: 880, sy: 1080, r: 3 };
+    const B = { cx: 340, cy: 880, w: 230, W: 900, sy: 1000, r: 0 };
+    const view = lerpView(A, B, seg(t, 2.6, 4.2));
+    view.sy += (1 - seg(t, 1.6, 2.4, out)) * 400;
+    view.o = seg(t, 1.6, 2.1);
+    const s = cam(R, view);
+    words($('fa-cap'), 'Votre client / paie comment ?', t, 0.1, 1.7);
+    steps($('fa-step'), t, [[2.4, 6.4, '1', 'Il scanne le QR'], [6.4, 9.6, '2', 'Vous importez le relevé']]);
+    ringAt($('fa-ring'), view, s, { x: 252, y: 792, w: 178, h: 180 }, seg(t, 4.2, 4.5) * (1 - seg(t, 9.2, 9.4)));
+    // scanning bar over the QR code
+    const sc = $('fa-scan');
+    const q = ((t - 4.4) % 1.2) / 1.2;
+    const top = view.sy + (792 - view.cx * 0 - view.cy) * s;
+    sc.style.left = 540 + (252 - view.cx) * s + 'px';
+    sc.style.width = 178 * s + 'px';
+    sc.style.top = top + Math.abs(Math.sin(q * Math.PI)) * 180 * s + 'px';
+    sc.style.opacity = t > 4.4 && t < 6.2 ? 1 : 0;
+    show($('fa-pill'), t, 4.6, 6.2);
+    show($('fa-paid'), t, 6.6, 9.4);
+    endCard($('fa-end'), t, 9.6);
+  } },
+
+  'r-rapport': { dur: 14, f(t) {
+    const R = $('r-rapport');
+    words($('ra-cap'), t < 3.8 ? 'Une note vocale / sur le chantier…' : 'L’IA rédige.', t, t < 3.8 ? 0.1 : 3.9, t < 3.8 ? 3.4 : 7.2);
+    const wave = $('ra-wave');
+    if (!wave.children.length) wave.innerHTML = Array.from({ length: 36 }, () => '<i></i>').join('');
+    [...wave.children].forEach((b, i) => {
+      const h = 30 + 200 * Math.abs(Math.sin(t * 7 + i * 0.7) * Math.sin(t * 3.1 + i * 0.33));
+      b.style.height = h + 'px';
+    });
+    wave.style.opacity = seg(t, 0.4, 0.8) * (1 - seg(t, 3.4, 3.8));
+    const text = 'Armatures des murs du rez contrôlées et conformes après ajout de trois barres. Bétonnage confirmé pour demain 7h00.';
+    const n = Math.floor(text.length * seg(t, 4.2, 6.8, (p) => p));
+    $('ra-type').innerHTML = t > 4.1 && t < 7.4 ? text.slice(0, n) + '<span style="color:#E0864F">▍</span>' : '';
+    $('ra-type').style.opacity = 1 - seg(t, 7.1, 7.4);
+    const A = { cx: 400, cy: 400, w: 800, W: 900, sy: 1080, r: -3 };
+    const B = { cx: 400, cy: 340, w: 700, W: 1040, sy: 960, r: 0 };
+    const C = { cx: 400, cy: 720, w: 700, W: 1040, sy: 960, r: 0 };
+    let view = t < 9.2 ? lerpView(A, B, seg(t, 7.6, 8.6)) : lerpView(B, C, seg(t, 9.2, 10.2));
+    view.sy += (1 - seg(t, 7.2, 8.0, out)) * 500;
+    view.o = seg(t, 7.2, 7.6);
+    const s = cam(R, view);
+    ringAt($('ra-ring'), view, s, t < 9.6 ? { x: 56, y: 306, w: 690, h: 76 } : { x: 56, y: 680, w: 690, h: 88 },
+      t < 9.6 ? seg(t, 8.4, 8.7) * (1 - seg(t, 9.2, 9.4)) : seg(t, 10.2, 10.5) * (1 - seg(t, 11.2, 11.4)));
+    steps($('ra-step'), t, [[7.8, 9.4, '1', 'Le résumé, rédigé'], [9.4, 11.4, '2', 'L’imprévu, à facturer']]);
+    endCard($('ra-end'), t, 11.4);
+  } },
+
+  'r-taux': { dur: 12, f(t) {
+    const P = $('ta-phone');
+    words($('ta-cap'), 'Combien vaut / votre heure ?', t, 0.1, 8.0);
+    const p = seg(t, 1.4, 2.2, out);
+    P.style.top = lerp(1950, 600, p) + 'px';
+    const img = P.querySelector('img');
+    // scroll through the real calculator, down to the result
+    img.style.top = -lerp(0, 1020, seg(t, 2.6, 6.2)) + 'px';
+    P.style.opacity = 1 - seg(t, 8.0, 8.3);
+    const v = 79.5 * seg(t, 6.2, 7.4, out);
+    $('ta-big').innerHTML = t > 6.1 && t < 8.3 ? '<span>CHF ' + v.toFixed(2) + ' / h</span>' : '';
+    $('ta-big').style.opacity = seg(t, 6.1, 6.3) * (1 - seg(t, 8.0, 8.3));
+    endCard($('ta-end'), t, 8.4);
+  } },
+
+  'r-salaire': { dur: 13, f(t) {
+    words($('sa-cap'), '5’500 brut. / Et en net ?', t, 0.1, 7.6);
+    const items = [['AVS / AI / APG', 291.5], ['Chômage (AC)', 60.5], ['LPP', 115.35], ['Accidents (AANP)', 77.0], ['Allocations familiales', 4.95]];
+    const box = $('sa-rows');
+    if (!box.children.length) box.innerHTML = items.map(([l, v], i) => `<div class="row" style="top:${640 + i * 112}px"><span>${l}</span><b>− ${chf(v)}</b></div>`).join('');
+    let net = 5500;
+    [...box.children].forEach((r, i) => {
+      const a = 1.6 + i * 0.75;
+      show(r, t, a, 7.6);
+      net -= items[i][1] * seg(t, a, a + 0.5);
+    });
+    $('sa-big').textContent = t < 7.6 ? 'CHF ' + chf(net) : 'CHF 6’160.40';
+    $('sa-big').style.color = t < 7.6 ? '#F3EEE6' : '#F2B489';
+    $('sa-big').style.opacity = seg(t, 1.4, 1.7) * (1 - seg(t, 10.1, 10.3));
+    $('sa-sub').textContent = t < 7.6 ? 'salaire net par mois' : 'ce qu’il coûte à l’employeur, charges comprises';
+    $('sa-sub').style.opacity = seg(t, 1.4, 1.7) * (1 - seg(t, 10.1, 10.3));
+    endCard($('sa-end'), t, 10.3);
+  } },
+};
+
+window.frame = (id, t) => REELS[id].f(t);
+window.durations = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, v.dur]));
+for (const id of Object.keys(REELS)) REELS[id].f(REELS[id].dur * 0.45);
+</script>
+</body>
+</html>
