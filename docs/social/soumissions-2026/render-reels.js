@@ -31,7 +31,7 @@ const { execFileSync } = require('child_process');
       for (const f of fs.readdirSync(tmp)) fs.copyFileSync(path.join(tmp, f), path.join(outDir, `preview-${id}-${f}`));
     } else {
       const out = path.join(outDir, `cantia-reel-${id.slice(2)}.mp4`);
-      execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '30', '-i', path.join(tmp, '%04d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'slow', '-movflags', '+faststart', out]);
+      execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', '30', '-i', path.join(tmp, '%04d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '24', '-preset', 'slow', '-movflags', '+faststart', out]);
       console.log(out);
     }
     fs.rmSync(tmp, { recursive: true, force: true });

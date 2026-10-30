@@ -155,12 +155,12 @@ function docShot(file, ratio, keys, { bg = 'ink', rings = [], stickers = [], cou
   };
 }
 
-function endCard(title, sub, url, { bg = 'clay' } = {}) {
+function endCard(title, sub, url, { bg = 'clay', size = 200 } = {}) {
   return {
     bg,
     build(root) {
       const logo = el(`<img class="logo" src="${LOGO_W}" style="left:80px;top:430px">`);
-      const t = el(`<div class="punch" style="font-size:200px;color:${FG[bg]}">${title.replace(/\*(.+?)\*/g, '<span class="hl" style="--hl:#141110">$1</span>')}</div>`);
+      const t = el(`<div class="punch" style="font-size:${size}px;color:${FG[bg]}">${title.replace(/\*(.+?)\*/g, '<span class="hl" style="--hl:#141110">$1</span>')}</div>`);
       const s = el(`<div class="kicker" style="color:${FG[bg]};top:1280px;font-size:44px;text-transform:none;letter-spacing:0;font-weight:500;right:80px;line-height:1.3">${sub}</div>`);
       const u = el(`<div class="sticker" style="background:${bg === 'ink' ? '#B4643A' : '#141110'};color:#F3EEE6;left:80px;top:1460px;font-size:64px">${url}</div>`);
       root.append(logo, t, s, u);
@@ -235,7 +235,7 @@ const REELS = {
     ], { rings: [{ x: 496, y: 858, w: 190, h: 38, a: 0.5, b: 2.0 }],
          stickers: [{ text: 'Relevé importé → payée', bg: '#F3EEE6', fg: '#141110', top: 1300, a: 0.7, b: 2.0, rot: -2 }] })],
     [0.6, punch(['*Payé.*', '✓'], { bg: 'green', size: 330, hl: '#141110' })],
-    [3.0, endCard('Facture QR,<br>en *un clic*.', 'Acomptes, relances, relevé bancaire. 14 jours d’essai.', 'cantia.ch')],
+    [3.0, endCard('Facture QR,<br>en *un clic*.', 'Acomptes, relances, relevé bancaire. 14 jours d’essai.', 'cantia.ch', { size: 170 })],
   ],
 
   'r-rapport': [
@@ -336,7 +336,7 @@ const REELS = {
     })],
     [0.6, punch(['Net :', '*4’950.70*'], { bg: 'paper', size: 240 })],
     [1.2, punch(['Coût', 'employeur', '*6’160.40*'], { bg: 'clay', size: 200, hl: '#141110' })],
-    [3.0, endCard('Brut ou net&nbsp;?<br>*Calculez-le.*', 'Le calculateur de salaire suisse, gratuit et sans compte.', 'cantia.ch/calculateur-salaire', { bg: 'ink' })],
+    [3.0, endCard('Le net,<br>*en 10 s*.', 'Le calculateur de salaire suisse, gratuit et sans compte.', 'cantia.ch/calculateur-salaire', { bg: 'ink' })],
   ],
 };
 
