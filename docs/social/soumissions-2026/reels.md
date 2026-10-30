@@ -2,10 +2,10 @@
 
 Cinq Reels verticaux (1080 × 1920, 30 images/s, 10 à 14 secondes), dans `reels/`.
 Style : coupes rapides calées sur 120 BPM (un plan par temps de 0,5 s), gros titres condensés qui frappent l’écran, vrais documents Cantia en 3D avec mouvements de caméra, étiquettes, flash à chaque coupe et grain de film. Choisissez une musique autour de 120 BPM pour que les coupes tombent sur le rythme.
-Ils n’ont **pas de son** : ajoutez une musique tendance directement dans Instagram (plus de portée, et pas de souci de droits).
+Ils ont **leur propre son** : une petite musique à 120 BPM (kick, clap, basse, nappe en la mineur) et des bruitages calés sur l’image (whoosh à chaque coupe, impacts sur les gros titres, pop des étiquettes, tic-tac des chiffres, frappe au clavier, bip du scan, « ding » sur signé / payé / envoyé). Tout est synthétisé par `sound.py`, sans échantillon ni musique externe : aucun droit à gérer. Si vous préférez un son tendance d’Instagram, baissez le son d’origine à 0 dans l’éditeur.
 Le texte important reste au centre de l’image, hors des zones couvertes par les boutons d’Instagram.
 
-Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg). `node render-reels.js r-devis --preview` sort quelques images fixes pour vérifier un Reel.
+Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg ; le son vient de `sound.py`, à partir des repères `window.events()`). `--preview` sort quelques images fixes pour vérifier un Reel, `--audio` refait seulement le son sur les vidéos existantes.
 
 ## 1 · Le devis — `cantia-reel-devis.mp4` (14 s)
 

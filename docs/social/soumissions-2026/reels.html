@@ -77,9 +77,10 @@ function el(html) { const d = document.createElement('div'); d.innerHTML = html.
 // --- scene makers ---------------------------------------------------------
 
 // giant words that slam in (scale punch + small shake); "*word*" is highlighted
-function punch(lines, { bg = 'ink', size = 250, hl = '#B4643A', y = 0, kicker } = {}) {
+function punch(lines, { bg = 'ink', size = 250, hl = '#B4643A', y = 0, kicker, ding = false } = {}) {
   return {
     bg,
+    sfx: [['hit', 0], ...(ding ? [['ding', 0.02]] : [])],
     build(root) {
       const html = lines.map((l) => l.replace(/\*(.+?)\*/g, '<span class="hl">$1</span>')).join('<br>');
       const p = el(`<div class="punch" style="font-size:${size}px;color:${FG[bg]};--hl:${hl}">${html}</div>`);
@@ -101,9 +102,11 @@ function punch(lines, { bg = 'ink', size = 250, hl = '#B4643A', y = 0, kicker } 
 
 // a real document in 3D, the camera moving through keyframes
 // keys: [time, {cx, cy, s, rx, ry, rz, sy}] in the 800 px basis of the page
-function docShot(file, ratio, keys, { bg = 'ink', rings = [], stickers = [], counter, mask } = {}) {
+function docShot(file, ratio, keys, { bg = 'ink', rings = [], stickers = [], counter, mask, sfx = [] } = {}) {
   return {
     bg,
+    sfx: [['whoosh', 0], ...stickers.map((s) => ['pop', s.a]), ...rings.map((r) => ['tick', r.a]),
+      ...(counter ? [['count', counter.a, counter.a + 0.9]] : []), ...(mask ? [['scribble', mask.a, mask.b]] : []), ...sfx],
     build(root) {
       const d = el(`<div class="doc3d" style="height:${800 * ratio}px"><img src="${DOC + file}"></div>`);
       const rs = rings.map((r) => { const e = el(`<div class="ring" style="left:${r.x - 8}px;top:${r.y - 8}px;width:${r.w + 16}px;height:${r.h + 16}px"></div>`); d.append(e); return e; });
@@ -158,6 +161,7 @@ function docShot(file, ratio, keys, { bg = 'ink', rings = [], stickers = [], cou
 function endCard(title, sub, url, { bg = 'clay', size = 200 } = {}) {
   return {
     bg,
+    sfx: [['hit', 0], ['pop', 0.55], ['ding', 0.6]],
     build(root) {
       const logo = el(`<img class="logo" src="${LOGO_W}" style="left:80px;top:430px">`);
       const t = el(`<div class="punch" style="font-size:${size}px;color:${FG[bg]}">${title.replace(/\*(.+?)\*/g, '<span class="hl" style="--hl:#141110">$1</span>')}</div>`);
@@ -180,7 +184,7 @@ function endCard(title, sub, url, { bg = 'clay', size = 200 } = {}) {
   };
 }
 
-function custom(bg, build, draw) { return { bg, build, draw }; }
+function custom(bg, build, draw, sfx = []) { return { bg, build, draw, sfx }; }
 
 // --- the reels ---------------------------------------------------------------
 
@@ -211,7 +215,7 @@ const REELS = {
     ], { rings: [{ x: 522, y: 712, w: 200, h: 120, a: 1.4, b: 2.5 }],
          mask: { x: 535, y: 735, w: 180, h: 55, a: 0.55, b: 1.35 },
          stickers: [{ text: '✓ Signé par le client · 17:42', bg: '#2E7D4F', fg: '#fff', top: 1330, a: 1.45, b: 2.5, rot: -3 }] })],
-    [0.5, punch(['*Signé.*'], { bg: 'green', size: 330, hl: '#141110' })],
+    [0.5, punch(['*Signé.*'], { bg: 'green', size: 330, hl: '#141110', ding: true })],
     [0.6, punch(['Sans', 'compte.'], { bg: 'paper', size: 280 })],
     [3.0, endCard('Vos devis,<br>avec *Cantia*.', '14 jours d’essai gratuit, sans engagement.', 'cantia.ch')],
   ],
@@ -226,6 +230,7 @@ const REELS = {
       [1.3, { cx: 340, cy: 880, s: 3.2, rx: 0, ry: 0, rz: 0, sy: 1000 }],
       [3.2, { cx: 340, cy: 882, s: 3.35, sy: 1000 }],
     ], { rings: [{ x: 252, y: 792, w: 178, h: 180, a: 1.4, b: 3.2 }],
+         sfx: [['beep', 1.55], ['beep', 1.75]],
          stickers: [{ text: '📱 Il scanne', bg: '#F3EEE6', fg: '#141110', top: 300, a: 1.5, b: 3.2, rot: -3 },
                     { text: 'Montant · IBAN · référence', bg: '#B4643A', fg: '#FFF7EF', top: 1520, a: 2.1, b: 3.2, rot: 2 }] })],
     [2.0, docShot('facture-exemple.png', RATIO.facture, [
@@ -234,7 +239,7 @@ const REELS = {
       [2.0, { cx: 600, cy: 878, s: 3.45, rz: 0, sy: 980 }],
     ], { rings: [{ x: 496, y: 858, w: 190, h: 38, a: 0.5, b: 2.0 }],
          stickers: [{ text: 'Relevé importé → payée', bg: '#F3EEE6', fg: '#141110', top: 1300, a: 0.7, b: 2.0, rot: -2 }] })],
-    [0.6, punch(['*Payé.*', '✓'], { bg: 'green', size: 330, hl: '#141110' })],
+    [0.6, punch(['*Payé.*', '✓'], { bg: 'green', size: 330, hl: '#141110', ding: true })],
     [3.0, endCard('Facture QR,<br>en *un clic*.', 'Acomptes, relances, relevé bancaire. 14 jours d’essai.', 'cantia.ch', { size: 170 })],
   ],
 
@@ -252,7 +257,7 @@ const REELS = {
       [...w.children].forEach((b, i) => { b.style.height = 40 + 360 * Math.abs(Math.sin(lt * 9 + i * 0.6) * Math.sin(lt * 4.3 + i * 0.27)) + 'px'; });
       w.style.transform = `scale(${lerp(0.6, 1, seg(lt, 0, 0.25, out))})`;
       s.style.transform = `scale(${clamp(seg(lt, 0.15, 0.45, back), 0, 1.2)}) rotate(-3deg)`;
-    })],
+    }, [['blip', 0.15], ['pop', 0.2], ['voice', 0.2, 1.9]])],
     [2.6, custom('ink', (root) => {
       const k = el('<div class="sticker" style="background:#F3EEE6;color:#141110;left:70px;top:420px">✨ L’IA rédige</div>');
       const t = el('<div class="typed" style="top:700px"></div>');
@@ -269,7 +274,7 @@ const REELS = {
       }
       t.innerHTML = html + (lt < 2.3 ? '<span style="color:#E0864F">▍</span>' : '');
       k.style.transform = `scale(${clamp(seg(lt, 0, 0.3, back), 0, 1.2)}) rotate(-3deg)`;
-    })],
+    }, [['pop', 0.05], ['type', 0.2, 2.1]])],
     [3.0, docShot('rapport-chantier.webp', RATIO.rapport, [
       [0, { cx: 400, cy: 500, s: 0.95, rx: 34, ry: -10, rz: -6, sy: 1750 }],
       [0.7, { cx: 400, cy: 360, s: 1.35, rx: 0, ry: 0, rz: 0, sy: 960 }],
@@ -279,7 +284,7 @@ const REELS = {
     ], { rings: [{ x: 56, y: 306, w: 690, h: 76, a: 0.8, b: 1.6 }, { x: 56, y: 680, w: 690, h: 88, a: 2.1, b: 3.0 }],
          stickers: [{ text: '📸 Photos rangées', bg: '#F3EEE6', fg: '#141110', top: 1520, a: 0.9, b: 1.7, rot: 2 },
                     { text: '⚠️ À facturer en plus', bg: '#B4643A', fg: '#FFF7EF', top: 1520, a: 2.15, b: 3.0, rot: -2 }] })],
-    [0.6, punch(['*Envoyé.*'], { bg: 'clay', size: 320, hl: '#141110' })],
+    [0.6, punch(['*Envoyé.*'], { bg: 'clay', size: 320, hl: '#141110', ding: true })],
     [3.0, endCard('Le rapport,<br>sans *la soirée*.', 'Notes vocales, photos, IA. 14 jours d’essai gratuit.', 'cantia.ch')],
   ],
 
@@ -304,7 +309,7 @@ const REELS = {
       c.style.opacity = lt > 2.9 ? 1 : 0;
       c.style.transform = `scale(${lerp(1.3, 1, seg(lt, 2.9, 3.1, out))})`;
       s.style.transform = `scale(${clamp(seg(lt, 0.4, 0.7, back), 0, 1.2)}) rotate(-3deg)`;
-    })],
+    }, [['whoosh', 0], ['pop', 0.45], ['count', 2.9, 3.7], ['hit', 2.9]])],
     [0.35, punch(['Salaires'], { bg: 'paper', size: 260 })],
     [0.35, punch(['Charges'], { bg: 'clay', size: 260 })],
     [0.35, punch(['Frais'], { bg: 'ink', size: 300 })],
@@ -333,7 +338,7 @@ const REELS = {
         net -= items[i][1] * seg(lt, a, a + 0.3, out);
       });
       c.firstChild.textContent = 'CHF ' + chf(net);
-    })],
+    }, [['slide', 0.3], ['slide', 0.8], ['slide', 1.3], ['slide', 1.8], ['slide', 2.3]])],
     [0.6, punch(['Net :', '*4’950.70*'], { bg: 'paper', size: 240 })],
     [1.2, punch(['Coût', 'employeur', '*6’160.40*'], { bg: 'clay', size: 200, hl: '#141110' })],
     [3.0, endCard('Le net,<br>*en 10 s*.', 'Le calculateur de salaire suisse, gratuit et sans compte.', 'cantia.ch/calculateur-salaire', { bg: 'ink' })],
@@ -370,6 +375,17 @@ function frame(id, t) {
   R.querySelector('.grain').style.backgroundPosition = `${Math.floor(rnd(t * 30) * 256)}px ${Math.floor(rnd(t * 30 + 1) * 256)}px`;
 }
 window.frame = frame;
+// sound cues for render-reels.js: [kind, start, end?] in seconds from the start of the reel
+window.events = (id) => {
+  let start = 0;
+  const ev = [];
+  REELS[id].forEach(([d, sc], i) => {
+    if (i > 0) ev.push(['cut', start]);
+    for (const [k, a, b] of sc.sfx || []) ev.push(b === undefined ? [k, start + a] : [k, start + a, start + b]);
+    start += d;
+  });
+  return ev;
+};
 window.durations = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, Math.round(v.reduce((s, [d]) => s + d, 0) * 100) / 100]));
 for (const id of Object.keys(REELS)) frame(id, 0.3);
 </script>
