@@ -20,9 +20,11 @@ const { execFileSync } = require('child_process');
     if (only && id !== only) continue;
     await page.evaluate((id) => document.querySelectorAll('.reel').forEach((r) => (r.style.display = r.id === id ? 'block' : 'none')), id);
     const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'reel-'));
-    const times = preview ? [0.6, 2.5, 4.5, 6.8, 8.5, 10.5, dur - 0.5] : Array.from({ length: Math.round(dur * 30) }, (_, i) => i / 30);
+    const times = preview ? Array.from({ length: 14 }, (_, i) => 0.25 + (i * (dur - 0.5)) / 13) : Array.from({ length: Math.round(dur * 30) }, (_, i) => i / 30);
     for (let i = 0; i < times.length; i++) {
       await page.evaluate(([id, t]) => window.frame(id, t), [id, times[i]]);
+      // a new scene may have just added its document image
+      await page.waitForFunction(() => [...document.images].every((im) => im.complete));
       await page.screenshot({ path: path.join(tmp, String(i).padStart(4, '0') + '.jpg'), type: 'jpeg', quality: 94 });
     }
     if (preview) {

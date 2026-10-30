@@ -5,304 +5,373 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#444;font-family:'Archivo',sans-serif}
-  .reel{width:1080px;height:1920px;position:relative;overflow:hidden;margin:0 0 40px;background:#1B1714;color:#F3EEE6}
-  .abs{position:absolute}
-  .cap{position:absolute;left:90px;right:90px;font-weight:800;letter-spacing:-.025em;line-height:.98}
-  .cap .w{display:inline-block;will-change:transform}
-  .sub{position:absolute;left:90px;right:90px;font-size:40px;line-height:1.3;font-weight:500}
-  .pill{position:absolute;display:inline-flex;align-items:center;gap:16px;padding:20px 30px;border-radius:999px;font-size:38px;font-weight:700;white-space:nowrap}
-  .cam{position:absolute;inset:0;overflow:hidden}
-  .cam img.doc{position:absolute;max-width:none;box-shadow:0 30px 80px rgba(0,0,0,.45)}
-  .ring{position:absolute;border:6px solid #E0864F;border-radius:16px;box-shadow:0 0 0 12px rgba(224,134,79,.22)}
-  .big{position:absolute;left:0;right:0;text-align:center;font-weight:900;font-stretch:extra-condensed;letter-spacing:-.01em;line-height:1}
-  .end{position:absolute;inset:0;background:#B4643A;color:#FFF7EF}
-  .end .t{position:absolute;left:90px;right:90px;top:640px;font-size:120px;font-weight:800;letter-spacing:-.03em;line-height:.98}
-  .end .s{position:absolute;left:90px;right:90px;top:1040px;font-size:44px;line-height:1.3}
-  .end .u{position:absolute;left:90px;top:1220px;font-size:92px;font-weight:800;letter-spacing:-.02em}
-  .end img{position:absolute;left:90px;top:470px;height:64px}
-  .wave{position:absolute;left:140px;right:140px;height:260px;display:flex;align-items:center;justify-content:space-between}
-  .wave i{display:block;width:16px;border-radius:8px;background:#E0864F}
-  .phone{position:absolute;width:620px;height:1300px;border:18px solid #0E0B09;border-radius:86px;overflow:hidden;background:#fff;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+  body{background:#000;font-family:'Archivo',sans-serif}
+  .reel{width:1080px;height:1920px;position:relative;overflow:hidden;margin:0 0 40px;background:#141110}
+  .stage{position:absolute;inset:0;overflow:hidden}
+  .fx{position:absolute;inset:0;pointer-events:none}
+  .grain{opacity:.09;mix-blend-mode:overlay;background-size:256px 256px}
+  .vignette{background:radial-gradient(120% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.45) 100%)}
+  .flash{background:#fff;opacity:0}
+
+  /* giant condensed type */
+  .punch{position:absolute;left:70px;right:70px;top:50%;transform-origin:50% 50%;font-weight:900;font-stretch:extra-condensed;
+         text-transform:uppercase;line-height:.84;letter-spacing:-.005em;text-align:left}
+  .punch .hl{position:relative;display:inline-block;padding:0 .08em;z-index:0}
+  .punch .hl:before{content:'';position:absolute;left:0;right:0;top:.1em;bottom:.02em;background:var(--hl,#B4643A);z-index:-1;
+                    transform-origin:left;transform:scaleX(var(--p,1)) skewX(-6deg)}
+  .kicker{position:absolute;left:74px;font-size:40px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+
+  /* 3D document */
+  .doc3d{position:absolute;width:800px;box-shadow:0 60px 120px rgba(0,0,0,.55),0 10px 30px rgba(0,0,0,.35);background:#fff}
+  .doc3d img{display:block;width:100%}
+  .ring{position:absolute;border:5px solid #E0864F;border-radius:12px;box-shadow:0 0 0 10px rgba(224,134,79,.22);transform-origin:50% 50%}
+  .mask{position:absolute;background:#fff}
+
+  /* stickers */
+  .sticker{position:absolute;display:inline-flex;align-items:center;gap:18px;padding:22px 34px;border-radius:26px;font-size:46px;font-weight:800;
+           letter-spacing:-.01em;white-space:nowrap;box-shadow:0 24px 60px rgba(0,0,0,.4);transform-origin:50% 50%}
+  .counter{position:absolute;left:0;right:0;text-align:center;font-weight:900;font-stretch:extra-condensed;letter-spacing:-.005em;line-height:1;font-variant-numeric:tabular-nums}
+  .counter span{display:inline-block;padding:16px 46px 22px;border-radius:30px;background:#141110;color:#F3EEE6;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+
+  .phone{position:absolute;width:640px;height:1340px;border:20px solid #0B0908;border-radius:92px;overflow:hidden;background:#fff;
+         box-shadow:0 60px 140px rgba(0,0,0,.6)}
   .phone img{position:absolute;left:0;width:100%}
-  .row{position:absolute;left:120px;right:120px;display:flex;justify-content:space-between;font-size:46px;padding:22px 0;border-bottom:2px solid rgba(243,238,230,.18);font-variant-numeric:tabular-nums}
-  .row b{font-weight:800}
-  .scan{position:absolute;height:8px;background:#E0864F;box-shadow:0 0 30px 8px rgba(224,134,79,.6);border-radius:4px}
-  .big span{display:inline-block;background:#1B1714;color:#F3EEE6;padding:14px 40px 18px;border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-  .step{position:absolute;left:90px;top:180px;padding:16px 28px;border-radius:18px;background:#1B1714;color:#F3EEE6;font-size:44px;font-weight:800;letter-spacing:-.01em;box-shadow:0 14px 40px rgba(0,0,0,.35)}
-  .step em{font-style:normal;color:#E0864F;margin-right:14px}
+  .wave{position:absolute;left:110px;right:110px;display:flex;align-items:center;justify-content:space-between}
+  .wave i{display:block;width:18px;border-radius:9px;background:#F3EEE6}
+  .typed{position:absolute;left:80px;right:80px;font-size:66px;line-height:1.18;font-weight:700;letter-spacing:-.015em;color:#F3EEE6}
+  .typed b{color:#E0864F}
+  .row{position:absolute;left:80px;right:80px;display:flex;justify-content:space-between;align-items:baseline;padding:26px 34px;border-radius:22px;
+       background:#F3EEE6;color:#141110;font-size:50px;font-weight:700;box-shadow:0 20px 50px rgba(0,0,0,.35);font-variant-numeric:tabular-nums}
+  .row b{font-weight:900;font-stretch:extra-condensed;font-size:66px}
+  .logo{position:absolute;height:84px}
 </style>
 </head>
 <body>
 
-<!-- 1 · Le devis -->
-<section class="reel" id="r-devis">
-  <div class="cam"><img class="doc" src="../../../public/showcase/devis-signe.webp"></div>
-  <div class="ring" id="dv-ring"></div>
-  <div class="cap" id="dv-cap" style="top:300px;font-size:130px"></div>
-  <div class="pill" id="dv-pill" style="background:#F3EEE6;color:#1E1914;left:90px;top:1500px">🎙  « Carrelage sol et mur, 28 m² »</div>
-  <div class="big" id="dv-total" style="top:1430px;font-size:170px"></div>
-  <div class="step" id="dv-step"></div>
-  <div class="pill" id="dv-signed" style="background:#2E7D4F;color:#fff;left:90px;top:1500px">✓  Signé par le client · 17:42</div>
-  <div class="end" id="dv-end">
-    <img src="../../../assets/brand/logo-white.png">
-    <div class="t">Vos devis,<br>avec Cantia.</div>
-    <div class="s">Dictée, catalogue de prix, signature en ligne. 14 jours d’essai, sans engagement.</div>
-    <div class="u">cantia.ch</div>
-  </div>
-</section>
-
-<!-- 2 · La facture QR -->
-<section class="reel" id="r-facture">
-  <div class="cam"><img class="doc" src="../../../public/showcase/facture-exemple.png"></div>
-  <div class="ring" id="fa-ring"></div>
-  <div class="scan" id="fa-scan"></div>
-  <div class="cap" id="fa-cap" style="top:300px;font-size:130px"></div>
-  <div class="pill" id="fa-pill" style="background:#F3EEE6;color:#1E1914;left:90px;top:1500px">Montant, IBAN et référence : déjà remplis</div>
-  <div class="step" id="fa-step"></div>
-  <div class="pill" id="fa-paid" style="background:#2E7D4F;color:#fff;left:90px;top:1500px">✓  Facture F-2026-0154 · payée</div>
-  <div class="end" id="fa-end">
-    <img src="../../../assets/brand/logo-white.png">
-    <div class="t">La facture QR,<br>en un clic.</div>
-    <div class="s">Acomptes, relances et import du relevé bancaire, dans tous les plans. 14 jours d’essai.</div>
-    <div class="u">cantia.ch</div>
-  </div>
-</section>
-
-<!-- 3 · Le rapport de chantier -->
-<section class="reel" id="r-rapport">
-  <div class="cam"><img class="doc" src="../../../public/showcase/rapport-chantier.webp"></div>
-  <div class="ring" id="ra-ring"></div>
-  <div class="cap" id="ra-cap" style="top:300px;font-size:120px"></div>
-  <div class="wave" id="ra-wave" style="top:820px"></div>
-  <div class="step" id="ra-step"></div>
-  <div class="sub" id="ra-type" style="top:1180px;font-size:52px;line-height:1.3;font-weight:600"></div>
-  <div class="end" id="ra-end">
-    <img src="../../../assets/brand/logo-white.png">
-    <div class="t">Le rapport,<br>sans la soirée.</div>
-    <div class="s">Notes vocales, photos et IA. Vous relisez, il part au client. 14 jours d’essai.</div>
-    <div class="u">cantia.ch</div>
-  </div>
-</section>
-
-<!-- 4 · Le taux horaire -->
-<section class="reel" id="r-taux">
-  <div class="cap" id="ta-cap" style="top:240px;font-size:118px"></div>
-  <div class="phone" id="ta-phone" style="left:230px"><img src="captures/calcul-taux-horaire-full.png"></div>
-  <div class="big" id="ta-big" style="top:1520px;font-size:170px"></div>
-  <div class="end" id="ta-end">
-    <img src="../../../assets/brand/logo-white.png">
-    <div class="t">Calculez votre<br>vrai taux.</div>
-    <div class="s">Salaires, charges, frais, heures facturables et marge. Gratuit, sans compte.</div>
-    <div class="u" style="font-size:80px">cantia.ch/outils</div>
-  </div>
-</section>
-
-<!-- 5 · Le salaire brut → net -->
-<section class="reel" id="r-salaire">
-  <div class="cap" id="sa-cap" style="top:260px;font-size:130px"></div>
-  <div id="sa-rows"></div>
-  <div class="big" id="sa-big" style="top:1380px;font-size:210px"></div>
-  <div class="sub" id="sa-sub" style="top:1610px;text-align:center;color:#CFC5B8"></div>
-  <div class="end" id="sa-end">
-    <img src="../../../assets/brand/logo-white.png">
-    <div class="t">Du brut au net,<br>en 10 secondes.</div>
-    <div class="s">Le calculateur de salaire suisse gratuit. AVS, LPP selon l’âge, LAA, allocations, impôt à la source.</div>
-    <div class="u" style="font-size:66px">cantia.ch/calculateur-salaire</div>
-  </div>
-</section>
+<section class="reel" id="r-devis"><div class="stage"></div><div class="fx flash"></div><div class="fx vignette"></div><div class="fx grain"></div></section>
+<section class="reel" id="r-facture"><div class="stage"></div><div class="fx flash"></div><div class="fx vignette"></div><div class="fx grain"></div></section>
+<section class="reel" id="r-rapport"><div class="stage"></div><div class="fx flash"></div><div class="fx vignette"></div><div class="fx grain"></div></section>
+<section class="reel" id="r-taux"><div class="stage"></div><div class="fx flash"></div><div class="fx vignette"></div><div class="fx grain"></div></section>
+<section class="reel" id="r-salaire"><div class="stage"></div><div class="fx flash"></div><div class="fx vignette"></div><div class="fx grain"></div></section>
 
 <script>
-// Every reel is a pure function of time: frame(id, t) draws the picture at
-// t seconds, so the renderer can step through it at 30 images per second.
+// Each reel is a list of scenes on a 120 bpm grid (one beat = 0.5 s). A
+// scene builds its DOM once, then draw(lt) places everything at local
+// time lt, so a frame is a pure function of time and renders the same way
+// every time.
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const inOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 const out = (p) => 1 - Math.pow(1 - p, 3);
-const seg = (t, a, b, f = ease) => f(clamp((t - a) / (b - a)));
+const back = (p) => { const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const seg = (t, a, b, f = inOut) => f(clamp((t - a) / (b - a)));
 const lerp = (a, b, p) => a + (b - a) * p;
-const $ = (id) => document.getElementById(id);
-const chf = (v) => v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '’');
+const chf = (v, d = 2) => v.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, '’');
+const rnd = (i) => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - Math.floor(x); };
+const DOC = '../../../public/showcase/';
+const LOGO_W = '../../../assets/brand/logo-white.png';
+const BG = { ink: '#141110', clay: '#B4643A', paper: '#F3EEE6', green: '#2E7D4F' };
+const FG = { ink: '#F3EEE6', clay: '#FFF7EF', paper: '#141110', green: '#FFFFFF' };
 
-// word-by-word title: each word rises in, then the whole line leaves
-function words(el, text, t, t0, t1, step = 0.12) {
-  if (el.dataset.text !== text) {
-    el.innerHTML = text.split(' ').map((w) => (w === '/' ? '<br>' : `<span class="w">${w}&nbsp;</span>`)).join('');
-    el.dataset.text = text;
-  }
-  const ws = el.querySelectorAll('.w');
-  ws.forEach((w, i) => {
-    const p = seg(t, t0 + i * step, t0 + i * step + 0.35, out);
-    const q = seg(t, t1, t1 + 0.3);
-    w.style.opacity = p * (1 - q);
-    w.style.transform = `translateY(${(1 - p) * 60 - q * 40}px)`;
-  });
-}
-function show(el, t, a, b, fade = 0.25) {
-  const p = seg(t, a, a + fade, out) * (1 - seg(t, b - fade, b));
-  el.style.opacity = p;
-  el.style.transform = `translateY(${(1 - seg(t, a, a + fade, out)) * 40}px)`;
-}
-// camera on an 800 px basis document: centre (cx, cy) at screen (540, sy), width w on screen W
-function cam(reel, view, docAspect) {
-  const img = reel.querySelector('img.doc');
-  const s = view.W / view.w;
-  img.style.width = 800 * s + 'px';
-  img.style.left = 540 - view.cx * s + 'px';
-  img.style.top = view.sy - view.cy * s + 'px';
-  img.style.transform = `rotate(${view.r || 0}deg)`;
-  img.style.transformOrigin = `${view.cx * s}px ${view.cy * s}px`;
-  img.style.opacity = view.o ?? 1;
-  return s;
-}
-function lerpView(a, b, p) {
-  const o = {};
-  for (const k of Object.keys(a)) o[k] = lerp(a[k], b[k] ?? a[k], p);
-  return o;
-}
-function ringAt(el, view, s, r, o) {
-  el.style.left = 540 + (r.x - view.cx) * s - 14 + 'px';
-  el.style.top = view.sy + (r.y - view.cy) * s - 14 + 'px';
-  el.style.width = r.w * s + 28 + 'px';
-  el.style.height = r.h * s + 28 + 'px';
-  el.style.opacity = o;
-}
-function steps(el, t, list) {
-  const cur = list.find(([a, b]) => t >= a && t < b);
-  if (!cur) { el.style.opacity = 0; return; }
-  const [a, b, n, text] = cur;
-  if (el.dataset.k !== text) { el.innerHTML = `<em>${n}</em>${text}`; el.dataset.k = text; }
-  const p = seg(t, a, a + 0.3, out) * (1 - seg(t, b - 0.25, b));
-  el.style.opacity = p;
-  el.style.transform = `translateX(${(1 - seg(t, a, a + 0.3, out)) * -60}px)`;
-}
-function endCard(el, t, a) {
-  const p = seg(t, a, a + 0.5);
-  el.style.clipPath = `inset(${(1 - p) * 100}% 0 0 0)`;
-  el.style.display = p > 0 ? 'block' : 'none';
-  el.querySelectorAll('.t,.s,.u,img').forEach((c, i) => {
-    const q = seg(t, a + 0.35 + i * 0.12, a + 0.8 + i * 0.12, out);
-    c.style.opacity = q;
-    c.style.transform = `translateY(${(1 - q) * 50}px)`;
-  });
+function el(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+
+// --- scene makers ---------------------------------------------------------
+
+// giant words that slam in (scale punch + small shake); "*word*" is highlighted
+function punch(lines, { bg = 'ink', size = 250, hl = '#B4643A', y = 0, kicker } = {}) {
+  return {
+    bg,
+    build(root) {
+      const html = lines.map((l) => l.replace(/\*(.+?)\*/g, '<span class="hl">$1</span>')).join('<br>');
+      const p = el(`<div class="punch" style="font-size:${size}px;color:${FG[bg]};--hl:${hl}">${html}</div>`);
+      root.append(p);
+      let k = null;
+      if (kicker) { k = el(`<div class="kicker" style="color:${FG[bg]};opacity:.75">${kicker}</div>`); root.append(k); }
+      return { p, k };
+    },
+    draw({ p, k }, lt) {
+      const s = lerp(1.32, 1, seg(lt, 0, 0.16, out));
+      const shake = lt < 0.2 ? (rnd(Math.floor(lt * 60)) - 0.5) * 14 : 0;
+      p.style.transform = `translate(${shake}px, calc(-50% + ${y}px)) scale(${s}) rotate(${lerp(-3, 0, seg(lt, 0, 0.2, out))}deg)`;
+      p.style.filter = `blur(${lerp(8, 0, seg(lt, 0, 0.12))}px)`;
+      p.querySelectorAll('.hl').forEach((h) => h.style.setProperty('--p', seg(lt, 0.08, 0.3, out)));
+      if (k) { k.style.top = 960 + y - p.offsetHeight / 2 - 80 + 'px'; k.style.opacity = 0.75 * seg(lt, 0.1, 0.3); }
+    },
+  };
 }
 
+// a real document in 3D, the camera moving through keyframes
+// keys: [time, {cx, cy, s, rx, ry, rz, sy}] in the 800 px basis of the page
+function docShot(file, ratio, keys, { bg = 'ink', rings = [], stickers = [], counter, mask } = {}) {
+  return {
+    bg,
+    build(root) {
+      const d = el(`<div class="doc3d" style="height:${800 * ratio}px"><img src="${DOC + file}"></div>`);
+      const rs = rings.map((r) => { const e = el(`<div class="ring" style="left:${r.x - 8}px;top:${r.y - 8}px;width:${r.w + 16}px;height:${r.h + 16}px"></div>`); d.append(e); return e; });
+      let m = null;
+      if (mask) { m = el(`<div class="mask" style="left:${mask.x}px;top:${mask.y}px;width:${mask.w}px;height:${mask.h}px"></div>`); d.append(m); }
+      root.append(d);
+      const ss = stickers.map((s) => { const e = el(`<div class="sticker" style="background:${s.bg};color:${s.fg};left:${s.left ?? 70}px;top:${s.top}px">${s.text}</div>`); root.append(e); return e; });
+      let c = null;
+      if (counter) { c = el(`<div class="counter" style="top:${counter.top}px;font-size:${counter.size ?? 170}px"><span></span></div>`); root.append(c); }
+      return { d, rs, ss, m, c };
+    },
+    draw({ d, rs, ss, m, c }, lt) {
+      let i = 0;
+      while (i < keys.length - 2 && lt > keys[i + 1][0]) i++;
+      const [ta, A] = keys[i], [tb, B] = keys[i + 1];
+      const p = seg(lt, ta, tb);
+      const v = {};
+      for (const k of Object.keys(A)) v[k] = lerp(A[k], B[k] ?? A[k], p);
+      const speed = Math.abs(B.cy - A.cy) + Math.abs(B.cx - A.cx);
+      const blur = speed > 80 ? Math.sin(Math.PI * clamp((lt - ta) / (tb - ta))) * 10 : 0;
+      d.style.left = 540 - v.cx + 'px';
+      d.style.top = (v.sy ?? 960) - v.cy + 'px';
+      d.style.transformOrigin = `${v.cx}px ${v.cy}px`;
+      d.style.transform = `perspective(2200px) rotateX(${v.rx ?? 0}deg) rotateY(${v.ry ?? 0}deg) rotateZ(${v.rz ?? 0}deg) scale(${v.s})`;
+      d.style.filter = blur > 0.5 ? `blur(${blur}px)` : '';
+      rings.forEach((r, j) => {
+        const q = seg(lt, r.a, r.a + 0.25, back) * (1 - seg(lt, r.b - 0.15, r.b));
+        rs[j].style.transform = `scale(${lerp(1.25, 1, clamp(q))})`;
+        rs[j].style.opacity = clamp(q * 1.5);
+      });
+      if (m) {
+        const q = seg(lt, mask.a, mask.b, (x) => x);
+        m.style.left = mask.x + mask.w * q + 'px';
+        m.style.width = mask.w * (1 - q) + 'px';
+      }
+      stickers.forEach((s, j) => {
+        const q = seg(lt, s.a, s.a + 0.3, back);
+        const o = 1 - seg(lt, s.b - 0.15, s.b);
+        ss[j].style.opacity = lt >= s.a ? o : 0;
+        ss[j].style.transform = `scale(${clamp(q, 0, 1.2)}) rotate(${s.rot ?? -2}deg)`;
+      });
+      if (c) {
+        const q = seg(lt, counter.a, counter.a + 0.9, out);
+        c.firstChild.textContent = (counter.pre ?? '') + chf(counter.to * q, counter.dec ?? 2) + (counter.post ?? '');
+        c.style.opacity = lt >= counter.a ? 1 - seg(lt, counter.b - 0.15, counter.b) : 0;
+        c.style.transform = `scale(${lerp(1.3, 1, seg(lt, counter.a, counter.a + 0.2, out))})`;
+      }
+    },
+  };
+}
+
+function endCard(title, sub, url, { bg = 'clay' } = {}) {
+  return {
+    bg,
+    build(root) {
+      const logo = el(`<img class="logo" src="${LOGO_W}" style="left:80px;top:430px">`);
+      const t = el(`<div class="punch" style="font-size:200px;color:${FG[bg]}">${title.replace(/\*(.+?)\*/g, '<span class="hl" style="--hl:#141110">$1</span>')}</div>`);
+      const s = el(`<div class="kicker" style="color:${FG[bg]};top:1280px;font-size:44px;text-transform:none;letter-spacing:0;font-weight:500;right:80px;line-height:1.3">${sub}</div>`);
+      const u = el(`<div class="sticker" style="background:${bg === 'ink' ? '#B4643A' : '#141110'};color:#F3EEE6;left:80px;top:1460px;font-size:64px">${url}</div>`);
+      root.append(logo, t, s, u);
+      return { logo, t, s, u };
+    },
+    draw({ logo, t, s, u }, lt) {
+      t.style.top = '640px';
+      t.style.transformOrigin = '0 0';
+      t.style.transform = `scale(${lerp(1.25, 1, seg(lt, 0, 0.18, out))})`;
+      t.querySelectorAll('.hl').forEach((h) => h.style.setProperty('--p', seg(lt, 0.15, 0.4, out)));
+      logo.style.opacity = seg(lt, 0.1, 0.3);
+      logo.style.transform = `translateY(${lerp(30, 0, seg(lt, 0.1, 0.35, out))}px)`;
+      s.style.opacity = seg(lt, 0.35, 0.6);
+      u.style.transform = `scale(${clamp(seg(lt, 0.55, 0.85, back), 0, 1.2)}) rotate(-2deg)`;
+      u.style.opacity = lt > 0.55 ? 1 : 0;
+    },
+  };
+}
+
+function custom(bg, build, draw) { return { bg, build, draw }; }
+
+// --- the reels ---------------------------------------------------------------
+
+const RATIO = { devis: 2021 / 1429, facture: 2573 / 1819, rapport: 2021 / 1429 };
 const REELS = {
-  'r-devis': { dur: 15, f(t) {
-    const R = $('r-devis');
-    const V = [
-      { t: 2.0, v: { cx: 400, cy: 560, w: 800, W: 900, sy: 1050, r: -4, o: 1 } },
-      { t: 3.6, v: { cx: 400, cy: 475, w: 760, W: 1100, sy: 960, r: 0, o: 1 } },
-      { t: 6.2, v: { cx: 590, cy: 640, w: 360, W: 1000, sy: 980, r: 0, o: 1 } },
-      { t: 9.0, v: { cx: 620, cy: 770, w: 300, W: 980, sy: 1000, r: 0, o: 1 } },
-    ];
-    let view = { ...V[0].v, o: seg(t, 1.6, 2.2) };
-    for (let i = 1; i < V.length; i++) if (t > V[i - 1].t) view = lerpView(V[i - 1].v, V[i].v, seg(t, V[i - 1].t, V[i].t));
-    if (t < 1.6) view.o = 0;
-    view.sy += (1 - seg(t, 1.6, 2.4, out)) * 400;
-    const s = cam(R, view);
-    words($('dv-cap'), 'Un devis. / Envoyé ce soir.', t, 0.1, 1.7);
-    ringAt($('dv-ring'), view, s, { x: 58, y: 458, w: 690, h: 36 }, seg(t, 4.0, 4.3) * (1 - seg(t, 5.8, 6.0)));
-    show($('dv-pill'), t, 4.0, 6.0);
-    const p = seg(t, 6.4, 7.8, out);
-    $('dv-total').innerHTML = t > 6.3 && t < 9 ? '<span>' + chf(11393.75 * p) + ' CHF</span>' : '';
-    steps($('dv-step'), t, [[2.4, 6.0, '1', 'Vous dictez'], [6.0, 9.6, '2', 'Les totaux se calculent'], [9.6, 12.4, '3', 'Le client signe en ligne']]);
-    $('dv-total').style.opacity = seg(t, 6.3, 6.5) * (1 - seg(t, 8.6, 8.9));
-    // the client's signature is drawn from left to right
-    ringAt($('dv-ring'), view, s, t > 6 ? { x: 522, y: 712, w: 200, h: 120 } : { x: 58, y: 458, w: 690, h: 36 },
-      t < 6 ? seg(t, 4.0, 4.3) * (1 - seg(t, 5.8, 6.0)) : seg(t, 10.0, 10.3) * (1 - seg(t, 12.2, 12.4)));
-    show($('dv-signed'), t, 10.2, 12.4);
-    endCard($('dv-end'), t, 12.4);
-  } },
+  'r-devis': [
+    [0.55, punch(['Vos *devis*'], { size: 270 })],
+    [0.5, punch(['le soir,'], { bg: 'clay', size: 270 })],
+    [0.6, punch(['à la main', '?'], { bg: 'paper', size: 250 })],
+    [0.45, punch(['*Stop.*'], { size: 380 })],
+    [2.9, docShot('devis-signe.webp', RATIO.devis, [
+      [0, { cx: 400, cy: 560, s: 1.0, rx: 38, ry: -12, rz: -8, sy: 1700 }],
+      [0.7, { cx: 400, cy: 520, s: 1.15, rx: 8, ry: -4, rz: -2, sy: 980 }],
+      [2.9, { cx: 420, cy: 474, s: 1.55, rx: 0, ry: 0, rz: 0, sy: 1000 }],
+    ], { rings: [{ x: 58, y: 458, w: 690, h: 36, a: 1.0, b: 2.9 }],
+         stickers: [{ text: '🎙 « Carrelage sol et mur, 28 m² »', bg: '#F3EEE6', fg: '#141110', top: 330, a: 0.8, b: 2.9, rot: -3 }] })],
+    [2.4, docShot('devis-signe.webp', RATIO.devis, [
+      [0, { cx: 420, cy: 474, s: 1.55, sy: 1000 }],
+      [0.45, { cx: 585, cy: 640, s: 2.55, rz: 1.5, sy: 760 }],
+      [2.4, { cx: 590, cy: 646, s: 2.7, rz: 0, sy: 760 }],
+    ], { rings: [{ x: 420, y: 626, w: 330, h: 40, a: 0.5, b: 2.4 }],
+         counter: { top: 1180, to: 11393.75, post: ' CHF', a: 0.55, b: 2.4, size: 175 },
+         stickers: [{ text: 'TVA 8,1 % comprise', bg: '#B4643A', fg: '#FFF7EF', top: 1450, left: 300, a: 1.3, b: 2.4, rot: 3 }] })],
+    [2.5, docShot('devis-signe.webp', RATIO.devis, [
+      [0, { cx: 590, cy: 646, s: 2.7, sy: 760 }],
+      [0.45, { cx: 622, cy: 770, s: 2.9, rz: -1.5, sy: 900 }],
+      [2.5, { cx: 622, cy: 772, s: 3.05, rz: 0, sy: 900 }],
+    ], { rings: [{ x: 522, y: 712, w: 200, h: 120, a: 1.4, b: 2.5 }],
+         mask: { x: 535, y: 735, w: 180, h: 55, a: 0.55, b: 1.35 },
+         stickers: [{ text: '✓ Signé par le client · 17:42', bg: '#2E7D4F', fg: '#fff', top: 1330, a: 1.45, b: 2.5, rot: -3 }] })],
+    [0.5, punch(['*Signé.*'], { bg: 'green', size: 330, hl: '#141110' })],
+    [0.6, punch(['Sans', 'compte.'], { bg: 'paper', size: 280 })],
+    [3.0, endCard('Vos devis,<br>avec *Cantia*.', '14 jours d’essai gratuit, sans engagement.', 'cantia.ch')],
+  ],
 
-  'r-facture': { dur: 13, f(t) {
-    const R = $('r-facture');
-    const A = { cx: 400, cy: 560, w: 800, W: 880, sy: 1080, r: 3 };
-    const B = { cx: 340, cy: 880, w: 230, W: 900, sy: 1000, r: 0 };
-    const view = lerpView(A, B, seg(t, 2.6, 4.2));
-    view.sy += (1 - seg(t, 1.6, 2.4, out)) * 400;
-    view.o = seg(t, 1.6, 2.1);
-    const s = cam(R, view);
-    words($('fa-cap'), 'Votre client / paie comment ?', t, 0.1, 1.7);
-    steps($('fa-step'), t, [[2.4, 6.4, '1', 'Il scanne le QR'], [6.4, 9.6, '2', 'Vous importez le relevé']]);
-    ringAt($('fa-ring'), view, s, { x: 252, y: 792, w: 178, h: 180 }, seg(t, 4.2, 4.5) * (1 - seg(t, 9.2, 9.4)));
-    // scanning bar over the QR code
-    const sc = $('fa-scan');
-    const q = ((t - 4.4) % 1.2) / 1.2;
-    const top = view.sy + (792 - view.cx * 0 - view.cy) * s;
-    sc.style.left = 540 + (252 - view.cx) * s + 'px';
-    sc.style.width = 178 * s + 'px';
-    sc.style.top = top + Math.abs(Math.sin(q * Math.PI)) * 180 * s + 'px';
-    sc.style.opacity = t > 4.4 && t < 6.2 ? 1 : 0;
-    show($('fa-pill'), t, 4.6, 6.2);
-    show($('fa-paid'), t, 6.6, 9.4);
-    endCard($('fa-end'), t, 9.6);
-  } },
+  'r-facture': [
+    [0.5, punch(['Votre', '*client*'], { size: 270 })],
+    [0.5, punch(['paie'], { bg: 'clay', size: 340 })],
+    [0.6, punch(['quand', '?'], { bg: 'paper', size: 340 })],
+    [3.2, docShot('facture-exemple.png', RATIO.facture, [
+      [0, { cx: 400, cy: 600, s: 1.0, rx: 30, ry: 14, rz: 6, sy: 1750 }],
+      [0.7, { cx: 400, cy: 600, s: 1.1, rx: 6, ry: 3, rz: 2, sy: 960 }],
+      [1.3, { cx: 340, cy: 880, s: 3.2, rx: 0, ry: 0, rz: 0, sy: 1000 }],
+      [3.2, { cx: 340, cy: 882, s: 3.35, sy: 1000 }],
+    ], { rings: [{ x: 252, y: 792, w: 178, h: 180, a: 1.4, b: 3.2 }],
+         stickers: [{ text: '📱 Il scanne', bg: '#F3EEE6', fg: '#141110', top: 300, a: 1.5, b: 3.2, rot: -3 },
+                    { text: 'Montant · IBAN · référence', bg: '#B4643A', fg: '#FFF7EF', top: 1520, a: 2.1, b: 3.2, rot: 2 }] })],
+    [2.0, docShot('facture-exemple.png', RATIO.facture, [
+      [0, { cx: 340, cy: 882, s: 3.35, sy: 1000 }],
+      [0.45, { cx: 600, cy: 878, s: 3.3, rz: 1, sy: 980 }],
+      [2.0, { cx: 600, cy: 878, s: 3.45, rz: 0, sy: 980 }],
+    ], { rings: [{ x: 496, y: 858, w: 190, h: 38, a: 0.5, b: 2.0 }],
+         stickers: [{ text: 'Relevé importé → payée', bg: '#F3EEE6', fg: '#141110', top: 1300, a: 0.7, b: 2.0, rot: -2 }] })],
+    [0.6, punch(['*Payé.*', '✓'], { bg: 'green', size: 330, hl: '#141110' })],
+    [3.0, endCard('Facture QR,<br>en *un clic*.', 'Acomptes, relances, relevé bancaire. 14 jours d’essai.', 'cantia.ch')],
+  ],
 
-  'r-rapport': { dur: 14, f(t) {
-    const R = $('r-rapport');
-    words($('ra-cap'), t < 3.8 ? 'Une note vocale / sur le chantier…' : 'L’IA rédige.', t, t < 3.8 ? 0.1 : 3.9, t < 3.8 ? 3.4 : 7.2);
-    const wave = $('ra-wave');
-    if (!wave.children.length) wave.innerHTML = Array.from({ length: 36 }, () => '<i></i>').join('');
-    [...wave.children].forEach((b, i) => {
-      const h = 30 + 200 * Math.abs(Math.sin(t * 7 + i * 0.7) * Math.sin(t * 3.1 + i * 0.33));
-      b.style.height = h + 'px';
-    });
-    wave.style.opacity = seg(t, 0.4, 0.8) * (1 - seg(t, 3.4, 3.8));
-    const text = 'Armatures des murs du rez contrôlées et conformes après ajout de trois barres. Bétonnage confirmé pour demain 7h00.';
-    const n = Math.floor(text.length * seg(t, 4.2, 6.8, (p) => p));
-    $('ra-type').innerHTML = t > 4.1 && t < 7.4 ? text.slice(0, n) + '<span style="color:#E0864F">▍</span>' : '';
-    $('ra-type').style.opacity = 1 - seg(t, 7.1, 7.4);
-    const A = { cx: 400, cy: 400, w: 800, W: 900, sy: 1080, r: -3 };
-    const B = { cx: 400, cy: 340, w: 700, W: 1040, sy: 960, r: 0 };
-    const C = { cx: 400, cy: 720, w: 700, W: 1040, sy: 960, r: 0 };
-    let view = t < 9.2 ? lerpView(A, B, seg(t, 7.6, 8.6)) : lerpView(B, C, seg(t, 9.2, 10.2));
-    view.sy += (1 - seg(t, 7.2, 8.0, out)) * 500;
-    view.o = seg(t, 7.2, 7.6);
-    const s = cam(R, view);
-    ringAt($('ra-ring'), view, s, t < 9.6 ? { x: 56, y: 306, w: 690, h: 76 } : { x: 56, y: 680, w: 690, h: 88 },
-      t < 9.6 ? seg(t, 8.4, 8.7) * (1 - seg(t, 9.2, 9.4)) : seg(t, 10.2, 10.5) * (1 - seg(t, 11.2, 11.4)));
-    steps($('ra-step'), t, [[7.8, 9.4, '1', 'Le résumé, rédigé'], [9.4, 11.4, '2', 'L’imprévu, à facturer']]);
-    endCard($('ra-end'), t, 11.4);
-  } },
+  'r-rapport': [
+    [0.5, punch(['18h30.'], { size: 340 })],
+    [0.5, punch(['Le *rapport*'], { bg: 'clay', size: 250, hl: '#141110' })],
+    [0.6, punch(['pas fait.'], { bg: 'paper', size: 290 })],
+    [2.0, custom('ink', (root) => {
+      const w = el('<div class="wave" style="top:760px;height:420px"></div>');
+      w.innerHTML = Array.from({ length: 30 }, () => '<i></i>').join('');
+      const s = el('<div class="sticker" style="background:#B4643A;color:#FFF7EF;left:70px;top:420px">🎙 Note vocale · 0:24</div>');
+      root.append(w, s);
+      return { w, s };
+    }, ({ w, s }, lt) => {
+      [...w.children].forEach((b, i) => { b.style.height = 40 + 360 * Math.abs(Math.sin(lt * 9 + i * 0.6) * Math.sin(lt * 4.3 + i * 0.27)) + 'px'; });
+      w.style.transform = `scale(${lerp(0.6, 1, seg(lt, 0, 0.25, out))})`;
+      s.style.transform = `scale(${clamp(seg(lt, 0.15, 0.45, back), 0, 1.2)}) rotate(-3deg)`;
+    })],
+    [2.6, custom('ink', (root) => {
+      const k = el('<div class="sticker" style="background:#F3EEE6;color:#141110;left:70px;top:420px">✨ L’IA rédige</div>');
+      const t = el('<div class="typed" style="top:700px"></div>');
+      root.append(k, t);
+      return { k, t };
+    }, ({ k, t }, lt) => {
+      const text = 'Armatures des murs du rez <b>contrôlées et conformes</b> après ajout de trois barres. Bétonnage confirmé pour <b>demain 7h00</b>.';
+      const plain = text.replace(/<[^>]+>/g, '');
+      const n = Math.floor(plain.length * seg(lt, 0.2, 2.1, (x) => x));
+      let html = '', c = 0;
+      for (const part of text.split(/(<\/?b>)/)) {
+        if (part.startsWith('<')) { html += part; continue; }
+        const take = Math.max(0, Math.min(part.length, n - c)); html += part.slice(0, take); c += part.length;
+      }
+      t.innerHTML = html + (lt < 2.3 ? '<span style="color:#E0864F">▍</span>' : '');
+      k.style.transform = `scale(${clamp(seg(lt, 0, 0.3, back), 0, 1.2)}) rotate(-3deg)`;
+    })],
+    [3.0, docShot('rapport-chantier.webp', RATIO.rapport, [
+      [0, { cx: 400, cy: 500, s: 0.95, rx: 34, ry: -10, rz: -6, sy: 1750 }],
+      [0.7, { cx: 400, cy: 360, s: 1.35, rx: 0, ry: 0, rz: 0, sy: 960 }],
+      [1.5, { cx: 400, cy: 360, s: 1.4, sy: 960 }],
+      [2.0, { cx: 400, cy: 725, s: 1.45, rz: 1, sy: 960 }],
+      [3.0, { cx: 400, cy: 726, s: 1.55, rz: 0, sy: 960 }],
+    ], { rings: [{ x: 56, y: 306, w: 690, h: 76, a: 0.8, b: 1.6 }, { x: 56, y: 680, w: 690, h: 88, a: 2.1, b: 3.0 }],
+         stickers: [{ text: '📸 Photos rangées', bg: '#F3EEE6', fg: '#141110', top: 1520, a: 0.9, b: 1.7, rot: 2 },
+                    { text: '⚠️ À facturer en plus', bg: '#B4643A', fg: '#FFF7EF', top: 1520, a: 2.15, b: 3.0, rot: -2 }] })],
+    [0.6, punch(['*Envoyé.*'], { bg: 'clay', size: 320, hl: '#141110' })],
+    [3.0, endCard('Le rapport,<br>sans *la soirée*.', 'Notes vocales, photos, IA. 14 jours d’essai gratuit.', 'cantia.ch')],
+  ],
 
-  'r-taux': { dur: 12, f(t) {
-    const P = $('ta-phone');
-    words($('ta-cap'), 'Combien vaut / votre heure ?', t, 0.1, 8.0);
-    const p = seg(t, 1.4, 2.2, out);
-    P.style.top = lerp(1950, 600, p) + 'px';
-    const img = P.querySelector('img');
-    // scroll through the real calculator, down to the result
-    img.style.top = -lerp(0, 1020, seg(t, 2.6, 6.2)) + 'px';
-    P.style.opacity = 1 - seg(t, 8.0, 8.3);
-    const v = 79.5 * seg(t, 6.2, 7.4, out);
-    $('ta-big').innerHTML = t > 6.1 && t < 8.3 ? '<span>CHF ' + v.toFixed(2) + ' / h</span>' : '';
-    $('ta-big').style.opacity = seg(t, 6.1, 6.3) * (1 - seg(t, 8.0, 8.3));
-    endCard($('ta-end'), t, 8.4);
-  } },
+  'r-taux': [
+    [0.5, punch(['Votre', '*heure*'], { size: 290 })],
+    [0.5, punch(['vaut'], { bg: 'clay', size: 360 })],
+    [0.6, punch(['combien', '?'], { bg: 'paper', size: 260 })],
+    [4.4, custom('ink', (root) => {
+      const ph = el('<div class="phone"><img src="captures/calcul-taux-horaire-full.png"></div>');
+      const c = el('<div class="counter" style="top:1380px;font-size:190px"><span></span></div>');
+      const s = el('<div class="sticker" style="background:#F3EEE6;color:#141110;left:70px;top:250px">🧮 Le vrai calcul</div>');
+      root.append(ph, c, s);
+      return { ph, c, s };
+    }, ({ ph, c, s }, lt) => {
+      const p = seg(lt, 0, 0.6, out);
+      ph.style.left = '220px';
+      ph.style.top = lerp(1900, 420, p) + 'px';
+      ph.style.transform = `perspective(2200px) rotateX(${lerp(30, 8, p)}deg) rotateY(${lerp(-18, -10, seg(lt, 0, 4.4))}deg) rotateZ(${lerp(-8, -3, p)}deg)`;
+      ph.querySelector('img').style.top = -lerp(0, 1060, seg(lt, 0.7, 2.9)) + 'px';
+      const q = seg(lt, 2.9, 3.7, out);
+      c.firstChild.textContent = 'CHF ' + chf(79.5 * q) + ' / h';
+      c.style.opacity = lt > 2.9 ? 1 : 0;
+      c.style.transform = `scale(${lerp(1.3, 1, seg(lt, 2.9, 3.1, out))})`;
+      s.style.transform = `scale(${clamp(seg(lt, 0.4, 0.7, back), 0, 1.2)}) rotate(-3deg)`;
+    })],
+    [0.35, punch(['Salaires'], { bg: 'paper', size: 260 })],
+    [0.35, punch(['Charges'], { bg: 'clay', size: 260 })],
+    [0.35, punch(['Frais'], { bg: 'ink', size: 300 })],
+    [0.5, punch(['*Marge.*'], { bg: 'paper', size: 300 })],
+    [3.0, endCard('Calculez<br>votre *vrai taux*.', 'Gratuit, sans compte. Avec le PDF du calcul.', 'cantia.ch/outils')],
+  ],
 
-  'r-salaire': { dur: 13, f(t) {
-    words($('sa-cap'), '5’500 brut. / Et en net ?', t, 0.1, 7.6);
-    const items = [['AVS / AI / APG', 291.5], ['Chômage (AC)', 60.5], ['LPP', 115.35], ['Accidents (AANP)', 77.0], ['Allocations familiales', 4.95]];
-    const box = $('sa-rows');
-    if (!box.children.length) box.innerHTML = items.map(([l, v], i) => `<div class="row" style="top:${640 + i * 112}px"><span>${l}</span><b>− ${chf(v)}</b></div>`).join('');
-    let net = 5500;
-    [...box.children].forEach((r, i) => {
-      const a = 1.6 + i * 0.75;
-      show(r, t, a, 7.6);
-      net -= items[i][1] * seg(t, a, a + 0.5);
-    });
-    $('sa-big').textContent = t < 7.6 ? 'CHF ' + chf(net) : 'CHF 6’160.40';
-    $('sa-big').style.color = t < 7.6 ? '#F3EEE6' : '#F2B489';
-    $('sa-big').style.opacity = seg(t, 1.4, 1.7) * (1 - seg(t, 10.1, 10.3));
-    $('sa-sub').textContent = t < 7.6 ? 'salaire net par mois' : 'ce qu’il coûte à l’employeur, charges comprises';
-    $('sa-sub').style.opacity = seg(t, 1.4, 1.7) * (1 - seg(t, 10.1, 10.3));
-    endCard($('sa-end'), t, 10.3);
-  } },
+  'r-salaire': [
+    [0.55, punch(['5’500.–'], { size: 320 })],
+    [0.5, punch(['*brut.*'], { bg: 'clay', size: 340, hl: '#141110' })],
+    [0.6, punch(['Et en net', '?'], { bg: 'paper', size: 250 })],
+    [4.6, custom('ink', (root) => {
+      const items = [['AVS / AI / APG', 291.5], ['Chômage', 60.5], ['LPP', 115.35], ['Accidents', 77.0], ['Allocations', 4.95]];
+      const rows = items.map(([l, v], i) => { const r = el(`<div class="row" style="top:${330 + i * 150}px"><span>${l}</span><b>− ${chf(v)}</b></div>`); root.append(r); return r; });
+      const c = el('<div class="counter" style="top:1230px;font-size:200px"><span></span></div>');
+      const s = el('<div class="kicker" style="color:#F3EEE6;opacity:.7;top:1500px;left:0;right:0;text-align:center">salaire net par mois</div>');
+      root.append(c, s);
+      return { rows, items, c };
+    }, ({ rows, items, c }, lt) => {
+      let net = 5500;
+      rows.forEach((r, i) => {
+        const a = 0.3 + i * 0.5;
+        const q = seg(lt, a, a + 0.25, back);
+        r.style.opacity = lt >= a ? 1 : 0;
+        r.style.transform = `translateX(${lerp(-1100, 0, clamp(q))}px) rotate(${lerp(-6, i % 2 ? 1 : -1, clamp(q))}deg)`;
+        net -= items[i][1] * seg(lt, a, a + 0.3, out);
+      });
+      c.firstChild.textContent = 'CHF ' + chf(net);
+    })],
+    [0.6, punch(['Net :', '*4’950.70*'], { bg: 'paper', size: 240 })],
+    [1.2, punch(['Coût', 'employeur', '*6’160.40*'], { bg: 'clay', size: 200, hl: '#141110' })],
+    [3.0, endCard('Brut ou net&nbsp;?<br>*Calculez-le.*', 'Le calculateur de salaire suisse, gratuit et sans compte.', 'cantia.ch/calculateur-salaire', { bg: 'ink' })],
+  ],
 };
 
-window.frame = (id, t) => REELS[id].f(t);
-window.durations = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, v.dur]));
-for (const id of Object.keys(REELS)) REELS[id].f(REELS[id].dur * 0.45);
+// --- engine ---------------------------------------------------------------------
+
+const noise = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d'); const d = x.createImageData(256, 256);
+  for (let i = 0; i < d.data.length; i += 4) { const v = rnd(i + 7) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0); return c.toDataURL();
+})();
+document.querySelectorAll('.grain').forEach((g) => (g.style.backgroundImage = `url(${noise})`));
+
+const state = {};
+function frame(id, t) {
+  const R = document.getElementById(id);
+  const scenes = REELS[id];
+  let start = 0, idx = 0;
+  while (idx < scenes.length - 1 && t >= start + scenes[idx][0]) { start += scenes[idx][0]; idx++; }
+  const sc = scenes[idx][1];
+  const lt = t - start;
+  const stage = R.querySelector('.stage');
+  if (state[id]?.idx !== idx) {
+    stage.innerHTML = '';
+    stage.style.background = BG[sc.bg];
+    state[id] = { idx, refs: sc.build(stage) };
+  }
+  sc.draw(state[id].refs, lt);
+  // white flash on every cut, grain moving every frame
+  R.querySelector('.flash').style.opacity = idx > 0 ? 0.55 * (1 - clamp(lt / 0.09)) : 0;
+  R.querySelector('.grain').style.backgroundPosition = `${Math.floor(rnd(t * 30) * 256)}px ${Math.floor(rnd(t * 30 + 1) * 256)}px`;
+}
+window.frame = frame;
+window.durations = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, Math.round(v.reduce((s, [d]) => s + d, 0) * 100) / 100]));
+for (const id of Object.keys(REELS)) frame(id, 0.3);
 </script>
 </body>
 </html>
