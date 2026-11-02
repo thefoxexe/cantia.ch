@@ -48,9 +48,7 @@ export default function LinksPage() {
       <ScrollView contentContainerStyle={styles.page}>
         <View style={styles.card}>
           {/* cover */}
-          <View style={styles.cover}>
-            <Image source={MARK_WHITE} style={styles.coverMark} />
-          </View>
+          <View style={styles.cover} />
 
           {/* identity */}
           <View style={styles.identity}>
@@ -124,7 +122,6 @@ const styles = StyleSheet.create({
     height: 132, backgroundColor: INK, overflow: 'hidden',
     backgroundImage: 'radial-gradient(120% 140% at 85% 0%, #B4643A 0%, rgba(180,100,58,.55) 32%, rgba(23,19,15,0) 62%), linear-gradient(160deg, #241C16 0%, #17130F 100%)',
   } as any,
-  coverMark: { position: 'absolute', right: -36, bottom: -56, width: 210, height: 210, opacity: 0.08 },
 
   identity: { alignItems: 'center', paddingHorizontal: 26, marginTop: -48 },
   avatar: {
