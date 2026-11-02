@@ -21,7 +21,7 @@ const FONT = { fontFamily: `${marketingFonts.body}, system-ui, sans-serif` };
 function Row({ href, children, style }: { href: string; children: React.ReactNode; style?: any }) {
   return (
     <Link href={href as any} asChild>
-      <Pressable style={({ hovered, pressed }: any) => [style, (hovered || pressed) && styles.rowHover]}>{children}</Pressable>
+      <Pressable style={style}>{children}</Pressable>
     </Link>
   );
 }
@@ -47,12 +47,12 @@ export default function LinksPage() {
             <Text style={styles.heroTitle}>Devis, factures QR, chantiers, salaires et compta, dans une seule app.</Text>
             <View style={styles.heroActions}>
               <Link href={authHref('signup') as any} asChild>
-                <Pressable style={({ hovered }: any) => [styles.btn, hovered && { opacity: 0.9 }]}>
+                <Pressable style={styles.btn}>
                   <Text style={styles.btnText}>Essai gratuit 14 jours</Text>
                 </Pressable>
               </Link>
               <Link href="/" asChild>
-                <Pressable style={({ hovered }: any) => [styles.btnGhost, hovered && { backgroundColor: 'rgba(247,241,230,.08)' }]}>
+                <Pressable style={styles.btnGhost}>
                   <Text style={styles.btnGhostText}>Découvrir cantia.ch</Text>
                 </Pressable>
               </Link>
@@ -158,7 +158,6 @@ const styles = StyleSheet.create({
   sectionNote: { ...FONT, fontSize: 13, color: colors.textMuted, marginTop: 32, marginBottom: 10 },
   group: { backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: '#EADFCE', overflow: 'hidden' },
   sep: { height: 1, backgroundColor: '#EFE6D8', marginHorizontal: 18 },
-  rowHover: { backgroundColor: '#FBF7F0' },
 
   product: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18 },
   productText: { ...FONT, fontSize: 14, lineHeight: 20, color: bodyInk },
