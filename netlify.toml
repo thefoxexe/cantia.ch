@@ -132,10 +132,21 @@
   status = 200
   force = true
 
+# Short link for the social bios: cantia.ch/link -> cantia.ch/liens
+[[redirects]]
+  from = "/link"
+  to = "/liens"
+  status = 301
+
 # BEGIN generated routes (scripts/generate-netlify-redirects.mjs — do not hand-edit)
 [[redirects]]
   from = "/tarifs"
   to = "/tarifs/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/liens"
+  to = "/liens/index.html"
   status = 200
 
 [[redirects]]

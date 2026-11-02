@@ -30,6 +30,12 @@ export const ROUTES = [
       'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, 14 jours d’essai.',
   },
   {
+    path: 'liens',
+    title: 'Cantia · Tous nos liens',
+    description:
+      'Cantia, Cantia Accounting, Cantia Partners et nos calculateurs gratuits pour les PME suisses : salaire, taux horaire, TVA, marge, intérêts de retard, vacances.',
+  },
+  {
     path: 'outils',
     title: "Outils gratuits pour les entreprises du bâtiment en Suisse | Cantia",
     description:
