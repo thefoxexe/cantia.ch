@@ -1,15 +1,16 @@
 # Reels Instagram — Cantia
 
-Cinq Reels verticaux (1080 × 1920, 30 images/s, 10 à 14 secondes), dans `reels/`.
-Style : coupes rapides calées sur 120 BPM (un plan par temps de 0,5 s), gros titres condensés qui frappent l’écran, vrais documents Cantia en 3D avec mouvements de caméra, étiquettes, flash à chaque coupe et grain de film. Choisissez une musique autour de 120 BPM pour que les coupes tombent sur le rythme.
-Ils ont **leur propre son** : une petite musique à 120 BPM (kick, clap, basse, nappe en la mineur) et des bruitages calés sur l’image (whoosh à chaque coupe, impacts sur les gros titres, pop des étiquettes, tic-tac des chiffres, frappe au clavier, bip du scan, « ding » sur signé / payé / envoyé). Tout est synthétisé par `sound.py`, sans échantillon ni musique externe : aucun droit à gérer. Si vous préférez un son tendance d’Instagram, baissez le son d’origine à 0 dans l’éditeur.
-Le texte important reste au centre de l’image, hors des zones couvertes par les boutons d’Instagram.
+Cinq Reels verticaux (1080 × 1920, 30 images/s, 13 à 15 secondes), dans `reels/`.
 
-Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg ; le son vient de `sound.py`, à partir des repères `window.events()`). `--preview` sort quelques images fixes pour vérifier un Reel, `--audio` refait seulement le son sur les vidéos existantes.
+Direction : un film produit plutôt qu’un Reel « effets ». Fond crème, beaucoup d’espace, un plan par idée (environ 3 secondes), titres en phrases révélés ligne par ligne, caméra lente sur le vrai document Cantia, détails entourés d’un trait fin qui se dessine, et une courte légende éditoriale sous l’image. Le logo et le nom de la rubrique restent en haut, avec une fine barre de progression. Pas de flash, pas de tremblement, pas d’emoji.
 
-## 1 · Le devis — `cantia-reel-devis.mp4` (14 s)
+Les Reels sont **muets** : ajoutez un son dans Instagram au moment de publier (une musique calme et premium, ou un son tendance à faible volume). Tout le texte se lit sans le son.
 
-Vos devis, le soir, à la main ? Stop ✋
+Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg). `--preview` sort quelques images fixes pour vérifier un Reel.
+
+## 1 · Le devis — `cantia-reel-devis.mp4` (15 s)
+
+Un devis prêt avant de quitter le chantier.
 
 Vous dictez les lignes, Cantia met vos prix du catalogue, calcule la TVA et les totaux. Le client signe sur son téléphone, sans compte.
 
@@ -17,9 +18,9 @@ Vous dictez les lignes, Cantia met vos prix du catalogue, calcule la TVA et les 
 
 #Cantia #Devis #Artisan #Construction #Batiment #PME #Suisse #Romandie #LogicielSuisse
 
-## 2 · La facture QR — `cantia-reel-facture.mp4` (10 s)
+## 2 · La facture QR — `cantia-reel-facture.mp4` (14 s)
 
-Votre client paie quand ? Dès qu’il scanne 📱
+Une facture que le client paie en un scan.
 
 La facture QR suisse en un clic : montant, IBAN et référence déjà remplis. Vous importez votre relevé bancaire, Cantia voit ce qui est payé.
 
@@ -27,9 +28,9 @@ La facture QR suisse en un clic : montant, IBAN et référence déjà remplis. V
 
 #Cantia #QRFacture #Facture #PME #Artisan #Entrepreneur #Suisse #Romandie
 
-## 3 · Le rapport de chantier — `cantia-reel-rapport.mp4` (13 s)
+## 3 · Le rapport de chantier — `cantia-reel-rapport.mp4` (14 s)
 
-18h30, le rapport pas fait ? Une note vocale, l’IA rédige 🎙️
+Le rapport du jour, dicté en rangeant les outils.
 
 Vous relisez, il part au client. Et l’imprévu du jour est signalé, pour être facturé en travaux supplémentaires.
 
@@ -37,9 +38,9 @@ Vous relisez, il part au client. Et l’imprévu du jour est signalé, pour êtr
 
 #Cantia #RapportDeChantier #Chantier #Construction #IA #Artisan #Suisse #Romandie
 
-## 4 · Le taux horaire — `cantia-reel-taux.mp4` (11 s)
+## 4 · Le taux horaire — `cantia-reel-taux.mp4` (13 s)
 
-Combien vaut vraiment votre heure ? ⏱️
+Votre taux horaire, calculé sur vos vrais coûts.
 
 Salaires, charges, frais, heures facturables et marge : notre calculateur gratuit vous donne le taux à facturer. Ici, 79.50 CHF de l’heure (exemple : 4 employés, 5’600.– de salaire, 120’000.– de frais).
 
@@ -47,9 +48,9 @@ Salaires, charges, frais, heures facturables et marge : notre calculateur gratui
 
 #Cantia #TauxHoraire #Artisan #Prix #Devis #PME #Suisse #Romandie
 
-## 5 · Du brut au net — `cantia-reel-salaire.mp4` (11 s)
+## 5 · Du brut au net — `cantia-reel-salaire.mp4` (13,5 s)
 
-5’500.– brut. Combien en net ? 💸
+5’500.– brut. Ce qu’il reste à votre employé.
 
 AVS, chômage, LPP, accidents, allocations : 4’950.70 net par mois. Et pour l’employeur, 6’160.40 charges comprises (exemple : employé né en 1994, Vaud, célibataire, sans enfant).
 
@@ -61,4 +62,4 @@ AVS, chômage, LPP, accidents, allocations : 4’950.70 net par mois. Et pour l�
 
 - Les chiffres des Reels 4 et 5 sont ceux affichés par les vrais calculateurs avec leurs valeurs d’exemple. Ce sont des exemples, présentés comme tels dans les descriptions.
 - Les documents (devis, facture, rapport) sont les exemples de cantia.ch.
-- Couverture : dans Instagram, choisissez la première image (le gros titre) ou la carte de fin.
+- Couverture : dans Instagram, choisissez l’image où le titre est entièrement affiché (vers 1,5 s) ou la carte de fin.
