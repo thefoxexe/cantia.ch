@@ -215,7 +215,7 @@ function end(R, t, a) {
 function progress(R, t, dur) { R.querySelector('.progress').style.width = 912 * clamp(t / dur) + 'px'; }
 
 const REELS = {
-  'r-devis': { dur: 15.5, f(R, t) {
+  'r-devis': { dur: 15.5, cuts: [2.5, 3.4, 7.2, 10.6, 13.6], f(R, t) {
     head(R, t, 0.2, 2.5);
     cam(R, t, [[0, 400, 560, 760], [3.4, 400, 560, 800], [4.6, 404, 474, 1280], [7.2, 404, 474, 1320], [8.4, 586, 646, 1700], [10.6, 586, 646, 1740], [11.8, 622, 772, 1800], [13.4, 622, 772, 1840]], 2.6);
     draw(R, t, 0, 4.8, 7.4); draw(R, t, 1, 8.6, 10.8); draw(R, t, 2, 12.4, 13.6);
@@ -230,7 +230,7 @@ const REELS = {
     end(R, t, 13.6);
   } },
 
-  'r-facture': { dur: 14.5, f(R, t) {
+  'r-facture': { dur: 14.5, cuts: [2.5, 3.4, 7.4, 10.6, 12.8], f(R, t) {
     head(R, t, 0.2, 2.5);
     cam(R, t, [[0, 400, 566, 760], [3.4, 400, 566, 800], [4.6, 342, 882, 1500], [7.4, 342, 882, 1540], [8.6, 598, 878, 1800], [10.6, 598, 878, 1840], [11.6, 160, 241, 1500], [12.8, 160, 241, 1540]], 2.6);
     draw(R, t, 0, 4.8, 7.6); draw(R, t, 1, 8.8, 10.8); draw(R, t, 2, 11.8, 12.9);
@@ -242,7 +242,7 @@ const REELS = {
     end(R, t, 12.8);
   } },
 
-  'r-rapport': { dur: 14.5, f(R, t) {
+  'r-rapport': { dur: 14.5, cuts: [2.4, 5.6, 6.6, 9.8, 12.8], f(R, t) {
     head(R, t, 0.2, 2.4);
     // voice note, then the written report
     const pl = R.querySelector('.player');
@@ -266,7 +266,7 @@ const REELS = {
     end(R, t, 12.8);
   } },
 
-  'r-taux': { dur: 13, f(R, t) {
+  'r-taux': { dur: 13, cuts: [2.6, 6.6, 8.2, 11.3], f(R, t) {
     head(R, t, 0.2, 2.5);
     const ph = R.querySelector('.phone');
     ph.style.opacity = seg(t, 2.7, 3.3) * (1 - seg(t, 8.0, 8.5));
@@ -284,7 +284,7 @@ const REELS = {
     end(R, t, 11.3);
   } },
 
-  'r-salaire': { dur: 13.5, f(R, t) {
+  'r-salaire': { dur: 13.5, cuts: [2.6, 7.4, 9.2, 11.3], f(R, t) {
     head(R, t, 0.2, 2.5);
     const card = R.querySelector('.card');
     card.style.opacity = seg(t, 2.7, 3.2) * (1 - seg(t, 10.8, 11.3));
@@ -304,6 +304,8 @@ const REELS = {
 };
 
 window.frame = (id, t) => REELS[id].f(document.getElementById(id), t);
+// shot changes, where render-reels.js puts the slide sound
+window.cuts = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, v.cuts]));
 window.durations = Object.fromEntries(Object.entries(REELS).map(([k, v]) => [k, v.dur]));
 for (const id of Object.keys(REELS)) window.frame(id, 9);
 </script>

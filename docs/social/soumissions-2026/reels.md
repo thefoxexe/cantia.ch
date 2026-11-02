@@ -4,9 +4,9 @@ Cinq Reels verticaux (1080 × 1920, 30 images/s, 13 à 15 secondes), dans `reels
 
 Direction : un film produit plutôt qu’un Reel « effets ». Fond crème, beaucoup d’espace, un plan par idée (environ 3 secondes), titres en phrases révélés ligne par ligne, caméra lente sur le vrai document Cantia, détails entourés d’un trait fin qui se dessine, et une courte légende éditoriale sous l’image. Le logo et le nom de la rubrique restent en haut, avec une fine barre de progression. Pas de flash, pas de tremblement, pas d’emoji.
 
-Les Reels sont **muets** : ajoutez un son dans Instagram au moment de publier (une musique calme et premium, ou un son tendance à faible volume). Tout le texte se lit sans le son.
+Son : uniquement un glissement doux à chaque changement de plan (`slide-sound.py`, fait sur mesure, sans musique ni droits à gérer). Vous pouvez ajouter une musique calme dans Instagram par-dessus, à volume modéré. Tout le texte se lit sans le son.
 
-Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg). `--preview` sort quelques images fixes pour vérifier un Reel.
+Rendu : `NODE_PATH=$(npm root -g) node render-reels.js` (source : `reels.html`, chaque Reel est une fonction du temps, rendue image par image puis encodée avec ffmpeg). `--preview` sort quelques images fixes pour vérifier un Reel, `--sound` refait seulement le son sur les vidéos existantes.
 
 ## 1 · Le devis — `cantia-reel-devis.mp4` (15 s)
 
