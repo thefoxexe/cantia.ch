@@ -24,11 +24,11 @@ const MUTED = '#776B5E';
 type Item = { href: string; title: string; text: string; tile: 'mark' | 'ink' | 'clay' | 'icon'; icon?: string; badge?: string; external?: boolean };
 
 const ITEMS: Item[] = [
-  { href: '/', title: 'Cantia', text: 'Le logiciel de gestion des PME suisses', tile: 'mark' },
+  { href: '/', title: 'Cantia', text: 'Le logiciel des PME suisses', tile: 'mark' },
   { href: `https://accounting.cantia.ch/?${UTM}`, title: 'Cantia Accounting', text: 'Pour les fiduciaires, gratuit', tile: 'ink', external: true },
   { href: `https://partners.cantia.ch/?${UTM}`, title: 'Cantia Partners', text: 'Le programme partenaires', tile: 'clay', external: true },
-  { href: '/outils', title: 'Outils gratuits', text: 'Salaire, taux horaire, TVA, marge et plus', tile: 'icon', icon: 'sliders', badge: 'Gratuit' },
-  { href: '/blog', title: 'Le blog', text: 'Des guides concrets pour les PME suisses', tile: 'icon', icon: 'book-open' },
+  { href: '/outils', title: 'Outils gratuits', text: 'Salaire, taux horaire, TVA, marge…', tile: 'icon', icon: 'sliders', badge: 'Gratuit' },
+  { href: '/blog', title: 'Le blog', text: 'Guides pratiques pour les PME', tile: 'icon', icon: 'book-open' },
 ];
 
 function Tile({ item }: { item: Item }) {
@@ -70,12 +70,12 @@ export default function LinksPage() {
             <View style={styles.actions}>
               <Link href={authHref('signup') as any} asChild>
                 <Pressable style={styles.primary}>
-                  <Text style={styles.primaryText}>Essayer gratuitement</Text>
+                  <Text style={styles.primaryText}>Essai gratuit</Text>
                 </Pressable>
               </Link>
               <Link href="/contact" asChild>
                 <Pressable style={styles.secondary}>
-                  <Text style={styles.secondaryText}>Nous contacter</Text>
+                  <Text style={styles.secondaryText}>Contact</Text>
                 </Pressable>
               </Link>
             </View>
@@ -139,10 +139,10 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   metaText: { ...FONT, fontSize: 13, color: MUTED },
   actions: { flexDirection: 'row', gap: 10, marginTop: 22, width: '100%' },
-  primary: { flex: 1, backgroundColor: INK, borderRadius: 999, paddingVertical: 14, alignItems: 'center' },
-  primaryText: { ...FONT, color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: -0.1 },
-  secondary: { flex: 1, borderRadius: 999, paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: '#D9CDBC', backgroundColor: '#fff' },
-  secondaryText: { ...FONT, color: INK, fontSize: 15, fontWeight: '600' },
+  primary: { flex: 1, height: 48, backgroundColor: INK, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  primaryText: { ...FONT, width: '100%', textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: -0.1 },
+  secondary: { flex: 1, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#D9CDBC', backgroundColor: '#fff' },
+  secondaryText: { ...FONT, width: '100%', textAlign: 'center', color: INK, fontSize: 15, fontWeight: '600' },
   trial: { ...FONT, fontSize: 12, color: MUTED, marginTop: 10 },
 
   list: { marginTop: 26, paddingHorizontal: 14, gap: 8 },
