@@ -1,4 +1,4 @@
-import { BLOG_DATES_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
+import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 
 const TRADE_SLUGS = new Set([
@@ -31,6 +31,7 @@ export const ROUTES = [
   },
   {
     path: 'liens',
+    noindex: true,
     title: 'Cantia · Tous nos liens',
     description:
       'Cantia, Cantia Accounting, Cantia Partners et nos calculateurs gratuits pour les PME suisses : salaire, taux horaire, TVA, marge, intérêts de retard, vacances.',
@@ -3569,6 +3570,18 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'de/tarifs',
+    title: 'Preise | Cantia',
+    description:
+      'Die Preise von Cantia, der Schweizer Software für Bauunternehmen: Offerten, Rechnungen, Baustellen, Personal und Liquidität. 14 Tage gratis testen.',
+  },
+  {
+    path: 'it/tarifs',
+    title: 'Prezzi | Cantia',
+    description:
+      'I prezzi di Cantia, il software svizzero per le imprese edili: preventivi, fatture, cantieri, personale e liquidità. 14 giorni di prova gratuita.',
+  },
+  {
     path: 'de/contact',
     title: 'Kontakt | Cantia',
     description: 'Eine Frage, ein Problem, ein Vorschlag? Kontaktieren Sie das Cantia-Team — Antwort innert 24 Werkstunden.',
@@ -4414,9 +4427,10 @@ export const ROUTES = [
 ];
 
 for (const route of ROUTES) {
-  if (route.publishedAt) continue;
   const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
-  if (slug && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
+  if (!slug) continue;
+  if (!route.publishedAt && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
+  if (BLOG_FAQ_FR[slug]) route.faq = BLOG_FAQ_FR[slug];
 }
 
 const LOCALE_PREFIXES = { de: 'de', it: 'it' };
@@ -4434,6 +4448,28 @@ export function alternatePathFor(routePath, targetLocale) {
   if (targetLocale === 'fr') return bare;
   const prefix = LOCALE_PREFIXES[targetLocale];
   return bare === '' ? prefix : `${prefix}/${bare}`;
+}
+
+// Pages kept out of Google: reachable, but with a robots noindex and left out
+// of the sitemap and of every hreflang set.
+export function isNoindex(routePath) {
+  const route = ROUTES_BY_PATH.get(routePath);
+  return Boolean(route?.noindex);
+}
+
+const ROUTES_BY_PATH = new Map(ROUTES.map((r) => [r.path, r]));
+
+// hreflang set of a page: only the language versions that really exist as a
+// route (a page that was never translated announces no translation), and
+// nothing at all when the page has no other language version.
+export function hreflangAlternates(routePath) {
+  if (isNoindex(routePath)) return [];
+  const out = [];
+  for (const locale of ['fr', 'de', 'it']) {
+    const alt = alternatePathFor(routePath, locale);
+    if (ROUTES_BY_PATH.has(alt) && !isNoindex(alt)) out.push({ locale, path: alt, url: alt ? `${SITE}/${alt}` : `${SITE}/` });
+  }
+  return out.length > 1 ? out : [];
 }
 
 function humanizeSegment(segment) {
@@ -4509,7 +4545,7 @@ export function jsonLdFor(url, route) {
       image: OG_IMAGE,
       inLanguage: locale,
       ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
-      author: { '@id': `${SITE}/#organization` },
+      author: { '@type': 'Person', '@id': `${SITE}/#bastien`, name: 'Bastien', worksFor: { '@id': `${SITE}/#organization` } },
       publisher: { '@id': `${SITE}/#organization` },
       mainEntityOfPage: url,
     });

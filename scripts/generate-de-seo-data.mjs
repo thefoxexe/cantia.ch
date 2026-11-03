@@ -34,13 +34,20 @@ const blogRoutes = blogFiles
   .sort((a, b) => a.path.localeCompare(b.path));
 
 const postsFrDir = path.join(rootDir, 'lib/blog/posts');
-const blogDatesFr = readdirSync(postsFrDir)
+const postsFr = readdirSync(postsFrDir)
   .filter((f) => f.endsWith('.ts'))
-  .map((f) => loadTsModule(path.join(postsFrDir, f)).post)
-  .reduce((acc, post) => {
-    acc[post.slug] = post.publishedAt;
-    return acc;
-  }, {});
+  .sort()
+  .map((f) => loadTsModule(path.join(postsFrDir, f)).post);
+const blogDatesFr = postsFr.reduce((acc, post) => {
+  acc[post.slug] = post.publishedAt;
+  return acc;
+}, {});
+// The FAQ each French article really shows (components/BlogArticle.tsx), so
+// FAQPage structured data matches the visible questions word for word.
+const blogFaqFr = postsFr.reduce((acc, post) => {
+  if (post.faq?.length) acc[post.slug] = post.faq.map((item) => ({ q: item.question, a: item.answer }));
+  return acc;
+}, {});
 
 function descriptionFrom(paragraphs) {
   const first = paragraphs[0] ?? '';
@@ -75,6 +82,8 @@ const out = `export const BLOG_SEO_DE = ${JSON.stringify(blogRoutes, null, 2)};
 export const TRADE_SEO_DE = ${JSON.stringify(tradeRoutes, null, 2)};
 
 export const BLOG_DATES_FR = ${JSON.stringify(blogDatesFr, null, 2)};
+
+export const BLOG_FAQ_FR = ${JSON.stringify(blogFaqFr, null, 2)};
 
 export const HELP_SEO_FR = ${JSON.stringify(helpRoutesFr, null, 2)};
 
