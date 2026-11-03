@@ -207,3 +207,20 @@ L'objectif de 300 Ko demande de sortir ces blocs : c'est l'étape suivante.
 ## 4. Revues mensuelles
 
 (à remplir à chaque passage : clics hors marque, inscriptions venant de la recherche, pages qui montent ou baissent, au plus 5 actions)
+
+### 3 novembre 2026 : lecture de l'export du 1er novembre (90 jours)
+
+Export Search Console reçu (pages, requêtes, requête × page, jours). Les 28 derniers jours (5 oct. → 1er nov.) sont comparés aux 28 d'avant (7 sept. → 4 oct.).
+
+| | Impressions | Position | Clics |
+|---|---|---|---|
+| Pages FR | 2 683 → 2 531 | 12,8 → 9,4 | 82 → 46 |
+| Pages DE | 602 → 2 711 | 10,1 → 35,1 | 6 → 6 |
+| Pages IT | 1 507 → 1 383 | 10,3 → 12,1 | 10 → 26 |
+| Blog, toutes langues | | | 48 → 51 |
+
+- La baisse de la position moyenne vient des nouvelles impressions allemandes (position 30 à 70). Le français progresse : 11,1 → 7,9 sur les 141 pages vues dans les deux périodes.
+- La baisse des clics vient de la marque : /telechargement passe de 17 à 3 clics, l'accueil de 25 à 20. La période d'avant contient le pic du 10 septembre.
+- **KPI n° 1 (clics hors marque)** : les requêtes rares sont masquées par Google (4 clics hors marque visibles en 90 jours, mais 106 clics sur les pages du blog). On suit donc les clics des pages du blog, des outils et des fonctions : **51 sur les 28 derniers jours**.
+- Barre oblique finale : 264 URL avec « / » final ont reçu 4 754 impressions (41 %). La 301 du 3 novembre doit les réunir : à vérifier dans le prochain export.
+- Tri du contenu proposé dans `docs/seo-tri-contenu.md`, en attente d'accord.
