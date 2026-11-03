@@ -33,60 +33,52 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;');
 }
 
-const LABELS = {
-  subject: { fr: 'Finalisez votre inscription sur Cantia', de: 'Schließen Sie Ihre Anmeldung bei Cantia ab', it: 'Completi la sua registrazione su Cantia' },
-  title: { fr: "Votre inscription n'est pas terminée", de: 'Ihre Anmeldung ist noch nicht abgeschlossen', it: 'La sua registrazione non è ancora completata' },
-  intro: {
-    fr: "Vous avez créé un compte pour {org} sur Cantia, mais vous n'avez pas encore choisi de plan — votre inscription est restée en suspens. Vous avez droit à 14 jours d'essai gratuit pour découvrir devis, factures, chantiers, planning, trésorerie et le reste, sans engagement.",
-    de: 'Sie haben ein Konto für {org} bei Cantia erstellt, aber noch keinen Plan gewählt — Ihre Anmeldung ist offen geblieben. Sie haben Anspruch auf 14 Tage kostenlose Testphase, um Offerten, Rechnungen, Baustellen, Planung, Liquidität und mehr unverbindlich zu entdecken.',
-    it: 'Ha creato un account per {org} su Cantia, ma non ha ancora scelto un piano — la sua registrazione è rimasta in sospeso. Ha diritto a 14 giorni di prova gratuita per scoprire preventivi, fatture, cantieri, pianificazione, tesoreria e altro, senza impegno.',
+// A short personal note from Bastien, not a branded newsletter: plain text
+// look, first name, a real question, and replies land on info@cantia.ch.
+const FROM = 'Bastien de Cantia <info@cantia.ch>';
+
+const COPY: Record<Locale, { subject: string; hello: (name: string) => string; body: (org: string, link: string) => string[]; bye: string }> = {
+  fr: {
+    subject: 'Votre compte Cantia',
+    hello: (name) => (name ? `Bonjour ${name},` : 'Bonjour,'),
+    body: (org, link) => [
+      `Je suis Bastien, de Cantia. J’ai vu que vous aviez créé un compte pour ${org} il y a quelques jours, sans aller jusqu’au bout.`,
+      'Est-ce que quelque chose vous a bloqué ? Une question sur les formules, la carte demandée pour l’essai, ou simplement le temps de regarder ? Répondez-moi directement à ce mail, je vous réponds personnellement.',
+      `Pour reprendre là où vous en étiez : <a href="${link}" style="color:#A95C30;">${link.replace(/^https:\/\//, '').replace(/\?.*$/, '')}</a>. Les 14 jours d’essai commencent à ce moment-là, et rien n’est débité avant la fin.`,
+    ],
+    bye: 'Belle journée,',
   },
-  cta: { fr: 'Choisir mon plan', de: 'Plan auswählen', it: 'Scelga il suo piano' },
-  footerTagline: {
-    fr: 'Cantia — le logiciel suisse pour piloter vos chantiers et vos projets',
-    de: 'Cantia — die Schweizer Software für Ihre Baustellen und Projekte',
-    it: 'Cantia — il software svizzero per i vostri cantieri e progetti',
+  de: {
+    subject: 'Ihr Cantia-Konto',
+    hello: (name) => (name ? `Grüezi ${name}` : 'Grüezi'),
+    body: (org, link) => [
+      `Ich bin Bastien von Cantia. Ich habe gesehen, dass Sie vor ein paar Tagen ein Konto für ${org} erstellt haben, aber nicht ganz fertig geworden sind.`,
+      'Hat Sie etwas aufgehalten? Eine Frage zu den Paketen, die Karte für die Testphase oder einfach die Zeit? Antworten Sie direkt auf diese E-Mail, ich antworte Ihnen persönlich.',
+      `Um dort weiterzumachen, wo Sie aufgehört haben: <a href="${link}" style="color:#A95C30;">${link.replace(/^https:\/\//, '').replace(/\?.*$/, '')}</a>. Die 14 Tage Testphase beginnen dann, und vor deren Ende wird nichts abgebucht.`,
+    ],
+    bye: 'Freundliche Grüsse',
   },
-} as const;
+  it: {
+    subject: 'Il suo account Cantia',
+    hello: (name) => (name ? `Buongiorno ${name},` : 'Buongiorno,'),
+    body: (org, link) => [
+      `Sono Bastien di Cantia. Ho visto che qualche giorno fa ha creato un account per ${org}, senza arrivare fino in fondo.`,
+      'Qualcosa l’ha bloccata? Una domanda sui piani, la carta richiesta per la prova o semplicemente il tempo? Mi risponda direttamente a questa e-mail, le rispondo personalmente.',
+      `Per riprendere da dove si era fermato: <a href="${link}" style="color:#A95C30;">${link.replace(/^https:\/\//, '').replace(/\?.*$/, '')}</a>. I 14 giorni di prova iniziano in quel momento e nulla viene addebitato prima della fine.`,
+    ],
+    bye: 'Cordiali saluti,',
+  },
+};
 
-function t(locale: Locale, key: keyof typeof LABELS, vars?: Record<string, string>): string {
-  let text: string = LABELS[key][locale];
-  if (vars) for (const [k, v] of Object.entries(vars)) text = text.replace(`{${k}}`, v);
-  return text;
-}
-
-function buildBrandedEmailShell(bodyHtml: string, locale: Locale): string {
-  const font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-  return `
-    <div style="background: #F7F1E6; padding: 40px 20px; font-family: ${font};">
-      <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #E6D8C2; overflow: hidden;">
-        <div style="padding: 24px 32px; background: #16120E;" bgcolor="#16120E">
-          <img src="https://krijilwxhdlzflvnvrtl.supabase.co/storage/v1/object/public/brand/email/logo-on-dark-v1.png" width="170" height="32" alt="Cantia" style="display: block; border: 0; height: 32px; width: 170px;" />
-        </div>
-        <div style="padding: 32px;">
-          ${bodyHtml}
-        </div>
-      </div>
-      <p style="max-width: 480px; margin: 20px auto 0; text-align: center; font-size: 12px; color: #6E6151; line-height: 1.6;">
-        ${escapeHtml(t(locale, 'footerTagline'))}<br/>
-        <a href="https://cantia.ch" style="color: #A95C30; text-decoration: none; font-weight: 600;">cantia.ch</a>
-      </p>
-    </div>
-  `.trim();
-}
-
-function buildHtml(orgName: string, locale: Locale): string {
-  return buildBrandedEmailShell(
-    `
-    <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #A95C30; text-transform: uppercase; letter-spacing: 0.6px;">Cantia</p>
-    <p style="margin: 0 0 20px; font-size: 22px; font-weight: 700; color: #231A12;">${escapeHtml(t(locale, 'title'))}</p>
-    <p style="margin: 0 0 32px; font-size: 15px; line-height: 1.6; color: #231A12;">${escapeHtml(t(locale, 'intro', { org: orgName }))}</p>
-    <p style="margin: 0; text-align: center;">
-      <a href="${APP_URL}/choose-plan?locale=${locale}" style="display: inline-block; background: #A95C30; color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px;">${escapeHtml(t(locale, 'cta'))}</a>
-    </p>
-  `,
-    locale,
-  );
+function buildHtml(orgName: string, firstName: string, locale: Locale): string {
+  const c = COPY[locale];
+  const link = `${APP_URL}/choose-plan?locale=${locale}`;
+  const p = (html: string) => `<p style="margin:0 0 14px;">${html}</p>`;
+  return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#222;max-width:560px;">
+${p(escapeHtml(c.hello(firstName)))}
+${c.body(escapeHtml(orgName), link).map(p).join('\n')}
+${p(`${escapeHtml(c.bye)}<br/>Bastien`)}
+</div>`;
 }
 
 async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
@@ -116,14 +108,14 @@ Deno.serve(async (req: Request) => {
     // placeholder org name, so the exact real template can be reviewed
     // before the automation is scheduled for real accounts.
     if (testEmail) {
-      const locale = testLocale === 'de' || testLocale === 'it' ? testLocale : 'fr';
-      const html = buildHtml('Votre Entreprise', locale);
+      const locale: Locale = testLocale === 'de' || testLocale === 'it' ? testLocale : 'fr';
+      const html = buildHtml('Votre Entreprise', 'Jean', locale);
       const { ok } = await sendResendEmail({
         apiKey,
-        from: 'Cantia <noreply@cantia.ch>',
+        from: FROM,
         replyTo: 'info@cantia.ch',
         to: [testEmail],
-        subject: `[TEST] ${t(locale, 'subject')}`,
+        subject: `[TEST] ${COPY[locale].subject}`,
         html,
       });
       if (!ok) return json({ error: "Échec de l'envoi du test." }, 500);
@@ -158,7 +150,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: owner } = await admin
       .from('organization_members')
-      .select('user_id')
+      .select('user_id, full_name, locale')
       .eq('organization_id', organization_id)
       .eq('role', 'owner')
       .maybeSingle();
@@ -168,15 +160,17 @@ Deno.serve(async (req: Request) => {
     const email = ownerAuth?.user?.email;
     if (!email) return json({ ok: true, skipped: true });
 
-    const locale = resolveLocale(org);
-    const html = buildHtml(org.name, locale);
+    // The language the owner uses in the app, else the company's.
+    const locale = resolveLocale({ locale: owner.locale || org.locale });
+    const firstName = String(owner.full_name ?? '').trim().split(/\s+/)[0] ?? '';
+    const html = buildHtml(org.name, firstName, locale);
 
     await sendResendEmail({
       apiKey,
-      from: 'Cantia <noreply@cantia.ch>',
+      from: FROM,
       replyTo: 'info@cantia.ch',
       to: [email],
-      subject: t(locale, 'subject'),
+      subject: COPY[locale].subject,
       html,
     });
 

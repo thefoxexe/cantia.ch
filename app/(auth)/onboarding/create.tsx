@@ -10,6 +10,10 @@ import { SectorPicker } from '../../../components/SectorPicker';
 import { displayType } from '../../../lib/marketingTheme';
 import { WORK_TERMS, workTermText, type WorkTerm } from '../../../lib/vocabulary';
 
+// Same values as public.set_acquisition_source (migration 20261103200000).
+const ACQUISITION_SOURCES = ['bouche_a_oreille', 'google', 'ia', 'reseaux_sociaux', 'fiduciaire', 'publicite', 'autre'] as const;
+type AcquisitionSource = (typeof ACQUISITION_SOURCES)[number];
+
 export default function CreateOrganizationScreen() {
   const { t } = useTranslation();
   const { createOrganization } = useAuth();
@@ -18,6 +22,9 @@ export default function CreateOrganizationScreen() {
   const [trade, setTrade] = useState<string | null>(null);
   const [specialties, setSpecialties] = useState<string[]>([]);
   const [workTerm, setWorkTerm] = useState<WorkTerm>('chantier');
+  // « Comment avez-vous connu Cantia ? » — one tap, stored on the company.
+  const [source, setSource] = useState<AcquisitionSource | null>(null);
+  const [sourceDetail, setSourceDetail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,8 +34,12 @@ export default function CreateOrganizationScreen() {
       setError(t('authOnboardingCreate.nameRequired'));
       return;
     }
+    if (!source) {
+      setError(t('authOnboardingCreate.sourceRequired'));
+      return;
+    }
     setLoading(true);
-    const { error: createError } = await createOrganization(name.trim(), trade, workTerm, specialties);
+    const { error: createError } = await createOrganization(name.trim(), trade, workTerm, specialties, { source, detail: sourceDetail.trim() || null });
     setLoading(false);
     if (createError) {
       setError(createError);
@@ -78,6 +89,18 @@ export default function CreateOrganizationScreen() {
           ))}
         </View>
         <Text style={styles.hint}>{String(t('authOnboardingCreate.workTermHint', { example: workTermText(t, workTerm, 'example'), postProcess: [] } as any))}</Text>
+
+        <Text style={styles.fieldLabel}>{t('authOnboardingCreate.sourceLabel')}</Text>
+        <View style={styles.chips}>
+          {ACQUISITION_SOURCES.map((key) => (
+            <Pressable key={key} onPress={() => setSource(key)} style={[styles.chip, source === key && styles.chipActive]}>
+              <Text style={[styles.chipText, source === key && styles.chipTextActive]}>{t(`authOnboardingCreate.sources.${key}`)}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {source === 'autre' || source === 'reseaux_sociaux' || source === 'publicite' ? (
+          <Field label={t('authOnboardingCreate.sourceDetailPlaceholder')} value={sourceDetail} onChangeText={setSourceDetail} placeholder={t('authOnboardingCreate.sourceDetailPlaceholder')} />
+        ) : null}
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 

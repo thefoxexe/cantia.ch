@@ -1,6 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
+
+const ACQUISITION_LABEL: Record<string, string> = {
+  bouche_a_oreille: 'Bouche-à-oreille',
+  google: 'Recherche Google',
+  ia: 'ChatGPT ou une autre IA',
+  reseaux_sociaux: 'Réseaux sociaux',
+  fiduciaire: 'Sa fiduciaire',
+  publicite: 'Une publicité',
+  autre: 'Autre',
+};
 import type { AdminOrgOrigin, SignupChannel } from '../lib/api/admin';
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -109,7 +119,7 @@ export function AdminSignupOrigin({ origin }: { origin: AdminOrgOrigin }) {
       ].filter(Boolean)
     : [];
   const hasTrace =
-    origin.channel.key !== 'unknown' || !!host || !!campaign || !!origin.signup_referrer || !!firstVisit || !!partner || origin.fiduciaries.length > 0 || origin.blog_leads.length > 0;
+    origin.channel.key !== 'unknown' || !!origin.acquisition || !!host || !!campaign || !!origin.signup_referrer || !!firstVisit || !!partner || origin.fiduciaries.length > 0 || origin.blog_leads.length > 0;
 
   return (
     <View style={styles.card}>
@@ -155,6 +165,15 @@ export function AdminSignupOrigin({ origin }: { origin: AdminOrgOrigin }) {
           icon={campaign.gclid ? 'target' : 'flag'}
           label={campaign.gclid ? 'Clic sur une annonce Google Ads' : 'Campagne (paramètres UTM)'}
           value={campaignParts.length > 0 ? campaignParts.join(' · ') : 'Annonce Google Ads (sans paramètre UTM)'}
+        />
+      ) : null}
+
+      {origin.acquisition ? (
+        <Row
+          icon="message-circle"
+          label="Réponse « Comment avez-vous connu Cantia ? »"
+          value={ACQUISITION_LABEL[origin.acquisition.source] ?? origin.acquisition.source}
+          sub={origin.acquisition.detail ?? undefined}
         />
       ) : null}
 

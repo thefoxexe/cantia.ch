@@ -2773,6 +2773,18 @@ export const fr = {
     namePlaceholder: 'Ex : Dupont Sàrl',
     tradeLabel: 'Secteur d’activité',
     submit: 'Continuer',
+    sourceLabel: 'Comment avez-vous connu Cantia ?',
+    sourceRequired: 'Dites-nous comment vous avez connu Cantia.',
+    sourceDetailPlaceholder: 'Précisez (facultatif)',
+    sources: {
+      bouche_a_oreille: 'Bouche-à-oreille',
+      google: 'Recherche Google',
+      ia: 'ChatGPT ou une autre IA',
+      reseaux_sociaux: 'Réseaux sociaux',
+      fiduciaire: 'Ma fiduciaire',
+      publicite: 'Une publicité',
+      autre: 'Autre',
+    },
   },
   authOnboardingSetup: {
     projectToolsTitle: 'Les outils de vos chantiers',

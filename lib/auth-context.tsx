@@ -82,7 +82,13 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithMicrosoft: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  createOrganization: (name: string, trade: string | null, workTerm?: WorkTerm, specialties?: string[]) => Promise<{ error: string | null }>;
+  createOrganization: (
+    name: string,
+    trade: string | null,
+    workTerm?: WorkTerm,
+    specialties?: string[],
+    acquisition?: { source: string; detail?: string | null } | null,
+  ) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   // Supabase sends a confirmation link to the NEW address before the
@@ -456,7 +462,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createOrganization = useCallback(
-    async (name: string, trade: string | null, workTerm: WorkTerm = 'chantier', specialties: string[] = []) => {
+    async (
+      name: string,
+      trade: string | null,
+      workTerm: WorkTerm = 'chantier',
+      specialties: string[] = [],
+      acquisition: { source: string; detail?: string | null } | null = null,
+    ) => {
       // Attribution was captured (if any) back on cantia.ch's first pageview
       // and survives the domain jump to app.cantia.ch via a shared cookie —
       // see lib/siteAnalytics.ts. Native has no such cookie/URL, so this is
@@ -527,6 +539,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // and the trades inside the sector.
       if ((workTerm !== 'chantier' || specialties.length) && orgId) {
         await supabase.from('organizations').update({ work_term: workTerm, ...(specialties.length ? { trade_specialties: specialties } : {}) }).eq('id', orgId);
+      }
+      // « Comment avez-vous connu Cantia ? » — never blocks the signup.
+      if (acquisition && orgId) {
+        const { error: acqError } = await supabase.rpc('set_acquisition_source', {
+          p_organization_id: orgId,
+          p_source: acquisition.source,
+          p_detail: acquisition.detail ?? null,
+        });
+        if (acqError) console.warn('[signup] acquisition source not recorded:', acqError.message);
       }
       if (session?.user) await loadOrganization(session.user.id);
       return { error: null };

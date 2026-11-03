@@ -2787,6 +2787,18 @@ export const de: TranslationDict = {
     namePlaceholder: 'Bsp: Dupont GmbH',
     tradeLabel: 'Branche',
     submit: 'Weiter',
+    sourceLabel: 'Wie haben Sie von Cantia erfahren?',
+    sourceRequired: 'Sagen Sie uns, wie Sie von Cantia erfahren haben.',
+    sourceDetailPlaceholder: 'Genauer (freiwillig)',
+    sources: {
+      bouche_a_oreille: 'Mundpropaganda',
+      google: 'Google-Suche',
+      ia: 'ChatGPT oder eine andere KI',
+      reseaux_sociaux: 'Soziale Netzwerke',
+      fiduciaire: 'Mein Treuhänder',
+      publicite: 'Werbung',
+      autre: 'Andere',
+    },
   },
   authOnboardingSetup: {
     projectToolsTitle: 'Die Werkzeuge Ihrer Baustellen',

@@ -2795,6 +2795,18 @@ export const it: TranslationDict = {
     namePlaceholder: 'Es.: Rossi Sagl',
     tradeLabel: 'Settore di attività',
     submit: 'Continua',
+    sourceLabel: 'Come ha conosciuto Cantia?',
+    sourceRequired: 'Ci dica come ha conosciuto Cantia.',
+    sourceDetailPlaceholder: 'Specifichi (facoltativo)',
+    sources: {
+      bouche_a_oreille: 'Passaparola',
+      google: 'Ricerca Google',
+      ia: 'ChatGPT o un’altra IA',
+      reseaux_sociaux: 'Social network',
+      fiduciaire: 'Il mio fiduciario',
+      publicite: 'Una pubblicità',
+      autre: 'Altro',
+    },
   },
   authOnboardingSetup: {
     projectToolsTitle: 'Gli strumenti dei vostri cantieri',

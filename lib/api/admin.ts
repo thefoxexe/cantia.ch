@@ -98,6 +98,8 @@ export interface AdminOrgOrigin {
     gclid: boolean;
   } | null;
   signup_referrer: string | null;
+  // « Comment avez-vous connu Cantia ? » (onboarding)
+  acquisition?: { source: string; detail: string | null; at: string | null } | null;
   first_visit: { landing_path: string | null; referrer: string | null; at: string | null } | null;
   journey: {
     pageviews: number;
