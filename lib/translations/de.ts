@@ -2740,9 +2740,9 @@ export const de: TranslationDict = {
       'custom-besson': 'Alle Funktionen von Basis, dazu Personalwesen, die Bexio-Integration und die Rentabilität pro Baustelle — massgeschneidert für Sie.',
     },
     planHighlights: {
-      solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung & Markenanpassung', 'Buchhaltung & MWST', 'Leistungsverzeichnis ausfüllen (Beta): 1 zum Testen', '2 anpassbare Teamrollen'],
-      equipe: ['Alles aus Basis, ohne Limiten', 'Personal, Planung, Rentabilität & Liquidität', 'Bexio-Integration', 'Leistungsverzeichnisse ausfüllen (Beta): 3 pro Monat', 'Unbegrenzte individuelle Teamrollen'],
-      pro: ['Alles aus Team inklusive', 'Verkaufsverfolgung der Offerten', 'Automatische Offert-Erinnerungen', 'Unbegrenzte Leistungsverzeichnisse (Beta)', 'Priority-Support'],
+      solo: ['Unbegrenzte Offerten, Rechnungen & Rapporte', 'QR-Rechnung, E-Mail-Versand & Markenanpassung', 'Buchhaltung & MWST', 'KI-Sprachassistent: 150 Nutzungen / Monat', 'Leistungsverzeichnis ausfüllen (Beta): 1 zum Testen', '40 Offertvorlagen, 2 Teamrollen'],
+      equipe: ['Alles aus Basis, ohne Limiten', 'Leistungsverzeichnisse ausfüllen (Beta): 3 pro Monat', 'Bauprogramm, von der KI vorgeschlagen', 'Rentabilität pro Baustelle, Liquidität & Löhne', 'KI-Sprachassistent: 600 Nutzungen / Monat', 'Dokumente in der Sprache jedes Kunden'],
+      pro: ['Alles aus Team inklusive', 'Unbegrenzte Leistungsverzeichnisse (Beta)', 'Verkaufsverfolgung: sehen, wann der Kunde die Offerte öffnet', 'Automatische Offert-Erinnerungen', 'KI-Sprachassistent: 2000 Nutzungen / Monat', 'Priority-Support'],
       'custom-besson': [
         'Bexio-Integration (Buchhaltungs-Synchronisation)',
         'Rentabilität pro Baustelle in Echtzeit',
@@ -3674,8 +3674,9 @@ export const de: TranslationDict = {
           { icon: 'layout', title: '40 wiederverwendbare Offertvorlagen', text: 'Speichern Sie Ihre Standardpositionen einmal und nutzen Sie sie bei jeder neuen Offerte.' },
           { icon: 'mic', title: 'KI-Sprachassistent — 150 Nutzungen/Monat', text: 'Diktieren Sie Offerten, Rechnungen und Ausgaben laut auf der Baustelle.' },
           { icon: 'users', title: 'Bis zu 3 Mitglieder, 2 anpassbare Rollen', text: 'Genug, um zu mehreren zu starten, ohne für Posten zu zahlen, die Sie nicht brauchen.' },
+          { icon: 'clipboard', title: 'Ein Leistungsverzeichnis zum Testen (Beta)', text: 'Importieren Sie das PDF des Architekten, setzen Sie Ihre Preise ein und senden Sie das ausgefüllte Original-PDF zurück.' },
         ],
-        notIncluded: ['Planung, Personal & Löhne', 'Rentabilität pro Baustelle', 'Liquidität & Zahlungsverfolgung', 'Bexio-Integration', 'Unbegrenzte Vorlagen (auf 40 limitiert)'],
+        notIncluded: ['Leistungsverzeichnisse über den Test hinaus (3 pro Monat bei Team)', 'Bauprogramm und KI-Vorschlag', 'Planung, Personal & Löhne', 'Rentabilität pro Baustelle', 'Liquidität & Zahlungsverfolgung', 'Bexio-Integration', 'Unbegrenzte Vorlagen (auf 40 limitiert)'],
       },
       equipe: {
         heroText: 'Für Teams, die Baustellen, Personal und Liquidität an einem Ort verwalten, ohne zwischen mehreren Tools zu wechseln.',
@@ -3684,7 +3685,8 @@ export const de: TranslationDict = {
           { icon: 'calendar', title: 'Integrierte Planung, Personal & Löhne', text: 'Planen Sie Teams, verwalten Sie Löhne und Schweizer Lohnausweise.' },
           { icon: 'trending-up', title: 'Rentabilität pro Baustelle in Echtzeit', text: 'Verfolgen Sie Marge und Ausgaben pro Baustelle, ohne Excel.' },
           { icon: 'dollar-sign', title: 'Liquidität & Zahlungsverfolgung', text: 'Behalten Sie Ihre Zahlungseingänge im Blick und mahnen Sie überfällige Rechnungen automatisch an.' },
-          { icon: 'link', title: 'Bexio-Integration', text: 'Synchronisieren Sie Ihre Buchhaltung, ohne Buchungen erneut zu erfassen.' },
+          { icon: 'clipboard', title: 'Leistungsverzeichnisse: 3 pro Monat (Beta)', text: 'Importieren Sie das PDF des Architekten, setzen Sie Ihre Preise ein und senden Sie das ausgefüllte Original-PDF zurück: Einheitspreise, Beträge und Totale.' },
+          { icon: 'zap', title: 'Bauprogramm, von der KI vorgeschlagen', text: 'SIA-Phasen, Aufgaben, Meilensteine und Abhängigkeiten. Beschreiben oder diktieren Sie die Baustelle: Die KI schlägt ein Bauprogramm vor, das Sie anpassen.' },
         ],
         notIncluded: ['Verkaufsverfolgung und automatische Offert-Erinnerungen (Entreprise)', 'Leistungsverzeichnisse auf 3 pro Monat limitiert (unbegrenzt bei Entreprise)', 'Speicher auf 15 GB limitiert (40 GB bei Entreprise)', 'Max. 10 Mitglieder (25 bei Entreprise)', '600 KI-Nutzungen/Monat (2000 bei Entreprise)', 'Kein Priority-Support'],
       },

@@ -2726,9 +2726,9 @@ export const fr = {
       'custom-besson': 'Toutes les fonctionnalités d’Essentiel, avec en plus le RH, l’intégration Bexio et la rentabilité par chantier — composé sur mesure pour vous.',
     },
     planHighlights: {
-      solo: ['Devis, factures & rapports illimités', 'QR-facture & personnalisation de marque', 'Comptabilité & TVA', 'Remplir une soumission (bêta) : 1 à l’essai', "2 rôles d'équipe modifiables"],
-      equipe: ['Tout Essentiel, sans les limites', 'RH, planning, rentabilité & trésorerie', 'Intégration Bexio', 'Remplir une soumission (bêta) : 3 par mois', "Rôles d'équipe personnalisés illimités"],
-      pro: ['Tout Équipe inclus', 'Suivi commercial des devis', 'Relances de devis automatiques', 'Soumissions illimitées (bêta)', 'Support prioritaire'],
+      solo: ['Devis, factures & rapports illimités', 'QR-facture, envoi par e-mail & personnalisation de marque', 'Comptabilité & TVA', 'Assistant vocal IA : 150 utilisations / mois', 'Remplir une soumission (bêta) : 1 à l’essai', "40 modèles de devis, 2 rôles d'équipe"],
+      equipe: ['Tout Essentiel, sans les limites', 'Remplir des soumissions (bêta) : 3 par mois', 'Planning de chantier, proposé par l’IA', 'Rentabilité par chantier, trésorerie & salaires', 'Assistant vocal IA : 600 utilisations / mois', 'Documents dans la langue de chaque client'],
+      pro: ['Tout Équipe inclus', 'Soumissions illimitées (bêta)', 'Suivi commercial : voir quand le client ouvre le devis', 'Relances de devis automatiques', 'Assistant vocal IA : 2’000 utilisations / mois', 'Support prioritaire'],
       'custom-besson': [
         'Intégration Bexio (synchronisation comptable)',
         'Rentabilité par chantier en temps réel',
@@ -3663,8 +3663,9 @@ export const fr = {
           { icon: 'layout', title: '40 modèles de devis réutilisables', text: 'Enregistrez vos positions types une fois, réutilisez-les à chaque nouveau devis.' },
           { icon: 'mic', title: 'Assistant vocal IA — 150 usages/mois', text: 'Dictez vos devis, factures et dépenses à voix haute sur le chantier.' },
           { icon: 'users', title: 'Jusqu’à 3 membres, 2 rôles modifiables', text: 'De quoi démarrer à plusieurs sans payer pour des postes dont vous n’avez pas besoin.' },
+          { icon: 'clipboard', title: 'Une soumission à l’essai (bêta)', text: 'Importez la soumission PDF de l’architecte, mettez vos prix et renvoyez le PDF d’origine rempli.' },
         ],
-        notIncluded: ['Planning, RH & salaires', 'Rentabilité par chantier', 'Trésorerie & suivi des paiements', 'Intégration Bexio', 'Modèles de devis illimités (limité à 40)'],
+        notIncluded: ['Soumissions au-delà de l’essai (3 par mois sur Équipe)', 'Planning de chantier et proposition par l’IA', 'Planning, RH & salaires', 'Rentabilité par chantier', 'Trésorerie & suivi des paiements', 'Intégration Bexio', 'Modèles de devis illimités (limité à 40)'],
       },
       equipe: {
         heroText: 'Pour les équipes qui gèrent chantiers, RH et trésorerie au même endroit, sans jongler entre plusieurs outils.',
@@ -3673,7 +3674,8 @@ export const fr = {
           { icon: 'calendar', title: 'Planning, RH & salaires intégrés', text: 'Planifiez les équipes, gérez les salaires et les certificats de salaire suisses.' },
           { icon: 'trending-up', title: 'Rentabilité par chantier en temps réel', text: 'Suivez marge et dépenses chantier par chantier, sans tableur.' },
           { icon: 'dollar-sign', title: 'Trésorerie & suivi des paiements', text: 'Visualisez vos encaissements et relancez automatiquement les factures en retard.' },
-          { icon: 'link', title: 'Intégration Bexio', text: 'Synchronisez votre comptabilité sans ressaisir vos écritures.' },
+          { icon: 'clipboard', title: 'Soumissions : 3 par mois (bêta)', text: 'Importez la soumission PDF de l’architecte, mettez vos prix et renvoyez le PDF d’origine rempli : prix unitaires, montants et totaux.' },
+          { icon: 'zap', title: 'Planning de chantier, proposé par l’IA', text: 'Phases SIA, tâches, jalons et dépendances. Décrivez ou dictez le chantier : l’IA propose un planning que vous ajustez.' },
         ],
         notIncluded: ['Suivi commercial et relances de devis automatiques (Entreprise)', 'Soumissions limitées à 3 par mois (illimitées sur Entreprise)', 'Stockage limité à 15 Go (40 Go sur Entreprise)', '10 membres max (25 sur Entreprise)', '600 usages IA/mois (2000 sur Entreprise)', 'Pas de support prioritaire'],
       },

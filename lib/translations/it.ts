@@ -2748,9 +2748,9 @@ export const it: TranslationDict = {
       'custom-besson': 'Tutte le funzionalità di Essenziale, con in più le risorse umane, l’integrazione Bexio e la redditività per cantiere — composto su misura per lei.',
     },
     planHighlights: {
-      solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura e personalizzazione del marchio', 'Contabilità e IVA', 'Compilare un capitolato (beta): 1 di prova', "2 ruoli di team modificabili"],
-      equipe: ['Tutto Essenziale, senza limiti', 'Personale, pianificazione, redditività e liquidità', 'Integrazione Bexio', 'Compilare capitolati (beta): 3 al mese', "Ruoli di team personalizzati illimitati"],
-      pro: ['Tutto Team incluso', 'Monitoraggio commerciale dei preventivi', 'Solleciti automatici dei preventivi', 'Capitolati illimitati (beta)', 'Supporto prioritario'],
+      solo: ['Preventivi, fatture e rapporti illimitati', 'QR-fattura, invio per e-mail e personalizzazione del marchio', 'Contabilità e IVA', 'Assistente vocale IA: 150 utilizzi / mese', 'Compilare un capitolato (beta): 1 di prova', '40 modelli di preventivo, 2 ruoli di team'],
+      equipe: ['Tutto Essenziale, senza limiti', 'Compilare capitolati (beta): 3 al mese', 'Programma lavori proposto dall’IA', 'Redditività per cantiere, liquidità e salari', 'Assistente vocale IA: 600 utilizzi / mese', 'Documenti nella lingua di ogni cliente'],
+      pro: ['Tutto Team incluso', 'Capitolati illimitati (beta)', 'Monitoraggio commerciale: sapere quando il cliente apre il preventivo', 'Solleciti automatici dei preventivi', 'Assistente vocale IA: 2000 utilizzi / mese', 'Supporto prioritario'],
       'custom-besson': [
         'Integrazione Bexio (sincronizzazione contabile)',
         'Redditività per cantiere in tempo reale',
@@ -3682,8 +3682,9 @@ export const it: TranslationDict = {
           { icon: 'layout', title: '40 modelli di preventivo riutilizzabili', text: 'Salvi le sue posizioni tipiche una volta sola e le riutilizzi a ogni nuovo preventivo.' },
           { icon: 'mic', title: 'Assistente vocale IA — 150 utilizzi/mese', text: 'Detti preventivi, fatture e spese a voce alta in cantiere.' },
           { icon: 'users', title: 'Fino a 3 membri, 2 ruoli modificabili', text: 'Sufficiente per iniziare in più persone senza pagare per posti di cui non ha bisogno.' },
+          { icon: 'clipboard', title: 'Un capitolato di prova (beta)', text: 'Importi il PDF dell’architetto, inserisca i suoi prezzi e rinvii il PDF originale compilato.' },
         ],
-        notIncluded: ['Pianificazione, personale e salari', 'Redditività per cantiere', 'Liquidità e monitoraggio pagamenti', 'Integrazione Bexio', 'Modelli illimitati (limitati a 40)'],
+        notIncluded: ['Capitolati oltre la prova (3 al mese con Team)', 'Programma lavori e proposta dell’IA', 'Pianificazione, personale e salari', 'Redditività per cantiere', 'Liquidità e monitoraggio pagamenti', 'Integrazione Bexio', 'Modelli illimitati (limitati a 40)'],
       },
       equipe: {
         heroText: 'Per i team che gestiscono cantieri, personale e liquidità nello stesso posto, senza destreggiarsi tra più strumenti.',
@@ -3692,7 +3693,8 @@ export const it: TranslationDict = {
           { icon: 'calendar', title: 'Pianificazione, personale e salari integrati', text: 'Pianifichi i team, gestisca i salari e i certificati di salario svizzeri.' },
           { icon: 'trending-up', title: 'Redditività per cantiere in tempo reale', text: 'Segua margine e spese cantiere per cantiere, senza fogli di calcolo.' },
           { icon: 'dollar-sign', title: 'Liquidità e monitoraggio pagamenti', text: 'Visualizzi gli incassi e solleciti automaticamente le fatture scadute.' },
-          { icon: 'link', title: 'Integrazione Bexio', text: 'Sincronizzi la sua contabilità senza reinserire le registrazioni.' },
+          { icon: 'clipboard', title: 'Capitolati: 3 al mese (beta)', text: 'Importi il PDF dell’architetto, inserisca i suoi prezzi e rinvii il PDF originale compilato: prezzi unitari, importi e totali.' },
+          { icon: 'zap', title: 'Programma lavori proposto dall’IA', text: 'Fasi SIA, attività, tappe e dipendenze. Descriva o detti il cantiere: l’IA propone un programma che lei adatta.' },
         ],
         notIncluded: ['Monitoraggio commerciale e solleciti automatici dei preventivi (Entreprise)', 'Capitolati limitati a 3 al mese (illimitati su Entreprise)', 'Archiviazione limitata a 15 GB (40 GB su Entreprise)', 'Massimo 10 membri (25 su Entreprise)', '600 utilizzi IA/mese (2000 su Entreprise)', 'Nessun supporto prioritario'],
       },
