@@ -71,12 +71,22 @@ export function AiPlanSheet({
       setError(e && /non-2xx|Failed to send|fetch/i.test(e) ? c.aiUnavailable : e ?? c.aiEmpty);
       return;
     }
-    const data = aiPlanToTemplate(plan);
+    const data = aiPlanToTemplate(plan, getAppLocale());
     setResult({ plan, data });
     if (!data.items.length) setError(plan.summary || c.aiEmpty);
   };
 
   const st = result?.data.items.length ? templateStats(result.data) : null;
+  const depthOf = (key: string): number => {
+    let d = 0;
+    let cur = result?.data.items.find((i) => i.key === key);
+    while (cur?.parent && d < 5) {
+      d += 1;
+      const parent: string = cur.parent;
+      cur = result?.data.items.find((i) => i.key === parent);
+    }
+    return d;
+  };
 
   return (
     <Sheet
@@ -150,7 +160,7 @@ export function AiPlanSheet({
           </View>
           <ScrollView style={styles.preview} nestedScrollEnabled>
             {result.data.items.map((it) => (
-              <View key={it.key} style={[styles.line, it.kind === 'phase' && styles.phaseLine, it.parent ? { paddingLeft: spacing.lg } : null]}>
+              <View key={it.key} style={[styles.line, it.kind === 'phase' && styles.phaseLine, { paddingLeft: spacing.md + depthOf(it.key) * spacing.lg }]}>
                 {it.kind === 'milestone' ? <Text style={styles.diamond}>◆</Text> : it.trade ? <View style={[styles.dot, { backgroundColor: tradeColor(it.trade) }]} /> : null}
                 <Text style={[styles.name, it.kind === 'phase' && { fontWeight: '800' }]} numberOfLines={1}>
                   {it.name}

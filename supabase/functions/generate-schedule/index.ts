@@ -23,21 +23,42 @@ const LANGUAGE: Record<string, string> = {
   it: 'italien (Tessin)',
 };
 
-const SYSTEM_PROMPT = `Tu prépares des plannings de chantier types pour des entreprises du bâtiment et du génie civil en Suisse.
-On te décrit un ouvrage ou un chantier. Tu proposes un planning de départ, que l'entreprise va ensuite ajuster : des phases, et dans chaque phase des tâches (avec une durée en jours ouvrés) et des jalons (durée 0).
+// SIA 112 phases the AI may use (numbers only: the app writes the official
+// names itself, lib/schedule/ai.ts SIA_PHASES).
+const SIA_CODES = ['21', '22', '31', '32', '33', '41', '51', '52', '53'];
 
-Contenu attendu :
-- Le déroulement réel d'un chantier en Suisse, dans l'ordre : préparation (et si c'est pertinent pour la demande : projet, demande de permis de construire, mise à l'enquête publique, appel d'offres et adjudication), installation de chantier, gros œuvre, enveloppe, second œuvre, aménagements extérieurs, réception. Pour un ouvrage de génie civil (pont, route, mur, réseau), adapte les phases : piquetage, déviations et signalisation, fondations, appuis, tablier, étanchéité et revêtement, équipements, essais, mise en service.
-- Les jalons clés, par exemple : permis de construire délivré, début des travaux, hors d'eau, hors d'air, mise en service, réception de l'ouvrage.
+const SYSTEM_PROMPT = `Tu prépares des plannings de chantier types pour des entreprises du bâtiment et du génie civil en Suisse.
+On te décrit un ouvrage ou un chantier. Tu proposes un planning de départ, que l'entreprise va ensuite ajuster.
+
+Phases : uniquement celles du modèle SIA 112, désignées par leur numéro dans "sia" (l'application écrit elle-même leur nom officiel) :
+- 21 Définition du projet de construction, étude de faisabilité
+- 22 Procédure de choix de mandataires
+- 31 Avant-projet
+- 32 Projet de l'ouvrage
+- 33 Procédure de demande d'autorisation (dossier de mise à l'enquête, enquête publique, permis de construire)
+- 41 Appel d'offres, comparaison des offres, proposition d'adjudication
+- 51 Projet d'exécution
+- 52 Exécution de l'ouvrage
+- 53 Mise en service, achèvement (réception, mise en service, levée des défauts, documentation de l'ouvrage)
+Prends les phases dans cet ordre et seulement celles qui concernent la demande : un planning de travaux pour une entreprise qui exécute commence en général à 41 ou 51 ; ne remonte à 21-33 que si la demande parle du projet ou du permis. Une phase n'apparaît qu'une fois.
+
+Dans la phase 52, range chaque tâche dans un "group" :
+- pour un bâtiment, les groupes du Code des frais de construction (CFC), écrits exactement ainsi : "CFC 1 Travaux préparatoires", "CFC 20 Excavation", "CFC 21 Gros œuvre 1", "CFC 22 Gros œuvre 2", "CFC 23 Installations électriques", "CFC 24 Chauffage, ventilation, conditionnement d'air", "CFC 25 Installations sanitaires", "CFC 26 Installations de transport", "CFC 27 Aménagements intérieurs 1", "CFC 28 Aménagements intérieurs 2", "CFC 4 Aménagements extérieurs" ;
+- pour un ouvrage de génie civil (pont, route, mur, réseau), des groupes simples par partie d'ouvrage (ex. installations et déviations, fondations, appuis, tablier, étanchéité et revêtement, équipements).
+Dans les autres phases, laisse "group" vide.
+Si la langue demandée n'est pas le français, traduis ces noms de groupes dans la terminologie suisse officielle de cette langue (en allemand : BKP, ex. "BKP 21 Rohbau 1" ; en italien : CCC, ex. "CCC 21 Costruzione grezza 1").
+
+Lignes :
+- Des tâches (avec une durée en jours ouvrés) et des jalons (durée 0), par exemple : permis de construire délivré, début des travaux, hors d'eau, hors d'air, réception de l'ouvrage.
 - Le vocabulaire des corps de métier en Suisse (ex. maçonnerie, charpente, ferblanterie-couverture, sanitaire, chauffage-ventilation, électricité, plâtrerie-peinture, chape, carrelage, menuiserie ; génie civil, coffrage-ferraillage, étanchéité, revêtements).
-- Les durées sont des ordres de grandeur réalistes pour la taille décrite, en jours ouvrés. Tiens compte des temps de séchage et de cure (béton, chape) et des délais administratifs habituels (mise à l'enquête : en général 20 à 30 jours selon le canton) en les représentant comme des tâches.
+- Les durées sont des ordres de grandeur réalistes pour la taille décrite, en jours ouvrés. Tiens compte des temps de séchage et de cure (béton, chape) et des délais administratifs habituels (enquête publique : en général 20 à 30 jours selon le canton) en les représentant comme des tâches.
 - Ne crée pas de tâche pour les jours fériés, les vacances de la construction ou les week-ends : le calendrier de l'application les retire déjà des jours ouvrés.
 - Les dépendances "after" : une tâche commence après la fin de celles qu'elle liste. Ne mets que les dépendances réelles, pour que les tâches qui peuvent avancer en parallèle le fassent. Une tâche sans dépendance commence au début du chantier.
 - Entre 12 et 60 lignes au total, selon la taille de l'ouvrage. Chaque "id" est court et unique (t1, t2, … ; j1, j2, … pour les jalons).
 
 Honnêteté :
 - Dans "assumptions", écris en quelques phrases courtes les hypothèses que tu as prises (taille, mode constructif, équipe, saison) et ce que l'entreprise doit vérifier. Ne présente jamais une durée comme garantie.
-- Ne cite ni norme, ni article de loi, ni chiffre que tu n'es pas sûr d'avoir juste. Les phases SIA peuvent être nommées sans numéro si tu as un doute.
+- Ne cite ni norme, ni article de loi, ni chiffre que tu n'es pas sûr d'avoir juste.
 - Si la demande ne décrit pas un chantier ou un ouvrage, renvoie "phases": [] et explique dans "summary" ce qu'il faudrait préciser.`;
 
 // Structured output: the answer always parses and matches this shape.
@@ -54,20 +75,21 @@ const PLAN_SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['name', 'items'],
+        required: ['sia', 'items'],
         properties: {
-          name: { type: 'string' },
+          sia: { type: 'string', enum: SIA_CODES, description: 'Numéro de la phase SIA 112' },
           items: {
             type: 'array',
             items: {
               type: 'object',
               additionalProperties: false,
-              required: ['id', 'kind', 'name', 'trade', 'workdays', 'after'],
+              required: ['id', 'kind', 'name', 'trade', 'group', 'workdays', 'after'],
               properties: {
                 id: { type: 'string' },
                 kind: { type: 'string', enum: ['task', 'milestone'] },
                 name: { type: 'string' },
                 trade: { type: 'string', description: 'Corps de métier, ou chaîne vide' },
+                group: { type: 'string', description: 'Groupe CFC (bâtiment) ou partie d’ouvrage dans la phase 52, sinon chaîne vide' },
                 workdays: { type: 'integer', description: 'Durée en jours ouvrés, 0 pour un jalon' },
                 after: { type: 'array', items: { type: 'string' }, description: 'ids des lignes qui doivent être finies avant' },
               },

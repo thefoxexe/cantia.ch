@@ -12,13 +12,39 @@ export interface AiPlanItem {
   kind: 'task' | 'milestone';
   name: string;
   trade: string;
+  // sub-group inside the phase, e.g. "CFC 21 Gros œuvre 1" ("" when none)
+  group?: string;
   workdays: number;
   after: string[];
 }
 
 export interface AiPlanPhase {
-  name: string;
+  // SIA 112 phase number ("31", "52"…); the name always comes from SIA_PHASES
+  sia?: string;
+  name?: string;
   items: AiPlanItem[];
+}
+
+// SIA 112 phases (« Étude et conduite de projet »), the official names in
+// each language. The AI only picks the numbers; the names are ours, so they
+// are always the real ones.
+export const SIA_PHASES: Record<string, { fr: string; de: string; it: string }> = {
+  '21': { fr: 'Définition du projet de construction, étude de faisabilité', de: 'Projektdefinition, Machbarkeitsstudie', it: 'Definizione del progetto, studio di fattibilità' },
+  '22': { fr: 'Procédure de choix de mandataires', de: 'Auswahlverfahren', it: 'Procedura di scelta dei mandatari' },
+  '31': { fr: 'Avant-projet', de: 'Vorprojekt', it: 'Progetto di massima' },
+  '32': { fr: 'Projet de l’ouvrage', de: 'Bauprojekt', it: 'Progetto definitivo' },
+  '33': { fr: 'Procédure de demande d’autorisation', de: 'Bewilligungsverfahren, Auflageprojekt', it: 'Procedura di autorizzazione' },
+  '41': { fr: 'Appel d’offres, comparaison des offres, proposition d’adjudication', de: 'Ausschreibung, Offertvergleich, Vergabeantrag', it: 'Appalto, confronto delle offerte, proposta di aggiudicazione' },
+  '51': { fr: 'Projet d’exécution', de: 'Ausführungsprojekt', it: 'Progetto esecutivo' },
+  '52': { fr: 'Exécution de l’ouvrage', de: 'Ausführung', it: 'Esecuzione dell’opera' },
+  '53': { fr: 'Mise en service, achèvement', de: 'Inbetriebnahme, Abschluss', it: 'Messa in servizio, conclusione' },
+};
+export const SIA_CODES = Object.keys(SIA_PHASES);
+
+export function siaPhaseName(code: string, locale: string): string | null {
+  const p = SIA_PHASES[code];
+  if (!p) return null;
+  return `${code} ${locale === 'de' ? p.de : locale === 'it' ? p.it : p.fr}`;
 }
 
 export interface AiPlan {
@@ -36,27 +62,49 @@ const clean = (s: unknown, max = 160): string => (typeof s === 'string' ? s.repl
 // Lines in the AI's order, phases first; every "after" pointing at a line
 // that does not exist is dropped, and so is any link that would close a loop.
 // A line with nothing before it starts on day 0 of the chantier.
-export function aiPlanToTemplate(plan: AiPlan): TemplateData {
+// A phase given with a SIA number is named from SIA_PHASES (the same number
+// twice is merged into one phase); inside a phase, lines with a "group" go
+// into a sub-phase of that name.
+export function aiPlanToTemplate(plan: AiPlan, locale = 'fr'): TemplateData {
   const items: TemplateItem[] = [];
   const keyOf = new Map<string, string>();
+  const phaseKeys = new Map<string, string>();
+  const groupKeys = new Map<string, string>();
   let n = 0;
+  let g = 0;
   for (const [pi, phase] of (plan.phases ?? []).entries()) {
-    const phaseName = clean(phase?.name);
+    const code = clean(phase?.sia, 4);
+    const phaseName = siaPhaseName(code, locale) ?? clean(phase?.name);
     const lines = (phase?.items ?? []).filter((it) => clean(it?.name));
     if (!phaseName || !lines.length) continue;
-    const phaseKey = `p${pi + 1}`;
-    items.push({ key: phaseKey, parent: null, kind: 'phase', name: phaseName, trade: null, duration: null, offset: null });
+    let phaseKey = phaseKeys.get(phaseName);
+    if (!phaseKey) {
+      phaseKey = `p${pi + 1}`;
+      phaseKeys.set(phaseName, phaseKey);
+      items.push({ key: phaseKey, parent: null, kind: 'phase', name: phaseName, trade: null, duration: null, offset: null });
+    }
     for (const it of lines) {
       if (items.length >= MAX_LINES) break;
       const id = clean(it.id, 40) || `x${n}`;
       if (keyOf.has(id)) continue;
+      const groupName = clean(it.group, 80);
+      let parentKey = phaseKey;
+      if (groupName) {
+        const gk = `${phaseKey}|${groupName}`;
+        if (!groupKeys.has(gk)) {
+          const key = `g${++g}`;
+          groupKeys.set(gk, key);
+          items.push({ key, parent: phaseKey, kind: 'phase', name: groupName, trade: null, duration: null, offset: null });
+        }
+        parentKey = groupKeys.get(gk)!;
+      }
       const key = `a${++n}`;
       keyOf.set(id, key);
       const days = Math.round(Number(it.workdays));
       const milestone = it.kind === 'milestone' || !(days > 0);
       items.push({
         key,
-        parent: phaseKey,
+        parent: parentKey,
         kind: (milestone ? 'milestone' : 'task') as ItemKind,
         name: clean(it.name),
         trade: clean(it.trade, 60) || null,

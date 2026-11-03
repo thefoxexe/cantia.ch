@@ -270,3 +270,28 @@ test('AI plan placed on working days: Mon 12.10.2026, chain of 3 + milestone + 5
 test('AI plan with nothing usable gives an empty template', () => {
   assert.deepEqual(aiPlanToTemplate({ title: '', summary: 'Précisez', assumptions: [], phases: [] }), { items: [], links: [] });
 });
+
+test('AI plan with SIA phases: official names in each language, CFC groups as sub-phases, same phase merged', async () => {
+  const { aiPlanToTemplate: toTpl } = await import('../lib/schedule/ai.ts');
+  const plan = {
+    title: 'Villa', summary: '', assumptions: [],
+    phases: [
+      { sia: '33', items: [{ id: 'j1', kind: 'milestone', name: 'Permis délivré', trade: '', group: '', workdays: 0, after: [] }] },
+      { sia: '52', items: [
+        { id: 't1', kind: 'task', name: 'Fouilles', trade: 'Terrassement', group: 'CFC 20 Excavation', workdays: 5, after: ['j1'] },
+        { id: 't2', kind: 'task', name: 'Radier', trade: 'Maçonnerie', group: 'CFC 21 Gros œuvre 1', workdays: 6, after: ['t1'] },
+      ] },
+      { sia: '52', items: [{ id: 't3', kind: 'task', name: 'Murs', trade: 'Maçonnerie', group: 'CFC 21 Gros œuvre 1', workdays: 10, after: ['t2'] }] },
+      { sia: '99', name: 'Inventée', items: [{ id: 't4', kind: 'task', name: 'X', trade: '', group: '', workdays: 1, after: [] }] },
+    ],
+  };
+  const fr = toTpl(plan, 'fr');
+  assert.deepEqual(fr.items.filter((i) => i.kind === 'phase').map((i) => i.name), [
+    '33 Procédure de demande d’autorisation', '52 Exécution de l’ouvrage', 'CFC 20 Excavation', 'CFC 21 Gros œuvre 1', 'Inventée',
+  ]);
+  const group21 = fr.items.find((i) => i.name === 'CFC 21 Gros œuvre 1');
+  assert.deepEqual(fr.items.filter((i) => i.parent === group21.key).map((i) => i.name), ['Radier', 'Murs']);
+  assert.equal(group21.parent, fr.items.find((i) => i.name.startsWith('52 ')).key);
+  assert.equal(toTpl(plan, 'de').items[0].name, '33 Bewilligungsverfahren, Auflageprojekt');
+  assert.equal(toTpl(plan, 'it').items.find((i) => i.name.startsWith('52 ')).name, '52 Esecuzione dell’opera');
+});
