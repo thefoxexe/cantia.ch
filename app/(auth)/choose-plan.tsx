@@ -20,7 +20,7 @@ export default function ChoosePlanScreen() {
   // No visible field for this anywhere on the page — it only exists for
   // whoever was personally handed a link like /choose-plan?promo=ESSAI30.
   // Read once and applied silently; nothing on screen reveals it's there.
-  const { promo } = useLocalSearchParams<{ promo?: string }>();
+  const { promo, code: codeParam } = useLocalSearchParams<{ promo?: string; code?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
@@ -50,8 +50,19 @@ export default function ChoosePlanScreen() {
   const [customPlanChecking, setCustomPlanChecking] = useState(false);
   const [customPlanError, setCustomPlanError] = useState<string | null>(null);
 
-  async function redeemCustomPlanCode() {
-    const code = customPlanCode.trim();
+  // A link like /choose-plan?code=MORINA2026 (sent to one client) opens
+  // straight on their personal plan, as if they had typed the code.
+  useEffect(() => {
+    const fromLink = typeof codeParam === 'string' ? codeParam.trim() : '';
+    if (!fromLink) return;
+    setCustomPlanOpen(true);
+    setCustomPlanCode(fromLink);
+    redeemCustomPlanCode(fromLink);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeParam]);
+
+  async function redeemCustomPlanCode(fromLink?: string) {
+    const code = (fromLink ?? customPlanCode).trim();
     if (!code || customPlanChecking) return;
     setCustomPlanChecking(true);
     setCustomPlanError(null);
@@ -212,11 +223,11 @@ export default function ChoosePlanScreen() {
                     autoCapitalize="characters"
                     autoCorrect={false}
                     style={styles.personalPlanInput}
-                    onSubmitEditing={redeemCustomPlanCode}
+                    onSubmitEditing={() => redeemCustomPlanCode()}
                   />
                   <Button
                     title={t('authChoosePlan.personalPlanCodeSubmit')}
-                    onPress={redeemCustomPlanCode}
+                    onPress={() => redeemCustomPlanCode()}
                     loading={customPlanChecking}
                     disabled={!customPlanCode.trim() || customPlanChecking}
                     variant="secondary"

@@ -10,8 +10,8 @@ select (jsonb_populate_record(
   to_jsonb(p) || jsonb_build_object(
     'id', 'custom-morina',
     'name', 'Denn Morina SARL',
-    'price_chf_monthly', 59.00,
-    'price_chf_yearly', 566.40,
+    'price_chf_monthly', 49.00,
+    'price_chf_yearly', 470.40,
     'stripe_price_id', null,
     'stripe_price_id_yearly', null,
     'is_contact_only', true,
