@@ -16,17 +16,27 @@
 // when the Netlify site has CANTIA_SURFACE=partners). ACCOUNTING_BUILD=1:
 // app-accounting/, accounting.cantia.ch (scripts/build-accounting.mjs,
 // CANTIA_SURFACE=accounting).
+// Route-by-route JavaScript (asyncRoutes, set on the expo-router plugin in
+// app.json) is only for the main cantia.ch / app.cantia.ch build; the
+// partners and accounting sites keep their single bundle.
+function withoutAsyncRoutes(config) {
+  return {
+    ...config,
+    plugins: (config.plugins ?? []).map((p) => (Array.isArray(p) && p[0] === 'expo-router' ? 'expo-router' : p)),
+  };
+}
+
 module.exports = ({ config }) => {
   if (process.env.ACCOUNTING_BUILD === '1') {
     return {
-      ...config,
+      ...withoutAsyncRoutes(config),
       web: { ...config.web, output: 'static' },
       extra: { ...config.extra, router: { ...config.extra?.router, root: './app-accounting' } },
     };
   }
   if (process.env.PARTNERS_BUILD === '1') {
     return {
-      ...config,
+      ...withoutAsyncRoutes(config),
       web: { ...config.web, output: 'static' },
       extra: { ...config.extra, router: { ...config.extra?.router, root: './app-partners' } },
     };
