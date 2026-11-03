@@ -44,7 +44,9 @@ export function AiPlanSheet({
     const { plan, error: e } = await proposeSchedule(organizationId, request.trim(), { locale: getAppLocale(), canton, start });
     setBusy(false);
     if (e || !plan) {
-      setError(e ?? c.aiEmpty);
+      // supabase-js's own wording when the function isn't reachable (not
+      // deployed yet, network): no JSON error from our function to show.
+      setError(e && /non-2xx|Failed to send|fetch/i.test(e) ? c.aiUnavailable : e ?? c.aiEmpty);
       return;
     }
     const data = aiPlanToTemplate(plan);
