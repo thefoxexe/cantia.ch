@@ -3,7 +3,6 @@ import { documentVatRate } from '../../../lib/vat/vatStatus';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
-import * as XLSX from 'xlsx';
 import { useAuth } from '../../../lib/auth-context';
 import { parseCsv, type ParsedCsv } from '../../../lib/csv';
 import {
@@ -76,7 +75,9 @@ function isExcelFile(name: string | null | undefined, mimeType: string | null | 
 // the rest of the screen already treats every field as free text until
 // import-time parsing (amounts, dates) converts it, exactly like a CSV
 // cell would be.
-function parseExcelWorkbook(buffer: ArrayBuffer): ParsedCsv {
+async function parseExcelWorkbook(buffer: ArrayBuffer): Promise<ParsedCsv> {
+  // Loaded on demand: SheetJS stays out of the shared JavaScript.
+  const XLSX = await import('xlsx');
   const workbook = XLSX.read(buffer, { type: 'array' });
   const sheetName = workbook.SheetNames[0];
   const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
@@ -224,7 +225,7 @@ export default function DataImportScreen() {
     try {
       const asset = picked.assets[0];
       const parsed = isExcelFile(asset.name, asset.mimeType)
-        ? parseExcelWorkbook(await fetch(asset.uri).then((r) => r.arrayBuffer()))
+        ? await parseExcelWorkbook(await fetch(asset.uri).then((r) => r.arrayBuffer()))
         : parseCsv(await fetch(asset.uri).then((r) => r.text()));
       if (parsed.headers.length === 0 || parsed.rows.length === 0) {
         setError(t('dataImport.emptyFile'));

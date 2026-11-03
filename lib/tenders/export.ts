@@ -1,7 +1,6 @@
 // Spreadsheet export of a métré (Excel). Rows follow the tree order; the
 // document's references, R positions and zones are kept as written.
 
-import * as XLSX from 'xlsx';
 import { Platform } from 'react-native';
 import { lineAmount, tenderTotals } from './calc.ts';
 import { unitLabel } from './units.ts';
@@ -54,7 +53,10 @@ export function tenderSheetRows(b: TenderBundle): (string | number | null)[][] {
   return rows;
 }
 
-export function exportTenderXlsx(b: TenderBundle) {
+// SheetJS is loaded only when an export is asked for, so it stays out of the
+// shared JavaScript every page downloads.
+export async function exportTenderXlsx(b: TenderBundle) {
+  const XLSX = await import('xlsx');
   const ws = XLSX.utils.aoa_to_sheet(tenderSheetRows(b));
   ws['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 3 }, { wch: 70 }, { wch: 7 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 28 }, { wch: 11 }, { wch: 13 }, { wch: 6 }];
   const wb = XLSX.utils.book_new();

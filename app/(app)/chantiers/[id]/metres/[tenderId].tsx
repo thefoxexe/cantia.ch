@@ -857,7 +857,7 @@ function ExportSheet({ c, bundle, onClose, notice }: { c: ReturnType<typeof useT
     setError(null);
     setResult(null);
     if (kind === 'xlsx') {
-      exportTenderXlsx(bundle);
+      await exportTenderXlsx(bundle);
       return onClose();
     }
     setBusy(true);
