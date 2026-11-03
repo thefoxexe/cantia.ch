@@ -6,6 +6,7 @@ import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { displayType } from '../../lib/marketingTheme';
+import { trackConversion } from '../../lib/siteAnalytics';
 import { BrandLogo } from '../../components/brand/Logo';
 
 // Reached two ways: signup.tsx routes here when signUp() comes back with
@@ -41,6 +42,7 @@ export default function VerifyEmailScreen() {
     // verification, marks the actual moment an account becomes usable.
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       (window as any).gtag?.('event', 'conversion', { send_to: 'AW-18465996566/H7osCOaBzIMdEJb-ouVE' });
+      trackConversion('sign_up', { method: 'email' });
     }
     // On success the session updates and app/_layout.tsx redirects away —
     // nothing else to do here.

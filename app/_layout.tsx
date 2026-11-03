@@ -9,7 +9,7 @@ import { AuthProvider, useAuth } from '../lib/auth-context';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { isAppHost, excludeAppHostFromIndexing } from '../lib/appHost';
 import { forceLocale } from '../lib/translations';
-import { trackPageview } from '../lib/siteAnalytics';
+import { installConversionTracking, trackPageview } from '../lib/siteAnalytics';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
@@ -50,6 +50,10 @@ function RootNavigation() {
   useEffect(() => {
     trackPageview(pathname);
   }, [pathname]);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') installConversionTracking();
+  }, []);
 
   // Ask for push permission once signed in — the standard place to prompt
   // is right after auth resolves, not at cold start before there's even a

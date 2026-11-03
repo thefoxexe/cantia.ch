@@ -95,6 +95,10 @@ function writeSharedCookie(name: string, payload: unknown): void {
 // only written once the visitor accepted it in the cookie banner
 // (components/CookieBanner.tsx). Until then, what arrived in the URL waits
 // in sessionStorage, and is written the moment they accept.
+// Google Analytics 4 property of cantia.ch / app.cantia.ch. Same id as in
+// app/+html.tsx and scripts/inject-seo-meta.mjs.
+export const GA4_ID = 'G-1K03L5TNDX';
+
 export type CookieConsent = 'accepted' | 'refused';
 const CONSENT_KEY = 'cantia_cookie_consent';
 const PENDING_ATTR_KEY = 'cantia_attr_pending';
@@ -129,6 +133,9 @@ export function setCookieConsent(value: CookieConsent): void {
   else stopSessionReplay();
   if (value === 'accepted') {
     gtag?.('consent', 'update', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
+    // GA4 is only configured once the visitor has accepted (app/+html.tsx
+    // does the same at page load for a visitor who accepted earlier).
+    gtag?.('config', GA4_ID);
     const attr = takePending<Attribution>(PENDING_ATTR_KEY);
     if (attr && !readCookie(ATTR_COOKIE)) writeSharedCookie(ATTR_COOKIE, attr);
     const origin = takePending<StoredOrigin>(PENDING_ORIGIN_KEY);
@@ -395,4 +402,50 @@ export function trackLandingEvent(page: string, kind: LandingEventKind, location
     });
   const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
   gtag?.('event', kind, { event_category: page, event_label: location });
+}
+
+// ─── Conversions (Google Ads + GA4) ──────────────────────────────────────────
+// gtag sends each event to every configured tag: Google Ads always, GA4 only
+// once the visitor accepted cookies. Events:
+//   signup_start   click on any link to the signup page
+//   sign_up        account verified (app/(auth)/verify-email.tsx)
+//   trial_start    back from the Stripe checkout that starts the 14-day trial
+//   pricing_click  click on a link to the pricing page
+//   generate_lead  contact form sent (components/ContactForm.tsx)
+//   contact_click  click on an e-mail or phone link
+export function trackConversion(name: string, params: Record<string, unknown> = {}): void {
+  if (typeof window === 'undefined') return;
+  const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+  gtag?.('event', name, params);
+}
+
+let conversionTrackingInstalled = false;
+
+export function installConversionTracking(): void {
+  if (typeof document === 'undefined' || conversionTrackingInstalled) return;
+  conversionTrackingInstalled = true;
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target as Element | null;
+      const anchor = target?.closest?.('a[href]') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const href = anchor.getAttribute('href') ?? '';
+      const local = href.replace(/^https:\/\/(app\.)?cantia\.ch/, '');
+      const page_path = window.location.pathname;
+      if (/\/signup(\?|#|$)/.test(local)) trackConversion('signup_start', { page_path });
+      else if (/^(\/(de|it))?\/tarifs(\?|#|$)/.test(local) || /#pricing$/.test(local)) trackConversion('pricing_click', { page_path });
+      else if (/^(mailto|tel):/.test(href)) trackConversion('contact_click', { method: href.startsWith('tel') ? 'phone' : 'email', page_path });
+    },
+    { capture: true },
+  );
+  // Stripe sends the visitor back to "<page>?checkout-success" (lib/api/billing.ts).
+  try {
+    if (/[?&]checkout-success/.test(window.location.search) && !window.sessionStorage.getItem('cantia_trial_tracked')) {
+      window.sessionStorage.setItem('cantia_trial_tracked', '1');
+      trackConversion('trial_start');
+    }
+  } catch {
+    // Blocked storage: skip rather than risk counting the trial twice.
+  }
 }

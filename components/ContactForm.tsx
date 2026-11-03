@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { Button, Card, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { trackConversion } from '../lib/siteAnalytics';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
 const FORM_NAME = 'contact';
@@ -45,6 +46,7 @@ export function ContactForm() {
           }),
         });
         if (!res.ok) throw new Error(`status ${res.status}`);
+        trackConversion('generate_lead', { form: 'contact' });
       }
       setStatus('sent');
     } catch (err) {

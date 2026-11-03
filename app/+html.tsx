@@ -54,7 +54,8 @@ function gtag(){dataLayer.push(arguments);}
 var cantiaConsent = /(?:^|; )cantia_cookie_consent=accepted/.test(document.cookie) ? 'granted' : 'denied';
 gtag('consent', 'default', { ad_storage: cantiaConsent, ad_user_data: cantiaConsent, ad_personalization: cantiaConsent, analytics_storage: cantiaConsent });
 gtag('js', new Date());
-gtag('config', 'AW-18465996566');`,
+gtag('config', 'AW-18465996566');
+if (cantiaConsent === 'granted') gtag('config', 'G-1K03L5TNDX');`,
           }}
         />
       </head>
