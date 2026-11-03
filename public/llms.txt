@@ -13,9 +13,9 @@ Faits utiles :
 
 ## Plans et tarifs (CHF, hors TVA)
 
-- Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue, comptabilité et TVA, 1 soumission à l'essai (bêta).
-- Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio, et 3 soumissions remplies par mois (bêta).
-- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis, les relances de devis automatiques, les soumissions illimitées (bêta), 40 Go de stockage et le support prioritaire.
+- Essentiel : CHF 39.– par mois (CHF 374.40 par an), jusqu'à 3 personnes. Devis, factures QR, chantiers, rapports, contacts, catalogue, comptabilité et TVA, 1 soumission à l'essai (bêta), assistant vocal IA (150 utilisations par mois).
+- Équipe : CHF 79.– par mois (CHF 758.40 par an), jusqu'à 10 personnes. Ajoute planning d'équipe, planning de chantier, rentabilité, heures et salaires, trésorerie, intégration Bexio, 3 soumissions remplies par mois (bêta), proposition de planning de chantier par l'IA (phases SIA), assistant vocal IA (600 utilisations par mois).
+- Entreprise : CHF 129.– par mois (CHF 1'238.40 par an), jusqu'à 25 personnes. Ajoute le suivi commercial des devis, les relances de devis automatiques, les soumissions illimitées (bêta), 40 Go de stockage, l'assistant vocal IA (2'000 utilisations par mois) et le support prioritaire.
 - Sur mesure : sur demande, au-delà de 25 personnes.
 Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://cantia.ch/tarifs
 

@@ -3670,7 +3670,7 @@ export const it: TranslationDict = {
     faqCommitmentQ: 'C\'è un impegno minimo?',
     faqCommitmentA: 'No. Tutti i piani sono senza impegno, disdicibili in qualsiasi momento, con 14 giorni di prova gratuita inclusi.',
     faqVatQ: 'Il prezzo include l\'IVA?',
-    faqVatA: 'I prezzi indicati sono al netto dell\'IVA. L\'IVA svizzera viene aggiunta al momento della fatturazione.',
+    faqVatA: 'Non viene aggiunta alcuna IVA: il prezzo indicato è l\'importo fatturato.',
     closingTitle: 'Pronto a provare {{name}}?',
     closingText: '14 giorni di prova — carta di credito richiesta alla registrazione, primo addebito solo dopo questi 14 giorni, disdicibile in qualsiasi momento e senza costi.',
     plans: {

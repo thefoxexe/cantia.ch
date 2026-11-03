@@ -84,7 +84,7 @@ const FAQ: { question: string; answer: string }[] = [
   {
     question: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
     answer:
-      "Les tarifs sont détaillés plus haut sur cette page — vous les choisissez selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
+      "CHF 39.– par mois avec Essentiel, CHF 79.– avec Équipe et CHF 129.– avec Entreprise, ou 20 % de moins en facturation annuelle. Chaque formule commence par 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai).",
   },
   {
     question: 'Cantia fonctionne-t-il directement dans le navigateur ?',

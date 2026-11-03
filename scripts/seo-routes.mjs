@@ -199,7 +199,7 @@ export const ROUTES = [
     faq: [
       {
         q: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
-        a: "Les tarifs varient selon la taille de votre équipe. Chaque plan inclut 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai) pour tester avant de vous engager.",
+        a: "CHF 39.– par mois avec Essentiel, CHF 79.– avec Équipe et CHF 129.– avec Entreprise, ou 20 % de moins en facturation annuelle. Chaque formule commence par 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai).",
       },
       {
         q: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',
@@ -469,33 +469,33 @@ export const ROUTES = [
     path: 'plans/essentiel',
     title: 'Plan Essentiel — devis & factures illimités | Cantia',
     description:
-      "CHF 39/mois : devis, factures et rapports illimités, QR-facture suisse, personnalisation de marque et assistant vocal IA. Découvrez le plan Essentiel.",
+      "CHF 39/mois : devis et factures illimités, QR-facture, assistant vocal IA (150 par mois), une soumission à l’essai et 3 membres. Plan Essentiel.",
     faq: [
       { q: 'Puis-je changer de plan plus tard ?', a: 'Oui, à tout moment depuis les paramètres de votre entreprise. Le changement est immédiat et le montant est ajusté au prorata.' },
       { q: 'Y a-t-il un engagement ?', a: "Non. Tous les plans sont sans engagement, résiliables à tout moment, avec 14 jours d'essai gratuit inclus." },
-      { q: 'Le prix inclut-il la TVA ?', a: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.' },
+      { q: 'Le prix inclut-il la TVA ?', a: 'Aucune TVA n’est ajoutée : le prix affiché est le montant facturé.' },
     ],
   },
   {
     path: 'plans/equipe',
     title: 'Plan Équipe — planning, RH & trésorerie | Cantia',
     description:
-      "CHF 79/mois : tout Essentiel, plus planning, RH & salaires, rentabilité par chantier, trésorerie et intégration Bexio. Découvrez le plan Équipe.",
+      "CHF 79/mois : 3 soumissions par mois, planning de chantier proposé par l’IA, rentabilité par chantier, trésorerie, salaires et 10 membres. Plan Équipe.",
     faq: [
       { q: 'Puis-je changer de plan plus tard ?', a: 'Oui, à tout moment depuis les paramètres de votre entreprise. Le changement est immédiat et le montant est ajusté au prorata.' },
       { q: 'Y a-t-il un engagement ?', a: "Non. Tous les plans sont sans engagement, résiliables à tout moment, avec 14 jours d'essai gratuit inclus." },
-      { q: 'Le prix inclut-il la TVA ?', a: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.' },
+      { q: 'Le prix inclut-il la TVA ?', a: 'Aucune TVA n’est ajoutée : le prix affiché est le montant facturé.' },
     ],
   },
   {
     path: 'plans/entreprise',
     title: 'Plan Entreprise — pour les structures établies | Cantia',
     description:
-      "CHF 129/mois : tout Équipe à plus grande échelle (25 membres, 40 Go), quota IA le plus large, rôles avancés illimités et support prioritaire.",
+      "CHF 129/mois : tout Équipe avec soumissions illimitées, suivi des devis consultés, relances automatiques, 25 membres et support prioritaire.",
     faq: [
       { q: 'Puis-je changer de plan plus tard ?', a: 'Oui, à tout moment depuis les paramètres de votre entreprise. Le changement est immédiat et le montant est ajusté au prorata.' },
       { q: 'Y a-t-il un engagement ?', a: "Non. Tous les plans sont sans engagement, résiliables à tout moment, avec 14 jours d'essai gratuit inclus." },
-      { q: 'Le prix inclut-il la TVA ?', a: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.' },
+      { q: 'Le prix inclut-il la TVA ?', a: 'Aucune TVA n’est ajoutée : le prix affiché est le montant facturé.' },
     ],
   },
   {
@@ -3479,33 +3479,33 @@ export const ROUTES = [
     path: 'de/plans/essentiel',
     title: 'Plan Essentiel — unbegrenzte Offerten & Rechnungen | Cantia',
     description:
-      'CHF 39/Monat: unbegrenzte Offerten, Rechnungen und Rapporte, Schweizer QR-Rechnung, Markenanpassung und KI-Sprachassistent. Entdecken Sie den Plan Essentiel.',
+      'CHF 39/Monat: unbegrenzte Offerten und Rechnungen, QR-Rechnung, KI-Sprachassistent (150 pro Monat), ein Leistungsverzeichnis zum Testen, 3 Mitglieder.',
     faq: [
       { q: 'Kann ich später den Plan wechseln?', a: 'Ja, jederzeit über die Unternehmenseinstellungen. Der Wechsel erfolgt sofort, der Betrag wird anteilig angepasst.' },
       { q: 'Gibt es eine Mindestlaufzeit?', a: 'Nein. Alle Pläne sind ohne Mindestlaufzeit, jederzeit kündbar, mit 14 Tagen kostenloser Testphase.' },
-      { q: 'Ist die MWST im Preis enthalten?', a: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.' },
+      { q: 'Ist die MWST im Preis enthalten?', a: 'Es wird keine MWST hinzugefügt: Der angezeigte Preis ist der verrechnete Betrag.' },
     ],
   },
   {
     path: 'de/plans/equipe',
     title: 'Plan Team — Planung, Personal & Liquidität | Cantia',
     description:
-      'CHF 79/Monat: alles aus Essentiel, plus Planung, Personal & Löhne, Rentabilität pro Baustelle, Liquidität und Bexio-Integration. Entdecken Sie den Plan Team.',
+      'CHF 79/Monat: 3 Leistungsverzeichnisse pro Monat, Bauprogramm mit KI-Vorschlag, Rentabilität pro Baustelle, Liquidität, Löhne und 10 Mitglieder.',
     faq: [
       { q: 'Kann ich später den Plan wechseln?', a: 'Ja, jederzeit über die Unternehmenseinstellungen. Der Wechsel erfolgt sofort, der Betrag wird anteilig angepasst.' },
       { q: 'Gibt es eine Mindestlaufzeit?', a: 'Nein. Alle Pläne sind ohne Mindestlaufzeit, jederzeit kündbar, mit 14 Tagen kostenloser Testphase.' },
-      { q: 'Ist die MWST im Preis enthalten?', a: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.' },
+      { q: 'Ist die MWST im Preis enthalten?', a: 'Es wird keine MWST hinzugefügt: Der angezeigte Preis ist der verrechnete Betrag.' },
     ],
   },
   {
     path: 'de/plans/entreprise',
     title: 'Plan Business — für etablierte Unternehmen | Cantia',
     description:
-      'CHF 129/Monat: alles aus Team in grösserem Massstab (25 Mitglieder, 40 GB), grösstes KI-Kontingent, unbegrenzte erweiterte Rollen und Priority-Support.',
+      'CHF 129/Monat: alles aus Team mit unbegrenzten Leistungsverzeichnissen, Verfolgung geöffneter Offerten, automatischen Erinnerungen und 25 Mitgliedern.',
     faq: [
       { q: 'Kann ich später den Plan wechseln?', a: 'Ja, jederzeit über die Unternehmenseinstellungen. Der Wechsel erfolgt sofort, der Betrag wird anteilig angepasst.' },
       { q: 'Gibt es eine Mindestlaufzeit?', a: 'Nein. Alle Pläne sind ohne Mindestlaufzeit, jederzeit kündbar, mit 14 Tagen kostenloser Testphase.' },
-      { q: 'Ist die MWST im Preis enthalten?', a: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.' },
+      { q: 'Ist die MWST im Preis enthalten?', a: 'Es wird keine MWST hinzugefügt: Der angezeigte Preis ist der verrechnete Betrag.' },
     ],
   },
   {
@@ -3750,33 +3750,33 @@ export const ROUTES = [
     path: 'it/plans/essentiel',
     title: 'Piano Essenziale — preventivi e fatture illimitati | Cantia',
     description:
-      'CHF 39/mese: preventivi, fatture e rapporti illimitati, QR-fattura svizzera, personalizzazione del marchio e assistente vocale IA. Scopra il piano Essenziale.',
+      'CHF 39/mese: preventivi e fatture illimitati, QR-fattura, assistente vocale IA (150 al mese), un capitolato di prova e 3 membri. Piano Essenziale.',
     faq: [
       { q: 'Può cambiare piano in seguito?', a: "Sì, in qualsiasi momento dalle impostazioni della sua azienda. Il cambio è immediato e l'importo viene adeguato pro rata." },
       { q: "C'è un impegno minimo?", a: 'No. Tutti i piani sono senza impegno, disdicibili in qualsiasi momento, con 14 giorni di prova gratuita inclusi.' },
-      { q: "Il prezzo include l'IVA?", a: "I prezzi indicati sono al netto dell'IVA. L'IVA svizzera viene aggiunta al momento della fatturazione." },
+      { q: "Il prezzo include l'IVA?", a: "Non viene aggiunta alcuna IVA: il prezzo indicato è l’importo fatturato." },
     ],
   },
   {
     path: 'it/plans/equipe',
     title: 'Piano Team — pianificazione, personale e liquidità | Cantia',
     description:
-      'CHF 79/mese: tutto Essenziale, più pianificazione, personale e salari, redditività per cantiere, liquidità e integrazione Bexio. Scopra il piano Team.',
+      'CHF 79/mese: 3 capitolati al mese, programma lavori proposto dall’IA, redditività per cantiere, liquidità, salari e 10 membri. Scopra il piano Team.',
     faq: [
       { q: 'Può cambiare piano in seguito?', a: "Sì, in qualsiasi momento dalle impostazioni della sua azienda. Il cambio è immediato e l'importo viene adeguato pro rata." },
       { q: "C'è un impegno minimo?", a: 'No. Tutti i piani sono senza impegno, disdicibili in qualsiasi momento, con 14 giorni di prova gratuita inclusi.' },
-      { q: "Il prezzo include l'IVA?", a: "I prezzi indicati sono al netto dell'IVA. L'IVA svizzera viene aggiunta al momento della fatturazione." },
+      { q: "Il prezzo include l'IVA?", a: "Non viene aggiunta alcuna IVA: il prezzo indicato è l’importo fatturato." },
     ],
   },
   {
     path: 'it/plans/entreprise',
     title: 'Piano Azienda — per le strutture consolidate | Cantia',
     description:
-      'CHF 129/mese: tutto Team su scala più ampia (25 membri, 40 GB), il contingente IA più ampio, ruoli avanzati illimitati e supporto prioritario.',
+      'CHF 129/mese: tutto Team con capitolati illimitati, monitoraggio dei preventivi aperti, solleciti automatici, 25 membri e supporto prioritario.',
     faq: [
       { q: 'Può cambiare piano in seguito?', a: "Sì, in qualsiasi momento dalle impostazioni della sua azienda. Il cambio è immediato e l'importo viene adeguato pro rata." },
       { q: "C'è un impegno minimo?", a: 'No. Tutti i piani sono senza impegno, disdicibili in qualsiasi momento, con 14 giorni di prova gratuita inclusi.' },
-      { q: "Il prezzo include l'IVA?", a: "I prezzi indicati sono al netto dell'IVA. L'IVA svizzera viene aggiunta al momento della fatturazione." },
+      { q: "Il prezzo include l'IVA?", a: "Non viene aggiunta alcuna IVA: il prezzo indicato è l’importo fatturato." },
     ],
   },
   {

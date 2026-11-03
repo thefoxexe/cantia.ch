@@ -3662,7 +3662,7 @@ export const de: TranslationDict = {
     faqCommitmentQ: 'Gibt es eine Mindestlaufzeit?',
     faqCommitmentA: 'Nein. Alle Pläne sind ohne Mindestlaufzeit, jederzeit kündbar, mit 14 Tagen kostenloser Testphase.',
     faqVatQ: 'Ist die MWST im Preis enthalten?',
-    faqVatA: 'Die angezeigten Preise verstehen sich exklusive MWST. Die Schweizer MWST wird bei der Rechnungsstellung hinzugefügt.',
+    faqVatA: 'Es wird keine MWST hinzugefügt: Der angezeigte Preis ist der verrechnete Betrag.',
     closingTitle: 'Bereit, {{name}} auszuprobieren?',
     closingText: '14 Tage Testphase — Kreditkarte bei der Anmeldung erforderlich, erste Abbuchung erst nach diesen 14 Tagen, jederzeit kostenlos kündbar.',
     plans: {

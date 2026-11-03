@@ -3651,7 +3651,7 @@ export const fr = {
     faqCommitmentA:
       "Non. Tous les plans sont sans engagement, résiliables à tout moment, avec 14 jours d'essai gratuit inclus.",
     faqVatQ: "Le prix inclut-il la TVA ?",
-    faqVatA: 'Les prix affichés sont hors TVA. La TVA suisse est ajoutée lors de la facturation.',
+    faqVatA: 'Aucune TVA n’est ajoutée : le prix affiché est le montant facturé.',
     closingTitle: 'Prêt à essayer {{name}} ?',
     closingText: "14 jours d'essai — carte bancaire requise à l'inscription, premier prélèvement uniquement après ces 14 jours, résiliable à tout moment et sans frais.",
     plans: {
