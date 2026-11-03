@@ -76,7 +76,17 @@ function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): Compar
         (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: v }) : t('planPage.compareUnlimited') }),
       ),
     },
+    {
+      label: t('planPage.compareTrames'),
+      cells: cellFor((p) => p.max_trames, (v) => ({ text: v != null ? String(v) : t('planPage.compareUnlimited') })),
+    },
+    {
+      label: t('planPage.compareRoles'),
+      cells: cellFor((p) => p.max_org_roles ?? null, (v) => ({ text: v != null ? String(v) : t('planPage.compareUnlimited') })),
+    },
     { label: t('planPage.comparePlanning'), cells: cellFor((p) => p.has_planning, (v) => ({ bool: v })) },
+    { label: t('planPage.comparePayroll'), cells: cellFor((p) => p.has_payroll, (v) => ({ bool: v })) },
+    { label: t('planPage.compareTreasury'), cells: cellFor((p) => p.has_treasury, (v) => ({ bool: v })) },
     { label: t('planPage.compareProfitability'), cells: cellFor((p) => p.has_profitability, (v) => ({ bool: v })) },
     { label: t('planPage.compareSiteSchedule'), cells: cellFor((p) => !!p.has_site_schedule, (v) => ({ bool: v })) },
     {
