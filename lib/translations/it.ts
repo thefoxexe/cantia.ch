@@ -3802,7 +3802,7 @@ export const it: TranslationDict = {
   confidentialite: {
     back: 'Indietro',
     title: 'Informativa sulla privacy',
-    updated: 'Ultimo aggiornamento: luglio 2026',
+    updated: 'Ultimo aggiornamento: novembre 2026',
     dataCollectedTitle: 'Dati raccolti',
     dataCollectedText: 'Raccogliamo le informazioni necessarie al funzionamento del servizio: la sua e-mail e password (tramite l\'autenticazione), le informazioni della sua azienda (nome, indirizzo, logo), nonché i dati che inserisce nell\'applicazione (cantieri, rapporti, foto geolocalizzate, preventivi, documenti).',
     purposeTitle: 'Finalità del trattamento',
@@ -3816,7 +3816,7 @@ export const it: TranslationDict = {
     retentionTitle: 'Conservazione dei dati',
     retentionText: 'I suoi dati vengono conservati finché il suo account è attivo. In caso di eliminazione del suo account, vengono rimossi dai nostri server entro un termine ragionevole, fatti salvi gli obblighi legali di conservazione.',
     cookiesTitle: 'Cookie',
-    cookiesText: 'L\'applicazione utilizza esclusivamente cookie e un\'archiviazione locale tecnici, necessari per la sua connessione e le sue preferenze (lingua). Nessun cookie pubblicitario o di tracciamento di terzi viene utilizzato. Su cantia.ch, e solo se lo accetta nel banner dei cookie, Google Ads può salvare i suoi cookie di misurazione delle campagne e cookie propri di Cantia (90 giorni) memorizzano la campagna o il sito da cui è arrivato e la prima pagina visitata, per sapere da dove arrivano le registrazioni. Sempre con il suo consenso, utilizziamo PostHog (server nell’Unione europea) per capire come viene utilizzato il sito: pagine visitate, clic e scorrimento, che possiamo rivedere come sequenza anonima. Tutto ciò che digita viene mascherato e le pagine aperte da un’e-mail (preventivi, fatture, documenti) non vengono mai registrate. Se arriva dal link di un partner Cantia Partners, viene salvato anche senza consenso un cookie funzionale (90 giorni, contiene solo il codice del partner e la data del clic): serve unicamente a collegare la sua registrazione a quel partner per la sua remunerazione e non viene mai usato per la pubblicità. La sua scelta è memorizzata per 12 mesi; rifiutare non ha alcun effetto sul sito.',
+    cookiesText: 'L\'applicazione utilizza esclusivamente cookie e un\'archiviazione locale tecnici, necessari per la sua connessione e le sue preferenze (lingua). Nessun cookie pubblicitario o di tracciamento di terzi viene utilizzato. Su cantia.ch, e solo se lo accetta nel banner dei cookie, Google Ads può salvare i suoi cookie di misurazione delle campagne e cookie propri di Cantia (90 giorni) memorizzano la campagna o il sito da cui è arrivato e la prima pagina visitata, per sapere da dove arrivano le registrazioni. Sempre con il suo consenso, utilizziamo Google Analytics (Google) per misurare le visite al sito e le registrazioni: pagine visitate e passaggi come l’inizio di una registrazione, l’avvio della prova o l’invio del modulo di contatto. Senza il suo consenso, Google Analytics non riceve nulla. Sempre con il suo consenso, utilizziamo anche PostHog (server nell’Unione europea) per capire come viene utilizzato il sito: pagine visitate, clic e scorrimento, che possiamo rivedere come sequenza anonima. Tutto ciò che digita viene mascherato e le pagine aperte da un’e-mail (preventivi, fatture, documenti) non vengono mai registrate. Se arriva dal link di un partner Cantia Partners, viene salvato anche senza consenso un cookie funzionale (90 giorni, contiene solo il codice del partner e la data del clic): serve unicamente a collegare la sua registrazione a quel partner per la sua remunerazione e non viene mai usato per la pubblicità. La sua scelta è memorizzata per 12 mesi; rifiutare non ha alcun effetto sul sito.',
     contactTitle: 'Contatto',
     contactText: 'Per qualsiasi domanda relativa ai suoi dati, ci scriva a info@cantia.ch.',
   },
@@ -4138,6 +4138,7 @@ export const it: TranslationDict = {
   blogArticlePage: {
     allArticles: 'Tutti gli articoli',
     minRead: '{{count}} min di lettura',
+    byAuthor: 'Di {{name}}',
     faqEyebrow: 'Domande frequenti',
     tradeLinkText: 'Veda come Cantia si adatta a questo mestiere',
     seeAlsoEyebrow: 'Da leggere anche',

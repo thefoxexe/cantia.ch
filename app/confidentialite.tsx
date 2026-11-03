@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../components/ui';
+import { Heading } from '../components/Heading';
 import { MarketingHead } from '../components/MarketingHead';
 import { colors, fontSize, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
@@ -23,7 +24,7 @@ export default function ConfidentialiteScreen() {
             </Pressable>
           </Link>
 
-          <Text style={styles.title}>{t('confidentialite.title')}</Text>
+          <Heading level={1} style={styles.title}>{t('confidentialite.title')}</Heading>
           <Text style={styles.updated}>{t('confidentialite.updated')}</Text>
 
           <LegalSection title={t('confidentialite.dataCollectedTitle')}>

@@ -3,6 +3,7 @@ import { Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Tex
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../../components/ui';
+import { Heading } from '../../components/Heading';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { supabase } from '../../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -81,7 +82,7 @@ export default function TutorialVideosScreen() {
             <Feather name="arrow-left" size={14} color={colors.textMuted} />
             <Text style={styles.backLinkText}>{t('aideVideosPage.backLink')}</Text>
           </Link>
-          <Text style={styles.title}>{t('aideVideosPage.title')}</Text>
+          <Heading level={1} style={styles.title}>{t('aideVideosPage.title')}</Heading>
           <Text style={styles.lead}>{t('aideVideosPage.lead')}</Text>
 
           <Pressable

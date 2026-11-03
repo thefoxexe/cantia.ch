@@ -3794,7 +3794,7 @@ export const de: TranslationDict = {
   confidentialite: {
     back: 'Zurück',
     title: 'Datenschutzerklärung',
-    updated: 'Letzte Aktualisierung: Juli 2026',
+    updated: 'Letzte Aktualisierung: November 2026',
     dataCollectedTitle: 'Erhobene Daten',
     dataCollectedText: 'Wir erheben die für den Betrieb des Dienstes notwendigen Informationen: Ihre E-Mail-Adresse und Ihr Passwort (über die Authentifizierung), die Angaben zu Ihrem Unternehmen (Name, Adresse, Logo) sowie die Daten, die Sie in der Anwendung erfassen (Baustellen, Rapporte, georeferenzierte Fotos, Offerten, Dokumente).',
     purposeTitle: 'Zweck der Verarbeitung',
@@ -3808,7 +3808,7 @@ export const de: TranslationDict = {
     retentionTitle: 'Aufbewahrung der Daten',
     retentionText: 'Ihre Daten werden aufbewahrt, solange Ihr Konto aktiv ist. Bei Löschung Ihres Kontos werden sie innert angemessener Frist von unseren Servern gelöscht, vorbehaltlich gesetzlicher Aufbewahrungspflichten.',
     cookiesTitle: 'Cookies',
-    cookiesText: 'Die Anwendung verwendet ausschliesslich technisch notwendige Cookies und lokalen Speicher für Ihre Anmeldung und Ihre Einstellungen (Sprache). Es werden keine Werbe- oder Tracking-Cookies von Drittanbietern verwendet. Auf cantia.ch kann Google Ads, nur wenn Sie im Cookie-Banner zustimmen, seine Cookies zur Kampagnenmessung setzen, und Cantia-eigene Cookies (90 Tage) speichern die Kampagne oder Website, über die Sie gekommen sind, sowie Ihre erste besuchte Seite, damit wir wissen, woher Registrierungen kommen. Ebenfalls nur mit Ihrer Zustimmung verwenden wir PostHog (Server in der Europäischen Union), um zu verstehen, wie die Website genutzt wird: aufgerufene Seiten, Klicks und Scrollen, die wir als anonyme Sitzungsaufzeichnung ansehen können. Alle Eingaben werden maskiert, und Seiten, die Sie aus einer E-Mail öffnen (Offerten, Rechnungen, Dokumente), werden nie aufgezeichnet. Kommen Sie über den Link eines Cantia-Partners, wird auch ohne Zustimmung ein funktionales Cookie gesetzt (90 Tage, enthält nur den Partnercode und das Klickdatum): Es dient ausschliesslich dazu, Ihre Registrierung diesem Partner für seine Vergütung zuzuordnen, und wird nie für Werbung verwendet. Ihre Wahl wird 12 Monate gespeichert; eine Ablehnung hat keine Auswirkung auf die Website.',
+    cookiesText: 'Die Anwendung verwendet ausschliesslich technisch notwendige Cookies und lokalen Speicher für Ihre Anmeldung und Ihre Einstellungen (Sprache). Es werden keine Werbe- oder Tracking-Cookies von Drittanbietern verwendet. Auf cantia.ch kann Google Ads, nur wenn Sie im Cookie-Banner zustimmen, seine Cookies zur Kampagnenmessung setzen, und Cantia-eigene Cookies (90 Tage) speichern die Kampagne oder Website, über die Sie gekommen sind, sowie Ihre erste besuchte Seite, damit wir wissen, woher Registrierungen kommen. Ebenfalls nur mit Ihrer Zustimmung verwenden wir Google Analytics (Google), um die Besuche der Website und die Registrierungen zu messen: aufgerufene Seiten und Schritte wie der Beginn einer Registrierung, der Start der Testphase oder das Absenden des Kontaktformulars. Ohne Ihre Zustimmung erhält Google Analytics nichts. Ebenfalls nur mit Ihrer Zustimmung verwenden wir zudem PostHog (Server in der Europäischen Union), um zu verstehen, wie die Website genutzt wird: aufgerufene Seiten, Klicks und Scrollen, die wir als anonyme Sitzungsaufzeichnung ansehen können. Alle Eingaben werden maskiert, und Seiten, die Sie aus einer E-Mail öffnen (Offerten, Rechnungen, Dokumente), werden nie aufgezeichnet. Kommen Sie über den Link eines Cantia-Partners, wird auch ohne Zustimmung ein funktionales Cookie gesetzt (90 Tage, enthält nur den Partnercode und das Klickdatum): Es dient ausschliesslich dazu, Ihre Registrierung diesem Partner für seine Vergütung zuzuordnen, und wird nie für Werbung verwendet. Ihre Wahl wird 12 Monate gespeichert; eine Ablehnung hat keine Auswirkung auf die Website.',
     contactTitle: 'Kontakt',
     contactText: 'Bei Fragen zu Ihren Daten schreiben Sie uns an info@cantia.ch.',
   },
@@ -4130,6 +4130,7 @@ export const de: TranslationDict = {
   blogArticlePage: {
     allArticles: 'Alle Artikel',
     minRead: '{{count}} Min. Lesezeit',
+    byAuthor: 'Von {{name}}',
     faqEyebrow: 'Häufige Fragen',
     tradeLinkText: 'So passt sich Cantia diesem Beruf an',
     seeAlsoEyebrow: 'Das könnte Sie auch interessieren',

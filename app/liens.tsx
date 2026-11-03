@@ -2,6 +2,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Screen } from '../components/ui';
+import { Heading } from '../components/Heading';
 import { MarketingHead } from '../components/MarketingHead';
 import { authHref } from '../lib/appHost';
 import { marketingFonts } from '../lib/marketingTheme';
@@ -56,7 +57,7 @@ export default function LinksPage() {
               <Image source={MARK} style={{ width: 54, height: 54 }} />
             </View>
             <View style={styles.nameRow}>
-              <Text style={styles.name}>Cantia</Text>
+              <Heading level={1} style={styles.name}>Cantia</Heading>
             </View>
             <Text style={styles.handle}>cantia.ch</Text>
             <Text style={styles.bio}>Le logiciel de gestion des PME suisses : devis, factures QR, chantiers, salaires et comptabilité, dans une seule app.</Text>

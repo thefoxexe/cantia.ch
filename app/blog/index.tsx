@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } f
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Container, Screen } from '../../components/ui';
+import { Heading } from '../../components/Heading';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
 import { BlogCategory } from '../../lib/blog/types';
@@ -59,7 +60,7 @@ export default function BlogIndexScreen() {
           <View style={styles.kickerPill}>
             <Text style={styles.kickerText}>{t('blogIndexPage.kicker')}</Text>
           </View>
-          <Text style={styles.title}>{t('blogIndexPage.title')}</Text>
+          <Heading level={1} style={styles.title}>{t('blogIndexPage.title')}</Heading>
           <Text style={styles.subtitle}>{t('blogIndexPage.subtitle')}</Text>
 
           <View style={styles.searchRow}>

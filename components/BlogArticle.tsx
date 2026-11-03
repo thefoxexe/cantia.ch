@@ -14,6 +14,9 @@ import { authHref } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
 import { getRelatedPosts } from '../lib/blog';
+
+// Same name as the Article author in scripts/seo-routes.mjs (JSON-LD).
+const BLOG_AUTHOR = 'Bastien';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
 const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap> = {
@@ -132,6 +135,8 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <Text style={styles.question}>{post.question}</Text>
 
             <View style={styles.metaRow}>
+              <Text style={styles.metaText}>{t('blogArticlePage.byAuthor', { name: BLOG_AUTHOR })}</Text>
+              <View style={styles.metaDot} />
               <Text style={styles.metaText}>{formatDate(post.publishedAt)}</Text>
               <View style={styles.metaDot} />
               <Text style={styles.metaText}>{t('blogArticlePage.minRead', { count: post.readMinutes })}</Text>

@@ -2,6 +2,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, Screen } from '../../components/ui';
+import { Heading } from '../../components/Heading';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
@@ -25,7 +26,7 @@ export default function AideRessourcesScreen() {
             <Feather name="arrow-left" size={14} color={colors.textMuted} />
             <Text style={styles.backLinkText}>{t('aideRessourcesPage.backLink')}</Text>
           </Link>
-          <Text style={styles.title}>{t('aideRessourcesPage.title')}</Text>
+          <Heading level={1} style={styles.title}>{t('aideRessourcesPage.title')}</Heading>
           <Text style={styles.lead}>{t('aideRessourcesPage.lead')}</Text>
 
           <View style={styles.card}>
