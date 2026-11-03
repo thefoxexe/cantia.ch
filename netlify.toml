@@ -915,6 +915,16 @@
   status = 200
 
 [[redirects]]
+  from = "/de/tarifs"
+  to = "/de/tarifs/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/tarifs"
+  to = "/it/tarifs/index.html"
+  status = 200
+
+[[redirects]]
   from = "/de/contact"
   to = "/de/contact/index.html"
   status = 200
