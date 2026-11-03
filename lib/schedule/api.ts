@@ -3,6 +3,8 @@ import { supabase } from '../supabase';
 import { DEFAULT_WORKDAYS, type ItemKind, type ScheduleItem, type ScheduleLink } from './calc.ts';
 import { VILLA_TEMPLATE, planTemplate, type TemplateData } from './templates.ts';
 import type { ImportLine, ImportPlan } from './imports.ts';
+import type { AiPlan } from './ai.ts';
+import { invokeFunction } from '../api/functions';
 
 export interface Schedule {
   id: string;
@@ -238,4 +240,22 @@ export async function addTrade(organizationId: string, name: string): Promise<vo
 export async function listAudit(scheduleId: string): Promise<AuditRow[]> {
   const { data } = await supabase.from('schedule_audit').select('id, item_name, field, old_value, new_value, user_id, created_at').eq('schedule_id', scheduleId).order('created_at', { ascending: false }).limit(200);
   return (data ?? []) as AuditRow[];
+}
+
+// "Proposer avec l'IA" (supabase/functions/generate-schedule): only a
+// proposal, nothing is written until the user applies it.
+export async function proposeSchedule(
+  organizationId: string,
+  request: string,
+  opts: { locale: string; canton?: string | null; start?: string | null },
+): Promise<{ plan: AiPlan | null; error: string | null }> {
+  const { data, error } = await invokeFunction<{ plan: AiPlan }>('generate-schedule', {
+    organization_id: organizationId,
+    request,
+    locale: opts.locale,
+    canton: opts.canton ?? null,
+    start_date: opts.start ?? null,
+  });
+  if (error || !data?.plan) return { plan: null, error: error ?? 'Aucune proposition' };
+  return { plan: data.plan, error: null };
 }

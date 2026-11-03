@@ -19,7 +19,8 @@ import { cascade, endFromDuration, flatten, isWorkday, nextWorkday, addDays as a
 import { fill, shortDate } from '../../../../lib/schedule/copy';
 import { useScheduleCopy } from '../../../../lib/schedule/useCopy';
 import { buildSchedulePdf } from '../../../../lib/schedule/pdf';
-import { templateStats, toTemplate } from '../../../../lib/schedule/templates';
+import { templateStats, toTemplate, type TemplateData } from '../../../../lib/schedule/templates';
+import { templateToImportPlan } from '../../../../lib/schedule/ai';
 import { cantonFromAddress, workCalendar, type CalendarSettings, type Canton } from '../../../../lib/schedule/holidays';
 import { ScheduleCalendarSheet } from '../../../../components/schedule/ScheduleCalendarSheet';
 import { scheduleMspdi, scheduleSheetRows } from '../../../../lib/schedule/exports';
@@ -27,6 +28,7 @@ import { logoAsPng, saveBlob as save } from '../../../../lib/schedule/download';
 import { PhoneList } from '../../../../components/schedule/PhoneList';
 import { ShareSheet } from '../../../../components/schedule/ShareSheet';
 import { ImportSheet } from '../../../../components/schedule/ImportSheet';
+import { AiPlanSheet } from '../../../../components/schedule/AiPlanSheet';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 
 // Planning de chantier (Gantt) — cahier des charges v1.0, MVP. Building
@@ -70,6 +72,7 @@ export default function ChantierGanttScreen() {
   const [pdfOpen, setPdfOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const [history, setHistory] = useState<AuditRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string | null>(today);
@@ -276,6 +279,40 @@ export default function ChantierGanttScreen() {
   };
   const importSheet = importOpen ? <ImportSheet c={c} workdays={workdays} onClose={() => setImportOpen(false)} onImport={runImport} /> : null;
 
+  // "Proposer avec l'IA": creates the planning from the proposal, or appends
+  // it (from today) to the one that already exists.
+  const applyAiPlan = async (data: TemplateData): Promise<string | null> => {
+    if (!organization || !id) return 'Planning introuvable';
+    if (!bundle) {
+      const { error: e } = await createSchedule(organization.id, id, data, startDate ?? today);
+      if (e) return e;
+    } else {
+      const plan = templateToImportPlan(data, today, workdays);
+      const after = Math.max(0, ...bundle.items.filter((i) => !i.parent_id).map((i) => i.sort_order));
+      const { count, error: e } = await importPlan(bundle.schedule.id, organization.id, plan, after);
+      if (e) {
+        await reload();
+        return e;
+      }
+      setNotice(fill(c.aiDone, { n: count }));
+    }
+    setAiOpen(false);
+    await reload();
+    return null;
+  };
+  const aiSheet =
+    aiOpen && organization ? (
+      <AiPlanSheet
+        c={c}
+        organizationId={organization.id}
+        canton={bundle?.schedule.canton ?? null}
+        start={bundle ? today : startDate ?? today}
+        appendHint={!!bundle}
+        onClose={() => setAiOpen(false)}
+        onApply={applyAiPlan}
+      />
+    ) : null;
+
   if (!project || bundle === undefined) {
     return (
       <AppScreen>
@@ -330,6 +367,7 @@ export default function ChantierGanttScreen() {
                     />
                   ))}
                 </View>
+                <Btn icon="zap" label={c.aiPropose} variant="secondary" disabled={creating || !organization} onPress={() => setAiOpen(true)} />
                 <Btn icon="upload" label={c.importFile} variant="ghost" disabled={creating || !organization} onPress={() => setImportOpen(true)} />
                 {notice ? <Text style={kit.hint}>{notice}</Text> : null}
                 {templates.length ? (
@@ -358,6 +396,7 @@ export default function ChantierGanttScreen() {
           </View>
         </ScrollView>
         {importSheet}
+        {aiSheet}
       </AppScreen>
     );
   }
@@ -399,6 +438,7 @@ export default function ChantierGanttScreen() {
               <View style={{ flex: 1 }} />
               <Btn icon="calendar" label={c.calendar} variant="ghost" onPress={() => setCalendarOpen(true)} />
               <Btn icon="clock" label={c.history} variant="ghost" onPress={async () => setHistory(await listAudit(bundle.schedule.id))} />
+              {editable ? <Btn icon="zap" label={c.aiPropose} variant="ghost" onPress={() => setAiOpen(true)} /> : null}
               {editable ? <Btn icon="upload" label={c.importFile} variant="ghost" onPress={() => setImportOpen(true)} /> : null}
               {editable && items.length ? <Btn icon="bookmark" label={c.saveTemplate} variant="ghost" onPress={() => setTplOpen(true)} /> : null}
               <Btn icon="share-2" label={c.share} onPress={() => setShareOpen(true)} />
@@ -603,6 +643,7 @@ export default function ChantierGanttScreen() {
         />
       ) : null}
       {importSheet}
+      {aiSheet}
       {shareOpen && organization ? <ShareSheet c={c} scheduleId={bundle.schedule.id} organizationId={organization.id} editable={building} onClose={() => setShareOpen(false)} /> : null}
       {pdfOpen ? <PdfSheet c={c} project={project.name} items={items} links={links} workdays={workdays} rolled={rolled} today={today} onClose={() => setPdfOpen(false)} /> : null}
 

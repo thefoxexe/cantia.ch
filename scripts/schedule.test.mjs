@@ -214,3 +214,59 @@ test('imports: a foreign table (indented names, Swiss dates, "5 jours", MS Proje
   assert.equal(toIsoDate(46307), '2026-10-12');
   assert.equal(toIsoDate('2026-10-12T08:00:00'), '2026-10-12');
 });
+
+// ── "Proposer avec l'IA" (lib/schedule/ai.ts) ───────────────────────────
+import { aiPlanToTemplate, templateToImportPlan } from '../lib/schedule/ai.ts';
+import { planTemplate as planAi } from '../lib/schedule/templates.ts';
+
+const aiPlan = {
+  title: 'Villa 180 m²',
+  summary: 'Planning type',
+  assumptions: ['Construction massive'],
+  phases: [
+    { name: 'Préparation', items: [
+      { id: 't1', kind: 'task', name: 'Installation de chantier', trade: 'Maçonnerie', workdays: 3, after: [] },
+      { id: 'j1', kind: 'milestone', name: 'Début des travaux', trade: '', workdays: 0, after: ['t1'] },
+    ] },
+    { name: 'Gros œuvre', items: [
+      { id: 't2', kind: 'task', name: 'Terrassement', trade: 'Terrassement', workdays: 5, after: ['j1', 'inconnu', 't3'] },
+      { id: 't3', kind: 'task', name: 'Radier', trade: 'Maçonnerie', workdays: 4, after: ['t2'] }, // loop t2 <-> t3
+      { id: 't3', kind: 'task', name: 'Doublon', trade: '', workdays: 2, after: [] },
+      { id: 't4', kind: 'task', name: 'Clôtures', trade: '', workdays: 2, after: [] },
+    ] },
+    { name: 'Vide', items: [] },
+  ],
+};
+
+test('AI plan → template: phases, milestones, unknown and looping links dropped, starters on day 0', () => {
+  const data = aiPlanToTemplate(aiPlan);
+  assert.deepEqual(data.items.map((i) => [i.kind, i.name]), [
+    ['phase', 'Préparation'], ['task', 'Installation de chantier'], ['milestone', 'Début des travaux'],
+    ['phase', 'Gros œuvre'], ['task', 'Terrassement'], ['task', 'Radier'], ['task', 'Clôtures'],
+  ]);
+  const key = (name) => data.items.find((i) => i.name === name).key;
+  assert.deepEqual(data.links, [
+    [key('Installation de chantier'), key('Début des travaux')],
+    [key('Début des travaux'), key('Terrassement')],
+    [key('Terrassement'), key('Radier')],
+  ]);
+  assert.equal(data.items.find((i) => i.name === 'Début des travaux').duration, 0);
+  assert.equal(data.items.find((i) => i.name === 'Clôtures').offset, 0);
+  assert.equal(data.items.find((i) => i.name === 'Radier').offset, null);
+});
+
+test('AI plan placed on working days: Mon 12.10.2026, chain of 3 + milestone + 5 + 4 days', () => {
+  const lines = planAi(aiPlanToTemplate(aiPlan), '2026-10-12');
+  const by = (name) => lines.find((l) => l.name === name);
+  assert.deepEqual([by('Installation de chantier').start_date, by('Installation de chantier').end_date], ['2026-10-12', '2026-10-14']);
+  assert.equal(by('Début des travaux').start_date, '2026-10-15'); // a milestone falls on the working day after its task
+  assert.deepEqual([by('Terrassement').start_date, by('Terrassement').end_date], ['2026-10-15', '2026-10-21']);
+  assert.deepEqual([by('Radier').start_date, by('Radier').end_date], ['2026-10-22', '2026-10-27']);
+  const plan = templateToImportPlan(aiPlanToTemplate(aiPlan), '2026-10-12');
+  assert.equal(plan.lines.length, 7);
+  assert.equal(plan.links.length, 3);
+});
+
+test('AI plan with nothing usable gives an empty template', () => {
+  assert.deepEqual(aiPlanToTemplate({ title: '', summary: 'Précisez', assumptions: [], phases: [] }), { items: [], links: [] });
+});
