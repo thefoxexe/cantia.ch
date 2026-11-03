@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Chip, Sheet, kit } from '../admin/ledger/kit';
 import { fill, type ScheduleCopy } from '../../lib/schedule/copy';
@@ -7,6 +7,7 @@ import { proposeSchedule } from '../../lib/schedule/api';
 import { aiPlanToTemplate, type AiPlan } from '../../lib/schedule/ai';
 import { templateStats, type TemplateData } from '../../lib/schedule/templates';
 import { getAppLocale } from '../../lib/translations';
+import { useDictation } from '../../lib/useDictation';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { tradeColor } from './GanttView';
 
@@ -36,6 +37,27 @@ export function AiPlanSheet({
   const [applying, setApplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ plan: AiPlan; data: TemplateData } | null>(null);
+
+  // Dictation (same as the rapports: recording, then server transcription):
+  // the transcript is added after what is already written, and can be
+  // corrected before asking for the planning.
+  const baseRef = useRef('');
+  const dictation = useDictation((transcript) => {
+    const base = baseRef.current;
+    setRequest(base + (base && transcript ? ' ' : '') + transcript);
+  });
+  const toggleDictation = async () => {
+    if (dictation.listening) {
+      await dictation.stop();
+      return;
+    }
+    setError(null);
+    baseRef.current = request.trim();
+    const lang = getAppLocale();
+    const started = await dictation.start(lang === 'de' ? 'de-CH' : lang === 'it' ? 'it-CH' : 'fr-CH');
+    if (!started) setError(c.aiMicDenied);
+  };
+  const recording = dictation.listening || dictation.transcribing;
 
   const generate = async () => {
     if (!request.trim() || busy) return;
@@ -78,7 +100,7 @@ export function AiPlanSheet({
               }}
             />
           ) : (
-            <Btn label={busy ? '…' : c.aiGenerate} icon="zap" variant="primary" grow disabled={busy || !request.trim()} onPress={generate} />
+            <Btn label={busy ? '…' : c.aiGenerate} icon="zap" variant="primary" grow disabled={busy || recording || !request.trim()} onPress={generate} />
           )}
         </>
       }
@@ -90,9 +112,22 @@ export function AiPlanSheet({
         placeholder={c.aiPlaceholder}
         placeholderTextColor={colors.textMuted}
         multiline
-        editable={!busy}
+        editable={!busy && !recording}
         style={[kit.input, styles.request]}
       />
+      {dictation.supported ? (
+        <Pressable
+          onPress={toggleDictation}
+          disabled={busy || dictation.transcribing}
+          style={[styles.dictate, recording && styles.dictateOn]}
+          accessibilityRole="button"
+        >
+          {dictation.transcribing ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="mic" size={15} color={dictation.listening ? '#fff' : colors.primary} />}
+          <Text style={[styles.dictateText, recording && { color: '#fff' }]}>
+            {dictation.transcribing ? c.aiTranscribing : dictation.listening ? c.aiListening : c.aiDictate}
+          </Text>
+        </Pressable>
+      ) : null}
       <View style={kit.row}>
         {c.aiExamples.map((ex) => (
           <Chip key={ex} small label={ex} active={request === ex} onPress={() => setRequest(ex)} />
@@ -149,6 +184,9 @@ export function AiPlanSheet({
 
 const styles = StyleSheet.create({
   request: { minHeight: 84, textAlignVertical: 'top' },
+  dictate: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.surface },
+  dictateOn: { backgroundColor: colors.primary },
+  dictateText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.primary },
   busy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   preview: { maxHeight: 300, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md },
   line: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: spacing.md, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: colors.border },
