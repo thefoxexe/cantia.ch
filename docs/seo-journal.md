@@ -169,6 +169,38 @@ Chiffres fournis par Bastien, relevés le 2 novembre 2026.
 Format : `AAAA-MM-JJ · type · ce qui a changé · pages touchées`
 
 - 2026-11-02 · mesure · référence de l'étape 0 (Lighthouse labo, crawl du sitemap, poids du JS) · toutes
+- 2026-11-03 · contenu · dates de publication des articles alignées sur leur vraie mise en ligne (historique git) : 380 étaient antérieures, 131 postérieures · 263 articles FR, 146 DE, 146 IT
+- 2026-11-03 · technique · pages /de/tarifs et /it/tarifs créées (étaient en 404) · /tarifs, /de/tarifs, /it/tarifs
+- 2026-11-03 · technique · hreflang limité aux versions qui existent (18 liens en 404 supprimés) · /tarifs, /liens, /outils et ses 5 calculateurs, /logiciel-chantier
+- 2026-11-03 · technique · noindex sur /liens, l'inscription, la connexion, les routes de l'app et la 404 · /liens, /signup, /login, app-shell
+- 2026-11-03 · technique · 301 de /page/ vers /page (fonction edge Netlify) · toutes
+- 2026-11-03 · technique · sitemap : lastmod réel par page, /liens et app.cantia.ch/login retirés, tarifs DE et IT ajoutés · sitemap.xml
+- 2026-11-03 · technique · meta description échappée (un guillemet coupait la balise, ex. « Le terme ») · toutes
+- 2026-11-03 · données structurées · FAQPage limité aux questions visibles, FAQ des articles reprise de l'article · 711 pages avec FAQ
+- 2026-11-03 · données structurées · auteur Article = Person « Bastien », signature visible « Par Bastien » · articles FR, DE, IT
+- 2026-11-03 · données structurées · SoftwareApplication : operatingSystem Web seulement (apps non publiées) · pages produit
+- 2026-11-03 · balises · H1 ajouté · /blog, /de/blog, /it/blog, pages légales, /aide/videos, /aide/ressources, /liens (FR, DE, IT)
+- 2026-11-03 · balises · 65 meta descriptions réécrites en 140 à 155 caractères · pages produit, métiers, légales, contact, téléchargement (FR, DE, IT)
+- 2026-11-03 · performance · JavaScript découpé par page (asyncRoutes web) et SheetJS chargé seulement à l'export ou à l'import Excel : JS au chargement de 2 976 à environ 2 240 Ko gzip · toutes
+- 2026-11-03 · mesure · GA4 G-1K03L5TNDX, configuré seulement après accord cookies ; événements signup_start, sign_up, trial_start, pricing_click, generate_lead, contact_click ; politique de confidentialité mise à jour · toutes
+
+### Après les changements du 3 novembre 2026 (même méthode, labo)
+
+| Page | Perf | FCP | LCP | TBT | CLS | Poids transféré |
+|---|---|---|---|---|---|---|
+| Accueil `/` | 37 (26) | 12,8 s (16,2) | 20,1 s (22,3) | 710 ms (3 250) | 0,069 (0) | 3 477 Ko (4 090) |
+| `/tarifs` | 46 (27) | 4,0 s (15,9) | 4,0 s (15,9) | 1 400 ms (2 250) | 0 | 2 967 Ko (3 579) |
+| `/blog/calculer-prix-unitaire-soumission` | 32 (26) | 4,0 s (15,9) | 18,2 s (21,6) | 1 790 ms (3 390) | 0 | 2 970 Ko (3 582) |
+
+Entre parenthèses : la référence du 2 novembre.
+
+JS chargé par une page vitrine (gzip) : bloc commun 1 741 Ko + mise en page 205 Ko + page d'accueil 293 Ko. Le bloc commun contient encore :
+- le texte de tous les articles du blog en 3 langues (2,6 Mo bruts) ;
+- les pages métiers en 3 langues (460 Ko bruts) ;
+- les traductions de l'app (690 Ko bruts) ;
+- les graphiques de l'app (gifted-charts) et Supabase.
+
+L'objectif de 300 Ko demande de sortir ces blocs : c'est l'étape suivante.
 
 ---
 
