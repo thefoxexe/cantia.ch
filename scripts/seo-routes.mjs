@@ -1,5 +1,6 @@
 import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
+import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
 
 const TRADE_SLUGS = new Set([
   'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
@@ -4427,6 +4428,7 @@ export const ROUTES = [
 ];
 
 for (const route of ROUTES) {
+  if (DESCRIPTION_OVERRIDES[route.path]) route.description = DESCRIPTION_OVERRIDES[route.path];
   const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
   if (!slug) continue;
   if (!route.publishedAt && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
@@ -4527,7 +4529,8 @@ export function jsonLdFor(url, route) {
     graph.push({
       '@type': 'SoftwareApplication',
       name: 'Cantia',
-      operatingSystem: 'Android, iOS, Web',
+      // Web only for now: the iOS and Android apps are not published yet.
+      operatingSystem: 'Web',
       applicationCategory: 'BusinessApplication',
       description,
       url,
