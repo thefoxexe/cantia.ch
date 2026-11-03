@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis envoyé qui reste sans réponse n’est pas toujours perdu. La façon de relancer change souvent tout, dans un sens comme dans l’autre.',
   category: 'Croissance & acquisition',
   keywords: ['relancer client devis sans réponse', 'devis sans nouvelles client', 'relance devis avant expiration'],
-  publishedAt: '2026-09-29',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La facture finale n’est pas juste le dernier document du chantier : c’est celui qui fige la relation client. Mieux vaut la préparer avec méthode que de devoir la corriger après coup.',
   category: 'Chantier & rentabilité',
   keywords: ['checklist fin de chantier', 'clôturer un chantier', 'facture finale travaux', 'vérification avant facturation', 'fin de travaux bâtiment'],
-  publishedAt: '2026-06-10',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

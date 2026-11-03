@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sofern das Dokument keine ausdrückliche Frist nannte, kann ein Kunde, der drei Monate später mit «Ihrer Offerte» zurückkommt, legitim denselben Preis erwarten.',
   category: 'Devis & facturation',
   keywords: ['gültigkeitsdauer offerte', 'nicht unterzeichnete offerte frist', 'offerte abgelaufen', 'wie lange offerte gültig', 'gültigkeit preisangebot'],
-  publishedAt: '2026-06-09',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

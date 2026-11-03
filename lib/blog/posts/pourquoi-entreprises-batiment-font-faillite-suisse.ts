@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une entreprise qui « ne s’arrête jamais de travailler » peut quand même couler. Le carnet de commandes rassure, mais il ne dit rien sur la marge réelle ni sur le décalage entre dépenses et encaissements.',
   category: 'Chantier & rentabilité',
   keywords: ['faillite entreprise bâtiment', 'trésorerie construction', 'marge invisible chantier', 'gestion PME bâtiment', 'rentabilité artisan'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-08-27',
   readMinutes: 6,
   blocks: [
     {

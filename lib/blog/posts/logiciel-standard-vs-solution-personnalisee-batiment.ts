@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La question "standard ou sur mesure" est souvent mal posée : la vraie option la plus efficace, pour la plupart des entreprises, est un socle standard fiable complété par juste ce qu\'il faut de personnalisation.',
   category: 'Sur-mesure & automatisations',
   keywords: ['logiciel standard vs sur mesure', 'solution personnalisée entreprise bâtiment', 'développement sur mesure coût', 'choisir entre logiciel standard et custom', 'outil gestion 100% personnalisé'],
-  publishedAt: '2026-08-19',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

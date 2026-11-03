@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Handwerker in Nischenberufen denken irgendwann «keine Software ist für das gemacht, was ich tue». Das stimmt oft für starre Werkzeuge, aber viel weniger für ein Werkzeug, das mit Ihnen mitwachsen kann.',
   category: 'Sur-mesure & automatisations',
   keywords: ['software für spezifischen beruf bauwesen', 'massgeschneidertes werkzeug nischenberuf', 'branchensoftware individuell anpassen', 'cantia massgeschneiderte funktion', 'flexible software baubranche'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Offerte für eine Badsanierung wird in Ruhe vorbereitet. Ein Notfalleinsatz wird unter Zeitdruck abgerechnet, oft ohne vor dem Einsatz Zeit gehabt zu haben, überhaupt etwas aufzuschreiben. Beide Logiken müssen dennoch im selben Werkzeug nebeneinander bestehen.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Sanitärinstallateur', 'Abrechnung Sanitär Schweiz', 'Tarif Notfalleinsatz Installateur', 'Software Sanitärverwaltung', 'Offerte Badsanierung'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

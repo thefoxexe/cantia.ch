@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un saldo di vacanze che si accumula di anno in anno non è mai banale: o rappresenta un debito verso il dipendente, o rivela un problema organizzativo destinato a ripetersi.',
   category: 'RH & salaires',
   keywords: ['vacanze non prese', 'saldo vacanze dipendente', 'diritto del lavoro edilizia', 'CCL costruzione vacanze', 'gestione RH cantiere'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

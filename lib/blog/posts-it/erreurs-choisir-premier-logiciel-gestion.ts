@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte delle cattive scelte di software gestionale non deriva da una mancanza di opzioni sul mercato, ma dagli stessi errori ripetuti da un’impresa all’altra.',
   category: 'Comparatifs & outils',
   keywords: ['errori scelta software gestionale', 'scelta sbagliata software impresa', 'trappole software gestionale principianti', 'errori comuni strumento fatturazione', 'evitare errore software PMI'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

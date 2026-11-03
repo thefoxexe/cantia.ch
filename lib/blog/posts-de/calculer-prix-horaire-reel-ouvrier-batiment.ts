@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Unternehmen kalkulieren ihre Offerten mit einem ungefähren, aus jahrelanger Praxis übernommenen Stundensatz, ohne je neu zu berechnen, was ein Arbeiter tatsächlich kostet, wenn man alle Abgaben einbezieht.',
   category: 'Chantier & rentabilité',
   keywords: ['stundenkosten bauarbeiter berechnen', 'stundensatz bau berechnung', 'sozialabgaben baubranche', 'rentabilität baustelle', 'offerte kalkulation bau'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un codice QR che «sembra corretto» può essere rifiutato dalla banca alla scansione. La fattura QR svizzera ha regole precise, e non tutti i software le rispettano allo stesso modo.',
   category: 'Comparatifs & outils',
   keywords: ['software fattura QR', 'confronto fattura QR svizzera', 'software fatturazione QR-IBAN', 'standard fattura QR 2.3', 'fatturazione svizzera conforme'],
-  publishedAt: '2026-06-03',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

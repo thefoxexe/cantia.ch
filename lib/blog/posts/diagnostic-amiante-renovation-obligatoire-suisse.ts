@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'suva amiante chantier',
     'quand faire diagnostic amiante',
   ],
-  publishedAt: '2026-09-23',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

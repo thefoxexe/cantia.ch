@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le bouche-à-oreille n’est pas qu’une question de chance. Certains moments du chantier le déclenchent bien plus que d’autres.',
   category: 'Croissance & acquisition',
   keywords: ['provoquer bouche à oreille artisan', 'déclencher recommandation client bâtiment', 'dernière impression chantier'],
-  publishedAt: '2026-09-29',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

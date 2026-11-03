@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zu Beginn auf einen Buchhalter zu verzichten, ist an sich keine Unvorsichtigkeit: Es ist eine Frage, genau zu wissen, wo das aufhört, was man selbst verwalten kann, und wo es riskant wird.',
   category: 'Comparatifs & outils',
   keywords: ['unternehmen ohne buchhalter führen', 'ohne treuhänder starten schweiz', 'buchhaltung selbstständig anfänger', 'administration ohne buchhalter', 'selbstverwaltung bauunternehmen'],
-  publishedAt: '2026-07-14',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

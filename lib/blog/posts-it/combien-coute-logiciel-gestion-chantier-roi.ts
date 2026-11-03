@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La domanda non è mai davvero «quanto costa al mese», ma «quanto tempo amministrativo recupera». Questo secondo calcolo cambia completamente la prospettiva.',
   category: 'Comparatifs & outils',
   keywords: ['costo software gestione cantiere', 'ROI software edilizia', 'prezzo abbonamento costruzione', 'redditività strumento digitale', 'risparmio tempo amministrativo'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

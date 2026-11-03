@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Transmettre son entreprise à un enfant n’est pas qu’une question de compétences techniques. Voici pourquoi ce type de succession demande une préparation à part.',
   category: 'Juridique & normes',
   keywords: ['succession familiale entreprise bâtiment', 'transmission entreprise artisanale enfant'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

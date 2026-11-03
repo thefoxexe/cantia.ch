@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ohne Festpreis-Offerte als Grundlage beruht eine Regie-Rechnung ganz auf dem Vertrauen des Kunden in die angegebene Stundenzahl. Dieses Vertrauen entsteht durch Detail, nicht durch eine runde Summe.',
   category: 'Devis & facturation',
   keywords: ['regierechnung baugewerbe', 'rechnung nach aufwand', 'arbeiten im regiebetrieb', 'anfechtung regierechnung', 'stundenerfassung baustelle'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un carnet de commandes plein et une équipe trop courte : la tentation est de recruter dans l’urgence. C’est souvent la décision la plus coûteuse à long terme, comparée à une sous-traitance bien choisie.',
   category: 'RH & salaires',
   keywords: ['manque main d’oeuvre bâtiment', 'recruter ou sous-traiter', 'gestion effectif construction', 'sous-traitance chantier', 'décision RH artisan'],
-  publishedAt: '2026-08-05',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

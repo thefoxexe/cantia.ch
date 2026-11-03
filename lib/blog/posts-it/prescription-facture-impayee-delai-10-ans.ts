@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Dieci anni sembra lungo, almeno finché una vecchia fattura dimenticata in un fascicolo si rivela totalmente irrecuperabile proprio nel momento in cui l’azienda ne ha più bisogno.',
   category: 'Devis & facturation',
   keywords: ['prescrizione fattura impagata', 'termine prescrizione credito svizzera', 'fattura vecchia impagata', 'interruzione prescrizione', 'credito costruzione termine'],
-  publishedAt: '2026-06-12',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

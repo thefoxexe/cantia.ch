@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le chantier est livré, le client content, la facture payée. Et pourtant l’entreprise a peut-être perdu de l’argent dessus, sans qu’aucun signal ne l’ait jamais montré.',
   category: 'Chantier & rentabilité',
   keywords: ['chantier en perte', 'rentabilité chantier', 'coût horaire', 'devisé vs réel', 'marge réelle'],
-  publishedAt: '2026-04-06',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

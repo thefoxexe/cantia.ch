@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Visto che ci siete, aggiungete anche questo»: la frase più redditizia da sentire su un cantiere, e la più pericolosa da non fatturare correttamente.',
   category: 'Devis & facturation',
   keywords: ['variante', 'plusvalore', 'minusvalore', 'lavori supplementari', 'modifica preventivo'],
-  publishedAt: '2026-04-27',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine falsch berechnete Kündigungsfrist ist nicht nur ein administrativer Fehler: Es ist eine Lohnforderung, die der Arbeiter geltend machen kann, manchmal Monate nach seinem Austritt.',
   category: 'RH & salaires',
   keywords: ['kündigung bauwesen', 'kündigungsfrist gav', 'dienstalter mitarbeiter', 'auflösung arbeitsvertrag', 'baubranche schweiz'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

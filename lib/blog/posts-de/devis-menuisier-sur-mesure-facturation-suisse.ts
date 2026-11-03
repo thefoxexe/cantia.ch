@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Im Gegensatz zu einer standardisierten Montage beginnt jedes Schreinerprojekt nach Mass die Planung wieder bei null. Eine Offerte, die die Zeit des Planungsbüros nicht von der Werkstattzeit trennt, endet damit, sie zum gleichen Tarif wie die Montage zu verrechnen.',
   category: 'Métiers du bâtiment',
   keywords: ['offerte schreiner massanfertigung', 'rechnung einrichtung holz', 'preis möbel nach mass schweiz', 'offerte werkstatt schreinerei', 'planung einrichtung verrechnung'],
-  publishedAt: '2026-09-08',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

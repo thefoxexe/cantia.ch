@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Frage ist nicht wirklich, ob eine Website direkt Kunden bringt: Es geht vor allem darum, was passiert, kurz nachdem ein potenzieller Kunde von Ihnen gehört hat und vor dem Anruf noch nachprüft.',
   category: 'Croissance & acquisition',
   keywords: ['website handwerksbetrieb bauwesen', 'braucht baufirma eine webseite', 'online präsenz handwerker', 'digitale glaubwürdigkeit baufirma', 'lokale suchmaschinenoptimierung handwerker'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

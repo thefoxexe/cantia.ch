@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein QR-Code, der «richtig aussieht», kann beim Scannen von der Bank abgelehnt werden. Die Schweizer QR-Rechnung folgt präzisen Regeln, und nicht jede Software hält sich gleich genau daran.',
   category: 'Comparatifs & outils',
   keywords: ['Software QR-Rechnung', 'QR-Rechnung Schweiz Vergleich', 'Fakturierungssoftware QR-IBAN', 'Norm QR-Rechnung 2.3', 'konforme Rechnungsstellung Schweiz'],
-  publishedAt: '2026-06-03',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

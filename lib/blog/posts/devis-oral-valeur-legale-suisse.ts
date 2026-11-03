@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '« On s’est mis d’accord au téléphone » engage juridiquement les deux parties en Suisse. Le vrai problème arrive le jour où l’une des deux prétend le contraire.',
   category: 'Juridique & normes',
   keywords: ['devis oral', 'accord verbal', 'preuve contrat', 'forme du contrat', 'art 11 co'],
-  publishedAt: '2026-04-16',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein kostenloser Offerten-Generator online hilft für ein erstes Dokument, aber nur wenige halten durch, sobald man mehrere Kunden und mehrere Baustellen parallel verfolgen muss.',
   category: 'Comparatifs & outils',
   keywords: ['offerte online erstellen kostenlos', 'gratis offerte vorlage schweiz', 'offerten generator handwerker', 'offerte muster bau', 'schnell offerte erstellen online'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

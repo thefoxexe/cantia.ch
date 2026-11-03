@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La loi n’impose aucun seuil pour exiger un écrit. Le seuil qui compte vraiment n’est pas légal : c’est celui à partir duquel un désaccord de mémoire coûte cher.',
   category: 'Juridique & normes',
   keywords: ['contrat écrit', 'petits travaux', 'devis obligatoire', 'dépannage', 'seuil pratique'],
-  publishedAt: '2026-05-18',
+  publishedAt: '2026-08-19',
   readMinutes: 4,
   blocks: [
     {

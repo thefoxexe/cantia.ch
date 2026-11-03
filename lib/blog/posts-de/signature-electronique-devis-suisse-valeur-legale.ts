@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Kunde, der auf einen Link klickt und «Ich akzeptiere» wählt, unterschreibt genauso verbindlich wie mit einem Stift: Für die überwiegende Mehrheit der Offerten im Baugewerbe verlangt das Schweizer Recht nicht mehr.',
   category: 'Devis & facturation',
   keywords: ['elektronische unterschrift offerte', 'offerte online unterzeichnen', 'rechtsgültigkeit e-signatur', 'offerte unterschrieben gültig', 'zertes gesetz signatur'],
-  publishedAt: '2026-04-20',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

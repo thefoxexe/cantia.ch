@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Entre Facebook et Instagram, la question n’est pas lequel est le meilleur dans l’absolu, mais lequel correspond vraiment à la clientèle visée.',
   category: 'Croissance & acquisition',
   keywords: ['Facebook ou Instagram artisan', 'réseau social entreprise bâtiment suisse', 'réseaux sociaux artisan'],
-  publishedAt: '2026-09-29',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

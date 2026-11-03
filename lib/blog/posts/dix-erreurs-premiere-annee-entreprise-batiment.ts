@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'pourquoi entreprise bâtiment échoue',
     'conseils démarrage entreprise construction',
   ],
-  publishedAt: '2026-09-15',
+  publishedAt: '2026-09-22',
   readMinutes: 8,
   blocks: [
     {

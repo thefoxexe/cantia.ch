@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sans état des lieux avant travaux, un voisin peut attribuer à votre chantier une fissure qui existait déjà. L’entreprise se retrouve alors à devoir prouver le contraire, souvent trop tard.',
   category: 'Juridique & normes',
   keywords: ['dégâts voisinage chantier', 'responsabilité travaux voisin', 'fissure chantier voisinage', 'nuisances chantier', 'état des lieux avant travaux'],
-  publishedAt: '2026-06-19',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

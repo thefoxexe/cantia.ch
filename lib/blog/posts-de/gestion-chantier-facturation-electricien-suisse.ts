@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Elektriker wechselt oft drei- bis viermal am Tag die Baustelle. Die eigentliche Schwierigkeit liegt daher nicht darin, einen Elektropunkt zu kalkulieren, sondern abends noch zu wissen, wer wo was gemacht hat und wie lange.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Elektriker selbstständig', 'Rechnungsstellung Elektriker Schweiz', 'Baustellenverwaltung Elektroinstallation', 'Software Elektriker Bau', 'Stundenerfassung Elektriker mehrere Baustellen'],
-  publishedAt: '2026-08-30',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

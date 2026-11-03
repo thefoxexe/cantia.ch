@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Rechnung vom März 2026 muss bis Ende 2036 zugänglich bleiben, nicht bis März 2036. Ein Berechnungsdetail bei der Frist, das die meisten Unternehmen übersehen.',
   category: 'Juridique & normes',
   keywords: ['aufbewahrung dokumente', 'archivierung rechnungen', 'gesetzliche frist', 'obligationenrecht', 'buchhaltung schweiz'],
-  publishedAt: '2026-02-16',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

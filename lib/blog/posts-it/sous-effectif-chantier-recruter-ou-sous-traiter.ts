@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un portafoglio ordini pieno e un team troppo corto: la tentazione è assumere d’urgenza. È spesso la decisione più costosa a lungo termine, rispetto a un subappalto ben scelto.',
   category: 'RH & salaires',
   keywords: ['mancanza manodopera edilizia', 'assumere o subappaltare', 'gestione organico costruzione', 'subappalto cantiere', 'decisione RH artigiano'],
-  publishedAt: '2026-08-05',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

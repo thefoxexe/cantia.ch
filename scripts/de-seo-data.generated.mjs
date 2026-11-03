@@ -17,7 +17,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, Bauunternehmen sind gesetzlich verpflichtet, ihre Mitarbeiter bei der SUVA gegen Unfälle zu versichern, ohne Möglichkeit, für diese Deckung einen anderen Versicherer zu wählen."
       }
     ],
-    "publishedAt": "2026-08-06"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/appel-offres-marches-publics-batiment-suisse",
@@ -37,7 +37,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, die Kriterien sind in der Regel gewichtet und umfassen auch Qualität, Fristen und Referenzen des Unternehmens, nicht nur den angebotenen Betrag."
       }
     ],
-    "publishedAt": "2026-05-21"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/application-gestion-freelance-batiment",
@@ -57,7 +57,7 @@ export const BLOG_SEO_DE = [
         "a": "Eine responsive App wird auf dem Handy korrekt angezeigt, ist aber nicht zwingend für den tatsächlichen Einsatz per Touch auf der Baustelle gedacht. Der Unterschied macht sich im täglichen Gebrauch bemerkbar."
       }
     ],
-    "publishedAt": "2026-07-11"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/application-hors-ligne-chantier-pourquoi-important",
@@ -77,7 +77,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, das ist die Grundanforderung: Alles, was ohne Verbindung gespeichert wurde, muss automatisch synchronisiert werden, sobald das Netz zurückkehrt, ohne manuellen Eingriff des Nutzers."
       }
     ],
-    "publishedAt": "2026-07-10"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/apprenti-batiment-salaire-obligations-employeur",
@@ -97,7 +97,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel ja, nach denselben Regeln wie für ausgebildete Mitarbeiter, sofern der geltende Gesamtarbeitsvertrag nichts ausdrücklich anderes vorsieht."
       }
     ],
-    "publishedAt": "2026-08-03"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/assurance-chantier-tous-risques-ectr-obligatoire",
@@ -117,7 +117,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, es handelt sich um zwei unterschiedliche Deckungen: Die ECTR deckt Sachschäden an der Baustelle selbst, die Betriebshaftpflicht deckt Schäden, die einem Dritten durch Verschulden des Unternehmers entstehen."
       }
     ],
-    "publishedAt": "2026-08-01"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/assurance-perte-de-gain-maladie-independant-batiment",
@@ -137,7 +137,7 @@ export const BLOG_SEO_DE = [
         "a": "Er erhält während seiner Arbeitsunfähigkeit kein Ersatzeinkommen, was rasch die persönliche und geschäftliche Liquidität belasten kann."
       }
     ],
-    "publishedAt": "2026-05-04"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/assurance-rc-professionnelle-batiment-obligatoire",
@@ -157,7 +157,7 @@ export const BLOG_SEO_DE = [
         "a": "Mangels Zwischenversicherung zur Absorption der Kosten kann das Vermögen des Unternehmens – bei einer Einzelfirma sogar das persönliche Vermögen – direkt zur Deckung der Schäden herangezogen werden."
       }
     ],
-    "publishedAt": "2026-03-12"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/automatiser-rappels-relances-entreprise",
@@ -177,7 +177,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel werden 15 bis 20 % der überfälligen Rechnungen in den Tagen nach einer zum richtigen Zeitpunkt versendeten automatischen Mahnung beglichen, ohne manuellen Eingriff."
       }
     ],
-    "publishedAt": "2026-08-21"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/automatiser-suivi-administratif-entreprise-artisanale",
@@ -197,7 +197,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, denn ein rasch und sauber erstellter Baustellenrapport ohne manuelle Verzögerung stärkt direkt das professionelle Bild, das der Kunde vom Unternehmen hat."
       }
     ],
-    "publishedAt": "2026-08-27"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/automatiser-taches-repetitives-entreprise-sans-developpeur",
@@ -217,7 +217,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, eine gute Automatisierung bleibt immer sichtbar und manuell anpassbar. Sie beschleunigt wiederkehrende Aufgaben, ohne die menschliche Beurteilung wichtiger Entscheidungen zu ersetzen."
       }
     ],
-    "publishedAt": "2026-08-16"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/avenant-chantier-plus-value-moins-value",
@@ -237,7 +237,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja: Der Abzug und der neue Gesamtbetrag müssen klar festgehalten werden, um jede spätere Anfechtung des Schlussbetrags zu vermeiden."
       }
     ],
-    "publishedAt": "2026-04-27"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/avis-google-entreprise-construction-suisse",
@@ -257,7 +257,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, diese Praxis widerspricht den Google-Richtlinien und schwächt die Glaubwürdigkeit der Bewertungen. Besser ist es, den Vorgang einfach zu erleichtern (direkter Link, richtiger Zeitpunkt) ohne finanzielle Gegenleistung."
       }
     ],
-    "publishedAt": "2026-09-01"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/avs-ai-independant-batiment",
@@ -277,7 +277,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, ein jährlicher Mindestbeitrag bleibt auch bei sehr geringem oder keinem Einkommen geschuldet, um die Kontinuität der Ansprüche (AHV-Rente, IV-Deckung) zu wahren."
       }
     ],
-    "publishedAt": "2026-01-26"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/bexio-vs-cantia-logiciel-batiment",
@@ -297,7 +297,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, das ist eine häufige Kombination. Und seit Kurzem ist das keine Doppelerfassung mehr: Cantia verbindet sich nativ mit Bexio, um Kunden, Rechnungen und Zahlungsstatus automatisch zu synchronisieren."
       }
     ],
-    "publishedAt": "2026-02-02"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/budget-logiciel-gestion-demarrage-entreprise",
@@ -317,7 +317,7 @@ export const BLOG_SEO_DE = [
         "a": "Oft ja, sobald man die Preise jedes einzelnen Tools zusammenzählt (ganz zu schweigen von der verlorenen Zeit, um Systeme, die nicht miteinander kommunizieren, zu verbinden)."
       }
     ],
-    "publishedAt": "2026-07-22"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-13e-salaire-prorata-employe",
@@ -337,7 +337,7 @@ export const BLOG_SEO_DE = [
         "a": "Das hängt vom Arbeitsvertrag und dem anwendbaren Gesamtarbeitsvertrag ab. Eine längere unbezahlte Absenz reduziert in der Regel den Anteil, doch die genaue Behandlung variiert je nach Fall."
       }
     ],
-    "publishedAt": "2026-04-02"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-heures-travail-ouvrier-minutes-decimales",
@@ -357,7 +357,7 @@ export const BLOG_SEO_DE = [
         "a": "Direkt die Start- und Endzeit eingeben statt eine von Hand berechnete Gesamtdauer: Die Summe wird dann automatisch berechnet, ohne Verwechslungsrisiko zwischen Minuten und Dezimalzahlen."
       }
     ],
-    "publishedAt": "2026-02-09"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-prix-de-revient-chantier-batiment",
@@ -377,7 +377,7 @@ export const BLOG_SEO_DE = [
         "a": "Die reale Arbeitszeit, berechnet zu den vollen Stundenkosten inklusive Abgaben. Sie liegt fast immer höher als der theoretische Stundensatz, der bei der ursprünglichen Kalkulation verwendet wurde."
       }
     ],
-    "publishedAt": "2026-07-03"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-prix-devis-renovation-suisse",
@@ -397,7 +397,7 @@ export const BLOG_SEO_DE = [
         "a": "Immer auf den Betrag exklusive Steuer (netto). Der Normalsatz beträgt seit 2024 8,1 % für die meisten Bauleistungen."
       }
     ],
-    "publishedAt": "2026-01-12"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-prix-horaire-reel-ouvrier-batiment",
@@ -417,7 +417,7 @@ export const BLOG_SEO_DE = [
         "a": "Weil er aus einer alten, nie neu berechneten Praxis übernommen wurde, statt aus einer expliziten Berechnung, die Sozialabgaben und tatsächlich fakturierbare Stunden einbezieht."
       }
     ],
-    "publishedAt": "2026-07-28"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/calculer-prix-unitaire-soumission",
@@ -457,7 +457,7 @@ export const BLOG_SEO_DE = [
         "a": "Am einfachsten spricht man direkt darüber, denn zahlreiche aktuelle Funktionen von Cantia sind aus einer konkreten Anfrage eines Kunden in einer ähnlichen Situation entstanden."
       }
     ],
-    "publishedAt": "2026-08-15"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/certificat-de-travail-obligation-employeur-batiment",
@@ -477,7 +477,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, ausser bei direktem Bezug zur eigentlichen Arbeitsleistung: Die Erwähnung einer Krankheit oder Schwangerschaft ohne direkten Bezug ist nicht zulässig."
       }
     ],
-    "publishedAt": "2026-06-26"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/chantier-complet-peut-etre-en-perte-taux-horaire",
@@ -497,7 +497,7 @@ export const BLOG_SEO_DE = [
         "a": "Während der Bauzeit, nicht beim Abschluss: Eine laufende Nachverfolgung erlaubt noch Anpassungen, während eine Feststellung nach Bauende nur noch dazu dient, im Nachhinein zu verstehen, was passiert ist."
       }
     ],
-    "publishedAt": "2026-04-06"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/checklist-cloture-chantier-avant-facturation",
@@ -517,7 +517,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, ein vollständiges Dossier (Offerte, Rechnungen, Fotos, Korrespondenz) bleibt während der gesamten Garantiefrist und darüber hinaus nützlich, falls es zu einem Streitfall oder einer späteren Kundenanfrage kommt."
       }
     ],
-    "publishedAt": "2026-06-10"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/checklist-logiciels-ouverture-societe-construction",
@@ -537,7 +537,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, eine Test-Offerte oder -Rechnung zu erstellen hilft, nötige Anpassungen zu erkennen, ohne einen echten Kunden zu betreffen."
       }
     ],
-    "publishedAt": "2026-08-01"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/checklist-ouverture-chantier-artisan",
@@ -557,7 +557,7 @@ export const BLOG_SEO_DE = [
         "a": "Ein vergessener administrativer oder logistischer Punkt (fehlende Bewilligung, nicht bestätigter Zugang) viel häufiger als ein tatsächliches technisches Unvorhergesehenes."
       }
     ],
-    "publishedAt": "2026-06-08"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/client-refuse-payer-solde-final-que-faire",
@@ -577,7 +577,7 @@ export const BLOG_SEO_DE = [
         "a": "Als letztes Mittel, nach einer formellen Mahnung, die ohne konstruktive Antwort geblieben ist. Das Betreibungsbegehren wird beim Betreibungsamt am Wohnsitz des Schuldners eingereicht."
       }
     ],
-    "publishedAt": "2026-04-23"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/combien-coute-logiciel-facturation-pas-cher",
@@ -597,7 +597,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, denn die tatsächlich eingesparte Verwaltungszeit zählt mindestens so stark wie der angezeigte Preis, um zu beurteilen, ob ein Tool wirklich erschwinglich ist."
       }
     ],
-    "publishedAt": "2026-07-05"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/combien-coute-logiciel-gestion-chantier-roi",
@@ -617,7 +617,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht sofort. Eine 14-tägige Testphase mit den wichtigsten Funktionen (Offerten, Rechnungen, Katalog) erlaubt es oft, den tatsächlichen Nutzen zu messen, bevor man sich für einen kostenpflichtigen Plan entscheidet."
       }
     ],
-    "publishedAt": "2026-07-16"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/comment-facturer-premiers-clients-debut-activite",
@@ -637,7 +637,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja: Sie wendet automatisch Nummerierung, MWST und Pflichtangaben an, was die häufigen Lücken bei einer von Hand erstellten Rechnung vermeidet."
       }
     ],
-    "publishedAt": "2026-07-26"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/comprendre-soumission-can-positions",
@@ -677,7 +677,7 @@ export const BLOG_SEO_DE = [
         "a": "In den meisten praktischen Fällen ja, denn eine Nachricht, die Datum, Leistung und Betrag bestätigt, macht aus einer wackeligen mündlichen Vereinbarung einen verwertbaren Beweis."
       }
     ],
-    "publishedAt": "2026-05-18"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/contrat-entreprise-vs-mandat-artisan",
@@ -697,7 +697,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, häufig sogar: ein Architekt unter Auftrag für die Planung und Begleitung, Unternehmen unter Werkvertrag für die Ausführung. Jeder Akteur untersteht so dem für seine Aufgabe passenden Regime."
       }
     ],
-    "publishedAt": "2026-03-19"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/creer-champ-processus-sur-mesure-logiciel-gestion",
@@ -717,7 +717,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja: Im Gegensatz zu einer externen Umgehungslösung (etwa einer separaten Tabelle) fügt sich ein massgeschneidert entwickeltes Feld direkt in die bestehenden Daten ein, ohne doppelte Erfassung."
       }
     ],
-    "publishedAt": "2026-08-18"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/crm-artisan-batiment-pourquoi-utile",
@@ -737,7 +737,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht zwingend: Ein Werkzeug, das Kunden, Offerten und Rechnungen nativ verknüpft, vermeidet Doppelerfassung und die Synchronisation zwischen zwei getrennten Systemen."
       }
     ],
-    "publishedAt": "2026-06-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/defaut-construction-decouvert-apres-reception-qui-paie",
@@ -757,7 +757,7 @@ export const BLOG_SEO_DE = [
         "a": "60 Tage ab seiner Entdeckung, ein präziserer Rahmen als die frühere Anforderung einer „sofortigen\" Meldung. Eine Verzögerung kann selbst innerhalb der globalen Gewährleistungsfrist zum Verlust des Rechts auf Nachbesserung führen."
       }
     ],
-    "publishedAt": "2026-03-09"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/degats-voisinage-chantier-qui-est-responsable",
@@ -777,7 +777,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel ja, sofern der Schaden korrekt dokumentiert ist und die Haftung des Unternehmens feststeht."
       }
     ],
-    "publishedAt": "2026-06-19"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/delai-paiement-facture-artisan-code-obligations",
@@ -797,7 +797,7 @@ export const BLOG_SEO_DE = [
         "a": "Die Forderung ist grundsätzlich sofort fällig, es wird jedoch empfohlen, eine schriftliche Mahnung mit klarer Fälligkeit zu senden, um anschliessend einen Verzug geltend machen und Verzugszinsen verlangen zu können."
       }
     ],
-    "publishedAt": "2026-01-22"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel",
@@ -817,7 +817,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel ein Austausch, um den Bedarf genau einzugrenzen, gefolgt von einem konkreten Vorschlag zu Frist und Umfang, ohne Verpflichtung, sich vor dieser klaren Einschätzung zu binden."
       }
     ],
-    "publishedAt": "2026-08-25"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/demarrer-entreprise-batiment-outils-indispensables",
@@ -837,7 +837,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel ja: Ein einfaches, von Anfang an gut beherrschtes Werkzeug ist wirksamer als ein komplettes Paket, dessen Funktionen mangels Zeit zum Lernen grösstenteils ungenutzt bleiben."
       }
     ],
-    "publishedAt": "2026-07-31"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/demission-employe-batiment-preavis-a-respecter",
@@ -857,7 +857,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, eine fristlose Kündigung aus wichtigem Grund (Mobbing, Nichtzahlung des Lohns) bleibt möglich, erfordert aber ernsthafte und dokumentierte Gründe, sonst setzt sie den Mitarbeiter selbst Konsequenzen aus."
       }
     ],
-    "publishedAt": "2026-06-29"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/devis-carreleur-facturation-au-m2-suisse",
@@ -877,7 +877,7 @@ export const BLOG_SEO_DE = [
         "a": "Das wird empfohlen, mindestens als separat ausgewiesene Option, da der tatsächliche Zustand des Untergrunds oft erst nach Entfernen des alten Belags sichtbar wird."
       }
     ],
-    "publishedAt": "2026-09-03"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-charpente-bois-facturation-suisse",
@@ -897,7 +897,7 @@ export const BLOG_SEO_DE = [
         "a": "Idealerweise über eine bereits in der Offerte vorgesehene Klausel, die festlegt, wer die Kosten einer Verschiebung (Gerätemiete, mobilisiertes Team) trägt, statt dies erst danach unter Druck zu verhandeln."
       }
     ],
-    "publishedAt": "2026-09-04"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-facture-chauffagiste-cvc-suisse",
@@ -917,7 +917,7 @@ export const BLOG_SEO_DE = [
         "a": "Das wird empfohlen, insbesondere beim Wechsel zu einer Wärmepumpe, da bestehende Radiatoren und Regelung nicht immer ohne Anpassung kompatibel sind."
       }
     ],
-    "publishedAt": "2026-09-14"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-facture-facadier-isolation-suisse",
@@ -937,7 +937,7 @@ export const BLOG_SEO_DE = [
         "a": "Das ist ratsam, da die Zusammenstellung eines Förderdossiers mehrere Wochen dauern kann; eine klare Anpassungsklausel erspart dann, wegen einer reinen Fristüberschreitung eine identische Offerte neu zu erstellen."
       }
     ],
-    "publishedAt": "2026-09-09"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-facture-paysagiste-jardinier-suisse",
@@ -957,7 +957,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man sich über Jahresverträge zum Unterhalt einen wiederkehrenden Einkommensanteil sichert, der die typischerweise ruhigeren Herbst- und Wintermonate teilweise glättet."
       }
     ],
-    "publishedAt": "2026-09-10"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-facture-plombier-sanitaire-suisse",
@@ -977,7 +977,7 @@ export const BLOG_SEO_DE = [
         "a": "Das wird empfohlen: So versteht der Kunde die Preisaufteilung, und Anpassungen fallen leichter, falls sich das gewählte Material während des Projekts ändert."
       }
     ],
-    "publishedAt": "2026-09-01"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/devis-facture-serrurier-metallier-suisse",
@@ -997,7 +997,7 @@ export const BLOG_SEO_DE = [
         "a": "Das ist empfehlenswert, wenn sich die Fertigung über mehrere Wochen erstreckt, da der Rohstoffpreis wie beim Stahl zwischen Offerte und effektiver Bestellung erheblich schwanken kann."
       }
     ],
-    "publishedAt": "2026-09-15"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-gratuit-en-ligne-suisse-outil",
@@ -1017,7 +1017,7 @@ export const BLOG_SEO_DE = [
         "a": "Ohne zentrale Nachverfolgung wird es schwierig zu wissen, welche Offerten nachgefasst werden sollten, was Kunden kostet, die mit einer rechtzeitigen Nachfrage durchaus zugesagt hätten."
       }
     ],
-    "publishedAt": "2026-07-07"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-gratuit-ou-payant-que-dit-la-loi",
@@ -1037,7 +1037,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, in der Praxis ist das unerlässlich: Eine Offerte zu verrechnen, ohne dies vorher angekündigt zu haben, schafft einen vermeidbaren kommerziellen Streitfall, auch wenn nichts dies gesetzlich verbietet."
       }
     ],
-    "publishedAt": "2026-08-12"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-menuisier-sur-mesure-facturation-suisse",
@@ -1057,7 +1057,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja. Ein Kunde, der nach Validierung der Pläne seine Meinung zu einer Ausführung oder einer Massangabe ändert, muss einen kalkulierten Nachtrag auslösen, keine stillschweigende Änderung, die im Ausgangspreis untergeht."
       }
     ],
-    "publishedAt": "2026-09-08"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-oral-valeur-legale-suisse",
@@ -1077,7 +1077,7 @@ export const BLOG_SEO_DE = [
         "a": "In den meisten praktischen Fällen ja: Eine Nachricht, die die Bedingungen der Vereinbarung (Preis, Umfang, Frist) bestätigt, ist ein wesentlich solideres Beweismittel als eine rein mündliche Absprache."
       }
     ],
-    "publishedAt": "2026-04-16"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/devis-peintre-batiment-calcul-surface-suisse",
@@ -1117,7 +1117,7 @@ export const BLOG_SEO_DE = [
         "a": "Die angenommene Offerte begründet den Werkvertrag; die Rechnung begründet eine fällige Forderung mit Zahlungsfrist, in der Regel ausgestellt nach Ausführung oder als Anzahlung."
       }
     ],
-    "publishedAt": "2026-05-11"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/difference-sia-108-sia-118-devis-contrat",
@@ -1137,7 +1137,7 @@ export const BLOG_SEO_DE = [
         "a": "Die SIA 118 beruht auf einer Erfolgspflicht (das fertiggestellte Werk), die SIA 108 auf einer Sorgfalts- und Bemühungspflicht, ohne Erfolgsgarantie."
       }
     ],
-    "publishedAt": "2026-06-17"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/duree-conservation-devis-factures-suisse",
@@ -1157,7 +1157,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, das Gesetz akzeptiert die elektronische Aufbewahrung, sofern der Bezug zu den betreffenden Geschäftsvorfällen gewährleistet bleibt und die Zugänglichkeit während der gesamten gesetzlichen Frist sichergestellt ist."
       }
     ],
-    "publishedAt": "2026-02-16"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/duree-validite-devis-non-signe-combien-temps",
@@ -1177,7 +1177,7 @@ export const BLOG_SEO_DE = [
         "a": "Das Unternehmen kann eine Preisanpassung verlangen, sofern der Gültigkeitsvermerk klar auf dem ursprünglichen Dokument angegeben war."
       }
     ],
-    "publishedAt": "2026-06-09"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/erreurs-choisir-premier-logiciel-gestion",
@@ -1197,7 +1197,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel zwischen 6 und 12 Monaten, was zeigt, wie wichtig es ist, das Tool von Anfang an gründlich zu testen, statt später migrieren zu müssen."
       }
     ],
-    "publishedAt": "2026-08-09"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/erreurs-soumission-qui-coutent-le-marche",
@@ -1237,7 +1237,7 @@ export const BLOG_SEO_DE = [
         "a": "Das variiert je nach Anbieter. Wichtig ist, genau zu wissen, ab welchem Datum das Abonnement effektiv beginnt und vor diesem Datum kündigen zu können, ohne Zeit dabei zu verlieren."
       }
     ],
-    "publishedAt": "2026-08-06"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/estimer-chantier-a-distance-devis-photo",
@@ -1257,7 +1257,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man sie klar als indikativ und unverbindlich darstellt und die feste Offerte einer Bestätigung vor Ort vorbehält."
       }
     ],
-    "publishedAt": "2026-05-25"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/excel-vs-logiciel-gestion-chantier-limites",
@@ -1277,7 +1277,7 @@ export const BLOG_SEO_DE = [
         "a": "Sobald mehrere Baustellen parallel laufen oder mehrere Personen gleichzeitig auf dieselben Informationen zugreifen müssen, wird eine Tabelle eher zum Reibungspunkt als zur Zeitersparnis."
       }
     ],
-    "publishedAt": "2026-07-19"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/facturation-heures-regie-batiment-comment-faire",
@@ -1297,7 +1297,7 @@ export const BLOG_SEO_DE = [
         "a": "Durch ein zeitgestempeltes und nach Aufgabe detailliertes Stundenblatt, das laufend erfasst statt im Nachhinein aus dem Gedächtnis rekonstruiert wird."
       }
     ],
-    "publishedAt": "2026-07-07"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/facturer-acompte-suisse-securiser-solde",
@@ -1317,7 +1317,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, und das ist bei mehrwöchigen Baustellen empfehlenswert: Zwischenrechnungen an sichtbaren Etappen zu orientieren, verhindert, dass zu viel Liquidität vor dem nächsten Zahlungseingang vorgeschossen wird."
       }
     ],
-    "publishedAt": "2026-02-23"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/faire-evoluer-outil-gestion-avec-entreprise",
@@ -1337,7 +1337,7 @@ export const BLOG_SEO_DE = [
         "a": "Einmal pro Jahr ist eine gute übliche Praxis, um zu prüfen, ob das Tool den tatsächlichen Bedarf des Unternehmens auf dieser Entwicklungsstufe noch korrekt abdeckt."
       }
     ],
-    "publishedAt": "2026-08-22"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse",
@@ -1357,7 +1357,7 @@ export const BLOG_SEO_DE = [
         "a": "Auf Dauer meist ja: Ein intern ausgebildeter Lernender kennt die Methoden des Unternehmens bereits und weist oft eine geringere Kündigungsrate auf als ein extern rekrutiertes Profil."
       }
     ],
-    "publishedAt": "2026-09-18"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/fixer-prix-artisan-sans-brader-concurrence-suisse",
@@ -1377,7 +1377,7 @@ export const BLOG_SEO_DE = [
         "a": "In der Regel zwischen 10 und 15 % netto nach Deckung aller tatsächlichen Kosten (Arbeitskraft, Material, Fixkosten): Ein Preis, der keine Marge generiert, ist auf Dauer nicht tragbar."
       }
     ],
-    "publishedAt": "2026-09-11"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/garantie-travaux-construction-2-ou-5-ans",
@@ -1397,7 +1397,7 @@ export const BLOG_SEO_DE = [
         "a": "Die 2026 in Kraft getretene Reform des Garantierechts setzt eine Frist von 60 Tagen für die Meldung eines Mangels an den Unternehmer nach dessen Entdeckung fest und ersetzt damit die frühere, vagere Anforderung einer «sofortigen» Meldung."
       }
     ],
-    "publishedAt": "2026-03-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/gerer-entreprise-sans-comptable-debut",
@@ -1417,7 +1417,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, aber sie erleichtert die Arbeit des Treuhandbüros erheblich, sobald es beigezogen wird, indem sie von Anfang an eine saubere und konforme Dokumentenhistorie führt."
       }
     ],
-    "publishedAt": "2026-07-14"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/gerer-entreprise-seul-sans-embaucher-outils",
@@ -1437,7 +1437,7 @@ export const BLOG_SEO_DE = [
         "a": "Oft ja, um einen punktuellen Aktivitätsspitzenwert aufzufangen, ohne die administrativen und sozialversicherungsrechtlichen Pflichten einer festen Anstellung."
       }
     ],
-    "publishedAt": "2026-08-07"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/gerer-plusieurs-chantiers-en-parallele-methode",
@@ -1457,7 +1457,7 @@ export const BLOG_SEO_DE = [
         "a": "Das funktioniert eine Zeit lang bei einem kleinen Team, aber die Information geht im Nachrichtenverlauf schnell verloren, und ohne Struktur pro Baustelle wird sie rasch unauffindbar."
       }
     ],
-    "publishedAt": "2026-04-09"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/gestion-chantier-devis-couvreur-toiture-suisse",
@@ -1477,7 +1477,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, oder nur sehr grob, denn der tatsächliche Zustand eines Dachstuhls ist oft erst nach dem Abbruch der bestehenden Eindeckung sichtbar — daher lohnt sich eine Inspektion vor der definitiven Offerte."
       }
     ],
-    "publishedAt": "2026-09-07"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/gestion-chantier-facturation-electricien-suisse",
@@ -1497,7 +1497,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, denn jede neu erstellte oder geänderte Installation muss gemeldet und kontrolliert werden. Wird sie von Anfang an in die Offerte aufgenommen, vermeidet das eine teurere Verrechnung unter Zeitdruck nach Abschluss der Baustelle."
       }
     ],
-    "publishedAt": "2026-08-30"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/gestion-entreprise-sur-mobile-artisan",
@@ -1517,7 +1517,7 @@ export const BLOG_SEO_DE = [
         "a": "Für den Alltag durchaus. Ein gelegentlicher Zugang zu einem Computer bleibt für aufwendigere Konfigurationsaufgaben aber trotzdem nützlich."
       }
     ],
-    "publishedAt": "2026-07-20"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/heures-supplementaires-batiment-majoration-25",
@@ -1537,7 +1537,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, denn Mehrstunden betreffen einen Teilzeitangestellten, der unterhalb der normalen Vollzeitdauer bleibt, mit einer Ausgleichsregelung, die sich von jener der eigentlichen Überstunden unterscheidet."
       }
     ],
-    "publishedAt": "2026-03-26"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/hypotheque-legale-artisans-entrepreneurs-suisse",
@@ -1557,7 +1557,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, dieses Recht besteht unabhängig von einem direkten Vertragsverhältnis mit dem Eigentümer der Liegenschaft, sofern Material oder Arbeit für den Bau geliefert wurde."
       }
     ],
-    "publishedAt": "2026-08-24"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/indemnites-kilometriques-2026-nouveau-taux",
@@ -1577,7 +1577,7 @@ export const BLOG_SEO_DE = [
         "a": "Ein Kreuz bei Buchstabe F, das ausdrücklich anzeigt, dass dem Mitarbeitenden während des Jahres eine Pauschalentschädigung für die geschäftliche Nutzung eines Privatfahrzeugs ausbezahlt wurde."
       }
     ],
-    "publishedAt": "2026-03-30"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/integration-bexio-cantia-synchronisation-automatique",
@@ -1601,7 +1601,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein. Ihre bestehenden Bexio-Kunden werden bei der Verbindung automatisch in Cantia importiert, in Richtung Bexio nach Cantia."
       }
     ],
-    "publishedAt": "2026-08-25"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/lancer-entreprise-batiment-suisse-par-ou-commencer",
@@ -1621,7 +1621,7 @@ export const BLOG_SEO_DE = [
         "a": "Idealerweise vor dem allerersten Kunden, um von Beginn der Tätigkeit an konforme Offerten und Rechnungen zu gewährleisten."
       }
     ],
-    "publishedAt": "2026-08-13"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/licenciement-ouvrier-batiment-delai-conge-cct",
@@ -1641,7 +1641,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, und in diesem Fall geht er dem dispositiven gesetzlichen Regime vor: Man sollte stets den anwendbaren GAV prüfen, statt sich ausschliesslich auf Art. 335c OR zu verlassen."
       }
     ],
-    "publishedAt": "2026-08-09"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/litige-chantier-mediation-ou-tribunal",
@@ -1661,7 +1661,7 @@ export const BLOG_SEO_DE = [
         "a": "Ein solides Beweisdossier (unterzeichnete Offerten, schriftliche Korrespondenz, datierte Baustellenfotos) wiegt fast immer schwerer als die mündliche Argumentation."
       }
     ],
-    "publishedAt": "2026-06-24"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-construit-avec-vous-sur-mesure",
@@ -1681,7 +1681,7 @@ export const BLOG_SEO_DE = [
         "a": "Ein im Alltag auftretendes und direkt gemeldetes Problem kann zu einer neuen Funktion führen, die danach allen Nutzern des Werkzeugs zugutekommt."
       }
     ],
-    "publishedAt": "2026-08-28"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-devis-facture-maconnerie-suisse",
@@ -1701,7 +1701,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man eine eigene Position in Regiestunden für den Materialtransport, die Schuttentsorgung und die Reinigung vorsieht — ein Posten, der oft 15 bis 20 % der Gesamtzeit der Baustelle ausmacht."
       }
     ],
-    "publishedAt": "2026-08-28"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-facturation-conforme-tva-suisse-pas-cher",
@@ -1721,7 +1721,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man eine Testrechnung erstellt und den angewendeten MWST-Satz, die angezeigte UID-Nummer (bei Mehrwertsteuerpflicht) und die fortlaufende Nummerierung des Dokuments prüft."
       }
     ],
-    "publishedAt": "2026-08-03"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-facturation-gratuit-independant-suisse",
@@ -1741,7 +1741,7 @@ export const BLOG_SEO_DE = [
         "a": "Ein vollständiger Gratistest gibt ein zuverlässigeres Bild davon, was das Tool für die Tätigkeit wirklich wert ist, statt einer beschnittenen Version, die nie alles zeigt, was nach dem Start der Tätigkeit tatsächlich nötig sein wird."
       }
     ],
-    "publishedAt": "2026-07-01"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-facturation-qr-facture-comparatif-suisse",
@@ -1761,7 +1761,7 @@ export const BLOG_SEO_DE = [
         "a": "Seit der Norm 2.3 im November 2025. Adressen im Fliesstext werden ab dem 30. September 2026 endgültig abgelehnt."
       }
     ],
-    "publishedAt": "2026-06-03"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-facturation-raison-individuelle-suisse",
@@ -1781,7 +1781,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht zwingend: Ein einfaches Tool für Offerten, Rechnungen und Liquiditätsübersicht genügt oft, der Rest kann bei Bedarf an einen Treuhänder ausgelagert werden."
       }
     ],
-    "publishedAt": "2026-07-10"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-gestion-chantier-abordable-petite-entreprise",
@@ -1801,7 +1801,7 @@ export const BLOG_SEO_DE = [
         "a": "Mindestens geolokalisierte und zeitgestempelte Fotos, eine klare Organisation nach Baustelle und ein einfacher Zugriff vom Telefon aus."
       }
     ],
-    "publishedAt": "2026-07-25"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-gestion-chantier-independant-seul",
@@ -1821,7 +1821,7 @@ export const BLOG_SEO_DE = [
         "a": "Eine Teamplanung für mehrere Personen oder ein rollenbasiertes Berechtigungssystem, konzipiert für die Koordination eines Teams statt für die individuelle Nutzung."
       }
     ],
-    "publishedAt": "2026-05-14"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-gestion-evolutif-grandit-avec-entreprise",
@@ -1841,7 +1841,7 @@ export const BLOG_SEO_DE = [
         "a": "Konkret fragen, was bei der ersten Anstellung oder bei der Verwaltung mehrerer paralleler Baustellen passiert. Die Antwort zeigt, ob das Tool wirklich für Wachstum konzipiert ist."
       }
     ],
-    "publishedAt": "2026-08-10"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-gestion-societe-individuelle-suisse",
@@ -1861,7 +1861,7 @@ export const BLOG_SEO_DE = [
         "a": "Grundsätzlich nicht. Die Basisbedürfnisse (Offerte, Rechnung, Konformität) bleiben gleich, nur die Grösse des Plans (Anzahl Nutzer) ändert sich in der Regel."
       }
     ],
-    "publishedAt": "2026-07-29"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse",
@@ -1881,7 +1881,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja. Die Personal- oder Planungsmodule bleiben auch anfänglich ungenutzt nützlich und ersparen einen Toolwechsel am Tag der ersten Anstellung."
       }
     ],
-    "publishedAt": "2026-07-04"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-remplir-soumission-excel-papier",
@@ -1921,7 +1921,7 @@ export const BLOG_SEO_DE = [
         "a": "Mit einem gut konzipierten Tool nein: Die Grundaufgaben (Offerte, Rechnung) müssen ohne vorherige Schulung oder Lektüre der Online-Hilfe zugänglich sein."
       }
     ],
-    "publishedAt": "2026-07-19"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-standard-vs-solution-personnalisee-batiment",
@@ -1941,7 +1941,7 @@ export const BLOG_SEO_DE = [
         "a": "Wenn die Massanfertigung auf einer gut gepflegten Standardbasis aufbaut, ja. Andernfalls muss das Unternehmen jede regulatorische Entwicklung selbst verwalten."
       }
     ],
-    "publishedAt": "2026-08-19"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/logiciel-tout-en-un-devis-facture-chantier-rh",
@@ -1961,7 +1961,7 @@ export const BLOG_SEO_DE = [
         "a": "Die auf einer Baustelle geleisteten Stunden dienen sowohl der Lohnberechnung als auch der Berechnung der tatsächlichen Baustellenrentabilität, ohne Doppelerfassung zwischen beiden."
       }
     ],
-    "publishedAt": "2026-07-16"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/lpp-deuxieme-pilier-independant-batiment",
@@ -1981,7 +1981,7 @@ export const BLOG_SEO_DE = [
         "a": "Ab der ersten Angestellten muss der Arbeitgeber sie obligatorisch beim UVG anschliessen, und beim BVG, sobald ihr Jahreslohn die jährlich vom Bund festgelegte Eintrittsschwelle übersteigt."
       }
     ],
-    "publishedAt": "2026-01-29"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026",
@@ -2001,7 +2001,7 @@ export const BLOG_SEO_DE = [
         "a": "Idealerweise ja. Das Netz ist auf einer Baustelle nie garantiert (Untergeschoss, ländliche Zone), und ein Werkzeug, das nur online funktioniert, verliert seinen Wert genau im ungünstigsten Moment."
       }
     ],
-    "publishedAt": "2026-06-01"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/meilleur-logiciel-pas-cher-petit-artisan",
@@ -2021,7 +2021,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man vergleicht, was jeder Preis konkret enthält (QR-Rechnung, Statusverfolgung, vollständiger mobiler Zugriff) — nicht nur die oben auf der Preisseite angezeigte Zahl."
       }
     ],
-    "publishedAt": "2026-07-13"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/meilleur-outil-gestion-independant-suisse",
@@ -2041,7 +2041,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man prüft, ob es direkt von der Baustelle aus, auf dem Mobiltelefon, funktioniert, ohne die Informationen abends im Büro neu erfassen zu müssen."
       }
     ],
-    "publishedAt": "2026-07-02"
+    "publishedAt": "2026-09-02"
   },
   {
     "path": "de/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment",
@@ -2061,7 +2061,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, eine kostenlose Testphase mit echter Nutzung liefert ein zuverlässigeres Bild als Vergleiche, die sich nur auf die von jedem Anbieter angekündigten Funktionen stützen."
       }
     ],
-    "publishedAt": "2026-08-04"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/meilleures-alternatives-gratuites-bexio",
@@ -2081,7 +2081,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht zwingend: Beide können sich ergänzen — das eine für die tägliche Steuerung der Baustelle, das andere für die vollständige Buchhaltung, sobald die Tätigkeit etablierter ist."
       }
     ],
-    "publishedAt": "2026-07-23"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/mentions-obligatoires-facture-suisse-tva",
@@ -2101,7 +2101,7 @@ export const BLOG_SEO_DE = [
         "a": "Bei Beträgen über CHF 400.- müssen Satz und Betrag der MWST klar ersichtlich sein, da deren Fehlen dem Empfänger den Vorsteuerabzug verweigern kann."
       }
     ],
-    "publishedAt": "2026-08-15"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/norme-sia-118-devis-obligatoire",
@@ -2121,7 +2121,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, da ihre Einbindung auf einer Vereinbarung zwischen den Parteien beruht: Ein Kunde kann ihren Wegfall oder ihre Ersetzung durch die alleinigen OR-Regeln vor Unterzeichnung der Offerte aushandeln."
       }
     ],
-    "publishedAt": "2026-01-15"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/note-de-credit-facture-rectificative-suisse",
@@ -2141,7 +2141,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht zwingend, wenn sich Betrag und MWST nicht ändern: eine schriftliche Klarstellung an den Kunden kann in diesem konkreten Fall genügen."
       }
     ],
-    "publishedAt": "2026-06-11"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/numerotation-facture-obligations-legales-suisse",
@@ -2161,7 +2161,7 @@ export const BLOG_SEO_DE = [
         "a": "Eine Steuerkontrolle kann Unstimmigkeiten als Hinweis auf verschwiegenen Umsatz deuten, selbst ohne tatsächlichen Betrug — sodass die Beweislast dann beim Unternehmen liegt."
       }
     ],
-    "publishedAt": "2026-06-15"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/outil-devis-factures-sans-double-saisie",
@@ -2181,7 +2181,7 @@ export const BLOG_SEO_DE = [
         "a": "Wenn sich Zeilen, Preise und Mengen beim Übergang von einer akzeptierten Offerte zu einer Rechnung automatisch übertragen, bestätigt das konkret, dass die Doppelerfassung tatsächlich eliminiert ist."
       }
     ],
-    "publishedAt": "2026-07-28"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/outil-facturation-en-ligne-pme-suisse",
@@ -2201,7 +2201,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, ein einfacher Browser oder eine mobile App genügen. Es ist keine Installation oder manuelle Aktualisierung nötig."
       }
     ],
-    "publishedAt": "2026-07-17"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/parrainage-recommandation-clients-artisan-batiment",
@@ -2221,7 +2221,7 @@ export const BLOG_SEO_DE = [
         "a": "Weil das Vertrauen durch den Bezug zur empfehlenden Person bereits teilweise etabliert ist. Der Interessent kommt so mit einer positiven Voreinstellung, die eine Kontaktaufnahme ohne vorherigen Bezug nicht bieten kann."
       }
     ],
-    "publishedAt": "2026-09-07"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/permis-construire-renovation-quand-necessaire",
@@ -2241,7 +2241,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, das ist nicht der Fall. Jeder Kanton, teils sogar jede Gemeinde, legt eigene Bewilligungsschwellen und Verfahren fest: Es gibt keine einheitliche Bundesregel für Renovationen."
       }
     ],
-    "publishedAt": "2026-03-16"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/photos-chantier-preuve-juridique-litige",
@@ -2261,7 +2261,7 @@ export const BLOG_SEO_DE = [
         "a": "Weil ihnen oft die Zentralisierung und ein zuverlässiger Zeitstempel fehlen, was ihren Beweiswert schwächt, selbst wenn der Inhalt des Fotos relevant ist."
       }
     ],
-    "publishedAt": "2026-05-07"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/planning-chantier-eviter-conflits-ressources",
@@ -2281,7 +2281,7 @@ export const BLOG_SEO_DE = [
         "a": "Sie reduziert das Risiko stark, indem sie einen gemeinsamen Echtzeitüberblick bietet, muss aber bei jeder Änderung aktualisiert werden, um wirklich zuverlässig zu bleiben."
       }
     ],
-    "publishedAt": "2026-07-13"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/portfolio-photos-avant-apres-chantier-vente",
@@ -2301,7 +2301,7 @@ export const BLOG_SEO_DE = [
         "a": "Indem man zwischen Vorher und Nachher genau denselben Blickwinkel beibehält, mit möglichst natürlichem Licht, und die Baustelle beim Schlussfoto sauber und aufgeräumt ist."
       }
     ],
-    "publishedAt": "2026-09-16"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut",
@@ -2321,7 +2321,7 @@ export const BLOG_SEO_DE = [
         "a": "Im Allgemeinen ja. Die monatlichen Kosten bleiben minimal im Vergleich zum Umsatz einer ersten Baustelle, und das Tool kann bei diesem ersten Kunden den Unterschied bei Schnelligkeit und wahrgenommener Professionalität ausmachen."
       }
     ],
-    "publishedAt": "2026-08-12"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/pourquoi-entreprises-batiment-font-faillite-suisse",
@@ -2341,7 +2341,7 @@ export const BLOG_SEO_DE = [
         "a": "Der beste Indikator ist die Rentabilität, gemessen Baustelle für Baustelle, kombiniert mit einer kurzfristigen Liquiditätsprognose, da der globale Umsatz allein nichts über die reale Marge aussagt."
       }
     ],
-    "publishedAt": "2026-07-25"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment",
@@ -2361,7 +2361,7 @@ export const BLOG_SEO_DE = [
         "a": "Idealerweise passt sich das Tool dem Beruf an, denn eine gute Software sollte erlauben, das anzupassen, was wirklich zählt (Einheiten, Schritte, Dokumente), ohne das Unternehmen zu zwingen, seine Arbeitsweise zu ändern."
       }
     ],
-    "publishedAt": "2026-08-24"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/poursuite-facture-impayee-procedure-suisse",
@@ -2381,7 +2381,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein. Ist der Schuldner zahlungsunfähig, kann die Betreibung ohne Beitreibung mit einem Verlustschein enden, bleibt aber im Betreibungsregister des Schuldners eingetragen."
       }
     ],
-    "publishedAt": "2026-08-18"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/prescription-facture-impayee-delai-10-ans",
@@ -2401,7 +2401,7 @@ export const BLOG_SEO_DE = [
         "a": "Der Schuldner kann die Zahlung vor Gericht rechtmässig unter Berufung auf die Verjährung verweigern: Die Forderung wird rechtlich nicht mehr durchsetzbar, auch wenn sie moralisch weiter geschuldet bleibt."
       }
     ],
-    "publishedAt": "2026-06-12"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/previsionnel-tresorerie-entreprise-batiment",
@@ -2421,7 +2421,7 @@ export const BLOG_SEO_DE = [
         "a": "Einen Engpass mehrere Wochen im Voraus zu erkennen, früh genug, um zu handeln (Mahnung, Aufschub eines Kaufs, Verhandlung mit dem Lieferanten), statt ihn erst zu entdecken, wenn das Konto bereits negativ ist."
       }
     ],
-    "publishedAt": "2026-07-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/qr-facture-obligatoire-2026",
@@ -2441,7 +2441,7 @@ export const BLOG_SEO_DE = [
         "a": "Der QR-IBAN ist eine dedizierte Nummer, erkennbar an einem spezifischen Finanzinstitut-Identifikator, die ausschliesslich für QR-Rechnungen mit strukturierter QR-Referenz (QRR) verwendet wird. Ein Standard-IBAN kann ebenfalls auf einer QR-Rechnung verwendet werden, dann aber mit einer Referenz vom Typ SCOR oder ohne Referenz."
       }
     ],
-    "publishedAt": "2026-01-19"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/quel-logiciel-choisir-demarrer-entreprise-construction",
@@ -2461,7 +2461,7 @@ export const BLOG_SEO_DE = [
         "a": "Nach mehreren Monaten Aktivität das Tool zu wechseln, kostet Zeit und Verlauf. Ein von Anfang an skalierbares Tool erspart diese Migration."
       }
     ],
-    "publishedAt": "2026-07-08"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/rabais-escompte-tva-ordre-soumission",
@@ -2501,7 +2501,7 @@ export const BLOG_SEO_DE = [
         "a": "Sie löst den Beginn der Garantiefrist aus (in der Regel 2 oder 5 Jahre je nach Mangelart) und legt die Liste der zu diesem Zeitpunkt bereits bekannten Mängel fest."
       }
     ],
-    "publishedAt": "2026-08-21"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/rediger-devis-qui-inspire-confiance-client",
@@ -2521,7 +2521,7 @@ export const BLOG_SEO_DE = [
         "a": "Eine einfache elektronische Unterschrift (wie eine zeitgestempelte Online-Validierung) gilt in den meisten praktischen Fällen des Bauwesens als vertragliche Annahme; bei höheren rechtlichen Risiken kann eine qualifizierte elektronische Signatur empfehlenswert sein."
       }
     ],
-    "publishedAt": "2026-02-19"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/relancer-client-facture-impayee-sans-perdre-client",
@@ -2541,7 +2541,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, sofern er schriftlich mit klaren Terminen festgehalten wird: Er löst eine Situation oft schneller als eine schroffe Mahnung, ohne auf das Recht zu verzichten, bei Nichteinhaltung den Restbetrag zu fordern."
       }
     ],
-    "publishedAt": "2026-02-26"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/remplir-soumission-pdf-architecte",
@@ -2581,7 +2581,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein, das Gesetz verlangt keine Begründung, aber eine klare, datierte Mitteilung legt den Ausgangspunkt für die Berechnung der Entschädigung fest."
       }
     ],
-    "publishedAt": "2026-08-27"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/retard-chantier-meteo-obligations-contractuelles",
@@ -2601,7 +2601,7 @@ export const BLOG_SEO_DE = [
         "a": "Sie hilft, aber eine datierte Spur dessen, was tatsächlich auf der Baustelle geschah (Fotos, Teamnotizen), ist oft überzeugender als eine allgemeine, nachträglich beschaffte Wetterangabe."
       }
     ],
-    "publishedAt": "2026-07-22"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/retenue-de-garantie-chantier-consignation",
@@ -2621,7 +2621,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, eine Bankgarantie auf erstes Verlangen bietet dem Kunden dieselbe Sicherheit, ohne die Liquidität des Unternehmens direkt zu binden."
       }
     ],
-    "publishedAt": "2026-06-22"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/salaire-minimum-cct-construction-suisse",
@@ -2641,7 +2641,7 @@ export const BLOG_SEO_DE = [
         "a": "Die Mindestlöhne bleiben 2026 weitgehend stabil, eine echte Aufwertung ist erst ab 2027 vorgesehen. Die bedeutendste Änderung betrifft die Überstundenregelung (gedeckelte jährliche Übertragung, Zuschlag von 25 % darüber hinaus)."
       }
     ],
-    "publishedAt": "2026-03-23"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/signature-electronique-devis-suisse-valeur-legale",
@@ -2661,7 +2661,7 @@ export const BLOG_SEO_DE = [
         "a": "Beide haben bei einem formfreien Vertrag einen vergleichbaren Beweiswert. Die elektronische Signatur hat vor allem den praktischen Vorteil, die Reibung zu reduzieren und eine leicht wiederauffindbare digitale Spur zu hinterlassen."
       }
     ],
-    "publishedAt": "2026-04-20"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/site-internet-artisan-batiment-utile",
@@ -2681,7 +2681,7 @@ export const BLOG_SEO_DE = [
         "a": "In den meisten Fällen ja. Eine lokal gut positionierte Website (mit natürlich erwähnter Stadt und Beruf) und ein aktives Google-Unternehmensprofil bringen in der Regel mehr als eine generische Werbekampagne."
       }
     ],
-    "publishedAt": "2026-09-04"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/sous-effectif-chantier-recruter-ou-sous-traiter",
@@ -2701,7 +2701,7 @@ export const BLOG_SEO_DE = [
         "a": "Ja, es eignet sich gut für eine zeitlich begrenzte Aktivitätsspitze oder eine spezialisierte, selten genutzte Kompetenz, ohne das Unternehmen langfristig zu binden."
       }
     ],
-    "publishedAt": "2026-08-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/sous-traitant-batiment-suisse-contrat-facturation",
@@ -2721,7 +2721,7 @@ export const BLOG_SEO_DE = [
         "a": "Das wird empfohlen, wenn der Hauptvertrag selbst darauf verweist, um eine Diskrepanz bei Garantien oder Fristen zwischen den beiden Vertragsebenen zu vermeiden."
       }
     ],
-    "publishedAt": "2026-02-12"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/suivre-rentabilite-chantier-sans-excel",
@@ -2745,7 +2745,7 @@ export const BLOG_SEO_DE = [
         "a": "Nein: Ein Foto des Kassenbons oder der Lieferantenrechnung genügt, Lieferant und Betrag werden automatisch gelesen und füllen die Ausgabe vorab aus — es bleibt nur noch, vor dem Speichern zu prüfen."
       }
     ],
-    "publishedAt": "2026-02-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/temps-repondre-soumission-rentable",
@@ -2785,7 +2785,7 @@ export const BLOG_SEO_DE = [
         "a": "Es kann auf der eigenen Baustelle mit dem Problem in Verbindung gebracht werden, selbst ohne direktes Verschulden. Daher lohnt es sich, die Konformität eines Subunternehmers vor der Beauftragung zu prüfen."
       }
     ],
-    "publishedAt": "2026-04-30"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/travailleur-temporaire-interimaire-batiment-regles",
@@ -2805,7 +2805,7 @@ export const BLOG_SEO_DE = [
         "a": "Der verrechnete Tarif enthält bereits Lohn, Sozialabgaben und die Marge der Agentur, weshalb der Vergleich mit den vollen Stundenkosten eines Mitarbeitenden sinnvoll ist, nicht nur mit dessen Bruttolohn."
       }
     ],
-    "publishedAt": "2026-07-01"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/trouver-clients-artisan-batiment-suisse",
@@ -2825,7 +2825,7 @@ export const BLOG_SEO_DE = [
         "a": "Weil ein Kunde, der mehrere Handwerker kontaktiert, oft denjenigen wählt, der als Erster antwortet, bei vergleichbarer Qualität. Das ist ein oft wirksamerer Konversionshebel als die Gewinnung zusätzlicher Interessenten."
       }
     ],
-    "publishedAt": "2026-08-29"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/vacances-non-prises-fin-annee-batiment-cct",
@@ -2845,7 +2845,7 @@ export const BLOG_SEO_DE = [
         "a": "Der Arbeitgeber legt den Zeitpunkt fest, unter Berücksichtigung der Wünsche des Mitarbeitenden, soweit mit den Bedürfnissen des Betriebs vereinbar. Es ist kein einseitiges Recht der einen oder anderen Seite."
       }
     ],
-    "publishedAt": "2026-07-31"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/validite-devis-signe-prix-qui-bouge",
@@ -2865,7 +2865,7 @@ export const BLOG_SEO_DE = [
         "a": "30 Tage sind üblich bei Material, dessen Preis schwankt, bis zu 90 Tage bei Leistungen, die vorwiegend Arbeit sind. Die endgültige Wahl richtet sich nach der tatsächlichen Volatilität der Offertposten."
       }
     ],
-    "publishedAt": "2026-03-02"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/variante-soumission-proposer-alternative",
@@ -2905,7 +2905,7 @@ export const BLOG_SEO_DE = [
         "a": "In Wirklichkeit sehr wenig Zeit. Die meisten Kunden melden sich nicht erneut und gehen nach wenigen Tagen Stille direkt zum nächsten Unternehmen auf ihrer Liste über."
       }
     ],
-    "publishedAt": "2026-09-05"
+    "publishedAt": "2026-09-03"
   },
   {
     "path": "de/blog/whatsapp-gestion-equipe-chantier-limites",
@@ -2925,7 +2925,7 @@ export const BLOG_SEO_DE = [
         "a": "Nicht zwingend. WhatsApp bleibt effizient für punktuelle Dringlichkeiten, aber der wirksamste Übergang verlagert vor allem das, was wiederauffindbar bleiben muss (Planung, Fotos, Historie), in ein nach Baustelle strukturiertes Tool."
       }
     ],
-    "publishedAt": "2026-04-13"
+    "publishedAt": "2026-09-03"
   }
 ];
 
@@ -3851,269 +3851,269 @@ export const TRADE_SEO_DE = [
 ];
 
 export const BLOG_DATES_FR = {
-  "accident-travail-chantier-obligations-employeur-suva": "2026-08-06",
+  "accident-travail-chantier-obligations-employeur-suva": "2026-08-27",
   "acompte-demenagement-suisse-montant-facture": "2026-10-09",
-  "action-garantie-sous-traitant-entrepreneur-general": "2026-10-10",
-  "affacturage-factoring-entreprise-batiment-suisse": "2026-10-07",
+  "action-garantie-sous-traitant-entrepreneur-general": "2026-09-22",
+  "affacturage-factoring-entreprise-batiment-suisse": "2026-09-22",
   "annulation-reservation-photographe-acompte-arrhes": "2026-10-09",
-  "appel-offres-marches-publics-batiment-suisse": "2026-05-21",
-  "application-devis-mobile-artisan": "2026-10-01",
-  "application-gestion-freelance-batiment": "2026-07-11",
-  "application-hors-ligne-chantier-pourquoi-important": "2026-07-10",
-  "apprenti-batiment-salaire-obligations-employeur": "2026-08-03",
-  "arbitrage-sia-mediation-professionnelle-batiment": "2026-10-10",
-  "assurance-bris-machine-outillage-chantier": "2026-10-05",
-  "assurance-chantier-tous-risques-ectr-obligatoire": "2026-08-01",
-  "assurance-cyber-pme-batiment-donnees-clients": "2026-10-06",
-  "assurance-perte-de-gain-maladie-independant-batiment": "2026-05-04",
-  "assurance-perte-exploitation-chantier-arrete": "2026-10-06",
-  "assurance-protection-juridique-entreprise-batiment": "2026-10-05",
-  "assurance-rc-professionnelle-batiment-obligatoire": "2026-03-12",
-  "assurance-transport-materiel-chantier": "2026-10-05",
-  "automatiser-rappels-relances-entreprise": "2026-08-21",
-  "automatiser-suivi-administratif-entreprise-artisanale": "2026-08-27",
-  "automatiser-taches-repetitives-entreprise-sans-developpeur": "2026-08-16",
-  "avenant-chantier-plus-value-moins-value": "2026-04-27",
-  "avis-google-entreprise-construction-suisse": "2026-09-01",
-  "avs-ai-independant-batiment": "2026-01-26",
-  "bexio-vs-cantia-logiciel-batiment": "2026-02-02",
-  "bilan-carbone-chantier-construction-suisse": "2026-10-08",
-  "budget-logiciel-gestion-demarrage-entreprise": "2026-07-22",
+  "appel-offres-marches-publics-batiment-suisse": "2026-08-19",
+  "application-devis-mobile-artisan": "2026-09-22",
+  "application-gestion-freelance-batiment": "2026-08-30",
+  "application-hors-ligne-chantier-pourquoi-important": "2026-08-27",
+  "apprenti-batiment-salaire-obligations-employeur": "2026-08-27",
+  "arbitrage-sia-mediation-professionnelle-batiment": "2026-09-22",
+  "assurance-bris-machine-outillage-chantier": "2026-09-22",
+  "assurance-chantier-tous-risques-ectr-obligatoire": "2026-08-27",
+  "assurance-cyber-pme-batiment-donnees-clients": "2026-09-22",
+  "assurance-perte-de-gain-maladie-independant-batiment": "2026-08-19",
+  "assurance-perte-exploitation-chantier-arrete": "2026-09-22",
+  "assurance-protection-juridique-entreprise-batiment": "2026-09-22",
+  "assurance-rc-professionnelle-batiment-obligatoire": "2026-08-19",
+  "assurance-transport-materiel-chantier": "2026-09-22",
+  "automatiser-rappels-relances-entreprise": "2026-08-30",
+  "automatiser-suivi-administratif-entreprise-artisanale": "2026-08-30",
+  "automatiser-taches-repetitives-entreprise-sans-developpeur": "2026-08-30",
+  "avenant-chantier-plus-value-moins-value": "2026-08-19",
+  "avis-google-entreprise-construction-suisse": "2026-08-28",
+  "avs-ai-independant-batiment": "2026-08-19",
+  "bexio-vs-cantia-logiciel-batiment": "2026-08-19",
+  "bilan-carbone-chantier-construction-suisse": "2026-09-22",
+  "budget-logiciel-gestion-demarrage-entreprise": "2026-08-30",
   "calcul-lpp-employe-taux-salaire-coordonne-2026": "2026-10-02",
-  "calculer-13e-salaire-prorata-employe": "2026-04-02",
+  "calculer-13e-salaire-prorata-employe": "2026-08-19",
   "calculer-acomptes-impots-independant-batiment": "2026-09-22",
-  "calculer-heures-travail-ouvrier-minutes-decimales": "2026-02-09",
-  "calculer-prix-de-revient-chantier-batiment": "2026-07-03",
-  "calculer-prix-devis-renovation-suisse": "2026-01-12",
-  "calculer-prix-horaire-reel-ouvrier-batiment": "2026-07-28",
+  "calculer-heures-travail-ouvrier-minutes-decimales": "2026-08-19",
+  "calculer-prix-de-revient-chantier-batiment": "2026-08-27",
+  "calculer-prix-devis-renovation-suisse": "2026-08-19",
+  "calculer-prix-horaire-reel-ouvrier-batiment": "2026-08-27",
   "calculer-prix-unitaire-soumission": "2026-10-24",
-  "cantia-adapte-metier-specifique-batiment": "2026-08-15",
-  "cantia-vs-cresus-facturation": "2026-09-30",
-  "cantia-vs-klara": "2026-09-30",
-  "cantia-vs-winbiz": "2026-09-30",
-  "cautionnement-bancaire-entreprise-generale-suisse": "2026-10-07",
-  "certificat-de-travail-obligation-employeur-batiment": "2026-06-26",
-  "certificat-energetique-cantonal-geak-batiment": "2026-10-08",
-  "chantier-complet-peut-etre-en-perte-taux-horaire": "2026-04-06",
-  "chantier-copropriete-ppe-facturation-suisse": "2026-10-11",
-  "chantier-propre-reduire-nuisances-voisinage": "2026-10-08",
-  "checklist-cloture-chantier-avant-facturation": "2026-06-10",
-  "checklist-fin-annee-entreprise-batiment": "2026-10-04",
-  "checklist-logiciels-ouverture-societe-construction": "2026-08-01",
-  "checklist-ouverture-chantier-artisan": "2026-06-08",
-  "chomage-intemperies-rht-batiment-suisse": "2026-09-24",
-  "chomage-partiel-entreprise-batiment-suisse": "2026-09-28",
-  "clauses-oubliees-contrat-travail-batiment": "2026-09-27",
-  "client-refuse-payer-solde-final-que-faire": "2026-04-23",
-  "combien-coute-logiciel-facturation-pas-cher": "2026-07-05",
-  "combien-coute-logiciel-gestion-chantier-roi": "2026-07-16",
-  "comment-facturer-premiers-clients-debut-activite": "2026-07-26",
-  "comparer-devis-fournisseurs-materiaux-methode": "2026-10-09",
+  "cantia-adapte-metier-specifique-batiment": "2026-08-30",
+  "cantia-vs-cresus-facturation": "2026-09-22",
+  "cantia-vs-klara": "2026-09-22",
+  "cantia-vs-winbiz": "2026-09-22",
+  "cautionnement-bancaire-entreprise-generale-suisse": "2026-09-22",
+  "certificat-de-travail-obligation-employeur-batiment": "2026-08-27",
+  "certificat-energetique-cantonal-geak-batiment": "2026-09-22",
+  "chantier-complet-peut-etre-en-perte-taux-horaire": "2026-08-19",
+  "chantier-copropriete-ppe-facturation-suisse": "2026-09-22",
+  "chantier-propre-reduire-nuisances-voisinage": "2026-09-22",
+  "checklist-cloture-chantier-avant-facturation": "2026-08-27",
+  "checklist-fin-annee-entreprise-batiment": "2026-09-22",
+  "checklist-logiciels-ouverture-societe-construction": "2026-08-30",
+  "checklist-ouverture-chantier-artisan": "2026-08-27",
+  "chomage-intemperies-rht-batiment-suisse": "2026-09-22",
+  "chomage-partiel-entreprise-batiment-suisse": "2026-09-22",
+  "clauses-oubliees-contrat-travail-batiment": "2026-09-22",
+  "client-refuse-payer-solde-final-que-faire": "2026-08-19",
+  "combien-coute-logiciel-facturation-pas-cher": "2026-08-30",
+  "combien-coute-logiciel-gestion-chantier-roi": "2026-08-27",
+  "comment-facturer-premiers-clients-debut-activite": "2026-08-30",
+  "comparer-devis-fournisseurs-materiaux-methode": "2026-09-22",
   "comprendre-soumission-can-positions": "2026-10-24",
-  "construction-modulaire-prefabriquee-suisse": "2026-10-11",
-  "contrat-ecrit-petits-travaux-quand-necessaire": "2026-05-18",
-  "contrat-entreprise-vs-mandat-artisan": "2026-03-19",
-  "cooperative-cautionnement-pme-financement-batiment": "2026-10-07",
+  "construction-modulaire-prefabriquee-suisse": "2026-09-22",
+  "contrat-ecrit-petits-travaux-quand-necessaire": "2026-08-19",
+  "contrat-entreprise-vs-mandat-artisan": "2026-08-19",
+  "cooperative-cautionnement-pme-financement-batiment": "2026-09-22",
   "corrections-incluses-offre-graphiste-droits": "2026-10-09",
-  "cout-creation-entreprise-construction-suisse": "2026-09-10",
-  "credit-construction-hypothecaire-entreprise-batiment": "2026-10-06",
-  "creer-champ-processus-sur-mesure-logiciel-gestion": "2026-08-18",
-  "creer-entreprise-batiment-suisse-guide-complet": "2026-09-18",
-  "crm-artisan-batiment-pourquoi-utile": "2026-06-05",
-  "declaration-tva-trimestrielle-artisan-suisse": "2026-09-21",
-  "defaut-construction-decouvert-apres-reception-qui-paie": "2026-03-09",
-  "degats-voisinage-chantier-qui-est-responsable": "2026-06-19",
-  "delai-declaration-tva-suisse-calendrier": "2026-09-21",
-  "delai-paiement-facture-artisan-code-obligations": "2026-01-22",
-  "delai-permis-de-construire-canton-suisse": "2026-09-23",
-  "deleguer-sans-tout-controler-patron-artisan": "2026-10-08",
-  "demander-fonctionnalite-sur-mesure-editeur-logiciel": "2026-08-25",
-  "demarrer-entreprise-batiment-outils-indispensables": "2026-07-31",
-  "demission-employe-batiment-preavis-a-respecter": "2026-06-29",
-  "devis-carreleur-facturation-au-m2-suisse": "2026-09-03",
-  "devis-charpente-bois-facturation-suisse": "2026-09-04",
-  "devis-facture-chauffagiste-cvc-suisse": "2026-09-14",
-  "devis-facture-construction-bois-ossature-suisse": "2026-10-12",
-  "devis-facture-demolition-suisse": "2026-10-11",
-  "devis-facture-echafaudeur-suisse": "2026-10-11",
-  "devis-facture-entreprise-renovation-suisse": "2026-10-12",
-  "devis-facture-etancheur-suisse": "2026-10-12",
-  "devis-facture-facadier-isolation-suisse": "2026-09-09",
-  "devis-facture-ferblantier-suisse": "2026-10-02",
-  "devis-facture-frigoriste-climatisation-suisse": "2026-10-03",
-  "devis-facture-genie-civil-suisse": "2026-10-12",
-  "devis-facture-installateur-solaire-suisse": "2026-10-02",
-  "devis-facture-parqueteur-suisse": "2026-10-11",
-  "devis-facture-paysagiste-jardinier-suisse": "2026-09-10",
-  "devis-facture-platrier-suisse": "2026-10-03",
-  "devis-facture-plombier-sanitaire-suisse": "2026-09-01",
-  "devis-facture-poelier-fumiste-suisse": "2026-10-02",
-  "devis-facture-ramoneur-suisse": "2026-10-03",
-  "devis-facture-serrurier-metallier-suisse": "2026-09-15",
-  "devis-facture-terrassier-suisse": "2026-10-02",
-  "devis-facture-vitrier-suisse": "2026-10-11",
-  "devis-gratuit-en-ligne-suisse-outil": "2026-07-07",
-  "devis-gratuit-ou-payant-que-dit-la-loi": "2026-08-12",
-  "devis-menuisier-sur-mesure-facturation-suisse": "2026-09-08",
-  "devis-oral-valeur-legale-suisse": "2026-04-16",
-  "devis-peintre-batiment-calcul-surface-suisse": "2026-09-02",
-  "devis-pompe-a-chaleur-chiffrage": "2026-10-04",
+  "cout-creation-entreprise-construction-suisse": "2026-09-22",
+  "credit-construction-hypothecaire-entreprise-batiment": "2026-09-22",
+  "creer-champ-processus-sur-mesure-logiciel-gestion": "2026-08-30",
+  "creer-entreprise-batiment-suisse-guide-complet": "2026-09-22",
+  "crm-artisan-batiment-pourquoi-utile": "2026-08-27",
+  "declaration-tva-trimestrielle-artisan-suisse": "2026-09-22",
+  "defaut-construction-decouvert-apres-reception-qui-paie": "2026-08-19",
+  "degats-voisinage-chantier-qui-est-responsable": "2026-08-27",
+  "delai-declaration-tva-suisse-calendrier": "2026-09-22",
+  "delai-paiement-facture-artisan-code-obligations": "2026-08-19",
+  "delai-permis-de-construire-canton-suisse": "2026-09-22",
+  "deleguer-sans-tout-controler-patron-artisan": "2026-09-22",
+  "demander-fonctionnalite-sur-mesure-editeur-logiciel": "2026-08-30",
+  "demarrer-entreprise-batiment-outils-indispensables": "2026-08-30",
+  "demission-employe-batiment-preavis-a-respecter": "2026-08-27",
+  "devis-carreleur-facturation-au-m2-suisse": "2026-08-28",
+  "devis-charpente-bois-facturation-suisse": "2026-08-28",
+  "devis-facture-chauffagiste-cvc-suisse": "2026-08-28",
+  "devis-facture-construction-bois-ossature-suisse": "2026-09-22",
+  "devis-facture-demolition-suisse": "2026-09-22",
+  "devis-facture-echafaudeur-suisse": "2026-09-22",
+  "devis-facture-entreprise-renovation-suisse": "2026-09-22",
+  "devis-facture-etancheur-suisse": "2026-09-22",
+  "devis-facture-facadier-isolation-suisse": "2026-08-28",
+  "devis-facture-ferblantier-suisse": "2026-09-22",
+  "devis-facture-frigoriste-climatisation-suisse": "2026-09-22",
+  "devis-facture-genie-civil-suisse": "2026-09-22",
+  "devis-facture-installateur-solaire-suisse": "2026-09-22",
+  "devis-facture-parqueteur-suisse": "2026-09-22",
+  "devis-facture-paysagiste-jardinier-suisse": "2026-08-28",
+  "devis-facture-platrier-suisse": "2026-09-22",
+  "devis-facture-plombier-sanitaire-suisse": "2026-08-28",
+  "devis-facture-poelier-fumiste-suisse": "2026-09-22",
+  "devis-facture-ramoneur-suisse": "2026-09-22",
+  "devis-facture-serrurier-metallier-suisse": "2026-08-28",
+  "devis-facture-terrassier-suisse": "2026-09-22",
+  "devis-facture-vitrier-suisse": "2026-09-22",
+  "devis-gratuit-en-ligne-suisse-outil": "2026-08-30",
+  "devis-gratuit-ou-payant-que-dit-la-loi": "2026-08-27",
+  "devis-menuisier-sur-mesure-facturation-suisse": "2026-08-28",
+  "devis-oral-valeur-legale-suisse": "2026-08-19",
+  "devis-peintre-batiment-calcul-surface-suisse": "2026-08-28",
+  "devis-pompe-a-chaleur-chiffrage": "2026-09-22",
   "devis-reparation-garage-supplement-accord-client": "2026-10-09",
-  "diagnostic-amiante-renovation-obligatoire-suisse": "2026-09-23",
-  "difference-devis-offre-facture-pro-forma": "2026-05-11",
-  "difference-sia-108-sia-118-devis-contrat": "2026-06-17",
-  "directive-suva-echafaudage-chantier-obligation": "2026-09-23",
-  "dix-erreurs-premiere-annee-entreprise-batiment": "2026-09-15",
-  "duree-conservation-devis-factures-suisse": "2026-02-16",
-  "duree-validite-devis-non-signe-combien-temps": "2026-06-09",
-  "entretien-annuel-employe-batiment-comment-faire": "2026-10-08",
-  "erreurs-choisir-premier-logiciel-gestion": "2026-08-09",
+  "diagnostic-amiante-renovation-obligatoire-suisse": "2026-09-22",
+  "difference-devis-offre-facture-pro-forma": "2026-08-19",
+  "difference-sia-108-sia-118-devis-contrat": "2026-08-27",
+  "directive-suva-echafaudage-chantier-obligation": "2026-09-22",
+  "dix-erreurs-premiere-annee-entreprise-batiment": "2026-09-22",
+  "duree-conservation-devis-factures-suisse": "2026-08-19",
+  "duree-validite-devis-non-signe-combien-temps": "2026-08-27",
+  "entretien-annuel-employe-batiment-comment-faire": "2026-09-22",
+  "erreurs-choisir-premier-logiciel-gestion": "2026-08-30",
   "erreurs-soumission-qui-coutent-le-marche": "2026-10-24",
-  "essai-gratuit-logiciel-facturation-suisse": "2026-08-06",
-  "estimer-chantier-a-distance-devis-photo": "2026-05-25",
+  "essai-gratuit-logiciel-facturation-suisse": "2026-08-30",
+  "estimer-chantier-a-distance-devis-photo": "2026-08-19",
   "etablir-certificat-salaire-lohnausweis-premier-employe": "2026-09-22",
-  "excel-vs-logiciel-gestion-chantier-limites": "2026-07-19",
-  "expertise-judiciaire-malfacon-construction-suisse": "2026-10-10",
-  "facturation-heures-regie-batiment-comment-faire": "2026-07-07",
-  "facturer-acompte-suisse-securiser-solde": "2026-02-23",
-  "facturer-depannage-urgent-sans-devis": "2026-09-26",
-  "facturer-frais-deplacement-client-artisan": "2026-09-26",
+  "excel-vs-logiciel-gestion-chantier-limites": "2026-08-27",
+  "expertise-judiciaire-malfacon-construction-suisse": "2026-09-22",
+  "facturation-heures-regie-batiment-comment-faire": "2026-08-27",
+  "facturer-acompte-suisse-securiser-solde": "2026-08-19",
+  "facturer-depannage-urgent-sans-devis": "2026-09-22",
+  "facturer-frais-deplacement-client-artisan": "2026-09-22",
   "facturer-petites-interventions-gerance-conciergerie": "2026-10-09",
   "facturer-support-informatique-temps-passe": "2026-10-09",
-  "faillite-client-creance-impayee-que-faire": "2026-10-10",
-  "faire-evoluer-outil-gestion-avec-entreprise": "2026-08-22",
-  "fideliser-ouvriers-qualifies-penurie-batiment-suisse": "2026-09-18",
-  "fixer-prix-artisan-sans-brader-concurrence-suisse": "2026-09-11",
+  "faillite-client-creance-impayee-que-faire": "2026-09-22",
+  "faire-evoluer-outil-gestion-avec-entreprise": "2026-08-30",
+  "fideliser-ouvriers-qualifies-penurie-batiment-suisse": "2026-08-28",
+  "fixer-prix-artisan-sans-brader-concurrence-suisse": "2026-08-28",
   "forfait-ou-temps-passe-consultant-suisse": "2026-10-09",
   "formateur-independant-suisse-tva-facture": "2026-10-09",
-  "formation-continue-obligatoire-batiment-suisse": "2026-10-08",
-  "garantie-travaux-construction-2-ou-5-ans": "2026-03-05",
-  "gerer-conflit-entre-deux-ouvriers-chantier": "2026-10-08",
-  "gerer-entreprise-sans-comptable-debut": "2026-07-14",
-  "gerer-entreprise-seul-sans-embaucher-outils": "2026-08-07",
-  "gerer-plusieurs-chantiers-en-parallele-methode": "2026-04-09",
-  "gestion-chantier-devis-couvreur-toiture-suisse": "2026-09-07",
-  "gestion-chantier-facturation-electricien-suisse": "2026-08-30",
-  "gestion-dechets-chantier-tri-obligatoire-suisse": "2026-10-07",
-  "gestion-entreprise-generale-sous-traitants-suisse": "2026-10-12",
-  "gestion-entreprise-sur-mobile-artisan": "2026-07-20",
-  "google-sheets-partage-equipe-limites-batiment": "2026-10-01",
-  "groupement-achat-artisans-batiment-suisse": "2026-10-09",
-  "heures-supplementaires-batiment-majoration-25": "2026-03-26",
-  "horaires-bruit-chantier-autorises-suisse": "2026-09-24",
-  "hypotheque-legale-artisans-entrepreneurs-suisse": "2026-08-24",
-  "immatriculer-entreprise-construction-registre-commerce": "2026-09-12",
-  "indemnites-kilometriques-2026-nouveau-taux": "2026-03-30",
+  "formation-continue-obligatoire-batiment-suisse": "2026-09-22",
+  "garantie-travaux-construction-2-ou-5-ans": "2026-08-19",
+  "gerer-conflit-entre-deux-ouvriers-chantier": "2026-09-22",
+  "gerer-entreprise-sans-comptable-debut": "2026-08-30",
+  "gerer-entreprise-seul-sans-embaucher-outils": "2026-08-30",
+  "gerer-plusieurs-chantiers-en-parallele-methode": "2026-08-19",
+  "gestion-chantier-devis-couvreur-toiture-suisse": "2026-08-28",
+  "gestion-chantier-facturation-electricien-suisse": "2026-08-28",
+  "gestion-dechets-chantier-tri-obligatoire-suisse": "2026-09-22",
+  "gestion-entreprise-generale-sous-traitants-suisse": "2026-09-22",
+  "gestion-entreprise-sur-mobile-artisan": "2026-08-30",
+  "google-sheets-partage-equipe-limites-batiment": "2026-09-22",
+  "groupement-achat-artisans-batiment-suisse": "2026-09-22",
+  "heures-supplementaires-batiment-majoration-25": "2026-08-19",
+  "horaires-bruit-chantier-autorises-suisse": "2026-09-22",
+  "hypotheque-legale-artisans-entrepreneurs-suisse": "2026-08-27",
+  "immatriculer-entreprise-construction-registre-commerce": "2026-09-22",
+  "indemnites-kilometriques-2026-nouveau-taux": "2026-08-19",
   "independant-reconnu-avs-batiment": "2026-09-22",
-  "instagram-ou-facebook-artisan-batiment": "2026-09-29",
+  "instagram-ou-facebook-artisan-batiment": "2026-09-22",
   "integration-bexio-cantia-synchronisation-automatique": "2026-08-25",
-  "lancer-entreprise-batiment-suisse-par-ou-commencer": "2026-08-13",
-  "leasing-machines-vehicules-chantier-suisse": "2026-10-07",
-  "licenciement-ouvrier-batiment-delai-conge-cct": "2026-08-09",
-  "ligne-de-credit-tresorerie-pme-batiment": "2026-10-07",
-  "lire-fiche-de-salaire-batiment": "2026-09-27",
-  "litige-chantier-mediation-ou-tribunal": "2026-06-24",
-  "logiciel-construit-avec-vous-sur-mesure": "2026-08-28",
+  "lancer-entreprise-batiment-suisse-par-ou-commencer": "2026-08-30",
+  "leasing-machines-vehicules-chantier-suisse": "2026-09-22",
+  "licenciement-ouvrier-batiment-delai-conge-cct": "2026-08-27",
+  "ligne-de-credit-tresorerie-pme-batiment": "2026-09-22",
+  "lire-fiche-de-salaire-batiment": "2026-09-22",
+  "litige-chantier-mediation-ou-tribunal": "2026-08-27",
+  "logiciel-construit-avec-vous-sur-mesure": "2026-08-30",
   "logiciel-devis-facture-maconnerie-suisse": "2026-08-28",
-  "logiciel-facturation-conforme-tva-suisse-pas-cher": "2026-08-03",
-  "logiciel-facturation-gratuit-independant-suisse": "2026-07-01",
-  "logiciel-facturation-qr-facture-comparatif-suisse": "2026-06-03",
-  "logiciel-facturation-raison-individuelle-suisse": "2026-07-10",
-  "logiciel-gestion-chantier-abordable-petite-entreprise": "2026-07-25",
-  "logiciel-gestion-chantier-independant-seul": "2026-05-14",
-  "logiciel-gestion-evolutif-grandit-avec-entreprise": "2026-08-10",
-  "logiciel-gestion-societe-individuelle-suisse": "2026-07-29",
-  "logiciel-gestion-tout-en-un-petite-entreprise-suisse": "2026-07-04",
+  "logiciel-facturation-conforme-tva-suisse-pas-cher": "2026-08-30",
+  "logiciel-facturation-gratuit-independant-suisse": "2026-08-30",
+  "logiciel-facturation-qr-facture-comparatif-suisse": "2026-08-27",
+  "logiciel-facturation-raison-individuelle-suisse": "2026-08-30",
+  "logiciel-gestion-chantier-abordable-petite-entreprise": "2026-08-30",
+  "logiciel-gestion-chantier-independant-seul": "2026-08-19",
+  "logiciel-gestion-evolutif-grandit-avec-entreprise": "2026-08-30",
+  "logiciel-gestion-societe-individuelle-suisse": "2026-08-30",
+  "logiciel-gestion-tout-en-un-petite-entreprise-suisse": "2026-08-30",
   "logiciel-remplir-soumission-excel-papier": "2026-10-24",
-  "logiciel-signature-electronique-chantier": "2026-10-01",
-  "logiciel-simple-debuter-independant-batiment": "2026-07-19",
-  "logiciel-standard-vs-solution-personnalisee-batiment": "2026-08-19",
-  "logiciel-tout-en-un-devis-facture-chantier-rh": "2026-07-16",
-  "lpp-deuxieme-pilier-independant-batiment": "2026-01-29",
-  "marge-beneficiaire-entreprise-batiment-suisse": "2026-09-26",
-  "meilleur-logiciel-devis-facture-batiment-suisse-2026": "2026-06-01",
-  "meilleur-logiciel-pas-cher-petit-artisan": "2026-07-13",
-  "meilleur-outil-gestion-independant-suisse": "2026-07-02",
-  "meilleur-rapport-qualite-prix-logiciel-pme-batiment": "2026-08-04",
-  "meilleures-alternatives-gratuites-bexio": "2026-07-23",
-  "mentions-obligatoires-facture-suisse-tva": "2026-08-15",
-  "modele-devis-gratuit-artisan-batiment-suisse": "2026-09-20",
-  "motiver-equipe-chantier-batiment-quotidien": "2026-10-08",
-  "negocier-prix-client-compare-plusieurs-devis": "2026-09-29",
-  "negocier-prix-fournisseur-materiaux-batiment": "2026-10-09",
-  "norme-aeai-incendie-batiment-obligation": "2026-09-23",
-  "norme-minergie-batiment-explication": "2026-10-07",
-  "norme-sia-118-devis-obligatoire": "2026-01-15",
-  "note-de-credit-facture-rectificative-suisse": "2026-06-11",
-  "numerotation-facture-obligations-legales-suisse": "2026-06-15",
-  "onboarding-nouvel-apprenti-premieres-semaines": "2026-10-08",
-  "outil-devis-factures-sans-double-saisie": "2026-07-28",
-  "outil-facturation-en-ligne-pme-suisse": "2026-07-17",
-  "parrainage-recommandation-clients-artisan-batiment": "2026-09-07",
-  "periode-essai-batiment-duree-legale": "2026-09-26",
-  "permis-construire-renovation-quand-necessaire": "2026-03-16",
-  "photos-chantier-preuve-juridique-litige": "2026-05-07",
-  "planning-chantier-eviter-conflits-ressources": "2026-07-13",
-  "portfolio-photos-avant-apres-chantier-vente": "2026-09-16",
-  "pourquoi-artisan-independant-besoin-logiciel-des-le-debut": "2026-08-12",
-  "pourquoi-entreprises-batiment-font-faillite-suisse": "2026-07-25",
-  "pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment": "2026-08-24",
-  "poursuite-facture-impayee-procedure-suisse": "2026-08-18",
-  "prescription-facture-impayee-delai-10-ans": "2026-06-12",
-  "previsionnel-tresorerie-entreprise-batiment": "2026-07-05",
-  "prime-fin-annee-ou-13e-salaire-difference": "2026-10-08",
+  "logiciel-signature-electronique-chantier": "2026-09-22",
+  "logiciel-simple-debuter-independant-batiment": "2026-08-30",
+  "logiciel-standard-vs-solution-personnalisee-batiment": "2026-08-30",
+  "logiciel-tout-en-un-devis-facture-chantier-rh": "2026-08-30",
+  "lpp-deuxieme-pilier-independant-batiment": "2026-08-19",
+  "marge-beneficiaire-entreprise-batiment-suisse": "2026-09-22",
+  "meilleur-logiciel-devis-facture-batiment-suisse-2026": "2026-08-27",
+  "meilleur-logiciel-pas-cher-petit-artisan": "2026-08-30",
+  "meilleur-outil-gestion-independant-suisse": "2026-08-30",
+  "meilleur-rapport-qualite-prix-logiciel-pme-batiment": "2026-08-30",
+  "meilleures-alternatives-gratuites-bexio": "2026-08-30",
+  "mentions-obligatoires-facture-suisse-tva": "2026-08-27",
+  "modele-devis-gratuit-artisan-batiment-suisse": "2026-09-22",
+  "motiver-equipe-chantier-batiment-quotidien": "2026-09-22",
+  "negocier-prix-client-compare-plusieurs-devis": "2026-09-22",
+  "negocier-prix-fournisseur-materiaux-batiment": "2026-09-22",
+  "norme-aeai-incendie-batiment-obligation": "2026-09-22",
+  "norme-minergie-batiment-explication": "2026-09-22",
+  "norme-sia-118-devis-obligatoire": "2026-08-19",
+  "note-de-credit-facture-rectificative-suisse": "2026-08-27",
+  "numerotation-facture-obligations-legales-suisse": "2026-08-27",
+  "onboarding-nouvel-apprenti-premieres-semaines": "2026-09-22",
+  "outil-devis-factures-sans-double-saisie": "2026-08-30",
+  "outil-facturation-en-ligne-pme-suisse": "2026-08-30",
+  "parrainage-recommandation-clients-artisan-batiment": "2026-08-28",
+  "periode-essai-batiment-duree-legale": "2026-09-22",
+  "permis-construire-renovation-quand-necessaire": "2026-08-19",
+  "photos-chantier-preuve-juridique-litige": "2026-08-19",
+  "planning-chantier-eviter-conflits-ressources": "2026-08-27",
+  "portfolio-photos-avant-apres-chantier-vente": "2026-08-28",
+  "pourquoi-artisan-independant-besoin-logiciel-des-le-debut": "2026-08-30",
+  "pourquoi-entreprises-batiment-font-faillite-suisse": "2026-08-27",
+  "pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment": "2026-08-30",
+  "poursuite-facture-impayee-procedure-suisse": "2026-08-27",
+  "prescription-facture-impayee-delai-10-ans": "2026-08-27",
+  "previsionnel-tresorerie-entreprise-batiment": "2026-08-27",
+  "prime-fin-annee-ou-13e-salaire-difference": "2026-09-22",
   "prix-contrat-nettoyage-bureaux-suisse-calcul": "2026-10-09",
-  "prix-isolation-facade-m2-suisse": "2026-09-25",
-  "prix-refection-toiture-suisse": "2026-09-25",
-  "prix-renovation-cuisine-suisse": "2026-09-25",
-  "prix-renovation-salle-de-bain-suisse-m2": "2026-09-25",
-  "programme-batiments-subvention-renovation-suisse": "2026-10-03",
-  "provoquer-bouche-a-oreille-artisan": "2026-09-29",
-  "qr-facture-obligatoire-2026": "2026-01-19",
-  "quel-logiciel-choisir-demarrer-entreprise-construction": "2026-07-08",
+  "prix-isolation-facade-m2-suisse": "2026-09-22",
+  "prix-refection-toiture-suisse": "2026-09-22",
+  "prix-renovation-cuisine-suisse": "2026-09-22",
+  "prix-renovation-salle-de-bain-suisse-m2": "2026-09-22",
+  "programme-batiments-subvention-renovation-suisse": "2026-09-22",
+  "provoquer-bouche-a-oreille-artisan": "2026-09-22",
+  "qr-facture-obligatoire-2026": "2026-08-19",
+  "quel-logiciel-choisir-demarrer-entreprise-construction": "2026-08-30",
   "rabais-escompte-tva-ordre-soumission": "2026-10-24",
-  "racheter-entreprise-batiment-existante-suisse": "2026-10-10",
-  "raison-individuelle-sarl-sa-quel-statut-batiment": "2026-09-08",
-  "reception-travaux-proces-verbal-chantier": "2026-08-21",
-  "rediger-devis-qui-inspire-confiance-client": "2026-02-19",
-  "reemploi-materiaux-economie-circulaire-batiment": "2026-10-08",
-  "relancer-client-devis-sans-reponse": "2026-09-29",
-  "relancer-client-facture-impayee-sans-perdre-client": "2026-02-26",
+  "racheter-entreprise-batiment-existante-suisse": "2026-09-22",
+  "raison-individuelle-sarl-sa-quel-statut-batiment": "2026-09-22",
+  "reception-travaux-proces-verbal-chantier": "2026-08-27",
+  "rediger-devis-qui-inspire-confiance-client": "2026-08-19",
+  "reemploi-materiaux-economie-circulaire-batiment": "2026-09-22",
+  "relancer-client-devis-sans-reponse": "2026-09-22",
+  "relancer-client-facture-impayee-sans-perdre-client": "2026-08-19",
   "remplir-soumission-pdf-architecte": "2026-10-24",
-  "renovation-apres-sinistre-degat-eau-assurance": "2026-10-11",
-  "renovation-batiment-historique-protege-suisse": "2026-10-11",
-  "repondre-appel-offres-public-batiment-etapes": "2026-09-28",
-  "repondre-avis-negatif-google-artisan": "2026-09-28",
+  "renovation-apres-sinistre-degat-eau-assurance": "2026-09-22",
+  "renovation-batiment-historique-protege-suisse": "2026-09-22",
+  "repondre-appel-offres-public-batiment-etapes": "2026-09-22",
+  "repondre-avis-negatif-google-artisan": "2026-09-22",
   "resiliation-contrat-entreprise-chantier-en-cours": "2026-08-27",
-  "responsabilite-apres-livraison-travaux-assurance": "2026-10-06",
-  "retard-chantier-meteo-obligations-contractuelles": "2026-07-22",
-  "retenue-de-garantie-chantier-consignation": "2026-06-22",
-  "rupture-stock-fournisseur-chantier-que-faire": "2026-10-09",
-  "saisie-conservatoire-creance-impayee-batiment": "2026-10-10",
-  "salaire-minimum-cct-construction-suisse": "2026-03-23",
+  "responsabilite-apres-livraison-travaux-assurance": "2026-09-22",
+  "retard-chantier-meteo-obligations-contractuelles": "2026-08-27",
+  "retenue-de-garantie-chantier-consignation": "2026-08-27",
+  "rupture-stock-fournisseur-chantier-que-faire": "2026-09-22",
+  "saisie-conservatoire-creance-impayee-batiment": "2026-09-22",
+  "salaire-minimum-cct-construction-suisse": "2026-08-19",
   "salaire-personnel-extra-evenementiel-traiteur": "2026-10-09",
   "seuil-lpp-affiliation-employe-batiment": "2026-09-22",
-  "signature-electronique-devis-suisse-valeur-legale": "2026-04-20",
-  "site-internet-artisan-batiment-utile": "2026-09-04",
-  "site-internet-ou-carte-de-visite-artisan": "2026-09-28",
-  "sous-effectif-chantier-recruter-ou-sous-traiter": "2026-08-05",
-  "sous-traitant-batiment-suisse-contrat-facturation": "2026-02-12",
-  "succession-familiale-entreprise-artisanale-batiment": "2026-10-10",
-  "suivre-rentabilite-chantier-sans-excel": "2026-02-05",
+  "signature-electronique-devis-suisse-valeur-legale": "2026-08-19",
+  "site-internet-artisan-batiment-utile": "2026-08-28",
+  "site-internet-ou-carte-de-visite-artisan": "2026-09-22",
+  "sous-effectif-chantier-recruter-ou-sous-traiter": "2026-08-27",
+  "sous-traitant-batiment-suisse-contrat-facturation": "2026-08-19",
+  "succession-familiale-entreprise-artisanale-batiment": "2026-09-22",
+  "suivre-rentabilite-chantier-sans-excel": "2026-08-19",
   "temps-repondre-soumission-rentable": "2026-10-24",
-  "transmettre-entreprise-batiment-retraite": "2026-10-09",
-  "travail-au-noir-batiment-suisse-risques-controles": "2026-04-30",
-  "travailleur-detache-batiment-suisse-regles": "2026-09-27",
-  "travailleur-temporaire-interimaire-batiment-regles": "2026-07-01",
-  "trouver-clients-artisan-batiment-suisse": "2026-08-29",
-  "tva-methode-effective-ou-tdfn-batiment": "2026-09-21",
-  "vacances-construction-suisse-dates-canton": "2026-10-04",
-  "vacances-employe-batiment-cct-jours": "2026-09-27",
-  "vacances-non-prises-fin-annee-batiment-cct": "2026-07-31",
-  "validite-devis-signe-prix-qui-bouge": "2026-03-02",
+  "transmettre-entreprise-batiment-retraite": "2026-09-22",
+  "travail-au-noir-batiment-suisse-risques-controles": "2026-08-19",
+  "travailleur-detache-batiment-suisse-regles": "2026-09-22",
+  "travailleur-temporaire-interimaire-batiment-regles": "2026-08-27",
+  "trouver-clients-artisan-batiment-suisse": "2026-08-28",
+  "tva-methode-effective-ou-tdfn-batiment": "2026-09-22",
+  "vacances-construction-suisse-dates-canton": "2026-09-22",
+  "vacances-employe-batiment-cct-jours": "2026-09-22",
+  "vacances-non-prises-fin-annee-batiment-cct": "2026-08-27",
+  "validite-devis-signe-prix-qui-bouge": "2026-08-19",
   "variante-soumission-proposer-alternative": "2026-10-24",
-  "vitesse-reponse-devis-taux-conversion-batiment": "2026-09-05",
-  "whatsapp-gestion-equipe-chantier-limites": "2026-04-13"
+  "vitesse-reponse-devis-taux-conversion-batiment": "2026-08-28",
+  "whatsapp-gestion-equipe-chantier-limites": "2026-08-19"
 };
 
 export const HELP_SEO_FR = [

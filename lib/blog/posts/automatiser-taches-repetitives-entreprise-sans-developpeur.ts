@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Automatiser fait souvent penser à des scripts compliqués ou des logiciels coûteux. Pour une petite entreprise du bâtiment, ça peut pourtant simplement vouloir dire qu\'une relance de facture part toute seule, au bon moment.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser tâches entreprise sans développeur', 'automatisation PME bâtiment', 'automatiser sans coder', 'gagner du temps automatisation gestion', 'automatisation administrative artisan'],
-  publishedAt: '2026-08-16',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

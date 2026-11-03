@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un ouvrier qui annonce son départ « pour dans deux semaines » ne peut pas toujours partir aussi vite, car le délai de préavis fonctionne dans les deux sens, employeur comme employé.',
   category: 'RH & salaires',
   keywords: ['démission employé préavis', 'délai congé démission bâtiment', 'préavis employé construction', 'départ employé sans préavis', 'CCT construction démission'],
-  publishedAt: '2026-06-29',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

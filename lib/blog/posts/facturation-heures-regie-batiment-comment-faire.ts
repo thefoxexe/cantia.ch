@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sans devis à prix fixe pour s’appuyer dessus, une facture en régie repose entièrement sur la confiance du client dans le nombre d’heures annoncé. Cette confiance se construit avec du détail, pas avec un total rond.',
   category: 'Devis & facturation',
   keywords: ['facturation régie bâtiment', 'facture heures travaillées', 'travaux au temps passé', 'contestation facture régie', 'suivi heures chantier'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

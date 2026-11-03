@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele denken, ein günstiges Tool bedeute zwangsläufig ein Risiko der MWST-Nichtkonformität. In Wirklichkeit ist das eine Grundfunktion, die fast alle seriösen Tools einschliessen, selbst auf ihrem günstigsten Plan.',
   category: 'Comparatifs & outils',
   keywords: ['günstige mwst-konforme rechnungssoftware', 'mwst fakturierung schweiz kleines budget', 'erschwingliches mwst-konformes tool', 'rechnungssoftware kleinunternehmen schweiz', 'legale fakturierung günstig'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

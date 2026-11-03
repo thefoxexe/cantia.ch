@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Anzahlung von 30 % zu Beginn vermittelt ein falsches Sicherheitsgefühl, wenn der Rest nur in zwei Etappen aufgeteilt wird. Das Geld, das fehlt, ist fast immer jenes aus der Mitte.',
   category: 'Devis & facturation',
   keywords: ['anzahlung baustelle', 'zahlungsplan bauprojekt', 'rechnung baustelle', 'zahlung absichern', 'schlussrechnung'],
-  publishedAt: '2026-02-23',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

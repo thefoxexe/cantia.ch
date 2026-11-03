@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’isolamento perimetrale è uno dei rari cantieri dell’edilizia in cui il prezzo del preventivo influenza direttamente un fascicolo amministrativo parallelo, quello del sussidio cantonale, e questa dipendenza cambia il modo di fatturare.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo facciata isolamento', 'fatturazione isolamento perimetrale Svizzera', 'sussidio Programma Edifici preventivo', 'prezzo isolamento facciata m2', 'CECE preventivo ristrutturazione'],
-  publishedAt: '2026-09-09',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

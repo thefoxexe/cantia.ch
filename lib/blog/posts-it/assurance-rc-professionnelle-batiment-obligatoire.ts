@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Non esiste una legge federale unica che imponga la RC professionale a ogni artigiano. Ciò che la impone in pratica è spesso il cantone o il committente, e talvolta un sinistro che si scopre troppo tardi non essere coperto.',
   category: 'Juridique & normes',
   keywords: ['rc professionale', 'assicurazione edilizia', 'responsabilità civile', 'assicurazione obbligatoria', 'artigiano svizzero'],
-  publishedAt: '2026-03-12',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

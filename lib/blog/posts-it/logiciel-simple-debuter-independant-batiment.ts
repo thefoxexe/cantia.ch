@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti strumenti si dicono "semplici": il vero test è cronometrare quanto tempo serve per inviare un primo preventivo senza mai aver aperto l\'assistenza online.',
   category: 'Comparatifs & outils',
   keywords: ['software semplice iniziare indipendente', 'strumento facile edilizia principiante', 'software gestione senza formazione', 'applicazione semplice artigiano', 'apprendimento rapido software preventivo'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

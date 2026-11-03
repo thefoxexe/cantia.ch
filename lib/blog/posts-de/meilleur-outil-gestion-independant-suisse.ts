@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Selbstständiger, der startet, vergleicht Tools oft anhand ihrer Funktionsliste. Dabei zählt vor allem eine Frage: Welches Tool ist in sechs Monaten noch auf dem Handy geöffnet?',
   category: 'Comparatifs & outils',
   keywords: ['bestes Verwaltungstool Selbstständige', 'Software für Selbstständige Schweiz Start', 'Tool für Handwerker Bau', 'administrative Verwaltung Selbstständige', 'Vergleich Verwaltungssoftware Schweiz'],
-  publishedAt: '2026-07-02',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

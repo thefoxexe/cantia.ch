@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le client attend son chantier terminé, la météo n’a pas coopéré, et sans preuve écrite, le retard risque de retomber intégralement sur l’entrepreneur, même quand il n’y est pour rien.',
   category: 'Chantier & rentabilité',
   keywords: ['retard chantier météo', 'intempéries construction', 'délai contractuel bâtiment', 'responsabilité entrepreneur', 'preuve retard chantier'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

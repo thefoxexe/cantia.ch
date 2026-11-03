@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Contrairement à une pose standardisée, chaque projet de menuiserie sur mesure repart de zéro en conception. Un devis qui ne distingue pas le temps de bureau d’étude du temps d’atelier finit par le facturer au même tarif que la pose.',
   category: 'Métiers du bâtiment',
   keywords: ['devis menuisier sur mesure', 'facturation agencement bois', 'prix mobilier sur mesure Suisse', 'devis atelier menuiserie', 'conception agencement facturation'],
-  publishedAt: '2026-09-08',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

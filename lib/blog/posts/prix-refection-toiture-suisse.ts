@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un prix de toiture donné sans visite du chantier n’est qu’une estimation grossière : la charpente cachée sous la couverture peut à elle seule doubler la facture.',
   category: 'Devis & facturation',
   keywords: ['toiture', 'prix', 'réfection', 'm2', 'charpente', 'couverture'],
-  publishedAt: '2026-09-25',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

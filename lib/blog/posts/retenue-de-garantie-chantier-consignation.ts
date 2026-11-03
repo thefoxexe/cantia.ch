@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Retenir une partie du paiement pour se prémunir contre des défauts futurs n’est ni interdit ni un droit acquis. C’est une clause qui se négocie, avec des limites claires.',
   category: 'Juridique & normes',
   keywords: ['retenue de garantie chantier', 'consignation travaux construction', 'garantie bancaire chantier', 'retenue de paiement travaux', 'solde chantier retenu'],
-  publishedAt: '2026-06-22',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

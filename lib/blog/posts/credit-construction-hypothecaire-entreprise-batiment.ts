@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'financement chantier maitre ouvrage',
     'facturation par situations credit construction',
   ],
-  publishedAt: '2026-10-06',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Renvoyer une version corrigée du même numéro de facture crée un doublon comptable des deux côtés. La note de crédit existe précisément pour corriger proprement, sans jamais réécrire l’histoire.',
   category: 'Devis & facturation',
   keywords: ['note de crédit facture', 'facture rectificative suisse', 'corriger une facture', 'erreur facture déjà envoyée', 'annuler une facture'],
-  publishedAt: '2026-06-11',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

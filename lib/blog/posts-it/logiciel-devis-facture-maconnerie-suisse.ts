@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Tra le opere murarie fatturate al m³, le finiture al m² e le ore di movimentazione che non rientrano in nessuna categoria, un preventivo di muratura mal costruito erode il margine prima ancora del primo colpo di piccone.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo muratura', 'fatturazione muratore indipendente', 'software gestione impresa muratura', 'calcolare cantiere opere murarie', 'prezzo muratura Svizzera'],
-  publishedAt: '2026-08-28',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

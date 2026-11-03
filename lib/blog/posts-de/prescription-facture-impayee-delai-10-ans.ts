@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zehn Jahre wirken lang – zumindest bis eine in einem Dossier vergessene alte Rechnung sich genau in dem Moment, in dem das Unternehmen sie am dringendsten braucht, als völlig uneinbringlich erweist.',
   category: 'Devis & facturation',
   keywords: ['verjährung unbezahlte rechnung', 'verjährungsfrist forderung schweiz', 'alte unbezahlte rechnung', 'unterbrechung der verjährung', 'forderung bau frist'],
-  publishedAt: '2026-06-12',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

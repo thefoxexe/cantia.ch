@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le prix d’un parquet varie fortement selon la pose et l’essence choisie, mais le facteur le plus souvent oublié au devis reste le délai d’acclimatation du bois avant chantier.',
   category: 'Métiers du bâtiment',
   keywords: ['devis parqueteur suisse', 'facturation pose parquet', 'prix parquet m2 suisse'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'formation échafaudage obligatoire',
     'garde-corps échafaudage norme',
   ],
-  publishedAt: '2026-09-23',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

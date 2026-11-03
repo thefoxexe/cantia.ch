@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Chaque visite non transformée en chantier est du temps offert au client suivant. Savoir quand estimer à distance, et quand refuser de le faire, se calcule.',
   category: 'Chantier & rentabilité',
   keywords: ['devis à distance', 'estimation photo', 'visite chantier', 'prix rendez-vous', 'productivité artisan'],
-  publishedAt: '2026-05-25',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

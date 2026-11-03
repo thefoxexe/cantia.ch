@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un formulaire de devis standard couvre 90% des besoins. Les 10% restants, propres à la façon de travailler d\'une entreprise précise, méritent parfois un champ qui n\'existe dans aucun outil générique.',
   category: 'Sur-mesure & automatisations',
   keywords: ['ajouter champ sur mesure logiciel', 'processus personnalisé gestion entreprise', 'formulaire sur mesure devis facture', 'adapter logiciel besoins spécifiques', 'champ personnalisé outil gestion bâtiment'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La majorité des artisans du bâtiment en Suisse trouvent leurs clients sans jamais avoir dépensé un centime en publicité : ce n’est pas un hasard, c’est le résultat de quelques habitudes précises, répétées dans la durée.',
   category: 'Croissance & acquisition',
   keywords: ['trouver des clients artisan', 'acquisition clients entreprise bâtiment', 'marketing artisan indépendant Suisse', 'développer clientèle construction', 'prospection artisan bâtiment'],
-  publishedAt: '2026-08-29',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

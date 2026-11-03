@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'prix installation climatiseur',
     'contrat entretien climatisation',
   ],
-  publishedAt: '2026-10-03',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

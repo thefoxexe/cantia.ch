@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Freelancer im Bauwesen hat kein festes Büro, in das er jeden Abend zurückkehrt – deshalb muss sein Verwaltungstool in der Hosentasche leben, nicht nur auf einem Computerbildschirm.',
   category: 'Comparatifs & outils',
   keywords: ['Verwaltungs-App Freelancer Bau', 'mobile Baustellen-App', 'Tool Freelancer Bauwesen Schweiz', 'Verwaltung unterwegs am Handy', 'App selbstständiger Handwerker'],
-  publishedAt: '2026-07-11',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

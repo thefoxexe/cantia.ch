@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un chantier en PPE n’a pas un client unique mais une communauté de propriétaires. Voici comment cela change la façon de faire valider un devis et d’organiser la facturation.',
   category: 'Chantier & rentabilité',
   keywords: ['chantier PPE facturation', 'devis copropriété suisse', 'administrateur PPE travaux'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

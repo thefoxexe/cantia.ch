@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Certains contrats de construction prévoient un arbitrage plutôt qu’un tribunal en cas de litige. Voici ce que ça change concrètement, en bien comme en mal.',
   category: 'Juridique & normes',
   keywords: ['arbitrage SIA bâtiment', 'clause arbitrage contrat construction'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

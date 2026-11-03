@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein voller Auftragsbestand und ein zu knappes Team: Die Versuchung ist, in der Not zu rekrutieren. Das ist langfristig oft die teuerste Entscheidung, verglichen mit einem gut gewählten Subunternehmer.',
   category: 'RH & salaires',
   keywords: ['personalmangel baugewerbe schweiz', 'einstellen oder subunternehmer', 'personalplanung bau', 'subunternehmer baustelle', 'personalentscheid handwerksbetrieb'],
-  publishedAt: '2026-08-05',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il passaggio da uno a tre cantieri in parallelo non raddoppia il carico di lavoro: moltiplica il numero di cose da ricordare senza averle scritte da nessuna parte.',
   category: 'Chantier & rentabilité',
   keywords: ['più cantieri', 'organizzazione cantiere', 'pianificazione team', 'coordinamento', 'gestione multi-progetti'],
-  publishedAt: '2026-04-09',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

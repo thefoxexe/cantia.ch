@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artisan avec dix avis à 4,9 étoiles gagne presque toujours plus de nouveaux devis qu’un artisan sans aucun avis, même si les deux réalisent un travail équivalent : la confiance se construit avant le premier contact.',
   category: 'Croissance & acquisition',
   keywords: ['avis Google entreprise construction', 'réputation en ligne artisan', 'obtenir avis clients chantier', 'gérer avis négatif entreprise bâtiment', 'fiche Google Business artisan'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-08-28',
   readMinutes: 4,
   blocks: [
     {

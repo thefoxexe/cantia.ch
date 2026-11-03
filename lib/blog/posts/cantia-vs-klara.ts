@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Klara est un bon outil de comptabilité pour une petite entreprise suisse quelconque. La question, pour une entreprise du bâtiment, est de savoir si « quelconque » suffit.',
   category: 'Comparatifs & outils',
   keywords: ['Klara', 'alternative Klara bâtiment', 'Klara vs Cantia', 'logiciel bâtiment suisse'],
-  publishedAt: '2026-09-30',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

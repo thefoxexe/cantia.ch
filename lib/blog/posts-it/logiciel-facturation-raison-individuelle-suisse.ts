@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti pensano che un software di fatturazione sia riservato alle "vere società": per una ditta individuale, è spesso lì che fa la maggiore differenza, in mancanza di un team amministrativo alle spalle.',
   category: 'Comparatifs & outils',
   keywords: ['software fatturazione ditta individuale', 'fatturazione indipendente Svizzera', 'ditta individuale strumenti gestione', 'fatturazione impresa individuale', 'gestione amministrativa indipendente Svizzera'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

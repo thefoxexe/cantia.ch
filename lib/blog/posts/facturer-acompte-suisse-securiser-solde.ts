@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un acompte de 30 % au démarrage donne un faux sentiment de sécurité si le reste du paiement n’est découpé qu’en deux étapes. L’argent qui manque, c’est presque toujours celui du milieu.',
   category: 'Devis & facturation',
   keywords: ['acompte', 'échéancier paiement', 'facture chantier', 'sécuriser paiement', 'solde final'],
-  publishedAt: '2026-02-23',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

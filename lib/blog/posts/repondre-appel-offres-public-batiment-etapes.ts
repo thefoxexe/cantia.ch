@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup de petites entreprises du bâtiment n’osent jamais répondre à un marché public, persuadées que ce n’est réservé qu’aux grosses structures. Ce n’est pas toujours vrai.',
   category: 'Croissance & acquisition',
   keywords: ['appel d’offres public bâtiment', 'marché public construction suisse', 'répondre appel offres artisan'],
-  publishedAt: '2026-09-28',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

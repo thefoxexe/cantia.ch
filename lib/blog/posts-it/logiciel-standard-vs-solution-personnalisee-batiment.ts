@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La domanda "standard o su misura" è spesso mal posta: la vera opzione più efficace, per la maggior parte delle imprese, è un nucleo standard affidabile completato dal giusto quantitativo di personalizzazione.',
   category: 'Sur-mesure & automatisations',
   keywords: ['software standard vs su misura', 'soluzione personalizzata impresa edile', 'sviluppo su misura costo', 'scegliere tra software standard e custom', 'strumento gestionale 100% personalizzato'],
-  publishedAt: '2026-08-19',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

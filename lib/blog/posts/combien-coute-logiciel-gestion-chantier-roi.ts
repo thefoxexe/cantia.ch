@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La question n’est jamais vraiment « combien ça coûte par mois », mais « combien de temps administratif ça récupère ». Ce deuxième calcul change complètement la perspective.',
   category: 'Comparatifs & outils',
   keywords: ['coût logiciel gestion chantier', 'ROI logiciel bâtiment', 'prix abonnement construction', 'rentabilité outil digital', 'gain de temps administratif'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

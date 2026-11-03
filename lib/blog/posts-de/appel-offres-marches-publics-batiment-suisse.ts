@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'CHF 2 Millionen: der Schwellenwert, ab dem ein Bauauftrag über eine formelle öffentliche Ausschreibung statt über eine einfache Direktverhandlung vergeben werden muss.',
   category: 'Juridique & normes',
   keywords: ['öffentliche Beschaffung Bau', 'IVöB Schwellenwerte', 'SIMAP Ausschreibung', 'öffentliche Ausschreibung Bauwesen', 'Offerte öffentlicher Auftrag Schweiz'],
-  publishedAt: '2026-05-21',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

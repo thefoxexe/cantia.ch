@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artisan solo n\'a pas besoin d\'un outil pour vingt employés. Mais il a quand même besoin d\'un outil complet, juste dimensionné pour une seule personne.',
   category: 'Comparatifs & outils',
   keywords: ['meilleur logiciel pas cher artisan', 'logiciel gestion artisan solo', 'outil abordable petit artisan', 'logiciel économique bâtiment', 'facturation artisan indépendant pas cher'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

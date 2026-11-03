@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un client qui « refuse de payer » a presque toujours une raison précise en tête : un défaut, un désaccord de prix, un doute. Identifier laquelle change tout le reste.',
   category: 'Devis & facturation',
   keywords: ['solde impayé', 'refus de paiement', 'litige chantier', 'poursuite suisse', 'retenue de garantie'],
-  publishedAt: '2026-04-23',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

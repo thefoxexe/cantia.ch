@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Unternehmer denken beim ersten Konflikt mit einem Kunden gleich an den Prozess. In der Praxis gibt es mehrere schnellere und günstigere Zwischenschritte, und einige davon sind sogar obligatorisch.',
   category: 'Juridique & normes',
   keywords: ['baustellenstreit mediation', 'schlichtung gericht bau', 'konfliktlösung baustelle', 'zivilverfahren schweiz bau', 'streit kunde handwerker'],
-  publishedAt: '2026-06-24',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

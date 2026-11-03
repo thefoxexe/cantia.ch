@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'A differenza di una posa standardizzata, ogni progetto di falegnameria su misura riparte da zero nella progettazione. Un preventivo che non distingue il tempo di studio dal tempo di laboratorio finisce per fatturarlo alla stessa tariffa della posa.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo falegname su misura', 'fatturazione arredo legno', 'prezzo mobili su misura Svizzera', 'preventivo laboratorio falegnameria', 'progettazione arredo fatturazione'],
-  publishedAt: '2026-09-08',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

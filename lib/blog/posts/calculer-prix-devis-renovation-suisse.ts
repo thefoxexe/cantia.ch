@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le tarif horaire copié sur un concurrent est la première cause de chantiers qui « tournent » sans jamais enrichir personne. Voici comment le calculer vraiment.',
   category: 'Devis & facturation',
   keywords: ['devis', 'prix', 'rénovation', 'coût horaire', 'marge', 'tva', 'chiffrage'],
-  publishedAt: '2026-01-12',
+  publishedAt: '2026-08-19',
   readMinutes: 7,
   blocks: [
     {

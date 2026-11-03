@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il cantiere è consegnato, il cliente soddisfatto, la fattura pagata. Eppure l’azienda potrebbe averci perso denaro, senza che alcun segnale lo abbia mai mostrato.',
   category: 'Chantier & rentabilité',
   keywords: ['cantiere in perdita', 'redditività cantiere', 'costo orario', 'preventivato vs reale', 'margine reale'],
-  publishedAt: '2026-04-06',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

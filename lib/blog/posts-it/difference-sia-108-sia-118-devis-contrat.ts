@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le due norme portano numeri vicini ed escono dallo stesso editore. Una riguarda però i lavori di costruzione, l’altra le prestazioni intellettuali. La confusione è frequente e costosa.',
   category: 'Juridique & normes',
   keywords: ['SIA 108 vs SIA 118', 'norma SIA costruzione', 'differenza SIA 108 SIA 118', 'norma SIA preventivo', 'contratto d’appalto SIA'],
-  publishedAt: '2026-06-17',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

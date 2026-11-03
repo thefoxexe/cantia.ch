@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'factoring construction suisse',
     'avance de tresorerie factures chantier',
   ],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

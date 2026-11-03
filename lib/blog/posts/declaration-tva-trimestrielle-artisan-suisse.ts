@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'portail afc tva en ligne',
     'impôt préalable déductible bâtiment',
   ],
-  publishedAt: '2026-09-21',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

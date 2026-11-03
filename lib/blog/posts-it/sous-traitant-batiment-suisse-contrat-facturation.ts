@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Subappaltare non solleva mai l’imprenditore principale dalla sua responsabilità verso il cliente. Il malinteso più diffuso dell’edilizia romanda, e il più costoso.',
   category: 'Chantier & rentabilité',
   keywords: ['subappaltatore', 'subappalto edilizia', 'responsabilità', 'contratto d’appalto', 'fattura subappaltatore'],
-  publishedAt: '2026-02-12',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

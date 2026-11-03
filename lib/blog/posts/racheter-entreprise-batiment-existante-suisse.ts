@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Racheter une entreprise du bâtiment déjà en activité peut faire gagner des années — à condition de vérifier les bons éléments avant de signer.',
   category: 'Juridique & normes',
   keywords: ['racheter entreprise bâtiment suisse', 'rachat entreprise construction existante'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

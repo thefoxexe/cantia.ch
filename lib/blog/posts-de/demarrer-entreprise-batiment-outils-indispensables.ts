@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beim Start ist die Versuchung gross, sich sofort mit allem auszustatten. In Wirklichkeit sind nur sehr wenige Werkzeuge ab dem ersten Tag wirklich unverzichtbar, der Rest kann warten.',
   category: 'Comparatifs & outils',
   keywords: ['unverzichtbare Werkzeuge Unternehmensgründung Bau', 'Checkliste Gründung Handwerker', 'was braucht es für Baufirma', 'Grundausstattung neues Bauunternehmen', 'wesentliche Werkzeuge Handwerker Schweiz'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

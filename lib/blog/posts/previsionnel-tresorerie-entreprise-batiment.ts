@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La trésorerie ne s’effondre presque jamais sans signe avant-coureur. Le problème, c’est que sans prévisionnel, ce signe reste invisible jusqu’au jour où le compte est déjà dans le rouge.',
   category: 'Chantier & rentabilité',
   keywords: ['prévisionnel trésorerie bâtiment', 'trésorerie entreprise construction', 'gestion cashflow artisan', 'prévision de trésorerie simple', 'anticiper problème de trésorerie'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

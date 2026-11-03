@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Deux pièces de la même surface, carrelées avec le même matériau, peuvent demander deux fois plus de temps selon le format des carreaux et le motif de pose choisi : le prix au m² seul ne raconte jamais toute l’histoire.',
   category: 'Métiers du bâtiment',
   keywords: ['devis carreleur', 'prix carrelage au m2 Suisse', 'facturation pose carrelage', 'calepinage devis', 'découpe carrelage temps de pose'],
-  publishedAt: '2026-09-03',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

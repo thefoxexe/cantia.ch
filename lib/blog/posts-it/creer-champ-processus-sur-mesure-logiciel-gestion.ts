@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un modulo preventivo standard copre il 90% delle esigenze. Il restante 10%, proprio del modo di lavorare di un’impresa precisa, merita talvolta un campo che non esiste in nessuno strumento generico.',
   category: 'Sur-mesure & automatisations',
   keywords: ['aggiungere campo su misura software', 'processo personalizzato gestione impresa', 'modulo su misura preventivo fattura', 'adattare software esigenze specifiche', 'campo personalizzato strumento gestionale edile'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Offerte für den Heizungsersatz ist fast nie ein einfacher Materialaustausch: Es ist ein technisches Projekt, eine Lieferfrist, die man vorausplanen muss, und oft ein Fördergesuch, das mit allem zusammenpassen muss.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Heizungsinstallateur', 'Verrechnung HLK Installateur Schweiz', 'Heizungsersatz Preis', 'Wärmepumpe Offerte Förderung', 'Lieferfrist Heizung Offerte'],
-  publishedAt: '2026-09-14',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Baustelle ist geliefert, der Kunde zufrieden, die Rechnung bezahlt. Und trotzdem hat das Unternehmen vielleicht Geld daran verloren, ohne dass je ein Signal darauf hingewiesen hätte.',
   category: 'Chantier & rentabilité',
   keywords: ['baustelle im verlust', 'rentabilität baustelle', 'stundenkosten', 'devisiert vs real', 'reale marge bau'],
-  publishedAt: '2026-04-06',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Due stanze della stessa superficie, piastrellate con lo stesso materiale, possono richiedere il doppio del tempo a seconda del formato delle piastrelle e del motivo di posa scelto: il prezzo al m² da solo non racconta mai tutta la storia.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo piastrellista', 'prezzo piastrelle al m2 Svizzera', 'fatturazione posa piastrelle', 'disposizione preventivo', 'taglio piastrelle tempo di posa'],
-  publishedAt: '2026-09-03',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Se passer de comptable au démarrage n\'est pas une imprudence en soi : c\'est une question de savoir précisément où s\'arrête ce qu\'on peut gérer seul, et où ça devient risqué.',
   category: 'Comparatifs & outils',
   keywords: ['gérer entreprise sans comptable', 'démarrer sans fiduciaire Suisse', 'comptabilité indépendant débutant', 'gestion administrative sans comptable', 'auto-gestion entreprise bâtiment'],
-  publishedAt: '2026-07-14',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

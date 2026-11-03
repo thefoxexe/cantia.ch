@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le prix au m² est simple à annoncer, mais tout se joue dans le calcul de la surface réelle. C’est précisément là que la plupart des devis de peinture perdent de la marge sans que personne ne s’en aperçoive.',
   category: 'Métiers du bâtiment',
   keywords: ['devis peintre bâtiment', 'calcul surface peinture', 'prix peinture au m2 Suisse', 'facturation peintre indépendant', 'préparation support peinture devis'],
-  publishedAt: '2026-09-02',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

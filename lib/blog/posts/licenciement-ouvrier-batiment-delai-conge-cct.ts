@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un délai de congé mal calculé n’est pas juste une erreur administrative : c’est une créance salariale que l’ouvrier peut réclamer, parfois des mois après son départ.',
   category: 'RH & salaires',
   keywords: ['licenciement bâtiment', 'délai de congé CCT', 'ancienneté employé', 'résiliation contrat travail', 'construction suisse'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

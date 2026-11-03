@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte dei software è pensata una volta, per un cliente medio immaginario, poi venduta così com’è a tutti. Un software costruito con i propri clienti segue una logica diversa, più vicina al terreno.',
   category: 'Sur-mesure & automatisations',
   keywords: ['software costruito con Lei', 'editore che ascolta i propri clienti', 'software gestionale collaborativo edilizia', 'prodotto che evolve con i feedback clienti', 'Cantia sviluppo con clienti'],
-  publishedAt: '2026-08-28',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

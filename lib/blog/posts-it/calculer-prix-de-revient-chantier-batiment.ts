@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cantiere «ben pagato» può comunque essere un cantiere in perdita, se il suo costo reale non è mai stato calcolato a posteriori. Ecco le componenti da sommare per saperlo davvero.',
   category: 'Chantier & rentabilité',
   keywords: ['prezzo di costo cantiere', 'calcolo costo cantiere edilizia', 'costo reale lavori costruzione', 'redditività lavori', 'scomposizione costo cantiere'],
-  publishedAt: '2026-07-03',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

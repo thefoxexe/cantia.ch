@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Vorführung im Sitzungszimmer, mit WLAN überall, verbirgt den eigentlichen Test: was die App tut, wenn das Netz mitten im Baustellenrapport ausfällt, in einem Untergeschoss oder in ländlicher Gegend.',
   category: 'Comparatifs & outils',
   keywords: ['Offline-Modus Baustelle', 'Bau-App ohne Netz', 'Baustellen-App offline', 'Digitalisierung Baustelle', 'mobiles Tool Baustelle'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

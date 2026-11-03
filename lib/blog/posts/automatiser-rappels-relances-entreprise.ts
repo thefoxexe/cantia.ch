@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La relance client est souvent la tâche administrative la plus facile à oublier, non par négligence, mais parce qu\'elle n\'a jamais de date fixe dans l\'agenda, contrairement à un rendez-vous chantier.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser relances entreprise', 'rappel facture impayée automatique', 'relance devis automatique', 'automatisation paiement client bâtiment', 'ne plus oublier relance client'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

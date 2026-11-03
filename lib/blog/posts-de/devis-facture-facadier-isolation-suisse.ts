@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Aussenwärmedämmung gehört zu den wenigen Bauprojekten, bei denen der Offertpreis direkt ein paralleles Verwaltungsdossier beeinflusst – jenes des kantonalen Förderbeitrags – und diese Abhängigkeit verändert die Art der Rechnungsstellung.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Fassade Wärmedämmung', 'Verrechnung Aussenwärmedämmung Schweiz', 'Förderbeitrag Programm Gebäude Offerte', 'Preis Fassadendämmung m2', 'GEAK Offerte Sanierung'],
-  publishedAt: '2026-09-09',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

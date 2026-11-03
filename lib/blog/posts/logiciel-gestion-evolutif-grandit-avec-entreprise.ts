@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un outil parfait pour un artisan solo peut devenir un frein le jour de la première embauche. Reconnaître à l\'avance les signes d\'un outil évolutif évite cette mauvaise surprise.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel gestion évolutif', 'outil qui grandit avec entreprise', 'logiciel adapté croissance PME bâtiment', 'anticiper croissance logiciel gestion', 'outil gestion scalable Suisse'],
-  publishedAt: '2026-08-10',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

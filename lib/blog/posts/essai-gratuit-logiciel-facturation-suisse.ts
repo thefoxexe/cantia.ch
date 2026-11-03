@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des essais gratuits sont mal exploités : quelques clics rapides, puis l\'abandon ou la souscription par défaut, sans avoir vraiment vérifié ce qui compte.',
   category: 'Comparatifs & outils',
   keywords: ['essai gratuit logiciel facturation', 'tester logiciel avant abonnement', 'période essai outil gestion Suisse', 'comment tester logiciel devis facture', 'essai gratuit 30 jours logiciel'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'créer sàrl registre du commerce',
     'quand inscrire entreprise registre commerce suisse',
   ],
-  publishedAt: '2026-09-12',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

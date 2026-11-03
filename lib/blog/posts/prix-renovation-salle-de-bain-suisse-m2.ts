@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Entre une salle de bain « rafraîchie » et une salle de bain entièrement reprise avec déplacement des arrivées d’eau, l’écart de prix peut aller du simple au triple.',
   category: 'Devis & facturation',
   keywords: ['prix', 'rénovation', 'salle de bain', 'devis', 'sanitaire', 'carrelage'],
-  publishedAt: '2026-09-25',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

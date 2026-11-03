@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die eigentliche Frage lautet nie «wie viel kostet es pro Monat», sondern «wie viel Verwaltungszeit gewinnt man dadurch zurück». Diese zweite Rechnung verändert die Perspektive komplett.',
   category: 'Comparatifs & outils',
   keywords: ['Kosten Baustellensoftware', 'ROI Bausoftware Schweiz', 'Preis Abo Baubranche', 'Rentabilität digitales Tool', 'Zeitersparnis Verwaltung Baustelle'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

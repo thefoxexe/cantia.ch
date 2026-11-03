@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La réception d’un chantier ne clôt jamais tout : un défaut caché découvert plus tard reste à la charge de l’entrepreneur, à une condition précise que tout le monde ignore.',
   category: 'Juridique & normes',
   keywords: ['défaut caché', 'réception ouvrage', 'garantie chantier', 'responsabilité entrepreneur', 'malfaçon'],
-  publishedAt: '2026-03-09',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une photo prise au bon moment peut clore un litige de garantie en une seule pièce. La même photo, sans date ni contexte, ne vaut presque rien devant un juge.',
   category: 'Chantier & rentabilité',
   keywords: ['photo chantier', 'preuve litige', 'garantie construction', 'géolocalisation', 'documentation chantier'],
-  publishedAt: '2026-05-07',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

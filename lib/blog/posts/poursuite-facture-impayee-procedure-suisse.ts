@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La relance ne fonctionne pas toujours. Avant d’abandonner une créance ou de s’épuiser en rappels, la poursuite reste une procédure accessible, standardisée, et souvent plus rapide qu’on ne le croit.',
   category: 'Devis & facturation',
   keywords: ['poursuite facture impayée', 'commandement de payer', 'office des poursuites', 'mainlevée', 'créance artisan'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-08-27',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup pensent qu\'un outil pas cher rime forcément avec risque de non-conformité TVA. En réalité, c\'est une fonction de base que presque tous les outils sérieux incluent, même sur leur plan le plus abordable.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel facturation conforme TVA pas cher', 'facturation TVA Suisse petit budget', 'outil abordable conforme TVA', 'logiciel TVA petite entreprise Suisse', 'facturation légale pas cher'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

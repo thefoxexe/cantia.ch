@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Si vos QR-factures scannent encore aujourd’hui, ça ne veut pas dire qu’elles scanneront encore en octobre 2026. Un détail de format vient de changer la donne.',
   category: 'Devis & facturation',
   keywords: ['qr-facture', 'bvr', 'iban', 'facturation suisse', 'qr-bill', 'paiement'],
-  publishedAt: '2026-01-19',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

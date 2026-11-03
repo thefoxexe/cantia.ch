@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti pensano che uno strumento economico rimi necessariamente con rischio di non conformità IVA. In realtà, è una funzione di base che quasi tutti gli strumenti seri includono, anche nel loro piano più accessibile.',
   category: 'Comparatifs & outils',
   keywords: ['software fatturazione conforme IVA economico', 'fatturazione IVA Svizzera piccolo budget', 'strumento accessibile conforme IVA', 'software IVA piccola impresa Svizzera', 'fatturazione legale economica'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

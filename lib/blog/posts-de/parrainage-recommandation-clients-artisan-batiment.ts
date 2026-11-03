@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten zufriedenen Kunden würden ihren Handwerker gerne weiterempfehlen: Das Problem ist fast nie ihre Bereitschaft, sondern dass man sie schlicht nie danach fragt, oder zu ungeschickt.',
   category: 'Croissance & acquisition',
   keywords: ['Empfehlungsprogramm Handwerker', 'Kundenempfehlung Bau', 'Mundpropaganda Bauunternehmen', 'Kundenbindung Handwerker Schweiz', 'Vermittler Baustelle'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

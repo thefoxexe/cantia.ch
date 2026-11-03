@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Bauarbeiter, der seinen Weggang „in zwei Wochen" ankündigt, kann nicht immer so schnell gehen, denn die Kündigungsfrist gilt in beide Richtungen, für Arbeitgeber wie Arbeitnehmer.',
   category: 'RH & salaires',
   keywords: ['Kündigung Mitarbeiter Kündigungsfrist', 'Kündigungsfrist Bau', 'Kündigungsfrist Mitarbeiter Bauwesen', 'Weggang Mitarbeiter ohne Kündigungsfrist', 'GAV Bau Kündigung'],
-  publishedAt: '2026-06-29',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

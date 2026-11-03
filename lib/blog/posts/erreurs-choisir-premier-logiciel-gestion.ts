@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des mauvais choix de logiciel de gestion ne viennent pas d\'un manque d\'options sur le marché, mais des mêmes erreurs répétées d\'une entreprise à l\'autre.',
   category: 'Comparatifs & outils',
   keywords: ['erreurs choisir logiciel gestion', 'mauvais choix logiciel entreprise', 'pièges logiciel de gestion débutant', 'erreurs courantes outil facturation', 'éviter erreur logiciel PME'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

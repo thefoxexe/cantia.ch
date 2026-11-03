@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le budget logiciel d\'une entreprise qui démarre est souvent sous-estimé au moment du business plan. Il se découvre ensuite, poste par poste, dans les premiers mois d\'activité.',
   category: 'Comparatifs & outils',
   keywords: ['budget logiciel démarrage entreprise', 'coût outils numériques PME bâtiment', 'business plan logiciel gestion', 'prévoir budget informatique entreprise', 'dépenses logicielles démarrage'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

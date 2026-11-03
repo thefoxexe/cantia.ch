@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Rispedire una versione corretta con lo stesso numero di fattura crea un doppione contabile da entrambe le parti. La nota di credito esiste precisamente per correggere in modo pulito, senza mai riscrivere la storia.',
   category: 'Devis & facturation',
   keywords: ['nota di credito fattura', 'fattura rettificativa svizzera', 'correggere una fattura', 'errore fattura già inviata', 'annullare una fattura'],
-  publishedAt: '2026-06-11',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

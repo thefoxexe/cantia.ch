@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une porte en bon état, un parquet massif, une structure métallique : de plus en plus de chantiers récupèrent ce qu’un autre vient de démonter, plutôt que de tout envoyer à la benne.',
   category: 'Juridique & normes',
   keywords: ['réemploi matériaux bâtiment', 'économie circulaire construction suisse', 'récupération matériaux chantier'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

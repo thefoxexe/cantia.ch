@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Entre un portail en acier fabriqué sur plusieurs semaines et une serrure changée en urgence un samedi soir, le métallier-serrurier doit faire cohabiter deux façons de facturer radicalement différentes.',
   category: 'Métiers du bâtiment',
   keywords: ['devis serrurier métallier', 'facturation dépannage serrure', 'prix ouvrage métallique sur mesure', 'devis garde-corps portail', 'tarif serrurier urgence Suisse'],
-  publishedAt: '2026-09-15',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

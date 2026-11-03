@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un termine di disdetta calcolato male non è solo un errore amministrativo: è un credito salariale che l’operaio può reclamare, a volte mesi dopo la sua partenza.',
   category: 'RH & salaires',
   keywords: ['licenziamento edilizia', 'termine di disdetta CCL', 'anzianità di servizio dipendente', 'risoluzione contratto di lavoro', 'costruzione svizzera'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

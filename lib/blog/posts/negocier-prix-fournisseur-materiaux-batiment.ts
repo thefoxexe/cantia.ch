@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Négocier avec un fournisseur, ce n’est pas juste demander une remise. Voici les leviers qui fonctionnent vraiment et le bon moment pour les activer.',
   category: 'Chantier & rentabilité',
   keywords: ['négocier prix fournisseur matériaux', 'remise fournisseur bâtiment'],
-  publishedAt: '2026-10-09',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

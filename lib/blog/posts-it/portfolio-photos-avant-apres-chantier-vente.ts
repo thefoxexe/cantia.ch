@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una foto prima/dopo convince spesso più di un lungo discorso. Mostra in un colpo d’occhio ciò che un preventivo può solo descrivere, ed è esattamente ciò di cui un cliente indeciso ha bisogno di vedere.',
   category: 'Croissance & acquisition',
   keywords: ['foto prima dopo cantiere', 'portfolio artigiano edilizia', 'riprova sociale impresa costruzione', 'foto realizzazioni marketing artigiano', 'valorizzare cantieri terminati'],
-  publishedAt: '2026-09-16',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

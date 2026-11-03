@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bexio non è mai stato pensato per un cantiere. È un ottimo strumento di contabilità per una PMI svizzera qualsiasi, ma non uno strumento da campo per l’edilizia.',
   category: 'Comparatifs & outils',
   keywords: ['bexio', 'alternativa bexio', 'software edilizia', 'preventivi fatturazione', 'confronto'],
-  publishedAt: '2026-02-02',
+  publishedAt: '2026-09-10',
   readMinutes: 7,
   blocks: [
     {

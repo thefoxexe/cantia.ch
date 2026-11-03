@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le devis d’un échafaudeur combine deux logiques bien distinctes, montage et location à la durée, et c’est souvent la seconde qui pose problème quand le chantier prend du retard.',
   category: 'Métiers du bâtiment',
   keywords: ['devis échafaudeur suisse', 'facturation location échafaudage', 'prix montage échafaudage chantier'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

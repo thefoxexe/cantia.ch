@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Quand un client fait faillite, la simple relance ne suffit plus. Voici comment fonctionne la procédure et ce que vous pouvez réellement récupérer.',
   category: 'Juridique & normes',
   keywords: ['créance impayée faillite client', 'produire créance faillite suisse'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

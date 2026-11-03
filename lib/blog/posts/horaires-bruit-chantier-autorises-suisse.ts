@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'plainte voisinage bruit chantier',
     'règlement police des constructions bruit',
   ],
-  publishedAt: '2026-09-24',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

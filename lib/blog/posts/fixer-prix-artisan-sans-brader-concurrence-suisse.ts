@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artisan qui aligne systématiquement ses prix sur le devis le moins cher reçu par le client finit toujours par travailler plus, pour gagner moins. Et ce n’est presque jamais soutenable sur la durée.',
   category: 'Croissance & acquisition',
   keywords: ['fixer prix artisan bâtiment', 'concurrence prix construction Suisse', 'ne pas brader ses devis', 'justifier prix chantier client', 'stratégie tarifaire entreprise bâtiment'],
-  publishedAt: '2026-09-11',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

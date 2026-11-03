@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un software installato su un solo posto di lavoro sembra sufficiente, fino al giorno in cui bisogna fatturare da un cantiere, un altro ufficio, o con un collega contemporaneamente.',
   category: 'Comparatifs & outils',
   keywords: ['strumento fatturazione online PMI', 'software fatturazione cloud Svizzera', 'fatturazione accessibile ovunque', 'vantaggi software online PMI', 'fatturazione web vs software installato'],
-  publishedAt: '2026-07-17',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein am 1. April eingestellter Arbeiter erhält im Dezember keinen vollen 13. Monatslohn. Man muss aber genau wissen, auf welchen Monaten die Berechnung beruht und was sie reduziert.',
   category: 'RH & salaires',
   keywords: ['13. Monatslohn', 'pro rata Berechnung', 'Lohnberechnung', 'Eintritt im Jahresverlauf', 'Austritt Mitarbeiter'],
-  publishedAt: '2026-04-02',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

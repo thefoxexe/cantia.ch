@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Nessun altro mestiere dell’edilizia è così direttamente esposto al meteo quanto la copertura. Un preventivo di tetto che non prevede né margine meteo né costo di sicurezza fa quindi una scommessa che finisce spesso per perdere.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo copritetto', 'fatturazione tetto Svizzera', 'prezzo ristrutturazione tetto', 'sicurezza cantiere tetto', 'preventivo carpenteria copertura'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

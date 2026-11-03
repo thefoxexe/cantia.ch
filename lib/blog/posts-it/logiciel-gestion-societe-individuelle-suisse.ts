@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una ditta individuale ha generalmente una sola persona al comando di tutto, il che cambia completamente le priorità nella scelta di un software gestionale.',
   category: 'Comparatifs & outils',
   keywords: ['software gestionale ditta individuale', 'strumento per impresa individuale Svizzera', 'software ditta individuale edilizia', 'gestione amministrativa ditta individuale', 'fatturazione ditta individuale Svizzera'],
-  publishedAt: '2026-07-29',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

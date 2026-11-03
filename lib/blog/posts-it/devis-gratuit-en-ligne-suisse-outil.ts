@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un generatore di preventivi gratuito online aiuta per un primo documento, ma pochi reggono nel tempo una volta che bisogna seguire più clienti e più cantieri in parallelo.',
   category: 'Comparatifs & outils',
   keywords: ['preventivo gratuito online', 'fare un preventivo gratis Svizzera', 'generatore di preventivi artigiano', 'modello preventivo gratuito edilizia', 'creare preventivo online rapido'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

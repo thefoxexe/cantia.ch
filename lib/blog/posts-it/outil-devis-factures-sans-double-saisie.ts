@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Reinserire un preventivo accettato per trasformarlo in fattura non è solo una perdita di tempo: è anche l’occasione di ricopiare un errore di prezzo o di quantità che non esisteva nell’originale.',
   category: 'Comparatifs & outils',
   keywords: ['evitare doppia digitazione preventivo fattura', 'trasformare preventivo in fattura automaticamente', 'software senza reinserimento', 'risparmio di tempo fatturazione', 'automatizzare preventivo fattura'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

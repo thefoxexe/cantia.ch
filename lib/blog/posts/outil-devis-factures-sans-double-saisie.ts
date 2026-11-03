@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ressaisir un devis accepté pour en faire une facture n\'est pas juste une perte de temps : c\'est aussi l\'occasion de recopier une erreur de prix ou de quantité qui n\'existait pas dans l\'original.',
   category: 'Comparatifs & outils',
   keywords: ['éviter double saisie devis facture', 'transformer devis en facture automatiquement', 'logiciel sans ressaisie', 'gain de temps facturation', 'automatiser devis facture'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

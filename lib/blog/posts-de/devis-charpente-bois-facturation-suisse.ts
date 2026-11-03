@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Dachstuhl entsteht in drei Etappen: Holzeinkauf, Vorfertigung in der Werkstatt, dann Montage auf der Baustelle. Eine Offerte, die diese nicht trennt, riskiert, die Holzpreisinflation aus der eigenen Marge zu bezahlen.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Holzbau Zimmerei', 'Verrechnung Zimmermann Schweiz', 'Holzpreis Bau', 'Offerte Werkstatt Zimmerei', 'Montage Dachstuhl Baustelle'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

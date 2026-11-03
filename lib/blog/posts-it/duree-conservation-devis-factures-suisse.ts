@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una fattura di marzo 2026 deve restare accessibile fino a fine 2036, non fino a marzo 2036. Un dettaglio di calcolo del termine che quasi tutte le aziende sbagliano.',
   category: 'Juridique & normes',
   keywords: ['conservazione documenti', 'archiviazione fatture', 'termine legale', 'codice delle obbligazioni', 'contabilità'],
-  publishedAt: '2026-02-16',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

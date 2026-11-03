@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Lebenslang gratis oder 30 Tage gratis, das ist nicht dasselbe Versprechen. Der Unterschied zeigt sich oft im ungünstigsten Moment, mitten im ersten grossen Rechnungsmonat.',
   category: 'Comparatifs & outils',
   keywords: ['kostenlose fakturierung selbstständig', 'gratis rechnungssoftware schweiz', 'offerte rechnung tool ohne kosten', 'gratis software kleinunternehmen', 'fakturierung einsteiger schweiz'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

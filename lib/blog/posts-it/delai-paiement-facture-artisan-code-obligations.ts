@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cliente che paga a 60 giorni non è necessariamente in torto. In Svizzera, il termine di pagamento esiste solo se Lei stesso lo ha scritto sulla fattura.',
   category: 'Juridique & normes',
   keywords: ['termine di pagamento', 'fattura', 'interesse di mora', 'codice delle obbligazioni', 'sollecito'],
-  publishedAt: '2026-01-22',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

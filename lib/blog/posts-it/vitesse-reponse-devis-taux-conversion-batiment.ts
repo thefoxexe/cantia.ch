@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il prezzo più basso non vince sempre il preventivo: chi risponde per primo, con un preventivo chiaro e professionale, si aggiudica spesso il cliente prima ancora che gli altri abbiano finito la loro stima.',
   category: 'Croissance & acquisition',
   keywords: ['velocità risposta preventivo', 'tasso di conversione preventivo edilizia', 'rispondere rapidamente cliente artigiano', 'perdere un cliente preventivo lento', 'tempi invio preventivo cantiere'],
-  publishedAt: '2026-09-05',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

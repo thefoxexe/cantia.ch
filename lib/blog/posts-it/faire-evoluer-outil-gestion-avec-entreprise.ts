@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte delle imprese aspetta che un’esigenza diventi urgente prima di adattare il proprio strumento gestionale. Anticipare questa evoluzione evita di gestire il cambiamento in urgenza.',
   category: 'Sur-mesure & automatisations',
   keywords: ['far evolvere strumento gestionale impresa', 'adattare software crescita PMI', 'anticipare esigenze software edilizia', 'software che segue la crescita', 'evoluzione strumento gestionale cantiere'],
-  publishedAt: '2026-08-22',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

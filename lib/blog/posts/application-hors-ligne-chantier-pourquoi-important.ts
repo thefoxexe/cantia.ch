@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La démonstration en salle de réunion, avec du wifi partout, cache le vrai test : ce que l’application fait quand le réseau tombe en plein rapport de chantier, un sous-sol ou une zone rurale.',
   category: 'Comparatifs & outils',
   keywords: ['mode hors ligne chantier', 'application construction sans réseau', 'app chantier offline', 'digitalisation terrain bâtiment', 'outil mobile chantier'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

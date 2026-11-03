@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Facturer ou non le déplacement n’est pas qu’une question de prix : mal expliqué dans le devis, c’est souvent la ligne qui fait le plus grincer les dents d’un client.',
   category: 'Devis & facturation',
   keywords: ['déplacement', 'facturation', 'devis', 'artisan', 'frais kilométriques'],
-  publishedAt: '2026-09-26',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

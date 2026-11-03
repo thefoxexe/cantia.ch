@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une équipe démotivée n’a pas toujours un problème de salaire. Elle a souvent un problème de reconnaissance, ou simplement de clarté sur ce qu’on attend d’elle aujourd’hui.',
   category: 'RH & salaires',
   keywords: ['motiver équipe chantier', 'motivation ouvriers bâtiment', 'management chantier construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

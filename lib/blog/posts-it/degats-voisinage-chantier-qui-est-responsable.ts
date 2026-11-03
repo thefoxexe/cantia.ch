@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Senza un sopralluogo prima dei lavori, un vicino può attribuire al vostro cantiere una crepa già esistente. L’azienda si ritrova allora a dover provare il contrario, spesso troppo tardi.',
   category: 'Juridique & normes',
   keywords: ['danni vicinato cantiere', 'responsabilità lavori vicino', 'crepa cantiere vicinato', 'disturbi cantiere', 'sopralluogo prima dei lavori'],
-  publishedAt: '2026-06-19',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

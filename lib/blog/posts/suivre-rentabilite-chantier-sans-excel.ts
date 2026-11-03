@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le fichier Excel de suivi chantier tient rarement plus de quelques mois. Le problème n’est pas la discipline de l’équipe : c’est le format lui-même.',
   category: 'Chantier & rentabilité',
   keywords: ['rentabilité chantier', 'excel', 'devisé vs réel', 'suivi de coûts', 'marge chantier'],
-  publishedAt: '2026-02-05',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

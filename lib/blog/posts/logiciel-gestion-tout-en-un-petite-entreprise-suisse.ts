@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d\'outils se disent "tout-en-un" alors qu\'ils ne couvrent que la facturation : le vrai test, c\'est de vérifier si on peut encore fermer Excel après l\'avoir installé.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel tout en un petite entreprise', 'gestion tout en un Suisse', 'outil unique devis facture chantier', 'logiciel gestion PME bâtiment', 'centraliser gestion entreprise'],
-  publishedAt: '2026-07-04',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Comparer deux logiciels sur leur seul prix mensuel, c\'est comme comparer deux devis sans regarder ce qu\'ils incluent : le rapport qualité-prix se calcule autrement.',
   category: 'Comparatifs & outils',
   keywords: ['rapport qualité prix logiciel PME bâtiment', 'comparer logiciels gestion construction', 'meilleur outil pour son budget bâtiment', 'évaluer logiciel gestion prix', 'comparatif qualité prix logiciel chantier'],
-  publishedAt: '2026-08-04',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

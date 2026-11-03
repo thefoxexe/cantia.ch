@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Uno strumento perfetto per un artigiano solo può diventare un freno il giorno della prima assunzione. Riconoscere in anticipo i segnali di uno strumento scalabile evita questa brutta sorpresa.',
   category: 'Comparatifs & outils',
   keywords: ['software gestionale scalabile', 'strumento che cresce con l’impresa', 'software adatto crescita PMI edile', 'anticipare crescita software gestionale', 'strumento gestionale scalabile Svizzera'],
-  publishedAt: '2026-08-10',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

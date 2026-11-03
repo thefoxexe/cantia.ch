@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '4h45 Arbeit sind nicht 4,45 Stunden. Es ist der häufigste HR-Erfassungsfehler im Bauwesen: wohl derjenige, der die meisten Lohnabrechnungen verfälscht, ohne dass es jemand bemerkt.',
   category: 'RH & salaires',
   keywords: ['arbeitsstunden berechnen', 'stundenerfassung bauwesen', 'stundenlohn berechnen', 'hr baugewerbe', 'lohnabrechnung fehler'],
-  publishedAt: '2026-02-09',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

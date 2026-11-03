@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Standard-Offertenformular deckt 90% der Bedürfnisse ab. Die restlichen 10%, die zur spezifischen Arbeitsweise eines Unternehmens gehören, verdienen manchmal ein Feld, das es in keinem generischen Tool gibt.',
   category: 'Sur-mesure & automatisations',
   keywords: ['individuelles Feld Software hinzufügen', 'personalisierter Prozess Verwaltung', 'massgeschneidertes Formular Offerte Rechnung', 'Software an spezifische Bedürfnisse anpassen', 'individuelles Feld Bausoftware'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

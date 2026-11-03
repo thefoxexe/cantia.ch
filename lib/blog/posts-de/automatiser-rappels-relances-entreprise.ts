@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Kundenmahnung ist oft die administrative Aufgabe, die am leichtesten vergessen geht — nicht aus Nachlässigkeit, sondern weil sie im Gegensatz zu einem Baustellentermin nie ein festes Datum im Kalender hat.',
   category: 'Sur-mesure & automatisations',
   keywords: ['mahnwesen automatisieren bauunternehmen', 'automatische zahlungserinnerung rechnung', 'offerte automatisch nachfassen', 'zahlungserinnerung schweiz baubranche', 'kundenmahnung nicht vergessen'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

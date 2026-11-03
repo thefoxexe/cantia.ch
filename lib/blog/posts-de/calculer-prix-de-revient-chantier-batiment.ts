@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine «gut bezahlte» Baustelle kann trotzdem eine Verlustbaustelle sein, wenn ihre realen Kosten nie nachträglich berechnet wurden. Diese Bestandteile müssen addiert werden, um es wirklich zu wissen.',
   category: 'Chantier & rentabilité',
   keywords: ['selbstkosten baustelle', 'kostenberechnung bau schweiz', 'reale baukosten', 'rentabilität bauarbeiten', 'kostenaufschlüsselung baustelle'],
-  publishedAt: '2026-07-03',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

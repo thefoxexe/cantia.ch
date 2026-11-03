@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Due fatture con lo stesso numero, o una serie che salta da 042 a 057 senza spiegazione: è esattamente il tipo di dettaglio che un controllo dell’AFC individua in pochi secondi.',
   category: 'Devis & facturation',
   keywords: ['numerazione fattura svizzera', 'continuità numeri fattura', 'obblighi fatturazione AFC', 'fattura mancante controllo fiscale', 'serie di fatture'],
-  publishedAt: '2026-06-15',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

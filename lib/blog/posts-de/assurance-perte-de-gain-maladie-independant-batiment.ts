@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Selbstständiger, der drei Wochen ans Bett gefesselt ist, erhält nichts, ausser er hat selbst eine Versicherung abgeschlossen, zu der ihn nichts verpflichtet. Die KVG-Grundversicherung deckt nur die Behandlung, nie den entgangenen Lohn.',
   category: 'Juridique & normes',
   keywords: ['Krankentaggeldversicherung Selbstständige', 'Erwerbsausfall Krankheit', 'KVG Grundversicherung', 'Taggeld Krankheit Bau', 'Krankenversicherung Selbstständigerwerbende'],
-  publishedAt: '2026-05-04',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

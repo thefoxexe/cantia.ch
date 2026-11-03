@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una foto scattata al momento giusto può chiudere una controversia sulla garanzia con un solo elemento. La stessa foto, senza data né contesto, non vale quasi nulla davanti a un giudice.',
   category: 'Chantier & rentabilité',
   keywords: ['foto cantiere', 'prova controversia', 'garanzia costruzione', 'geolocalizzazione', 'documentazione cantiere'],
-  publishedAt: '2026-05-07',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

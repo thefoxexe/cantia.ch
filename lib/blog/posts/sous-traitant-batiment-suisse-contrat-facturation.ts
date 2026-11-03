@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sous-traiter ne déleste jamais l’entrepreneur principal de sa responsabilité envers le client. Le malentendu le plus répandu du bâtiment romand, et le plus coûteux.',
   category: 'Chantier & rentabilité',
   keywords: ['sous-traitant', 'sous-traitance bâtiment', 'responsabilité', 'contrat entreprise', 'facture sous-traitant'],
-  publishedAt: '2026-02-12',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

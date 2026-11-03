@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il n’existe pas de salaire minimum légal fédéral en Suisse : dans le bâtiment, c’est la convention collective de branche qui fixe les planchers, et elle vient de changer pour 2026.',
   category: 'RH & salaires',
   keywords: ['salaire minimum', 'cct construction', 'convention collective', 'gros œuvre', 'salaire bâtiment suisse'],
-  publishedAt: '2026-03-23',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

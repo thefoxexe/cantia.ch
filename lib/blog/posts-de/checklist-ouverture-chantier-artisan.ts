@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten Baustellenverzögerungen entstehen nicht durch ein technisches Unvorhergesehenes, sondern durch einen administrativen oder logistischen Punkt, der vor dem ersten Arbeitstag vergessen wurde.',
   category: 'Chantier & rentabilité',
   keywords: ['Checkliste Baustellenstart', 'Baustelle eröffnen Handwerk', 'Vorbereitung Baustelle Bau', 'Organisation Baustellenbeginn', 'Prüfliste Baustelle'],
-  publishedAt: '2026-06-08',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

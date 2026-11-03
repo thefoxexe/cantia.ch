@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Baustellen enden ohne jedes formelle Dokument: nur übergebene Schlüssel und eine letzte bezahlte Anzahlung. Genau das ist der Moment, in dem ein Streitfall mangels Beweis unmöglich zu klären wird.',
   category: 'Juridique & normes',
   keywords: ['bauabnahme protokoll', 'abnahmeprotokoll baustelle', 'baugarantie schweiz', 'baustellenmängel', 'bauende dokumentation'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

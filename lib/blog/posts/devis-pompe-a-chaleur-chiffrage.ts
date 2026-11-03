@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'pompe à chaleur air eau prix',
     'géothermie devis suisse',
   ],
-  publishedAt: '2026-10-04',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

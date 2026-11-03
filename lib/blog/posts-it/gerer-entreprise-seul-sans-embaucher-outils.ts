@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Restare soli al comando della propria impresa non è sempre una scelta di default: per molti indipendenti è una vera scelta, a condizione di avere gli strumenti giusti per non essere sopraffatti.',
   category: 'Comparatifs & outils',
   keywords: ['gestire impresa da soli senza assumere', 'strumenti indipendente senza dipendenti', 'restare solo impresa edile', 'gestione amministrativa solo efficace', 'lavorare da soli artigiano Svizzera'],
-  publishedAt: '2026-08-07',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un maçon, un électricien et un paysagiste n\'ont pas la même façon de chiffrer, de suivre un chantier ou de facturer. Un modèle unique et figé ne peut donc jamais parfaitement convenir à tous les trois en même temps.',
   category: 'Sur-mesure & automatisations',
   keywords: ['modèle figé logiciel bâtiment', 'logiciel adapté métier construction', 'pourquoi outil générique ne suffit pas', 'diversité métiers bâtiment logiciel', 'personnalisation par métier construction'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

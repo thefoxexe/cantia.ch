@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’edilizia figura tra i rami più controllati della Svizzera. E la sanzione più pesante non è la multa. È l’esclusione dagli appalti pubblici.',
   category: 'Juridique & normes',
   keywords: ['lavoro nero', 'lln', 'controllo cantiere', 'sanzioni edilizia', 'seco'],
-  publishedAt: '2026-04-30',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un operaio assunto il 1° aprile non riceve una tredicesima completa a dicembre. Resta però da sapere esattamente su quali mesi si calcola, e cosa la riduce.',
   category: 'RH & salaires',
   keywords: ['tredicesima', 'pro rata', 'calcolo salario', 'assunzione in corso d’anno', 'partenza dipendente'],
-  publishedAt: '2026-04-02',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Dix ans paraît long, du moins jusqu’à ce qu’une vieille facture oubliée dans un dossier se révèle totalement irrécupérable au moment où l’entreprise en a le plus besoin.',
   category: 'Devis & facturation',
   keywords: ['prescription facture impayée', 'délai prescription créance suisse', 'facture ancienne impayée', 'interruption prescription', 'créance construction délai'],
-  publishedAt: '2026-06-12',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

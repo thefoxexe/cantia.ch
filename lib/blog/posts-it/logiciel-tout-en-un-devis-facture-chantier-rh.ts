@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sulla carta, riunire preventivi, fatture, cantiere e HR in un unico strumento sembra troppo bello. In pratica, è proprio perché questi quattro ambiti condividono gli stessi dati di base che funziona.',
   category: 'Comparatifs & outils',
   keywords: ['software preventivo fattura cantiere HR', 'gestione completa impresa edile', 'strumento unico tutte le esigenze PMI', 'software integrato costruzione', 'piattaforma gestione edilizia completa'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

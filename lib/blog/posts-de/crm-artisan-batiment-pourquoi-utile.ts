@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Man braucht keine komplexe Verkaufssoftware, um ein CRM zu benötigen. Das eigentliche Signal ist, wie oft man in seinen E-Mails nach „wer war das nochmal, dieser Kunde" sucht.',
   category: 'Comparatifs & outils',
   keywords: ['CRM Handwerksbetrieb Bau', 'Kundenverwaltung Baufirma', 'Kundensoftware Handwerk', 'Kundenverfolgung Baustelle', 'Kundenbindung Bau'],
-  publishedAt: '2026-06-05',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

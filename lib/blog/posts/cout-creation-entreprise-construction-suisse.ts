@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'frais ouverture entreprise bâtiment',
     'trésorerie de départ artisan',
   ],
-  publishedAt: '2026-09-10',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

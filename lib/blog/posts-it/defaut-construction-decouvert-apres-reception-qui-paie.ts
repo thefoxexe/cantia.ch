@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La consegna di un cantiere non chiude mai tutto: un difetto occulto scoperto in seguito resta a carico dell’impresario, a una condizione precisa che tutti ignorano.',
   category: 'Juridique & normes',
   keywords: ['difetto occulto', 'consegna opera', 'garanzia cantiere', 'responsabilità impresario', 'vizio'],
-  publishedAt: '2026-03-09',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

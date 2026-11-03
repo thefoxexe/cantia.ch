@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d\'outils se disent "simples" : le vrai test, c\'est de chronométrer combien de temps il faut pour envoyer un premier devis sans jamais avoir ouvert l\'aide en ligne.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel simple débuter indépendant', 'outil facile bâtiment débutant', 'logiciel gestion sans formation', 'application simple artisan', 'prise en main rapide logiciel devis'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

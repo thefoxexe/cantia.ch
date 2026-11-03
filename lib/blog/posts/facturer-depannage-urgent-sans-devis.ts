@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Pas de devis, pas de discussion préalable sur le prix : un dépannage urgent se facture différemment d’un chantier planifié, à condition de le prévoir dans ses conditions générales.',
   category: 'Devis & facturation',
   keywords: ['dépannage', 'urgence', 'facturation', 'devis', 'tarif horaire', 'forfait déplacement'],
-  publishedAt: '2026-09-26',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

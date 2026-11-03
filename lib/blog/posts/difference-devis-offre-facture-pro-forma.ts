@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '« Offre », « devis », « facture pro forma » : trois documents qu’on utilise souvent comme des synonymes, alors qu’ils n’ont ni la même valeur ni le même usage.',
   category: 'Devis & facturation',
   keywords: ['devis', 'offre', 'facture pro forma', 'terminologie', 'document commercial'],
-  publishedAt: '2026-05-11',
+  publishedAt: '2026-08-19',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Softwarebudget eines startenden Unternehmens wird beim Businessplan oft unterschätzt. Es zeigt sich dann Posten für Posten in den ersten Monaten der Tätigkeit.',
   category: 'Comparatifs & outils',
   keywords: ['softwarebudget unternehmensgründung', 'kosten digitale tools baugewerbe kmu', 'businessplan verwaltungssoftware', 'it-budget unternehmensgründung planen', 'software ausgaben gründung'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

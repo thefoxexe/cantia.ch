@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'creux tresorerie entreprise construction',
     'credit court terme pme batiment suisse',
   ],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

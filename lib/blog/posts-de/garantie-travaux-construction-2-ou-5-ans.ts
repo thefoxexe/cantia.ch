@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Handwerker nennen reflexartig «2 Jahre» Garantie. Für alles, was fest mit dem Bauwerk verbunden ist, sagt das Schweizer Recht 5 Jahre, und eine neue 60-Tage-Frist hat die Lage 2026 gerade eben verändert.',
   category: 'Juridique & normes',
   keywords: ['garantie bauwerk', 'verjährungsfrist', 'art 371 or', 'mängelrüge', 'versteckter mangel'],
-  publishedAt: '2026-03-05',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

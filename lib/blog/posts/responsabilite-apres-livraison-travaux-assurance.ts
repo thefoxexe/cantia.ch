@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'assurance rc pro fin de chantier',
     'garantie travaux batiment suisse',
   ],
-  publishedAt: '2026-10-06',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

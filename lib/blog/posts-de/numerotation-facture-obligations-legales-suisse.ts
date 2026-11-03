@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwei Rechnungen mit derselben Nummer, oder eine Serie, die ohne Erklärung von 042 auf 057 springt: genau die Art von Detail, die eine ESTV-Kontrolle in Sekunden erkennt.',
   category: 'Devis & facturation',
   keywords: ['Rechnungsnummerierung Schweiz', 'Kontinuität Rechnungsnummern', 'Fakturierungspflichten ESTV', 'fehlende Rechnung Steuerkontrolle', 'Rechnungsserie'],
-  publishedAt: '2026-06-15',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

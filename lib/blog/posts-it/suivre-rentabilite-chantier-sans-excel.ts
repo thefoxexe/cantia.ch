@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il file Excel di monitoraggio cantiere raramente dura più di qualche mese. Il problema non è la disciplina del team: è il formato stesso.',
   category: 'Chantier & rentabilité',
   keywords: ['redditività cantiere', 'excel', 'preventivato vs reale', 'controllo dei costi', 'margine cantiere'],
-  publishedAt: '2026-02-05',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

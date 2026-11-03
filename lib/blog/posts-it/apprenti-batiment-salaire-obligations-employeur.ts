@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Prendere un apprendista non è solo «un paio di braccia in più». È un impegno inquadrato, con un salario preciso per anno di formazione e un vero follow-up pedagogico atteso dall’azienda.',
   category: 'RH & salaires',
   keywords: ['salario apprendista edilizia', 'formazione professionale costruzione', 'CCL apprendista', 'azienda formatrice', 'contratto di tirocinio'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

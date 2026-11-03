@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Es gibt kein einheitliches Bundesgesetz, das die Betriebshaftpflicht für jeden Handwerker im Bauwesen vorschreibt. Was sie in der Praxis vorschreibt, ist oft der Kanton oder der Auftraggeber, und manchmal ein Schaden, bei dem man zu spät entdeckt, nicht versichert zu sein.',
   category: 'Juridique & normes',
   keywords: ['Betriebshaftpflicht Bauwesen', 'Berufshaftpflicht Bau Schweiz', 'Haftpflichtversicherung Bau', 'obligatorische Versicherung Handwerk', 'Handwerker Versicherung Schweiz'],
-  publishedAt: '2026-03-12',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

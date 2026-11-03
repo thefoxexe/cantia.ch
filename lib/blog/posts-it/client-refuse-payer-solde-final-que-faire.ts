@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cliente che «rifiuta di pagare» ha quasi sempre una ragione precisa in mente: un difetto, un disaccordo sul prezzo, un dubbio. Identificarla cambia tutto il resto.',
   category: 'Devis & facturation',
   keywords: ['saldo non pagato', 'rifiuto di pagamento', 'controversia cantiere', 'esecuzione svizzera', 'ritenuta di garanzia'],
-  publishedAt: '2026-04-23',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

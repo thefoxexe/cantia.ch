@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sur le papier, réunir devis, factures, chantier et RH dans un seul outil semble trop beau. En pratique, c\'est justement parce que ces quatre domaines partagent les mêmes données de base que ça fonctionne.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel devis facture chantier RH', 'gestion complète entreprise bâtiment', 'outil unique tous les besoins PME', 'logiciel intégré construction', 'plateforme gestion bâtiment complète'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

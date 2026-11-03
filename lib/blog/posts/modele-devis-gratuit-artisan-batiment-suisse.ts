@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'télécharger modèle devis construction',
     'exemple devis bâtiment suisse',
   ],
-  publishedAt: '2026-09-20',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

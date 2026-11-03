@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artigiano con dieci recensioni a 4,9 stelle ottiene quasi sempre più nuovi preventivi di un artigiano senza alcuna recensione, anche se entrambi svolgono un lavoro equivalente: la fiducia si costruisce prima del primo contatto.',
   category: 'Croissance & acquisition',
   keywords: ['recensioni Google impresa costruzione', 'reputazione online artigiano', 'ottenere recensioni clienti cantiere', 'gestire recensione negativa impresa edilizia', 'scheda Google Business artigiano'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

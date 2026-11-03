@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte dei clienti soddisfatti raccomanderebbe volentieri il proprio artigiano: il problema non è quasi mai la loro volontà, è che semplicemente non glielo si chiede mai, o lo si fa in modo troppo maldestro.',
   category: 'Croissance & acquisition',
   keywords: ['programma di referral artigiano', 'raccomandazione clienti edilizia', 'passaparola impresa costruzione', 'fidelizzazione cliente artigiano Svizzera', 'procacciatore affari cantiere'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

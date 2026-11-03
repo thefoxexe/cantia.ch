@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’isolation périphérique est l’un des rares chantiers du bâtiment où le prix du devis influence directement un dossier administratif parallèle, celui de la subvention cantonale, et cette dépendance change la façon de facturer.',
   category: 'Métiers du bâtiment',
   keywords: ['devis façade isolation', 'facturation isolation périphérique Suisse', 'subvention Programme Bâtiments devis', 'prix isolation façade m2', 'CECB devis rénovation'],
-  publishedAt: '2026-09-09',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

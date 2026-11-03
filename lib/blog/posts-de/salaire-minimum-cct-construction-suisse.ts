@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Es gibt keinen gesetzlichen Mindestlohn auf Bundesebene in der Schweiz: Im Bauhauptgewerbe legt der Gesamtarbeitsvertrag der Branche die Untergrenzen fest, und der wurde für 2026 gerade geändert.',
   category: 'RH & salaires',
   keywords: ['mindestlohn bau schweiz', 'lmv bauhauptgewerbe', 'gesamtarbeitsvertrag bau', 'bauhauptgewerbe lohn', 'lohn bau schweiz 2026'],
-  publishedAt: '2026-03-23',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

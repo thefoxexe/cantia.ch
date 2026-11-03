@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Au tout début, on n’a ni le temps ni le budget pour tout faire en même temps. Entre carte de visite et site internet, l’ordre dans lequel on s’y prend change beaucoup.',
   category: 'Croissance & acquisition',
   keywords: ['site internet ou carte de visite artisan', 'priorité communication démarrage entreprise bâtiment'],
-  publishedAt: '2026-09-28',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

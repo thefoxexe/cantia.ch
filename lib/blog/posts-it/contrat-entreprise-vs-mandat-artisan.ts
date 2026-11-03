@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Due regimi giuridici, una differenza enorme: l’uno La impegna su un risultato, l’altro sui mezzi messi in campo. La maggior parte degli artigiani non sa sotto quale regime lavora.',
   category: 'Juridique & normes',
   keywords: ['contratto d’appalto', 'contratto di mandato', 'obbligo di risultato', 'obbligo di mezzi', 'diritto svizzero'],
-  publishedAt: '2026-03-19',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

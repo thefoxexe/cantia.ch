@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwischen dem nach m³ fakturierten Rohbau, den Ausbauarbeiten nach m² und den Handling-Stunden, die in keine Kategorie passen, frisst eine schlecht aufgebaute Maurerofferte die Marge schon vor dem ersten Spatenstich auf.',
   category: 'Métiers du bâtiment',
   keywords: ['offerte maurerarbeiten', 'fakturierung selbstständiger maurer', 'verwaltungssoftware maurerunternehmen', 'rohbau baustelle kalkulieren', 'preise maurerarbeiten schweiz'],
-  publishedAt: '2026-08-28',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

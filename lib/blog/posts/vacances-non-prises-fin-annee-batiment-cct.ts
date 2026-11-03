@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un solde de vacances qui s’accumule d’année en année n’est jamais anodin : soit il représente une dette envers l’employé, soit il révèle un problème d’organisation qui va se répéter.',
   category: 'RH & salaires',
   keywords: ['vacances non prises', 'solde vacances employé', 'droit travail bâtiment', 'CCT construction vacances', 'gestion RH chantier'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

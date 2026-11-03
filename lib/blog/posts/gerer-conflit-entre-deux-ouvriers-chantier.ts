@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un conflit entre deux ouvriers ne se résout presque jamais tout seul. Il s’enkyste, jusqu’à ce que le chantier entier en paie le prix.',
   category: 'RH & salaires',
   keywords: ['conflit entre ouvriers chantier', 'gérer conflit équipe bâtiment', 'tension chantier construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

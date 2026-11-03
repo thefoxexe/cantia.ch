@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die AHV/IV ist für Selbständige keine Option, anders als die 2. Säule. Und der angewandte Satz hängt von einer Schwelle ab, die fast niemand kennt.',
   category: 'Juridique & normes',
   keywords: ['AHV Beiträge Selbständige', 'IV Beiträge Bauwesen', 'Ausgleichskasse Beitragssatz', 'Nettoeinkommen AHV berechnen', 'Selbständigerwerbende AHV Schweiz'],
-  publishedAt: '2026-01-26',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

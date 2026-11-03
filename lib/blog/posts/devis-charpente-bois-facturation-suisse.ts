@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une charpente se construit en trois temps : l’achat du bois, le façonnage en atelier, puis la pose sur chantier. Un devis qui ne les distingue pas prend le risque de payer l’inflation du bois sur sa propre marge.',
   category: 'Métiers du bâtiment',
   keywords: ['devis charpente bois', 'facturation charpentier Suisse', 'prix bois construction', 'devis atelier charpente', 'pose charpente chantier'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

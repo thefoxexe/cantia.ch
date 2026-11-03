@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die gängige Annahme ist, zu warten, bis man «genug Kunden» hat, um eine Verwaltungssoftware zu rechtfertigen. In der Praxis bilden sich gerade am Anfang die schlechten administrativen Gewohnheiten – und die sind später am teuersten zu korrigieren.',
   category: 'Comparatifs & outils',
   keywords: ['software vom ersten tag selbständig', 'warum früh ausstatten bauunternehmen', 'verwaltungssoftware erster kunde', 'schlechte administrative gewohnheiten vermeiden', 'richtig starten mit gutem tool'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

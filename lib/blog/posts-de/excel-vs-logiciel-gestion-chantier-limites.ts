@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Bauunternehmen starten mit einer über Jahre zusammengebastelten Excel-Datei. Das ist am Anfang keine schlechte Wahl, aber eine Wahl, die schlecht altert, oft ohne dass man es merkt.',
   category: 'Comparatifs & outils',
   keywords: ['excel baustellenverwaltung', 'software statt excel baugewerbe', 'grenzen tabellenkalkulation bau', 'digitalisierung kmu baugewerbe', 'offerte rechnung tool'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

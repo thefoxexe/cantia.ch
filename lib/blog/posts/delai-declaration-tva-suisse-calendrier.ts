@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'délai dépôt tva afc',
     'intérêt moratoire tva suisse',
   ],
-  publishedAt: '2026-09-21',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '« Tant que vous y êtes, ajoutez donc ça » : la phrase la plus rentable à entendre sur un chantier, et la plus dangereuse à ne pas facturer correctement.',
   category: 'Devis & facturation',
   keywords: ['avenant', 'plus-value', 'moins-value', 'travaux supplémentaires', 'modification devis'],
-  publishedAt: '2026-04-27',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

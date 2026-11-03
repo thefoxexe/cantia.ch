@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup de petites entreprises traitent le certificat de travail comme une formalité de dernière minute. C’est un droit de l’employé, encadré par des règles précises sur ce qu’il peut et ne peut pas contenir.',
   category: 'RH & salaires',
   keywords: ['certificat de travail obligation', 'certificat de travail employé bâtiment', 'attestation de travail Suisse', 'droit employé certificat', 'fin contrat travail bâtiment'],
-  publishedAt: '2026-06-26',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

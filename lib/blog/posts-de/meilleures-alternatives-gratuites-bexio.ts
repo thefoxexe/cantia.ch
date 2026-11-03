@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bexio ist hervorragend für die vollständige Buchhaltung. Aber ein startendes Bauunternehmen braucht zuerst Offerten, Rechnungen und Baustellenverfolgung — nicht zwingend ein grosses Hauptbuch.',
   category: 'Comparatifs & outils',
   keywords: ['kostenlose Alternative Bexio', 'günstigere Software als Bexio', 'Bexio Vergleich Schweiz', 'Bau Software vs Bexio', 'erschwingliche Verwaltungssoftware Baugewerbe'],
-  publishedAt: '2026-07-23',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

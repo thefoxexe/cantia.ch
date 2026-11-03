@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il prezzo mostrato in cima a una pagina tariffaria non dice mai tutto. Il vero costo di un software si giudica su ciò che include realmente a quel prezzo, non sulla sola cifra.',
   category: 'Comparatifs & outils',
   keywords: ['prezzo software fatturazione', 'software fatturazione economico Svizzera', 'costo strumento gestione PMI', 'tariffa software preventivo fattura', 'budget software gestione impresa'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

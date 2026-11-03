@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bei Automatisierung im Bauwesen denkt man meist an Rechnungen. Dabei lässt sich die administrative Verwaltung einer Baustelle, eines Kunden oder eines Teams weit darüber hinaus automatisieren.',
   category: 'Sur-mesure & automatisations',
   keywords: ['administrative abläufe automatisieren handwerk', 'automatisierung verwaltung baubetrieb', 'administrativer aufwand bau reduzieren', 'baustellen kunden verwaltung automatisieren', 'zeit sparen verwaltung handwerker'],
-  publishedAt: '2026-08-27',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

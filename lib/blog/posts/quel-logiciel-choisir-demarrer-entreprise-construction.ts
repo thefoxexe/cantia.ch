@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Choisir un logiciel avant même d\'avoir son premier client, c\'est facile de se tromper. Mieux vaut se demander ce dont on aura besoin dans les trois premiers mois, pas dans les trois prochaines années.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel démarrage entreprise construction', 'choisir logiciel gestion bâtiment', 'outil pour nouvelle entreprise bâtiment', 'logiciel entreprise construction Suisse', 'démarrer société bâtiment'],
-  publishedAt: '2026-07-08',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

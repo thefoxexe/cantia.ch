@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le bâtiment est un secteur à risque, si bien que les règles de déclaration et de suivi de la SUVA y sont plus strictes qu’ailleurs. Une déclaration tardive ou mal remplie peut retarder l’indemnisation de l’employé.',
   category: 'RH & salaires',
   keywords: ['accident travail chantier', 'SUVA obligations employeur', 'déclaration accident construction', 'incapacité travail ouvrier', 'assurance accident bâtiment'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

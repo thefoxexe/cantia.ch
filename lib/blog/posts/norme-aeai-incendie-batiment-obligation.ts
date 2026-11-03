@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'matériaux classés résistance au feu',
     'aeai construction suisse',
   ],
-  publishedAt: '2026-09-23',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

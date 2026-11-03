@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwei Softwarelösungen nur anhand ihres Monatspreises zu vergleichen, ist wie zwei Offerten zu vergleichen, ohne zu prüfen, was sie enthalten: Das Preis-Leistungs-Verhältnis berechnet sich anders.',
   category: 'Comparatifs & outils',
   keywords: ['Preis Leistungs Verhältnis Software Bau KMU', 'Verwaltungssoftware Bau vergleichen', 'bestes Werkzeug fürs Budget Baugewerbe', 'Verwaltungssoftware Preis bewerten', 'Vergleich Preis Leistung Baustellen Software'],
-  publishedAt: '2026-08-04',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

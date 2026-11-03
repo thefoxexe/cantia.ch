@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der Start im Bauwesen bringt rund ein Dutzend Entscheidungen mit sich, die fast gleichzeitig zu treffen sind: eine klare Reihenfolge hilft, nichts zu vergessen, ohne sich schon am ersten Tag überfordert zu fühlen.',
   category: 'Comparatifs & outils',
   keywords: ['bauunternehmen schweiz gründen', 'wo anfangen firmengründung bau', 'schritte gründung bauunternehmen', 'formalitäten handwerker schweiz', 'checkliste start bauwesen'],
-  publishedAt: '2026-08-13',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

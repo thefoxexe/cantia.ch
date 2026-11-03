@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un acconto del 30% all’avvio dà una falsa sensazione di sicurezza se il resto del pagamento è suddiviso solo in due fasi. Il denaro che manca è quasi sempre quello di mezzo.',
   category: 'Devis & facturation',
   keywords: ['acconto', 'scadenzario pagamenti', 'fattura cantiere', 'sicurezza pagamento', 'saldo finale'],
-  publishedAt: '2026-02-23',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

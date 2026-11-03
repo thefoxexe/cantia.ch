@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Salvo che il documento precisasse esplicitamente una data limite, un cliente che torna tre mesi dopo con «il vostro preventivo» può legittimamente aspettarsi lo stesso prezzo.',
   category: 'Devis & facturation',
   keywords: ['durata validità preventivo', 'preventivo non firmato termine', 'preventivo scaduto', 'per quanto tempo è valido un preventivo', 'validità offerta di prezzo'],
-  publishedAt: '2026-06-09',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Automatisierung lässt oft an komplizierte Skripte oder teure Software denken. Für ein kleines Bauunternehmen kann es aber schlicht bedeuten, dass eine Mahnung von allein zum richtigen Zeitpunkt losgeht.',
   category: 'Sur-mesure & automatisations',
   keywords: ['aufgaben automatisieren ohne entwickler', 'automatisierung kmu baubranche', 'automatisieren ohne programmieren', 'zeit sparen automatisierung verwaltung', 'administrative automatisierung handwerk'],
-  publishedAt: '2026-08-16',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

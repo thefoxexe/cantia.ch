@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cliente che clicca «Accetto» su un link firma tanto quanto con una penna: per la stragrande maggioranza dei preventivi dell’edilizia, la legge svizzera non chiede nient’altro.',
   category: 'Devis & facturation',
   keywords: ['firma elettronica', 'firma online', 'valore legale', 'preventivo firmato', 'firma digitale'],
-  publishedAt: '2026-04-20',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

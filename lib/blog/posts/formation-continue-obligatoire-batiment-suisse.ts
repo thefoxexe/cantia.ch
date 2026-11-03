@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une habilitation périmée ne se voit pas au quotidien — jusqu’au jour où un accident survient, et où l’assurance ou l’inspection du travail la réclame.',
   category: 'RH & salaires',
   keywords: ['formation continue bâtiment suisse', 'recyclage sécurité chantier', 'habilitations obligatoires construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

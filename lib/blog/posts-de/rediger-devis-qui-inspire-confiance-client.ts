@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwei Offerten zum gleichen Preis sind für einen Kunden nie gleichwertig. Was das Zünglein an der Waage ist, ist fast nie die Zahl am unteren Rand der Seite.',
   category: 'Devis & facturation',
   keywords: ['offerte kunde vertrauen', 'offerte präsentation gestalten', 'offerte online unterschreiben', 'offerte annahme', 'offerte glaubwürdig wirken'],
-  publishedAt: '2026-02-19',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

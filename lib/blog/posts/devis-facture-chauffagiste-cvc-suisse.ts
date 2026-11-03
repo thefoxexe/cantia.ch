@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis de remplacement de chauffage n’est presque jamais un simple échange de matériel : c’est un projet technique, un délai de livraison à anticiper, et souvent un dossier de subvention à faire tenir ensemble.',
   category: 'Métiers du bâtiment',
   keywords: ['devis chauffagiste', 'facturation installateur CVC Suisse', 'remplacement chaudière prix', 'pompe à chaleur devis subvention', 'délai livraison chauffage devis'],
-  publishedAt: '2026-09-14',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

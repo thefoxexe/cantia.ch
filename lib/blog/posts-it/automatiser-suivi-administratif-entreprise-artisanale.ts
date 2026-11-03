@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Quando si pensa all’automazione nell’edilizia, si pensa spesso alle fatture. Eppure, il monitoraggio amministrativo di un cantiere, di un cliente o di un team può essere automatizzato ben oltre questo.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatizzare monitoraggio amministrativo impresa', 'automazione gestione artigianale', 'ridurre onere amministrativo edilizia', 'automatizzare monitoraggio cantiere cliente', 'risparmiare tempo amministrativo artigiano'],
-  publishedAt: '2026-08-27',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

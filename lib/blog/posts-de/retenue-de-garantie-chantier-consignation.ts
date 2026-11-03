@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Einen Teil der Zahlung als Absicherung gegen künftige Mängel einzubehalten, ist weder verboten noch ein selbstverständliches Recht. Es ist eine Klausel, die verhandelt wird, mit klaren Grenzen.',
   category: 'Juridique & normes',
   keywords: ['garantierückbehalt baustelle', 'sicherheitsleistung bauwerk', 'bankgarantie baustelle', 'zahlungsrückbehalt bauarbeiten', 'schlusszahlung einbehalten'],
-  publishedAt: '2026-06-22',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

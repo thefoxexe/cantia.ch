@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Software zu wählen, noch bevor man den ersten Kunden hat, verleitet leicht zu Fehlentscheidungen. Besser fragt man sich, was in den ersten drei Monaten gebraucht wird, nicht in den nächsten drei Jahren.',
   category: 'Comparatifs & outils',
   keywords: ['software firmengründung bauunternehmen', 'baugewerbe software wählen', 'tool für neue baufirma', 'baufirma software schweiz', 'baufirma gründen software'],
-  publishedAt: '2026-07-08',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

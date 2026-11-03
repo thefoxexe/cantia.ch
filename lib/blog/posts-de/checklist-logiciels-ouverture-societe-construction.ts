@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwischen dem Handelsregistereintrag und der ersten Baustelle bleibt nur ein kurzes Zeitfenster, um die digitalen Werkzeuge einzurichten. Da hilft eine Checkliste mehr als Improvisation.',
   category: 'Comparatifs & outils',
   keywords: ['software checkliste gründung bauunternehmen', 'werkzeuge liste firmengründung bau', 'software vorbereiten vor erster baustelle', 'digitales setup neues bauunternehmen', 'software schritte firmengründung'],
-  publishedAt: '2026-08-01',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

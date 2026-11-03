@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des clients satisfaits recommanderaient volontiers leur artisan : le problème n’est presque jamais leur envie, c’est qu’on ne le leur demande tout simplement jamais, ou trop maladroitement.',
   category: 'Croissance & acquisition',
   keywords: ['programme de parrainage artisan', 'recommandation clients bâtiment', 'bouche à oreille entreprise construction', 'fidélisation client artisan Suisse', 'apporteur affaire chantier'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-08-28',
   readMinutes: 4,
   blocks: [
     {

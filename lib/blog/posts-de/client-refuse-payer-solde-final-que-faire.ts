@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Kunde, der „nicht zahlen will", hat fast immer einen konkreten Grund im Kopf: einen Mangel, eine Preisdifferenz, einen Zweifel. Diesen zu identifizieren verändert alles Weitere.',
   category: 'Devis & facturation',
   keywords: ['unbezahlter Restbetrag', 'Zahlungsverweigerung', 'Baustellenstreit', 'Betreibung Schweiz', 'Garantierückbehalt'],
-  publishedAt: '2026-04-23',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

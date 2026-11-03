@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un contrat de travail copié d’un modèle générique oublie presque toujours les particularités du bâtiment : chantiers multiples, véhicule de service, heures qui débordent.',
   category: 'RH & salaires',
   keywords: ['contrat de travail', 'clauses', 'bâtiment', 'RH', 'employeur'],
-  publishedAt: '2026-09-27',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le passage d’un à trois chantiers en parallèle ne double pas la charge de travail : il multiplie le nombre de choses qu’il faut se rappeler sans les avoir écrites nulle part.',
   category: 'Chantier & rentabilité',
   keywords: ['plusieurs chantiers', 'organisation chantier', 'planning équipe', 'coordination', 'gestion multi-projets'],
-  publishedAt: '2026-04-09',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

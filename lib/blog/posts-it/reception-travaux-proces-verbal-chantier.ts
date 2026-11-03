@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti cantieri si concludono senza alcun documento formale: solo chiavi consegnate e un ultimo acconto pagato. È esattamente il momento in cui una controversia diventa impossibile da dirimere per mancanza di prova.',
   category: 'Juridique & normes',
   keywords: ['consegna dei lavori', 'verbale cantiere', 'garanzia costruzione', 'difetti cantiere', 'fine cantiere'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

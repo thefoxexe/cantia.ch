@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La majorité des factures en retard ne le sont pas par mauvaise foi, elles sont juste tombées dans une pile. La relance efficace commence par supposer ça, pas l’inverse.',
   category: 'Devis & facturation',
   keywords: ['relance facture', 'impayé', 'recouvrement', 'client qui ne paie pas', 'mise en demeure'],
-  publishedAt: '2026-02-26',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

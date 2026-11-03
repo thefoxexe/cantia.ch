@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Rester seul aux commandes de son entreprise n\'est pas toujours un choix par défaut : pour beaucoup d\'indépendants, c\'est un vrai choix, à condition d\'avoir les bons outils pour ne pas être débordé.',
   category: 'Comparatifs & outils',
   keywords: ['gérer entreprise seul sans embaucher', 'outils indépendant sans employé', 'rester solo entreprise bâtiment', 'gestion administrative solo efficace', 'travailler seul artisan Suisse'],
-  publishedAt: '2026-08-07',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

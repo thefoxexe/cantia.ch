@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un chantier « bien payé » peut quand même être un chantier perdant, si son coût réel n’a jamais été calculé après coup. Voici les composantes à additionner pour le savoir vraiment.',
   category: 'Chantier & rentabilité',
   keywords: ['prix de revient chantier', 'calcul coût chantier bâtiment', 'coût réel travaux construction', 'rentabilité travaux', 'décomposition coût chantier'],
-  publishedAt: '2026-07-03',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

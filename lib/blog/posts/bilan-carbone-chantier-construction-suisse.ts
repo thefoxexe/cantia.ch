@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le bilan carbone d’un chantier n’est pas une case cochée pour faire plaisir. C’est une addition très concrète de matériaux, de trajets et d’énergie consommée pendant les travaux.',
   category: 'Juridique & normes',
   keywords: ['bilan carbone chantier', 'empreinte carbone construction suisse', 'bilan carbone bâtiment'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

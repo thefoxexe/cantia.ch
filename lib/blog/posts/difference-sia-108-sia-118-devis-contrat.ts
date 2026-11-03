@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Les deux normes portent des numéros voisins et sortent du même éditeur. L’une concerne pourtant les travaux de construction, l’autre les prestations intellectuelles. La confusion est fréquente et coûteuse.',
   category: 'Juridique & normes',
   keywords: ['SIA 108 vs SIA 118', 'norme SIA construction', 'différence SIA 108 SIA 118', 'norme SIA devis', 'contrat entreprise SIA'],
-  publishedAt: '2026-06-17',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

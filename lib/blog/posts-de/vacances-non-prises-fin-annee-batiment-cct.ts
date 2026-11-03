@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Ferienguthaben, das sich Jahr für Jahr anhäuft, ist nie belanglos: Entweder stellt es eine Schuld gegenüber dem Mitarbeitenden dar, oder es offenbart ein Organisationsproblem, das sich wiederholen wird.',
   category: 'RH & salaires',
   keywords: ['nicht bezogene ferien', 'ferienguthaben mitarbeiter', 'arbeitsrecht baugewerbe schweiz', 'gav bau ferien', 'personalverwaltung baustelle'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

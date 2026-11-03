@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Rechnung, die «korrekt aussieht», und eine Rechnung, die alle Anforderungen der ESTV erfüllt, sind nicht immer dasselbe. Eine einzige fehlende Angabe genügt, um sie angreifbar zu machen.',
   category: 'Devis & facturation',
   keywords: ['obligatorische Angaben Rechnung Schweiz', 'MWST Nummer Rechnung', 'ESTV Rechnung', 'konforme Rechnung', 'Fakturierung Handwerker'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

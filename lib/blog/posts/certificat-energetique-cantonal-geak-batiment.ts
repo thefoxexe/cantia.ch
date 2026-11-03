@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une note de A à G, un peu comme sur un électroménager, mais pour un bâtiment entier : voici ce qu’il faut savoir sur le CECB avant qu’un client n’en parle sur un chantier.',
   category: 'Juridique & normes',
   keywords: ['CECB certificat énergétique bâtiment', 'GEAK obligatoire suisse', 'certificat énergétique cantonal'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

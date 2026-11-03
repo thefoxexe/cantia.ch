@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Infrastructures, routes, ouvrages d’art : le génie civil se chiffre à une échelle différente du bâtiment classique, avec des règles de facturation qui suivent l’avancement du chantier.',
   category: 'Métiers du bâtiment',
   keywords: ['devis génie civil suisse', 'facturation situations avancement chantier', 'marchés publics génie civil'],
-  publishedAt: '2026-10-12',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

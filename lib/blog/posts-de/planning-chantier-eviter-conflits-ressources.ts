@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Fast nie ist es ein Problem des mangelnden guten Willens: Es ist ein Problem der Übersicht. Niemand sieht die gesamte Planung an einem Ort, also kann auch niemand den Konflikt erkennen, bevor er vor Ort eskaliert.',
   category: 'Chantier & rentabilité',
   keywords: ['planungskonflikt baustelle', 'teamplanung bauunternehmen', 'ressourcenplanung mehrere baustellen', 'organisation bauunternehmen', 'gemeinsame baustellenplanung'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

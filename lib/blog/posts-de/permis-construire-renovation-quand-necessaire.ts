@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Bad neu zu gestalten, erfordert grundsätzlich keine Bewilligung. Eine tragende Wand anzufassen hingegen schon, und die Grenze zwischen beidem liegt in Details, die kaum ein Handwerker vor Baubeginn prüft.',
   category: 'Juridique & normes',
   keywords: ['baubewilligung renovation schweiz', 'meldeverfahren bau', 'baugesuch sanierung', 'tragende wand bewilligung', 'kanton baubewilligung unterschied'],
-  publishedAt: '2026-03-16',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La question n’est pas vraiment de savoir si un site internet apporte directement des clients : c’est surtout ce qui se passe juste après qu’un client potentiel a entendu parler de vous, et va vérifier avant d’appeler.',
   category: 'Croissance & acquisition',
   keywords: ['site internet artisan bâtiment', 'faut-il un site web entreprise construction', 'vitrine en ligne artisan', 'crédibilité digitale entreprise bâtiment', 'référencement local artisan'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-08-28',
   readMinutes: 4,
   blocks: [
     {

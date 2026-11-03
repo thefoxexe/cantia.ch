@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Kein anderes Bau-Gewerbe ist so direkt dem Wetter ausgesetzt wie die Dachdeckerei. Eine Dachofferte ohne Wettermarge und ohne Sicherheitskosten geht deshalb ein Risiko ein, das sie oft verliert.',
   category: 'Métiers du bâtiment',
   keywords: ['offerte dachdecker', 'dach fakturierung schweiz', 'preis dachsanierung', 'sicherheit baustelle dach', 'offerte dachstuhl deckung'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

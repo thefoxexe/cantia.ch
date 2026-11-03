@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il prezzo al m² è semplice da annunciare, ma tutto si gioca nel calcolo della superficie reale. È esattamente lì che la maggior parte dei preventivi di pittura perde margine senza che nessuno se ne accorga.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo pittore edile', 'calcolo superficie pittura', 'prezzo pittura al m2 Svizzera', 'fatturazione pittore indipendente', 'preparazione supporto pittura preventivo'],
-  publishedAt: '2026-09-02',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

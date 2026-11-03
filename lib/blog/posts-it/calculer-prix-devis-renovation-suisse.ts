@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La tariffa oraria copiata da un concorrente è la prima causa di cantieri che «girano» senza mai arricchire nessuno. Ecco come calcolarla davvero.',
   category: 'Devis & facturation',
   keywords: ['preventivo', 'prezzo', 'ristrutturazione', 'costo orario', 'margine', 'iva', 'calcolo prezzi'],
-  publishedAt: '2026-01-12',
+  publishedAt: '2026-09-10',
   readMinutes: 7,
   blocks: [
     {

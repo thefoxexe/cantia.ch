@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Faire intervenir une entreprise étrangère sur un chantier suisse ne dispense d’aucune règle : le détachement est encadré, et les contrôles sur les chantiers sont réels.',
   category: 'RH & salaires',
   keywords: ['travailleur détaché', 'bâtiment', 'annonce', 'CCT', 'contrôle chantier'],
-  publishedAt: '2026-09-27',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

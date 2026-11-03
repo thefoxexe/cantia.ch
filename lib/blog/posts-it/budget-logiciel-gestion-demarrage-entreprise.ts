@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il budget software di un\'impresa che parte è spesso sottostimato al momento del business plan. Lo si scopre poi, voce per voce, nei primi mesi di attività.',
   category: 'Comparatifs & outils',
   keywords: ['budget software avvio impresa', 'costo strumenti digitali PMI edilizia', 'business plan software gestione', 'prevedere budget informatico impresa', 'spese software avvio'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

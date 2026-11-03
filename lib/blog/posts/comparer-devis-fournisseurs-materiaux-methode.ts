@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Comparer des devis fournisseurs seulement sur le prix total est le piège le plus courant. Voici les critères à aligner avant de choisir.',
   category: 'Chantier & rentabilité',
   keywords: ['comparer devis fournisseurs matériaux', 'choisir fournisseur bâtiment'],
-  publishedAt: '2026-10-09',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un client qui ne paie pas peut être poursuivi. Mais s’il est insolvable ou disparaît, la poursuite ne récupère rien. L’hypothèque légale, elle, garde une prise directe sur le bâtiment que vous avez construit.',
   category: 'Juridique & normes',
   keywords: ['hypothèque légale artisans', 'art 837 CC', 'garantie paiement chantier', 'registre foncier', 'entrepreneur impayé'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

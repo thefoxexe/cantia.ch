@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Contrairement au neuf, une rénovation générale se chiffre toujours avec une part d’inconnu : l’état réel du bâtiment existant. Voici comment s’en protéger dès le devis.',
   category: 'Métiers du bâtiment',
   keywords: ['devis rénovation générale suisse', 'facturation entreprise rénovation', 'clause imprévu chantier rénovation'],
-  publishedAt: '2026-10-12',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

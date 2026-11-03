@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Wasserschaden, der eine laufende Baustelle zerstört, ein Brand, ein Diebstahl von bereits verbautem Material: Ohne ECTR wird aus der Frage «Wer zahlt» schnell ein Konflikt zwischen Bauherrschaft und Unternehmern.',
   category: 'Juridique & normes',
   keywords: ['Bauwesenversicherung Schweiz', 'ECTR Bauversicherung', 'Versicherung Baustellenschaden', 'Schaden laufende Baustelle', 'Bauversicherung Werkvertrag'],
-  publishedAt: '2026-08-01',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

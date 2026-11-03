@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele denken, eine Fakturierungssoftware sei nur für «richtige Firmen» gedacht. Bei einer Einzelfirma macht sie oft den grössten Unterschied, weil kein administratives Team im Hintergrund steht.',
   category: 'Comparatifs & outils',
   keywords: ['Fakturierungssoftware Einzelfirma', 'Rechnungsstellung Selbstständige Schweiz', 'Einzelfirma Verwaltungstools', 'Rechnungssoftware Einzelunternehmen', 'administrative Verwaltung Selbstständige Schweiz'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

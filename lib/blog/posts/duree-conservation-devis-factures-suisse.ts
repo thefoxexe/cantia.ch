@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une facture de mars 2026 doit rester accessible jusqu’à fin 2036, pas jusqu’à mars 2036. Un détail de calcul du délai que la plupart des entreprises ratent.',
   category: 'Juridique & normes',
   keywords: ['conservation documents', 'archivage factures', 'délai légal', 'code des obligations', 'comptabilité'],
-  publishedAt: '2026-02-16',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Al momento di avviarsi, la tentazione è quella di volersi equipaggiare di tutto in una volta. In realtà, pochissimi strumenti sono davvero indispensabili fin dal primo giorno, il resto può aspettare.',
   category: 'Comparatifs & outils',
   keywords: ['strumenti indispensabili avviare impresa edile', 'checklist avvio artigiano', 'cosa serve per lanciare la propria impresa edile', 'attrezzatura di base nuova impresa edile', 'strumenti essenziali artigiano Svizzera'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

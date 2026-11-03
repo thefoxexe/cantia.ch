@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La fattura finale non è solo l’ultimo documento del cantiere: è quello che fissa la relazione con il cliente. Meglio prepararla con metodo che doverla correggere in seguito.',
   category: 'Chantier & rentabilité',
   keywords: ['checklist fine cantiere', 'chiudere un cantiere', 'fattura finale lavori', 'verifica prima della fatturazione', 'fine lavori edilizia'],
-  publishedAt: '2026-06-10',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

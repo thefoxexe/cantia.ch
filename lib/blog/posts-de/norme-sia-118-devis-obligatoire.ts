@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Architekt hat die SIA 118 in einer Sitzung erwähnt, und Sie glauben, sie gelte automatisch für Ihre Baustelle. Das ist falsch — und im Streitfall teuer.',
   category: 'Juridique & normes',
   keywords: ['SIA 118', 'Norm', 'Vertrag', 'Offerte', 'Pflicht', 'Bauwesen'],
-  publishedAt: '2026-01-15',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

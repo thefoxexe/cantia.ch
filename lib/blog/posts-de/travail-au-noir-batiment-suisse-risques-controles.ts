@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Baugewerbe zählt zu den am stärksten kontrollierten Branchen der Schweiz. Und die schwerste Sanktion ist nicht die Busse. Es ist der Ausschluss von öffentlichen Aufträgen.',
   category: 'Juridique & normes',
   keywords: ['schwarzarbeit baugewerbe schweiz', 'bgsa kontrolle', 'baustellenkontrolle', 'sanktionen bauunternehmen', 'seco schwarzarbeit'],
-  publishedAt: '2026-04-30',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un déchet mélangé coûte presque toujours plus cher qu’un déchet trié. Sur un chantier, cette règle simple se traduit directement dans la facture d’évacuation.',
   category: 'Juridique & normes',
   keywords: ['tri déchets chantier suisse', 'gestion déchets construction obligatoire', 'déchets de chantier tri sélectif'],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

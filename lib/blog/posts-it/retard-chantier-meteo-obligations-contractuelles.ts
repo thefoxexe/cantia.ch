@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il cliente attende il suo cantiere terminato, il meteo non ha collaborato, e senza prova scritta, il ritardo rischia di ricadere interamente sull’impresario, anche quando non ne ha colpa.',
   category: 'Chantier & rentabilité',
   keywords: ['ritardo cantiere meteo', 'intemperie costruzione', 'termine contrattuale edilizia', 'responsabilità impresario', 'prova ritardo cantiere'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

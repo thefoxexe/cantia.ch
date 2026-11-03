@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der Kunde wartet auf die fertige Baustelle, das Wetter hat nicht mitgespielt, und ohne schriftlichen Beweis droht der Verzug vollständig auf den Unternehmer zurückzufallen, selbst wenn er nichts dafür kann.',
   category: 'Chantier & rentabilité',
   keywords: ['baustellenverzug wetter', 'unwetter bauverzögerung', 'vertragsfrist bauwesen', 'haftung unternehmer bauverzug', 'nachweis bauverzögerung'],
-  publishedAt: '2026-07-22',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

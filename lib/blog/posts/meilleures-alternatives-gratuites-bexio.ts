@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bexio est excellent pour la comptabilité complète. Mais une entreprise du bâtiment qui démarre a d\'abord besoin de devis, de factures et de suivi de chantier, pas forcément d\'un grand livre comptable.',
   category: 'Comparatifs & outils',
   keywords: ['alternative gratuite Bexio', 'logiciel moins cher que Bexio', 'comparatif Bexio Suisse', 'outil bâtiment vs Bexio', 'logiciel gestion bâtiment abordable'],
-  publishedAt: '2026-07-23',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

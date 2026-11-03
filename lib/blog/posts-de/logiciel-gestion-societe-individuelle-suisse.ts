@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Einzelunternehmen hat in der Regel nur eine einzige Person am Steuer von allem, was die Prioritäten bei der Wahl einer Verwaltungssoftware vollständig verändert.',
   category: 'Comparatifs & outils',
   keywords: ['verwaltungssoftware einzelunternehmen', 'software für einzelunternehmen schweiz', 'software einzelfirma bau', 'administrative verwaltung einzelunternehmen', 'fakturierung einzelunternehmen schweiz'],
-  publishedAt: '2026-07-29',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Entre le dépannage d’urgence et le remplacement de fenêtres complètes, le vitrier jongle avec deux logiques de devis très différentes. Voici comment les structurer correctement.',
   category: 'Métiers du bâtiment',
   keywords: ['devis vitrier suisse', 'facturation vitrerie', 'prix remplacement vitrage suisse'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La domanda non è tanto se un sito internet porti direttamente clienti: è soprattutto ciò che succede subito dopo che un potenziale cliente ha sentito parlare di Lei, e va a verificare prima di chiamare.',
   category: 'Croissance & acquisition',
   keywords: ['sito internet artigiano edilizia', 'serve un sito web impresa costruzione', 'vetrina online artigiano', 'credibilità digitale impresa edilizia', 'posizionamento locale artigiano'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis signé sans date de validité vous engage indéfiniment, y compris si le prix du bois a doublé entre-temps. C’est une ligne, pas un détail.',
   category: 'Devis & facturation',
   keywords: ['validité devis', 'prix matériel', 'engagement contractuel', 'clause de révision', 'devis signé'],
-  publishedAt: '2026-03-02',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

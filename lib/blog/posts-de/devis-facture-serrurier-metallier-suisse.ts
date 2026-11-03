@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwischen einem über mehrere Wochen gefertigten Stahltor und einem am Samstagabend in Eile ausgewechselten Schloss muss der Metallbauer-Schlosser zwei radikal unterschiedliche Arten der Fakturierung nebeneinander bestehen lassen.',
   category: 'Métiers du bâtiment',
   keywords: ['offerte schlosser metallbau', 'notfall schlüsseldienst rechnung', 'preis massanfertigung metallbau', 'offerte geländer tor', 'tarif schlosser notdienst schweiz'],
-  publishedAt: '2026-09-15',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

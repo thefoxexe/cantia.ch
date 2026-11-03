@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le prix au m² d’une isolation de façade varie du simple au double selon le système choisi — et l’écart initial se rattrape souvent sur la facture de chauffage.',
   category: 'Devis & facturation',
   keywords: ['isolation', 'façade', 'prix', 'm2', 'rénovation énergétique', 'subventions'],
-  publishedAt: '2026-09-25',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

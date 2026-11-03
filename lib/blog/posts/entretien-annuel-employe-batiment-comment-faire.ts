@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Dans le bâtiment, le rythme est dicté par les chantiers, pas par un calendrier RH. C’est justement pour ça qu’un vrai temps d’échange annuel a de la valeur.',
   category: 'RH & salaires',
   keywords: ['entretien annuel employé bâtiment', 'entretien évaluation construction', 'management RH bâtiment'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

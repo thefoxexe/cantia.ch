@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der tiefste Preis gewinnt die Offerte nicht immer: Wer als Erster antwortet, mit einer klaren und professionellen Offerte, schnappt sich den Kunden oft, bevor die anderen ihre Schätzung überhaupt fertig haben.',
   category: 'Croissance & acquisition',
   keywords: ['reaktionsgeschwindigkeit offerte', 'konversionsrate offerte baugewerbe', 'schnell antworten kunde handwerker', 'kunde verlieren langsame offerte', 'offertfrist baustelle'],
-  publishedAt: '2026-09-05',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

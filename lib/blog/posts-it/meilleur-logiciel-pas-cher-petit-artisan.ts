@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artigiano solo non ha bisogno di uno strumento per venti dipendenti. Ma ha comunque bisogno di uno strumento completo, semplicemente dimensionato per una sola persona.',
   category: 'Comparatifs & outils',
   keywords: ['miglior software economico artigiano', 'software gestione artigiano solo', 'strumento accessibile piccolo artigiano', 'software economico edilizia', 'fatturazione artigiano indipendente economico'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Face à un client qui semble vouloir disparaître avant de payer, la poursuite ordinaire peut arriver trop tard. La saisie conservatoire existe pour ce cas précis.',
   category: 'Juridique & normes',
   keywords: ['saisie conservatoire créance impayée', 'séquestre débiteur bâtiment suisse'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

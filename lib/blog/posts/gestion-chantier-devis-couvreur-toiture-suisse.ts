@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Aucun autre métier du bâtiment n’est aussi directement exposé à la météo que la couverture. Un devis de toiture qui ne prévoit ni marge météo ni coût de sécurité prend donc un pari qu’il finit souvent par perdre.',
   category: 'Métiers du bâtiment',
   keywords: ['devis couvreur', 'facturation toiture Suisse', 'prix rénovation toiture', 'sécurité chantier toiture', 'devis charpente couverture'],
-  publishedAt: '2026-09-07',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

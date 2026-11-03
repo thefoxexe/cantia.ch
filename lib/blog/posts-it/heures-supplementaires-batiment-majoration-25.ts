@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il CCL edilizia 2026 cambia una regola che quasi nessuno ha ancora integrato: le ore di spostamento contano ormai nel calcolo delle ore straordinarie.',
   category: 'RH & salaires',
   keywords: ['ore straordinarie', 'maggiorazione 25%', 'ccl edilizia', 'tempo di spostamento', 'compensazione ore'],
-  publishedAt: '2026-03-26',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

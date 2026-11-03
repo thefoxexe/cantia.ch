@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le poste le plus sous-estimé d’un devis de démolition n’est presque jamais la démolition elle-même, mais l’évacuation et le tri des déchets qui en résultent.',
   category: 'Métiers du bâtiment',
   keywords: ['devis démolition suisse', 'facturation entreprise démolition', 'prix évacuation gravats chantier'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

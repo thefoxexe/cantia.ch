@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis fait depuis le chantier, pendant que tout est encore frais en tête, n’a rien à voir avec un devis retapé le soir de mémoire.',
   category: 'Comparatifs & outils',
   keywords: ['application devis mobile artisan', 'meilleure app devis chantier', 'devis sur mobile bâtiment'],
-  publishedAt: '2026-10-01',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

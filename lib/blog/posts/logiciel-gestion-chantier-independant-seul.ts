@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La croyance la plus répandue chez les indépendants du bâtiment : « les logiciels de gestion, c’est pour les équipes ». C’est faux, et c’est même souvent l’inverse.',
   category: 'Comparatifs & outils',
   keywords: ['indépendant bâtiment', 'logiciel solo', 'gestion administrative', 'artisan seul', 'outil devis facture'],
-  publishedAt: '2026-05-14',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

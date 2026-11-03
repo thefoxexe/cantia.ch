@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Tra un cancello in acciaio fabbricato in diverse settimane e una serratura cambiata d’urgenza un sabato sera, il fabbro-metallurgico deve far convivere due modi di fatturare radicalmente diversi.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo fabbro metallurgico', 'fatturazione riparazione serratura', 'prezzo opera metallica su misura', 'preventivo parapetto cancello', 'tariffa fabbro urgenza Svizzera'],
-  publishedAt: '2026-09-15',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

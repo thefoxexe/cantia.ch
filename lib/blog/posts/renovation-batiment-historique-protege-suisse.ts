@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un bâtiment classé ou protégé ne se rénove pas comme les autres. Entre autorisations plus lentes et matériaux imposés, voici ce qui change pour le chiffrage et le planning.',
   category: 'Chantier & rentabilité',
   keywords: ['rénovation bâtiment historique suisse', 'bâtiment protégé travaux autorisation', 'devis rénovation monument historique'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

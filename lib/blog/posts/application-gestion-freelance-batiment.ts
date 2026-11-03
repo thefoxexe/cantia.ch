@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un freelance du bâtiment n\'a pas de bureau fixe où revenir chaque soir, alors son outil de gestion doit vivre dans sa poche, pas seulement sur un écran d\'ordinateur.',
   category: 'Comparatifs & outils',
   keywords: ['application gestion freelance bâtiment', 'app gestion chantier mobile', 'outil freelance construction Suisse', 'gestion administrative sur mobile', 'application indépendant bâtiment'],
-  publishedAt: '2026-07-11',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

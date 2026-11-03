@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Ci siamo accordati al telefono» impegna giuridicamente entrambe le parti in Svizzera. Il vero problema arriva il giorno in cui una delle due sostiene il contrario.',
   category: 'Juridique & normes',
   keywords: ['preventivo orale', 'accordo verbale', 'prova contratto', 'forma del contratto', 'art 11 co'],
-  publishedAt: '2026-04-16',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

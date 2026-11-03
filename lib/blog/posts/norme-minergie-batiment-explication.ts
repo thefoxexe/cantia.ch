@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Minergie n’oblige aucune entreprise par la loi. Mais dès qu’un maître d’ouvrage vise le label, la façon de poser une isolation ou de traiter une jonction change vraiment.',
   category: 'Juridique & normes',
   keywords: ['norme minergie explication', 'label minergie bâtiment', 'minergie artisan travaux'],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

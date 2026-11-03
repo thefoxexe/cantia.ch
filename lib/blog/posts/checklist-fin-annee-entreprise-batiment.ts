@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'fin d’année entreprise construction suisse',
     'bilan chantier fin année',
   ],
-  publishedAt: '2026-10-04',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Allein am Ruder des eigenen Unternehmens zu bleiben, ist nicht immer eine Notlösung: Für viele Selbstständige ist es eine bewusste Wahl, vorausgesetzt, sie haben die richtigen Tools, um nicht überfordert zu sein.',
   category: 'Comparatifs & outils',
   keywords: ['unternehmen allein führen ohne einstellen', 'tools selbstständig ohne mitarbeiter', 'solo bleiben bauunternehmen', 'administration solo effizient', 'allein arbeiten handwerker schweiz'],
-  publishedAt: '2026-08-07',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'devenir indépendant bâtiment suisse',
     'guide création entreprise construction',
   ],
-  publishedAt: '2026-09-18',
+  publishedAt: '2026-09-22',
   readMinutes: 9,
   blocks: [
     {

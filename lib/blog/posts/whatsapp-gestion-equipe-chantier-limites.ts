@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'WhatsApp est un excellent outil de discussion. Ce n’est pas un outil de gestion. Et la différence devient brutale dès que l’équipe dépasse cinq personnes.',
   category: 'Comparatifs & outils',
   keywords: ['whatsapp chantier', 'gestion équipe', 'communication chantier', 'outil chantier', 'organisation bâtiment'],
-  publishedAt: '2026-04-13',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

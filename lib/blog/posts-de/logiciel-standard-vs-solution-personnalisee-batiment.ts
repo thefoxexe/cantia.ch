@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Frage «Standard oder massgeschneidert» ist oft falsch gestellt: Die wirklich effizienteste Option für die meisten Unternehmen ist eine verlässliche Standardbasis, ergänzt um genau das Mass an Anpassung, das nötig ist.',
   category: 'Sur-mesure & automatisations',
   keywords: ['standardsoftware vs massanfertigung', 'individuelle lösung bauunternehmen', 'kosten massgeschneiderte entwicklung', 'wahl zwischen standard und individuell', 'verwaltungssoftware 100% individuell'],
-  publishedAt: '2026-08-19',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

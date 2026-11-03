@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Quand les parties ne s’entendent pas sur la cause d’un défaut de construction, l’expertise judiciaire tranche techniquement. Voici comment elle se déroule.',
   category: 'Juridique & normes',
   keywords: ['expertise judiciaire malfaçon construction', 'expert bâtiment litige technique'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

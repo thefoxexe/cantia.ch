@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un indipendente costretto a letto per tre settimane non riceve nulla, a meno che non abbia lui stesso sottoscritto un’assicurazione che nulla lo obbliga ad avere. La LAMal copre solo le cure, mai il salario perso.',
   category: 'Juridique & normes',
   keywords: ['perdita di guadagno malattia', 'indipendente', 'lamal', 'indennità giornaliere', 'assicurazione malattia'],
-  publishedAt: '2026-05-04',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

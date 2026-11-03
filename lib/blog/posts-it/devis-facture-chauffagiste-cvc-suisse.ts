@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un preventivo di sostituzione del riscaldamento non è quasi mai una semplice sostituzione di materiale: è un progetto tecnico, un termine di consegna da anticipare, e spesso un fascicolo di sussidio da far quadrare.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo tecnico riscaldamento', 'fatturazione installatore CVC Svizzera', 'prezzo sostituzione caldaia', 'pompa di calore preventivo sussidio', 'termine consegna riscaldamento preventivo'],
-  publishedAt: '2026-09-14',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

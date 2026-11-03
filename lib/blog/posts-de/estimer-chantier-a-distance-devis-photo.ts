@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Jeder Termin, der nicht zu einer Baustelle wird, ist Zeit, die dem nächsten Kunden geschenkt wird. Zu wissen, wann man aus der Ferne einschätzt und wann man das ablehnt, lässt sich berechnen.',
   category: 'Chantier & rentabilité',
   keywords: ['offerte aus der ferne', 'einschätzung per foto', 'baustellenbesichtigung', 'kosten vor-ort-termin', 'produktivität handwerker'],
-  publishedAt: '2026-05-25',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Basta ribattere ogni fattura in Bexio dopo averla creata in Cantia. La connessione si fa con un clic da Account → Integrazioni, e resta aggiornata da sola.',
   category: 'Comparatifs & outils',
   keywords: ['bexio', 'integrazione bexio', 'sincronizzazione contabilità', 'api bexio', 'fattura automatica'],
-  publishedAt: '2026-08-25',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

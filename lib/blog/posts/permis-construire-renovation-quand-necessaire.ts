@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Refaire une salle de bains ne demande en principe aucun permis. Toucher un mur porteur, si, et la limite entre les deux se joue à des détails que peu d’artisans vérifient avant de commencer.',
   category: 'Juridique & normes',
   keywords: ['permis de construire', 'rénovation', 'procédure d’annonce', 'autorisation travaux', 'canton'],
-  publishedAt: '2026-03-16',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

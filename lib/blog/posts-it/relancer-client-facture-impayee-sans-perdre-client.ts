@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggioranza delle fatture in ritardo non lo è per malafede, sono semplicemente finite in una pila. Il sollecito efficace parte da questa ipotesi, non dal contrario.',
   category: 'Devis & facturation',
   keywords: ['sollecito fattura', 'insoluto', 'recupero crediti', 'cliente che non paga', 'diffida'],
-  publishedAt: '2026-02-26',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

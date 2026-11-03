@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La promesse "gérez tout depuis votre téléphone" est vraie pour l\'essentiel du quotidien d\'un artisan. Elle ne l\'est pas pour absolument tout, et mieux vaut savoir où se situe la limite.',
   category: 'Comparatifs & outils',
   keywords: ['gestion entreprise mobile', 'gérer artisanat depuis téléphone', 'application gestion smartphone bâtiment', 'tout gérer sur mobile PME', 'logiciel mobile artisan Suisse'],
-  publishedAt: '2026-07-20',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

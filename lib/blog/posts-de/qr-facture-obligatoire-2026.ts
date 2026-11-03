@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Nur weil Ihre QR-Rechnungen heute noch gescannt werden können, heisst das nicht, dass sie im Oktober 2026 noch funktionieren. Ein Formatdetail hat die Lage gerade verändert.',
   category: 'Devis & facturation',
   keywords: ['qr-rechnung pflicht', 'einzahlungsschein orange ende', 'qr-iban referenz', 'rechnungsstellung schweiz 2026', 'qr-code rechnung norm'],
-  publishedAt: '2026-01-19',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

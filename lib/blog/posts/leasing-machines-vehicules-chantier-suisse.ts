@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'leasing vehicule utilitaire entreprise batiment',
     'achat ou leasing materiel construction',
   ],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

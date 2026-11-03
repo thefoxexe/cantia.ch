@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'WhatsApp ist ein hervorragendes Gesprächstool. Es ist kein Führungstool. Und der Unterschied wird brutal deutlich, sobald das Team fünf Personen überschreitet.',
   category: 'Comparatifs & outils',
   keywords: ['whatsapp baustelle', 'teamführung baugewerbe', 'kommunikation baustelle', 'baustellen-tool schweiz', 'organisation bauunternehmen'],
-  publishedAt: '2026-04-13',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

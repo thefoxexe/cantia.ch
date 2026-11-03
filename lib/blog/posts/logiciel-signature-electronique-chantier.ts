@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La signature électronique ne sert pas seulement à gagner du temps. Bien intégrée à un outil de chantier, elle évite surtout des contestations qui arrivent souvent des mois plus tard.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel signature électronique chantier', 'signature électronique tablette chantier', 'signature devis chantier bâtiment'],
-  publishedAt: '2026-10-01',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

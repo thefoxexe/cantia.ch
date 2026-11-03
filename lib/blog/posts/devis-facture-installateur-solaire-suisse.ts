@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'prix installation photovoltaïque',
     'devis photovoltaïque suisse',
   ],
-  publishedAt: '2026-10-02',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

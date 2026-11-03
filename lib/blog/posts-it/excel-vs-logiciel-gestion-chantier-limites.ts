@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molte imprese edili partono con un file Excel costruito artigianalmente nel corso degli anni. Non è una cattiva scelta all’inizio, ma è una scelta che invecchia male, spesso senza che ce ne si accorga.',
   category: 'Comparatifs & outils',
   keywords: ['excel gestione cantiere', 'software vs excel edilizia', 'limiti foglio di calcolo costruzione', 'digitalizzazione PMI edilizia', 'strumento preventivo fattura'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

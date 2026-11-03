@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d\'artisans dans des métiers de niche finissent par se dire "aucun logiciel n\'est fait pour ce que je fais". C\'est souvent vrai pour les outils figés, beaucoup moins pour un outil qui peut évoluer avec vous.',
   category: 'Sur-mesure & automatisations',
   keywords: ['logiciel adapté métier spécifique bâtiment', 'outil sur mesure artisan niche', 'personnaliser logiciel gestion métier', 'Cantia fonctionnalité sur mesure', 'logiciel flexible métier construction'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

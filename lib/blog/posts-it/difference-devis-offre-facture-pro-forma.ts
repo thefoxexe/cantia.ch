@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Offerta», «preventivo», «fattura proforma»: tre documenti spesso usati come sinonimi, mentre non hanno né lo stesso valore né lo stesso uso.',
   category: 'Devis & facturation',
   keywords: ['preventivo', 'offerta', 'fattura proforma', 'terminologia', 'documento commerciale'],
-  publishedAt: '2026-05-11',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

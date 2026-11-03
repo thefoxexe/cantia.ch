@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten schlechten Entscheidungen bei der Verwaltungssoftware entstehen nicht aus einem Mangel an Auswahl am Markt, sondern aus denselben Fehlern, die sich von Unternehmen zu Unternehmen wiederholen.',
   category: 'Comparatifs & outils',
   keywords: ['fehler verwaltungssoftware wahl', 'schlechte softwarewahl unternehmen', 'fallen software einsteiger', 'häufige fehler rechnungstool', 'softwarefehler vermeiden kmu'],
-  publishedAt: '2026-08-09',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

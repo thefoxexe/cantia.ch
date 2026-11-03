@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die beiden Normen tragen benachbarte Nummern und stammen vom selben Herausgeber. Doch die eine betrifft Bauarbeiten, die andere geistige Dienstleistungen. Die Verwechslung ist häufig und teuer.',
   category: 'Juridique & normes',
   keywords: ['SIA 108 gegen SIA 118', 'SIA-Norm bauwesen', 'unterschied SIA 108 SIA 118', 'SIA-Norm offerte', 'werkvertrag SIA'],
-  publishedAt: '2026-06-17',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

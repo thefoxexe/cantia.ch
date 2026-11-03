@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die allererste versendete Rechnung zählt mehr, als man denkt. Oft entscheidet gerade sie, ob ein neuer Kunde schnell und ohne Verhandeln zahlt, oder die Sache in die Länge zieht.',
   category: 'Comparatifs & outils',
   keywords: ['erste Kunden fakturieren', 'erste Rechnung Selbstständiger', 'Rechnungsstellung starten Schweiz', 'korrekte Rechnung Einsteiger', 'Tipps erste Rechnungsstellung'],
-  publishedAt: '2026-07-26',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Trattenere una parte del pagamento per tutelarsi da difetti futuri non è né vietato né un diritto acquisito. È una clausola che si negozia, con limiti chiari.',
   category: 'Juridique & normes',
   keywords: ['ritenuta di garanzia cantiere', 'consignazione lavori costruzione', 'garanzia bancaria cantiere', 'ritenuta di pagamento lavori', 'saldo cantiere trattenuto'],
-  publishedAt: '2026-06-22',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un intérimaire coûte plus cher à l’heure qu’un employé fixe, mais évite l’engagement d’un recrutement. Encore faut-il connaître les règles pour que ça reste un vrai gain, pas un risque caché.',
   category: 'RH & salaires',
   keywords: ['intérimaire bâtiment', 'travailleur temporaire construction', 'location de services BTP', 'agence intérim chantier', 'main-d’œuvre temporaire suisse'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Einen Lernenden aufzunehmen ist nicht einfach «ein Paar Hände mehr». Es ist ein geregeltes Engagement, mit einem präzisen Lohn pro Ausbildungsjahr und einer vom Unternehmen erwarteten echten pädagogischen Begleitung.',
   category: 'RH & salaires',
   keywords: ['Lohn Lernender Bauwesen', 'Berufsbildung Bau', 'GAV Lernende', 'Lehrbetrieb Bau', 'Lehrvertrag Bauwesen'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

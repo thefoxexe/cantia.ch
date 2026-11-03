@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un logiciel installé sur un seul poste de travail semble suffire, jusqu\'au jour où il faut facturer depuis un chantier, un autre bureau, ou avec un collègue en même temps.',
   category: 'Comparatifs & outils',
   keywords: ['outil facturation en ligne PME', 'logiciel facturation cloud Suisse', 'facturation accessible partout', 'avantages logiciel en ligne PME', 'facturation web vs logiciel installé'],
-  publishedAt: '2026-07-17',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'créer entreprise individuelle artisan',
     'quel statut pour artisan indépendant suisse',
   ],
-  publishedAt: '2026-09-08',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

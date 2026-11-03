@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der Übergang von einer zu drei parallelen Baustellen verdoppelt nicht die Arbeitslast: Er vervielfacht die Anzahl der Dinge, an die man sich erinnern muss, ohne sie irgendwo festgehalten zu haben.',
   category: 'Chantier & rentabilité',
   keywords: ['mehrere baustellen', 'baustellenorganisation', 'teamplanung', 'koordination', 'multi-projekt-verwaltung'],
-  publishedAt: '2026-04-09',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

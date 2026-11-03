@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der GAV Bauhauptgewerbe 2026 ändert eine Regel, die fast noch niemand verinnerlicht hat: Die Fahrzeit zählt neu bei der Berechnung der Überstunden mit.',
   category: 'RH & salaires',
   keywords: ['überstunden', '25 prozent zuschlag', 'gav bauhauptgewerbe', 'arbeitsweg zeit', 'überstunden ausgleich'],
-  publishedAt: '2026-03-26',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

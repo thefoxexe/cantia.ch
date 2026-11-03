@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ce n’est presque jamais un problème de mauvaise volonté : c’est un problème de visibilité. Personne ne voit tout le planning au même endroit, donc personne ne peut repérer le conflit avant qu’il n’explose sur le terrain.',
   category: 'Chantier & rentabilité',
   keywords: ['planning chantier conflit', 'gestion équipe bâtiment', 'ressources multi-chantiers', 'organisation entreprise construction', 'planning partagé'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

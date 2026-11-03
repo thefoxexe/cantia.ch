@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Kunde, der nicht zahlt, kann betrieben werden. Ist er aber zahlungsunfähig oder unauffindbar, bringt die Betreibung nichts ein. Das Bauhandwerkerpfandrecht behält dagegen einen direkten Zugriff auf das Gebäude, das Sie erstellt haben.',
   category: 'Juridique & normes',
   keywords: ['bauhandwerkerpfandrecht', 'art 837 zgb', 'zahlungssicherheit baustelle', 'grundbuch eintragung', 'unternehmer unbezahlt'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Maurer, ein Elektriker und ein Gartenbauer kalkulieren, verfolgen eine Baustelle und stellen Rechnungen nicht auf dieselbe Weise. Ein einziges, starres Modell kann daher nie allen dreien gleichzeitig perfekt gerecht werden.',
   category: 'Sur-mesure & automatisations',
   keywords: ['starre vorlage bausoftware', 'software angepasst an baugewerbe', 'warum generisches tool nicht reicht', 'vielfalt der baugewerbe software', 'individualisierung nach beruf bau'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

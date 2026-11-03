@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ohne Zustandsbericht vor Arbeitsbeginn kann ein Nachbar Ihrer Baustelle einen Riss zuschreiben, der bereits vorher bestand. Das Unternehmen muss dann das Gegenteil beweisen – oft zu spät.',
   category: 'Juridique & normes',
   keywords: ['Nachbarschaftsschäden Baustelle', 'Haftung Arbeiten Nachbar', 'Riss Baustelle Nachbarschaft', 'Baustellenimmissionen', 'Zustandsbericht vor Arbeitsbeginn'],
-  publishedAt: '2026-06-19',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

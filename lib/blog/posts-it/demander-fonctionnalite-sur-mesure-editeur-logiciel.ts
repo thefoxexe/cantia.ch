@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Richiedere una funzionalità su misura sembra riservato alle grandi imprese con un budget informatico consistente. In pratica, è spesso più accessibile di quanto si pensi, a condizione di formulare bene l’esigenza.',
   category: 'Sur-mesure & automatisations',
   keywords: ['richiedere funzionalità su misura software', 'come chiedere sviluppo personalizzato', 'contattare editore per esigenza specifica', 'richiesta custom software gestionale', 'formulare esigenza su misura impresa'],
-  publishedAt: '2026-08-25',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

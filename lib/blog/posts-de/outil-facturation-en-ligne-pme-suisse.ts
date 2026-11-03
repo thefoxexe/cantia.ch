@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine auf einem einzigen Arbeitsplatz installierte Software scheint auszureichen — bis der Tag kommt, an dem man von einer Baustelle, einem anderen Büro oder gleichzeitig mit einer Kollegin fakturieren muss.',
   category: 'Comparatifs & outils',
   keywords: ['Online Fakturierungssoftware KMU', 'Cloud Rechnungssoftware Schweiz', 'Fakturierung überall zugänglich', 'Vorteile Online Software KMU', 'Web Fakturierung vs installierte Software'],
-  publishedAt: '2026-07-17',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

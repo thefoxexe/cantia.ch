@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des entreprises attendent qu\'un besoin devienne urgent avant d\'adapter leur outil de gestion. Anticiper cette évolution évite de gérer le changement dans l\'urgence.',
   category: 'Sur-mesure & automatisations',
   keywords: ['faire évoluer outil gestion entreprise', 'adapter logiciel croissance PME', 'anticiper besoins logiciel bâtiment', 'logiciel qui suit la croissance', 'évolution outil gestion chantier'],
-  publishedAt: '2026-08-22',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der von einem Konkurrenten abgeschriebene Stundensatz ist die Hauptursache für Baustellen, die «laufen», ohne je jemanden zu bereichern. So berechnet man ihn wirklich.',
   category: 'Devis & facturation',
   keywords: ['offerte erstellen', 'preiskalkulation renovation', 'stundenkosten berechnen', 'marge bauwesen', 'mwst offerte', 'kalkulation bauarbeiten'],
-  publishedAt: '2026-01-12',
+  publishedAt: '2026-09-02',
   readMinutes: 7,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cliente può fermare un cantiere dall’oggi al domani, senza colpa da parte vostra. La legge non lo impedisce, ma vi protegge finanziariamente, a condizione di saper quantificare correttamente.',
   category: 'Juridique & normes',
   keywords: ['risoluzione contratto cantiere', 'art 377 CO', 'arresto cantiere', 'indennizzo imprenditore', 'contratto d’appalto'],
-  publishedAt: '2026-08-27',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

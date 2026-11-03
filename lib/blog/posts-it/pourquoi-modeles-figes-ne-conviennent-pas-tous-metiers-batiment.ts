@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un muratore, un elettricista e un paesaggista non hanno lo stesso modo di quotare, monitorare un cantiere o fatturare. Un modello unico e rigido non può quindi mai adattarsi perfettamente a tutti e tre contemporaneamente.',
   category: 'Sur-mesure & automatisations',
   keywords: ['modello rigido software edilizia', 'software adatto mestiere costruzioni', 'perché strumento generico non basta', 'diversità mestieri edilizia software', 'personalizzazione per mestiere costruzioni'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

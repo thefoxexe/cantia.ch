@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis de rénovation sanitaire se prépare tranquillement. Un dépannage se facture dans l’urgence, souvent sans avoir eu le temps d’écrire quoi que ce soit avant d’intervenir. Les deux logiques doivent pourtant vivre dans le même outil.',
   category: 'Métiers du bâtiment',
   keywords: ['devis plombier sanitaire', 'facturation plomberie Suisse', 'tarif dépannage plombier', 'logiciel gestion plomberie', 'devis salle de bain rénovation'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

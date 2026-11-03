@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un voisin excédé par la poussière ou le bruit ne se plaint pas toujours à l’entreprise directement. Il en parle autour de lui — et ça, ça se voit sur les avis Google.',
   category: 'Juridique & normes',
   keywords: ['chantier propre voisinage', 'réduire nuisances chantier', 'nuisances chantier construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

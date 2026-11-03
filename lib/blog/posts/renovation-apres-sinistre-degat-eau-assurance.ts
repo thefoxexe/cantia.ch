@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un chantier après sinistre n’a pas qu’un client : il a aussi une assurance à convaincre. Voici comment sécuriser le devis, la documentation et le paiement dans ce contexte particulier.',
   category: 'Chantier & rentabilité',
   keywords: ['rénovation après sinistre suisse', 'devis assurance dégât eau', 'travaux assurance incendie facturation'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

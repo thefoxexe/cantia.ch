@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un ouvrier engagé le 1er avril ne touche pas un 13e salaire plein en décembre. Encore faut-il savoir exactement sur quels mois il se calcule, et ce qui les réduit.',
   category: 'RH & salaires',
   keywords: ['13e salaire', 'prorata', 'calcul salaire', 'embauche en cours d’année', 'départ employé'],
-  publishedAt: '2026-04-02',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

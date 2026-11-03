@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La construction figure parmi les branches les plus contrôlées de Suisse. Et la sanction la plus lourde n’est pas l’amende. C’est l’exclusion des marchés publics.',
   category: 'Juridique & normes',
   keywords: ['travail au noir', 'ltn', 'contrôle chantier', 'sanctions bâtiment', 'seco'],
-  publishedAt: '2026-04-30',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molte piccole imprese trattano il certificato di lavoro come una formalità dell’ultimo minuto. È un diritto del dipendente, disciplinato da regole precise su ciò che può e non può contenere.',
   category: 'RH & salaires',
   keywords: ['certificato di lavoro obbligo', 'certificato di lavoro dipendente edilizia', 'attestato di lavoro Svizzera', 'diritto dipendente certificato', 'fine contratto di lavoro edilizia'],
-  publishedAt: '2026-06-26',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

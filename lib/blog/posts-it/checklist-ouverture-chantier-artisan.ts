@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte dei ritardi di cantiere non deriva da un imprevisto tecnico, ma da un aspetto amministrativo o logistico dimenticato prima ancora del primo giorno di lavori.',
   category: 'Chantier & rentabilité',
   keywords: ['checklist apertura cantiere', 'avviare un cantiere edilizia', 'preparazione cantiere costruzione', 'organizzazione inizio cantiere', 'lista verifica cantiere'],
-  publishedAt: '2026-06-08',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

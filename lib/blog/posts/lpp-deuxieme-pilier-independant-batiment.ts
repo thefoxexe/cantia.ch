@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La LPP est facultative pour un indépendant. Sauf que dans certains métiers du bâtiment, la SUVA peut en décider autrement sans que personne ne vous prévienne.',
   category: 'Juridique & normes',
   keywords: ['lpp', '2e pilier', 'indépendant', 'suva', 'laa', 'prévoyance'],
-  publishedAt: '2026-01-29',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una struttura in legno si costruisce in tre tempi: l’acquisto del legno, la lavorazione in laboratorio, poi la posa in cantiere. Un preventivo che non le distingue rischia di pagare l’inflazione del legno sul proprio margine.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo carpenteria legno', 'fatturazione carpentiere Svizzera', 'prezzo legno costruzione', 'preventivo laboratorio carpenteria', 'posa carpenteria cantiere'],
-  publishedAt: '2026-09-04',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

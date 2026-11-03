@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Prendre un apprenti n’est pas juste « une paire de bras en plus ». C’est un engagement encadré, avec un salaire précis par année de formation et un vrai suivi pédagogique attendu de l’entreprise.',
   category: 'RH & salaires',
   keywords: ['apprenti bâtiment salaire', 'formation professionnelle construction', 'CCT apprenti', 'entreprise formatrice', 'contrat apprentissage'],
-  publishedAt: '2026-08-03',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

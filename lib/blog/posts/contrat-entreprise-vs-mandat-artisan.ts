@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Deux régimes juridiques, une différence énorme : l’un vous engage sur un résultat, l’autre sur des moyens mis en œuvre. La plupart des artisans ne savent pas dans lequel ils travaillent.',
   category: 'Juridique & normes',
   keywords: ['contrat d’entreprise', 'contrat de mandat', 'obligation de résultat', 'obligation de moyens', 'droit suisse'],
-  publishedAt: '2026-03-19',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’écart entre le salaire brut annoncé à l’embauche et le montant qui arrive sur le compte est la question RH la plus fréquente — et la plus mal expliquée.',
   category: 'RH & salaires',
   keywords: ['fiche de salaire', 'salaire brut', 'salaire net', 'déductions', 'AVS', 'LPP'],
-  publishedAt: '2026-09-27',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

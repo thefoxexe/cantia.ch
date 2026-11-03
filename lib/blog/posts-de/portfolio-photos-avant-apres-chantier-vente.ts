@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Vorher-Nachher-Foto überzeugt oft mehr als eine lange Argumentation. Es zeigt auf einen Blick, was eine Offerte nur beschreiben kann, und genau das braucht ein zögernder Kunde.',
   category: 'Croissance & acquisition',
   keywords: ['vorher nachher fotos baustelle', 'portfolio handwerker bau', 'referenzen bauunternehmen', 'projektfotos marketing handwerker', 'fertige baustellen präsentieren'],
-  publishedAt: '2026-09-16',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

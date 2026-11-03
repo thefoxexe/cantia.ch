@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une facture qui « a l’air correcte » et une facture qui respecte toutes les exigences de l’AFC ne sont pas toujours la même chose. Une seule mention manquante suffit à la fragiliser.',
   category: 'Devis & facturation',
   keywords: ['mentions facture suisse', 'numéro TVA facture', 'AFC facture', 'facture conforme', 'facturation artisan'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

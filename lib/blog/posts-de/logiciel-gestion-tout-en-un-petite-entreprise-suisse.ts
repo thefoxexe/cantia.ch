@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Tools nennen sich «Alles-in-einem», obwohl sie nur die Fakturierung abdecken: der wahre Test ist, ob man nach der Installation Excel wirklich schliessen kann.',
   category: 'Comparatifs & outils',
   keywords: ['alles in einem software kleinunternehmen', 'komplettlösung verwaltung schweiz', 'ein tool offerte rechnung baustelle', 'verwaltungssoftware kmu bau', 'unternehmensverwaltung zentralisieren'],
-  publishedAt: '2026-07-04',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

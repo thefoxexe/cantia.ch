@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Wir haben uns am Telefon geeinigt» verpflichtet beide Parteien in der Schweiz rechtlich. Das eigentliche Problem entsteht, sobald eine der beiden Seiten das Gegenteil behauptet.',
   category: 'Juridique & normes',
   keywords: ['mündliche offerte gültigkeit', 'mündliche vereinbarung vertrag', 'beweis vertrag schweiz', 'formvorschrift vertrag', 'art 11 or'],
-  publishedAt: '2026-04-16',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

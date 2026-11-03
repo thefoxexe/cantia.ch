@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Gartenbauer verkauft demselben Kunden oft zwei sehr unterschiedliche Dinge: eine einmalige Gestaltung, die einmal verrechnet wird, und einen wiederkehrenden Unterhalt, der das ganze Jahr über verrechnet wird. Wer beides in einer Offerte vermischt, kalkuliert am Ende beides falsch.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Gartenbauer', 'Verrechnung Gärtner Schweiz', 'Vertrag Gartenunterhalt Preis', 'Offerte Gartengestaltung', 'wiederkehrende Verrechnung Gartenbau'],
-  publishedAt: '2026-09-10',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

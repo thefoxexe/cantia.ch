@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un avis négatif n’est jamais agréable à lire. Mais ce n’est pas l’avis lui-même qui pèse le plus lourd, c’est la réponse qu’on y apporte publiquement.',
   category: 'Croissance & acquisition',
   keywords: ['répondre avis négatif Google', 'avis Google négatif artisan', 'gérer mauvais avis entreprise bâtiment'],
-  publishedAt: '2026-09-28',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti strumenti si dicono "tutto-in-uno" mentre coprono solo la fatturazione: il vero test è verificare se si può ancora chiudere Excel dopo averlo installato.',
   category: 'Comparatifs & outils',
   keywords: ['software tutto in uno piccola impresa', 'gestione tutto in uno Svizzera', 'strumento unico preventivo fattura cantiere', 'software gestione PMI edilizia', 'centralizzare gestione impresa'],
-  publishedAt: '2026-07-04',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

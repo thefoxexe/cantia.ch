@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein für einen einzelnen Handwerker perfektes Tool kann am Tag der ersten Anstellung zur Bremse werden. Die Anzeichen einer mitwachsenden Software vorab zu erkennen, erspart diese böse Überraschung.',
   category: 'Comparatifs & outils',
   keywords: ['mitwachsende verwaltungssoftware', 'software die mit dem unternehmen wächst', 'software wachstum kmu bau', 'wachstum vorausplanen software', 'skalierbare verwaltungssoftware schweiz'],
-  publishedAt: '2026-08-10',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

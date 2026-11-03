@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un preventivo rappresenta ore di calcolo, a volte persino uno spostamento. Eppure quasi nessuno lo fattura. Non è un obbligo legale, è un uso. La sfumatura cambia tutto per un computo complesso.',
   category: 'Devis & facturation',
   keywords: ['preventivo gratuito o a pagamento', 'fatturare un preventivo', 'legge preventivo svizzera', 'computo lavori', 'preventivo complesso'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

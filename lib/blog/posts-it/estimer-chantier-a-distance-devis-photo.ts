@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ogni visita non trasformata in cantiere è tempo regalato al cliente successivo. Sapere quando stimare a distanza, e quando rifiutarsi di farlo, si può calcolare.',
   category: 'Chantier & rentabilité',
   keywords: ['preventivo a distanza', 'stima foto', 'visita cantiere', 'prezzo appuntamento', 'produttività artigiano'],
-  publishedAt: '2026-05-25',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

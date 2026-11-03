@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un danno d’acqua che distrugge un cantiere in corso, un incendio, un furto di materiale prima della posa: senza ECTR, la domanda «chi paga» si trasforma rapidamente in un conflitto tra committente e imprese.',
   category: 'Juridique & normes',
   keywords: ['assicurazione cantiere tutti i rischi', 'ECTR costruzione', 'assicurazione danno cantiere', 'sinistro cantiere in corso', 'assicurazione lavori'],
-  publishedAt: '2026-08-01',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

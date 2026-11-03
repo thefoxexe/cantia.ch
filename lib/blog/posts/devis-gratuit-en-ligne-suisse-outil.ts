@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un générateur de devis gratuit en ligne dépanne pour un premier document, mais peu tiennent la distance une fois qu\'il faut suivre plusieurs clients et plusieurs chantiers en parallèle.',
   category: 'Comparatifs & outils',
   keywords: ['devis gratuit en ligne', 'faire un devis gratuitement Suisse', 'générateur de devis artisan', 'modèle devis gratuit bâtiment', 'créer devis en ligne rapide'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

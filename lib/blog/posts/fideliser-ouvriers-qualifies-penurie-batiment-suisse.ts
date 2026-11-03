@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Dans un secteur où chaque entreprise se dispute les mêmes profils qualifiés, la fidélisation n’est plus un sujet secondaire de ressources humaines : c’est devenu un vrai levier de compétitivité.',
   category: 'Croissance & acquisition',
   keywords: ['fidéliser ouvriers bâtiment', 'pénurie main d’œuvre construction Suisse', 'garder ses employés entreprise bâtiment', 'recrutement chantier difficile', 'turnover ouvrier qualifié'],
-  publishedAt: '2026-09-18',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

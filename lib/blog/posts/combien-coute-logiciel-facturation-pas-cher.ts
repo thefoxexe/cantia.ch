@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le prix affiché en haut d\'une page tarifaire ne dit jamais tout. Le vrai coût d\'un logiciel se juge sur ce qu\'il inclut réellement à ce prix, pas sur le chiffre seul.',
   category: 'Comparatifs & outils',
   keywords: ['prix logiciel facturation', 'logiciel facturation pas cher Suisse', 'coût outil gestion PME', 'tarif logiciel devis facture', 'budget logiciel gestion entreprise'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

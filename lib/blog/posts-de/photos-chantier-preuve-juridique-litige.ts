@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein zum richtigen Zeitpunkt aufgenommenes Foto kann einen Garantiestreit mit einem einzigen Beleg beenden. Dasselbe Foto ohne Datum und Kontext ist vor Gericht fast wertlos.',
   category: 'Chantier & rentabilité',
   keywords: ['baustellenfotos beweismittel', 'foto rechtsstreit bau', 'garantie bau beweis', 'geolokalisierung baustellenfoto', 'baustellendokumentation schweiz'],
-  publishedAt: '2026-05-07',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

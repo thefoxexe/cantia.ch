@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Non esiste un salario minimo legale federale in Svizzera: nell’edilizia, è il contratto collettivo di settore a fissare le soglie minime, e queste sono appena cambiate per il 2026.',
   category: 'RH & salaires',
   keywords: ['salario minimo', 'ccl edilizia', 'contratto collettivo', 'settore principale', 'salario edilizia svizzera'],
-  publishedAt: '2026-03-23',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

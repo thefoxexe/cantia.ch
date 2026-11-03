@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup pensent qu\'un logiciel de facturation est réservé aux "vraies sociétés" : en raison individuelle, c\'est souvent là qu\'il fait le plus de différence, faute d\'équipe administrative derrière.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel facturation raison individuelle', 'facturation indépendant Suisse', 'raison individuelle outils gestion', 'facturation entreprise individuelle', 'gestion administrative indépendant Suisse'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

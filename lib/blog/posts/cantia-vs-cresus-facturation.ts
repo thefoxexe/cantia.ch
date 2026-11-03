@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Crésus Facturation est utilisé depuis des années par beaucoup d’indépendants suisses, pour de bonnes raisons. Reste à savoir s’il couvre ce qui se passe vraiment sur un chantier.',
   category: 'Comparatifs & outils',
   keywords: ['Crésus Facturation', 'alternative Crésus bâtiment', 'Crésus vs Cantia', 'logiciel facturation suisse artisan'],
-  publishedAt: '2026-09-30',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

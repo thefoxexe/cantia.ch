@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Gratuito a vita o gratuito per 30 giorni non è la stessa promessa. La differenza si scopre spesso nel momento peggiore, in pieno primo mese intenso di fatture.',
   category: 'Comparatifs & outils',
   keywords: ['software fatturazione gratuito indipendente', 'fatturazione gratuita Svizzera', 'strumento preventivo fattura senza costi', 'software gratuito piccola impresa', 'fatturazione principiante Svizzera'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molte aziende calcolano i loro preventivi su una tariffa oraria approssimativa ereditata da anni di prassi, senza mai prendersi il tempo di ricalcolare quanto costa realmente un operaio una volta integrati tutti gli oneri.',
   category: 'Chantier & rentabilité',
   keywords: ['costo orario operaio', 'calcolo tariffa oraria edilizia', 'oneri sociali costruzione', 'redditività cantiere', 'calcolo preventivo'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

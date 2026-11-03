@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un preventivo di ristrutturazione sanitaria si prepara con calma. Una riparazione si fattura nell’urgenza, spesso senza aver avuto il tempo di scrivere nulla prima di intervenire. Le due logiche devono però convivere nello stesso strumento.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo idraulico sanitario', 'fatturazione idraulica Svizzera', 'tariffa riparazione idraulico', 'software gestione idraulica', 'preventivo ristrutturazione bagno'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

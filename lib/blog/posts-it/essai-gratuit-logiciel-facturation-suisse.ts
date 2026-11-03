@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte delle prove gratuite sono mal sfruttate: qualche clic veloce, poi l’abbandono o la sottoscrizione di default, senza aver realmente verificato ciò che conta.',
   category: 'Comparatifs & outils',
   keywords: ['prova gratuita software fatturazione', 'testare software prima abbonamento', 'periodo di prova strumento gestionale Svizzera', 'come testare software preventivo fattura', 'prova gratuita 30 giorni software'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

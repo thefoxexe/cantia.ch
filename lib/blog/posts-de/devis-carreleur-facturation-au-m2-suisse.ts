@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwei gleich grosse Räume, mit demselben Material verlegt, können je nach Plattenformat und Verlegemuster doppelt so viel Zeit beanspruchen: Der Preis pro m² allein erzählt nie die ganze Geschichte.',
   category: 'Métiers du bâtiment',
   keywords: ['Offerte Plattenleger', 'Preis Plattenbelag pro m2 Schweiz', 'Verrechnung Plattenverlegung', 'Verlegeplan Offerte', 'Zuschnitt Platten Verlegezeit'],
-  publishedAt: '2026-09-03',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

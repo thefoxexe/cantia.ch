@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La convinzione più diffusa tra gli indipendenti dell’edilizia: «i software di gestione sono per i team». È falso, ed è spesso addirittura il contrario.',
   category: 'Comparatifs & outils',
   keywords: ['indipendente edilizia', 'software solo', 'gestione amministrativa', 'artigiano solo', 'strumento preventivo fattura'],
-  publishedAt: '2026-05-14',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

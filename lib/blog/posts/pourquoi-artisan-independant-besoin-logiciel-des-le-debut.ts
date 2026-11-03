@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L\'idée reçue est d\'attendre d\'avoir "assez de clients" pour justifier un logiciel de gestion. En pratique, c\'est justement au début que les mauvaises habitudes administratives se forment, et qu\'elles sont les plus coûteuses à corriger.',
   category: 'Comparatifs & outils',
   keywords: ['artisan indépendant besoin logiciel dès le début', 'pourquoi s\'équiper tôt entreprise bâtiment', 'logiciel gestion dès le premier client', 'éviter mauvaises habitudes administratives', 'démarrer avec un bon outil'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

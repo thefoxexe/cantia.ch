@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La dimostrazione in sala riunioni, con il wifi ovunque, nasconde il vero test: cosa fa l’applicazione quando la rete cade in pieno rapporto di cantiere, in un seminterrato o in una zona rurale.',
   category: 'Comparatifs & outils',
   keywords: ['modalità offline cantiere', 'applicazione costruzione senza rete', 'app cantiere offline', 'digitalizzazione terreno edilizia', 'strumento mobile cantiere'],
-  publishedAt: '2026-07-10',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'WhatsApp è un ottimo strumento di conversazione. Non è uno strumento di gestione. E la differenza diventa brutale non appena il team supera le cinque persone.',
   category: 'Comparatifs & outils',
   keywords: ['whatsapp cantiere', 'gestione team', 'comunicazione cantiere', 'strumento cantiere', 'organizzazione edilizia'],
-  publishedAt: '2026-04-13',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

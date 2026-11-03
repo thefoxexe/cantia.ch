@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti artigiani in mestieri di nicchia finiscono per pensare "nessun software è fatto per quello che faccio io". Spesso è vero per gli strumenti rigidi, molto meno per uno strumento che può evolvere con Lei.',
   category: 'Sur-mesure & automatisations',
   keywords: ['software adatto mestiere specifico edilizia', 'strumento su misura artigiano nicchia', 'personalizzare software gestionale mestiere', 'Cantia funzionalità su misura', 'software flessibile mestiere costruzioni'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

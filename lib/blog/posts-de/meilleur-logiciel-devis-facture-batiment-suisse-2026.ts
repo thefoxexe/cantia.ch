@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten Vergleiche listen generische Funktionen auf, die von einer klassischen Buchhaltungssoftware kopiert wurden. Ein Handwerksbetrieb im Bau hat präzise, ganz andere Bedürfnisse: hier sind sie.',
   category: 'Comparatifs & outils',
   keywords: ['beste Offerten Rechnungssoftware Bau', 'Offerten Rechnungssoftware Schweiz', 'Baugewerbe Software Vergleich', 'Offerte Rechnung Handwerker Schweiz', 'Baustellen Software'],
-  publishedAt: '2026-06-01',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

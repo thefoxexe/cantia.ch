@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un client qui clique « J’accepte » sur un lien signe autant qu’avec un stylo : pour l’immense majorité des devis du bâtiment, la loi suisse ne demande rien de plus.',
   category: 'Devis & facturation',
   keywords: ['signature électronique', 'signature en ligne', 'valeur légale', 'devis signé', 'set curdig'],
-  publishedAt: '2026-04-20',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

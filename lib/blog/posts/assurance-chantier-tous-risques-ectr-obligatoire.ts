@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un dégât d’eau qui détruit un chantier en cours, un incendie, un vol de matériel avant la pose : sans ECTR, la question « qui paie » se transforme vite en conflit entre maître d’ouvrage et entrepreneurs.',
   category: 'Juridique & normes',
   keywords: ['assurance chantier tous risques', 'ECTR construction', 'assurance dégât chantier', 'sinistre chantier en cours', 'assurance travaux'],
-  publishedAt: '2026-08-01',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

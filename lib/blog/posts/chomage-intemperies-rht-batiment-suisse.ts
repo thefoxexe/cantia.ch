@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'démarche chômage intempéries',
     'trésorerie hiver entreprise bâtiment',
   ],
-  publishedAt: '2026-09-24',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

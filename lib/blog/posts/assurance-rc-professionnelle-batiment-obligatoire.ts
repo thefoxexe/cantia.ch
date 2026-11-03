@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il n’existe pas de loi fédérale unique imposant la RC pro à tout artisan. Ce qui l’impose en pratique, c’est souvent le canton ou le donneur d’ordre, et parfois un sinistre qu’on découvre trop tard n’être pas couvert.',
   category: 'Juridique & normes',
   keywords: ['rc professionnelle', 'assurance bâtiment', 'responsabilité civile', 'assurance obligatoire', 'artisan suisse'],
-  publishedAt: '2026-03-12',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

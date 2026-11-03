@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'CHF 2 milioni: la soglia a partire dalla quale un appalto di costruzione deve passare per un bando pubblico formale piuttosto che per una semplice trattativa diretta.',
   category: 'Juridique & normes',
   keywords: ['appalti pubblici', 'aimp', 'simap', 'bando di gara', 'appalto costruzione'],
-  publishedAt: '2026-05-21',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

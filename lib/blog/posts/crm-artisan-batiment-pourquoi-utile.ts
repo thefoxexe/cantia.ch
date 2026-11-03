@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Pas besoin d’un logiciel de vente complexe pour avoir besoin d’un CRM. Le vrai signal, c’est le nombre de fois où on cherche « c’était qui déjà, ce client » dans ses e-mails.',
   category: 'Comparatifs & outils',
   keywords: ['CRM artisan bâtiment', 'gestion clients entreprise construction', 'logiciel clients artisan', 'suivi client chantier', 'fidélisation client bâtiment'],
-  publishedAt: '2026-06-05',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un elettricista cambia spesso cantiere tre o quattro volte al giorno. La vera difficoltà non è quindi calcolare un punto elettrico, ma ritrovare la sera chi ha fatto cosa, dove, e per quanto tempo.',
   category: 'Métiers du bâtiment',
   keywords: ['preventivo elettricista indipendente', 'fatturazione elettricista Svizzera', 'gestione cantiere elettricità', 'software elettricista edilizia', 'ore elettricista più cantieri'],
-  publishedAt: '2026-08-30',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

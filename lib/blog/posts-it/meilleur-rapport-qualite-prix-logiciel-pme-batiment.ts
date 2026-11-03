@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Confrontare due software solo sul loro prezzo mensile è come confrontare due preventivi senza guardare cosa includono: il rapporto qualità-prezzo si calcola diversamente.',
   category: 'Comparatifs & outils',
   keywords: ['rapporto qualità prezzo software PMI edile', 'confrontare software gestionali costruzioni', 'miglior strumento per il proprio budget edile', 'valutare software gestionale prezzo', 'comparativo qualità prezzo software cantiere'],
-  publishedAt: '2026-08-04',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

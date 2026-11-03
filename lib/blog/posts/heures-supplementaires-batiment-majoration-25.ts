@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La CCT construction 2026 change une règle que presque personne n’a encore intégrée : les heures de trajet comptent désormais dans le calcul des heures supplémentaires.',
   category: 'RH & salaires',
   keywords: ['heures supplémentaires', 'majoration 25%', 'cct construction', 'temps de trajet', 'compensation heures'],
-  publishedAt: '2026-03-26',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

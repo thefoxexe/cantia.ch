@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Angebot», «Offerte», «Proforma-Rechnung»: drei Dokumente, die oft wie Synonyme verwendet werden, obwohl sie weder denselben Wert noch dieselbe Verwendung haben.',
   category: 'Devis & facturation',
   keywords: ['offerte', 'angebot', 'proforma rechnung', 'begriffe bauwesen', 'geschäftsdokument unterschied'],
-  publishedAt: '2026-05-11',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

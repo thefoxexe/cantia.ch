@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le minimum légal de vacances n’est presque jamais ce qui s’applique réellement dans le bâtiment : la CCT du secteur prévoit souvent davantage.',
   category: 'RH & salaires',
   keywords: ['vacances', 'CCT', 'bâtiment', 'jours', 'congés', 'prorata'],
-  publishedAt: '2026-09-27',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

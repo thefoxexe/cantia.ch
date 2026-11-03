@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Gesetz kennt keine Schwelle, ab der Schriftlichkeit verlangt wird. Die Schwelle, die wirklich zählt, ist keine rechtliche: Es ist jene, ab der eine Erinnerungsdifferenz teuer wird.',
   category: 'Juridique & normes',
   keywords: ['schriftlicher Vertrag Handwerker', 'kleine Arbeiten Vertrag', 'Offertenpflicht Schweiz', 'Notfalleinsatz Handwerker', 'praktische Schwelle Vertrag'],
-  publishedAt: '2026-05-18',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

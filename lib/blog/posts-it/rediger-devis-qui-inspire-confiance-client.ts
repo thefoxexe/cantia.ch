@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Due preventivi allo stesso prezzo non valgono mai lo stesso agli occhi di un cliente. Ciò che fa pendere la bilancia non è quasi mai la cifra in fondo alla pagina.',
   category: 'Devis & facturation',
   keywords: ['preventivo cliente', 'fiducia', 'presentazione preventivo', 'firma online', 'accettazione preventivo'],
-  publishedAt: '2026-02-19',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

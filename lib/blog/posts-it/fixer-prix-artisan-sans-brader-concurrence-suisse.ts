@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un artigiano che allinea sistematicamente i propri prezzi al preventivo più economico ricevuto dal cliente finisce sempre per lavorare di più, guadagnando meno. E ciò non è quasi mai sostenibile nel tempo.',
   category: 'Croissance & acquisition',
   keywords: ['fissare prezzi artigiano edilizia', 'concorrenza prezzi costruzione Svizzera', 'non svendere i preventivi', 'giustificare prezzo cantiere cliente', 'strategia tariffaria impresa edilizia'],
-  publishedAt: '2026-09-11',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

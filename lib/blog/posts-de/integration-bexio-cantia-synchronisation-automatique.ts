@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Schluss damit, jede Rechnung nach der Erstellung in Cantia nochmals in Bexio zu erfassen. Die Verbindung erfolgt mit einem Klick unter Konto → Integrationen und bleibt danach von selbst aktuell.',
   category: 'Comparatifs & outils',
   keywords: ['bexio', 'bexio integration', 'buchhaltung synchronisation', 'bexio api', 'automatische rechnung'],
-  publishedAt: '2026-08-25',
+  publishedAt: '2026-09-02',
   readMinutes: 6,
   blocks: [
     {

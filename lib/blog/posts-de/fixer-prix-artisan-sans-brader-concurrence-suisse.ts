@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Handwerker, der seine Preise systematisch an die günstigste vom Kunden erhaltene Offerte anpasst, arbeitet am Ende immer mehr, um weniger zu verdienen. Und das ist fast nie auf Dauer tragbar.',
   category: 'Croissance & acquisition',
   keywords: ['preise festlegen handwerker bau', 'preiskonkurrenz bauwesen schweiz', 'offerten nicht verramschen', 'preis gegenüber kunde begründen', 'preisstrategie bauunternehmen'],
-  publishedAt: '2026-09-11',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

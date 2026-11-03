@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Tra l’iscrizione al registro di commercio e il primo cantiere, c’è una finestra breve per mettere in atto i propri strumenti digitali. Meglio avere una checklist a portata di mano piuttosto che improvvisare.',
   category: 'Comparatifs & outils',
   keywords: ['checklist software apertura società costruzioni', 'elenco strumenti creazione impresa edile', 'preparare software prima primo cantiere', 'setup digitale nuova impresa costruzioni', 'pratiche software creazione società'],
-  publishedAt: '2026-08-01',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

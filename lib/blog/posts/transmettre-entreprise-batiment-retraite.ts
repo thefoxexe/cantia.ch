@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Transmettre une entreprise du bâtiment ne se décide pas la dernière année avant la retraite. Voici les options possibles et pourquoi l’anticipation est décisive.',
   category: 'Juridique & normes',
   keywords: ['transmettre entreprise bâtiment retraite', 'transmission entreprise construction suisse'],
-  publishedAt: '2026-10-09',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

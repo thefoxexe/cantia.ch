@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une entreprise qui enchaîne les chantiers sans jamais respirer financièrement n’a pas un problème de charge de travail : elle a un problème de marge.',
   category: 'Chantier & rentabilité',
   keywords: ['marge', 'rentabilité', 'entreprise', 'bâtiment', 'marge brute', 'marge nette'],
-  publishedAt: '2026-09-26',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

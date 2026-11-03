@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Quand un défaut est découvert, la responsabilité peut remonter toute la chaîne du chantier. Voici comment fonctionne l’action en garantie entre entrepreneur général et sous-traitant.',
   category: 'Juridique & normes',
   keywords: ['action en garantie sous-traitant', 'responsabilité entrepreneur général sous-traitant'],
-  publishedAt: '2026-10-10',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

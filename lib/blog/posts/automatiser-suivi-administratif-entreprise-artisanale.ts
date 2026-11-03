@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Quand on pense automatisation dans le bâtiment, on pense souvent aux factures. Pourtant, le suivi administratif d\'un chantier, d\'un client ou d\'une équipe peut être automatisé bien au-delà de ça.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatiser suivi administratif entreprise', 'automatisation gestion artisanale', 'réduire charge administrative bâtiment', 'automatiser suivi chantier client', 'gagner du temps administratif artisan'],
-  publishedAt: '2026-08-27',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

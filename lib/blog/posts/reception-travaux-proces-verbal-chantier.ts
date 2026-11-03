@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup de chantiers se terminent sans aucun document formel : juste des clés remises et un dernier acompte payé. C’est exactement le moment où un litige devient impossible à trancher faute de preuve.',
   category: 'Juridique & normes',
   keywords: ['réception des travaux', 'procès-verbal chantier', 'garantie construction', 'défauts chantier', 'fin de chantier'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

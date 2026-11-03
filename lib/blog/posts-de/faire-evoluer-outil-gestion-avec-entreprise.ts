@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten Unternehmen warten, bis ein Bedarf dringend wird, bevor sie ihr Verwaltungstool anpassen. Diese Entwicklung zu antizipieren, erspart es, den Wandel unter Zeitdruck zu bewältigen.',
   category: 'Sur-mesure & automatisations',
   keywords: ['verwaltungssoftware weiterentwickeln', 'software an wachstum anpassen kmu', 'bedarf vorausplanen software baugewerbe', 'mitwachsende software', 'entwicklung baustellensoftware'],
-  publishedAt: '2026-08-22',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

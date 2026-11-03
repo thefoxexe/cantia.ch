@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Kunde kann eine Baustelle von einem Tag auf den anderen stoppen, ohne dass Sie einen Fehler gemacht haben. Das Gesetz verhindert das nicht, schützt Sie aber finanziell – sofern Sie richtig kalkulieren können.',
   category: 'Juridique & normes',
   keywords: ['werkvertrag kündigung baustelle', 'art 377 or', 'baustelle abgebrochen', 'entschädigung unternehmer', 'werkvertrag recht schweiz'],
-  publishedAt: '2026-08-27',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

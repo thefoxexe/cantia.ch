@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un électricien change souvent de chantier trois ou quatre fois par jour. La vraie difficulté n’est donc pas de chiffrer un point électrique, mais de retrouver le soir qui a fait quoi, où, et combien de temps.',
   category: 'Métiers du bâtiment',
   keywords: ['devis électricien indépendant', 'facturation électricien Suisse', 'gestion chantier électricité', 'logiciel électricien bâtiment', 'heures électricien plusieurs chantiers'],
-  publishedAt: '2026-08-30',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

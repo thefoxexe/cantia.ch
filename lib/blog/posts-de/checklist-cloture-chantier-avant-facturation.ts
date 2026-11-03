@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Schlussrechnung ist nicht einfach das letzte Dokument der Baustelle: Sie ist es, das die Kundenbeziehung festschreibt. Besser mit Methode vorbereiten, als sie später korrigieren zu müssen.',
   category: 'Chantier & rentabilité',
   keywords: ['checkliste bauende', 'baustelle abschliessen', 'schlussrechnung bau', 'prüfung vor rechnungsstellung', 'ende der bauarbeiten'],
-  publishedAt: '2026-06-10',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

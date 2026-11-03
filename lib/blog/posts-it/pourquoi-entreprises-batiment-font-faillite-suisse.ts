@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un’azienda che «non smette mai di lavorare» può comunque affondare. Il portafoglio ordini rassicura, ma non dice nulla sul margine reale né sullo sfasamento tra spese e incassi.',
   category: 'Chantier & rentabilité',
   keywords: ['fallimento impresa edile', 'tesoreria costruzione', 'margine invisibile cantiere', 'gestione PMI edilizia', 'redditività artigiano'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

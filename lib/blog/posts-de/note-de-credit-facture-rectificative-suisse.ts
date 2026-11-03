@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine korrigierte Version derselben Rechnungsnummer erneut zu versenden, erzeugt auf beiden Seiten ein buchhalterisches Duplikat. Die Gutschrift existiert genau dafür, um sauber zu korrigieren, ohne je die Geschichte umzuschreiben.',
   category: 'Devis & facturation',
   keywords: ['Gutschrift Rechnung', 'berichtigte Rechnung Schweiz', 'Rechnung korrigieren', 'Fehler bereits versendete Rechnung', 'Rechnung stornieren'],
-  publishedAt: '2026-06-11',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

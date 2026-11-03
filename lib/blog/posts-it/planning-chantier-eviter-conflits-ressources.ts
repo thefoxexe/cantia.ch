@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Non è quasi mai un problema di malavoglia: è un problema di visibilità. Nessuno vede tutto il planning nello stesso posto, quindi nessuno può individuare il conflitto prima che esploda sul campo.',
   category: 'Chantier & rentabilité',
   keywords: ['conflitto planning cantiere', 'gestione squadra edilizia', 'risorse multi-cantiere', 'organizzazione impresa costruzione', 'planning condiviso'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

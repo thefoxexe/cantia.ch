@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der verbreitetste Irrglaube unter Selbstständigen im Bauwesen: «Verwaltungssoftware ist etwas für Teams.» Das stimmt nicht, und oft ist eher das Gegenteil der Fall.',
   category: 'Comparatifs & outils',
   keywords: ['selbstständig bauwesen software', 'software für einzelunternehmer bau', 'administrative verwaltung baugewerbe', 'handwerker allein software', 'offerte rechnung tool'],
-  publishedAt: '2026-05-14',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

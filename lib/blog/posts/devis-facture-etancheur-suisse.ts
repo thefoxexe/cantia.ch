@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une infiltration peut apparaître des mois après la fin du chantier. Pour un étancheur, la documentation de l’exécution compte presque autant que le travail lui-même.',
   category: 'Métiers du bâtiment',
   keywords: ['devis étancheur suisse', 'facturation étanchéité toiture', 'prix étanchéité terrasse m2'],
-  publishedAt: '2026-10-12',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

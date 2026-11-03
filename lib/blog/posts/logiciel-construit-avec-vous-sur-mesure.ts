@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des logiciels sont pensés une fois, pour un client moyen imaginaire, puis vendus tels quels à tout le monde. Un logiciel construit avec ses clients suit une autre logique, plus proche du terrain.',
   category: 'Sur-mesure & automatisations',
   keywords: ['logiciel construit avec vous', 'éditeur qui écoute ses clients', 'logiciel gestion collaboratif bâtiment', 'produit qui évolue avec les retours clients', 'Cantia développement avec clients'],
-  publishedAt: '2026-08-28',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine akzeptierte Offerte für eine Rechnung erneut zu erfassen, ist nicht nur Zeitverschwendung: Es ist auch die Gelegenheit, einen Preis- oder Mengenfehler zu übernehmen, der im Original gar nicht existierte.',
   category: 'Comparatifs & outils',
   keywords: ['Doppelerfassung Offerte Rechnung vermeiden', 'Offerte automatisch in Rechnung umwandeln', 'Software ohne erneute Eingabe', 'Zeitgewinn Fakturierung', 'Offerte Rechnung automatisieren'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

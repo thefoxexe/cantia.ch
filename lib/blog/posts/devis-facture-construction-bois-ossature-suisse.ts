@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Construire l’ossature complète d’un bâtiment en bois n’a rien à voir avec la seule charpente d’une toiture. Voici ce que cela change pour le devis et le montage sur site.',
   category: 'Métiers du bâtiment',
   keywords: ['devis construction bois suisse', 'facturation ossature bois', 'prix maison ossature bois suisse'],
-  publishedAt: '2026-10-12',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

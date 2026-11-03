@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Liquidität bricht fast nie ohne Vorzeichen ein. Das Problem ist, dass dieses Vorzeichen ohne Planung unsichtbar bleibt, bis der Tag kommt, an dem das Konto bereits im Minus ist.',
   category: 'Chantier & rentabilité',
   keywords: ['Liquiditätsplanung Bau', 'Liquidität Bauunternehmen', 'Cashflow-Verwaltung Handwerker', 'einfache Liquiditätsprognose', 'Liquiditätsproblem vorausschauen'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

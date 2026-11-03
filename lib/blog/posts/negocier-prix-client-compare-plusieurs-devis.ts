@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un client qui annonce comparer plusieurs devis n’attend pas forcément le prix le plus bas. Il attend souvent d’être rassuré sur ce qu’il paie vraiment.',
   category: 'Croissance & acquisition',
   keywords: ['client compare plusieurs devis', 'négocier prix devis artisan', 'défendre son prix bâtiment'],
-  publishedAt: '2026-09-29',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

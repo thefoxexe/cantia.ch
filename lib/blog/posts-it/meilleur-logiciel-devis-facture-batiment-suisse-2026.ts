@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggior parte dei comparativi elenca funzionalità generiche copiate da un software contabile classico. Un artigiano edile ha esigenze precise, molto diverse: eccole.',
   category: 'Comparatifs & outils',
   keywords: ['miglior software preventivi fatture edilizia', 'software preventivi fatture svizzera', 'confronto software gestione edilizia', 'preventivi fatture artigiano svizzera', 'software cantiere'],
-  publishedAt: '2026-06-01',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

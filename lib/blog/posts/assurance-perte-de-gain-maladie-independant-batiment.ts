@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un indépendant cloué au lit trois semaines ne touche rien, sauf s’il a lui-même souscrit une assurance que rien ne l’oblige à avoir. La LAMal ne couvre que les soins, jamais le salaire perdu.',
   category: 'Juridique & normes',
   keywords: ['perte de gain maladie', 'indépendant', 'lamal', 'indemnités journalières', 'assurance maladie'],
-  publishedAt: '2026-05-04',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

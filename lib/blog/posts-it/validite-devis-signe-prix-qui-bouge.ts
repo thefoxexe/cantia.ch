@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un preventivo firmato senza data di validità La impegna indefinitamente, anche se il prezzo del legno è raddoppiato nel frattempo. È una riga, non un dettaglio.',
   category: 'Devis & facturation',
   keywords: ['validità preventivo', 'prezzo materiale', 'impegno contrattuale', 'clausola di revisione', 'preventivo firmato'],
-  publishedAt: '2026-03-02',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

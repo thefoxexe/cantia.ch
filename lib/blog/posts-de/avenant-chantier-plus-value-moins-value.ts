@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '«Wenn Sie schon dabei sind, machen Sie doch gleich noch das»: der lukrativste Satz, den man auf einer Baustelle hören kann — und der gefährlichste, wenn man ihn nicht richtig fakturiert.',
   category: 'Devis & facturation',
   keywords: ['nachtrag baustelle', 'mehrleistung minderleistung', 'zusatzarbeiten fakturieren', 'offerte änderung bau', 'nachtrag offerte schweiz'],
-  publishedAt: '2026-04-27',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

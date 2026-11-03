@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La maggioranza degli artigiani dell’edilizia in Svizzera trova i propri clienti senza mai aver speso un centesimo in pubblicità: non è un caso, è il risultato di alcune abitudini precise, ripetute nel tempo.',
   category: 'Croissance & acquisition',
   keywords: ['trovare clienti artigiano', 'acquisizione clienti impresa edilizia', 'marketing artigiano indipendente Svizzera', 'sviluppare clientela costruzione', 'prospezione artigiano edilizia'],
-  publishedAt: '2026-08-29',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

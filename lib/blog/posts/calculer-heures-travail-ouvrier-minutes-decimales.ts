@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '4h45 de travail n’est pas 4,45 heures. C’est l’erreur de saisie RH la plus fréquente du bâtiment : sans doute celle qui fausse le plus de fiches de paie, sans que personne s’en aperçoive.',
   category: 'RH & salaires',
   keywords: ['heures de travail', 'décompte heures', 'salaire horaire', 'rh bâtiment', 'fiche de paie'],
-  publishedAt: '2026-02-09',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

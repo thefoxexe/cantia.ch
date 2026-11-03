@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Bauwesen ist eine Risikobranche, weshalb die Melde- und Nachverfolgungsregeln der SUVA hier strenger sind als anderswo. Eine verspätete oder fehlerhaft ausgefüllte Meldung kann die Entschädigung des Mitarbeiters verzögern.',
   category: 'RH & salaires',
   keywords: ['Arbeitsunfall Baustelle', 'SUVA Pflichten Arbeitgeber', 'Unfallmeldung Bau', 'Arbeitsunfähigkeit Bauarbeiter', 'Unfallversicherung Bauwesen Schweiz'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

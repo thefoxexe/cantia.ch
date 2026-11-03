@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'protection juridique professionnelle artisan suisse',
     'litige client entreprise construction',
   ],
-  publishedAt: '2026-10-05',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

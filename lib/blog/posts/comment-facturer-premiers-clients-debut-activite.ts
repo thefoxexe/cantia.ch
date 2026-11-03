@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La toute première facture envoyée compte plus qu\'elle n\'en a l\'air. C\'est souvent elle qui détermine si un client débutant paie vite et sans négocier, ou traîne des pieds.',
   category: 'Comparatifs & outils',
   keywords: ['facturer premiers clients', 'première facture indépendant', 'débuter facturation activité', 'facture conforme débutant Suisse', 'conseils première facturation'],
-  publishedAt: '2026-07-26',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

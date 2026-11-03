@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un apprenti qui passe ses trois premières semaines à observer sans jamais toucher un outil décroche presque toujours plus vite que les autres.',
   category: 'RH & salaires',
   keywords: ['intégration apprenti bâtiment', 'accueil apprenti chantier', 'premières semaines apprenti construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

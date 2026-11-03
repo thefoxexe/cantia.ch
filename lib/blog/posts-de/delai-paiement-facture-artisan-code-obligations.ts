@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Kunde, der nach 60 Tagen zahlt, ist nicht zwingend im Unrecht. In der Schweiz existiert die Zahlungsfrist nur, wenn Sie sie selbst auf der Rechnung vermerkt haben.',
   category: 'Juridique & normes',
   keywords: ['Zahlungsfrist', 'Rechnung', 'Verzugszins', 'Obligationenrecht', 'Mahnung'],
-  publishedAt: '2026-01-22',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

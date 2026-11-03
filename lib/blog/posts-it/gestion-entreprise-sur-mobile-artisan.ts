@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La promessa "gestisca tutto dal Suo telefono" è vera per la maggior parte della quotidianità di un artigiano. Non lo è per assolutamente tutto, ed è meglio sapere dove si trova il limite.',
   category: 'Comparatifs & outils',
   keywords: ['gestione impresa mobile', 'gestire artigianato da telefono', 'applicazione gestione smartphone edilizia', 'gestire tutto su mobile PMI', 'software mobile artigiano Svizzera'],
-  publishedAt: '2026-07-20',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

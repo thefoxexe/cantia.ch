@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Fare a meno di un commercialista all\'avvio non è un\'imprudenza di per sé: è una questione di sapere precisamente dove si ferma ciò che si può gestire da soli, e dove diventa rischioso.',
   category: 'Comparatifs & outils',
   keywords: ['gestire impresa senza commercialista', 'avviare senza fiduciaria Svizzera', 'contabilità indipendente principiante', 'gestione amministrativa senza commercialista', 'auto-gestione impresa edile'],
-  publishedAt: '2026-07-14',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

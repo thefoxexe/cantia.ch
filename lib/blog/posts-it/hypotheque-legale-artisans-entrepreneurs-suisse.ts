@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un cliente che non paga può essere escusso. Ma se è insolvente o scompare, l’esecuzione non recupera nulla. L’ipoteca legale, invece, mantiene una presa diretta sull’edificio che avete costruito.',
   category: 'Juridique & normes',
   keywords: ['ipoteca legale artigiani', 'art 837 CC', 'garanzia pagamento cantiere', 'registro fondiario', 'imprenditore non pagato'],
-  publishedAt: '2026-08-24',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

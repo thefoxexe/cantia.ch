@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Winbiz est utilisé depuis longtemps par de nombreuses PME romandes. Mais un artisan qui passe ses journées sur le chantier n’a pas les mêmes besoins qu’une PME de bureau.',
   category: 'Comparatifs & outils',
   keywords: ['Winbiz', 'alternative Winbiz bâtiment', 'Winbiz vs Cantia', 'logiciel gestion artisan suisse'],
-  publishedAt: '2026-09-30',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Una fattura che «sembra corretta» e una fattura che rispetta tutte le esigenze dell’AFC non sono sempre la stessa cosa. Basta una sola indicazione mancante per indebolirla.',
   category: 'Devis & facturation',
   keywords: ['indicazioni fattura svizzera', 'numero IVA fattura', 'AFC fattura', 'fattura conforme', 'fatturazione artigiano'],
-  publishedAt: '2026-08-15',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

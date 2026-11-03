@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Entre une cuisine en kit et une cuisine sur mesure avec électroménager haut de gamme, le prix peut varier du simple au quadruple pour une surface identique.',
   category: 'Devis & facturation',
   keywords: ['prix', 'rénovation', 'cuisine', 'devis', 'agencement', 'électroménager'],
-  publishedAt: '2026-09-25',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Senza un preventivo a prezzo fisso su cui appoggiarsi, una fattura in economia si basa interamente sulla fiducia del cliente nel numero di ore dichiarato. Questa fiducia si costruisce con il dettaglio, non con un totale tondo.',
   category: 'Devis & facturation',
   keywords: ['fatturazione in economia edilizia', 'fattura ore lavorate', 'lavori a ore', 'contestazione fattura in economia', 'monitoraggio ore cantiere'],
-  publishedAt: '2026-07-07',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

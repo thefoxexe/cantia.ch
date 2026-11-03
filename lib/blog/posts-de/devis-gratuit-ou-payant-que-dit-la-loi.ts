@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine Offerte bedeutet Stunden der Kalkulation, manchmal sogar eine Anfahrt. Trotzdem verrechnet sie fast niemand. Das ist keine gesetzliche Pflicht, sondern ein Brauch. Diese Nuance ändert alles bei einer komplexen Kalkulation.',
   category: 'Devis & facturation',
   keywords: ['offerte gratis oder kostenpflichtig', 'offerte verrechnen', 'gesetz offerte schweiz', 'kostenvoranschlag bau', 'komplexe offertkalkulation'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

@@ -16,7 +16,7 @@ export const post: BlogPost = {
     'tdfn artisan suisse',
     'impôt préalable tva construction',
   ],
-  publishedAt: '2026-09-21',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

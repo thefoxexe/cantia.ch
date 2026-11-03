@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La primissima fattura inviata conta più di quanto sembri. È spesso lei a determinare se un cliente agli esordi paga rapidamente e senza discutere, oppure tira per le lunghe.',
   category: 'Comparatifs & outils',
   keywords: ['fatturare primi clienti', 'prima fattura indipendente', 'iniziare fatturazione attività', 'fattura conforme principiante Svizzera', 'consigli prima fatturazione'],
-  publishedAt: '2026-07-26',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

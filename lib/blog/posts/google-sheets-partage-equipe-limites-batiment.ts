@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un tableur partagé tient très bien à une ou deux personnes. Dès que l’équipe grandit, les mêmes limites reviennent presque toujours, au même moment.',
   category: 'Comparatifs & outils',
   keywords: ['Google Sheets équipe limites', 'tableur partagé chantier problème', 'gestion équipe bâtiment Excel'],
-  publishedAt: '2026-10-01',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

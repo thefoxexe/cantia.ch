@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Rifare un bagno in linea di principio non richiede alcuna licenza. Toccare un muro portante, sì, e il confine tra i due si gioca su dettagli che pochi artigiani verificano prima di iniziare.',
   category: 'Juridique & normes',
   keywords: ['licenza edilizia', 'ristrutturazione', 'procedura di notifica', 'autorizzazione lavori', 'cantone'],
-  publishedAt: '2026-03-16',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

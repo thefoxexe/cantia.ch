@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un matériau indisponible en plein chantier peut faire dérailler tout un planning. Voici comment limiter les dégâts et, surtout, comment l’anticiper.',
   category: 'Chantier & rentabilité',
   keywords: ['rupture de stock fournisseur chantier', 'retard livraison matériaux bâtiment'],
-  publishedAt: '2026-10-09',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

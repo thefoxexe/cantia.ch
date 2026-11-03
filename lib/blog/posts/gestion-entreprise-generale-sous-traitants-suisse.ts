@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’entreprise générale facture un prix global au client, mais sa rentabilité se joue lot par lot, avec chaque sous-traitant. Voici ce que cela change dans le pilotage du chantier.',
   category: 'Métiers du bâtiment',
   keywords: ['entreprise générale suisse', 'gestion sous-traitants chantier', 'coordination corps de métier facturation'],
-  publishedAt: '2026-10-12',
+  publishedAt: '2026-09-22',
   readMinutes: 7,
   blocks: [
     {

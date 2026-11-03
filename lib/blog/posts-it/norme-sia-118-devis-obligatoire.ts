@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un architetto ha menzionato la SIA 118 in riunione e Lei pensa che si applichi d’ufficio al Suo cantiere. È falso, e in caso di controversia costa caro.',
   category: 'Juridique & normes',
   keywords: ['sia 118', 'norma', 'contratto', 'preventivo', 'obbligo', 'edilizia'],
-  publishedAt: '2026-01-15',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Au moment de démarrer, la tentation est de vouloir tout équiper d\'un coup. En réalité, très peu d\'outils sont vraiment indispensables dès le premier jour, le reste peut attendre.',
   category: 'Comparatifs & outils',
   keywords: ['outils indispensables démarrer entreprise bâtiment', 'checklist démarrage artisan', 'que faut-il pour lancer son entreprise construction', 'équipement de base nouvelle entreprise bâtiment', 'outils essentiels artisan Suisse'],
-  publishedAt: '2026-07-31',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

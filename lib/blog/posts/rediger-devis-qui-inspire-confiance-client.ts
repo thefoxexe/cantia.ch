@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Deux devis au même prix ne se valent jamais aux yeux d’un client. Ce qui fait pencher la balance n’est presque jamais le chiffre en bas de page.',
   category: 'Devis & facturation',
   keywords: ['devis client', 'confiance', 'présentation devis', 'signature en ligne', 'acceptation devis'],
-  publishedAt: '2026-02-19',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

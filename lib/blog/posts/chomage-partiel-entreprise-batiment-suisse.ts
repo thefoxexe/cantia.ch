@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le chômage partiel n’est pas réservé aux crises majeures : c’est un outil concret pour traverser un creux d’activité sans devoir licencier.',
   category: 'RH & salaires',
   keywords: ['chômage partiel', 'RHT', 'bâtiment', 'entreprise', 'licenciement'],
-  publishedAt: '2026-09-28',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

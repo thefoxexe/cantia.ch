@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine massgeschneiderte Funktion anzufragen scheint grossen Unternehmen mit beträchtlichem IT-Budget vorbehalten zu sein. In der Praxis ist es oft zugänglicher als gedacht, sofern der Bedarf gut formuliert wird.',
   category: 'Sur-mesure & automatisations',
   keywords: ['massgeschneiderte Funktion anfragen Software', 'wie individuelle Entwicklung anfragen', 'Anbieter kontaktieren spezifischer Bedarf', 'Custom-Anfrage Verwaltungssoftware', 'Bedarf formulieren Unternehmen massgeschneidert'],
-  publishedAt: '2026-08-25',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

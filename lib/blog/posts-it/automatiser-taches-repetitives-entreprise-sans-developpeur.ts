@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Automatizzare fa spesso pensare a script complicati o software costosi. Per una piccola impresa edile, può invece semplicemente significare che un sollecito di fattura parte da solo, al momento giusto.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatizzare attività impresa senza sviluppatore', 'automazione PMI edile', 'automatizzare senza programmare', 'risparmiare tempo automazione gestione', 'automazione amministrativa artigiano'],
-  publishedAt: '2026-08-16',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

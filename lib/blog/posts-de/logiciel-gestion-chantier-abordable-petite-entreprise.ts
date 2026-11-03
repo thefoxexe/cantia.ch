@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Lange grossen Bauunternehmen vorbehalten, ist die digitale Baustellendokumentation heute auch für kleine Betriebe zugänglich, oft schon zum Preis eines bescheidenen Monatsabonnements.',
   category: 'Comparatifs & outils',
   keywords: ['erschwingliche baustellensoftware', 'baustellendokumentation günstig', 'baustellen tool kleinunternehmen', 'baustellen app schweiz preiswert', 'baustellenverwaltung sparsam'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

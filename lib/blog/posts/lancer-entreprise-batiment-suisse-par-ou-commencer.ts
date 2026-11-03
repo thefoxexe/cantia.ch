@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Se lancer dans le bâtiment implique une dizaine de décisions à prendre à peu près en même temps : un ordre clair aide à ne rien oublier sans se sentir submergé dès le premier jour.',
   category: 'Comparatifs & outils',
   keywords: ['lancer entreprise bâtiment Suisse', 'par où commencer entreprise construction', 'étapes création entreprise bâtiment', 'démarches entreprise artisan Suisse', 'checklist lancement activité bâtiment'],
-  publishedAt: '2026-08-13',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

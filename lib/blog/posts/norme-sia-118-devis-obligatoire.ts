@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un architecte a mentionné la SIA 118 en réunion et vous pensez qu’elle s’applique d’office à votre chantier. C’est faux, et ça coûte cher en cas de litige.',
   category: 'Juridique & normes',
   keywords: ['sia 118', 'norme', 'contrat', 'devis', 'obligation', 'construction'],
-  publishedAt: '2026-01-15',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

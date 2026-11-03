@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'CCT bâtiment vacances',
     'commission paritaire construction',
   ],
-  publishedAt: '2026-10-04',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

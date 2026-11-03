@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Éléments fabriqués en atelier, assemblés sur site en quelques jours : la construction modulaire progresse en Suisse. Voici ce qu’elle change vraiment pour une entreprise du bâtiment.',
   category: 'Chantier & rentabilité',
   keywords: ['construction modulaire suisse', 'construction préfabriquée bâtiment', 'ossature préfabriquée atelier chantier'],
-  publishedAt: '2026-10-11',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

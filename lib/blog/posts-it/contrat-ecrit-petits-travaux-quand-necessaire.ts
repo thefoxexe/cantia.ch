@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La legge non impone alcuna soglia per richiedere uno scritto. La soglia che conta davvero non è legale: è quella oltre la quale un disaccordo di memoria costa caro.',
   category: 'Juridique & normes',
   keywords: ['contratto scritto', 'piccoli lavori', 'preventivo obbligatorio', 'riparazione', 'soglia pratica'],
-  publishedAt: '2026-05-18',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

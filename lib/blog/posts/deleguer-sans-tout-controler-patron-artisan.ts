@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un patron qui valide encore chaque petite décision à dix employés n’a pas fait grandir une entreprise. Il a fait grandir sa propre charge de travail.',
   category: 'RH & salaires',
   keywords: ['déléguer patron artisan', 'déléguer sans tout contrôler bâtiment', 'management entreprise construction'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

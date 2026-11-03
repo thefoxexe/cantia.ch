@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti artigiani citano «2 anni» di garanzia per riflesso. Per tutto ciò che è fissato all’edificio, la legge svizzera dice 5 anni, e un nuovo termine di 60 giorni ha appena cambiato le carte in tavola nel 2026.',
   category: 'Juridique & normes',
   keywords: ['garanzia costruzione', 'termine di prescrizione', 'art 371 co', 'avviso dei difetti', 'difetto occulto'],
-  publishedAt: '2026-03-05',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La liquidità non crolla quasi mai senza segnali premonitori. Il problema è che senza previsionale, questo segnale resta invisibile fino al giorno in cui il conto è già in rosso.',
   category: 'Chantier & rentabilité',
   keywords: ['previsionale liquidità edilizia', 'liquidità impresa costruzione', 'gestione cashflow artigiano', 'previsione di liquidità semplice', 'anticipare problema di liquidità'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

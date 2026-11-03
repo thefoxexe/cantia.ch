@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Versprechen "alles vom Handy aus erledigen" stimmt für den Grossteil des Handwerkeralltags. Es stimmt nicht für absolut alles, und es lohnt sich zu wissen, wo genau die Grenze liegt.',
   category: 'Comparatifs & outils',
   keywords: ['Unternehmen mobil verwalten', 'Handwerksbetrieb vom Smartphone führen', 'App Geschäftsverwaltung Bau', 'alles auf dem Handy erledigen KMU', 'mobile Software Handwerker Schweiz'],
-  publishedAt: '2026-07-20',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

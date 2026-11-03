@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une société individuelle n\'a généralement qu\'une seule personne aux commandes de tout, ce qui change complètement les priorités dans le choix d\'un logiciel de gestion.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel gestion société individuelle', 'outil pour entreprise individuelle Suisse', 'logiciel raison individuelle bâtiment', 'gestion administrative société individuelle', 'facturation société individuelle Suisse'],
-  publishedAt: '2026-07-29',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

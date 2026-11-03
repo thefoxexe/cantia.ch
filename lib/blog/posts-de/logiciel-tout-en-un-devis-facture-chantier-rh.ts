@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Auf dem Papier scheint es zu schön, Offerten, Rechnungen, Baustelle und Personal in einem einzigen Tool zu vereinen. In der Praxis funktioniert es gerade deshalb, weil diese vier Bereiche dieselben Grunddaten teilen.',
   category: 'Comparatifs & outils',
   keywords: ['software offerte rechnung baustelle personal', 'komplette verwaltung bauunternehmen', 'ein tool für alle bedürfnisse kmu', 'integrierte software bau', 'komplette plattform baubranche'],
-  publishedAt: '2026-07-16',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Sauf si le document précisait explicitement une date limite, un client qui revient trois mois plus tard avec « votre devis » peut légitimement s’attendre au même prix.',
   category: 'Devis & facturation',
   keywords: ['durée validité devis', 'devis non signé délai', 'devis expiré', 'combien de temps devis valable', 'validité offre de prix'],
-  publishedAt: '2026-06-09',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

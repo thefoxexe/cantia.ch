@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’edilizia è un settore a rischio, per cui le regole di dichiarazione e di follow-up della SUVA sono più severe che altrove. Una dichiarazione tardiva o compilata male può ritardare l’indennizzo del dipendente.',
   category: 'RH & salaires',
   keywords: ['infortunio sul lavoro cantiere', 'obblighi datore di lavoro SUVA', 'dichiarazione infortunio edilizia', 'incapacità lavorativa operaio', 'assicurazione infortuni edilizia'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

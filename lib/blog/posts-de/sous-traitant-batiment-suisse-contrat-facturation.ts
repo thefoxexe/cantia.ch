@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Subunternehmen entbindet den Hauptunternehmer nie von seiner Haftung gegenüber dem Kunden. Das verbreitetste – und teuerste – Missverständnis im Westschweizer Baugewerbe.',
   category: 'Chantier & rentabilité',
   keywords: ['subunternehmer bau schweiz', 'subunternehmen baugewerbe', 'haftung hauptunternehmer', 'werkvertrag subunternehmer', 'rechnung subunternehmer'],
-  publishedAt: '2026-02-12',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

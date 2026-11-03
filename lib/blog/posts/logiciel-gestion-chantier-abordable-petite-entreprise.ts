@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Longtemps réservé aux grandes entreprises de construction, le suivi de chantier numérique est aujourd\'hui accessible à une petite structure, souvent pour le prix d\'un abonnement mensuel modeste.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel gestion chantier abordable', 'suivi chantier prix accessible', 'outil chantier petite entreprise bâtiment', 'application chantier pas cher Suisse', 'gestion de chantier économique'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

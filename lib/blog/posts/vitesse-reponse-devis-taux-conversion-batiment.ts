@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Le prix le plus bas ne gagne pas toujours le devis : celui qui répond le premier, avec un devis clair et professionnel, rafle souvent le client avant que les autres n’aient même terminé leur estimation.',
   category: 'Croissance & acquisition',
   keywords: ['vitesse réponse devis', 'taux de conversion devis bâtiment', 'répondre rapidement client artisan', 'perdre un client devis lent', 'délai envoi devis chantier'],
-  publishedAt: '2026-09-05',
+  publishedAt: '2026-08-28',
   readMinutes: 4,
   blocks: [
     {

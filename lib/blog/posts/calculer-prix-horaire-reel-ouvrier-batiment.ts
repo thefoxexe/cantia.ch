@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d’entreprises chiffrent leurs devis sur un taux horaire approximatif hérité d’années de pratique, sans jamais prendre le temps de recalculer ce qu’un ouvrier coûte vraiment une fois toutes les charges intégrées.',
   category: 'Chantier & rentabilité',
   keywords: ['coût horaire ouvrier', 'calcul taux horaire bâtiment', 'charges sociales construction', 'rentabilité chantier', 'chiffrage devis'],
-  publishedAt: '2026-07-28',
+  publishedAt: '2026-08-27',
   readMinutes: 6,
   blocks: [
     {

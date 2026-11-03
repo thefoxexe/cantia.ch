@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Excel-Datei zur Baustellenverfolgung hält selten länger als ein paar Monate durch. Das Problem ist nicht die Disziplin des Teams: Es ist das Format selbst.',
   category: 'Chantier & rentabilité',
   keywords: ['rentabilität baustelle', 'excel baustellenverfolgung', 'offeriert vs real', 'kostenverfolgung bau', 'marge baustelle'],
-  publishedAt: '2026-02-05',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

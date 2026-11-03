@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’AVS/AI n’est pas une option pour un indépendant, contrairement au 2e pilier. Et le taux qu’on vous applique dépend d’un seuil que presque personne ne connaît.',
   category: 'Juridique & normes',
   keywords: ['avs', 'ai', 'indépendant', 'cotisations', 'caisse de compensation', 'revenu net'],
-  publishedAt: '2026-01-26',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

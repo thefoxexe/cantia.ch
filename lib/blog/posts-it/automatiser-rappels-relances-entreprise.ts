@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il sollecito al cliente è spesso l’attività amministrativa più facile da dimenticare, non per negligenza, ma perché non ha mai una data fissa in agenda, a differenza di un appuntamento in cantiere.',
   category: 'Sur-mesure & automatisations',
   keywords: ['automatizzare solleciti impresa', 'promemoria fattura non pagata automatico', 'sollecito preventivo automatico', 'automazione pagamento cliente edilizia', 'non dimenticare più sollecito cliente'],
-  publishedAt: '2026-08-21',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

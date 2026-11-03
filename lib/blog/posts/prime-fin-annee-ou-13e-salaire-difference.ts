@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un employé qui reçoit la même « prime » trois années de suite finit souvent par la considérer comme acquise. Encore faut-il que l’entreprise, elle, sache ce qu’elle a réellement promis.',
   category: 'RH & salaires',
   keywords: ['prime de fin d’année ou 13e salaire', 'différence prime 13e salaire', 'prime discrétionnaire bâtiment'],
-  publishedAt: '2026-10-08',
+  publishedAt: '2026-09-22',
   readMinutes: 5,
   blocks: [
     {

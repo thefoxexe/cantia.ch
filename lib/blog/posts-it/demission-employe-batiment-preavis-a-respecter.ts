@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un operaio che annuncia la propria partenza «tra due settimane» non può sempre partire così in fretta, perché il termine di preavviso funziona in entrambi i sensi, datore di lavoro come dipendente.',
   category: 'RH & salaires',
   keywords: ['dimissioni dipendente preavviso', 'termine di disdetta dimissioni edilizia', 'preavviso dipendente costruzione', 'partenza dipendente senza preavviso', 'CCT edilizia dimissioni'],
-  publishedAt: '2026-06-29',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

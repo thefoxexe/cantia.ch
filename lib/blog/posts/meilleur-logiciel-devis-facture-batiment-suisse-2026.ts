@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des comparatifs listent des fonctionnalités génériques copiées d’un logiciel comptable classique. Un artisan du bâtiment a des besoins précis, très différents : voici lesquels.',
   category: 'Comparatifs & outils',
   keywords: ['meilleur logiciel devis facture bâtiment', 'logiciel devis facture suisse', 'logiciel gestion bâtiment comparatif', 'devis facture artisan suisse', 'logiciel chantier'],
-  publishedAt: '2026-06-01',
+  publishedAt: '2026-08-27',
   readMinutes: 6,
   blocks: [
     {

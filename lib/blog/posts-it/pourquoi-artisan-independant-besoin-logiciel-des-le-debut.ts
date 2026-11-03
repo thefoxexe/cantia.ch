@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’idea diffusa è aspettare di avere "abbastanza clienti" per giustificare un software gestionale. In pratica, è proprio all’inizio che si formano le cattive abitudini amministrative, ed è allora che sono più costose da correggere.',
   category: 'Comparatifs & outils',
   keywords: ['artigiano indipendente bisogno software fin dall’inizio', 'perché equipaggiarsi presto impresa edile', 'software gestionale fin dal primo cliente', 'evitare cattive abitudini amministrative', 'iniziare con uno strumento adatto'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

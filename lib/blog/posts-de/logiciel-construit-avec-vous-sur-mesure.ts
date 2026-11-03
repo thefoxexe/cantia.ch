@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten Softwarelösungen werden einmal konzipiert, für einen imaginären Durchschnittskunden, und dann so an alle verkauft. Eine mit den Kunden gebaute Software folgt einer anderen Logik, näher an der Praxis.',
   category: 'Sur-mesure & automatisations',
   keywords: ['software mit ihnen gebaut', 'anbieter der kunden zuhört', 'kollaborative verwaltungssoftware bau', 'produkt das mit feedback wächst', 'cantia entwicklung mit kunden'],
-  publishedAt: '2026-08-28',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

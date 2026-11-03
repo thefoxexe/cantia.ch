@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'L’AVS/AI non è un’opzione per un indipendente, a differenza del 2° pilastro. E l’aliquota che Le viene applicata dipende da una soglia che quasi nessuno conosce.',
   category: 'Juridique & normes',
   keywords: ['avs', 'ai', 'indipendente', 'contributi', 'cassa di compensazione', 'reddito netto'],
-  publishedAt: '2026-01-26',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

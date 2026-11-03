@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die meisten kostenlosen Tests werden schlecht genutzt: ein paar schnelle Klicks, dann der Abbruch oder die Standard-Anmeldung, ohne wirklich geprüft zu haben, worauf es ankommt.',
   category: 'Comparatifs & outils',
   keywords: ['kostenloser test rechnungssoftware', 'software testen vor abonnement', 'testphase verwaltungstool schweiz', 'wie software offerte rechnung testen', 'gratis test 30 tage software'],
-  publishedAt: '2026-08-06',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'CHF 0,70 par kilomètre, c’est fini. Le nouveau guide du certificat de salaire fixe CHF 0,75 depuis le 1er janvier 2026. Il ajoute aussi une case à cocher que personne ne connaît encore.',
   category: 'RH & salaires',
   keywords: ['indemnité kilométrique', 'frais professionnels', 'certificat de salaire', 'véhicule privé', 'afc'],
-  publishedAt: '2026-03-30',
+  publishedAt: '2026-08-19',
   readMinutes: 5,
   blocks: [
     {

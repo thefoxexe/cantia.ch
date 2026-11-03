@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Se regrouper à plusieurs entreprises pour acheter en plus gros volume, une pratique courante dans d’autres métiers artisanaux mais encore rare dans le bâtiment.',
   category: 'Chantier & rentabilité',
   keywords: ['groupement achat artisans bâtiment', 'achat groupé matériaux construction'],
-  publishedAt: '2026-10-09',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

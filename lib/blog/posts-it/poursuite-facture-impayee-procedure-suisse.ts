@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Il sollecito non funziona sempre. Prima di rinunciare a un credito o di esaurirsi in richiami, l’esecuzione resta una procedura accessibile, standardizzata, e spesso più rapida di quanto si creda.',
   category: 'Devis & facturation',
   keywords: ['esecuzione fattura non pagata', 'precetto esecutivo', 'ufficio esecuzioni', 'rigetto opposizione', 'credito artigiano'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

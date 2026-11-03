@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Une photo avant/après convainc souvent plus qu’un long argumentaire. Elle montre en un coup d’œil ce qu’un devis ne peut que décrire, et c’est exactement ce qu’un client hésitant a besoin de voir.',
   category: 'Croissance & acquisition',
   keywords: ['photos avant après chantier', 'portfolio artisan bâtiment', 'preuve sociale entreprise construction', 'photos réalisations marketing artisan', 'valoriser chantiers terminés'],
-  publishedAt: '2026-09-16',
+  publishedAt: '2026-08-28',
   readMinutes: 4,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     '4h45 di lavoro non è 4,45 ore. È l’errore di inserimento RH più frequente dell’edilizia: probabilmente quello che falsa più buste paga, senza che nessuno se ne accorga.',
   category: 'RH & salaires',
   keywords: ['ore di lavoro', 'conteggio ore', 'salario orario', 'rh edilizia', 'busta paga'],
-  publishedAt: '2026-02-09',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

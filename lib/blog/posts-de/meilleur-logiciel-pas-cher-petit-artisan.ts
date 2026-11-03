@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Solo-Handwerker braucht kein Werkzeug für zwanzig Angestellte. Aber er braucht trotzdem ein vollständiges Werkzeug — nur eben passend dimensioniert für eine einzige Person.',
   category: 'Comparatifs & outils',
   keywords: ['beste günstige Software Handwerker', 'Software Solo-Handwerker', 'erschwingliches Werkzeug kleiner Betrieb', 'günstige Software Bau', 'Fakturierung Handwerker selbständig günstig'],
-  publishedAt: '2026-07-13',
+  publishedAt: '2026-09-03',
   readMinutes: 4,
   blocks: [
     {

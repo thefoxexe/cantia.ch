@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La LPP è facoltativa per un indipendente. Salvo che in alcuni mestieri dell’edilizia, la SUVA può decidere diversamente senza che nessuno La avvisi.',
   category: 'Juridique & normes',
   keywords: ['lpp', '2° pilastro', 'indipendente', 'suva', 'laa', 'previdenza'],
-  publishedAt: '2026-01-29',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Se le Sue fatture QR vengono ancora scansionate oggi, non significa che verranno scansionate anche in ottobre 2026. Un dettaglio di formato ha appena cambiato le carte in tavola.',
   category: 'Devis & facturation',
   keywords: ['fattura qr', 'bvr', 'iban', 'fatturazione svizzera', 'qr-bill', 'pagamento'],
-  publishedAt: '2026-01-19',
+  publishedAt: '2026-09-10',
   readMinutes: 6,
   blocks: [
     {

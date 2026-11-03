@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Molti imprenditori pensano subito alla causa legale alla prima tensione con un cliente. In pratica, esistono diverse tappe più rapide e meno costose prima di arrivarci, e alcune sono addirittura obbligatorie.',
   category: 'Juridique & normes',
   keywords: ['controversia cantiere mediazione', 'conciliazione tribunale costruzione', 'risoluzione conflitto cantiere', 'procedura civile Svizzera edilizia', 'controversia cliente artigiano'],
-  publishedAt: '2026-06-24',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

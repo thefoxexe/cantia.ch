@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Temporärarbeiter kostet pro Stunde mehr als ein fester Mitarbeiter, erspart aber die Bindung einer Rekrutierung. Man muss die Regeln kennen, damit daraus ein echter Gewinn wird, kein verstecktes Risiko.',
   category: 'RH & salaires',
   keywords: ['temporärarbeit baugewerbe schweiz', 'personalverleih bau', 'temporärarbeiter baustelle', 'temporärfirma bau', 'befristete arbeitskräfte schweiz'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

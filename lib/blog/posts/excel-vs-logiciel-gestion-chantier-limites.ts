@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d’entreprises du bâtiment démarrent avec un fichier Excel bricolé au fil des années. Ce n’est pas un mauvais choix au départ, mais c’est un choix qui vieillit mal, souvent sans qu’on s’en rende compte.',
   category: 'Comparatifs & outils',
   keywords: ['excel gestion chantier', 'logiciel vs excel bâtiment', 'limites tableur construction', 'digitalisation PME bâtiment', 'outil devis facture'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

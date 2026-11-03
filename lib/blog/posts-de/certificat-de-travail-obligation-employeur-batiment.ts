@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Kleinunternehmen behandeln das Arbeitszeugnis als Formalität in letzter Minute. Es ist ein Recht des Arbeitnehmers, geregelt durch präzise Vorschriften darüber, was es enthalten darf und was nicht.',
   category: 'RH & salaires',
   keywords: ['arbeitszeugnis pflicht arbeitgeber', 'arbeitszeugnis mitarbeiter bau', 'arbeitszeugnis schweiz', 'recht arbeitnehmer zeugnis', 'austritt mitarbeiter bauunternehmen'],
-  publishedAt: '2026-06-26',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

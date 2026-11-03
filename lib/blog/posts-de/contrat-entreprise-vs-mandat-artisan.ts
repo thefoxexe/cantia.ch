@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Zwei Rechtsregime, ein riesiger Unterschied: Das eine verpflichtet auf ein Ergebnis, das andere auf eingesetzte Mittel. Die meisten Handwerker wissen nicht, in welchem sie arbeiten.',
   category: 'Juridique & normes',
   keywords: ['Werkvertrag Schweiz', 'Auftrag Schweiz Recht', 'Erfolgspflicht Handwerker', 'Sorgfaltspflicht Architekt', 'Obligationenrecht Bau'],
-  publishedAt: '2026-03-19',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

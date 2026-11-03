@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Mehrheit der überfälligen Rechnungen ist nicht böser Wille, sie sind nur in einem Stapel untergegangen. Eine wirksame Mahnung geht zuerst davon aus, nicht vom Gegenteil.',
   category: 'Devis & facturation',
   keywords: ['rechnung mahnen kunde', 'zahlung überfällig baugewerbe', 'inkasso baustelle', 'kunde zahlt nicht', 'mahnverfahren rechnung schweiz'],
-  publishedAt: '2026-02-26',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un QR-code qui « a l’air correct » peut être rejeté par une banque au scan. La QR-facture suisse a des règles précises, et tous les logiciels ne les respectent pas de la même façon.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel QR-facture', 'QR-facture suisse comparatif', 'logiciel facturation QR-IBAN', 'norme QR-facture 2.3', 'facturation suisse conforme'],
-  publishedAt: '2026-06-03',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

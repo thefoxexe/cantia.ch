@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Lanciarsi nell’edilizia implica una decina di decisioni da prendere quasi contemporaneamente: un ordine chiaro aiuta a non dimenticare nulla senza sentirsi sopraffatti fin dal primo giorno.',
   category: 'Comparatifs & outils',
   keywords: ['lanciare impresa edile Svizzera', 'da dove cominciare impresa costruzioni', 'tappe creazione impresa edile', 'pratiche impresa artigiano Svizzera', 'checklist lancio attività edile'],
-  publishedAt: '2026-08-13',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'In un settore in cui ogni impresa si contende gli stessi profili qualificati, la fidelizzazione non è più un tema secondario delle risorse umane: è diventata una vera leva di competitività.',
   category: 'Croissance & acquisition',
   keywords: ['fidelizzare operai edilizia', 'penuria manodopera costruzione Svizzera', 'trattenere dipendenti impresa edile', 'reclutamento cantiere difficile', 'turnover operaio qualificato'],
-  publishedAt: '2026-09-18',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

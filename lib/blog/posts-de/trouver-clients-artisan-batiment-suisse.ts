@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Mehrheit der Handwerksbetriebe im Schweizer Baugewerbe findet ihre Kunden, ohne je einen Rappen für Werbung ausgegeben zu haben: Das ist kein Zufall, sondern das Ergebnis einiger genau ausgeführter, langfristig wiederholter Gewohnheiten.',
   category: 'Croissance & acquisition',
   keywords: ['kunden finden handwerksbetrieb', 'kundengewinnung bauunternehmen', 'marketing selbstständiger handwerker schweiz', 'kundschaft aufbauen baugewerbe', 'akquise handwerksbetrieb bau'],
-  publishedAt: '2026-08-29',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

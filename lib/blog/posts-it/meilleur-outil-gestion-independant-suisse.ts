@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un indipendente che inizia spesso confronta gli strumenti sulla loro lista di funzionalità. Eppure la domanda che conta davvero è: quale sarà ancora aperto sul suo telefono tra sei mesi?',
   category: 'Comparatifs & outils',
   keywords: ['miglior strumento gestione indipendente', 'software gestione Svizzera avvio', 'strumento per indipendente edilizia', 'gestione amministrativa indipendente', 'confronto strumento gestione Svizzera'],
-  publishedAt: '2026-07-02',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un freelance dell\'edilizia non ha un ufficio fisso dove tornare ogni sera, quindi il suo strumento di gestione deve vivere in tasca, non solo su uno schermo di computer.',
   category: 'Comparatifs & outils',
   keywords: ['applicazione gestione freelance edilizia', 'app gestione cantiere mobile', 'strumento freelance costruzione Svizzera', 'gestione amministrativa su mobile', 'applicazione indipendente edilizia'],
-  publishedAt: '2026-07-11',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

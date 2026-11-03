@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La plupart des retards de chantier ne viennent pas d’un imprévu technique, mais d’un point administratif ou logistique oublié avant même le premier jour de travaux.',
   category: 'Chantier & rentabilité',
   keywords: ['checklist ouverture chantier', 'démarrer un chantier bâtiment', 'préparation chantier construction', 'organisation début de chantier', 'liste vérification chantier'],
-  publishedAt: '2026-06-08',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

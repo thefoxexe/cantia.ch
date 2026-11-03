@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un indépendant qui démarre compare souvent des outils sur leur liste de fonctionnalités. Pourtant la question qui compte vraiment est : lequel sera encore ouvert sur son téléphone dans six mois ?',
   category: 'Comparatifs & outils',
   keywords: ['meilleur outil gestion indépendant', 'logiciel gestion Suisse démarrage', 'outil pour indépendant du bâtiment', 'gestion administrative indépendant', 'comparatif outil gestion Suisse'],
-  publishedAt: '2026-07-02',
+  publishedAt: '2026-08-30',
   readMinutes: 5,
   blocks: [
     {

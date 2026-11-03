@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'In einer Branche, in der sich jedes Unternehmen um dieselben qualifizierten Profile streitet, ist die Mitarbeiterbindung kein Nebenthema der Personalabteilung mehr: Sie ist zu einem echten Wettbewerbshebel geworden.',
   category: 'Croissance & acquisition',
   keywords: ['fachkräfte binden baugewerbe', 'fachkräftemangel bau schweiz', 'mitarbeiter halten bauunternehmen', 'rekrutierung baustelle schwierig', 'fluktuation qualifizierte arbeiter'],
-  publishedAt: '2026-09-18',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

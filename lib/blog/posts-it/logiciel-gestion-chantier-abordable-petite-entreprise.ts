@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'A lungo riservato alle grandi imprese di costruzione, il monitoraggio digitale del cantiere è oggi accessibile a una piccola struttura, spesso per il prezzo di un abbonamento mensile modesto.',
   category: 'Comparatifs & outils',
   keywords: ['software gestione cantiere accessibile', 'monitoraggio cantiere prezzo accessibile', 'strumento cantiere piccola impresa edilizia', 'applicazione cantiere economica Svizzera', 'gestione cantiere economica'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-09-10',
   readMinutes: 4,
   blocks: [
     {

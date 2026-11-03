@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bexio wurde nie für eine Baustelle konzipiert. Es ist ein hervorragendes Buchhaltungstool für ein beliebiges Schweizer KMU, aber kein Werkzeug fürs Bau-Terrain.',
   category: 'Comparatifs & outils',
   keywords: ['bexio alternative', 'baubranche software vergleich', 'offerte rechnung software', 'baustellen software schweiz', 'bexio vs cantia'],
-  publishedAt: '2026-02-02',
+  publishedAt: '2026-09-02',
   readMinutes: 7,
   blocks: [
     {

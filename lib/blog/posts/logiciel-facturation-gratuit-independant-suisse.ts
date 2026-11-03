@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Gratuit à vie ou gratuit pendant 30 jours, ce n\'est pas la même promesse. La différence se découvre souvent au pire moment, en plein milieu du premier gros mois de factures.',
   category: 'Comparatifs & outils',
   keywords: ['logiciel facturation gratuit indépendant', 'facturation gratuite Suisse', 'outil devis facture sans frais', 'logiciel gratuit petite entreprise', 'facturation débutant Suisse'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {

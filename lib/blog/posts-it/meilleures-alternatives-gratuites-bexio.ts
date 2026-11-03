@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Bexio è eccellente per la contabilità completa. Ma un\'impresa edile che parte ha prima di tutto bisogno di preventivi, fatture e monitoraggio del cantiere, non necessariamente di un grande libro contabile.',
   category: 'Comparatifs & outils',
   keywords: ['alternativa gratuita Bexio', 'software più economico di Bexio', 'confronto Bexio Svizzera', 'strumento edilizia vs Bexio', 'software gestione edilizia accessibile'],
-  publishedAt: '2026-07-23',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

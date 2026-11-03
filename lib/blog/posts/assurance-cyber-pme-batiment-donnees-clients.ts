@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'cybersecurite entreprise construction suisse',
     'rancongiciel entreprise batiment',
   ],
-  publishedAt: '2026-10-06',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

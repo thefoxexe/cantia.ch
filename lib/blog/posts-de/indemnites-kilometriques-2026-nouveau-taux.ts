@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'CHF 0.70 pro Kilometer, das war einmal. Die neue Wegleitung zum Lohnausweis setzt seit dem 1. Januar 2026 CHF 0.75 fest. Sie fügt zudem ein Kreuzchenfeld hinzu, das noch kaum jemand kennt.',
   category: 'RH & salaires',
   keywords: ['kilometerentschädigung', 'berufsauslagen', 'lohnausweis', 'privatfahrzeug', 'estv'],
-  publishedAt: '2026-03-30',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

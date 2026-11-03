@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'CHF 2 millions : le seuil à partir duquel un marché de construction doit passer par un appel d’offres public formel plutôt que par une simple négociation directe.',
   category: 'Juridique & normes',
   keywords: ['marchés publics', 'aimp', 'simap', 'appel d’offres', 'soumission construction'],
-  publishedAt: '2026-05-21',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

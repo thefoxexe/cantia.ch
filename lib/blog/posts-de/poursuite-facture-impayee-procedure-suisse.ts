@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das Mahnen wirkt nicht immer. Bevor man eine Forderung aufgibt oder sich in Erinnerungen erschöpft, bleibt die Betreibung ein zugängliches, standardisiertes und oft schnelleres Verfahren, als man denkt.',
   category: 'Devis & facturation',
   keywords: ['betreibung unbezahlte rechnung', 'zahlungsbefehl schweiz', 'betreibungsamt', 'rechtsöffnung', 'forderung handwerker'],
-  publishedAt: '2026-08-18',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un client qui paie à 60 jours n’est pas forcément en tort. En Suisse, le délai de paiement n’existe que si vous l’avez écrit vous-même sur la facture.',
   category: 'Juridique & normes',
   keywords: ['délai de paiement', 'facture', 'intérêt moratoire', 'code des obligations', 'relance'],
-  publishedAt: '2026-01-22',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

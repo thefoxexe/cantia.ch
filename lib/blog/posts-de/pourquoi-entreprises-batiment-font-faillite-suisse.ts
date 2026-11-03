@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Unternehmen, das «nie mit Arbeiten aufhört», kann trotzdem untergehen. Der Auftragsbestand beruhigt, sagt aber nichts über die tatsächliche Marge oder die zeitliche Lücke zwischen Ausgaben und Einnahmen aus.',
   category: 'Chantier & rentabilité',
   keywords: ['konkurs bauunternehmen schweiz', 'liquidität baubranche', 'unsichtbare marge baustelle', 'kmu bauwesen führung', 'rentabilität handwerksbetrieb'],
-  publishedAt: '2026-07-25',
+  publishedAt: '2026-09-03',
   readMinutes: 6,
   blocks: [
     {

@@ -15,7 +15,7 @@ export const post: BlogPost = {
     'prix terrassement heure machine',
     'devis excavation terrain',
   ],
-  publishedAt: '2026-10-02',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

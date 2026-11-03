@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Eine unterschriebene Offerte ohne Gültigkeitsdatum bindet Sie unbegrenzt, selbst wenn sich der Holzpreis in der Zwischenzeit verdoppelt hat. Das ist eine Zeile, kein Detail.',
   category: 'Devis & facturation',
   keywords: ['gültigkeit offerte', 'materialpreis schwankung', 'vertragliche bindung offerte', 'preisanpassungsklausel', 'unterschriebene offerte'],
-  publishedAt: '2026-03-02',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

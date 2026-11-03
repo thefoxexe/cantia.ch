@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un paysagiste vend souvent deux choses très différentes au même client : un aménagement ponctuel facturé une fois, et un entretien récurrent facturé toute l’année. Les confondre dans un même devis finit par mal chiffrer les deux.',
   category: 'Métiers du bâtiment',
   keywords: ['devis paysagiste', 'facturation jardinier Suisse', 'contrat entretien jardin prix', 'devis aménagement extérieur', 'facturation récurrente paysagiste'],
-  publishedAt: '2026-09-10',
+  publishedAt: '2026-08-28',
   readMinutes: 5,
   blocks: [
     {

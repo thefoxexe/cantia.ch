@@ -14,7 +14,7 @@ export const post: BlogPost = {
     'garantie bancaire marche public batiment',
     'caution bancaire chantier suisse',
   ],
-  publishedAt: '2026-10-07',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'La période d’essai protège les deux parties, mais seulement si elle est formalisée par écrit — un oubli fréquent qui coûte cher en cas de désaccord.',
   category: 'RH & salaires',
   keywords: ['période d’essai', 'contrat de travail', 'bâtiment', 'code des obligations', 'délai de congé'],
-  publishedAt: '2026-09-26',
+  publishedAt: '2026-09-22',
   readMinutes: 6,
   blocks: [
     {

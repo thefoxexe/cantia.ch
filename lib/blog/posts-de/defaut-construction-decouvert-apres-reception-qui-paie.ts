@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Die Abnahme einer Baustelle beendet nie alles: Ein versteckter Mangel, der später entdeckt wird, geht weiterhin zulasten des Unternehmers – unter einer präzisen Bedingung, die kaum jemand kennt.',
   category: 'Juridique & normes',
   keywords: ['versteckter Mangel', 'Bauabnahme', 'Gewährleistung Baustelle', 'Haftung Unternehmer', 'Baumangel'],
-  publishedAt: '2026-03-09',
+  publishedAt: '2026-09-03',
   readMinutes: 5,
   blocks: [
     {

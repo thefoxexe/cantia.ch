@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un devis représente des heures de calcul, parfois même un déplacement. Pourtant, presque personne ne le facture. Ce n’est pas une obligation légale, c’est un usage. La nuance change tout pour un chiffrage complexe.',
   category: 'Devis & facturation',
   keywords: ['devis gratuit ou payant', 'facturer un devis', 'loi devis suisse', 'chiffrage travaux', 'devis complexe'],
-  publishedAt: '2026-08-12',
+  publishedAt: '2026-08-27',
   readMinutes: 4,
   blocks: [
     {

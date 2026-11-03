@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Viele Tools nennen sich «einfach»: der wahre Test ist, zu stoppen, wie lange es dauert, eine erste Offerte zu versenden, ohne je die Online-Hilfe geöffnet zu haben.',
   category: 'Comparatifs & outils',
   keywords: ['einfache software für einsteiger selbstständig', 'einfaches tool bauwesen einsteiger', 'verwaltungssoftware ohne schulung', 'einfache app handwerker', 'schnelle einarbeitung offertensoftware'],
-  publishedAt: '2026-07-19',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

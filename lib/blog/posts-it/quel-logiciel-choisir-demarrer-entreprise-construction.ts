@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Scegliere un software ancor prima di avere il primo cliente rende facile sbagliare. Meglio chiedersi di cosa si avrà bisogno nei primi tre mesi, non nei prossimi tre anni.',
   category: 'Comparatifs & outils',
   keywords: ['software avvio impresa costruzioni', 'scegliere software gestione edilizia', 'strumento per nuova impresa edile', 'software impresa costruzioni Svizzera', 'avviare società edile'],
-  publishedAt: '2026-07-08',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

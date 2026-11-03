@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Non serve un software di vendita complesso per aver bisogno di un CRM. Il vero segnale è il numero di volte in cui si cerca «chi era già questo cliente» nelle proprie e-mail.',
   category: 'Comparatifs & outils',
   keywords: ['CRM artigiano edilizia', 'gestione clienti impresa costruzione', 'software clienti artigiano', 'monitoraggio cliente cantiere', 'fidelizzazione cliente edilizia'],
-  publishedAt: '2026-06-05',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Ein Handwerksbetrieb mit zehn Bewertungen bei 4,9 Sternen gewinnt fast immer mehr neue Offertanfragen als ein Betrieb ohne jegliche Bewertung, selbst wenn beide gleichwertige Arbeit leisten: Vertrauen entsteht schon vor dem ersten Kontakt.',
   category: 'Croissance & acquisition',
   keywords: ['google bewertungen bauunternehmen', 'online reputation handwerker', 'kundenbewertungen baustelle erhalten', 'negative bewertung bauunternehmen', 'google unternehmensprofil handwerker'],
-  publishedAt: '2026-09-01',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

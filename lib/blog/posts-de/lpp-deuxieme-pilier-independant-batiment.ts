@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Das BVG ist für einen Selbstständigen fakultativ. Ausser dass die Suva bei bestimmten Bauberufen anders entscheiden kann, ohne dass Sie jemand vorwarnt.',
   category: 'Juridique & normes',
   keywords: ['bvg', '2. säule', 'selbstständig', 'suva', 'uvg', 'vorsorge'],
-  publishedAt: '2026-01-29',
+  publishedAt: '2026-09-02',
   readMinutes: 5,
   blocks: [
     {

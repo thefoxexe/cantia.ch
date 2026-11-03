@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d’entrepreneurs pensent au procès dès la première tension avec un client. En pratique, plusieurs étapes plus rapides et moins coûteuses existent avant d’en arriver là, et certaines sont même obligatoires.',
   category: 'Juridique & normes',
   keywords: ['litige chantier médiation', 'conciliation tribunal construction', 'résolution conflit chantier', 'procédure civile Suisse bâtiment', 'litige client artisan'],
-  publishedAt: '2026-06-24',
+  publishedAt: '2026-08-27',
   readMinutes: 5,
   blocks: [
     {

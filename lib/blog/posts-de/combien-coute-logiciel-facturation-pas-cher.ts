@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Der Preis oben auf einer Tarifseite sagt nie alles. Die wahren Kosten einer Software zeigen sich daran, was zu diesem Preis tatsächlich enthalten ist, nicht an der Zahl allein.',
   category: 'Comparatifs & outils',
   keywords: ['Rechnungssoftware Preis Vergleich', 'günstige Rechnungssoftware Schweiz', 'Kosten Verwaltungssoftware KMU', 'Offerten Rechnungsprogramm Tarif', 'Budget Software Baubetrieb'],
-  publishedAt: '2026-07-05',
+  publishedAt: '2026-09-02',
   readMinutes: 4,
   blocks: [
     {

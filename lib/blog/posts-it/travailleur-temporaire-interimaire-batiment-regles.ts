@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Un lavoratore interinale costa più caro all’ora di un dipendente fisso, ma evita l’impegno di un’assunzione. Bisogna però conoscere le regole affinché resti un vero guadagno, non un rischio nascosto.',
   category: 'RH & salaires',
   keywords: ['interinale edilizia', 'lavoratore temporaneo costruzione', 'collocamento di personale settore edile', 'agenzia interinale cantiere', 'manodopera temporanea svizzera'],
-  publishedAt: '2026-07-01',
+  publishedAt: '2026-09-10',
   readMinutes: 5,
   blocks: [
     {

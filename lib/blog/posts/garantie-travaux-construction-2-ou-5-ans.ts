@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Beaucoup d’artisans citent « 2 ans » de garantie par réflexe. Pour tout ce qui est fixé au bâtiment, la loi suisse dit 5 ans, et un nouveau délai de 60 jours vient tout juste de changer la donne en 2026.',
   category: 'Juridique & normes',
   keywords: ['garantie construction', 'délai prescription', 'art 371 co', 'avis des défauts', 'défaut caché'],
-  publishedAt: '2026-03-05',
+  publishedAt: '2026-08-19',
   readMinutes: 6,
   blocks: [
     {

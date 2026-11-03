@@ -10,7 +10,7 @@ export const post: BlogPost = {
     'Demander une fonctionnalité sur mesure semble réservé aux grandes entreprises avec un budget informatique conséquent. En pratique, c\'est souvent plus accessible qu\'on ne le pense, à condition de bien formuler le besoin.',
   category: 'Sur-mesure & automatisations',
   keywords: ['demander fonctionnalité sur mesure logiciel', 'comment demander développement personnalisé', 'contacter éditeur pour besoin spécifique', 'demande custom logiciel gestion', 'formuler besoin sur mesure entreprise'],
-  publishedAt: '2026-08-25',
+  publishedAt: '2026-08-30',
   readMinutes: 4,
   blocks: [
     {
