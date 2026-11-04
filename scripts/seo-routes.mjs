@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
@@ -715,9 +716,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/norme-sia-118-devis-obligatoire',
-    title: 'La norme SIA 118 est-elle obligatoire sur un devis ? | Cantia',
+    title: "Norme SIA 118 : quand s’applique-t-elle à un devis ou un contrat ? | Cantia",
     description:
-      "La norme SIA 118 n’est jamais automatique : elle ne s’applique que si le contrat ou le devis la mentionne explicitement. Explications et bonnes pratiques.",
+      "La norme SIA 118 ne s’applique que si le contrat ou le devis la cite. Ce qu’elle change pour les garanties, la réception de l’ouvrage et les défauts.",
     faq: [
       { q: 'La SIA 118 est-elle une loi suisse ?', a: 'Non. C’est une norme contractuelle privée éditée par la SIA, qui ne s’applique que si le contrat ou le devis y fait explicitement référence.' },
       { q: 'Que se passe-t-il si le devis ne mentionne pas la SIA 118 ?', a: 'Le contrat d’entreprise reste régi par le seul Code des obligations (art. 363 et suivants CO), avec ses propres règles de garantie et de réception.' },
@@ -803,9 +804,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/calculer-heures-travail-ouvrier-minutes-decimales',
-    title: 'Calculer des heures de travail : pourquoi 4h45 n’est pas 4,45 | Cantia',
+    title: "4h45 en heures décimales : 4,75 et pas 4,45 | Cantia",
     description:
-      "Un ouvrier qui a travaillé de 8h à 12h45 a fait 4h45 — pas 4,45 heures décimales (qui vaudrait 4h27). Une erreur de saisie RH fréquente et coûteuse.",
+      "4h45 de travail font 4,75 heures décimales, pas 4,45 (qui vaut 4h27). Pourquoi cette erreur de conversion fausse les heures et les fiches de salaire.",
     faq: [
       { q: 'Comment convertir 4h45 de travail en heures décimales ?', a: '45 minutes correspondent à 0,75 heure. 4h45 de travail équivaut donc à 4,75 heures décimales, pas 4,45.' },
       { q: 'Pourquoi tant d’erreurs de paie viennent-elles de la saisie des heures ?', a: 'Parce que la façon naturelle d’écrire une durée ressemble à un nombre décimal, alors que les chiffres après le séparateur représentent des minutes (base 60).' },
@@ -935,7 +936,7 @@ export const ROUTES = [
   },
   {
     path: 'blog/salaire-minimum-cct-construction-suisse',
-    title: 'Salaire minimum bâtiment en Suisse : ce que fixe la CCT | Cantia',
+    title: "Salaire minimum dans la construction en Suisse : la CCT 2026 | Cantia",
     description:
       "Le salaire minimum du gros œuvre suisse est fixé par la Convention nationale du secteur principal de la construction, pas par une loi fédérale — et la CCT 2026-2031 change plusieurs règles.",
     faq: [
@@ -957,9 +958,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/indemnites-kilometriques-2026-nouveau-taux',
-    title: 'Indemnités kilométriques 2026 : le taux qui vient de changer | Cantia',
+    title: "Indemnités kilométriques 2026 en Suisse : CHF 0,75 par km | Cantia",
     description:
-      "L’Administration fédérale des contributions relève le taux forfaitaire de CHF 0,70 à CHF 0,75/km au 1er janvier 2026 — avec une nouvelle obligation de déclaration.",
+      "Barème kilométrique 2026 : l’AFC relève le taux forfaitaire de CHF 0,70 à CHF 0,75 par km au 1er janvier 2026, avec une nouvelle obligation de déclaration.",
     faq: [
       { q: 'Quel est le nouveau taux d’indemnité kilométrique en 2026 ?', a: 'CHF 0,75 par kilomètre depuis le 1er janvier 2026, contre CHF 0,70 auparavant.' },
       { q: 'Une entreprise doit-elle obligatoirement appliquer ce taux ?', a: 'Non, elle reste libre de fixer un taux différent — CHF 0,75/km sert de référence par défaut.' },
@@ -1342,7 +1343,7 @@ export const ROUTES = [
   },
   {
     path: 'blog/facturation-heures-regie-batiment-comment-faire',
-    title: 'Facturer en régie dans le bâtiment sans être contesté | Cantia',
+    title: "Facturation en régie dans le bâtiment : comment faire | Cantia",
     description:
       "Un travail facturé au temps passé plutôt qu’à prix fixe expose davantage à la contestation client — sauf si le détail est réellement traçable.",
     faq: [
@@ -2387,9 +2388,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/delai-declaration-tva-suisse-calendrier',
-    title: 'Dates de déclaration TVA en Suisse : le calendrier à ne jamais manquer | Cantia',
+    title: "Déclaration TVA en Suisse : dates et délais, trimestriel ou semestriel | Cantia",
     description:
-      'Le rythme des échéances TVA en Suisse selon la méthode choisie, la conséquence d’un dépôt tardif, et comment éviter de rater une échéance quand on gère un chantier.',
+      "Quand déposer la déclaration TVA en Suisse ? Échéances trimestrielles ou semestrielles selon la méthode, délai de 60 jours et risques d’un dépôt tardif.",
     faq: [
       { q: 'Que faire si on sait déjà qu’on ne pourra pas respecter l’échéance TVA ?', a: 'Il est possible de demander une prolongation de délai auprès de l’AFC avant l’échéance. Cela évite l’intérêt moratoire automatique lié à un dépôt tardif non annoncé.' },
       { q: 'Le décompte mensuel est-il intéressant pour une petite entreprise du bâtiment ?', a: 'Il peut l’être pour lisser la trésorerie en évitant de provisionner un gros montant trimestriel, mais il multiplie aussi le nombre de démarches administratives dans l’année. C’est un arbitrage à faire selon la taille de l’équipe comptable.' },
@@ -2519,9 +2520,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/etablir-certificat-salaire-lohnausweis-premier-employe',
-    title: 'Comment établir un certificat de salaire (Lohnausweis) pour son premier employé | Cantia',
+    title: "Lohnausweis : établir le certificat de salaire en Suisse | Cantia",
     description:
-      'Le certificat de salaire annuel expliqué pour un employeur du bâtiment qui engage son premier employé : contenu obligatoire, formulaire officiel, délai et lien avec la déclaration d’impôts.',
+      "Lohnausweis, c’est quoi ? Le certificat de salaire suisse expliqué à l’employeur qui engage : contenu obligatoire, formulaire officiel, délai et impôts.",
     faq: [
       { q: 'Faut-il établir un certificat de salaire même pour un employé engagé en cours d’année ?', a: 'Oui, un certificat couvre la période réellement travaillée durant l’année civile, même si elle ne fait que quelques mois. Il n’existe pas de seuil minimal de durée d’emploi en dessous duquel l’obligation disparaît.' },
       { q: 'Le certificat de salaire est-il le même document que la déclaration de salaire à la caisse AVS ?', a: 'Non, ce sont deux documents distincts avec des destinataires différents : le certificat de salaire est remis à l’employé pour sa déclaration d’impôts, la déclaration de salaire annuelle est transmise à la caisse de compensation AVS.' },
@@ -2563,9 +2564,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/horaires-bruit-chantier-autorises-suisse',
-    title: 'Bruit de chantier : les horaires autorisés selon les communes suisses | Cantia',
+    title: "Horaires de chantier en Suisse : le bruit autorisé selon la commune | Cantia",
     description:
-      'Pourquoi les horaires de bruit de chantier dépendent de chaque commune en Suisse, les plages généralement admises, et comment réagir face à une plainte de voisinage.',
+      "À quelle heure un chantier peut-il commencer en Suisse ? Les horaires de bruit dépendent de la commune : plages usuelles, dimanche, jours fériés, plaintes.",
     faq: [
       { q: 'Existe-t-il une règle fédérale sur les horaires de bruit de chantier en Suisse ?', a: 'Non, la réglementation relève principalement des communes, qui fixent leurs propres horaires dans leur règlement de police des constructions. Il faut donc vérifier au cas par cas, commune par commune.' },
       { q: 'Peut-on obtenir une dérogation pour travailler en dehors des horaires autorisés ?', a: 'C’est possible dans certaines communes, pour des interventions ponctuelles justifiées, mais la demande doit généralement être faite en amont auprès du service communal compétent, pas après coup.' },
@@ -3895,9 +3896,9 @@ export const ROUTES = [
   },
   {
     path: 'blog/assurance-bris-machine-outillage-chantier',
-    title: 'Assurance bris de machine et vol d’outillage sur chantier | Cantia',
+    title: "Assurance bris de machine pour une entreprise du bâtiment | Cantia",
     description:
-      'Pourquoi l’outillage laissé sur chantier attire le vol, la différence entre assurance choses classique et couverture outillage mobile, et ce qu’il faut vérifier avant de signer.',
+      "Assurance bris de machine et vol d’outillage pour une entreprise du bâtiment : ce qu’elle couvre, la différence avec l’assurance choses, quoi vérifier.",
     faq: [
       { q: 'L’assurance de l’entreprise couvre-t-elle automatiquement le vol sur chantier ?', a: 'Pas toujours. Une police d’assurance choses standard couvre en général le matériel dans les locaux de l’entreprise, pas systématiquement sur chantier. Il faut vérifier ou ajouter une extension outillage mobile.' },
       { q: 'Faut-il assurer chaque outil individuellement ?', a: 'Non, la plupart des contrats fonctionnent avec une valeur totale déclarée pour l’ensemble du parc, complétée par un plafond par objet pour les machines les plus coûteuses. L’important est de tenir cette liste à jour.' },
@@ -4427,6 +4428,27 @@ export const ROUTES = [
   ...BLOG_SEO_IT,
 ];
 
+// Content triage (lib/blog/triage.json, docs/seo-tri-contenu.md): merged
+// and untranslated articles redirect, so they are no route any more; pages
+// set aside from Google stay reachable with a noindex; some German articles
+// have their own German slug.
+const TRIAGE = JSON.parse(readFileSync(new URL('../lib/blog/triage.json', import.meta.url), 'utf8'));
+export const BLOG_REDIRECTS = TRIAGE.redirects;
+const DE_SLUGS = TRIAGE.deSlugs;
+const DE_BASE = Object.fromEntries(Object.entries(DE_SLUGS).map(([base, de]) => [de, base]));
+for (let i = ROUTES.length - 1; i >= 0; i--) {
+  const route = ROUTES[i];
+  const deBlog = route.path.match(/^de\/blog\/(.+)$/);
+  if (deBlog && DE_SLUGS[deBlog[1]]) route.path = `de/blog/${DE_SLUGS[deBlog[1]]}`;
+  if (BLOG_REDIRECTS[route.path]) ROUTES.splice(i, 1);
+  else if (TRIAGE.noindex.includes(route.path)) route.noindex = true;
+}
+
+// French slug of a German article address (the same slug, unless renamed).
+export function blogBaseSlug(locale, slug) {
+  return locale === 'de' ? DE_BASE[slug] ?? slug : slug;
+}
+
 for (const route of ROUTES) {
   if (DESCRIPTION_OVERRIDES[route.path]) route.description = DESCRIPTION_OVERRIDES[route.path];
   const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
@@ -4446,7 +4468,12 @@ export function localeAndBareOf(routePath) {
 }
 
 export function alternatePathFor(routePath, targetLocale) {
-  const { bare } = localeAndBareOf(routePath);
+  const { locale, bare: rawBare } = localeAndBareOf(routePath);
+  let bare = rawBare;
+  if (bare.startsWith('blog/')) {
+    const base = blogBaseSlug(locale, bare.slice('blog/'.length));
+    bare = `blog/${targetLocale === 'de' ? DE_SLUGS[base] ?? base : base}`;
+  }
   if (targetLocale === 'fr') return bare;
   const prefix = LOCALE_PREFIXES[targetLocale];
   return bare === '' ? prefix : `${prefix}/${bare}`;

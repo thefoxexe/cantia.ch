@@ -41,7 +41,11 @@ export type BlogCategory =
   | 'Services & autres métiers';
 
 export interface BlogPost {
+  // Slug in the address. For a German article with its own German slug
+  // (lib/blog/triage.json deSlugs), baseSlug keeps the French one, which is
+  // what relatedSlugs and the other languages refer to.
   slug: string;
+  baseSlug?: string;
   // The real, specific search query this article answers — shown as the
   // page's kicker/subtitle, and what the ~50-question backlog is built from.
   question: string;

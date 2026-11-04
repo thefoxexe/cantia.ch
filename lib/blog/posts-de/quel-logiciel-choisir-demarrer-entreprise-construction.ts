@@ -3,9 +3,9 @@ import { BlogPost } from '../types';
 export const post: BlogPost = {
   slug: 'quel-logiciel-choisir-demarrer-entreprise-construction',
   question: 'Welche Software wählen, um ein Bauunternehmen in der Schweiz zu gründen?',
-  title: 'Welche Software beim Start des eigenen Bauunternehmens wählen',
+  title: "Software für Bauunternehmen in der Schweiz: welche beim Start wählen",
   description:
-    'Angesichts der Vielzahl verfügbarer Tools ist die einfachste Methode zur Wahl: von dem auszugehen, was man in den ersten drei Monaten wirklich braucht, nicht von der vollständigen Liste möglicher Funktionen.',
+    "Software für Bauunternehmen: wie man beim Start in der Schweiz wählt, ausgehend von dem, was die ersten drei Monate brauchen: Offerten, QR-Rechnung, MWST.",
   excerpt:
     'Eine Software zu wählen, noch bevor man den ersten Kunden hat, verleitet leicht zu Fehlentscheidungen. Besser fragt man sich, was in den ersten drei Monaten gebraucht wird, nicht in den nächsten drei Jahren.',
   category: 'Comparatifs & outils',

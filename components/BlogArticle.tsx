@@ -14,6 +14,7 @@ import { authHref } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
 import { getRelatedPosts } from '../lib/blog';
+import { blogHref } from '../lib/blog/triage';
 
 // Same name as the Article author in scripts/seo-routes.mjs (JSON-LD).
 const BLOG_AUTHOR = 'Bastien';
@@ -309,13 +310,17 @@ function BlockRenderer({
 
 function LinkListBlock({ block }: { block: Extract<BlogPost['blocks'][number], { type: 'linklist' }> }) {
   const locale = getAppLocale();
-  const blogHrefPrefix = locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog';
+  // Links follow merged articles (lib/blog/triage.ts); two links that now
+  // lead to the same page are shown once.
+  const items = block.items
+    .map((item) => ({ ...item, href: blogHref(item.slug, locale) }))
+    .filter((item, i, all) => all.findIndex((o) => o.href === item.href) === i);
   return (
     <View style={styles.linklist}>
       <Text style={styles.linklistTitle}>{block.title}</Text>
       <View style={styles.linklistItems}>
-        {block.items.map((item) => (
-          <Link key={item.slug} href={`${blogHrefPrefix}/${item.slug}` as any} asChild>
+        {items.map((item) => (
+          <Link key={item.href} href={item.href as any} asChild>
             <Pressable style={styles.linklistRow}>
               <Text style={styles.linklistRowText}>{item.label}</Text>
               <Feather name="arrow-right" size={13} color={colors.primary} />

@@ -1,7 +1,10 @@
 import { forceLocale } from '../../../lib/translations';
-import BlogPostScreen, { generateStaticParams } from '../../blog/[slug]';
+import BlogPostScreen from '../../blog/[slug]';
+import { blogStaticParams } from '../../../lib/blog';
 
 forceLocale('it');
 
 export default BlogPostScreen;
-export { generateStaticParams };
+export function generateStaticParams() {
+  return blogStaticParams('it');
+}

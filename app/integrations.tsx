@@ -207,7 +207,7 @@ export default function IntegrationsPage() {
         { question: t('integrationsPage.faq4Question'), answer: t('integrationsPage.faq4Answer') },
       ]}
       related={[
-        { href: `${blogPrefix}/integration-bexio-cantia-synchronisation-automatique`, label: t('integrationsPage.related1Label') },
+        { href: `${blogPrefix.replace(/blog$/, 'aide')}/integration-bexio`, label: t('integrationsPage.related1Label') },
         { href: `${blogPrefix}/bexio-vs-cantia-logiciel-batiment`, label: t('integrationsPage.related2Label') },
         { href: `${solutionsPrefix}/facturation`, label: t('integrationsPage.related3Label') },
       ]}

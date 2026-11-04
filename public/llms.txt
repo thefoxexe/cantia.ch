@@ -51,10 +51,10 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 ## Guides et comparatifs
 
 - [Bexio ou Cantia pour une entreprise du bâtiment](https://cantia.ch/blog/bexio-vs-cantia-logiciel-batiment)
-- [Calculer le prix d'un devis de rénovation en Suisse](https://cantia.ch/blog/calculer-prix-devis-renovation-suisse)
+- [Devis et factures pour une entreprise de rénovation](https://cantia.ch/entreprise-renovation)
 - [La QR-facture en 2026](https://cantia.ch/blog/qr-facture-obligatoire-2026)
 - [Suivre la rentabilité d'un chantier sans Excel](https://cantia.ch/blog/suivre-rentabilite-chantier-sans-excel)
-- [Remplir une soumission PDF reçue de l'architecte](https://cantia.ch/blog/remplir-soumission-pdf-architecte), [calculer un prix unitaire](https://cantia.ch/blog/calculer-prix-unitaire-soumission), [lire une soumission CAN](https://cantia.ch/blog/comprendre-soumission-can-positions), [les erreurs qui coûtent le marché](https://cantia.ch/blog/erreurs-soumission-qui-coutent-le-marche)
+- [Remplir une soumission PDF reçue de l'architecte](https://cantia.ch/blog/remplir-soumission-pdf-architecte), [calculer un prix unitaire](https://cantia.ch/blog/calculer-prix-unitaire-soumission), [lire une soumission CAN](https://cantia.ch/blog/comprendre-soumission-can-positions)
 - [Tous les articles](https://cantia.ch/blog)
 - [Centre d'aide](https://cantia.ch/aide)
 

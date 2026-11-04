@@ -1,7 +1,7 @@
 import { BlogPost } from './types';
 import { BLOG_POSTS_DE } from './index-de';
 import { BLOG_POSTS_IT } from './index-it';
-import { post as p1 } from './posts/calculer-prix-devis-renovation-suisse';
+import { isListed, isRetired, publicSlug, resolvedBlogRoute, type BlogLocale } from './triage';
 import { post as p2 } from './posts/norme-sia-118-devis-obligatoire';
 import { post as p3 } from './posts/qr-facture-obligatoire-2026';
 import { post as p4 } from './posts/delai-paiement-facture-artisan-code-obligations';
@@ -17,7 +17,6 @@ import { post as p13 } from './posts/facturer-acompte-suisse-securiser-solde';
 import { post as p14 } from './posts/relancer-client-facture-impayee-sans-perdre-client';
 import { post as p15 } from './posts/validite-devis-signe-prix-qui-bouge';
 import { post as p16 } from './posts/garantie-travaux-construction-2-ou-5-ans';
-import { post as p17 } from './posts/defaut-construction-decouvert-apres-reception-qui-paie';
 import { post as p18 } from './posts/assurance-rc-professionnelle-batiment-obligatoire';
 import { post as p19 } from './posts/permis-construire-renovation-quand-necessaire';
 import { post as p20 } from './posts/contrat-entreprise-vs-mandat-artisan';
@@ -25,7 +24,6 @@ import { post as p21 } from './posts/salaire-minimum-cct-construction-suisse';
 import { post as p22 } from './posts/heures-supplementaires-batiment-majoration-25';
 import { post as p23 } from './posts/indemnites-kilometriques-2026-nouveau-taux';
 import { post as p24 } from './posts/calculer-13e-salaire-prorata-employe';
-import { post as p25 } from './posts/chantier-complet-peut-etre-en-perte-taux-horaire';
 import { post as p26 } from './posts/gerer-plusieurs-chantiers-en-parallele-methode';
 import { post as p27 } from './posts/whatsapp-gestion-equipe-chantier-limites';
 import { post as p28 } from './posts/devis-oral-valeur-legale-suisse';
@@ -33,14 +31,11 @@ import { post as p29 } from './posts/signature-electronique-devis-suisse-valeur-
 import { post as p30 } from './posts/client-refuse-payer-solde-final-que-faire';
 import { post as p31 } from './posts/avenant-chantier-plus-value-moins-value';
 import { post as p32 } from './posts/travail-au-noir-batiment-suisse-risques-controles';
-import { post as p33 } from './posts/assurance-perte-de-gain-maladie-independant-batiment';
 import { post as p34 } from './posts/photos-chantier-preuve-juridique-litige';
 import { post as p35 } from './posts/difference-devis-offre-facture-pro-forma';
 import { post as p36 } from './posts/logiciel-gestion-chantier-independant-seul';
-import { post as p37 } from './posts/contrat-ecrit-petits-travaux-quand-necessaire';
 import { post as p38 } from './posts/appel-offres-marches-publics-batiment-suisse';
 import { post as p39 } from './posts/estimer-chantier-a-distance-devis-photo';
-import { post as p40 } from './posts/integration-bexio-cantia-synchronisation-automatique';
 import { post as p41 } from './posts/resiliation-contrat-entreprise-chantier-en-cours';
 import { post as p42 } from './posts/hypotheque-legale-artisans-entrepreneurs-suisse';
 import { post as p43 } from './posts/reception-travaux-proces-verbal-chantier';
@@ -56,18 +51,13 @@ import { post as p52 } from './posts/pourquoi-entreprises-batiment-font-faillite
 import { post as p53 } from './posts/retard-chantier-meteo-obligations-contractuelles';
 import { post as p54 } from './posts/excel-vs-logiciel-gestion-chantier-limites';
 import { post as p55 } from './posts/combien-coute-logiciel-gestion-chantier-roi';
-import { post as p56 } from './posts/assurance-chantier-tous-risques-ectr-obligatoire';
 import { post as p57 } from './posts/planning-chantier-eviter-conflits-ressources';
-import { post as p58 } from './posts/application-hors-ligne-chantier-pourquoi-important';
 import { post as p59 } from './posts/facturation-heures-regie-batiment-comment-faire';
-import { post as p60 } from './posts/sous-effectif-chantier-recruter-ou-sous-traiter';
 import { post as p61 } from './posts/meilleur-logiciel-devis-facture-batiment-suisse-2026';
-import { post as p62 } from './posts/logiciel-facturation-qr-facture-comparatif-suisse';
 import { post as p63 } from './posts/crm-artisan-batiment-pourquoi-utile';
 import { post as p64 } from './posts/duree-validite-devis-non-signe-combien-temps';
 import { post as p65 } from './posts/note-de-credit-facture-rectificative-suisse';
 import { post as p66 } from './posts/prescription-facture-impayee-delai-10-ans';
-import { post as p67 } from './posts/numerotation-facture-obligations-legales-suisse';
 import { post as p68 } from './posts/difference-sia-108-sia-118-devis-contrat';
 import { post as p69 } from './posts/degats-voisinage-chantier-qui-est-responsable';
 import { post as p70 } from './posts/retenue-de-garantie-chantier-consignation';
@@ -79,70 +69,19 @@ import { post as p75 } from './posts/calculer-prix-de-revient-chantier-batiment'
 import { post as p76 } from './posts/previsionnel-tresorerie-entreprise-batiment';
 import { post as p77 } from './posts/checklist-ouverture-chantier-artisan';
 import { post as p78 } from './posts/checklist-cloture-chantier-avant-facturation';
-import { post as p79 } from './posts/logiciel-devis-facture-maconnerie-suisse';
-import { post as p80 } from './posts/gestion-chantier-facturation-electricien-suisse';
-import { post as p81 } from './posts/devis-facture-plombier-sanitaire-suisse';
-import { post as p82 } from './posts/devis-peintre-batiment-calcul-surface-suisse';
-import { post as p83 } from './posts/devis-carreleur-facturation-au-m2-suisse';
-import { post as p84 } from './posts/devis-charpente-bois-facturation-suisse';
-import { post as p85 } from './posts/gestion-chantier-devis-couvreur-toiture-suisse';
-import { post as p86 } from './posts/devis-menuisier-sur-mesure-facturation-suisse';
-import { post as p87 } from './posts/devis-facture-facadier-isolation-suisse';
-import { post as p88 } from './posts/devis-facture-paysagiste-jardinier-suisse';
-import { post as p89 } from './posts/devis-facture-chauffagiste-cvc-suisse';
-import { post as p90 } from './posts/devis-facture-serrurier-metallier-suisse';
 import { post as p91 } from './posts/trouver-clients-artisan-batiment-suisse';
-import { post as p92 } from './posts/avis-google-entreprise-construction-suisse';
 import { post as p93 } from './posts/site-internet-artisan-batiment-utile';
 import { post as p94 } from './posts/vitesse-reponse-devis-taux-conversion-batiment';
-import { post as p95 } from './posts/parrainage-recommandation-clients-artisan-batiment';
 import { post as p96 } from './posts/fixer-prix-artisan-sans-brader-concurrence-suisse';
 import { post as p97 } from './posts/portfolio-photos-avant-apres-chantier-vente';
-import { post as p98 } from './posts/fideliser-ouvriers-qualifies-penurie-batiment-suisse';
-import { post as p99 } from './posts/logiciel-facturation-gratuit-independant-suisse';
-import { post as p100 } from './posts/meilleur-outil-gestion-independant-suisse';
 import { post as p101 } from './posts/logiciel-gestion-tout-en-un-petite-entreprise-suisse';
-import { post as p102 } from './posts/combien-coute-logiciel-facturation-pas-cher';
 import { post as p103 } from './posts/devis-gratuit-en-ligne-suisse-outil';
 import { post as p104 } from './posts/quel-logiciel-choisir-demarrer-entreprise-construction';
-import { post as p105 } from './posts/logiciel-facturation-raison-individuelle-suisse';
-import { post as p106 } from './posts/application-gestion-freelance-batiment';
-import { post as p107 } from './posts/meilleur-logiciel-pas-cher-petit-artisan';
-import { post as p108 } from './posts/gerer-entreprise-sans-comptable-debut';
-import { post as p109 } from './posts/logiciel-tout-en-un-devis-facture-chantier-rh';
-import { post as p110 } from './posts/outil-facturation-en-ligne-pme-suisse';
-import { post as p111 } from './posts/logiciel-simple-debuter-independant-batiment';
-import { post as p112 } from './posts/gestion-entreprise-sur-mobile-artisan';
-import { post as p113 } from './posts/budget-logiciel-gestion-demarrage-entreprise';
-import { post as p114 } from './posts/meilleures-alternatives-gratuites-bexio';
-import { post as p115 } from './posts/logiciel-gestion-chantier-abordable-petite-entreprise';
-import { post as p116 } from './posts/comment-facturer-premiers-clients-debut-activite';
 import { post as p117 } from './posts/outil-devis-factures-sans-double-saisie';
-import { post as p118 } from './posts/logiciel-gestion-societe-individuelle-suisse';
-import { post as p119 } from './posts/demarrer-entreprise-batiment-outils-indispensables';
-import { post as p120 } from './posts/checklist-logiciels-ouverture-societe-construction';
-import { post as p121 } from './posts/logiciel-facturation-conforme-tva-suisse-pas-cher';
-import { post as p122 } from './posts/meilleur-rapport-qualite-prix-logiciel-pme-batiment';
-import { post as p123 } from './posts/essai-gratuit-logiciel-facturation-suisse';
-import { post as p124 } from './posts/gerer-entreprise-seul-sans-embaucher-outils';
-import { post as p125 } from './posts/erreurs-choisir-premier-logiciel-gestion';
-import { post as p126 } from './posts/logiciel-gestion-evolutif-grandit-avec-entreprise';
-import { post as p127 } from './posts/pourquoi-artisan-independant-besoin-logiciel-des-le-debut';
 import { post as p128 } from './posts/lancer-entreprise-batiment-suisse-par-ou-commencer';
-import { post as p129 } from './posts/cantia-adapte-metier-specifique-batiment';
-import { post as p130 } from './posts/automatiser-taches-repetitives-entreprise-sans-developpeur';
-import { post as p131 } from './posts/creer-champ-processus-sur-mesure-logiciel-gestion';
-import { post as p132 } from './posts/logiciel-standard-vs-solution-personnalisee-batiment';
-import { post as p133 } from './posts/automatiser-rappels-relances-entreprise';
-import { post as p134 } from './posts/faire-evoluer-outil-gestion-avec-entreprise';
-import { post as p135 } from './posts/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment';
-import { post as p136 } from './posts/demander-fonctionnalite-sur-mesure-editeur-logiciel';
-import { post as p137 } from './posts/automatiser-suivi-administratif-entreprise-artisanale';
-import { post as p138 } from './posts/logiciel-construit-avec-vous-sur-mesure';
 import { post as p139 } from './posts/raison-individuelle-sarl-sa-quel-statut-batiment';
 import { post as p140 } from './posts/cout-creation-entreprise-construction-suisse';
 import { post as p141 } from './posts/immatriculer-entreprise-construction-registre-commerce';
-import { post as p142 } from './posts/dix-erreurs-premiere-annee-entreprise-batiment';
 import { post as p143 } from './posts/creer-entreprise-batiment-suisse-guide-complet';
 import { post as p144 } from './posts/modele-devis-gratuit-artisan-batiment-suisse';
 import { post as p145 } from './posts/application-devis-mobile-artisan';
@@ -152,32 +91,18 @@ import { post as p148 } from './posts/cantia-vs-klara';
 import { post as p149 } from './posts/cantia-vs-winbiz';
 import { post as p150 } from './posts/checklist-fin-annee-entreprise-batiment';
 import { post as p151 } from './posts/chomage-intemperies-rht-batiment-suisse';
-import { post as p152 } from './posts/chomage-partiel-entreprise-batiment-suisse';
 import { post as p153 } from './posts/clauses-oubliees-contrat-travail-batiment';
-import { post as p154 } from './posts/declaration-tva-trimestrielle-artisan-suisse';
 import { post as p155 } from './posts/delai-declaration-tva-suisse-calendrier';
-import { post as p156 } from './posts/delai-permis-de-construire-canton-suisse';
-import { post as p157 } from './posts/devis-facture-ferblantier-suisse';
-import { post as p158 } from './posts/devis-facture-frigoriste-climatisation-suisse';
 import { post as p159 } from './posts/devis-facture-installateur-solaire-suisse';
-import { post as p160 } from './posts/devis-facture-platrier-suisse';
 import { post as p161 } from './posts/devis-facture-poelier-fumiste-suisse';
-import { post as p162 } from './posts/devis-facture-ramoneur-suisse';
-import { post as p163 } from './posts/devis-facture-terrassier-suisse';
-import { post as p164 } from './posts/devis-pompe-a-chaleur-chiffrage';
 import { post as p165 } from './posts/diagnostic-amiante-renovation-obligatoire-suisse';
 import { post as p166 } from './posts/directive-suva-echafaudage-chantier-obligation';
 import { post as p167 } from './posts/etablir-certificat-salaire-lohnausweis-premier-employe';
 import { post as p168 } from './posts/facturer-depannage-urgent-sans-devis';
 import { post as p169 } from './posts/facturer-frais-deplacement-client-artisan';
-import { post as p170 } from './posts/google-sheets-partage-equipe-limites-batiment';
 import { post as p171 } from './posts/horaires-bruit-chantier-autorises-suisse';
-import { post as p172 } from './posts/independant-reconnu-avs-batiment';
 import { post as p173 } from './posts/instagram-ou-facebook-artisan-batiment';
 import { post as p174 } from './posts/lire-fiche-de-salaire-batiment';
-import { post as p175 } from './posts/logiciel-signature-electronique-chantier';
-import { post as p176 } from './posts/marge-beneficiaire-entreprise-batiment-suisse';
-import { post as p177 } from './posts/negocier-prix-client-compare-plusieurs-devis';
 import { post as p178 } from './posts/norme-aeai-incendie-batiment-obligation';
 import { post as p179 } from './posts/periode-essai-batiment-duree-legale';
 import { post as p180 } from './posts/prix-isolation-facade-m2-suisse';
@@ -185,65 +110,33 @@ import { post as p181 } from './posts/prix-refection-toiture-suisse';
 import { post as p182 } from './posts/prix-renovation-cuisine-suisse';
 import { post as p183 } from './posts/prix-renovation-salle-de-bain-suisse-m2';
 import { post as p184 } from './posts/programme-batiments-subvention-renovation-suisse';
-import { post as p185 } from './posts/provoquer-bouche-a-oreille-artisan';
 import { post as p186 } from './posts/relancer-client-devis-sans-reponse';
-import { post as p187 } from './posts/repondre-appel-offres-public-batiment-etapes';
 import { post as p188 } from './posts/repondre-avis-negatif-google-artisan';
-import { post as p189 } from './posts/seuil-lpp-affiliation-employe-batiment';
-import { post as p190 } from './posts/site-internet-ou-carte-de-visite-artisan';
 import { post as p191 } from './posts/travailleur-detache-batiment-suisse-regles';
 import { post as p192 } from './posts/tva-methode-effective-ou-tdfn-batiment';
 import { post as p193 } from './posts/vacances-construction-suisse-dates-canton';
 import { post as p194 } from './posts/vacances-employe-batiment-cct-jours';
 import { post as p195 } from './posts/action-garantie-sous-traitant-entrepreneur-general';
 import { post as p196 } from './posts/affacturage-factoring-entreprise-batiment-suisse';
-import { post as p197 } from './posts/arbitrage-sia-mediation-professionnelle-batiment';
 import { post as p198 } from './posts/assurance-bris-machine-outillage-chantier';
-import { post as p199 } from './posts/assurance-cyber-pme-batiment-donnees-clients';
-import { post as p200 } from './posts/assurance-perte-exploitation-chantier-arrete';
-import { post as p201 } from './posts/assurance-protection-juridique-entreprise-batiment';
-import { post as p202 } from './posts/assurance-transport-materiel-chantier';
 import { post as p203 } from './posts/bilan-carbone-chantier-construction-suisse';
 import { post as p204 } from './posts/cautionnement-bancaire-entreprise-generale-suisse';
-import { post as p205 } from './posts/certificat-energetique-cantonal-geak-batiment';
 import { post as p206 } from './posts/chantier-copropriete-ppe-facturation-suisse';
 import { post as p207 } from './posts/chantier-propre-reduire-nuisances-voisinage';
 import { post as p208 } from './posts/comparer-devis-fournisseurs-materiaux-methode';
 import { post as p209 } from './posts/construction-modulaire-prefabriquee-suisse';
-import { post as p210 } from './posts/cooperative-cautionnement-pme-financement-batiment';
 import { post as p211 } from './posts/credit-construction-hypothecaire-entreprise-batiment';
-import { post as p212 } from './posts/deleguer-sans-tout-controler-patron-artisan';
-import { post as p213 } from './posts/devis-facture-construction-bois-ossature-suisse';
-import { post as p214 } from './posts/devis-facture-demolition-suisse';
-import { post as p215 } from './posts/devis-facture-echafaudeur-suisse';
-import { post as p216 } from './posts/devis-facture-entreprise-renovation-suisse';
-import { post as p217 } from './posts/devis-facture-etancheur-suisse';
-import { post as p218 } from './posts/devis-facture-genie-civil-suisse';
-import { post as p219 } from './posts/devis-facture-parqueteur-suisse';
-import { post as p220 } from './posts/devis-facture-vitrier-suisse';
-import { post as p221 } from './posts/entretien-annuel-employe-batiment-comment-faire';
-import { post as p222 } from './posts/expertise-judiciaire-malfacon-construction-suisse';
 import { post as p223 } from './posts/faillite-client-creance-impayee-que-faire';
 import { post as p224 } from './posts/formation-continue-obligatoire-batiment-suisse';
 import { post as p225 } from './posts/gerer-conflit-entre-deux-ouvriers-chantier';
 import { post as p226 } from './posts/gestion-dechets-chantier-tri-obligatoire-suisse';
-import { post as p227 } from './posts/gestion-entreprise-generale-sous-traitants-suisse';
-import { post as p228 } from './posts/groupement-achat-artisans-batiment-suisse';
 import { post as p229 } from './posts/leasing-machines-vehicules-chantier-suisse';
-import { post as p230 } from './posts/ligne-de-credit-tresorerie-pme-batiment';
 import { post as p231 } from './posts/motiver-equipe-chantier-batiment-quotidien';
-import { post as p232 } from './posts/negocier-prix-fournisseur-materiaux-batiment';
 import { post as p233 } from './posts/norme-minergie-batiment-explication';
-import { post as p234 } from './posts/onboarding-nouvel-apprenti-premieres-semaines';
-import { post as p235 } from './posts/prime-fin-annee-ou-13e-salaire-difference';
 import { post as p236 } from './posts/racheter-entreprise-batiment-existante-suisse';
-import { post as p237 } from './posts/reemploi-materiaux-economie-circulaire-batiment';
 import { post as p238 } from './posts/renovation-apres-sinistre-degat-eau-assurance';
 import { post as p239 } from './posts/renovation-batiment-historique-protege-suisse';
-import { post as p240 } from './posts/responsabilite-apres-livraison-travaux-assurance';
 import { post as p241 } from './posts/rupture-stock-fournisseur-chantier-que-faire';
-import { post as p242 } from './posts/saisie-conservatoire-creance-impayee-batiment';
-import { post as p243 } from './posts/succession-familiale-entreprise-artisanale-batiment';
 import { post as p244 } from './posts/transmettre-entreprise-batiment-retraite';
 import { post as p245 } from './posts/calcul-lpp-employe-taux-salaire-coordonne-2026';
 import { post as p246 } from './posts/prix-contrat-nettoyage-bureaux-suisse-calcul';
@@ -257,13 +150,9 @@ import { post as p253 } from './posts/salaire-personnel-extra-evenementiel-trait
 import { post as p254 } from './posts/forfait-ou-temps-passe-consultant-suisse';
 import { post as p255 } from './posts/formateur-independant-suisse-tva-facture';
 import { post as soum1 } from './posts/remplir-soumission-pdf-architecte';
-import { post as soum2 } from './posts/erreurs-soumission-qui-coutent-le-marche';
 import { post as soum3 } from './posts/calculer-prix-unitaire-soumission';
 import { post as soum4 } from './posts/rabais-escompte-tva-ordre-soumission';
 import { post as soum5 } from './posts/comprendre-soumission-can-positions';
-import { post as soum6 } from './posts/variante-soumission-proposer-alternative';
-import { post as soum7 } from './posts/temps-repondre-soumission-rentable';
-import { post as soum8 } from './posts/logiciel-remplir-soumission-excel-papier';
 
 // Every published article, newest first. To add a new one: write a new file
 // under lib/blog/posts/<slug>.ts exporting `post: BlogPost`, then add one
@@ -272,54 +161,79 @@ import { post as soum8 } from './posts/logiciel-remplir-soumission-excel-papier'
 // scripts/seo-routes.mjs for the one place metadata still needs a matching
 // entry, following the same pattern as /solutions/*.
 export const BLOG_POSTS: BlogPost[] = [
-  soum1, soum2, soum3, soum4, soum5, soum6, soum7, soum8,
-  p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27,
-  p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
-  p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70,
-  p71, p72, p73, p74, p75, p76, p77, p78, p79, p80, p81, p82, p83, p84, p85, p86, p87, p88, p89, p90,
-  p91, p92, p93, p94, p95, p96, p97, p98, p99, p100, p101, p102, p103, p104, p105, p106, p107, p108, p109, p110,
-  p111, p112, p113, p114, p115, p116, p117, p118, p119, p120, p121, p122, p123, p124, p125, p126, p127, p128, p129, p130,
-  p131, p132, p133, p134, p135, p136, p137, p138, p139, p140, p141, p142, p143, p144,
-  p145, p146, p147, p148, p149, p150, p151, p152, p153, p154, p155, p156, p157, p158, p159, p160, p161, p162, p163, p164,
-  p165, p166, p167, p168, p169, p170, p171, p172, p173, p174, p175, p176, p177, p178, p179, p180, p181, p182, p183, p184,
-  p185, p186, p187, p188, p189, p190, p191, p192, p193, p194,
-  p195, p196, p197, p198, p199, p200, p201, p202, p203, p204, p205, p206, p207, p208, p209, p210, p211, p212, p213, p214,
-  p215, p216, p217, p218, p219, p220, p221, p222, p223, p224, p225, p226, p227, p228, p229, p230, p231, p232, p233, p234,
-  p235, p236, p237, p238, p239, p240, p241, p242, p243, p244, p245,
+  soum1, soum3, soum4, soum5, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p18, p19, p20, p21, p22, p23, p24, p26, p27,
+  p28, p29, p30, p31, p32, p34, p35, p36, p38, p39, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52,
+  p53, p54, p55, p57, p59, p61, p63, p64, p65, p66, p68, p69, p70,
+  p71, p72, p73, p74, p75, p76, p77, p78, p91, p93, p94, p96, p97, p101, p103, p104, p117, p128, p139, p140, p141, p143, p144,
+  p145, p146, p147, p148, p149, p150, p151, p153, p155, p159, p161, p165, p166, p167, p168, p169, p171, p173, p174, p178, p179, p180, p181, p182, p183, p184,
+  p186, p188, p191, p192, p193, p194,
+  p195, p196, p198, p203, p204, p206, p207, p208, p209, p211, p223, p224, p225, p226, p229, p231, p233, p236, p238, p239, p241, p244, p245,
   p246, p247, p248, p249, p250, p251, p252, p253, p254, p255,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
 
-// Same 138 posts, same order, with each one swapped for its German or
-// Italian translation — used by the blog index/listing so a visitor in
-// either language sees the full catalog. Falls back to the French post for
-// any future slug added here before its translation lands.
-export function getAllPosts(locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
-  if (locale === 'de') return BLOG_POSTS.map((p) => BLOG_POSTS_DE.find((d) => d.slug === p.slug) ?? p);
-  if (locale === 'it') return BLOG_POSTS.map((p) => BLOG_POSTS_IT.find((d) => d.slug === p.slug) ?? p);
-  return BLOG_POSTS;
+// The French slug an article is known by in every language.
+export function baseSlugOf(post: BlogPost): string {
+  return post.baseSlug ?? post.slug;
 }
 
-// All 138 posts are translated (lib/blog/posts-de/, lib/blog/posts-it/);
-// this still falls back to the French post for any future slug added before
-// its translation lands, rather than a broken link or an empty page.
-export function getPostBySlug(slug: string, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost | undefined {
-  if (locale === 'de') {
-    const de = BLOG_POSTS_DE.find((p) => p.slug === slug);
-    if (de) return de;
-  }
-  if (locale === 'it') {
-    const it = BLOG_POSTS_IT.find((p) => p.slug === slug);
-    if (it) return it;
-  }
-  return BLOG_POSTS.find((p) => p.slug === slug);
+// German articles with their own German slug carry it as `slug`.
+const POSTS_DE: BlogPost[] = BLOG_POSTS_DE.map((p) => {
+  const slug = publicSlug(p.slug, 'de');
+  return slug === p.slug ? p : { ...p, slug, baseSlug: p.slug };
+});
+
+function postsOf(locale: BlogLocale): BlogPost[] {
+  return locale === 'de' ? POSTS_DE : locale === 'it' ? BLOG_POSTS_IT : BLOG_POSTS;
 }
 
-export function getRelatedPosts(post: BlogPost, max = 3, locale: 'fr' | 'de' | 'it' = 'fr'): BlogPost[] {
-  const bySlug = post.relatedSlugs?.map((s) => getPostBySlug(s, locale)).filter((p): p is BlogPost => !!p) ?? [];
+const BY_BASE: Record<BlogLocale, Map<string, BlogPost>> = {
+  fr: new Map(BLOG_POSTS.map((p) => [p.slug, p])),
+  de: new Map(POSTS_DE.map((p) => [baseSlugOf(p), p])),
+  it: new Map(BLOG_POSTS_IT.map((p) => [p.slug, p])),
+};
+
+// The articles listed in a language (blog index, newest first): translated,
+// not merged into another page, not set aside from Google (lib/blog/triage.ts).
+export function getAllPosts(locale: BlogLocale = 'fr'): BlogPost[] {
+  return BLOG_POSTS.map((p) => BY_BASE[locale].get(p.slug)).filter(
+    (p): p is BlogPost => !!p && isListed(baseSlugOf(p), locale)
+  );
+}
+
+// Static pages to generate under /blog, /de/blog, /it/blog.
+export function blogStaticParams(locale: BlogLocale): { slug: string }[] {
+  return postsOf(locale)
+    .filter((p) => !isRetired(baseSlugOf(p), locale))
+    .map((p) => ({ slug: p.slug }));
+}
+
+// The article at /<locale>/blog/<slug>.
+export function getPostBySlug(slug: string, locale: BlogLocale = 'fr'): BlogPost | undefined {
+  const post = postsOf(locale).find((p) => p.slug === slug);
+  return post && !isRetired(baseSlugOf(post), locale) ? post : undefined;
+}
+
+// The article a link to `base` leads to in this language, following merges;
+// undefined when it now leads elsewhere (another language, a product page)
+// or to a page kept out of the lists.
+export function getPostByBase(base: string, locale: BlogLocale = 'fr'): BlogPost | undefined {
+  const route = resolvedBlogRoute(base, locale);
+  const prefix = locale === 'fr' ? 'blog/' : `${locale}/blog/`;
+  if (!route.startsWith(prefix)) return undefined;
+  const post = postsOf(locale).find((p) => p.slug === route.slice(prefix.length));
+  return post && isListed(baseSlugOf(post), locale) ? post : undefined;
+}
+
+export function getRelatedPosts(post: BlogPost, max = 3, locale: BlogLocale = 'fr'): BlogPost[] {
+  const self = baseSlugOf(post);
+  const bySlug: BlogPost[] = [];
+  for (const s of post.relatedSlugs ?? []) {
+    const p = getPostByBase(s, locale);
+    if (p && baseSlugOf(p) !== self && !bySlug.includes(p)) bySlug.push(p);
+  }
   if (bySlug.length >= max) return bySlug.slice(0, max);
-  const pool = locale === 'de' ? BLOG_POSTS_DE : locale === 'it' ? BLOG_POSTS_IT : BLOG_POSTS;
-  const fallback = pool.filter((p) => p.slug !== post.slug && p.category === post.category && !bySlug.includes(p));
+  const fallback = getAllPosts(locale).filter((p) => baseSlugOf(p) !== self && p.category === post.category && !bySlug.includes(p));
   return [...bySlug, ...fallback].slice(0, max);
 }

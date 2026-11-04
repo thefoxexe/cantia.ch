@@ -71,10 +71,11 @@ export default function MetiersScreen() {
 
         {/* A typographic index rather than a wall of icon cards: every trade
             readable at a glance, one ruled row each, two columns on desktop;
-            the building trades first, then the other sectors. */}
+            the building trades only: the pages for other sectors (cleaning,
+            catering, IT…) stay reachable but are out of Google and of this
+            list (docs/seo-tri-contenu.md). */}
         {[
           { label: t('metiersPage.groupBuilding'), slugs: TRADE_PAGE_SLUGS.filter((s) => !getTradePage(s, 'fr')!.general) },
-          { label: t('metiersPage.groupOther'), slugs: TRADE_PAGE_SLUGS.filter((s) => getTradePage(s, 'fr')!.general) },
         ].map((group) => (
           <View key={group.label} style={styles.wrap}>
             <Text style={styles.groupLabel}>{group.label}</Text>

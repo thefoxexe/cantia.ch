@@ -1537,6 +1537,3143 @@
   to = "/aide/:splat.png"
   status = 200
 
+# Content triage (docs/seo-tri-contenu.md): merged articles, German slugs and
+# untranslated articles redirect for good. Before the blog splats below so
+# they win; force so an old file left on disk can never shadow them.
+# BEGIN generated blog redirects (scripts/generate-netlify-redirects.mjs — do not hand-edit)
+[[redirects]]
+  from = "/blog/application-gestion-freelance-batiment"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/application-hors-ligne-chantier-pourquoi-important"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/arbeitsunfall-baustelle-suva-pflichten"
+  to = "/blog/accident-travail-chantier-obligations-employeur-suva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/arbitrage-sia-mediation-professionnelle-batiment"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-chantier-tous-risques-ectr-obligatoire"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-cyber-pme-batiment-donnees-clients"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-perte-de-gain-maladie-independant-batiment"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-perte-exploitation-chantier-arrete"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-protection-juridique-entreprise-batiment"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/assurance-transport-materiel-chantier"
+  to = "/blog/assurance-bris-machine-outillage-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/aufbewahrungspflicht-rechnungen-offerten-schweiz"
+  to = "/blog/duree-conservation-devis-factures-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/automatiser-rappels-relances-entreprise"
+  to = "/blog/relancer-client-facture-impayee-sans-perdre-client"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/automatiser-suivi-administratif-entreprise-artisanale"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/automatiser-taches-repetitives-entreprise-sans-developpeur"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/avis-google-entreprise-construction-suisse"
+  to = "/blog/repondre-avis-negatif-google-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/baustellensoftware-einzelunternehmer"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/betreibung-unbezahlte-rechnung-ablauf"
+  to = "/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/betriebshaftpflicht-baugewerbe"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/budget-logiciel-gestion-demarrage-entreprise"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/calculer-prix-devis-renovation-suisse"
+  to = "/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/cantia-adapte-metier-specifique-batiment"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/certificat-energetique-cantonal-geak-batiment"
+  to = "/blog/programme-batiments-subvention-renovation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/chantier-complet-peut-etre-en-perte-taux-horaire"
+  to = "/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/checklist-logiciels-ouverture-societe-construction"
+  to = "/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/chomage-partiel-entreprise-batiment-suisse"
+  to = "/blog/chomage-intemperies-rht-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/combien-coute-logiciel-facturation-pas-cher"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/comment-facturer-premiers-clients-debut-activite"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/contrat-ecrit-petits-travaux-quand-necessaire"
+  to = "/blog/devis-oral-valeur-legale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/cooperative-cautionnement-pme-financement-batiment"
+  to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/creer-champ-processus-sur-mesure-logiciel-gestion"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/crm-baubranche-handwerker"
+  to = "/blog/crm-artisan-batiment-pourquoi-utile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/declaration-tva-trimestrielle-artisan-suisse"
+  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/defaut-construction-decouvert-apres-reception-qui-paie"
+  to = "/blog/garantie-travaux-construction-2-ou-5-ans"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/delai-permis-de-construire-canton-suisse"
+  to = "/blog/permis-construire-renovation-quand-necessaire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/deleguer-sans-tout-controler-patron-artisan"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/demarrer-entreprise-batiment-outils-indispensables"
+  to = "/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-carreleur-facturation-au-m2-suisse"
+  to = "/carreleur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-charpente-bois-facturation-suisse"
+  to = "/charpentier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-chauffagiste-cvc-suisse"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-construction-bois-ossature-suisse"
+  to = "/construction-bois"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-demolition-suisse"
+  to = "/demolition"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-echafaudeur-suisse"
+  to = "/echafaudeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-entreprise-renovation-suisse"
+  to = "/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-etancheur-suisse"
+  to = "/etancheur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-facadier-isolation-suisse"
+  to = "/facadier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-ferblantier-suisse"
+  to = "/ferblantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-frigoriste-climatisation-suisse"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-genie-civil-suisse"
+  to = "/genie-civil"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-parqueteur-suisse"
+  to = "/parqueteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-paysagiste-jardinier-suisse"
+  to = "/paysagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-platrier-suisse"
+  to = "/platrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-plombier-sanitaire-suisse"
+  to = "/plombier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-ramoneur-suisse"
+  to = "/blog/devis-facture-poelier-fumiste-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-serrurier-metallier-suisse"
+  to = "/serrurier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-terrassier-suisse"
+  to = "/terrassier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-facture-vitrier-suisse"
+  to = "/vitrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-gratuit-en-ligne-suisse-outil"
+  to = "/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-menuisier-sur-mesure-facturation-suisse"
+  to = "/menuisier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-peintre-batiment-calcul-surface-suisse"
+  to = "/peintre"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/devis-pompe-a-chaleur-chiffrage"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/dix-erreurs-premiere-annee-entreprise-batiment"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/entretien-annuel-employe-batiment-comment-faire"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/erreurs-choisir-premier-logiciel-gestion"
+  to = "/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/erreurs-soumission-qui-coutent-le-marche"
+  to = "/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/essai-gratuit-logiciel-facturation-suisse"
+  to = "/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/expertise-judiciaire-malfacon-construction-suisse"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/faire-evoluer-outil-gestion-avec-entreprise"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gerer-entreprise-sans-comptable-debut"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gerer-entreprise-seul-sans-embaucher-outils"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gestion-chantier-devis-couvreur-toiture-suisse"
+  to = "/couvreur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gestion-chantier-facturation-electricien-suisse"
+  to = "/electricien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gestion-entreprise-generale-sous-traitants-suisse"
+  to = "/entreprise-generale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/gestion-entreprise-sur-mobile-artisan"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/google-sheets-partage-equipe-limites-batiment"
+  to = "/blog/excel-vs-logiciel-gestion-chantier-limites"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/groupement-achat-artisans-batiment-suisse"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/independant-reconnu-avs-batiment"
+  to = "/blog/avs-ai-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/integration-bexio-cantia-synchronisation-automatique"
+  to = "/integrations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/lancer-entreprise-batiment-suisse-par-ou-commencer"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/ligne-de-credit-tresorerie-pme-batiment"
+  to = "/blog/previsionnel-tresorerie-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-construit-avec-vous-sur-mesure"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-devis-facture-maconnerie-suisse"
+  to = "/macon"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-facturation-conforme-tva-suisse-pas-cher"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-facturation-gratuit-independant-suisse"
+  to = "/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-facturation-qr-facture-comparatif-suisse"
+  to = "/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-facturation-raison-individuelle-suisse"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-gestion-chantier-abordable-petite-entreprise"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-gestion-societe-individuelle-suisse"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-remplir-soumission-excel-papier"
+  to = "/solutions/soumissions"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-signature-electronique-chantier"
+  to = "/blog/signature-electronique-devis-suisse-valeur-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-simple-debuter-independant-batiment"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-standard-vs-solution-personnalisee-batiment"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/marge-beneficiaire-entreprise-batiment-suisse"
+  to = "/blog/calculer-prix-de-revient-chantier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/meilleur-logiciel-pas-cher-petit-artisan"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/meilleur-outil-gestion-independant-suisse"
+  to = "/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment"
+  to = "/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/meilleures-alternatives-gratuites-bexio"
+  to = "/blog/bexio-vs-cantia-logiciel-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/nachtragsofferte-mehrkosten"
+  to = "/blog/avenant-chantier-plus-value-moins-value"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/negocier-prix-client-compare-plusieurs-devis"
+  to = "/blog/fixer-prix-artisan-sans-brader-concurrence-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/negocier-prix-fournisseur-materiaux-batiment"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/numerotation-facture-obligations-legales-suisse"
+  to = "/blog/mentions-obligatoires-facture-suisse-tva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/offerte-erstellen-online-schweiz"
+  to = "/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/onboarding-nouvel-apprenti-premieres-semaines"
+  to = "/blog/apprenti-batiment-salaire-obligations-employeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/outil-devis-factures-sans-double-saisie"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/outil-facturation-en-ligne-pme-suisse"
+  to = "/solutions/facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/parrainage-recommandation-clients-artisan-batiment"
+  to = "/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut"
+  to = "/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment"
+  to = "/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/prime-fin-annee-ou-13e-salaire-difference"
+  to = "/blog/calculer-13e-salaire-prorata-employe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/provoquer-bouche-a-oreille-artisan"
+  to = "/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/reemploi-materiaux-economie-circulaire-batiment"
+  to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/repondre-appel-offres-public-batiment-etapes"
+  to = "/blog/appel-offres-marches-publics-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/responsabilite-apres-livraison-travaux-assurance"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/saisie-conservatoire-creance-impayee-batiment"
+  to = "/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/seuil-lpp-affiliation-employe-batiment"
+  to = "/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/sia-118-offerte-pflicht"
+  to = "/blog/norme-sia-118-devis-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/site-internet-ou-carte-de-visite-artisan"
+  to = "/blog/site-internet-artisan-batiment-utile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/software-bauunternehmen-schweiz-auswahl"
+  to = "/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/sous-effectif-chantier-recruter-ou-sous-traiter"
+  to = "/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/succession-familiale-entreprise-artisanale-batiment"
+  to = "/blog/transmettre-entreprise-batiment-retraite"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/temps-repondre-soumission-rentable"
+  to = "/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/unterschied-offerte-rechnung-proforma"
+  to = "/blog/difference-devis-offre-facture-pro-forma"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/vacances-non-prises-fin-annee-batiment-cct"
+  to = "/blog/vacances-employe-batiment-cct-jours"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/variante-soumission-proposer-alternative"
+  to = "/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/verjaehrung-unbezahlte-rechnung-schweiz"
+  to = "/blog/prescription-facture-impayee-delai-10-ans"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/zahlungsfrist-rechnung-handwerker-schweiz"
+  to = "/blog/delai-paiement-facture-artisan-code-obligations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/accident-travail-chantier-obligations-employeur-suva"
+  to = "/de/blog/arbeitsunfall-baustelle-suva-pflichten"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/acompte-demenagement-suisse-montant-facture"
+  to = "/blog/acompte-demenagement-suisse-montant-facture"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/action-garantie-sous-traitant-entrepreneur-general"
+  to = "/blog/action-garantie-sous-traitant-entrepreneur-general"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/affacturage-factoring-entreprise-batiment-suisse"
+  to = "/blog/affacturage-factoring-entreprise-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/annulation-reservation-photographe-acompte-arrhes"
+  to = "/blog/annulation-reservation-photographe-acompte-arrhes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/application-devis-mobile-artisan"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/application-gestion-freelance-batiment"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/application-hors-ligne-chantier-pourquoi-important"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/arbitrage-sia-mediation-professionnelle-batiment"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-bris-machine-outillage-chantier"
+  to = "/blog/assurance-bris-machine-outillage-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-chantier-tous-risques-ectr-obligatoire"
+  to = "/de/blog/betriebshaftpflicht-baugewerbe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-cyber-pme-batiment-donnees-clients"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-perte-de-gain-maladie-independant-batiment"
+  to = "/de/blog/betriebshaftpflicht-baugewerbe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-perte-exploitation-chantier-arrete"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-protection-juridique-entreprise-batiment"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  to = "/de/blog/betriebshaftpflicht-baugewerbe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/assurance-transport-materiel-chantier"
+  to = "/blog/assurance-bris-machine-outillage-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/automatiser-rappels-relances-entreprise"
+  to = "/de/blog/relancer-client-facture-impayee-sans-perdre-client"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/automatiser-suivi-administratif-entreprise-artisanale"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/automatiser-taches-repetitives-entreprise-sans-developpeur"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/avenant-chantier-plus-value-moins-value"
+  to = "/de/blog/nachtragsofferte-mehrkosten"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/avis-google-entreprise-construction-suisse"
+  to = "/blog/repondre-avis-negatif-google-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/bilan-carbone-chantier-construction-suisse"
+  to = "/blog/bilan-carbone-chantier-construction-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/budget-logiciel-gestion-demarrage-entreprise"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  to = "/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calculer-acomptes-impots-independant-batiment"
+  to = "/blog/calculer-acomptes-impots-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calculer-prix-devis-renovation-suisse"
+  to = "/de/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-adapte-metier-specifique-batiment"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-vs-cresus-facturation"
+  to = "/blog/cantia-vs-cresus-facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-vs-klara"
+  to = "/blog/cantia-vs-klara"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-vs-winbiz"
+  to = "/blog/cantia-vs-winbiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/certificat-energetique-cantonal-geak-batiment"
+  to = "/blog/programme-batiments-subvention-renovation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/chantier-complet-peut-etre-en-perte-taux-horaire"
+  to = "/de/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/chantier-copropriete-ppe-facturation-suisse"
+  to = "/blog/chantier-copropriete-ppe-facturation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/chantier-propre-reduire-nuisances-voisinage"
+  to = "/blog/chantier-propre-reduire-nuisances-voisinage"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/checklist-fin-annee-entreprise-batiment"
+  to = "/blog/checklist-fin-annee-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/checklist-logiciels-ouverture-societe-construction"
+  to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/chomage-intemperies-rht-batiment-suisse"
+  to = "/blog/chomage-intemperies-rht-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/chomage-partiel-entreprise-batiment-suisse"
+  to = "/blog/chomage-intemperies-rht-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/clauses-oubliees-contrat-travail-batiment"
+  to = "/blog/clauses-oubliees-contrat-travail-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/combien-coute-logiciel-facturation-pas-cher"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/comment-facturer-premiers-clients-debut-activite"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/comparer-devis-fournisseurs-materiaux-methode"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/construction-modulaire-prefabriquee-suisse"
+  to = "/blog/construction-modulaire-prefabriquee-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/contrat-ecrit-petits-travaux-quand-necessaire"
+  to = "/de/blog/devis-oral-valeur-legale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cooperative-cautionnement-pme-financement-batiment"
+  to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/corrections-incluses-offre-graphiste-droits"
+  to = "/blog/corrections-incluses-offre-graphiste-droits"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cout-creation-entreprise-construction-suisse"
+  to = "/blog/cout-creation-entreprise-construction-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/credit-construction-hypothecaire-entreprise-batiment"
+  to = "/blog/credit-construction-hypothecaire-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/creer-champ-processus-sur-mesure-logiciel-gestion"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/creer-entreprise-batiment-suisse-guide-complet"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/crm-artisan-batiment-pourquoi-utile"
+  to = "/de/blog/crm-baubranche-handwerker"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/declaration-tva-trimestrielle-artisan-suisse"
+  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/defaut-construction-decouvert-apres-reception-qui-paie"
+  to = "/de/blog/garantie-travaux-construction-2-ou-5-ans"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/delai-paiement-facture-artisan-code-obligations"
+  to = "/de/blog/zahlungsfrist-rechnung-handwerker-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/delai-permis-de-construire-canton-suisse"
+  to = "/blog/permis-construire-renovation-quand-necessaire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/deleguer-sans-tout-controler-patron-artisan"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/demarrer-entreprise-batiment-outils-indispensables"
+  to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-carreleur-facturation-au-m2-suisse"
+  to = "/de/carreleur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-charpente-bois-facturation-suisse"
+  to = "/de/charpentier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-chauffagiste-cvc-suisse"
+  to = "/de/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-construction-bois-ossature-suisse"
+  to = "/construction-bois"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-demolition-suisse"
+  to = "/demolition"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-echafaudeur-suisse"
+  to = "/echafaudeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-entreprise-renovation-suisse"
+  to = "/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-etancheur-suisse"
+  to = "/etancheur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-facadier-isolation-suisse"
+  to = "/de/facadier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-ferblantier-suisse"
+  to = "/ferblantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-frigoriste-climatisation-suisse"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-genie-civil-suisse"
+  to = "/genie-civil"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-installateur-solaire-suisse"
+  to = "/blog/devis-facture-installateur-solaire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-parqueteur-suisse"
+  to = "/parqueteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-paysagiste-jardinier-suisse"
+  to = "/de/paysagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-platrier-suisse"
+  to = "/platrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-plombier-sanitaire-suisse"
+  to = "/de/plombier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-poelier-fumiste-suisse"
+  to = "/blog/devis-facture-poelier-fumiste-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-ramoneur-suisse"
+  to = "/blog/devis-facture-poelier-fumiste-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-serrurier-metallier-suisse"
+  to = "/de/serrurier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-terrassier-suisse"
+  to = "/terrassier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-facture-vitrier-suisse"
+  to = "/vitrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-gratuit-en-ligne-suisse-outil"
+  to = "/de/blog/offerte-erstellen-online-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-menuisier-sur-mesure-facturation-suisse"
+  to = "/de/menuisier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-peintre-batiment-calcul-surface-suisse"
+  to = "/de/peintre"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-pompe-a-chaleur-chiffrage"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-reparation-garage-supplement-accord-client"
+  to = "/blog/devis-reparation-garage-supplement-accord-client"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/diagnostic-amiante-renovation-obligatoire-suisse"
+  to = "/blog/diagnostic-amiante-renovation-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/difference-devis-offre-facture-pro-forma"
+  to = "/de/blog/unterschied-offerte-rechnung-proforma"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/directive-suva-echafaudage-chantier-obligation"
+  to = "/blog/directive-suva-echafaudage-chantier-obligation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/dix-erreurs-premiere-annee-entreprise-batiment"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/duree-conservation-devis-factures-suisse"
+  to = "/de/blog/aufbewahrungspflicht-rechnungen-offerten-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/entretien-annuel-employe-batiment-comment-faire"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/erreurs-choisir-premier-logiciel-gestion"
+  to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/erreurs-soumission-qui-coutent-le-marche"
+  to = "/de/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/essai-gratuit-logiciel-facturation-suisse"
+  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  to = "/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/expertise-judiciaire-malfacon-construction-suisse"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturer-depannage-urgent-sans-devis"
+  to = "/blog/facturer-depannage-urgent-sans-devis"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturer-frais-deplacement-client-artisan"
+  to = "/blog/facturer-frais-deplacement-client-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturer-petites-interventions-gerance-conciergerie"
+  to = "/blog/facturer-petites-interventions-gerance-conciergerie"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturer-support-informatique-temps-passe"
+  to = "/blog/facturer-support-informatique-temps-passe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/faillite-client-creance-impayee-que-faire"
+  to = "/blog/faillite-client-creance-impayee-que-faire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/faire-evoluer-outil-gestion-avec-entreprise"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/forfait-ou-temps-passe-consultant-suisse"
+  to = "/blog/forfait-ou-temps-passe-consultant-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/formateur-independant-suisse-tva-facture"
+  to = "/blog/formateur-independant-suisse-tva-facture"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/formation-continue-obligatoire-batiment-suisse"
+  to = "/blog/formation-continue-obligatoire-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gerer-conflit-entre-deux-ouvriers-chantier"
+  to = "/blog/gerer-conflit-entre-deux-ouvriers-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gerer-entreprise-sans-comptable-debut"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gerer-entreprise-seul-sans-embaucher-outils"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gestion-chantier-devis-couvreur-toiture-suisse"
+  to = "/de/couvreur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gestion-chantier-facturation-electricien-suisse"
+  to = "/de/electricien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gestion-entreprise-generale-sous-traitants-suisse"
+  to = "/entreprise-generale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gestion-entreprise-sur-mobile-artisan"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/google-sheets-partage-equipe-limites-batiment"
+  to = "/blog/excel-vs-logiciel-gestion-chantier-limites"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/groupement-achat-artisans-batiment-suisse"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/horaires-bruit-chantier-autorises-suisse"
+  to = "/blog/horaires-bruit-chantier-autorises-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/immatriculer-entreprise-construction-registre-commerce"
+  to = "/blog/immatriculer-entreprise-construction-registre-commerce"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/independant-reconnu-avs-batiment"
+  to = "/blog/avs-ai-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/instagram-ou-facebook-artisan-batiment"
+  to = "/blog/instagram-ou-facebook-artisan-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/integration-bexio-cantia-synchronisation-automatique"
+  to = "/de/integrations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/leasing-machines-vehicules-chantier-suisse"
+  to = "/blog/leasing-machines-vehicules-chantier-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/ligne-de-credit-tresorerie-pme-batiment"
+  to = "/blog/previsionnel-tresorerie-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/lire-fiche-de-salaire-batiment"
+  to = "/blog/lire-fiche-de-salaire-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-construit-avec-vous-sur-mesure"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-devis-facture-maconnerie-suisse"
+  to = "/de/macon"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-facturation-conforme-tva-suisse-pas-cher"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-facturation-gratuit-independant-suisse"
+  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-facturation-qr-facture-comparatif-suisse"
+  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-facturation-raison-individuelle-suisse"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-gestion-chantier-abordable-petite-entreprise"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-gestion-societe-individuelle-suisse"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-remplir-soumission-excel-papier"
+  to = "/de/solutions/soumissions"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-signature-electronique-chantier"
+  to = "/blog/signature-electronique-devis-suisse-valeur-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-simple-debuter-independant-batiment"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-standard-vs-solution-personnalisee-batiment"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/marge-beneficiaire-entreprise-batiment-suisse"
+  to = "/blog/calculer-prix-de-revient-chantier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/meilleur-logiciel-pas-cher-petit-artisan"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/meilleur-outil-gestion-independant-suisse"
+  to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment"
+  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/meilleures-alternatives-gratuites-bexio"
+  to = "/de/blog/bexio-vs-cantia-logiciel-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  to = "/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/motiver-equipe-chantier-batiment-quotidien"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/negocier-prix-client-compare-plusieurs-devis"
+  to = "/blog/fixer-prix-artisan-sans-brader-concurrence-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/negocier-prix-fournisseur-materiaux-batiment"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/norme-aeai-incendie-batiment-obligation"
+  to = "/blog/norme-aeai-incendie-batiment-obligation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/norme-minergie-batiment-explication"
+  to = "/blog/norme-minergie-batiment-explication"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/norme-sia-118-devis-obligatoire"
+  to = "/de/blog/sia-118-offerte-pflicht"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/numerotation-facture-obligations-legales-suisse"
+  to = "/de/blog/mentions-obligatoires-facture-suisse-tva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/onboarding-nouvel-apprenti-premieres-semaines"
+  to = "/blog/apprenti-batiment-salaire-obligations-employeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/outil-facturation-en-ligne-pme-suisse"
+  to = "/de/solutions/facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/parrainage-recommandation-clients-artisan-batiment"
+  to = "/de/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/periode-essai-batiment-duree-legale"
+  to = "/blog/periode-essai-batiment-duree-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut"
+  to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment"
+  to = "/de/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/poursuite-facture-impayee-procedure-suisse"
+  to = "/de/blog/betreibung-unbezahlte-rechnung-ablauf"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prescription-facture-impayee-delai-10-ans"
+  to = "/de/blog/verjaehrung-unbezahlte-rechnung-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prime-fin-annee-ou-13e-salaire-difference"
+  to = "/blog/calculer-13e-salaire-prorata-employe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prix-contrat-nettoyage-bureaux-suisse-calcul"
+  to = "/blog/prix-contrat-nettoyage-bureaux-suisse-calcul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prix-isolation-facade-m2-suisse"
+  to = "/blog/prix-isolation-facade-m2-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prix-refection-toiture-suisse"
+  to = "/blog/prix-refection-toiture-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prix-renovation-cuisine-suisse"
+  to = "/blog/prix-renovation-cuisine-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/prix-renovation-salle-de-bain-suisse-m2"
+  to = "/blog/prix-renovation-salle-de-bain-suisse-m2"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/programme-batiments-subvention-renovation-suisse"
+  to = "/blog/programme-batiments-subvention-renovation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/provoquer-bouche-a-oreille-artisan"
+  to = "/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/racheter-entreprise-batiment-existante-suisse"
+  to = "/blog/racheter-entreprise-batiment-existante-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/raison-individuelle-sarl-sa-quel-statut-batiment"
+  to = "/blog/raison-individuelle-sarl-sa-quel-statut-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/reemploi-materiaux-economie-circulaire-batiment"
+  to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/relancer-client-devis-sans-reponse"
+  to = "/blog/relancer-client-devis-sans-reponse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/renovation-apres-sinistre-degat-eau-assurance"
+  to = "/blog/renovation-apres-sinistre-degat-eau-assurance"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/renovation-batiment-historique-protege-suisse"
+  to = "/blog/renovation-batiment-historique-protege-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/repondre-appel-offres-public-batiment-etapes"
+  to = "/blog/appel-offres-marches-publics-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/repondre-avis-negatif-google-artisan"
+  to = "/blog/repondre-avis-negatif-google-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/responsabilite-apres-livraison-travaux-assurance"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/rupture-stock-fournisseur-chantier-que-faire"
+  to = "/blog/rupture-stock-fournisseur-chantier-que-faire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/saisie-conservatoire-creance-impayee-batiment"
+  to = "/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/salaire-personnel-extra-evenementiel-traiteur"
+  to = "/blog/salaire-personnel-extra-evenementiel-traiteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/seuil-lpp-affiliation-employe-batiment"
+  to = "/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/site-internet-ou-carte-de-visite-artisan"
+  to = "/blog/site-internet-artisan-batiment-utile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/sous-effectif-chantier-recruter-ou-sous-traiter"
+  to = "/de/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/succession-familiale-entreprise-artisanale-batiment"
+  to = "/blog/transmettre-entreprise-batiment-retraite"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/temps-repondre-soumission-rentable"
+  to = "/de/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/transmettre-entreprise-batiment-retraite"
+  to = "/blog/transmettre-entreprise-batiment-retraite"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/travailleur-detache-batiment-suisse-regles"
+  to = "/blog/travailleur-detache-batiment-suisse-regles"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/tva-methode-effective-ou-tdfn-batiment"
+  to = "/blog/tva-methode-effective-ou-tdfn-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/vacances-construction-suisse-dates-canton"
+  to = "/blog/vacances-construction-suisse-dates-canton"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/vacances-employe-batiment-cct-jours"
+  to = "/blog/vacances-employe-batiment-cct-jours"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/variante-soumission-proposer-alternative"
+  to = "/de/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/acompte-demenagement-suisse-montant-facture"
+  to = "/blog/acompte-demenagement-suisse-montant-facture"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/action-garantie-sous-traitant-entrepreneur-general"
+  to = "/blog/action-garantie-sous-traitant-entrepreneur-general"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/affacturage-factoring-entreprise-batiment-suisse"
+  to = "/blog/affacturage-factoring-entreprise-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/annulation-reservation-photographe-acompte-arrhes"
+  to = "/blog/annulation-reservation-photographe-acompte-arrhes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/application-devis-mobile-artisan"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/application-gestion-freelance-batiment"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/application-hors-ligne-chantier-pourquoi-important"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/arbeitsunfall-baustelle-suva-pflichten"
+  to = "/it/blog/accident-travail-chantier-obligations-employeur-suva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/arbitrage-sia-mediation-professionnelle-batiment"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-bris-machine-outillage-chantier"
+  to = "/blog/assurance-bris-machine-outillage-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-chantier-tous-risques-ectr-obligatoire"
+  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-cyber-pme-batiment-donnees-clients"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-perte-de-gain-maladie-independant-batiment"
+  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-perte-exploitation-chantier-arrete"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-protection-juridique-entreprise-batiment"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/assurance-transport-materiel-chantier"
+  to = "/blog/assurance-bris-machine-outillage-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/aufbewahrungspflicht-rechnungen-offerten-schweiz"
+  to = "/it/blog/duree-conservation-devis-factures-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/automatiser-rappels-relances-entreprise"
+  to = "/it/blog/relancer-client-facture-impayee-sans-perdre-client"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/automatiser-suivi-administratif-entreprise-artisanale"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/automatiser-taches-repetitives-entreprise-sans-developpeur"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/avis-google-entreprise-construction-suisse"
+  to = "/blog/repondre-avis-negatif-google-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/baustellensoftware-einzelunternehmer"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/betreibung-unbezahlte-rechnung-ablauf"
+  to = "/it/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/betriebshaftpflicht-baugewerbe"
+  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/bilan-carbone-chantier-construction-suisse"
+  to = "/blog/bilan-carbone-chantier-construction-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/budget-logiciel-gestion-demarrage-entreprise"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  to = "/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calculer-acomptes-impots-independant-batiment"
+  to = "/blog/calculer-acomptes-impots-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calculer-prix-devis-renovation-suisse"
+  to = "/it/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-adapte-metier-specifique-batiment"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-vs-cresus-facturation"
+  to = "/blog/cantia-vs-cresus-facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-vs-klara"
+  to = "/blog/cantia-vs-klara"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-vs-winbiz"
+  to = "/blog/cantia-vs-winbiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/certificat-energetique-cantonal-geak-batiment"
+  to = "/blog/programme-batiments-subvention-renovation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/chantier-complet-peut-etre-en-perte-taux-horaire"
+  to = "/it/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/chantier-copropriete-ppe-facturation-suisse"
+  to = "/blog/chantier-copropriete-ppe-facturation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/chantier-propre-reduire-nuisances-voisinage"
+  to = "/blog/chantier-propre-reduire-nuisances-voisinage"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/checklist-fin-annee-entreprise-batiment"
+  to = "/blog/checklist-fin-annee-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/checklist-logiciels-ouverture-societe-construction"
+  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/chomage-intemperies-rht-batiment-suisse"
+  to = "/blog/chomage-intemperies-rht-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/chomage-partiel-entreprise-batiment-suisse"
+  to = "/blog/chomage-intemperies-rht-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/clauses-oubliees-contrat-travail-batiment"
+  to = "/blog/clauses-oubliees-contrat-travail-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/combien-coute-logiciel-facturation-pas-cher"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/comment-facturer-premiers-clients-debut-activite"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/comparer-devis-fournisseurs-materiaux-methode"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/construction-modulaire-prefabriquee-suisse"
+  to = "/blog/construction-modulaire-prefabriquee-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/contrat-ecrit-petits-travaux-quand-necessaire"
+  to = "/it/blog/devis-oral-valeur-legale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cooperative-cautionnement-pme-financement-batiment"
+  to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/corrections-incluses-offre-graphiste-droits"
+  to = "/blog/corrections-incluses-offre-graphiste-droits"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cout-creation-entreprise-construction-suisse"
+  to = "/blog/cout-creation-entreprise-construction-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/credit-construction-hypothecaire-entreprise-batiment"
+  to = "/blog/credit-construction-hypothecaire-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/creer-champ-processus-sur-mesure-logiciel-gestion"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/creer-entreprise-batiment-suisse-guide-complet"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/crm-baubranche-handwerker"
+  to = "/it/blog/crm-artisan-batiment-pourquoi-utile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/declaration-tva-trimestrielle-artisan-suisse"
+  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/defaut-construction-decouvert-apres-reception-qui-paie"
+  to = "/it/blog/garantie-travaux-construction-2-ou-5-ans"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/delai-permis-de-construire-canton-suisse"
+  to = "/blog/permis-construire-renovation-quand-necessaire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/deleguer-sans-tout-controler-patron-artisan"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/demarrer-entreprise-batiment-outils-indispensables"
+  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-carreleur-facturation-au-m2-suisse"
+  to = "/it/carreleur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-charpente-bois-facturation-suisse"
+  to = "/it/charpentier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-chauffagiste-cvc-suisse"
+  to = "/it/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-construction-bois-ossature-suisse"
+  to = "/construction-bois"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-demolition-suisse"
+  to = "/demolition"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-echafaudeur-suisse"
+  to = "/echafaudeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-entreprise-renovation-suisse"
+  to = "/entreprise-renovation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-etancheur-suisse"
+  to = "/etancheur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-facadier-isolation-suisse"
+  to = "/it/facadier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-ferblantier-suisse"
+  to = "/ferblantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-frigoriste-climatisation-suisse"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-genie-civil-suisse"
+  to = "/genie-civil"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-installateur-solaire-suisse"
+  to = "/blog/devis-facture-installateur-solaire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-parqueteur-suisse"
+  to = "/parqueteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-paysagiste-jardinier-suisse"
+  to = "/it/paysagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-platrier-suisse"
+  to = "/platrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-plombier-sanitaire-suisse"
+  to = "/it/plombier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-poelier-fumiste-suisse"
+  to = "/blog/devis-facture-poelier-fumiste-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-ramoneur-suisse"
+  to = "/blog/devis-facture-poelier-fumiste-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-serrurier-metallier-suisse"
+  to = "/it/serrurier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-terrassier-suisse"
+  to = "/terrassier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-facture-vitrier-suisse"
+  to = "/vitrier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-menuisier-sur-mesure-facturation-suisse"
+  to = "/it/menuisier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-peintre-batiment-calcul-surface-suisse"
+  to = "/it/peintre"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-pompe-a-chaleur-chiffrage"
+  to = "/chauffagiste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-reparation-garage-supplement-accord-client"
+  to = "/blog/devis-reparation-garage-supplement-accord-client"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/diagnostic-amiante-renovation-obligatoire-suisse"
+  to = "/blog/diagnostic-amiante-renovation-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/directive-suva-echafaudage-chantier-obligation"
+  to = "/blog/directive-suva-echafaudage-chantier-obligation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/dix-erreurs-premiere-annee-entreprise-batiment"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/entretien-annuel-employe-batiment-comment-faire"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/erreurs-choisir-premier-logiciel-gestion"
+  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/erreurs-soumission-qui-coutent-le-marche"
+  to = "/it/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/essai-gratuit-logiciel-facturation-suisse"
+  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  to = "/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/expertise-judiciaire-malfacon-construction-suisse"
+  to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturer-depannage-urgent-sans-devis"
+  to = "/blog/facturer-depannage-urgent-sans-devis"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturer-frais-deplacement-client-artisan"
+  to = "/blog/facturer-frais-deplacement-client-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturer-petites-interventions-gerance-conciergerie"
+  to = "/blog/facturer-petites-interventions-gerance-conciergerie"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturer-support-informatique-temps-passe"
+  to = "/blog/facturer-support-informatique-temps-passe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/faillite-client-creance-impayee-que-faire"
+  to = "/blog/faillite-client-creance-impayee-que-faire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/faire-evoluer-outil-gestion-avec-entreprise"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/forfait-ou-temps-passe-consultant-suisse"
+  to = "/blog/forfait-ou-temps-passe-consultant-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/formateur-independant-suisse-tva-facture"
+  to = "/blog/formateur-independant-suisse-tva-facture"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/formation-continue-obligatoire-batiment-suisse"
+  to = "/blog/formation-continue-obligatoire-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gerer-conflit-entre-deux-ouvriers-chantier"
+  to = "/blog/gerer-conflit-entre-deux-ouvriers-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gerer-entreprise-sans-comptable-debut"
+  to = "/blog/creer-entreprise-batiment-suisse-guide-complet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gerer-entreprise-seul-sans-embaucher-outils"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gestion-chantier-devis-couvreur-toiture-suisse"
+  to = "/it/couvreur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gestion-chantier-facturation-electricien-suisse"
+  to = "/it/electricien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gestion-entreprise-generale-sous-traitants-suisse"
+  to = "/entreprise-generale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gestion-entreprise-sur-mobile-artisan"
+  to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/google-sheets-partage-equipe-limites-batiment"
+  to = "/blog/excel-vs-logiciel-gestion-chantier-limites"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/groupement-achat-artisans-batiment-suisse"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/horaires-bruit-chantier-autorises-suisse"
+  to = "/blog/horaires-bruit-chantier-autorises-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/immatriculer-entreprise-construction-registre-commerce"
+  to = "/blog/immatriculer-entreprise-construction-registre-commerce"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/independant-reconnu-avs-batiment"
+  to = "/blog/avs-ai-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/instagram-ou-facebook-artisan-batiment"
+  to = "/blog/instagram-ou-facebook-artisan-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/integration-bexio-cantia-synchronisation-automatique"
+  to = "/it/integrations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/leasing-machines-vehicules-chantier-suisse"
+  to = "/blog/leasing-machines-vehicules-chantier-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/ligne-de-credit-tresorerie-pme-batiment"
+  to = "/blog/previsionnel-tresorerie-entreprise-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/lire-fiche-de-salaire-batiment"
+  to = "/blog/lire-fiche-de-salaire-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-construit-avec-vous-sur-mesure"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-devis-facture-maconnerie-suisse"
+  to = "/it/macon"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-facturation-conforme-tva-suisse-pas-cher"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-facturation-gratuit-independant-suisse"
+  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-facturation-qr-facture-comparatif-suisse"
+  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-facturation-raison-individuelle-suisse"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-gestion-chantier-abordable-petite-entreprise"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-gestion-societe-individuelle-suisse"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-remplir-soumission-excel-papier"
+  to = "/it/solutions/soumissions"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-signature-electronique-chantier"
+  to = "/blog/signature-electronique-devis-suisse-valeur-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-simple-debuter-independant-batiment"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-standard-vs-solution-personnalisee-batiment"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/marge-beneficiaire-entreprise-batiment-suisse"
+  to = "/blog/calculer-prix-de-revient-chantier-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/meilleur-logiciel-pas-cher-petit-artisan"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/meilleur-outil-gestion-independant-suisse"
+  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment"
+  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/meilleures-alternatives-gratuites-bexio"
+  to = "/it/blog/bexio-vs-cantia-logiciel-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  to = "/blog/modele-devis-gratuit-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/motiver-equipe-chantier-batiment-quotidien"
+  to = "/blog/motiver-equipe-chantier-batiment-quotidien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/nachtragsofferte-mehrkosten"
+  to = "/it/blog/avenant-chantier-plus-value-moins-value"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/negocier-prix-client-compare-plusieurs-devis"
+  to = "/blog/fixer-prix-artisan-sans-brader-concurrence-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/negocier-prix-fournisseur-materiaux-batiment"
+  to = "/blog/comparer-devis-fournisseurs-materiaux-methode"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/norme-aeai-incendie-batiment-obligation"
+  to = "/blog/norme-aeai-incendie-batiment-obligation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/norme-minergie-batiment-explication"
+  to = "/blog/norme-minergie-batiment-explication"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/numerotation-facture-obligations-legales-suisse"
+  to = "/it/blog/mentions-obligatoires-facture-suisse-tva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/offerte-erstellen-online-schweiz"
+  to = "/it/blog/devis-gratuit-en-ligne-suisse-outil"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/onboarding-nouvel-apprenti-premieres-semaines"
+  to = "/blog/apprenti-batiment-salaire-obligations-employeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/outil-devis-factures-sans-double-saisie"
+  to = "/logiciel-chantier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/outil-facturation-en-ligne-pme-suisse"
+  to = "/it/solutions/facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/parrainage-recommandation-clients-artisan-batiment"
+  to = "/it/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/periode-essai-batiment-duree-legale"
+  to = "/blog/periode-essai-batiment-duree-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut"
+  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment"
+  to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prime-fin-annee-ou-13e-salaire-difference"
+  to = "/blog/calculer-13e-salaire-prorata-employe"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prix-contrat-nettoyage-bureaux-suisse-calcul"
+  to = "/blog/prix-contrat-nettoyage-bureaux-suisse-calcul"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prix-isolation-facade-m2-suisse"
+  to = "/blog/prix-isolation-facade-m2-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prix-refection-toiture-suisse"
+  to = "/blog/prix-refection-toiture-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prix-renovation-cuisine-suisse"
+  to = "/blog/prix-renovation-cuisine-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prix-renovation-salle-de-bain-suisse-m2"
+  to = "/blog/prix-renovation-salle-de-bain-suisse-m2"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/programme-batiments-subvention-renovation-suisse"
+  to = "/blog/programme-batiments-subvention-renovation-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/provoquer-bouche-a-oreille-artisan"
+  to = "/blog/trouver-clients-artisan-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/racheter-entreprise-batiment-existante-suisse"
+  to = "/blog/racheter-entreprise-batiment-existante-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/raison-individuelle-sarl-sa-quel-statut-batiment"
+  to = "/blog/raison-individuelle-sarl-sa-quel-statut-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/reemploi-materiaux-economie-circulaire-batiment"
+  to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/relancer-client-devis-sans-reponse"
+  to = "/blog/relancer-client-devis-sans-reponse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/renovation-apres-sinistre-degat-eau-assurance"
+  to = "/blog/renovation-apres-sinistre-degat-eau-assurance"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/renovation-batiment-historique-protege-suisse"
+  to = "/blog/renovation-batiment-historique-protege-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/repondre-appel-offres-public-batiment-etapes"
+  to = "/blog/appel-offres-marches-publics-batiment-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/repondre-avis-negatif-google-artisan"
+  to = "/blog/repondre-avis-negatif-google-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/responsabilite-apres-livraison-travaux-assurance"
+  to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/rupture-stock-fournisseur-chantier-que-faire"
+  to = "/blog/rupture-stock-fournisseur-chantier-que-faire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/saisie-conservatoire-creance-impayee-batiment"
+  to = "/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/salaire-personnel-extra-evenementiel-traiteur"
+  to = "/blog/salaire-personnel-extra-evenementiel-traiteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/seuil-lpp-affiliation-employe-batiment"
+  to = "/blog/calcul-lpp-employe-taux-salaire-coordonne-2026"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/sia-118-offerte-pflicht"
+  to = "/it/blog/norme-sia-118-devis-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/site-internet-ou-carte-de-visite-artisan"
+  to = "/blog/site-internet-artisan-batiment-utile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/software-bauunternehmen-schweiz-auswahl"
+  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/sous-effectif-chantier-recruter-ou-sous-traiter"
+  to = "/it/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/succession-familiale-entreprise-artisanale-batiment"
+  to = "/blog/transmettre-entreprise-batiment-retraite"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/temps-repondre-soumission-rentable"
+  to = "/it/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/transmettre-entreprise-batiment-retraite"
+  to = "/blog/transmettre-entreprise-batiment-retraite"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/travailleur-detache-batiment-suisse-regles"
+  to = "/blog/travailleur-detache-batiment-suisse-regles"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/tva-methode-effective-ou-tdfn-batiment"
+  to = "/blog/tva-methode-effective-ou-tdfn-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/unterschied-offerte-rechnung-proforma"
+  to = "/it/blog/difference-devis-offre-facture-pro-forma"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/vacances-construction-suisse-dates-canton"
+  to = "/blog/vacances-construction-suisse-dates-canton"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/vacances-employe-batiment-cct-jours"
+  to = "/blog/vacances-employe-batiment-cct-jours"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/variante-soumission-proposer-alternative"
+  to = "/it/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/verjaehrung-unbezahlte-rechnung-schweiz"
+  to = "/it/blog/prescription-facture-impayee-delai-10-ans"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/zahlungsfrist-rechnung-handwerker-schweiz"
+  to = "/it/blog/delai-paiement-facture-artisan-code-obligations"
+  status = 301
+  force = true
+# END generated blog redirects
+
 # Blog articles (French and German) are one dynamic route each
 # ([slug].tsx, see app/blog/[slug].tsx and app/de/blog/[slug].tsx) rather
 # than one file per article like the routes above, so a splat rule covers

@@ -14,7 +14,7 @@ import { breakpoints, colors, spacing } from '../lib/theme';
 import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
 import { authHref } from '../lib/appHost';
 import { getTradePage } from '../lib/tradeLandingPages';
-import { getPostBySlug } from '../lib/blog';
+import { getPostByBase } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { useMarketingDict } from '../lib/i18n';
 
@@ -42,7 +42,7 @@ export function TradePage({ slug }: { slug: string }) {
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
 
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
-  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostBySlug(s, locale)).filter((p) => !!p);
+  const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostByBase(s, locale)).filter((p) => !!p);
   const hrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
 
   return (

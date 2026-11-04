@@ -183,6 +183,13 @@ Format : `AAAA-MM-JJ · type · ce qui a changé · pages touchées`
 - 2026-11-03 · balises · 65 meta descriptions réécrites en 140 à 155 caractères · pages produit, métiers, légales, contact, téléchargement (FR, DE, IT)
 - 2026-11-03 · performance · JavaScript découpé par page (asyncRoutes web) et SheetJS chargé seulement à l'export ou à l'import Excel : JS au chargement de 2 976 à environ 2 240 Ko gzip · toutes
 - 2026-11-03 · mesure · GA4 G-1K03L5TNDX, configuré seulement après accord cookies ; événements signup_start, sign_up, trial_start, pricing_click, generate_lead, contact_click ; politique de confidentialité mise à jour · toutes
+- 2026-11-04 · contenu · tri du blog appliqué : 117 articles FR fusionnés (301 vers la page qui reprend le sujet), 12 hors sujet en noindex ; 134 articles FR indexés au lieu de 263 · blog FR, DE, IT
+- 2026-11-04 · technique · 522 redirections 301 (fusions, articles non traduits vers le français, slugs allemands) ; sitemap 832 → 504 URL · blog FR, DE, IT
+- 2026-11-04 · contenu · traductions sans impressions en noindex (DE 23, IT 14) ; italien en pause sauf pages avec impressions · /de/blog, /it/blog
+- 2026-11-04 · SEO · 13 articles allemands avec un slug allemand (ex. /de/blog/offerte-erstellen-online-schweiz, /de/blog/sia-118-offerte-pflicht) et titres réécrits pour « offerte erstellen », « software bauunternehmen », « nachtrag offerte » · /de/blog
+- 2026-11-04 · SEO · titles et meta réécrits d'après les requêtes réelles : bruit de chantier, indemnités kilométriques, SIA 118, salaire minimum CCT, TVA, Lohnausweis, bris de machine, 4h45, régie · 9 articles FR
+- 2026-11-04 · technique · 10 pages métiers hors bâtiment (traiteur, graphiste, garage…) en noindex et retirées de /metiers · 30 pages FR, DE, IT
+- 2026-11-04 · performance · bloc JS commun 1 741 → 1 512 Ko gzip (articles retirés) · toutes
 
 ### Après les changements du 3 novembre 2026 (même méthode, labo)
 

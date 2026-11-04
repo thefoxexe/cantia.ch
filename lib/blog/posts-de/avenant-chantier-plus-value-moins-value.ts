@@ -3,9 +3,9 @@ import { BlogPost } from '../types';
 export const post: BlogPost = {
   slug: 'avenant-chantier-plus-value-moins-value',
   question: 'Wie stellt man einen Nachtrag (Mehr- oder Minderleistung) während der Bauzeit in Rechnung?',
-  title: 'Einen Nachtrag während der Bauzeit fakturieren, ohne in die Falle zu tappen',
+  title: "Nachtragsofferte auf der Baustelle: Mehr- und Minderleistungen fakturieren",
   description:
-    'Ein Kunde, der eine Änderung während der Bauzeit verlangt, unterschreibt so gut wie nie im Moment selbst einen schriftlichen Nachtrag. Genau das macht aus einer erbrachten Leistung Gratisarbeit.',
+    "Nachtrag zur Offerte während der Bauzeit: Mehr- und Minderleistungen schriftlich festhalten und fakturieren, bevor sie zur Gratisarbeit werden.",
   excerpt:
     '«Wenn Sie schon dabei sind, machen Sie doch gleich noch das»: der lukrativste Satz, den man auf einer Baustelle hören kann — und der gefährlichste, wenn man ihn nicht richtig fakturiert.',
   category: 'Devis & facturation',

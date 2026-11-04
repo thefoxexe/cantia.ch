@@ -40,46 +40,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/application-gestion-freelance-batiment",
-    "title": "Applicazione di gestione per freelance dell'edilizia: il mobile prima di tutto | Cantia",
-    "description": "Un freelance dell'edilizia trascorre la maggior parte del suo tempo in cantiere, non davanti a un computer: un'applicazione di gestione deve quindi essere pensata prima di tutto per questo.",
-    "faq": [
-      {
-        "q": "Un'applicazione di gestione per freelance dell'edilizia deve funzionare offline?",
-        "a": "È fortemente consigliato, perché molti cantieri hanno una rete debole o assente, e perdere dati inseriti per mancanza di connessione è particolarmente penalizzante."
-      },
-      {
-        "q": "Si può creare un preventivo completo direttamente da un telefono?",
-        "a": "Con un'applicazione ben pensata per il mobile, sì, anche con un catalogo prezzi che evita di ridigitare ogni prestazione a mano."
-      },
-      {
-        "q": "Qual è la differenza tra un'applicazione \"responsive\" e una vera applicazione mobile?",
-        "a": "Un'applicazione responsive si visualizza correttamente su telefono, ma non è necessariamente pensata per un uso tattile reale in cantiere. La differenza si sente nell'utilizzo quotidiano."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/application-hors-ligne-chantier-pourquoi-important",
-    "title": "Applicazione di cantiere senza rete: perché la modalità offline non è un dettaglio | Cantia",
-    "description": "Un seminterrato in cemento, una valle poco coperta, un cantiere isolato: la rete mobile non è mai garantita in un cantiere. Un’applicazione che la richiede in permanenza perde il suo valore nel momento peggiore.",
-    "faq": [
-      {
-        "q": "Perché la rete mobile non è affidabile in un cantiere?",
-        "a": "Strutture in cemento armato, seminterrati, zone rurali poco coperte o una saturazione temporanea della rete locale rendono la connessione instabile su molti cantieri, anche in città."
-      },
-      {
-        "q": "Cosa succede se un’applicazione di cantiere non ha una modalità offline?",
-        "a": "Foto e rapporti rischiano di andare persi o di non salvarsi, il che spinge spesso il team ad abbandonare lo strumento dopo qualche brutta esperienza e a tornare alla carta o a messaggi informali."
-      },
-      {
-        "q": "Una vera modalità offline sincronizza automaticamente i dati?",
-        "a": "Sì, è il requisito di base: tutto ciò che è stato registrato offline deve sincronizzarsi automaticamente non appena la rete ritorna, senza azione manuale dell’utente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/apprenti-batiment-salaire-obligations-employeur",
     "title": "Apprendista nell’edilizia: salario, inquadramento e obblighi dell’azienda formatrice | Cantia",
     "description": "Formare un apprendista nell’edilizia implica un salario progressivo fissato dal CCL, un inquadramento pedagogico reale e obblighi verso il Cantone: ecco cosa deve anticipare una piccola impresa.",
@@ -95,46 +55,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un apprendista ha diritto a una tredicesima prorata?",
         "a": "In generale sì, secondo le stesse regole dei dipendenti qualificati, salvo disposizione contraria esplicita del contratto collettivo applicabile."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/assurance-chantier-tous-risques-ectr-obligatoire",
-    "title": "Assicurazione cantiere tutti i rischi (ECTR): obbligatoria o no, e chi paga in caso di sinistro | Cantia",
-    "description": "A differenza della RC professionale, l’ECTR non è imposta da alcuna legge federale, ma la sua assenza può costare molto caro in caso di danno prima della consegna. Ecco chi la stipula in pratica e perché.",
-    "faq": [
-      {
-        "q": "L’ECTR è obbligatoria in Svizzera?",
-        "a": "No, nessuna legge federale la impone, ma la sua assenza espone fortemente gli intervenienti del cantiere in caso di sinistro prima della consegna, e alcuni committenti la esigono contrattualmente."
-      },
-      {
-        "q": "Chi stipula generalmente l’assicurazione cantiere tutti i rischi?",
-        "a": "Il più delle volte il committente, a beneficio di tutti gli intervenienti del cantiere. Su progetti più modesti, tuttavia, l’impresa principale può anche stipularla essa stessa."
-      },
-      {
-        "q": "L’ECTR sostituisce la RC professionale dell’impresario?",
-        "a": "No, sono due coperture diverse: l’ECTR copre i danni materiali al cantiere stesso, la RC professionale copre i danni causati a un terzo per colpa dell’impresario."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/assurance-perte-de-gain-maladie-independant-batiment",
-    "title": "Malattia quando si è indipendenti: cosa NON è coperto | Cantia",
-    "description": "La LAMal paga le cure, mai il reddito perso. Senza un’assicurazione perdita di guadagno per malattia sottoscritta volontariamente, un indipendente in malattia non ha diritto ad alcun reddito sostitutivo.",
-    "faq": [
-      {
-        "q": "La LAMal copre la perdita di reddito in caso di malattia per un indipendente?",
-        "a": "No, la LAMal copre solo le cure mediche. Una perdita di reddito è coperta solo da un’assicurazione di indennità giornaliera malattia sottoscritta volontariamente."
-      },
-      {
-        "q": "Un indipendente è obbligato a sottoscrivere un’assicurazione perdita di guadagno malattia?",
-        "a": "No, questa assicurazione resta interamente facoltativa in Svizzera, sia sotto forma di assicurazione privata (LCA) sia di assicurazione facoltativa collegata alla LAMal."
-      },
-      {
-        "q": "Cosa succede a un indipendente senza copertura in caso di malattia prolungata?",
-        "a": "Non percepisce alcun reddito sostitutivo durante l’incapacità, il che può rapidamente pesare sulla sua liquidità personale e professionale."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -160,66 +80,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/automatiser-rappels-relances-entreprise",
-    "title": "Automatizzare i solleciti: non dimenticare mai più un mancato pagamento | Cantia",
-    "description": "Sollecitare un cliente per una fattura non pagata o un preventivo in attesa è spesso la prima attività amministrativa dimenticata. Come automatizzarla senza perdere il tono personale.",
-    "faq": [
-      {
-        "q": "Perché i solleciti di fatture non pagate vengono spesso dimenticati?",
-        "a": "Non hanno una data fissa in agenda, a differenza di un appuntamento in cantiere, perché dipendono da un termine trascorso, più facile da perdere di vista."
-      },
-      {
-        "q": "Un sollecito automatico sostituisce completamente il monitoraggio manuale?",
-        "a": "No, l’automazione non sostituisce completamente il monitoraggio manuale: un buon sollecito resta modificabile caso per caso, in particolare per un cliente fedele con cui un adattamento di tono o di termine è giustificato."
-      },
-      {
-        "q": "Qual è l’impatto concreto di un sollecito automatico ben calibrato?",
-        "a": "Generalmente il 15-20% delle fatture in ritardo viene saldato nei giorni successivi a un sollecito automatico inviato al momento giusto, senza intervento manuale."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/automatiser-suivi-administratif-entreprise-artisanale",
-    "title": "Automatizzare il monitoraggio amministrativo, non solo la fatturazione | Cantia",
-    "description": "L’automazione si limita spesso, nella mente, all’invio delle fatture. Cosa può anche essere automatizzato nel monitoraggio amministrativo più ampio di un’impresa artigianale.",
-    "faq": [
-      {
-        "q": "L’automazione nell’edilizia si limita alla fatturazione?",
-        "a": "No: anche il monitoraggio amministrativo più ampio (rapporti di cantiere, classificazione di documenti, avvisi di scadenza) può essere ampiamente automatizzato."
-      },
-      {
-        "q": "Quale tipo di automazione fa generalmente risparmiare più tempo nella quotidianità?",
-        "a": "Le automazioni discrete, in sottofondo (generazione di rapporti, classificazione automatica), piuttosto che funzioni più visibili ma raramente usate."
-      },
-      {
-        "q": "L’automazione del monitoraggio amministrativo giova anche ai clienti?",
-        "a": "Sì, poiché un rapporto di cantiere generato rapidamente e in modo pulito, senza tempi di impaginazione manuale, rafforza direttamente l’immagine professionale percepita dal cliente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/automatiser-taches-repetitives-entreprise-sans-developpeur",
-    "title": "Automatizzare senza programmare: cosa è possibile per un’impresa edile | Cantia",
-    "description": "L’automazione non è più riservata alle imprese con un servizio informatico. Cosa si può oggi automatizzare in una piccola impresa edile, senza scrivere una riga di codice.",
-    "faq": [
-      {
-        "q": "Servono competenze tecniche per automatizzare attività nella propria impresa edile?",
-        "a": "No, poiché numerose automazioni (solleciti, notifiche, calcoli) esistono già in modo standard in un buon strumento gestionale, senza richiedere competenze di programmazione."
-      },
-      {
-        "q": "Quali attività possono essere automatizzate in via prioritaria in una piccola impresa edile?",
-        "a": "I solleciti di fatture non pagate, le notifiche di preventivi in scadenza e il calcolo automatico della redditività di un cantiere sono tra le automazioni più utili nella quotidianità."
-      },
-      {
-        "q": "Un’automazione toglie il controllo sulle decisioni dell’impresa?",
-        "a": "No, una buona automazione resta sempre visibile e modificabile manualmente. Accelera le attività ripetitive senza sostituire il giudizio umano sulle decisioni importanti."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/avenant-chantier-plus-value-moins-value",
     "title": "Fatturare una variante durante il cantiere senza farsi incastrare | Cantia",
     "description": "Un cliente che chiede una modifica durante il cantiere non firma quasi mai una variante scritta sul momento. È esattamente questo che trasforma un servizio reso in lavoro gratuito.",
@@ -235,26 +95,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un minusvalore deve essere anch’esso documentato per iscritto?",
         "a": "Sì: la deduzione e il nuovo totale devono essere chiaramente messi per iscritto, per evitare qualsiasi contestazione successiva sull’importo finale."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/avis-google-entreprise-construction-suisse",
-    "title": "Recensioni Google per un’impresa dell’edilizia: perché contano, e come ottenerle | Cantia",
-    "description": "Prima di contattare un artigiano, la maggior parte dei clienti guarda le sue recensioni Google. Come ottenerne di più senza sembrare insistenti, e cosa fare di fronte a una recensione negativa.",
-    "faq": [
-      {
-        "q": "Quando bisogna chiedere una recensione Google a un cliente?",
-        "a": "Idealmente subito dopo la ricezione dei lavori, quando la soddisfazione è più fresca. Più il termine si allunga, meno la richiesta ha probabilità di tradursi in una recensione reale."
-      },
-      {
-        "q": "Come rispondere a una recensione negativa su una scheda Google di un’impresa dell’edilizia?",
-        "a": "In modo fattuale e professionale, senza aggressività, spiegando brevemente il contesto o la soluzione fornita, poiché questa risposta viene letta da tutti i futuri clienti, non solo dall’autore della recensione."
-      },
-      {
-        "q": "È legale proporre uno sconto in cambio di una recensione Google?",
-        "a": "No, questa pratica è contraria alle regole di Google e indebolisce la credibilità delle recensioni. Meglio semplicemente facilitare il gesto (link diretto, momento giusto) senza contropartita finanziaria."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -295,26 +135,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Si possono usare Cantia e Bexio in parallelo?",
         "a": "Sì, è una combinazione frequente. E da poco non è più una doppia registrazione: Cantia si collega nativamente a Bexio per sincronizzare automaticamente clienti, fatture e stati di pagamento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/budget-logiciel-gestion-demarrage-entreprise",
-    "title": "Che budget software prevedere avviando la propria impresa | Cantia",
-    "description": "Tra il software di gestione, la contabilità e gli strumenti accessori, quanto deve davvero prevedere una nuova impresa edile per i suoi strumenti digitali.",
-    "faq": [
-      {
-        "q": "Che percentuale del fatturato rappresentano generalmente gli strumenti digitali?",
-        "a": "Circa l'1-2% per una piccola impresa edile una volta stabilizzata l'attività, una voce spesso sottostimata nei business plan iniziali."
-      },
-      {
-        "q": "Bisogna includere il software di gestione nel business plan di creazione d'impresa?",
-        "a": "Sì: è una spesa ricorrente mensile che merita la propria voce di budget, allo stesso titolo dell'attrezzatura o dell'assicurazione RC professionale."
-      },
-      {
-        "q": "Uno strumento tutto-in-uno costa davvero meno di più strumenti separati?",
-        "a": "Spesso sì, una volta sommati i prezzi di ogni strumento separato (senza contare il tempo perso a far comunicare sistemi che non si parlano tra loro)."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -380,26 +200,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/calculer-prix-devis-renovation-suisse",
-    "title": "Come calcolare il prezzo di un preventivo di ristrutturazione in Svizzera | Cantia",
-    "description": "Metodo concreto per calcolare un preventivo di ristrutturazione in Svizzera (costo orario reale, materiale, margine, IVA 8,1%), con un esempio numerico completo.",
-    "faq": [
-      {
-        "q": "Quale margine applicare su un preventivo di ristrutturazione in Svizzera?",
-        "a": "In genere tra il 20 e il 35% in totale (spese fisse + utile + accantonamento imprevisti), da adattare in base al mestiere e al livello di incertezza dello stato esistente del cantiere."
-      },
-      {
-        "q": "Bisogna includere gli imprevisti nel prezzo del preventivo o fatturarli a parte?",
-        "a": "Esistono entrambi gli approcci: un accantonamento integrato nel prezzo fisso, oppure una clausola esplicita che prevede una fatturazione complementare su preventivo supplementare in caso di scoperta imprevista, a condizione però che tale clausola figuri chiaramente sul preventivo iniziale."
-      },
-      {
-        "q": "L’IVA si calcola sul prezzo netto o lordo del preventivo?",
-        "a": "Sempre sull’importo al netto dell’imposta. L’aliquota normale è dell’8,1% dal 2024 per la maggior parte delle prestazioni edili."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/calculer-prix-horaire-reel-ouvrier-batiment",
     "title": "Il vero costo orario di un operaio edile: molto più del suo salario lordo | Cantia",
     "description": "Un preventivo calcolato sul solo salario lordo di un operaio sottostima sistematicamente il vero costo orario: bisogna contare anche gli oneri sociali, le assenze pagate e il tempo non fatturabile.",
@@ -440,26 +240,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-10-24"
   },
   {
-    "path": "it/blog/cantia-adapte-metier-specifique-batiment",
-    "title": "Un mestiere troppo specifico per un software standard? Non necessariamente | Cantia",
-    "description": "Alcuni mestieri dell’edilizia hanno esigenze che gli strumenti standard non coprono mai del tutto. Come una funzionalità su misura può colmare questo divario.",
-    "faq": [
-      {
-        "q": "Cantia può sviluppare una funzionalità per un mestiere molto specifico dell’edilizia?",
-        "a": "Sì, oltre al nucleo standard (preventivi, fatture, cantieri), Cantia può sviluppare moduli su misura per esigenze proprie di un mestiere particolare."
-      },
-      {
-        "q": "Bisogna cambiare completamente strumento per un’esigenza di mestiere non standard?",
-        "a": "Non necessariamente: una funzionalità su misura si aggiunge generalmente al nucleo già in uso, senza dover ripartire da zero con un altro strumento."
-      },
-      {
-        "q": "Come sapere se la propria esigenza specifica può essere coperta su misura?",
-        "a": "Il modo più semplice è parlarne direttamente, poiché numerose funzionalità attuali di Cantia sono nate da una richiesta precisa di un cliente in una situazione simile."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/certificat-de-travail-obligation-employeur-batiment",
     "title": "Certificato di lavoro nell’edilizia: un obbligo, non un favore | Cantia",
     "description": "Un dipendente che lascia l’impresa ha il diritto di esigere un certificato di lavoro in qualsiasi momento. Rifiutarlo o redigerlo con superficialità espone il datore di lavoro a una controversia, anche molto tempo dopo la partenza.",
@@ -480,26 +260,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/chantier-complet-peut-etre-en-perte-taux-horaire",
-    "title": "Un cantiere «riuscito» può comunque essere in perdita: ecco perché | Cantia",
-    "description": "Un cantiere consegnato nei tempi, pagato integralmente, può comunque essere in perdita reale se il costo orario del dipendente non è mai stato confrontato con le ore effettivamente lavorate.",
-    "faq": [
-      {
-        "q": "Come può un cantiere pagato integralmente essere in perdita?",
-        "a": "Se le ore effettivamente impiegate superano significativamente le ore preventivate, il costo reale della manodopera può superare il margine previsto, anche se il cliente ha pagato l’importo esatto del preventivo."
-      },
-      {
-        "q": "Perché questo tipo di perdita passa spesso inosservato?",
-        "a": "Perché la contabilità generale dell’azienda può restare positiva grazie ad altri cantieri più redditizi, e perché senza un monitoraggio preciso delle ore per cantiere, non esiste alcuna cifra da confrontare con il preventivo iniziale."
-      },
-      {
-        "q": "In quale momento bisogna verificare se un cantiere sta sforando in ore?",
-        "a": "Durante il cantiere, non alla chiusura: un monitoraggio continuo permette ancora di correggere, mentre una constatazione fatta dopo la fine dei lavori serve solo a capire cosa è successo."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/checklist-cloture-chantier-avant-facturation",
     "title": "Checklist di fine cantiere: cosa verificare prima di inviare la fattura finale | Cantia",
     "description": "Una fattura finale inviata troppo in fretta, senza ricezione documentata né verifica del calcolo, apre la porta a contestazioni evitabili. Ecco i punti da spuntare prima di chiudere.",
@@ -515,26 +275,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Bisogna archiviare il fascicolo del cantiere dopo la fatturazione finale?",
         "a": "Sì, un fascicolo completo (preventivo, fatture, foto, scambi) resta utile per tutto il periodo di garanzia e oltre, in caso di controversia o di domanda successiva del cliente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/checklist-logiciels-ouverture-societe-construction",
-    "title": "Checklist software per l’apertura di una società di costruzioni | Cantia",
-    "description": "Un elenco concreto e ordinato degli strumenti digitali da mettere in atto al momento della creazione della propria società di costruzioni, senza dimenticare nulla né equipaggiarsi inutilmente.",
-    "faq": [
-      {
-        "q": "Qual è la prima tappa a livello software all’apertura di una società di costruzioni?",
-        "a": "Configurare uno strumento di preventivi/fatture con le coordinate bancarie e l’aliquota IVA corrette, ancor prima di creare un catalogo prezzi completo."
-      },
-      {
-        "q": "Serve un catalogo prezzi completo fin dall’apertura della società?",
-        "a": "No: può essere costruito progressivamente, prestazione dopo prestazione, man mano con i primi preventivi reali piuttosto che essere anticipato interamente in anticipo."
-      },
-      {
-        "q": "È utile testare lo strumento prima del primo vero cliente?",
-        "a": "Sì, creare un preventivo o una fattura di prova permette di individuare le correzioni necessarie senza impatto su un vero cliente."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -580,26 +320,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/combien-coute-logiciel-facturation-pas-cher",
-    "title": "Quanto costa davvero un software di fatturazione \"economico\" | Cantia",
-    "description": "I prezzi mostrati vanno da zero a diverse centinaia di franchi al mese. Come valutare ciò che è realmente accessibile per un'impresa che parte, senza concentrarsi sulla sola cifra mostrata.",
-    "faq": [
-      {
-        "q": "Che budget prevedere per un software di fatturazione come piccola impresa edile?",
-        "a": "Generalmente tra CHF 30 e 90 al mese per uno strumento completo adatto a un indipendente o a un piccolo team, a seconda dei moduli inclusi."
-      },
-      {
-        "q": "Perché un software \"economico\" può costare più caro alla fine?",
-        "a": "Se il prezzo mostrato non copre la fatturazione illimitata, il numero reale di utenti o i moduli di cui l'impresa ha bisogno, spesso si aggiungono costi supplementari in seguito."
-      },
-      {
-        "q": "Bisogna confrontare i software solo sul loro prezzo mensile?",
-        "a": "No, perché il tempo amministrativo realmente risparmiato conta almeno quanto il prezzo mostrato per giudicare se uno strumento è davvero accessibile."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/combien-coute-logiciel-gestion-chantier-roi",
     "title": "Software di gestione cantiere: quanto costa davvero, e cosa rende | Cantia",
     "description": "Il prezzo mostrato di un abbonamento è solo una parte del calcolo. Ecco come valutare il ritorno reale di un software di gestione per un’impresa edile, al di là del costo mensile.",
@@ -615,26 +335,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un abbonamento a pagamento è necessario fin dall’inizio?",
         "a": "Non immediatamente. Una prova di 14 giorni sulle funzioni essenziali (preventivi, fatture, catalogo) permette spesso di misurare il guadagno reale prima di impegnarsi su un piano a pagamento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/comment-facturer-premiers-clients-debut-activite",
-    "title": "Fatturare ai primi clienti: i giusti riflessi fin dal primo documento | Cantia",
-    "description": "La prima fattura dà il tono a tutte quelle che seguiranno. I punti da verificare prima di inviarla, per partire con basi solide fin dall’inizio dell’attività.",
-    "faq": [
-      {
-        "q": "Quali indicazioni non devono mai mancare su una prima fattura?",
-        "a": "Un numero sequenziale, l’aliquota IVA applicabile (o un’indicazione di non assoggettamento), coordinate bancarie esatte e un termine di pagamento chiaro."
-      },
-      {
-        "q": "Quanto tempo dopo la fine del cantiere bisogna inviare la fattura?",
-        "a": "Il più rapidamente possibile, perché un cliente ricorda ancora chiaramente il lavoro svolto subito dopo, il che riduce il rischio di contestazione rispetto a una fattura inviata settimane dopo."
-      },
-      {
-        "q": "Un software di fatturazione aiuta a evitare gli errori da principianti?",
-        "a": "Sì: applica automaticamente la numerazione, l’IVA e le indicazioni obbligatorie, evitando le dimenticanze frequenti su una fattura fatta manualmente."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -660,26 +360,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-10-24"
   },
   {
-    "path": "it/blog/contrat-ecrit-petits-travaux-quand-necessaire",
-    "title": "Piccoli lavori: a partire da quale importo uno scritto diventa necessario | Cantia",
-    "description": "Nessuna soglia legale impone lo scritto per un contratto d’appalto in Svizzera. Ma una soglia pratica esiste eccome, e dipende da ciò che diventa difficile da dimostrare a memoria.",
-    "faq": [
-      {
-        "q": "Esiste un importo a partire dal quale un contratto scritto diventa legalmente obbligatorio?",
-        "a": "No, nessuna soglia legale esiste nel diritto svizzero per un contratto d’appalto: un accordo orale resta valido qualunque sia l’importo."
-      },
-      {
-        "q": "Perché formalizzare per iscritto anche piccoli lavori?",
-        "a": "Perché il costo di un disaccordo di memoria (sul prezzo, il perimetro o il termine) supera rapidamente lo sforzo di redigere una traccia scritta, anche minima."
-      },
-      {
-        "q": "Un semplice SMS di conferma basta a mettere al sicuro un piccolo cantiere?",
-        "a": "Nella maggior parte dei casi pratici, sì, perché un messaggio che conferma la data, la prestazione e l’importo trasforma un accordo orale fragile in una prova utilizzabile."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/contrat-entreprise-vs-mandat-artisan",
     "title": "Contratto d’appalto vs mandato: cosa cambia davvero per un artigiano | Cantia",
     "description": "Un artigiano che posa piastrelle è sotto contratto d’appalto (obbligo di risultato). Un architetto che consiglia è spesso sotto mandato (obbligo di mezzi). La differenza pesa molto in caso di controversia.",
@@ -700,26 +380,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/creer-champ-processus-sur-mesure-logiciel-gestion",
-    "title": "Aggiungere un campo o un processo che non esiste da nessun’altra parte | Cantia",
-    "description": "Un modulo standard non aderisce mai al 100% al modo di lavorare di un’impresa. Come un campo o un processo su misura colma quest’ultimo divario.",
-    "faq": [
-      {
-        "q": "Si può aggiungere un campo personalizzato a un preventivo o a una fattura in Cantia?",
-        "a": "È possibile tramite lo sviluppo di funzionalità su misura, per esigenze proprie del modo di lavorare di un’impresa in particolare."
-      },
-      {
-        "q": "Come inizia concretamente una richiesta di campo o processo su misura?",
-        "a": "In genere con una discussione diretta sul problema concreto riscontrato nella quotidianità, piuttosto che da un elenco teorico di desideri."
-      },
-      {
-        "q": "Un campo su misura resta integrato al resto dello strumento?",
-        "a": "Sì: a differenza di un espediente esterno (foglio di calcolo separato, ad esempio), un campo sviluppato su misura si integra direttamente ai dati esistenti, senza reinserimento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/crm-artisan-batiment-pourquoi-utile",
     "title": "CRM per artigiano edile: utile o superfluo? | Cantia",
     "description": "La parola CRM evoca team commerciali e cruscotti complessi. Eppure un artigiano che gestisce 30, 50 o 100 clienti ha esattamente lo stesso problema di memoria di un commerciale.",
@@ -735,26 +395,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Serve un software separato per il CRM e la fatturazione?",
         "a": "Non necessariamente: uno strumento che collega nativamente clienti, preventivi e fatture evita la doppia digitazione e la sincronizzazione tra due sistemi distinti."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/defaut-construction-decouvert-apres-reception-qui-paie",
-    "title": "Difetto scoperto dopo la consegna del cantiere: chi paga? | Cantia",
-    "description": "Un difetto occulto scoperto mesi dopo la consegna resta a carico dell’impresario se segnalato in tempo. Cosa cambia con la riforma del diritto di garanzia nel 2026.",
-    "faq": [
-      {
-        "q": "Un cliente può reclamare un difetto scoperto un anno dopo la consegna?",
-        "a": "Sì, se si tratta di un difetto occulto non rilevabile con una verifica normale alla consegna, e a condizione di segnalarlo entro i 60 giorni successivi alla scoperta, entro il termine di prescrizione di 5 anni."
-      },
-      {
-        "q": "Cosa succede se un difetto apparente non è stato segnalato alla consegna?",
-        "a": "In linea di principio è considerato accettato dal cliente, salvo clausola contraria prevista nel contratto, il che spiega l’interesse di un verbale di consegna dettagliato che elenchi con precisione ciò che è stato verificato."
-      },
-      {
-        "q": "Qual è il termine per segnalare un difetto occulto dopo la riforma 2026?",
-        "a": "60 giorni dalla sua scoperta, un quadro più preciso rispetto alla vecchia esigenza di segnalazione «immediata». Un ritardo può far perdere il diritto alla riparazione anche entro il termine di garanzia complessivo."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -800,46 +440,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/demander-fonctionnalite-sur-mesure-editeur-logiciel",
-    "title": "Richiedere una funzionalità su misura: come muoversi concretamente | Cantia",
-    "description": "Molte imprese non osano mai chiedere una funzionalità su misura, pensando che sia riservata solo ai grandi clienti. La realtà, e il modo giusto di formulare la richiesta.",
-    "faq": [
-      {
-        "q": "Una funzionalità su misura è riservata alle grandi imprese?",
-        "a": "Non necessariamente: dipende soprattutto dalla chiarezza dell’esigenza espressa e dall’editore contattato, alcuni lavorando direttamente con piccole strutture su richieste specifiche."
-      },
-      {
-        "q": "Come formulare bene una richiesta di funzionalità su misura?",
-        "a": "Descrivendo il problema concreto riscontrato, con un esempio reale, piuttosto che elencando una soluzione astratta già immaginata: l’editore può talvolta proporre un approccio migliore."
-      },
-      {
-        "q": "Cosa succede dopo aver formulato una richiesta su misura?",
-        "a": "Generalmente uno scambio per definire con precisione l’esigenza, seguito da una proposta concreta su tempi e portata, senza obbligo di impegnarsi prima di avere questa visione chiara."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/demarrer-entreprise-batiment-outils-indispensables",
-    "title": "Avviare la propria impresa edile: gli strumenti realmente indispensabili | Cantia",
-    "description": "Tra ciò che è indispensabile e ciò che può aspettare, l’elenco degli strumenti da avere fin dal primo giorno di attività di un’impresa edile, senza superfluo.",
-    "faq": [
-      {
-        "q": "Quali strumenti digitali sono davvero indispensabili per avviare un’impresa edile?",
-        "a": "Principalmente uno strumento di preventivi/fatture conforme e un mezzo semplice per documentare i cantieri con foto: il resto può essere attivato progressivamente."
-      },
-      {
-        "q": "Serve un modulo HR fin dalla creazione dell’impresa?",
-        "a": "No, un modulo HR è utile solo a partire dalla prima assunzione, quindi è inutile configurarlo prima di averne realmente bisogno."
-      },
-      {
-        "q": "È preferibile equipaggiarsi progressivamente piuttosto che tutto insieme?",
-        "a": "Generalmente sì: uno strumento semplice ben padroneggiato fin dall’inizio è più efficace di una suite completa di cui gran parte delle funzioni restano inutilizzate per mancanza di tempo per impararle."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/demission-employe-batiment-preavis-a-respecter",
     "title": "Dimissioni di un dipendente dell’edilizia: il termine di preavviso da rispettare (e cosa succede se non viene rispettato) | Cantia",
     "description": "Il preavviso di dimissione segue le stesse regole del licenziamento. Un dipendente che parte senza rispettarlo espone tuttavia l’impresa a una carenza organizzativa che essa può, in certi casi, far valere.",
@@ -855,146 +455,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un dipendente può partire immediatamente invocando giusti motivi?",
         "a": "Sì, una disdetta immediata per giusti motivi (molestie, mancato pagamento del salario) resta possibile, ma richiede motivi seri e documentati, senza i quali espone lo stesso dipendente a conseguenze."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-carreleur-facturation-au-m2-suisse",
-    "title": "Preventivo di piastrellatura: perché il prezzo al m² non basta mai da solo | Cantia",
-    "description": "Formato della piastrella, motivo di posa, tagli, piani di disposizione: tanti fattori che fanno variare fortemente il tempo di posa di un rivestimento, a parità di superficie. Come integrarli nel preventivo.",
-    "faq": [
-      {
-        "q": "Perché due preventivi di piastrellatura a parità di superficie possono avere prezzi molto diversi?",
-        "a": "Il formato delle piastrelle, il motivo di posa (dritto, diagonale, a spina di pesce) e il numero di tagli attorno agli ostacoli fanno variare fortemente il tempo di posa reale, anche a parità di superficie."
-      },
-      {
-        "q": "Quale margine di rottura prevedere su un ordine di piastrelle?",
-        "a": "Generalmente tra l’8 e il 12 % secondo la complessità della posa, poiché un motivo con molti tagli consuma più piastrelle di una posa dritta semplice."
-      },
-      {
-        "q": "Bisogna prevedere il livellamento del supporto nel preventivo iniziale di piastrellatura?",
-        "a": "È consigliabile, almeno come opzione a parte, poiché lo stato reale del supporto è spesso visibile solo dopo la rimozione del vecchio rivestimento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-charpente-bois-facturation-suisse",
-    "title": "Carpenteria in legno: calcolare un preventivo tra costo della materia, lavorazione e posa | Cantia",
-    "description": "Tra il prezzo del legno che fluttua, il tempo di lavorazione in laboratorio e la posa in cantiere, un preventivo di carpenteria somma tre voci molto diverse. Come strutturarle per non perdersi lungo il percorso.",
-    "faq": [
-      {
-        "q": "Come proteggersi dalla variazione del prezzo del legno tra il preventivo e l’ordine?",
-        "a": "Integrando una clausola di revisione del prezzo sulla voce legno, indicizzata sulla data reale dell’ordine piuttosto che sulla data di firma del preventivo, soprattutto se il termine supera qualche settimana."
-      },
-      {
-        "q": "Bisogna fatturare il sollevamento della struttura separatamente dalla posa?",
-        "a": "È consigliabile quando una gru o un autogru viene noleggiata appositamente, poiché questo costo è fisso per la giornata, indipendentemente dal tempo di posa effettivo, ed esposto direttamente al rischio meteo."
-      },
-      {
-        "q": "Come gestire un rinvio del cantiere di carpenteria per causa meteo?",
-        "a": "Idealmente tramite una clausola prevista nel preventivo fin dall’inizio, che precisi chi assorbe il costo di un rinvio (noleggio di attrezzatura, team mobilitato) piuttosto che negoziarlo a posteriori sotto pressione."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-facture-chauffagiste-cvc-suisse",
-    "title": "Tecnico del riscaldamento CVC: calcolare una sostituzione di caldaia tra prezzo, termine e sussidio | Cantia",
-    "description": "Sostituire un riscaldamento a nafta o a gas con una pompa di calore implica un preventivo tecnico, un termine di consegna spesso lungo, e frequentemente un sussidio cantonale. Come integrare tutto senza bloccare il cliente.",
-    "faq": [
-      {
-        "q": "Bisogna attendere la concessione del sussidio prima di iniziare i lavori di riscaldamento?",
-        "a": "Generalmente sì: la maggior parte dei programmi cantonali richiede che il preventivo sia sottoposto e l’aiuto concesso prima dell’inizio dei lavori, pena la perdita del diritto al sussidio."
-      },
-      {
-        "q": "Come comunicare un lungo termine di consegna della pompa di calore al cliente?",
-        "a": "Indicandolo esplicitamente e per iscritto fin dal preventivo, soprattutto in alta stagione dove i termini possono superare i due-tre mesi, il che evita qualsiasi malinteso una volta firmato il preventivo."
-      },
-      {
-        "q": "Il preventivo di riscaldamento deve includere l’adeguamento della rete esistente?",
-        "a": "È consigliato, in particolare per un passaggio a una pompa di calore, poiché i radiatori e la regolazione esistenti non sono sempre compatibili senza adeguamento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-facture-facadier-isolation-suisse",
-    "title": "Facciatista e isolamento perimetrale: calcolare un preventivo che tenga conto dei sussidi | Cantia",
-    "description": "Un preventivo di isolamento perimetrale (CECE, Programma Edifici) implica spesso una richiesta di sussidio in parallelo al cantiere. Come strutturare preventivo e fatturazione senza bloccare il fascicolo del cliente.",
-    "faq": [
-      {
-        "q": "Il preventivo di isolamento perimetrale deve indicare il valore U del materiale?",
-        "a": "È fortemente consigliato, poiché i fascicoli di sussidio cantonali (Programma Edifici) esigono generalmente un valore di isolamento preciso, non solo una denominazione commerciale del materiale."
-      },
-      {
-        "q": "Bisogna attendere il versamento del sussidio prima di fatturare il cliente?",
-        "a": "No, è preferibile fatturare secondo l’avanzamento normale del cantiere, senza legare la propria liquidità al calendario di versamento, talvolta lungo, dell’aiuto cantonale."
-      },
-      {
-        "q": "Un preventivo di isolamento perimetrale deve avere una durata di validità più lunga della media?",
-        "a": "È consigliato, poiché la costituzione di un fascicolo di sussidio può richiedere diverse settimane; una clausola di revisione chiara evita quindi di dover rifare un preventivo identico per un semplice superamento di termine."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-facture-paysagiste-jardinier-suisse",
-    "title": "Paesaggista: calcolare la sistemazione puntuale e la manutenzione ricorrente senza confonderle | Cantia",
-    "description": "Un cantiere di sistemazione esterna e un contratto di manutenzione del giardino seguono due logiche di fatturazione opposte, l’una per progetto, l’altra ricorrente. Come strutturarle correttamente.",
-    "faq": [
-      {
-        "q": "Bisogna rifare un preventivo a ogni passaggio di manutenzione del giardino?",
-        "a": "No: un contratto di manutenzione annuale o stagionale con una frequenza di passaggio definita evita di riprodurre un preventivo a ogni intervento e semplifica la fatturazione ricorrente."
-      },
-      {
-        "q": "Come calcolare la fornitura di vegetali in un preventivo di sistemazione?",
-        "a": "Separandola dal tempo di piantumazione, poiché il prezzo dei vegetali varia fortemente secondo la stagione e la disponibilità. Mescolarli in un forfait unico complica qualsiasi revisione successiva."
-      },
-      {
-        "q": "Come gestire la stagionalità dell’attività di un paesaggista durante l’anno?",
-        "a": "Assicurando una quota di reddito ricorrente tramite contratti di manutenzione annuali, che attenuano in parte i mesi più calmi tipici dell’autunno e dell’inverno."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-facture-plombier-sanitaire-suisse",
-    "title": "Idraulico-sanitario: calcolare correttamente tra preventivo pianificato e urgenza imprevista | Cantia",
-    "description": "Tra un preventivo per un bagno completo e una riparazione di una perdita una domenica sera, l’idraulico-sanitario destreggia due logiche di fatturazione opposte. Come strutturare entrambe senza perderci.",
-    "faq": [
-      {
-        "q": "Come differenziare la tariffa di un preventivo pianificato e di una riparazione in idraulica?",
-        "a": "Applicando due logiche distinte: un preventivo dettagliato voce per voce per i cantieri pianificati, e una tariffa di riparazione annunciata chiaramente prima dell’intervento (spostamento, tariffa oraria, eventuale maggiorazione) per le urgenze."
-      },
-      {
-        "q": "Si può fatturare una riparazione più cara la sera o nel weekend?",
-        "a": "Sì, è una pratica comune e legittima nel settore, a condizione che la maggiorazione sia annunciata prima dell’intervento piuttosto che scoperta sulla fattura."
-      },
-      {
-        "q": "Bisogna separare la fornitura del materiale sanitario e la posa sul preventivo?",
-        "a": "È consigliabile: ciò permette al cliente di comprendere la ripartizione del prezzo e facilita gli adeguamenti se il materiale scelto cambia in corso di progetto."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-facture-serrurier-metallier-suisse",
-    "title": "Fabbro-metallurgico: calcolare tra opera su misura e riparazione d’urgenza | Cantia",
-    "description": "Un parapetto su misura si progetta con calma, una porta forzata si ripara entro un’ora: il fabbro-serramentista vive entrambe le logiche in parallelo. Come strutturarle senza confonderle.",
-    "faq": [
-      {
-        "q": "Come fatturare una riparazione di serratura d’urgenza senza preventivo preventivo?",
-        "a": "Annunciando chiaramente la tariffa di spostamento e intervento prima di recarsi sul posto, oralmente o per messaggio, piuttosto che stabilire la fattura a posteriori senza accordo preventivo sul prezzo."
-      },
-      {
-        "q": "Si può maggiorare la tariffa di una riparazione di serratura fuori dagli orari normali?",
-        "a": "Sì, è una pratica comune (generalmente tra il 30 e il 50 % di maggiorazione), a condizione che il cliente ne sia informato prima dell’intervento, non solo sulla fattura finale."
-      },
-      {
-        "q": "Bisogna prevedere una clausola di revisione del prezzo su un’opera metallica su misura?",
-        "a": "È consigliato quando la fabbricazione si estende su diverse settimane, poiché il corso delle materie prime come l’acciaio può variare sensibilmente tra il preventivo e l’ordine reale."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -1040,26 +500,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/devis-menuisier-sur-mesure-facturation-suisse",
-    "title": "Falegname-arredatore: calcolare il su misura senza perdere il filo dal prototipo al montaggio | Cantia",
-    "description": "Un arredo su misura passa attraverso quattro tappe: la presa di misure, la progettazione, la fabbricazione in laboratorio e il montaggio in loco, che meritano ciascuna la propria voce di preventivo.",
-    "faq": [
-      {
-        "q": "Bisogna fatturare la presa di misure e i disegni di un arredo su misura?",
-        "a": "È consigliabile, almeno come forfait di studio deducibile dal prezzo finale se il preventivo viene firmato, poiché protegge un tempo di lavoro reale che resta spesso invisibile per il cliente."
-      },
-      {
-        "q": "Come calcolare il tempo di montaggio di un arredo su misura?",
-        "a": "Prevedendo sistematicamente un margine rispetto al tempo teorico di laboratorio, poiché le irregolarità dell’edificio esistente (muri, pavimenti) allungano quasi sempre la posa reale."
-      },
-      {
-        "q": "Il preventivo di falegnameria su misura deve includere una clausola di modifica?",
-        "a": "Sì. Un cliente che cambia idea su una finitura o una dimensione dopo la convalida dei disegni deve generare un supplemento calcolato, non una modifica silenziosa assorbita nel prezzo iniziale."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/devis-oral-valeur-legale-suisse",
     "title": "Preventivo accettato a voce: impegna, ma non si dimostra | Cantia",
     "description": "Nel diritto svizzero, un accordo orale vale come contratto: il Codice delle obbligazioni non richiede per default alcuna forma scritta. Il problema non è mai la validità, è la prova.",
@@ -1075,26 +515,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un semplice messaggio scritto basta a mettere al sicuro un accordo orale?",
         "a": "Nella maggior parte dei casi pratici, sì: un messaggio che conferma i termini dell’accordo (prezzo, perimetro, termine) costituisce una prova ben più solida di un accordo puramente verbale."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/devis-peintre-batiment-calcul-surface-suisse",
-    "title": "Preventivo di pittura edile: calcolare bene la superficie per non sottostimare | Cantia",
-    "description": "Una superficie mal calcolata (deduzioni dimenticate, numero di mani sottostimato, preparazione del supporto trascurata) è la prima causa di perdita di margine per i pittori edili.",
-    "faq": [
-      {
-        "q": "Bisogna dedurre porte e finestre dal calcolo della superficie di pittura?",
-        "a": "Sì per la superficie fatturata, ma il tempo di finitura ai bordi delle aperture resta reale, il che giustifica una tariffa che tenga conto del numero di aperture, non solo della superficie netta."
-      },
-      {
-        "q": "Come fatturare una seconda mano di pittura necessaria ma non prevista?",
-        "a": "Il modo migliore è anticiparla nel preventivo iniziale secondo il tipo di supporto e il cambio di tonalità previsto, piuttosto che scoprirla in cantiere e doverla negoziare a posteriori."
-      },
-      {
-        "q": "Il tempo di protezione del cantiere va fatturato separatamente?",
-        "a": "Non è obbligatorio, ma è consigliabile sui cantieri occupati o con arredi da proteggere. Questo tempo è reale e spesso sottostimato se resta assorbito nel prezzo al m²."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -1180,66 +600,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/erreurs-choisir-premier-logiciel-gestion",
-    "title": "Gli errori più comuni nella scelta del primo software gestionale | Cantia",
-    "description": "Alcuni errori di scelta si ripetono continuamente tra le imprese che iniziano: individuarli in anticipo evita una migrazione forzata qualche mese dopo.",
-    "faq": [
-      {
-        "q": "Qual è l’errore più frequente nella scelta di un primo software gestionale?",
-        "a": "Scegliere unicamente in base al prezzo indicato, senza verificare cosa è realmente incluso, o senza mai testare lo strumento su documenti reali prima di impegnarsi."
-      },
-      {
-        "q": "Bisogna scegliere uno strumento complesso \"per ogni evenienza\" per anticipare le esigenze future?",
-        "a": "No. Uno strumento troppo complesso di cui metà delle funzioni non vengono mai usate è spesso meno efficace di uno strumento semplice, scalabile, adatto alle esigenze reali del momento."
-      },
-      {
-        "q": "Quanto tempo prima che una scelta sbagliata di software spinga a migrare?",
-        "a": "Generalmente tra 6 e 12 mesi, il che mostra l’interesse di testare bene lo strumento fin dall’inizio piuttosto che dover migrare più tardi."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/erreurs-soumission-qui-coutent-le-marche",
-    "title": "Capitolati: gli 8 errori che costano l’appalto (o il margine) | Cantia",
-    "description": "Posizione dimenticata, riporto di pagina sbagliato, unità letta male, sconto nel posto sbagliato: gli errori che fanno escludere un’offerta o vincerla in perdita, e come evitarli.",
-    "faq": [
-      {
-        "q": "Un’offerta con una posizione vuota è esclusa automaticamente?",
-        "a": "Non sempre, ma il rischio è reale: secondo le regole del bando può essere considerata incompleta. In un appalto privato l’architetto vi chiederà nel migliore dei casi di completare, nel peggiore confronterà considerando la posizione inclusa."
-      },
-      {
-        "q": "Si può correggere un capitolato dopo averlo consegnato?",
-        "a": "In un appalto pubblico le modifiche dopo la consegna sono molto regolamentate e il prezzo in linea di principio non si rinegozia liberamente. Meglio controllare prima dell’invio che contare su una correzione dopo."
-      },
-      {
-        "q": "Come evitare gli errori di riporto di pagina?",
-        "a": "Non facendoli a mano: un foglio di calcolo o uno strumento che calcola gli importi e riporta i subtotali automaticamente elimina questo rischio."
-      }
-    ],
-    "publishedAt": "2026-10-24"
-  },
-  {
-    "path": "it/blog/essai-gratuit-logiciel-facturation-suisse",
-    "title": "Prova gratuita di un software di fatturazione: come usarla bene | Cantia",
-    "description": "Una prova gratuita non serve a nulla se non viene usata metodicamente. Come testare efficacemente uno strumento di fatturazione prima di impegnarsi su un abbonamento.",
-    "faq": [
-      {
-        "q": "Cosa bisogna testare in via prioritaria durante una prova gratuita di software di fatturazione?",
-        "a": "Creare un vero preventivo, trasformarlo in fattura, testare l’accesso mobile e verificare la conformità del PDF generato (IVA, fattura QR) piuttosto che semplicemente navigare l’interfaccia."
-      },
-      {
-        "q": "Bisogna usare la prova gratuita regolarmente o aspettare la fine del periodo?",
-        "a": "È meglio usarla fin dai primi giorni su documenti reali, per avere un riscontro d’esperienza reale prima di decidere, piuttosto che aspettare l’ultima settimana."
-      },
-      {
-        "q": "Una prova gratuita deve richiedere una carta bancaria?",
-        "a": "Varia a seconda dell’editore. L’essenziale è sapere chiaramente da quale data inizia realmente l’abbonamento e poter annullare prima di quella data senza perderci tempo."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/estimer-chantier-a-distance-devis-photo",
     "title": "Stimare un cantiere a distanza: fin dove è ragionevole | Cantia",
     "description": "Uno spostamento per ogni richiesta di prezzo costa tempo che pochi artigiani fatturano. Alcune stime a distanza sono affidabili; altre sono una scommessa rischiosa.",
@@ -1320,46 +680,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/faire-evoluer-outil-gestion-avec-entreprise",
-    "title": "Far evolvere il proprio strumento gestionale insieme all’impresa, non dopo | Cantia",
-    "description": "Uno strumento gestionale non dovrebbe mai essere un freno alla crescita. Come anticipare le proprie evoluzioni piuttosto che subirle quando l’esigenza è già pressante.",
-    "faq": [
-      {
-        "q": "Qual è il segnale più chiaro che uno strumento gestionale deve evolvere?",
-        "a": "La comparsa di un foglio di calcolo \"di riserva\" accanto allo strumento principale, per gestire ciò che quest’ultimo non copre, è un segnale da non ignorare troppo a lungo."
-      },
-      {
-        "q": "È meglio anticipare l’evoluzione del proprio strumento o aspettare un’esigenza urgente?",
-        "a": "Anticipare, perché far evolvere progressivamente uno strumento esistente evita una migrazione completa, sempre più costosa in tempo di un’evoluzione mirata decisa in anticipo."
-      },
-      {
-        "q": "Con quale frequenza fare il punto sui propri strumenti gestionali?",
-        "a": "Una volta all’anno è una buona pratica comune, per verificare se lo strumento copre ancora correttamente le esigenze reali dell’impresa in quella fase del suo sviluppo."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse",
-    "title": "Fidelizzare i propri operai qualificati quando la manodopera scarseggia | Cantia",
-    "description": "Reclutare un operaio qualificato costa caro e richiede tempo. Tenerne uno già formato costa quasi sempre meno. Le leve concrete di fidelizzazione in un settore sotto pressione.",
-    "faq": [
-      {
-        "q": "Perché la fidelizzazione degli operai è diventata una questione strategica nell’edilizia?",
-        "a": "Perché la penuria di manodopera qualificata rende la sostituzione di un buon elemento lunga e costosa (spesso diversi mesi tra la partenza e la piena produttività di un sostituto)."
-      },
-      {
-        "q": "Il salario è il principale fattore di fidelizzazione di un operaio qualificato?",
-        "a": "È un fattore importante, ma raramente l’unico. L’organizzazione dei cantieri, la trasparenza sulle ore e il riconoscimento del lavoro giocano spesso un ruolo altrettanto determinante."
-      },
-      {
-        "q": "Formare un apprendista è redditizio per una piccola impresa edile?",
-        "a": "Generalmente sì nel tempo: un apprendista formato internamente conosce già i metodi dell’impresa e presenta spesso un tasso di abbandono più basso di un profilo assunto esternamente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/fixer-prix-artisan-sans-brader-concurrence-suisse",
     "title": "Fissare i propri prezzi senza svenderli, anche di fronte a una concorrenza più economica | Cantia",
     "description": "Abbassare sistematicamente i prezzi per restare competitivi finisce sempre per fragilizzare l’impresa. Come costruire un prezzo difendibile e giustificarlo di fronte a un cliente che confronta preventivi.",
@@ -1400,46 +720,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/gerer-entreprise-sans-comptable-debut",
-    "title": "Gestire la propria impresa senza commercialista all'avvio: fino a dove è ragionevole | Cantia",
-    "description": "Molti indipendenti iniziano senza fiduciaria per risparmiare. Cosa è realistico gestire da soli, e il momento in cui un accompagnamento diventa necessario.",
-    "faq": [
-      {
-        "q": "Si può avviare la propria attività senza fiduciaria in Svizzera?",
-        "a": "Sì per le attività di base (preventivi, fatture, monitoraggio della liquidità), ma la dichiarazione IVA una volta assoggettati e la chiusura annuale richiedono generalmente un accompagnamento."
-      },
-      {
-        "q": "A partire da quale fatturato bisogna considerare una fiduciaria?",
-        "a": "La soglia di assoggettamento all'IVA (generalmente CHF 100 000 di fatturato) è spesso il riferimento che spinge a rivolgersi a un accompagnamento professionale."
-      },
-      {
-        "q": "Un buon software di gestione sostituisce una fiduciaria?",
-        "a": "No, ma facilita notevolmente il lavoro della fiduciaria una volta coinvolta, mantenendo uno storico di documenti pulito e conforme fin dall'inizio."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/gerer-entreprise-seul-sans-embaucher-outils",
-    "title": "Gestire la propria impresa da soli il più a lungo possibile, con gli strumenti giusti | Cantia",
-    "description": "Alcuni indipendenti preferiscono restare soli il più a lungo possibile piuttosto che assumere troppo presto. Gli strumenti che rendono questo davvero sostenibile.",
-    "faq": [
-      {
-        "q": "È possibile far crescere il proprio fatturato senza assumere?",
-        "a": "Sì, basandosi sull’automazione amministrativa e sul ricorso occasionale a subappaltatori per assorbire i picchi di attività, piuttosto che sull’impiego fisso."
-      },
-      {
-        "q": "Qual è la leva principale per gestire la propria impresa da soli in modo efficace?",
-        "a": "Automatizzare tutto ciò che può esserlo (calcolo dell’IVA, numerazione, solleciti di pagamento), per liberare tempo dedicato al lavoro fatturabile piuttosto che all’amministrazione."
-      },
-      {
-        "q": "Il subappaltatore è una buona alternativa all’assunzione per un indipendente?",
-        "a": "Spesso sì, per assorbire un picco di attività occasionale senza gli obblighi amministrativi e sociali legati a un impiego fisso."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/gerer-plusieurs-chantiers-en-parallele-methode",
     "title": "Gestire più cantieri in parallelo senza perdere nulla per strada | Cantia",
     "description": "Passare da uno a tre cantieri simultanei cambia la natura del lavoro: non è più una questione di braccia, è una questione di memoria e coordinamento. Un metodo concreto.",
@@ -1455,66 +735,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Una pianificazione via WhatsApp basta per gestire più cantieri?",
         "a": "Funziona per un certo tempo con un piccolo team, ma l’informazione vi si perde rapidamente nello scorrimento dei messaggi, e senza una struttura per cantiere, diventa presto impossibile da ritrovare."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/gestion-chantier-devis-couvreur-toiture-suisse",
-    "title": "Copritetto: calcolare un tetto senza farsi cogliere dal meteo | Cantia",
-    "description": "Un cantiere di tetto dipende direttamente dal meteo e impone misure di sicurezza che hanno un costo reale. Come integrarle nel preventivo senza nasconderle in un margine invisibile.",
-    "faq": [
-      {
-        "q": "Come integrare il rischio meteo in un preventivo di tetto?",
-        "a": "Prevedendo esplicitamente una clausola di rinvio senza penale in caso di intemperie che impediscano il lavoro in quota. Ciò protegge l’impresa ed evita una negoziazione tesa a metà cantiere."
-      },
-      {
-        "q": "Bisogna fatturare separatamente i dispositivi di sicurezza su un cantiere di tetto?",
-        "a": "È consigliabile: ponteggio, linea vita e parapetto hanno un costo reale di noleggio e montaggio che deve restare visibile, piuttosto che essere diluito nel prezzo al m² di copertura."
-      },
-      {
-        "q": "Si può calcolare una riparazione di carpenteria senza ispezione preventiva?",
-        "a": "No, o solo in modo molto approssimativo, poiché lo stato reale di una carpenteria è spesso visibile solo dopo lo smontaggio della copertura esistente, da cui l’interesse di un’ispezione prima del preventivo definitivo."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/gestion-chantier-facturation-electricien-suisse",
-    "title": "Elettricista indipendente: gestire preventivi, ore e fatturazione senza perderci le serate | Cantia",
-    "description": "Tra i punti elettrici da calcolare, le ore ripartite su più cantieri nella stessa giornata e i controlli NIBT da non dimenticare, la gestione amministrativa di un elettricista ha le sue trappole. Metodo concreto.",
-    "faq": [
-      {
-        "q": "Bisogna fatturare un preventivo di elettricità al punto o a forfait?",
-        "a": "I due si combinano: il prezzo unitario per punto elettrico è adatto alle ristrutturazioni dettagliate, il forfait è più adatto ai circuiti completi standardizzati (quadro, messa a terra) dove il tempo varia poco."
-      },
-      {
-        "q": "Come fattura un elettricista i propri spostamenti tra più cantieri?",
-        "a": "Non esiste una regola unica: alcuni li integrano nella tariffa oraria, altri li fatturano separatamente. L’essenziale è deciderlo chiaramente in anticipo e comunicarlo al cliente, non assorbirlo silenziosamente nel margine."
-      },
-      {
-        "q": "Il controllo NIBT deve figurare sul preventivo di elettricità?",
-        "a": "Sì, poiché ogni installazione creata o modificata deve essere annunciata e controllata. Integrarlo nel preventivo fin dall’inizio evita una fatturazione d’urgenza, meno vantaggiosa, una volta terminato il cantiere."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/gestion-entreprise-sur-mobile-artisan",
-    "title": "Gestire la propria impresa dal telefono: fino a dove è davvero possibile | Cantia",
-    "description": "Preventivi, fatture, foto di cantiere, ore del team: ciò che oggi funziona davvero bene su mobile, e ciò che resta più comodo su uno schermo più grande.",
-    "faq": [
-      {
-        "q": "Si può davvero creare un preventivo completo dal proprio telefono?",
-        "a": "Sì, con uno strumento ben concepito per mobile (incluso un catalogo prezzi per evitare di ridigitare tutto a mano su uno schermo piccolo)."
-      },
-      {
-        "q": "Quali attività restano più facili su computer che su mobile?",
-        "a": "La costruzione iniziale di un catalogo prezzi dettagliato o l'analisi approfondita di più cantieri restano generalmente più comode su uno schermo più grande."
-      },
-      {
-        "q": "Un artigiano può fare completamente a meno del computer usando un buon strumento mobile?",
-        "a": "Per la quotidianità, ampiamente sì. Mantenere un accesso occasionale a un computer resta comunque utile per le attività di configurazione più avanzate."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -1580,30 +800,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/integration-bexio-cantia-synchronisation-automatique",
-    "title": "Cantia x Bexio: la connessione nativa che elimina la doppia registrazione | Cantia",
-    "description": "Cantia si collega direttamente a Bexio tramite la sua API ufficiale: clienti importati, fatture inviate con un clic, stati di pagamento tenuti aggiornati automaticamente.",
-    "faq": [
-      {
-        "q": "L’integrazione Bexio è a pagamento oltre al mio abbonamento?",
-        "a": "No. È inclusa automaticamente a partire dal piano Entreprise (e disponibile sul piano Sur devis), senza costo né modulo supplementare da attivare."
-      },
-      {
-        "q": "Cantia può inviare una fattura definitiva al mio cliente tramite Bexio?",
-        "a": "No. Ogni fattura viene inviata a Bexio solo come bozza: siete sempre voi, o la vostra fiduciaria, a decidere della sua finalizzazione lato Bexio."
-      },
-      {
-        "q": "Cosa succede se disconnetto l’integrazione?",
-        "a": "I token d’accesso Bexio vengono immediatamente revocati e nessun dato viene più scambiato. I clienti già importati e le fatture già inviate restano invariati su entrambi i lati."
-      },
-      {
-        "q": "Bisogna reinserire i miei clienti esistenti in Bexio perché funzioni?",
-        "a": "No. I vostri clienti Bexio esistenti vengono importati automaticamente in Cantia fin dalla connessione, nel senso da Bexio verso Cantia."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/lancer-entreprise-batiment-suisse-par-ou-commencer",
     "title": "Lanciare la propria impresa edile in Svizzera: da dove cominciare | Cantia",
     "description": "Tra statuto giuridico, assicurazioni e primi strumenti, un ordine logico per non dimenticare nulla al momento di lanciarsi nell’edilizia in Svizzera.",
@@ -1664,146 +860,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/logiciel-construit-avec-vous-sur-mesure",
-    "title": "Un software costruito con Lei, non solo venduto a tutti | Cantia",
-    "description": "Un editore che vende un prodotto rigido e un editore che costruisce con i propri clienti non offrono la stessa esperienza: ecco cosa cambia concretamente per un’impresa edile.",
-    "faq": [
-      {
-        "q": "Cosa differenzia un software \"costruito con i propri clienti\" da un software classico?",
-        "a": "Le nuove funzionalità nascono spesso da esigenze reali segnalate direttamente dai clienti, piuttosto che da una tabella di marcia decisa unicamente internamente."
-      },
-      {
-        "q": "Un software costruito con i propri clienti sviluppa una versione diversa per ciascuno?",
-        "a": "No, il nucleo standard resta comune a tutti: la differenza riguarda la capacità di regolarlo realmente secondo i feedback del campo, piuttosto che restare rigido."
-      },
-      {
-        "q": "Come può un feedback cliente influenzare concretamente l’evoluzione dello strumento?",
-        "a": "Un problema riscontrato nella quotidianità, segnalato direttamente, può dare origine a una nuova funzionalità che giova poi a tutti gli utenti dello strumento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-devis-facture-maconnerie-suisse",
-    "title": "Preventivi e fatture per un’impresa di muratura: il metodo che evita le brutte sorprese | Cantia",
-    "description": "Un preventivo di muratura mal strutturato nasconde spesso una perdita: materiali sottovalutati, ore del team mal contate, imprevisti non accantonati. Metodo concreto per calcolare correttamente.",
-    "faq": [
-      {
-        "q": "Come calcolare un preventivo di muratura che mescola più unità?",
-        "a": "Dettagliando ogni voce con la propria unità (m³ per il calcestruzzo e le fondazioni, m² per i muri e le finiture, ore a economia per la movimentazione), piuttosto che un unico prezzo forfettario che maschera gli scostamenti."
-      },
-      {
-        "q": "Bisogna includere il prezzo dei materiali nel prezzo al m² di muratura?",
-        "a": "È preferibile separarli sul preventivo: ciò permette di adeguare facilmente il prezzo se il costo dei materiali cambia prima dell’inizio del cantiere, senza dover rifare tutto il calcolo."
-      },
-      {
-        "q": "Come non dimenticare il tempo di movimentazione in un preventivo di muratura?",
-        "a": "Prevedendo una voce dedicata in ore a economia per il trasporto dei materiali, lo smaltimento delle macerie e la pulizia: una voce che rappresenta spesso il 15-20 % del tempo totale del cantiere."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-facturation-conforme-tva-suisse-pas-cher",
-    "title": "Fatturazione conforme all’IVA svizzera a basso prezzo: è del tutto possibile | Cantia",
-    "description": "La conformità IVA non è riservata ai software costosi: ecco cosa deve essere presente, anche in un piano economico, per rimanere in regola senza rovinarsi.",
-    "faq": [
-      {
-        "q": "Un software di fatturazione economico è necessariamente meno conforme sull’IVA?",
-        "a": "No, la conformità IVA di base (calcolo automatico, indicazioni obbligatorie) è generalmente inclusa anche nei piani più economici degli strumenti seri."
-      },
-      {
-        "q": "Cosa differenzia un piano premium da un piano economico in materia di fatturazione?",
-        "a": "Generalmente funzioni avanzate (multi-utente, personalizzazione, integrazioni), non la conformità IVA di base che deve restare garantita a tutti i livelli."
-      },
-      {
-        "q": "Come verificare che un software di fatturazione sia davvero conforme prima di impegnarsi?",
-        "a": "Generando una fattura di prova e verificando l’aliquota IVA applicata, il numero IDI visualizzato (se assoggettati) e la numerazione sequenziale del documento."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-facturation-gratuit-independant-suisse",
-    "title": "Software di fatturazione gratuito per indipendenti: cosa si ottiene davvero | Cantia",
-    "description": "Un piano gratuito esiste quasi sempre, ma raramente senza limiti. Cosa deve verificare un indipendente svizzero prima di puntare su un software di fatturazione \"gratuito\".",
-    "faq": [
-      {
-        "q": "Un software di fatturazione gratuito include la fattura QR svizzera?",
-        "a": "Non sistematicamente: alcuni piani gratuiti la riservano al livello a pagamento. È un punto da verificare prima di scegliere, perché una fattura senza fattura QR conforme complica il pagamento per il cliente."
-      },
-      {
-        "q": "Qual è il limite più comune dei software di fatturazione gratuiti?",
-        "a": "Un limite di documenti emessi al mese (spesso 5-10), oltre il quale bisogna passare a un piano a pagamento per continuare a fatturare."
-      },
-      {
-        "q": "È meglio uno strumento gratuito limitato o una prova gratuita completa?",
-        "a": "Una prova gratuita completa dà un'idea più affidabile di ciò che lo strumento vale realmente per l'attività, rispetto a una versione limitata che non mostra mai tutto ciò che sarà necessario una volta avviata l'attività."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-facturation-qr-facture-comparatif-suisse",
-    "title": "Software di fatturazione con fattura QR: cosa distingue un vero supporto da un modulo raffazzonato | Cantia",
-    "description": "Molti strumenti si presentano come «compatibili fattura QR» senza rispettare la norma nel dettaglio: indirizzo strutturato, IBAN vs QR-IBAN, riferimento QR. Ecco cosa distingue i due.",
-    "faq": [
-      {
-        "q": "Qual è la differenza tra IBAN e QR-IBAN?",
-        "a": "Il QR-IBAN è un numero dedicato utilizzato unicamente per le fatture QR con riferimento QR strutturato (QRR), distinto da un IBAN standard utilizzabile senza riferimento."
-      },
-      {
-        "q": "Perché una fattura QR può fallire alla scansione?",
-        "a": "Un indirizzo non strutturato, una zona di rispetto insufficiente o un riferimento QR calcolato male possono tutti impedire una scansione corretta, anche se il PDF sembra normale visivamente."
-      },
-      {
-        "q": "Da quando è obbligatorio l’indirizzo strutturato su una fattura QR?",
-        "a": "Dallo standard 2.3 a partire da novembre 2025. Gli indirizzi in testo libero saranno definitivamente rifiutati a partire dal 30 settembre 2026."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-facturation-raison-individuelle-suisse",
-    "title": "Software di fatturazione per ditta individuale: cosa cambia rispetto a una SA o Sagl | Cantia",
-    "description": "Una ditta individuale non ha gli stessi obblighi di una società di capitali. Un software di fatturazione resta comunque altrettanto utile, per altre ragioni.",
-    "faq": [
-      {
-        "q": "Una ditta individuale ha davvero bisogno di un software di fatturazione?",
-        "a": "Sì, spesso più di una società con team amministrativo. Senza nessuno che solleciti i mancati pagamenti o verifichi la conformità dei documenti, uno strumento dedicato colma questa lacuna."
-      },
-      {
-        "q": "Le diciture obbligatorie su una fattura cambiano a seconda dello statuto giuridico?",
-        "a": "No, le diciture legali di base (numerazione, IVA se applicabile) si applicano indipendentemente dallo statuto, che si tratti di una ditta individuale, una Sagl o una SA."
-      },
-      {
-        "q": "Un software di contabilità completa è necessario per una ditta individuale?",
-        "a": "Non sistematicamente: uno strumento semplice che copra preventivi, fatture e monitoraggio della liquidità spesso è sufficiente, mentre il resto può essere delegato a una fiduciaria se necessario."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-gestion-chantier-abordable-petite-entreprise",
-    "title": "Un software di gestione del cantiere accessibile esiste davvero | Cantia",
-    "description": "Il monitoraggio del cantiere è stato a lungo riservato alle grandi imprese con strumenti costosi. Cosa è cambiato, e perché oggi una piccola struttura può accedervi facilmente.",
-    "faq": [
-      {
-        "q": "Il monitoraggio digitale del cantiere è riservato alle grandi imprese?",
-        "a": "No: oggi è accessibile alle piccole strutture, spesso incluso in un abbonamento mensile accessibile piuttosto che venduto come un modulo separato costoso."
-      },
-      {
-        "q": "Qual è il costo tipico di un monitoraggio del cantiere per una piccola impresa?",
-        "a": "Generalmente tra CHF 30 e 60 al mese, integrato in uno strumento di gestione più ampio piuttosto che fatturato come un servizio a parte."
-      },
-      {
-        "q": "Cosa deve coprire un monitoraggio del cantiere anche in un'offerta accessibile?",
-        "a": "Come minimo foto geolocalizzate e datate, un'organizzazione chiara per cantiere, e un accesso semplice da telefono."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/logiciel-gestion-chantier-independant-seul",
     "title": "Software di gestione cantiere in solitaria: utile, o solo per i grandi team? | Cantia",
     "description": "La maggior parte degli strumenti di gestione cantiere è pensata per i team. Un indipendente da solo ha però esigenze diverse, altrettanto reali: ecco quelle che giustificano davvero lo strumento.",
@@ -1824,46 +880,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/logiciel-gestion-evolutif-grandit-avec-entreprise",
-    "title": "Un software che cresce con l’impresa: come riconoscerlo prima di impegnarsi | Cantia",
-    "description": "Alcuni strumenti reggono nel tempo, altri mostrano i propri limiti già alla prima assunzione o al secondo cantiere in parallelo. I segnali da individuare prima di scegliere.",
-    "faq": [
-      {
-        "q": "Come sapere se un software gestionale potrà seguire la crescita dell’impresa?",
-        "a": "Verificando l’esistenza di piani superiori, di moduli HR/pianificazione e di una gestione dei ruoli per un team in crescita, anche se non usati all’inizio."
-      },
-      {
-        "q": "Bisogna pagare un piano più caro fin dall’inizio per anticipare la crescita?",
-        "a": "No, basta semplicemente scegliere un editore i cui piani superiori esistono e restano accessibili senza migrazione tecnica, il giorno in cui l’esigenza si presenta realmente."
-      },
-      {
-        "q": "Quale domanda porre a un editore per valutare la scalabilità del suo strumento?",
-        "a": "Chiedere concretamente cosa succede in caso di prima assunzione o di gestione di più cantieri in parallelo. La risposta rivela se lo strumento è davvero pensato per crescere."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-gestion-societe-individuelle-suisse",
-    "title": "Software gestionale per ditta individuale: i criteri che contano davvero | Cantia",
-    "description": "Una ditta individuale ha esigenze diverse da una PMI con più dipendenti. I criteri di scelta da privilegiare per questo formato d’impresa specifico.",
-    "faq": [
-      {
-        "q": "Quali sono le priorità specifiche di una ditta individuale nella scelta di un software?",
-        "a": "La rapidità d’uso, un prezzo adatto a un solo utente e un accesso mobile completo, poiché il titolare gestisce generalmente da solo il lavoro e l’amministrazione."
-      },
-      {
-        "q": "Uno strumento per ditta individuale può evolvere se l’azienda cresce?",
-        "a": "Con un buon strumento, sì: passare a un piano team avviene senza perdere lo storico né dover cambiare completamente software."
-      },
-      {
-        "q": "Serve un software diverso a seconda che si sia una ditta individuale o una Sagl?",
-        "a": "Non fondamentalmente. Le esigenze di base (preventivo, fattura, conformità) restano le stesse, solo la dimensione del piano (numero di utenti) cambia generalmente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse",
     "title": "Software \"tutto-in-uno\": cosa significa concretamente per una piccola impresa | Cantia",
     "description": "Il termine \"tutto-in-uno\" è usato da quasi tutti gli editori. Cosa copre realmente, e come verificare che uno strumento lo sia davvero piuttosto che limitarsi ad annunciarlo.",
@@ -1879,86 +895,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Un tutto-in-uno è adatto a una piccolissima impresa senza dipendenti?",
         "a": "Sì. I moduli HR o pianificazione restano utili anche se inutilizzati all'inizio, ed evitano una migrazione di strumento il giorno della prima assunzione."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-remplir-soumission-excel-papier",
-    "title": "Carta, Excel o software: il modo giusto di compilare i capitolati nel 2026 | Cantia",
-    "description": "Confronto concreto dei tre modi di rispondere ai capitolati in una PMI edile svizzera: tempo impiegato, rischio di errori, riutilizzo dei prezzi e documento consegnato.",
-    "faq": [
-      {
-        "q": "Serve un software speciale per rispondere ai capitolati in Svizzera?",
-        "a": "No. Molte piccole imprese li compilano a mano o in Excel. Uno strumento fa soprattutto risparmiare tempo ed elimina gli errori di calcolo e di riporto."
-      },
-      {
-        "q": "Cantia legge i file di capitolato CRBX o SIA 451?",
-        "a": "Non ancora: oggi l’importazione riguarda i capitolati in PDF, CPN o no. È il formato che riceve la maggior parte delle piccole imprese."
-      },
-      {
-        "q": "Quanti capitolati si possono compilare con Cantia?",
-        "a": "Uno di prova con il piano Essenziale, 3 al mese con il piano Team, senza limite con il piano Entreprise."
-      }
-    ],
-    "publishedAt": "2026-10-24"
-  },
-  {
-    "path": "it/blog/logiciel-simple-debuter-independant-batiment",
-    "title": "Un software semplice per iniziare, senza passare ore a capirlo | Cantia",
-    "description": "La semplicità di uno strumento non si giudica sulla sua homepage, ma sul tempo necessario per emettere un primo preventivo senza aver letto un manuale d'uso.",
-    "faq": [
-      {
-        "q": "Come sapere se un software di gestione è davvero semplice prima di impegnarsi?",
-        "a": "Il test migliore è creare un account e provare a inviare un primo preventivo senza leggere un manuale d'uso. Se richiede più di qualche minuto, lo strumento probabilmente non è semplice come annunciato."
-      },
-      {
-        "q": "Uno strumento semplice può comunque avere funzioni avanzate?",
-        "a": "Sì, perché la semplicità riguarda soprattutto l'apprendimento delle attività di base, senza impedire di accedere in seguito a funzioni più avanzate come la pianificazione o la liquidità."
-      },
-      {
-        "q": "Serve una formazione per usare un software di gestione da indipendente principiante?",
-        "a": "Con uno strumento ben concepito, no: le attività di base (preventivo, fattura) devono essere accessibili senza formazione preliminare né lettura dell'assistenza online."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-standard-vs-solution-personnalisee-batiment",
-    "title": "Software standard o 100% su misura: la vera scelta non è binaria | Cantia",
-    "description": "Tra uno strumento standard rigido e uno sviluppo 100% personalizzato costoso, esiste una terza via: un nucleo standard solido, completato da su misura mirato.",
-    "faq": [
-      {
-        "q": "Uno sviluppo software 100% su misura è una buona scelta per una PMI edile?",
-        "a": "Raramente, a causa del costo, dei tempi e soprattutto dell’onere di manutenzione a lungo termine che rappresenta per una piccola impresa senza un servizio informatico dedicato."
-      },
-      {
-        "q": "Qual è la migliore opzione tra software standard e soluzione personalizzata?",
-        "a": "Generalmente un nucleo standard ben mantenuto, completato da funzionalità su misura mirate unicamente dove è davvero necessario (piuttosto che l’uno o l’altro al 100%)."
-      },
-      {
-        "q": "Uno strumento su misura beneficia degli aggiornamenti normativi come uno strumento standard?",
-        "a": "Se il su misura è sviluppato sopra un nucleo standard ben mantenuto, sì. Altrimenti, l’impresa deve gestire da sola ogni evoluzione normativa."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/logiciel-tout-en-un-devis-facture-chantier-rh",
-    "title": "Preventivi, fatture, cantiere, HR: è realistico in un solo software? | Cantia",
-    "description": "Quattro ambiti molto diversi in un unico strumento sembra ambizioso: ecco cosa lo rende possibile in pratica, e cosa verificare prima di crederci sulla parola.",
-    "faq": [
-      {
-        "q": "Un software tutto-in-uno tratta davvero i moduli in modo connesso?",
-        "a": "Dipende dallo strumento, perché alcuni trattano ogni modulo in modo isolato. Il vero test è verificare se le ore di un cantiere alimentano automaticamente la sua redditività e la busta paga."
-      },
-      {
-        "q": "Bisogna attivare tutti i moduli (preventivo, fattura, cantiere, HR) fin dall'inizio?",
-        "a": "No: una piccola impresa può iniziare solo con preventivi e fatture, e attivare gli altri moduli man mano che le sue esigenze evolvono."
-      },
-      {
-        "q": "Qual è il vantaggio concreto di collegare cantiere e HR nello stesso strumento?",
-        "a": "Le ore lavorate su un cantiere servono sia al calcolo della busta paga sia a quello della redditività reale del cantiere, senza doppio inserimento tra i due."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -1999,86 +935,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Il software deve funzionare offline?",
         "a": "Idealmente sì. La rete non è mai garantita in un cantiere (seminterrato, zona rurale), e uno strumento che funziona solo online perde il suo valore nel momento peggiore."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/meilleur-logiciel-pas-cher-petit-artisan",
-    "title": "Il miglior software economico per un piccolo artigiano solo | Cantia",
-    "description": "Per un artigiano che lavora da solo, \"economico\" non deve mai voler dire \"senza le funzioni essenziali\". Ecco come distinguere un piano economico ben pensato da un piano semplicemente limitato.",
-    "faq": [
-      {
-        "q": "Un piano \"solo\" economico è per forza incompleto?",
-        "a": "Non necessariamente, perché un buon piano solo resta completo sulle funzioni essenziali (preventivi, fatture, IVA, fattura QR), il prezzo ridotto derivando soprattutto dal numero limitato di utenti."
-      },
-      {
-        "q": "Si può far evolvere un piano solo il giorno di una prima assunzione?",
-        "a": "Con uno strumento ben concepito, sì: passare a un piano team avviene senza perdere lo storico né dover cambiare strumento del tutto."
-      },
-      {
-        "q": "Come confrontare realmente il prezzo di due software per artigiano solo?",
-        "a": "Confrontando cosa include concretamente ogni prezzo (fattura QR, monitoraggio dello stato, accesso mobile completo), non solo la cifra mostrata in cima alla pagina tariffaria."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/meilleur-outil-gestion-independant-suisse",
-    "title": "Il miglior strumento di gestione per un indipendente non è quello che fa di più | Cantia",
-    "description": "Di fronte alla domanda \"quale strumento scegliere\", la risposta giusta dipende meno dalle funzionalità elencate che da ciò che un indipendente userà davvero nei primi sei mesi.",
-    "faq": [
-      {
-        "q": "Servono più strumenti separati o un unico strumento tutto-in-uno per iniziare?",
-        "a": "Uno strumento unico che copre preventivi, fatture e monitoraggio del cantiere evita la dispersione delle informazioni e fa risparmiare tempo rispetto a più strumenti separati da far comunicare tra loro."
-      },
-      {
-        "q": "Quanto tempo serve per imparare a usare un software di gestione da indipendente?",
-        "a": "Con uno strumento ben pensato, pochi minuti bastano generalmente per creare un primo preventivo conforme, mentre uno strumento che richiede una lunga fase di configurazione non è adatto a un avvio rapido."
-      },
-      {
-        "q": "Come sapere se uno strumento di gestione è davvero adatto a un indipendente dell'edilizia?",
-        "a": "Verificando che funzioni direttamente dal cantiere, su mobile, senza obbligare a reinserire le informazioni la sera in ufficio."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment",
-    "title": "Rapporto qualità-prezzo di un software gestionale: come misurarlo davvero | Cantia",
-    "description": "Il prezzo da solo non dice nulla sul rapporto qualità-prezzo. Un metodo semplice per confrontare oggettivamente più strumenti gestionali per una PMI edile.",
-    "faq": [
-      {
-        "q": "Come confrontare oggettivamente il rapporto qualità-prezzo di due software gestionali?",
-        "a": "Elencando le proprie esigenze reali, verificando quante ne copre ciascuno strumento al prezzo indicato, e dividendo il prezzo per il numero di esigenze realmente soddisfatte."
-      },
-      {
-        "q": "Il miglior rapporto qualità-prezzo è lo stesso per tutte le imprese?",
-        "a": "No. Dipende direttamente dal profilo dell’impresa (solo, piccolo team, più cantieri in parallelo), uno strumento adatto all’uno potendo essere sovradimensionato per l’altro."
-      },
-      {
-        "q": "Bisogna affidarsi unicamente ai comparativi online per scegliere un software?",
-        "a": "No, una prova gratuita su un utilizzo reale dà un’immagine più affidabile rispetto a comparativi basati solo sulle funzionalità annunciate da ciascun editore."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/meilleures-alternatives-gratuites-bexio",
-    "title": "Alternative a Bexio per iniziare, senza il prezzo di uno strumento contabile completo | Cantia",
-    "description": "Bexio resta un punto di riferimento in Svizzera, ma il suo posizionamento contabile completo non è sempre necessario per un'impresa edile che parte. Le opzioni più leggere da conoscere.",
-    "faq": [
-      {
-        "q": "Bexio è adatto a un'impresa edile che parte?",
-        "a": "Copre molto bene la contabilità completa, ma un'impresa che parte ha spesso prima di tutto bisogno di uno strumento specializzato per l'edilizia (preventivi, cantiere, foto) più leggero e più accessibile."
-      },
-      {
-        "q": "Si può usare uno strumento specializzato per l'edilizia in aggiunta a Bexio?",
-        "a": "Sì, perché alcuni strumenti come Cantia si sincronizzano direttamente con Bexio, inviando automaticamente clienti, preventivi e fatture per evitare il doppio inserimento."
-      },
-      {
-        "q": "Bisogna scegliere tra uno strumento edilizia specializzato e uno strumento contabile completo?",
-        "a": "Non necessariamente: i due possono completarsi, uno per il pilotaggio quotidiano del cantiere, l'altro per la contabilità completa una volta che l'attività è più consolidata."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -2144,26 +1000,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/numerotation-facture-obligations-legales-suisse",
-    "title": "Numerazione delle fatture in Svizzera: perché la continuità non è un dettaglio | Cantia",
-    "description": "Un numero di fattura saltato, riutilizzato o disordinato attira immediatamente l’attenzione durante un controllo fiscale, poiché la continuità numerica è uno dei primi punti verificati.",
-    "faq": [
-      {
-        "q": "La numerazione continua delle fatture è obbligatoria in Svizzera?",
-        "a": "Non è formalizzata come una legge rigorosa di formato, ma l’AFC si aspetta una serie cronologica e tracciabile. Un controllo fiscale verifica sistematicamente questa continuità."
-      },
-      {
-        "q": "Si può riutilizzare un numero di fattura annullata?",
-        "a": "No: una fattura annullata deve restare identificabile nella serie con una nota di credito associata, mai essere sostituita riutilizzando il suo numero."
-      },
-      {
-        "q": "Cosa rischia un’azienda con una numerazione disordinata?",
-        "a": "Un controllo fiscale può interpretare le incongruenze come un segno di occultamento di fatturato, anche in assenza di frode reale, cosicché l’onere della prova ricade allora sull’azienda."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/outil-devis-factures-sans-double-saisie",
     "title": "Farla finita con la doppia digitazione tra preventivo e fattura | Cantia",
     "description": "Ridigitare un preventivo accettato per trasformarlo in fattura è una perdita di tempo evitabile, e soprattutto una fonte di errori. Come uno strumento ben concepito elimina questo passaggio.",
@@ -2179,46 +1015,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Come verificare che un software eviti davvero la doppia digitazione?",
         "a": "Se le righe, i prezzi e le quantità si riportano automaticamente nel passaggio da un preventivo accettato a una fattura, questo conferma concretamente che la doppia digitazione è eliminata."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/outil-facturation-en-ligne-pme-suisse",
-    "title": "Strumento di fatturazione online: cosa cambia concretamente per una PMI | Cantia",
-    "description": "Tra un software installato su un solo computer e uno strumento online accessibile ovunque, la differenza va oltre la semplice comodità: ecco cosa ci guadagna davvero una PMI svizzera.",
-    "faq": [
-      {
-        "q": "Qual è il principale vantaggio di uno strumento di fatturazione online rispetto a un software installato?",
-        "a": "L'accesso da qualsiasi dispositivo, senza dipendere da un solo computer, il che è particolarmente importante per un'impresa che lavora su più cantieri."
-      },
-      {
-        "q": "Uno strumento online è sicuro quanto un software installato localmente?",
-        "a": "Generalmente più sicuro in pratica, grazie ai backup automatici, a condizione tuttavia di verificare che l'editore ospiti i dati in Svizzera o nell'UE e applichi buone pratiche di sicurezza."
-      },
-      {
-        "q": "Bisogna installare qualcosa per usare uno strumento di fatturazione online?",
-        "a": "No, un semplice browser o un'applicazione mobile sono sufficienti. Nessuna installazione né aggiornamento manuale è necessario."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/parrainage-recommandation-clients-artisan-batiment",
-    "title": "Trasformare un cliente soddisfatto in procacciatore di clienti, senza che sembri forzato | Cantia",
-    "description": "Il passaparola non si decreta, ma si incoraggia. Come mettere in atto un sistema semplice di raccomandazione senza dare l’impressione di mendicare clienti.",
-    "faq": [
-      {
-        "q": "Quando chiedere a un cliente di raccomandare il proprio artigiano?",
-        "a": "Il momento migliore è subito dopo la consegna dei lavori, quando la soddisfazione è più fresca e concreta, e una richiesta semplice, senza pressione, è generalmente sufficiente."
-      },
-      {
-        "q": "Bisogna offrire una ricompensa finanziaria per una raccomandazione?",
-        "a": "Non è obbligatorio. Un gesto semplice di ringraziamento (piccolo sconto, messaggio sincero) basta spesso a mantenere la relazione senza trasformare il cliente in un procacciatore di affari retribuito."
-      },
-      {
-        "q": "Perché un cliente raccomandato si converte più facilmente di un potenziale cliente classico?",
-        "a": "Perché la fiducia è già in parte stabilita dal legame con la persona che raccomanda. Il potenziale cliente arriva così con un pregiudizio positivo che un contatto senza legame preesistente non può offrire."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -2304,26 +1100,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut",
-    "title": "Perché aspettare per equipaggiarsi costa spesso di più | Cantia",
-    "description": "Molti indipendenti rimandano l’acquisto di un software gestionale \"finché non avranno più clienti\". Perché è spesso il contrario che dovrebbe accadere.",
-    "faq": [
-      {
-        "q": "Bisogna aspettare di avere più clienti per investire in un software gestionale?",
-        "a": "No: le abitudini amministrative prese fin dall’inizio sono difficili da correggere più tardi, e i primi clienti ben trattati diventano spesso i più fedeli."
-      },
-      {
-        "q": "Un buon software gestionale è più facile da imparare all’inizio o una volta sopraffatti?",
-        "a": "Piuttosto all’inizio, perché con pochi clienti da gestire c’è il tempo di imparare bene lo strumento, contrariamente a un’adozione in urgenza una volta sommersi dal volume di documenti."
-      },
-      {
-        "q": "Il costo di un software gestionale si giustifica fin dal primo cliente?",
-        "a": "Generalmente sì. Il suo costo mensile resta minimo rispetto al fatturato di un primo cantiere, e può fare la differenza sulla rapidità e sulla professionalità percepita da quel primo cliente."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/pourquoi-entreprises-batiment-font-faillite-suisse",
     "title": "Perché imprese edili in piena attività finiscono per fallire | Cantia",
     "description": "Avere lavoro non basta: le cause più frequenti di fallimento nell’edilizia sono un problema di tesoreria e di margine invisibile, non una mancanza di cantieri.",
@@ -2339,26 +1115,6 @@ export const BLOG_SEO_IT = [
       {
         "q": "Qual è il miglior indicatore di salute finanziaria per un’impresa edile?",
         "a": "Il miglior indicatore è la redditività misurata cantiere per cantiere, associata a una previsione di tesoreria a breve termine, poiché il fatturato globale da solo non rivela nulla del margine reale."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment",
-    "title": "Perché un modello rigido non può andare bene per tutta l’edilizia insieme | Cantia",
-    "description": "L’edilizia riunisce mestieri molto diversi tra loro. Perché uno stesso modello rigido di preventivo o di monitoraggio del cantiere non può logicamente andare bene a tutti contemporaneamente.",
-    "faq": [
-      {
-        "q": "Perché un software generico \"edilizia\" non va bene perfettamente a tutti i mestieri?",
-        "a": "Perché l’edilizia raggruppa più di 15 corpi di mestiere diversi, ognuno con le proprie unità di misura, processi di cantiere e abitudini di fatturazione."
-      },
-      {
-        "q": "Cosa resta comune tra tutti i mestieri dell’edilizia in un software gestionale?",
-        "a": "La grande maggioranza delle esigenze di base (preventivi, fatture, conformità IVA, monitoraggio del cantiere) resta comune, solo alcuni dettagli specifici differiscono da un mestiere all’altro."
-      },
-      {
-        "q": "Un software gestionale deve adattarsi al mestiere o il mestiere deve adattarsi al software?",
-        "a": "Idealmente lo strumento si adatta al mestiere, poiché un buon software deve permettere di regolare ciò che conta realmente (unità, tappe, documenti) senza costringere l’impresa a cambiare il proprio modo di lavorare."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -2684,26 +1440,6 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
-    "path": "it/blog/sous-effectif-chantier-recruter-ou-sous-traiter",
-    "title": "Organico insufficiente nei cantieri: assumere o subappaltare, come decidere | Cantia",
-    "description": "Rifiutare cantieri per mancanza di personale è un cattivo calcolo, ma assumere troppo in fretta lo è altrettanto. Ecco i criteri concreti per scegliere tra assunzione e subappalto.",
-    "faq": [
-      {
-        "q": "Come sapere se bisogna assumere piuttosto che subappaltare?",
-        "a": "Se il sovraccarico si ripete cantiere dopo cantiere da diversi mesi e riguarda una competenza centrale nel mestiere dell’azienda, un’assunzione si giustifica meglio di un rinforzo puntuale."
-      },
-      {
-        "q": "Qual è il principale rischio di un’assunzione affrettata?",
-        "a": "Un salario fisso continua a pesare sulla tesoreria una volta passato il picco di attività, cosicché il vero costo di una decisione sbagliata si vede spesso diversi mesi dopo, non immediatamente."
-      },
-      {
-        "q": "Il subappalto è adatto a un bisogno puntuale?",
-        "a": "Sì, si adatta bene a un picco di attività limitato nel tempo o a una competenza specializzata raramente mobilitata, senza impegnare l’azienda a lungo termine."
-      }
-    ],
-    "publishedAt": "2026-09-10"
-  },
-  {
     "path": "it/blog/sous-traitant-batiment-suisse-contrat-facturation",
     "title": "Subappaltatore edile in Svizzera: contratto, responsabilità e fatturazione | Cantia",
     "description": "Ricorrere a un subappaltatore impegna l’imprenditore principale su più fronti: responsabilità verso il cliente, verifica delle assicurazioni, e monitoraggio preciso delle fatture ricevute per cantiere.",
@@ -2746,26 +1482,6 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/temps-repondre-soumission-rentable",
-    "title": "Quanto costa un capitolato alla vostra impresa, e quando non rispondere | Cantia",
-    "description": "Ore di calcolo, tasso di successo, costo reale di un appalto vinto: un calcolo semplice per decidere a quali capitolati rispondere e come dedicarvi meno tempo.",
-    "faq": [
-      {
-        "q": "Qual è un buon tasso di successo sui capitolati?",
-        "a": "Dipende dal mestiere, dalla regione e dal tipo di appalto. L’importante è conoscere il vostro e seguirlo nel tempo, per sapere dove vincete."
-      },
-      {
-        "q": "Si può fatturare il calcolo di un capitolato?",
-        "a": "Di regola no, la risposta a un capitolato è gratuita. Uno studio o un progetto chiesto in più può essere oggetto di un accordo separato, da concordare prima."
-      },
-      {
-        "q": "Come sapere perché si è perso un appalto?",
-        "a": "Chiedete il risultato e, se possibile, la vostra posizione in classifica. In un appalto pubblico l’aggiudicazione viene comunicata e può essere motivata; in un appalto privato spesso basta una telefonata all’architetto."
-      }
-    ],
-    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/travail-au-noir-batiment-suisse-risques-controles",
@@ -2866,26 +1582,6 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-09-10"
-  },
-  {
-    "path": "it/blog/variante-soumission-proposer-alternative",
-    "title": "Proporre una variante in un capitolato, senza far escludere la propria offerta | Cantia",
-    "description": "Conoscete una soluzione più economica o più rapida di quella dell’architetto? Come proporla in variante, accanto a un’offerta di base completa, in un appalto privato o pubblico.",
-    "faq": [
-      {
-        "q": "Si può sostituire un prodotto imposto con un equivalente?",
-        "a": "Solo se il capitolato lo consente (dicitura «o equivalente») o in variante, accanto all’offerta di base. Sostituire senza dirlo rende l’offerta non confrontabile."
-      },
-      {
-        "q": "Una variante può costare più dell’offerta di base?",
-        "a": "Sì, se porta qualcos’altro: durata, termini, manutenzione. Spiegate chiaramente cosa guadagna il committente in cambio."
-      },
-      {
-        "q": "Le varianti sono sempre ammesse negli appalti pubblici?",
-        "a": "No. Sono ammesse in linea di principio, ma il committente può limitarle o escluderle nel bando. Fanno fede le condizioni dell’incarto."
-      }
-    ],
-    "publishedAt": "2026-10-24"
   },
   {
     "path": "it/blog/vitesse-reponse-devis-taux-conversion-batiment",

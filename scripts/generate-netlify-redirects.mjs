@@ -14,7 +14,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { ROUTES } from './seo-routes.mjs';
+import { BLOG_REDIRECTS, ROUTES } from './seo-routes.mjs';
 
 const rootDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tomlPath = path.join(rootDir, 'netlify.toml');
@@ -32,13 +32,25 @@ const blocks = nonBlog
   .map((r) => `[[redirects]]\n  from = "/${r.path}"\n  to = "/${r.path}/index.html"\n  status = 200`)
   .join('\n\n');
 
-const toml = readFileSync(tomlPath, 'utf8');
-const start = toml.indexOf(BEGIN);
-const end = toml.indexOf(END);
-if (start < 0 || end < 0 || end < start) {
-  console.error(`netlify.toml: markers "${BEGIN}" / "${END}" not found — nothing written.`);
-  process.exit(1);
+// 301s of the blog content triage (lib/blog/triage.json).
+const blogBlocks = Object.entries(BLOG_REDIRECTS)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([from, to]) => `[[redirects]]\n  from = "/${from}"\n  to = "/${to}"\n  status = 301\n  force = true`)
+  .join('\n\n');
+
+function replaceBetween(toml, begin, end, content) {
+  const start = toml.indexOf(begin);
+  const stop = toml.indexOf(end);
+  if (start < 0 || stop < 0 || stop < start) {
+    console.error(`netlify.toml: markers "${begin}" / "${end}" not found — nothing written.`);
+    process.exit(1);
+  }
+  const beginLineEnd = toml.indexOf('\n', start) + 1;
+  return toml.slice(0, beginLineEnd) + content + '\n' + toml.slice(stop);
 }
-const beginLineEnd = toml.indexOf('\n', start) + 1;
-writeFileSync(tomlPath, toml.slice(0, beginLineEnd) + blocks + '\n' + toml.slice(end));
-console.log(`netlify.toml: ${nonBlog.length} explicit route redirects regenerated (rest of the file untouched).`);
+
+let toml = readFileSync(tomlPath, 'utf8');
+toml = replaceBetween(toml, BEGIN, END, blocks);
+toml = replaceBetween(toml, '# BEGIN generated blog redirects', '# END generated blog redirects', blogBlocks);
+writeFileSync(tomlPath, toml);
+console.log(`netlify.toml: ${nonBlog.length} explicit route redirects and ${Object.keys(BLOG_REDIRECTS).length} blog redirects regenerated (rest of the file untouched).`);

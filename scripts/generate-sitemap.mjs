@@ -6,7 +6,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { SITE, ROUTES, isNoindex, localeAndBareOf } from './seo-routes.mjs';
+import { SITE, ROUTES, blogBaseSlug, isNoindex, localeAndBareOf } from './seo-routes.mjs';
 
 const rootDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -41,7 +41,7 @@ const BLOG_DIRS = { fr: 'lib/blog/posts', de: 'lib/blog/posts-de', it: 'lib/blog
 
 function sourceFilesFor(route) {
   const { locale, bare } = localeAndBareOf(route.path);
-  if (bare.startsWith('blog/')) return [`${BLOG_DIRS[locale]}/${bare.slice('blog/'.length)}.ts`];
+  if (bare.startsWith('blog/')) return [`${BLOG_DIRS[locale]}/${blogBaseSlug(locale, bare.slice('blog/'.length))}.ts`];
   if (bare.startsWith('aide/') && !['aide/videos', 'aide/ressources'].includes(bare)) return ['lib/helpArticles.ts'];
   const files = [];
   for (const loc of new Set([locale, 'fr'])) {

@@ -3,9 +3,9 @@ import { BlogPost } from '../types';
 export const post: BlogPost = {
   slug: 'devis-gratuit-en-ligne-suisse-outil',
   question: 'Wie erstellt man als Handwerker in der Schweiz schnell eine kostenlose Offerte online?',
-  title: 'Kostenlose Offerte online erstellen: die Optionen und ihre Grenzen',
+  title: "Offerte erstellen: kostenlos online, mit Vorlage oder Software",
   description:
-    'Kostenlose Offerten-Generatoren, Word-Vorlagen, Online-Tools: eine ehrliche Übersicht darüber, was jede Option wirklich leistet, und wo sie an ihre Grenzen stösst, sobald das Geschäft wächst.',
+    "Offerte erstellen als Handwerker in der Schweiz: kostenlose Online-Generatoren, Word-Vorlagen und Offertensoftware ehrlich verglichen, mit Grenzen.",
   excerpt:
     'Ein kostenloser Offerten-Generator online hilft für ein erstes Dokument, aber nur wenige halten durch, sobald man mehrere Kunden und mehrere Baustellen parallel verfolgen muss.',
   category: 'Comparatifs & outils',

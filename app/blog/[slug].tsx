@@ -3,12 +3,12 @@ import { Link, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../components/ui';
 import { BlogArticle } from '../../components/BlogArticle';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
-import { BLOG_POSTS, getPostBySlug } from '../../lib/blog';
+import { blogStaticParams, getPostBySlug } from '../../lib/blog';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
 export function generateStaticParams() {
-  return BLOG_POSTS.map((p) => ({ slug: p.slug }));
+  return blogStaticParams('fr');
 }
 
 export default function BlogPostScreen() {
