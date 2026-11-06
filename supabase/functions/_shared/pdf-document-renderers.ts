@@ -115,13 +115,15 @@ export interface RenderCtx {
 // about 20 mm from the right edge. Folded in three (C5/6) or in two (C5),
 // with the play of the sheet inside the envelope, an A4 page always shows
 // about 100–200 mm from the left and 57–84 mm from the top in that window.
-// The address starts 118 mm from the left and 59 mm from the top (5 lines
-// fit); each company can shift it by a few millimetres for its own printer
+// The address starts 120 mm from the left and 61 mm from the top, with a
+// margin inside that zone on every side (5 lines fit); each company can shift it by a few millimetres for its own printer
 // and envelopes (Compte → Apparence), with a test page to check.
 const MM = 72 / 25.4;
-export const WINDOW_ADDRESS_LEFT_MM = 118;
-export const WINDOW_ADDRESS_TOP_MM = 59;
-const WINDOW_ZONE_LEFT_MM = 96;
+export const WINDOW_ADDRESS_LEFT_MM = 120;
+export const WINDOW_ADDRESS_TOP_MM = 61;
+const WINDOW_ZONE_LEFT_MM = 100;
+const WINDOW_ZONE_TOP_MM = 57;
+const WINDOW_ZONE_BOTTOM_MM = 84;
 export function windowAddressBox(org: any): { x: number; top: number } {
   const dx = Number(org?.client_address_offset_x_mm) || 0;
   const dy = Number(org?.client_address_offset_y_mm) || 0;
@@ -237,74 +239,72 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   y -= 12;
   // With the address in the envelope window, the rule stops short of the
   // window: a line showing through it would cross the address.
-  const ruleEnd = org?.client_address_position === 'right' ? windowAddressBox(org).x - 12 : PAGE_WIDTH - MARGIN;
+  const ruleInWindow = org?.client_address_position === 'right' && y < PAGE_HEIGHT - (WINDOW_ZONE_TOP_MM - 4) * MM;
+  const ruleEnd = ruleInWindow ? WINDOW_ZONE_LEFT_MM * MM - 6 : PAGE_WIDTH - MARGIN;
   page.drawLine({ start: { x: MARGIN, y }, end: { x: ruleEnd, y }, thickness: 1, color: LINE });
   y -= 24;
 
-  // --- Big document-type label, brand-colored, then a tinted reference box
-  // right below it (replaces the old plain "Devis 2026-018 ... date" line).
-  drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
-  y -= 22;
-
+  // --- Reference box rows (number, date, due date / validity, client's
+  // reference; on a letter layout also the chantier).
+  const windowAddress = org?.client_address_position === 'right';
+  const win = windowAddress ? windowAddressBox(org) : null;
+  const projectLine = devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null;
   const boxRows: string[] = [
     `${pdfT(locale, 'reference')} : ${devis.number ?? '—'}`,
     `${pdfT(locale, 'date')} : ${formatDate(devis.created_at, locale)}`,
   ];
-  if (devis.client_reference?.trim()) boxRows.push(`${pdfT(locale, 'clientReference')} : ${devis.client_reference.trim()}`);
   if (metaLine) {
     boxRows.push(metaLine);
   } else if (docKind === 'devis' && devis.valid_until) {
     boxRows.push(`${pdfT(locale, 'validity')} : ${formatDate(devis.valid_until, locale)}`);
   }
+  if (win && projectLine) boxRows.push(projectLine);
+  if (devis.client_reference?.trim()) boxRows.push(`${pdfT(locale, 'clientReference')} : ${devis.client_reference.trim()}`);
   const boxRowH = 13;
   const boxPadV = 7;
   const boxPadL = 16;
-  // Address on the right, in the window of the envelope: the reference box
-  // stays on the left of it.
-  const windowAddress = org?.client_address_position === 'right';
-  const win = windowAddress ? windowAddressBox(org) : null;
-  // (It must end before the window's visible zone, ~100 mm from the left,
-  // or its text would show through the window.)
-  const boxMaxW = win ? WINDOW_ZONE_LEFT_MM * MM - MARGIN : 320;
+  // On a letter layout the box must end before the window's visible zone
+  // (~100 mm from the left), or its text would show through the window.
+  const boxMaxW = win ? WINDOW_ZONE_LEFT_MM * MM - MARGIN - 6 : 320;
   const boxW = Math.min(boxMaxW, Math.max(Math.min(220, boxMaxW), measureMax(font, boxRows, 10) + boxPadL + 16));
   // A row too long for the box (a long client reference) goes on two lines.
   const fitted = boxRows.flatMap((row) => wrapText(row, font, 9.5, boxW - boxPadL - 8));
-  boxRows.splice(0, boxRows.length, ...fitted);
-  const boxH = boxRows.length * boxRowH + boxPadV * 2;
-  const boxTop = y;
-  page.drawRectangle({ x: MARGIN, y: boxTop - boxH, width: boxW, height: boxH, color: softTint(brand, 0.93) });
-  page.drawRectangle({ x: MARGIN, y: boxTop - boxH, width: 3, height: boxH, color: brand });
-  let rowY = boxTop - boxPadV - 9;
-  for (const row of boxRows) {
-    drawText(page, row, MARGIN + boxPadL, rowY, font, 9.5, INK);
-    rowY -= boxRowH;
-  }
-  y = boxTop - boxH - 18;
+  const boxH = fitted.length * boxRowH + boxPadV * 2;
+  const drawBox = (top: number) => {
+    page.drawRectangle({ x: MARGIN, y: top - boxH, width: boxW, height: boxH, color: softTint(brand, 0.93) });
+    page.drawRectangle({ x: MARGIN, y: top - boxH, width: 3, height: boxH, color: brand });
+    let rowY = top - boxPadV - 9;
+    for (const row of fitted) {
+      drawText(page, row, MARGIN + boxPadL, rowY, font, 9.5, INK);
+      rowY -= boxRowH;
+    }
+    return top - boxH;
+  };
 
-  // --- Client block ---
   if (win) {
-    // Name and postal address only, as on a letter, at the window's place;
-    // e-mail and chantier go on the left below the reference box.
+    // --- Letter layout (address in the envelope window): the document
+    // title under the header, then the client's name and postal address
+    // alone at the window's place with the reference box on the left at
+    // the same height, first lines aligned; the table below both.
+    drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
+    y -= 22;
     const postal = [devis.client_name, ...postalLines(devis.client_address)].filter(Boolean).slice(0, 5) as string[];
-    let wy = win.top - 10.5;
-    for (const line of postal) {
-      drawText(page, line, win.x, wy, font, 10.5, INK);
+    const firstBaseline = win.top - 10.5;
+    let wy = firstBaseline;
+    postal.forEach((line, i) => {
+      drawText(page, line, win.x, wy, i === 0 ? fontBold : font, 10.5, INK);
       wy -= 13;
-    }
-    y = Math.min(y, wy) - 8;
-    const rest = [devis.client_email, devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null].filter(Boolean) as string[];
-    for (const line of rest) {
-      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
-      y -= 13;
-    }
-    y -= 10;
+    });
+    // (Lower only if a tall header — centred logo — reaches that far.)
+    const boxBottom = drawBox(Math.min(y, firstBaseline + 9 + boxPadV));
+    const blockBottom = Math.min(boxBottom, wy + 13 - 4, PAGE_HEIGHT - WINDOW_ZONE_BOTTOM_MM * MM);
+    y = Math.min(y, blockBottom) - 24;
   } else {
-    const clientLines = [
-      devis.client_name,
-      devis.client_address,
-      devis.client_email,
-      devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null,
-    ].filter(Boolean) as string[];
+    // --- Classic layout: title, reference box, then the client block.
+    drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
+    y -= 22;
+    y = drawBox(y) - 18;
+    const clientLines = [devis.client_name, devis.client_address, devis.client_email, projectLine].filter(Boolean) as string[];
     drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 9, MUTED);
     y -= 14;
     for (const line of clientLines) {

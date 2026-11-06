@@ -9,8 +9,8 @@
 import { Platform } from 'react-native';
 import { loadPdfLib } from '../loadPdfLib';
 
-export const WINDOW_ADDRESS_LEFT_MM = 118;
-export const WINDOW_ADDRESS_TOP_MM = 59;
+export const WINDOW_ADDRESS_LEFT_MM = 120;
+export const WINDOW_ADDRESS_TOP_MM = 61;
 // What a right-window envelope always shows of an A4 page, folded in three
 // (C5/6) or in two (C5), whatever the play of the sheet inside.
 const ZONE = { left: 100, right: 200, top: 57, bottom: 84 };
@@ -61,8 +61,8 @@ export async function buildWindowTestPdf(offsetXmm: number, offsetYmm: number, t
 
   // Sample address where the documents print it.
   let ay = y(WINDOW_ADDRESS_TOP_MM + offsetYmm) - 10.5;
-  for (const line of texts.sampleAddress) {
-    page.drawText(safe(line), { x: (WINDOW_ADDRESS_LEFT_MM + offsetXmm) * MM, y: ay, size: 10.5, font, color: ink });
+  for (const [i, line] of texts.sampleAddress.entries()) {
+    page.drawText(safe(line), { x: (WINDOW_ADDRESS_LEFT_MM + offsetXmm) * MM, y: ay, size: 10.5, font: i === 0 ? bold : font, color: ink });
     ay -= 13;
   }
 
