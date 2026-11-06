@@ -139,6 +139,45 @@ function postalLines(address: string | null | undefined): string[] {
   return address.split(/,\s*(?=(?:CH-)?\d{4}\s)/).map((l) => l.trim()).filter(Boolean);
 }
 
+// The name and postal address as they must show in the window: each line
+// wrapped to the window's width (up to 200 mm from the left), smaller type
+// for a 5- or 6-line address so it still ends inside the window, and past
+// 6 lines whole address lines go from the top — the name, the street and
+// the postcode + locality are always kept.
+const WINDOW_ZONE_RIGHT_MM = 200;
+function fitPostalBlock(
+  name: string | null | undefined,
+  address: string | null | undefined,
+  x: number,
+  font: PDFFont,
+  fontBold: PDFFont,
+): { size: number; lead: number; lines: { text: string; bold: boolean }[] } {
+  const maxW = Math.max(40 * MM, Math.min(WINDOW_ZONE_RIGHT_MM * MM, PAGE_WIDTH - 12) - x);
+  const steps = [
+    { size: 10.5, lead: 13, max: 4 },
+    { size: 10, lead: 12, max: 5 },
+    { size: 9, lead: 10.8, max: 6 },
+  ];
+  const parts = postalLines(address);
+  let result = { size: 9, lead: 10.8, lines: [] as { text: string; bold: boolean }[] };
+  for (const step of steps) {
+    const nameLines = name?.trim() ? wrapText(name.trim(), fontBold, step.size, maxW).map((text) => ({ text, bold: true })) : [];
+    const addrLines = parts.flatMap((p) => wrapText(p, font, step.size, maxW).map((text) => ({ text, bold: false })));
+    const lines = [...nameLines, ...addrLines];
+    result = { size: step.size, lead: step.lead, lines };
+    if (lines.length <= step.max) return result;
+  }
+  // Still too long at the smallest size: the name stays (two lines at most)
+  // and whole address lines go from the top (p.a., department…) until it
+  // fits — the street and postcode + locality are always kept.
+  const last = steps[steps.length - 1];
+  const nameLines = (name?.trim() ? wrapText(name.trim(), fontBold, last.size, maxW) : []).slice(0, 2).map((text) => ({ text, bold: true }));
+  let rest = parts.map((p) => wrapText(p, font, last.size, maxW).map((text) => ({ text, bold: false })));
+  while (rest.length > 2 && nameLines.length + rest.flat().length > last.max) rest = rest.slice(1);
+  result.lines = [...nameLines, ...rest.flat().slice(-(last.max - nameLines.length))];
+  return result;
+}
+
 function softTint(c: RGB, amount: number): RGB {
   return rgb(c.red + (1 - c.red) * amount, c.green + (1 - c.green) * amount, c.blue + (1 - c.blue) * amount);
 }
@@ -288,16 +327,16 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     // the same height, first lines aligned; the table below both.
     drawText(page, docLabel.toUpperCase(), MARGIN, y, fontBold, 20, brand);
     y -= 22;
-    const postal = [devis.client_name, ...postalLines(devis.client_address)].filter(Boolean).slice(0, 5) as string[];
-    const firstBaseline = win.top - 10.5;
+    const postal = fitPostalBlock(devis.client_name, devis.client_address, win.x, font, fontBold);
+    const firstBaseline = win.top - postal.size;
     let wy = firstBaseline;
-    postal.forEach((line, i) => {
-      drawText(page, line, win.x, wy, i === 0 ? fontBold : font, 10.5, INK);
-      wy -= 13;
-    });
+    for (const line of postal.lines) {
+      drawText(page, line.text, win.x, wy, line.bold ? fontBold : font, postal.size, INK);
+      wy -= postal.lead;
+    }
     // (Lower only if a tall header — centred logo — reaches that far.)
     const boxBottom = drawBox(Math.min(y, firstBaseline + 9 + boxPadV));
-    const blockBottom = Math.min(boxBottom, wy + 13 - 4, PAGE_HEIGHT - WINDOW_ZONE_BOTTOM_MM * MM);
+    const blockBottom = Math.min(boxBottom, wy + postal.lead - 4, PAGE_HEIGHT - WINDOW_ZONE_BOTTOM_MM * MM);
     y = Math.min(y, blockBottom) - 24;
   } else {
     // --- Classic layout: title, reference box, then the client block.
