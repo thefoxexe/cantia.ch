@@ -13,6 +13,7 @@ import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { DocumentNumbering } from '../../../components/DocumentNumbering';
 import { documentOptionsReady } from '../../../lib/documentOptions';
+import { RelatedSettings } from '../../../components/SettingsSection';
 
 export default function DevisSettingsScreen() {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ export default function DevisSettingsScreen() {
   const [validityDays, setValidityDays] = useState(String(organization?.devis_validity_days ?? 30));
   const [devisTerms, setDevisTerms] = useState(organization?.devis_terms ?? '');
   const isAdmin = role === 'owner' || role === 'admin';
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
     useUnsavedChanges(handleSave);
@@ -48,7 +50,8 @@ export default function DevisSettingsScreen() {
 
   async function handleSave() {
     if (!organization) return false;
-    await supabase
+    setSaveError(null);
+    const { error } = await supabase
       .from('organizations')
       .update({
         default_vat_rate: Number(vatRate) || 0,
@@ -56,6 +59,10 @@ export default function DevisSettingsScreen() {
         devis_terms: devisTerms.trim() || null,
       })
       .eq('id', organization.id);
+    if (error) {
+      setSaveError(`${t('entreprise.saveFailed')} (${error.message})`);
+      return false;
+    }
     refreshOrganization();
   }
 
@@ -135,8 +142,11 @@ export default function DevisSettingsScreen() {
             {organization ? <DocumentNumbering organizationId={organization.id} isAdmin={isAdmin} /> : null}
             </>
           ) : null}
+
+          <RelatedSettings items={['look', 'company', 'emails', 'reminders']} />
         </Container>
       </ScrollView>
+      {saveError ? <Text style={{ fontSize: fontSize.sm, color: colors.danger, textAlign: 'center', padding: spacing.sm }}>{saveError}</Text> : null}
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </AppScreen>

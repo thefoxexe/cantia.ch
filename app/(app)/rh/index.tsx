@@ -11,6 +11,7 @@ import { PayrollEntryPanel, defaultTodayRange } from '../../../components/Payrol
 import { PayrollDateFilter, type DateRange } from '../../../components/PayrollDateFilter';
 import { PayrollInvoiceModal, type InvoiceCandidateLine } from '../../../components/PayrollInvoiceModal';
 import { Button, Card, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
+import { PageSettings } from '../../../components/PageSettings';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
@@ -362,10 +363,13 @@ export default function PayrollScreen() {
           title={t('payrollHub.title')}
           backTo="/(app)"
           right={
-            <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
-              <Feather name="calendar" size={15} color={colors.primary} />
-              <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+              <Pressable onPress={() => router.push('/(app)/rh/absences' as any)} hitSlop={8} style={styles.selfAbsencesLink}>
+                <Feather name="calendar" size={15} color={colors.primary} />
+                <Text style={styles.selfAbsencesLinkText}>{t('payrollHub.selfAbsencesLink')}</Text>
+              </Pressable>
+              <PageSettings page="rh" />
+            </View>
           }
         />
         <Text style={styles.pageSubtitle}>{t('payrollHub.adminSubtitle')}</Text>

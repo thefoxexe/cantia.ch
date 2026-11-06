@@ -12,6 +12,7 @@ import { BrandColorPicker } from '../../../components/BrandColorPicker';
 import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { RelatedSettings, SettingsSection } from '../../../components/SettingsSection';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
@@ -132,25 +133,7 @@ export default function ApparenceScreen() {
         <Container>
           <PageHeader title={t('apparence.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 
-          <View style={styles.introRow}>
-            <Text style={styles.introText}>{t('apparence.intro')}</Text>
-            <Pressable onPress={pickLogo} disabled={!isAdmin} style={styles.logoInlineWrap}>
-              {logoUrl ? (
-                <Image source={{ uri: logoUrl }} style={styles.logoPreviewSmall} />
-              ) : (
-                <View style={[styles.logoPreviewSmall, styles.brandPlaceholder]}>
-                  <Feather name="image" size={16} color={colors.textMuted} />
-                </View>
-              )}
-              {isAdmin ? (
-                <View style={styles.logoEditBadge}>
-                  <Feather name="camera" size={10} color="#fff" />
-                </View>
-              ) : null}
-            </Pressable>
-          </View>
-          <Text style={styles.hint}>{t('apparence.logoFormatHint')}</Text>
-          <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
+          <Text style={styles.introText}>{t('apparence.intro')}</Text>
 
           <Card style={styles.previewCard}>
             <View style={[styles.previewBand, { backgroundColor: previewColor }]}>
@@ -167,8 +150,45 @@ export default function ApparenceScreen() {
             </View>
           </Card>
 
+          <SettingsSection icon="image" title={t('apparence.sections.logo.title')} hint={t('apparence.sections.logo.hint')}>
+            <View style={styles.logoRow}>
+              <Pressable onPress={pickLogo} disabled={!isAdmin} style={styles.logoInlineWrap}>
+                {logoUrl ? (
+                  <Image source={{ uri: logoUrl }} style={styles.logoPreviewSmall} />
+                ) : (
+                  <View style={[styles.logoPreviewSmall, styles.brandPlaceholder]}>
+                    <Feather name="image" size={16} color={colors.textMuted} />
+                  </View>
+                )}
+              </Pressable>
+              {isAdmin ? (
+                <Button title={logoUrl ? t('apparence.changeLogo') : t('apparence.chooseLogo')} variant="secondary" icon="upload" onPress={pickLogo} />
+              ) : null}
+            </View>
+            <Text style={styles.hint}>{t('apparence.logoFormatHint')}</Text>
+            {hasCustomization !== false ? (
+              <>
+                <Text style={styles.fieldLabel}>{t('apparence.logoPlacementTitle')}</Text>
+                <View style={styles.placementRow}>
+                  {LOGO_PLACEMENTS.map((p) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => isAdmin && withDirty(setLogoPlacement)(p.id)}
+                      disabled={!isAdmin}
+                      style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                    >
+                      <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
+                      <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{t(`apparence.logoPlacements.${p.id}` as any)}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            ) : null}
+            <Text style={styles.hint}>{t('apparence.signatureHint')}</Text>
+          </SettingsSection>
+
           {hasCustomization === false ? (
-            <Card style={styles.upsell}>
+            <Card style={[styles.upsell, { marginTop: spacing.xl }]}>
               <Feather name="lock" size={20} color={colors.accent} />
               <Text style={styles.upsellTitle}>{t('apparence.upsellTitle')}</Text>
               <Text style={styles.hint}>{t('apparence.upsellPlanHint')}</Text>
@@ -181,10 +201,7 @@ export default function ApparenceScreen() {
               />
             </Card>
           ) : (
-            <>
-              <Text style={styles.sectionTitle}>{t('apparence.brandColorTitle')}</Text>
-              <Text style={styles.hint}>{t('apparence.brandColorHint')}</Text>
-
+            <SettingsSection icon="droplet" title={t('apparence.sections.color.title')} hint={t('apparence.sections.color.hint')}>
               <Field
                 label={t('apparence.websiteLabel')}
                 value={website}
@@ -202,23 +219,70 @@ export default function ApparenceScreen() {
                 companyName={organization?.name}
                 disabled={!isAdmin}
               />
+            </SettingsSection>
+          )}
 
-              <Text style={styles.sectionTitle}>{t('apparence.logoPlacementTitle')}</Text>
+          {documentOptionsReady(organization) ? (
+            <SettingsSection icon="mail" title={t('apparence.sections.address.title')} hint={t('apparence.sections.address.hint')}>
               <View style={styles.placementRow}>
-                {LOGO_PLACEMENTS.map((p) => (
+                {(['left', 'right'] as const).map((p) => (
                   <Pressable
-                    key={p.id}
-                    onPress={() => isAdmin && withDirty(setLogoPlacement)(p.id)}
+                    key={p}
+                    onPress={() => isAdmin && withDirty(setAddressPosition)(p)}
                     disabled={!isAdmin}
-                    style={[styles.placementChip, logoPlacement === p.id && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                    style={[styles.placementChip, addressPosition === p && styles.chipActive, !isAdmin && styles.chipDisabled]}
                   >
-                    <Feather name={p.icon} size={14} color={logoPlacement === p.id ? colors.primary : colors.textMuted} />
-                    <Text style={[styles.chipText, logoPlacement === p.id && styles.chipTextActive]}>{t(`apparence.logoPlacements.${p.id}` as any)}</Text>
+                    <Feather name={p === 'left' ? 'align-left' : 'mail'} size={14} color={addressPosition === p ? colors.primary : colors.textMuted} />
+                    <Text style={[styles.chipText, addressPosition === p && styles.chipTextActive]}>{t(`apparence.addressPositions.${p}` as any)}</Text>
                   </Pressable>
                 ))}
               </View>
+              {addressPosition === 'right' ? (
+                <>
+                  <Text style={styles.hint}>{t('apparence.addressRightHint')}</Text>
+                  <View style={styles.offsetRow}>
+                    <View style={styles.offsetField}>
+                      <Field label={t('apparence.addressOffsetX')} value={offsetX} onChangeText={withDirty(setOffsetX)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                    </View>
+                    <View style={styles.offsetField}>
+                      <Field label={t('apparence.addressOffsetY')} value={offsetY} onChangeText={withDirty(setOffsetY)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                    </View>
+                  </View>
+                  <Text style={styles.hint}>{t('apparence.addressOffsetHint')}</Text>
+                  {offsetError ? <Text style={styles.error}>{offsetError}</Text> : null}
+                  {Platform.OS === 'web' ? (
+                    <View style={{ marginTop: spacing.sm, gap: spacing.xs }}>
+                      <Button
+                        title={t('apparence.addressTest')}
+                        variant="secondary"
+                        icon="printer"
+                        onPress={async () => {
+                          setTestError(null);
+                          const dx = parseOffset(offsetX);
+                          const dy = parseOffset(offsetY);
+                          if (dx == null || dy == null) {
+                            setOffsetError(t('apparence.addressOffsetError'));
+                            return;
+                          }
+                          const raw = t('apparence.addressTestPdf', { returnObjects: true }) as WindowTestTexts;
+                          const texts = { ...raw, offsets: t('apparence.addressTestPdf.offsets', { x: dx, y: dy }) };
+                          const { error } = await downloadWindowTestPage(dx, dy, texts, t('apparence.addressTestFile'));
+                          if (error) setTestError(error);
+                        }}
+                      />
+                      <Text style={styles.hint}>{t('apparence.addressTestHint')}</Text>
+                      {testError ? <Text style={styles.error}>{testError}</Text> : null}
+                    </View>
+                  ) : null}
+                </>
+              ) : (
+                <Text style={styles.hint}>{t('apparence.addressLeftHint')}</Text>
+              )}
+            </SettingsSection>
+          ) : null}
 
-              <Text style={styles.sectionTitle}>{t('apparence.footerTitle')}</Text>
+          {hasCustomization !== false ? (
+            <SettingsSection icon="align-center" title={t('apparence.sections.footer.title')} hint={t('apparence.sections.footer.hint')}>
               <Field
                 label={t('apparence.footerLabel')}
                 value={footerText}
@@ -226,66 +290,10 @@ export default function ApparenceScreen() {
                 editable={isAdmin}
                 placeholder={t('apparence.footerPlaceholder')}
               />
-              <Text style={styles.hint}>{t('apparence.footerHint')}</Text>
-            </>
-          )}
-
-          {documentOptionsReady(organization) ? (
-            <>
-            <Text style={styles.sectionTitle}>{t('apparence.addressTitle')}</Text>
-            <View style={styles.placementRow}>
-              {(['left', 'right'] as const).map((p) => (
-                <Pressable
-                  key={p}
-                  onPress={() => isAdmin && withDirty(setAddressPosition)(p)}
-                  disabled={!isAdmin}
-                  style={[styles.placementChip, addressPosition === p && styles.chipActive, !isAdmin && styles.chipDisabled]}
-                >
-                  <Feather name={p === 'left' ? 'align-left' : 'mail'} size={14} color={addressPosition === p ? colors.primary : colors.textMuted} />
-                  <Text style={[styles.chipText, addressPosition === p && styles.chipTextActive]}>{t(`apparence.addressPositions.${p}` as any)}</Text>
-                </Pressable>
-              ))}
-            </View>
-            {addressPosition === 'right' ? (
-              <>
-                <Text style={styles.hint}>{t('apparence.addressRightHint')}</Text>
-                <View style={styles.offsetRow}>
-                  <View style={styles.offsetField}>
-                    <Field label={t('apparence.addressOffsetX')} value={offsetX} onChangeText={withDirty(setOffsetX)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
-                  </View>
-                  <View style={styles.offsetField}>
-                    <Field label={t('apparence.addressOffsetY')} value={offsetY} onChangeText={withDirty(setOffsetY)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
-                  </View>
-                </View>
-                <Text style={styles.hint}>{t('apparence.addressOffsetHint')}</Text>
-                {offsetError ? <Text style={styles.error}>{offsetError}</Text> : null}
-                {Platform.OS === 'web' ? (
-                  <View style={{ marginTop: spacing.md, gap: spacing.xs }}>
-                    <Button
-                      title={t('apparence.addressTest')}
-                      variant="secondary"
-                      onPress={async () => {
-                        setTestError(null);
-                        const dx = parseOffset(offsetX);
-                        const dy = parseOffset(offsetY);
-                        if (dx == null || dy == null) {
-                          setOffsetError(t('apparence.addressOffsetError'));
-                          return;
-                        }
-                        const raw = t('apparence.addressTestPdf', { returnObjects: true }) as WindowTestTexts;
-                        const texts = { ...raw, offsets: t('apparence.addressTestPdf.offsets', { x: dx, y: dy }) };
-                        const { error } = await downloadWindowTestPage(dx, dy, texts, t('apparence.addressTestFile'));
-                        if (error) setTestError(error);
-                      }}
-                    />
-                    <Text style={styles.hint}>{t('apparence.addressTestHint')}</Text>
-                    {testError ? <Text style={styles.error}>{testError}</Text> : null}
-                  </View>
-                ) : null}
-              </>
-            ) : null}
-            </>
+            </SettingsSection>
           ) : null}
+
+          <RelatedSettings items={['documents', 'company', 'emails']} />
         </Container>
       </ScrollView>
       {saveError ? <Text style={[styles.error, { textAlign: 'center', padding: spacing.sm }]}>{saveError}</Text> : null}
@@ -320,7 +328,7 @@ const styles = StyleSheet.create({
   previewCard: {
     padding: 0,
     overflow: 'hidden',
-    marginTop: spacing.lg,
+    marginTop: spacing.xs,
   },
   previewBand: {
     paddingHorizontal: spacing.lg,
@@ -357,8 +365,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.sm,
   },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flexWrap: 'wrap' },
+  fieldLabel: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text, marginTop: spacing.sm },
   introText: {
-    flex: 1,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
     fontSize: fontSize.xs,
     color: colors.textMuted,
     lineHeight: 17,
@@ -490,7 +501,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    marginBottom: spacing.lg,
   },
   placementChip: {
     flexDirection: 'row',

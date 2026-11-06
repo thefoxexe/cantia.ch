@@ -11,6 +11,7 @@ import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
 import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
+import { PageSettings } from '../../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
@@ -453,9 +454,7 @@ export default function FacturesListScreen() {
                     <Pressable onPress={() => router.push('/(app)/compta')} hitSlop={8}>
                       <Feather name="percent" size={18} color={colors.textMuted} />
                     </Pressable>
-                    <Pressable onPress={() => router.push('/(app)/compte/devis')} hitSlop={8}>
-                      <Feather name="settings" size={18} color={colors.textMuted} />
-                    </Pressable>
+                    <PageSettings page="factures" />
                   </View>
                 ) : undefined
               }

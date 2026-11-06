@@ -9,6 +9,7 @@ import { getFeedUnreadCounts } from '../../../lib/api/feed';
 import { confirm } from '../../../lib/confirm';
 import { Button, EmptyState, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { FolderList } from '../../../components/chantier/ProjectInfoForm';
+import { PageSettings } from '../../../components/PageSettings';
 import { compareReference, createFolder, deleteFolder, folderPath, folderWords, listFavorites, listFolders, moveProject, setFavorite, updateFolder } from '../../../lib/projectFolders';
 import { useTranslation } from '../../../lib/translations';
 import { dragSource, dropTarget, type DragItem } from '../../../lib/dragDrop';
@@ -202,7 +203,7 @@ export default function ChantiersListScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={[styles.page, !wide && { padding: spacing.lg }]} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
-        <PageHeader title={t('chantiersList.title')} backTo="/(app)" />
+        <PageHeader title={t('chantiersList.title')} backTo="/(app)" right={<PageSettings page="chantiers" />} />
         <Text style={styles.pageSubtitle}>{t('chantiersList.subtitle')}</Text>
 
         {/* breadcrumb */}

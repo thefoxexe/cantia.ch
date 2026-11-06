@@ -12,6 +12,7 @@ import { ClientPicker } from '../../../../components/ClientPicker';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { TramePicker } from '../../../../components/TramePicker';
 import { DocumentPreview, LivePreviewBar } from '../../../../components/DocumentPreview';
+import { PageSettings } from '../../../../components/PageSettings';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../lib/catalog';
 import { generateDevisLines } from '../../../../lib/api/ai';
@@ -526,6 +527,7 @@ export default function NewFactureScreen() {
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
+          <PageSettings page="documentEditor" style={{ alignSelf: 'flex-end', marginBottom: spacing.sm }} />
           {editId && editingNumber ? (
             <View style={styles.editBanner}>
               <Feather name="edit-3" size={14} color={colors.primaryDark} />

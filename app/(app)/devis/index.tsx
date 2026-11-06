@@ -9,6 +9,7 @@ import { confirm } from '../../../lib/confirm';
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../lib/api/integrations';
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
+import { PageSettings } from '../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
@@ -227,13 +228,7 @@ export default function DevisListScreen() {
           <PageHeader
             title={t('devisList.title')}
             backTo="/(app)"
-            right={
-              isAdmin ? (
-                <Pressable onPress={() => router.push('/(app)/compte/devis')} hitSlop={8}>
-                  <Feather name="settings" size={18} color={colors.textMuted} />
-                </Pressable>
-              ) : undefined
-            }
+            right={<PageSettings page="devis" />}
           />
         )}
         {!openProject ? <Text style={styles.pageSubtitle}>{t('devisList.subtitle')}</Text> : null}
