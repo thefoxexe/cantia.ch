@@ -24,6 +24,8 @@ export const UNITS: UnitDef[] = [
   // CAN "up" (unité de prix): the quantity is itself an amount or a count
   // defined by the article ("up = Fr.", "up = pce").
   { key: 'up', label: 'up', dimension: 'price_unit' },
+  // "Matériel d'assemblage … %": a percentage of other positions.
+  { key: '%', label: '%', dimension: 'price_unit' },
 ];
 
 const ALIASES: Record<string, string> = {
@@ -37,6 +39,7 @@ const ALIASES: Record<string, string> = {
   j: 'jour', jour: 'jour', jours: 'jour', tag: 'jour', tage: 'jour', giorno: 'jour', giorni: 'jour',
   gl: 'gl', fft: 'gl', forfait: 'gl', global: 'gl', pauschal: 'gl', psch: 'gl', 'a corpo': 'gl', ac: 'gl',
   up: 'up', le: 'up',
+  '%': '%',
 };
 
 export function normalizeUnit(raw: string | null | undefined): { unit: string | null; known: boolean } {

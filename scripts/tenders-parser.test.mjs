@@ -165,6 +165,49 @@ test('a non-CAN bordereau is accepted (numbered headings + qty/unit)', () => {
   assert.equal(res.nodes.find((n) => n.key === p.parentKey).positionPath, '1');
 });
 
+// Word "Prescriptions techniques" (ventilation): columns Unité | Quantité |
+// Prix unitaire | Somme, the unit printed BEFORE the quantity, several
+// labelled lines under one numbered heading, price fields on their own
+// "prix unitaire Fr. …" / "montant total Fr. …" lines. Invented text.
+test('a descriptif with the unit before the quantity and labelled sub-lines', () => {
+  const it = (page, x, y, str) => ({ page, x, y, w: str.length * 4.6, h: 9, fontSize: 9, str });
+  const items = [];
+  const header = (p) => {
+    items.push(it(p, 140, 60, 'PRESCRIPTIONS TECHNIQUES'), it(p, 368, 60, 'Unité'), it(p, 392, 60, 'Quantité'), it(p, 438, 60, 'Prix unitaire'), it(p, 510, 60, 'Somme'));
+    items.push(it(p, 86, 800, 'K:\\Projets\\Parking.doc'), it(p, 490, 800, String(p)));
+  };
+  const block = (p, rows) => { let y = 90; for (const r of rows) { for (const [x, s] of r) items.push(it(p, x, y, s)); y += 12; } };
+  const pu = (v = '......') => [[166, 'prix unitaire'], [372, 'Fr.'], [420 - v.length * 4.6, v]];
+  const mt = (v = '.................') => [[166, 'montant total'], [474, 'Fr.'], [568 - v.length * 4.6, v]];
+  header(1);
+  block(1, [
+    [[92, '1. CONDUITES']],
+    [[92, 'Un réseau de canaux, tôle galvanisée, épaisseur selon normes.']],
+    [[92, 'Gaines droites'], [166, 'poids total calculé'], [372, 'kg'], [402, "1'700"]], pu('12.50'), mt("21'250.00"),
+    [[92, 'Pièces de forme'], [166, 'poids total calculé'], [372, 'kg'], [407, '400']], pu(), mt(),
+    [[92, 'Matériel d’assemblage et de fixation'], [373, '%'], [394, '......'], [474, 'Fr.'], [490, '.................']],
+  ]);
+  header(2);
+  block(2, [[[92, '2. GRILLES']], [[92, 'Grilles murales'], [166, '300 x 150 mm'], [372, 'pce'], [410, '24']], pu(), mt(), [[92, 'Grilles de plafond'], [372, 'pce'], [413, '8']], pu(), mt()]);
+  header(3);
+  block(3, [[[92, '3. ISOLATION']], [[92, 'Gaines isolées'], [372, 'm2'], [405, '180']], pu(), mt()]);
+  const res = parseTender({ pages: [1, 2, 3].map((p) => ({ page: p, width: W, height: H, rotation: 0, textItems: 30 })), items, scanned: false });
+  assert.equal(res.classification, 'CUSTOM');
+  const bill = res.nodes.filter((n) => n.nodeType === 'billable_position');
+  assert.deepEqual(bill.map((n) => [n.positionPath, n.quantity, n.unit]), [
+    ['1', 1700, 'kg'], ['1', 400, 'kg'], ['1', null, '%'], ['2', 24, 'pce'], ['2', 8, 'pce'], ['3', 180, 'm2'],
+  ]);
+  const gaines = bill[0];
+  assert.equal(gaines.title, 'Gaines droites poids total calculé');
+  assert.equal(gaines.documentUnitPrice, 12.5);
+  assert.equal(gaines.documentAmount, 21250);
+  assert.equal(res.nodes.find((n) => n.key === gaines.parentKey).title, 'CONDUITES');
+  // the price lines are neither positions nor part of a description
+  assert.ok(!res.nodes.some((n) => /prix unitaire|montant total/.test(n.title + n.description)));
+  // "%" is a known unit, the blank quantity is the one to fill in
+  assert.ok(!bill[2].issues.some((i) => i.kind === 'unit_unknown' || i.kind === 'quantity_missing'));
+});
+
 // ---- the real reference soumission (local only: CAN texts belong to CRB) ---
 const FIXTURE = new URL('../fixtures/tenders/01_BA_maconnerie.pdf', import.meta.url);
 test('reference soumission 01_BA_maconnerie.pdf', { skip: !existsSync(FIXTURE) && 'fixture not present (gitignored)' }, async () => {

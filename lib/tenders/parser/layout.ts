@@ -78,6 +78,9 @@ export interface Columns {
   quantityRight: number | null;
   priceRight: number | null;
   amountRight: number | null;
+  // Unit printed BEFORE the quantity ("Unité | Quantité", "kg   1'700"), as
+  // in many Word descriptifs; CAN exports print the quantity first.
+  unitFirst?: boolean;
 }
 
 function mode(values: number[], bucket = 2): number | null {
@@ -114,12 +117,29 @@ export function detectColumns(lines: Line[]): Columns {
   const subXs: number[] = [];
   const textXs: number[] = [];
   const rightOfUnit: number[] = [];
+  // "kg   1'700" / "%   ......": a known unit, then its quantity field.
+  const unitFirstXs: number[] = [];
+  const unitFirstQtyRights: number[] = [];
+  const dotRights: number[] = [];
 
   for (const l of lines) {
     const its = l.items;
     for (let i = 0; i < its.length; i++) {
       const s = its[i].str.trim();
       if (isZoneToken(s)) zoneXs.push(its[i].x);
+      if (isDots(s)) dotRights.push(its[i].x + its[i].w);
+      {
+        const next = its[i + 1];
+        const isUnit = normalizeUnit(s).known && parseSwissNumber(s) == null && i > 0;
+        if (isUnit && next && (parseSwissNumber(next.str) != null || isDots(next.str)) && next.x - (its[i].x + its[i].w) < 60) {
+          // Not "820 m2" read backwards: the item before the unit is not its quantity.
+          const prev = its[i - 1];
+          if (parseSwissNumber(prev.str) == null || its[i].x - (prev.x + prev.w) >= 40) {
+            unitFirstXs.push(its[i].x);
+            if (parseSwissNumber(next.str) != null) unitFirstQtyRights.push(next.x + next.w);
+          }
+        }
+      }
       // "820 m2": a number immediately followed by a known unit.
       const next = its[i + 1];
       if (next && parseSwissNumber(s) != null && normalizeUnit(next.str).known && next.x - (its[i].x + its[i].w) < 40) {
@@ -141,6 +161,13 @@ export function detectColumns(lines: Line[]): Columns {
     if (its[1] && ARTICLE.test(first.str.trim())) textXs.push(its[1].x);
   }
 
+  // More "kg 1'700" than "1'700 kg": the unit column comes first.
+  const unitFirst = unitFirstXs.length >= 3 && unitFirstXs.length > unitXs.length;
+  if (unitFirst) {
+    const qr = mode(unitFirstQtyRights, 4);
+    // Price and amount fields: whatever ends right of the quantity column.
+    for (const r of dotRights) if (qr != null && r > qr + 12) rightOfUnit.push(r);
+  }
   // The two right-most field edges after the unit: unit price, then amount.
   const rights = [...new Set(rightOfUnit.map((r) => Math.round(r / 6) * 6))].sort((a, b) => a - b);
   const clusters: number[][] = [];
@@ -158,8 +185,9 @@ export function detectColumns(lines: Line[]): Columns {
     subArticleX: mode(subXs),
     textX: mode(textXs),
     zoneX: mode(zoneXs),
-    unitX: mode(unitXs),
-    quantityRight: mode(qtyRights, 4),
+    unitX: unitFirst ? mode(unitFirstXs) : mode(unitXs),
+    quantityRight: unitFirst ? mode(unitFirstQtyRights, 4) : mode(qtyRights, 4),
+    unitFirst,
     priceRight: weighted.length >= 2 ? weighted[weighted.length - 2].center : null,
     amountRight: weighted.length >= 1 ? weighted[weighted.length - 1].center : null,
   };

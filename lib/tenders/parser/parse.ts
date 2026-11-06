@@ -13,7 +13,7 @@ import type { NodeType, SourceBox } from '../types.ts';
 import { isDots, isZoneToken, readDocument, type Columns } from './layout.ts';
 import type { Certainty, DocumentMeta, DraftNode, DraftQuestion, ExtractedDocument, Line, ParseResult, TextItem } from './types.ts';
 
-export const PARSER_VERSION = 'tenders-parser/1.1.1';
+export const PARSER_VERSION = 'tenders-parser/1.2.0';
 
 // "Contrat : 1    CAN Construction : 241 Constructions en béton coulé sur place F/04(V´11)"
 // "NPK Bau : 241 Ortbetonbau D/04(V'11)"
@@ -74,20 +74,37 @@ interface Fields {
   amount: number | null;
   hasPriceColumns: boolean;
   blankQuantity: boolean; // "...... m2": quantity left for the bidder
+  // "prix unitaire Fr. ……" / "montant total Fr. ……": the price fields of
+  // the position above, printed on their own line — never a quantity.
+  priceLine: boolean;
   items: TextItem[];
 }
+
+// Currency printed in the unit column of a price line.
+const CURRENCY = /^(?:fr\.?|chf|sfr\.?)$/i;
+// Label of a line that only carries the price fields of the line above.
+const PRICE_LABEL = /^(?:prix\s+unitaire|prix|montant(?:\s+total)?|somme|total\s+position|einheitspreis|preis|betrag|prezzo(?:\s+unitario)?|importo)\b/i;
 
 // Zone, quantity, unit, unit price and amount on the right side of a line.
 function readFields(line: Line, cols: Columns): Fields | null {
   const zoneX = cols.zoneX;
   const unitX = cols.unitX;
-  const minX = Math.min(zoneX ?? Infinity, unitX != null ? unitX - 60 : Infinity);
+  // Quantity first ("820 m2"): its field starts up to 60 pt left of the
+  // unit. Unit first ("kg 1'700"): the fields start at the unit column.
+  const minX = Math.min(zoneX ?? Infinity, unitX != null ? unitX - (cols.unitFirst ? 6 : 60) : Infinity);
   // A blank quantity field ("......") can start well left of the unit:
   // what counts is that it ends at the quantity column.
   const right = line.items.filter((it) => it.x >= minX - 4 || isZoneToken(it.str) || (isDots(it.str) && unitX != null && it.x + it.w >= unitX - 40 && it.x + it.w <= unitX + 2));
   if (!right.length) return null;
-  const f: Fields = { zone: null, quantity: null, rawQuantity: null, unit: null, price: null, amount: null, hasPriceColumns: false, blankQuantity: false, items: right };
+  const f: Fields = { zone: null, quantity: null, rawQuantity: null, unit: null, price: null, amount: null, hasPriceColumns: false, blankQuantity: false, priceLine: false, items: right };
   const afterUnit: { n: number; edge: number }[] = [];
+  // Right edge of the quantity field: before the unit, or right after it.
+  const qtyEdge = cols.unitFirst ? (cols.quantityRight ?? (unitX != null ? unitX + 60 : null)) : unitX;
+  const inQuantity = (it: TextItem, edge: number) =>
+    qtyEdge != null && edge <= qtyEdge + (cols.unitFirst ? 8 : 2) && (!cols.unitFirst || unitX == null || it.x >= unitX - 2);
+  // "Fr." in the unit column: this line is a price, not a quantity. (A
+  // "Fr." further right only heads the price field of a normal line.)
+  f.priceLine = unitX != null && right.some((it) => CURRENCY.test(it.str.trim()) && Math.abs(it.x - unitX) <= 8);
   for (const it of right) {
     const s = it.str.trim();
     const edge = it.x + it.w;
@@ -95,18 +112,22 @@ function readFields(line: Line, cols: Columns): Fields | null {
       f.zone = s.slice(1).trim();
       continue;
     }
-    if (unitX != null && Math.abs(it.x - unitX) <= 8 && parseSwissNumber(s) == null) {
+    if (CURRENCY.test(s)) {
+      f.hasPriceColumns = true;
+      continue;
+    }
+    if (unitX != null && Math.abs(it.x - unitX) <= 8 && parseSwissNumber(s) == null && !isDots(s)) {
       f.unit = s;
       continue;
     }
     if (isDots(s)) {
-      if (unitX != null && edge <= unitX + 2) f.blankQuantity = true;
+      if (!f.priceLine && inQuantity(it, edge)) f.blankQuantity = true;
       else f.hasPriceColumns = true;
       continue;
     }
     const n = parseSwissNumber(s);
     if (n == null) continue;
-    if (unitX != null && edge <= unitX + 2) {
+    if (!f.priceLine && inQuantity(it, edge)) {
       f.quantity = n;
       f.rawQuantity = s;
     } else {
@@ -127,7 +148,7 @@ function readFields(line: Line, cols: Columns): Fields | null {
   }
   if (afterUnit.length) f.hasPriceColumns = true;
   if (f.blankQuantity && !f.unit) f.blankQuantity = false;
-  if (f.zone == null && f.quantity == null && f.unit == null && f.price == null && f.amount == null) return null;
+  if (f.zone == null && f.quantity == null && f.unit == null && f.price == null && f.amount == null && !f.priceLine) return null;
   return f;
 }
 
@@ -450,16 +471,27 @@ export function parseTender(doc: ExtractedDocument): ParseResult {
 }
 
 // Non-CAN documents: "1", "1.2", "1.2.3 Désignation … 12.5 m2 [PU] [montant]".
+// Inside a numbered heading, a line with its own label and its own
+// quantity ("Gaines droites   poids total calculé   kg   1'700") is a
+// position of its own; "prix unitaire Fr. ……" and "montant total Fr. ……"
+// lines only carry the price fields of the position above.
 function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
   const stack: DraftNode[] = [];
   let current: DraftNode | null = null;
+  let item: DraftNode | null = null; // last labelled position under `current`
+  const fieldsStart = columns.unitX != null ? columns.unitX - (columns.unitFirst ? 6 : 60) : Infinity;
+  // Left margin of the text: where most lines start.
+  const starts = new Map<number, number>();
+  for (const l of body) if (l.items[0]) starts.set(Math.round(l.items[0].x / 4) * 4, (starts.get(Math.round(l.items[0].x / 4) * 4) ?? 0) + 1);
+  const margin = Math.min(...[...starts.entries()].filter(([, n]) => n >= Math.max(2, body.length * 0.1)).map(([x]) => x), Infinity);
+  const headingMaxX = Math.max(columns.textX ?? 80, Number.isFinite(margin) ? margin : 0) + 10;
   for (const line of body) {
     const text = line.text.trim();
     if (!text || DASHES.test(text) || CARRY.test(text)) continue;
     if (TOTAL.test(text)) continue;
     const m = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(text);
     const fields = readFields(line, columns);
-    if (m && line.items[0].x < (columns.textX ?? 80) + 10) {
+    if (m && line.items[0].x < headingMaxX) {
       const depth = m[1].split('.').length - 1;
       while (stack.length > depth) stack.pop();
       const parent = stack.at(-1) ?? null;
@@ -469,13 +501,55 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
       current.canChapter = null;
       stack[depth] = current;
       stack.length = depth + 1;
-    } else if (current && !fields) {
-      appendText(current, text, line.text);
+      item = null;
+      if (fields) {
+        ctx.current = current;
+        onFields(ctx, fields, line);
+      }
+      continue;
     }
-    if (fields && current) {
-      ctx.current = current;
-      onFields(ctx, fields, line);
+    if (!current) continue;
+    if (!fields) {
+      // "montant total Fr. ……" left blank: a field to fill, not text.
+      if (PRICE_LABEL.test(text) && line.items.some((it) => isDots(it.str) || CURRENCY.test(it.str.trim()))) continue;
+      appendText(item ?? current, text, line.text);
+      continue;
     }
+    const label = line.items
+      .filter((it) => it.x < fieldsStart && !fields.items.includes(it) && !isDots(it.str))
+      .map((it) => it.str.trim())
+      .join(' ')
+      .trim();
+    if (fields.priceLine || PRICE_LABEL.test(label)) {
+      // Price fields of the position above (or of the heading itself).
+      // The label says which field the number is ("prix unitaire" or
+      // "montant total"), wherever it was printed.
+      const value = fields.price ?? fields.amount ?? fields.quantity;
+      const isAmount = /^(?:montant|somme|total|betrag|importo)/i.test(label);
+      const isPrice = !isAmount && /^(?:prix|einheitspreis|preis|prezzo)/i.test(label);
+      ctx.current = item ?? current;
+      onFields(
+        ctx,
+        {
+          ...fields,
+          zone: null,
+          quantity: null,
+          rawQuantity: null,
+          blankQuantity: false,
+          unit: null,
+          price: isPrice ? value : isAmount ? null : fields.price,
+          amount: isAmount ? value : isPrice ? null : fields.amount,
+        },
+        line,
+      );
+      continue;
+    }
+    if (label) {
+      item = newNode(ctx, { nodeType: 'section', parent: current, rawNumber: null, positionPath: current.positionPath, displayReference: current.displayReference, title: label, description: label }, line);
+      item.canChapter = null;
+    }
+    ctx.current = item ?? current;
+    onFields(ctx, fields, line);
   }
 }
 
