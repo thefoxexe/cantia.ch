@@ -65,6 +65,41 @@ function parseNumbering(line: Line, cols: Columns): Parsed | null {
   return null;
 }
 
+// Some PDFs (Word exports) cut a number into glyph runs: "1" "’" "70" "0"
+// for 1'700. Touching runs of digits and separators are one number.
+const NUMBER_PART = /^[\d'’.,]+$/;
+function mergeNumberRuns(items: TextItem[]): TextItem[] {
+  const out: TextItem[] = [];
+  for (const it of [...items].sort((a, b) => a.x - b.x)) {
+    const last = out.at(-1);
+    const touching = last && it.x - (last.x + last.w) <= 2.5 && it.x >= last.x;
+    // "m" "²" → "m²"
+    if (last && touching && /^[²³]$/.test(it.str.trim()) && /^[a-z]+$/i.test(last.str.trim())) {
+      out[out.length - 1] = { ...last, str: last.str.trim() + it.str.trim(), w: it.x + it.w - last.x };
+      continue;
+    }
+    if (last && touching && NUMBER_PART.test(last.str.trim()) && NUMBER_PART.test(it.str.trim())) {
+      out[out.length - 1] = { ...last, str: last.str.trim() + it.str.trim(), w: it.x + it.w - last.x };
+    } else out.push(it);
+  }
+  return out;
+}
+
+// Text of a run of items, without the spaces a PDF puts between glyph
+// runs of one word ("ø" "1" "00" → "ø 100", "Tr" "ansmetteur").
+function joinItems(items: TextItem[]): string {
+  let out = '';
+  let prev: TextItem | null = null;
+  for (const it of items) {
+    const str = it.str.trim();
+    if (!str) continue;
+    const tight = prev && it.x - (prev.x + prev.w) <= 1.5 && /[\p{L}\d]$/u.test(out) && /^[\p{L}\d]/u.test(str);
+    out += out && !tight ? ` ${str}` : str;
+    prev = it;
+  }
+  return out.replace(/\s+([,.;])/g, '$1').trim();
+}
+
 interface Fields {
   zone: string | null;
   quantity: number | null;
@@ -98,7 +133,7 @@ function readFields(line: Line, cols: Columns): Fields | null {
   const minX = Math.min(zoneX ?? Infinity, unitX != null ? unitX - (cols.unitFirst ? 6 : 60) : Infinity);
   // A blank quantity field ("......") can start well left of the unit:
   // what counts is that it ends at the quantity column.
-  const right = line.items.filter((it) => it.x >= minX - 4 || isZoneToken(it.str) || (isDots(it.str) && unitX != null && it.x + it.w >= unitX - 40 && it.x + it.w <= unitX + 2));
+  const right = mergeNumberRuns(line.items.filter((it) => it.x >= minX - 4 || isZoneToken(it.str) || (isDots(it.str) && unitX != null && it.x + it.w >= unitX - 40 && it.x + it.w <= unitX + 2)));
   if (!right.length) return null;
   const f: Fields = { zone: null, quantity: null, rawQuantity: null, unit: null, price: null, amount: null, hasPriceColumns: false, blankQuantity: false, priceLine: false, items: right };
   const afterUnit: { n: number; edge: number }[] = [];
@@ -151,6 +186,10 @@ function readFields(line: Line, cols: Columns): Fields | null {
     else f.amount = n;
   }
   if (afterUnit.length) f.hasPriceColumns = true;
+  // Unit first: a lone number in a price column, with no unit and no
+  // quantity, is a subtotal or a figure from a drawing — unless the line
+  // says it is a price ("montant total   Fr. 21'250.00").
+  if (cols.unitFirst && !f.priceLine && !f.unit && f.quantity == null && f.zone == null && !PRICE_LABEL.test(line.text.trim().replace(/^[^\p{L}]+/u, ''))) return null;
   if (cols.unitFirst && !f.priceLine && f.quantity == null && f.price == null && f.amount == null && f.zone == null) {
     // "Matériel d'assemblage   %   Fr.": a known unit with its price
     // field, quantity left for the bidder. A unit with neither ("Poids :
@@ -492,11 +531,23 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
   let item: DraftNode | null = null; // last labelled position under `current`
   // Text lines read since the last position: they describe it, or name the next one.
   const pending: Line[] = [];
+  // Index in `pending` of the first line of the last paragraph that starts
+  // with a name (not "Type : …"): the product the next priced lines are about.
+  let nameAt = -1;
+  // Name of the product the last priced line was about, for its other variants.
+  let productName: string | null = null;
   const flush = () => {
     const target = item ?? current;
-    for (const l of pending) if (target) appendText(target, l.text.trim(), l.text);
+    for (const l of pending) if (target) appendText(target, joinItems(l.items), l.text);
     pending.length = 0;
+    nameAt = -1;
   };
+  // A paragraph starts after a page break or a blank line.
+  const gaps: number[] = [];
+  for (let i = 1; i < body.length; i++) if (body[i].page === body[i - 1].page) gaps.push(body[i].y - body[i - 1].y);
+  const lineGap = gaps.length ? [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : 12;
+  let prevLine: Line | null = null;
+  const newParagraph = (l: Line) => !prevLine || prevLine.page !== l.page || l.y - prevLine.y > lineGap * 1.4;
   const fieldsStart = columns.unitX != null ? columns.unitX - (columns.unitFirst ? 6 : 60) : Infinity;
   // Left margin of the text: where most lines start.
   const starts = new Map<number, number>();
@@ -506,10 +557,27 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
   for (const line of body) {
     const text = line.text.trim();
     if (!text || DASHES.test(text) || CARRY.test(text)) continue;
-    if (TOTAL.test(text)) continue;
+    // "K:\AB_Enregistrements\…\Parking.doc": the file path in the footer.
+    if ((text.match(/\\/g) ?? []).length >= 3) continue;
+    // "Page 51" / "8": page numbers, never an amount.
+    if (/^(?:page\s*:?\s*)?\d{1,3}$/i.test(text)) continue;
+    if (TOTAL.test(text)) {
+      // "Total position 244.1.5 MONTAGE   Fr." under a chapter with no
+      // priced line: the chapter is offered as one global amount.
+      // ("3. REGULATION  /": nothing asked, no amount either.)
+      const nothing = [current?.description ?? '', ...pending.map((l) => l.text)].some((t) => /(^|\n)\s*\/\s*$/.test(t));
+      if (current && !item && !nothing && !current.breakdowns.length && line.items.some((it) => CURRENCY.test(it.str.trim()))) {
+        current.breakdowns.push({ code: '', quantity: 1, rawQuantity: null, unit: 'forfait', page: line.page, bbox: box(ctx, line) });
+        current.issues.push({ kind: 'lump_sum', message: 'Montant global : le document ne demande que le total de ce chapitre.' });
+        current.certainty = 'probable';
+      }
+      continue;
+    }
+    const para = newParagraph(line);
+    prevLine = line;
     // "1. CONDUITES", "2 . ACCESSOIRES", "1.2 Normes" — not "1020 Renens"
     // (an address) nor "6 x Ventilateurs" (a count).
-    const m = /^(\d{1,2}(?:\.\d+)*)\s*\.?\s+(?!x\s)(.+)$/i.exec(text);
+    const m = /^(\d{1,2}(?:\.\d+)*)\s*\.?\s+(?!x\s)(.+)$/i.exec(joinItems(mergeNumberRuns(line.items)));
     const fields = readFields(line, columns);
     if (m && line.items[0].x < headingMaxX) {
       flush();
@@ -523,6 +591,7 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
       stack[depth] = current;
       stack.length = depth + 1;
       item = null;
+      productName = null;
       if (fields) {
         ctx.current = current;
         onFields(ctx, fields, line);
@@ -533,14 +602,11 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
     if (!fields) {
       // "montant total Fr. ……" left blank: a field to fill, not text.
       if (PRICE_LABEL.test(text) && line.items.some((it) => isDots(it.str) || CURRENCY.test(it.str.trim()))) continue;
+      if (para && !SPEC_LINE.test(text)) nameAt = pending.length;
       pending.push(line);
       continue;
     }
-    const label = line.items
-      .filter((it) => it.x < fieldsStart && !fields.items.includes(it) && !isDots(it.str))
-      .map((it) => it.str.trim())
-      .join(' ')
-      .trim();
+    const label = joinItems(line.items.filter((it) => it.x < fieldsStart && !fields.items.includes(it) && !isDots(it.str)));
     if (fields.priceLine || PRICE_LABEL.test(label)) {
       // Price fields of the position above (or of the heading itself).
       // The label says which field the number is ("prix unitaire" or
@@ -565,24 +631,47 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
       );
       continue;
     }
-    if (label) {
-      // "Raccord flexible rectangulaire, avec brides" / "Produit : Helios
-      // p 2 Fr.": when the priced line only names the product, the
-      // position is the text just above it, after the details ("Type : …",
-      // "Poids : …") of the previous one.
+    if (label || para) {
+      // The priced line names the position itself ("Module de commande pour
+      // clapet coupe-feu   p 7"), or only a variant or a detail of the
+      // product described in the paragraph above it ("Dimensions (mm) :
+      // ø 100   p 5", "Type : LSV Ø125   p 30", ": ø125   p 2"), or it
+      // continues that paragraph's sentence ("… pour pose des / périphériques
+      // de régulation   p 10").
+      const indented = line.items[0].x > headingMaxX + 20;
+      const variant = !label || indented || label.startsWith(':') || GENERIC_LABEL.test(label) || SPEC_LINE.test(label);
+      const continued = !variant && /^[a-zà-ÿ]/.test(label);
       let own: Line[] = [];
-      // Same when it continues the sentence above ("exécuté en tôle …, avec coulisses   p 1 Fr.").
-      if ((GENERIC_LABEL.test(label) || /^[a-zà-ÿ]/.test(label)) && pending.length) {
-        let start = pending.length;
-        while (start > 0 && !SPEC_LINE.test(pending[start - 1].text.trim())) start--;
-        own = pending.splice(start === pending.length ? pending.length - 1 : start);
+      if ((variant || continued) && pending.length) {
+        // Its paragraph; without blank lines to tell, the text after the
+        // details ("Type : …") of the previous product.
+        let start = nameAt;
+        if (start < 0) {
+          start = pending.length;
+          while (start > 0 && !SPEC_LINE.test(pending[start - 1].text.trim())) start--;
+          if (start === pending.length) start = -1;
+        }
+        if (start >= 0) {
+          own = pending.splice(start);
+          productName = joinItems(own[0].items);
+        }
       }
       flush();
-      const name = own.length ? own[0].text.trim() : label;
-      item = newNode(ctx, { nodeType: 'section', parent: current, rawNumber: null, positionPath: current.positionPath, displayReference: current.displayReference, title: name, description: name }, own[0] ?? line);
+      const clean = label.replace(/^:\s*/, '');
+      const sentence = [...own.map((l) => joinItems(l.items)), label].join(' ');
+      // "Produit : Helios" / "Type : NG24" only identify the product: its
+      // name is the title. "Dimensions (mm) : ø 100" tells which variant.
+      const title = continued
+        ? sentence.length <= 90 || !own.length ? sentence : joinItems(own[0].items)
+        : variant
+          ? productName ? (GENERIC_LABEL.test(label) || !clean ? productName : `${productName} — ${clean}`) : clean
+          : label;
+      if (!variant && !continued) productName = label;
+      if (continued && own.length) productName = joinItems(own[0].items);
+      item = newNode(ctx, { nodeType: 'section', parent: current, rawNumber: null, positionPath: current.positionPath, displayReference: current.displayReference, title, description: title }, own[0] ?? line);
       item.canChapter = null;
-      for (const l of own.slice(1)) appendText(item, l.text.trim(), l.text);
-      if (own.length) appendText(item, label, line.text);
+      for (const l of own.slice(1)) appendText(item, joinItems(l.items), l.text);
+      if (label && !title.includes(label)) appendText(item, label, line.text);
     } else {
       flush();
     }

@@ -240,8 +240,8 @@ test('a descriptif with product lines: one position per product, named by its te
     ['0', 'Ventilateur repris', 1, 'pce'],
     ['0', 'Raccord flexible rectangulaire, avec brides', 2, 'pce'],
     ['0', 'Matériel d’assemblage et de fixation', null, '%'],
-    ['2', 'Amortisseur de bruit air vicié', 1, 'pce'],
-    ['2', 'Amortisseur de bruit air neuf', 1, 'pce'],
+    ['2', 'Amortisseur de bruit air vicié exécuté en tôle galvanisée, avec coulisses', 1, 'pce'],
+    ['2', 'Amortisseur de bruit air neuf exécuté en tôle galvanisée, avec coulisses', 1, 'pce'],
     ['3', 'Station Automatisation avec BACnet/IP', 1, 'pce'],
     ['3', 'Transformateur 250VA', 2, 'pce'],
   ]);

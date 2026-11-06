@@ -82,7 +82,7 @@ export interface DraftNode {
   issues: DraftIssue[];
 }
 
-export type IssueKind = 'unit_unknown' | 'unit_missing' | 'quantity_missing' | 'breakdown_sum' | 'amount_mismatch' | 'orphan_quantity' | 'number_ambiguous';
+export type IssueKind = 'unit_unknown' | 'unit_missing' | 'quantity_missing' | 'breakdown_sum' | 'amount_mismatch' | 'orphan_quantity' | 'number_ambiguous' | 'lump_sum';
 
 export interface DraftIssue {
   kind: IssueKind;

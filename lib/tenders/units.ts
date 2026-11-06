@@ -18,6 +18,8 @@ export const UNITS: UnitDef[] = [
   { key: 'kg', label: 'kg', dimension: 'mass' },
   { key: 't', label: 't', dimension: 'mass' },
   { key: 'pce', label: 'pce', dimension: 'count' },
+  // "ens." (ensemble): a set of parts, counted.
+  { key: 'ens', label: 'ens.', dimension: 'count' },
   { key: 'h', label: 'h', dimension: 'time' },
   { key: 'jour', label: 'jour', dimension: 'time' },
   { key: 'gl', label: 'forfait', dimension: 'lump' },
@@ -40,6 +42,7 @@ const ALIASES: Record<string, string> = {
   gl: 'gl', fft: 'gl', forfait: 'gl', global: 'gl', pauschal: 'gl', psch: 'gl', 'a corpo': 'gl', ac: 'gl',
   up: 'up', le: 'up',
   '%': '%',
+  ens: 'ens', ensemble: 'ens', ensembles: 'ens',
 };
 
 export function normalizeUnit(raw: string | null | undefined): { unit: string | null; known: boolean } {
