@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, AppScreen } from '../../../../components/ui';
+import { Button, Card, Field, AppScreen } from '../../../../components/ui';
 import { ClientPicker } from '../../../../components/ClientPicker';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { TramePicker } from '../../../../components/TramePicker';
@@ -66,6 +66,8 @@ export default function NewFactureScreen() {
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  // The client's own reference (their n° de chantier, de commande…), printed on the document.
+  const [clientReference, setClientReference] = useState('');
   const [clientId, setClientId] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
@@ -152,6 +154,7 @@ export default function NewFactureScreen() {
       setClientName(source.client_name ?? '');
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
+      setClientReference(source.client_reference ?? '');
       setClientId(source.client_id ?? null);
       setRemark(source.notes ?? '');
       if (source.vat_rate != null) setVatRate(Number(source.vat_rate));
@@ -192,6 +195,7 @@ export default function NewFactureScreen() {
       setClientName(source.client_name ?? '');
       setClientAddress(source.client_address ?? '');
       setClientEmail(source.client_email ?? '');
+      setClientReference(source.client_reference ?? '');
       setClientId(source.client_id ?? null);
       setRemark(source.notes ?? '');
       if (source.project_id) {
@@ -411,6 +415,7 @@ export default function NewFactureScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
+        client_reference: clientReference.trim() || null,
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         notes: remark.trim() || null,
@@ -458,6 +463,7 @@ export default function NewFactureScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
+        client_reference: clientReference.trim() || null,
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         vat_rate: vatApplies(organization) ? vatRate : 0,
@@ -505,6 +511,7 @@ export default function NewFactureScreen() {
       clientName={clientName}
       clientAddress={clientAddress}
       clientEmail={clientEmail}
+      clientReference={clientReference}
       projectName={selectedProject?.name}
       lines={lines}
       discountPercent={discountPercent}
@@ -543,6 +550,13 @@ export default function NewFactureScreen() {
               {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
             </Card>
           ) : null}
+          <Field
+            label={t('devisNew.clientReferenceLabel')}
+            value={clientReference}
+            onChangeText={setClientReference}
+            placeholder={t('devisNew.clientReferencePlaceholder')}
+            maxLength={120}
+          />
 
           <Text style={styles.sectionTitle}>{t('devisNew.chantierTitle')}</Text>
           <Text style={styles.sectionHint}>{t('factureNew.chantierHint')}</Text>

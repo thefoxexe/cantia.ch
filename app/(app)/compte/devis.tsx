@@ -11,6 +11,7 @@ import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { DocumentNumbering } from '../../../components/DocumentNumbering';
 
 export default function DevisSettingsScreen() {
   const { t } = useTranslation();
@@ -118,6 +119,17 @@ export default function DevisSettingsScreen() {
             />
             <Text style={styles.hint}>{t('devisSettings.layoutHint')}</Text>
           </Card>
+
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIcon}>
+              <Feather name="hash" size={15} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sectionTitle}>{t('devisSettings.numberingTitle')}</Text>
+              <Text style={styles.sectionHint}>{t('devisSettings.numberingHint')}</Text>
+            </View>
+          </View>
+          {organization ? <DocumentNumbering organizationId={organization.id} isAdmin={isAdmin} /> : null}
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}

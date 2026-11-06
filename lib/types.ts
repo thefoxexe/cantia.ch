@@ -96,6 +96,11 @@ export interface Organization {
   devis_template: string;
   brand_color: string;
   logo_placement: 'left' | 'center' | 'right';
+  // Client address on devis/factures: left (in the page) or right, where
+  // the window of a Swiss envelope is, with a fine adjustment in mm.
+  client_address_position?: 'left' | 'right';
+  client_address_offset_x_mm?: number;
+  client_address_offset_y_mm?: number;
   footer_text: string | null;
   iban: string | null;
   hourly_cost: number;

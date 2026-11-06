@@ -20,6 +20,7 @@ interface Props {
   clientName: string;
   clientAddress: string;
   clientEmail: string;
+  clientReference?: string;
   projectName?: string | null;
   lines: PreviewLine[];
   discountPercent: string;
@@ -98,7 +99,7 @@ function readableTextColor(hex: string): string {
   return luminance > 0.5 ? INK : '#fff';
 }
 
-export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, projectName, lines, discountPercent, remark, vatRate: vatRateProp }: Props) {
+export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, clientReference, projectName, lines, discountPercent, remark, vatRate: vatRateProp }: Props) {
   const { t } = useTranslation();
   const brandColor = safeHex(organization?.brand_color);
   const vatRate = vatRateProp ?? documentVatRate(organization);
@@ -148,7 +149,7 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
     kind === 'facture' ? t('documentPreview.dueDate', { date: dueDate.toLocaleDateString(locale) }) : t('documentPreview.validity', { days: validityDays }),
   ];
 
-  const clientLines = [clientName || t('documentPreview.clientFallback'), clientAddress, clientEmail, projectName ? t('documentPreview.projectLine', { name: projectName }) : null].filter(
+  const clientLines = [clientName || t('documentPreview.clientFallback'), clientAddress, clientEmail, projectName ? t('documentPreview.projectLine', { name: projectName }) : null, clientReference?.trim() ? t('documentPreview.clientReferenceLine', { reference: clientReference.trim() }) : null].filter(
     (l): l is string => !!l,
   );
 

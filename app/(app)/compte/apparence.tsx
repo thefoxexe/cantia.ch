@@ -17,6 +17,8 @@ import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { downloadWindowTestPage, type WindowTestTexts } from '../../../lib/pdf/windowTestPage';
+import { Platform } from 'react-native';
 
 export default function ApparenceScreen() {
   const { t } = useTranslation();
@@ -27,6 +29,11 @@ export default function ApparenceScreen() {
   const [logoPlacement, setLogoPlacement] = useState<'left' | 'center' | 'right'>(organization?.logo_placement ?? 'right');
   const [footerText, setFooterText] = useState(organization?.footer_text ?? '');
   const [website, setWebsite] = useState(organization?.website ?? '');
+  const [addressPosition, setAddressPosition] = useState<'left' | 'right'>(organization?.client_address_position ?? 'left');
+  const [offsetX, setOffsetX] = useState(String(organization?.client_address_offset_x_mm ?? 0));
+  const [offsetY, setOffsetY] = useState(String(organization?.client_address_offset_y_mm ?? 0));
+  const [offsetError, setOffsetError] = useState<string | null>(null);
+  const [testError, setTestError] = useState<string | null>(null);
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const [logoColors, setLogoColors] = useState<string[]>([]);
   const isAdmin = role === 'owner' || role === 'admin';
@@ -47,6 +54,10 @@ export default function ApparenceScreen() {
     setLogoPlacement(organization.logo_placement ?? 'right');
     setFooterText(organization.footer_text ?? '');
     setWebsite(organization.website ?? '');
+    setAddressPosition(organization.client_address_position ?? 'left');
+    setOffsetX(String(organization.client_address_offset_x_mm ?? 0));
+    setOffsetY(String(organization.client_address_offset_y_mm ?? 0));
+    setOffsetError(null);
     if (organization.logo_url) setLogoUrl(await getSignedUrl(organization.logo_url));
     const { data: plan } = await supabase.from('plans').select('has_customization').eq('id', organization.plan_id).maybeSingle();
     setHasCustomization(plan?.has_customization ?? true);
@@ -61,6 +72,13 @@ export default function ApparenceScreen() {
   async function handleSave() {
     if (!organization) return false;
     const validHex = HEX_COLOR_RE.test(brandColor.trim());
+    const dx = parseOffset(offsetX);
+    const dy = parseOffset(offsetY);
+    if (dx == null || dy == null) {
+      setOffsetError(t('apparence.addressOffsetError'));
+      return false;
+    }
+    setOffsetError(null);
     await supabase
       .from('organizations')
       .update({
@@ -68,6 +86,9 @@ export default function ApparenceScreen() {
         logo_placement: logoPlacement,
         footer_text: footerText.trim() || null,
         website: website.trim() || null,
+        client_address_position: addressPosition,
+        client_address_offset_x_mm: dx,
+        client_address_offset_y_mm: dy,
       })
       .eq('id', organization.id);
     refreshOrganization();
@@ -203,6 +224,59 @@ export default function ApparenceScreen() {
               <Text style={styles.hint}>{t('apparence.footerHint')}</Text>
             </>
           )}
+
+          <Text style={styles.sectionTitle}>{t('apparence.addressTitle')}</Text>
+          <View style={styles.placementRow}>
+            {(['left', 'right'] as const).map((p) => (
+              <Pressable
+                key={p}
+                onPress={() => isAdmin && withDirty(setAddressPosition)(p)}
+                disabled={!isAdmin}
+                style={[styles.placementChip, addressPosition === p && styles.chipActive, !isAdmin && styles.chipDisabled]}
+              >
+                <Feather name={p === 'left' ? 'align-left' : 'mail'} size={14} color={addressPosition === p ? colors.primary : colors.textMuted} />
+                <Text style={[styles.chipText, addressPosition === p && styles.chipTextActive]}>{t(`apparence.addressPositions.${p}` as any)}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {addressPosition === 'right' ? (
+            <>
+              <Text style={styles.hint}>{t('apparence.addressRightHint')}</Text>
+              <View style={styles.offsetRow}>
+                <View style={styles.offsetField}>
+                  <Field label={t('apparence.addressOffsetX')} value={offsetX} onChangeText={withDirty(setOffsetX)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                </View>
+                <View style={styles.offsetField}>
+                  <Field label={t('apparence.addressOffsetY')} value={offsetY} onChangeText={withDirty(setOffsetY)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                </View>
+              </View>
+              <Text style={styles.hint}>{t('apparence.addressOffsetHint')}</Text>
+              {offsetError ? <Text style={styles.error}>{offsetError}</Text> : null}
+              {Platform.OS === 'web' ? (
+                <View style={{ marginTop: spacing.md, gap: spacing.xs }}>
+                  <Button
+                    title={t('apparence.addressTest')}
+                    variant="secondary"
+                    onPress={async () => {
+                      setTestError(null);
+                      const dx = parseOffset(offsetX);
+                      const dy = parseOffset(offsetY);
+                      if (dx == null || dy == null) {
+                        setOffsetError(t('apparence.addressOffsetError'));
+                        return;
+                      }
+                      const raw = t('apparence.addressTestPdf', { returnObjects: true }) as WindowTestTexts;
+                      const texts = { ...raw, offsets: t('apparence.addressTestPdf.offsets', { x: dx, y: dy }) };
+                      const { error } = await downloadWindowTestPage(dx, dy, texts, t('apparence.addressTestFile'));
+                      if (error) setTestError(error);
+                    }}
+                  />
+                  <Text style={styles.hint}>{t('apparence.addressTestHint')}</Text>
+                  {testError ? <Text style={styles.error}>{testError}</Text> : null}
+                </View>
+              ) : null}
+            </>
+          ) : null}
         </Container>
       </ScrollView>
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
@@ -211,7 +285,16 @@ export default function ApparenceScreen() {
   );
 }
 
+// "-2,5" or "3" → a number of millimetres, null when out of range.
+function parseOffset(raw: string): number | null {
+  const n = Number(String(raw).trim().replace(',', '.').replace('−', '-') || '0');
+  return Number.isFinite(n) && n >= -30 && n <= 30 ? Math.round(n * 10) / 10 : null;
+}
+
 const styles = StyleSheet.create({
+  offsetRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md, flexWrap: 'wrap' },
+  offsetField: { flex: 1, minWidth: 160 },
+  error: { fontSize: fontSize.sm, color: colors.danger, marginTop: spacing.xs },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',

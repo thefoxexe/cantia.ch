@@ -71,6 +71,7 @@
     "test:calendar": "node --experimental-strip-types --no-warnings --test scripts/calendar-map.test.mjs",
     "test:schedule": "node --experimental-strip-types --no-warnings --test scripts/schedule.test.mjs",
     "test:blog": "node --test scripts/blog-triage.test.mjs",
+    "test:documents": "node --experimental-strip-types --no-warnings --test scripts/document-numbering.test.mjs",
     "test:accounting": "node --experimental-strip-types --no-warnings --test scripts/accounting-exports.test.mjs scripts/ext-ledger.test.mjs scripts/accounting-proof.test.mjs"
   },
   "private": true

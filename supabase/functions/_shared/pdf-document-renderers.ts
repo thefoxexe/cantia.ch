@@ -111,6 +111,32 @@ export interface RenderCtx {
 // the org's own brand color behind the reference box, table zebra rows and
 // totals highlight, so any brand color (light or dark) stays legible as a
 // background fill instead of needing a second hardcoded palette.
+// Swiss envelopes have their window on the right: at least 100 × 45 mm,
+// about 20 mm from the right edge. Folded in three (C5/6) or in two (C5),
+// with the play of the sheet inside the envelope, an A4 page always shows
+// about 100–200 mm from the left and 57–84 mm from the top in that window.
+// The address starts 118 mm from the left and 59 mm from the top (5 lines
+// fit); each company can shift it by a few millimetres for its own printer
+// and envelopes (Compte → Apparence), with a test page to check.
+const MM = 72 / 25.4;
+export const WINDOW_ADDRESS_LEFT_MM = 118;
+export const WINDOW_ADDRESS_TOP_MM = 59;
+const WINDOW_ZONE_LEFT_MM = 96;
+export function windowAddressBox(org: any): { x: number; top: number } {
+  const dx = Number(org?.client_address_offset_x_mm) || 0;
+  const dy = Number(org?.client_address_offset_y_mm) || 0;
+  return { x: (WINDOW_ADDRESS_LEFT_MM + dx) * MM, top: PAGE_HEIGHT - (WINDOW_ADDRESS_TOP_MM + dy) * MM };
+}
+
+// "Rue du Lac 12\n1000 Lausanne" or "Rue du Lac 12, 1000 Lausanne": one
+// line per part, as on an envelope.
+function postalLines(address: string | null | undefined): string[] {
+  if (!address?.trim()) return [];
+  const lines = address.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length > 1) return lines;
+  return address.split(/,\s*(?=(?:CH-)?\d{4}\s)/).map((l) => l.trim()).filter(Boolean);
+}
+
 function softTint(c: RGB, amount: number): RGB {
   return rgb(c.red + (1 - c.red) * amount, c.green + (1 - c.green) * amount, c.blue + (1 - c.blue) * amount);
 }
@@ -209,7 +235,10 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     y -= 12;
   }
   y -= 12;
-  page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_WIDTH - MARGIN, y }, thickness: 1, color: LINE });
+  // With the address in the envelope window, the rule stops short of the
+  // window: a line showing through it would cross the address.
+  const ruleEnd = org?.client_address_position === 'right' ? windowAddressBox(org).x - 12 : PAGE_WIDTH - MARGIN;
+  page.drawLine({ start: { x: MARGIN, y }, end: { x: ruleEnd, y }, thickness: 1, color: LINE });
   y -= 24;
 
   // --- Big document-type label, brand-colored, then a tinted reference box
@@ -221,6 +250,7 @@ function renderUnified(ctx: RenderCtx): RenderResult {
     `${pdfT(locale, 'reference')} : ${devis.number ?? '—'}`,
     `${pdfT(locale, 'date')} : ${formatDate(devis.created_at, locale)}`,
   ];
+  if (devis.client_reference?.trim()) boxRows.push(`${pdfT(locale, 'clientReference')} : ${devis.client_reference.trim()}`);
   if (metaLine) {
     boxRows.push(metaLine);
   } else if (docKind === 'devis' && devis.valid_until) {
@@ -229,7 +259,17 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   const boxRowH = 13;
   const boxPadV = 7;
   const boxPadL = 16;
-  const boxW = Math.min(320, Math.max(220, measureMax(font, boxRows, 10) + boxPadL + 16));
+  // Address on the right, in the window of the envelope: the reference box
+  // stays on the left of it.
+  const windowAddress = org?.client_address_position === 'right';
+  const win = windowAddress ? windowAddressBox(org) : null;
+  // (It must end before the window's visible zone, ~100 mm from the left,
+  // or its text would show through the window.)
+  const boxMaxW = win ? WINDOW_ZONE_LEFT_MM * MM - MARGIN : 320;
+  const boxW = Math.min(boxMaxW, Math.max(Math.min(220, boxMaxW), measureMax(font, boxRows, 10) + boxPadL + 16));
+  // A row too long for the box (a long client reference) goes on two lines.
+  const fitted = boxRows.flatMap((row) => wrapText(row, font, 9.5, boxW - boxPadL - 8));
+  boxRows.splice(0, boxRows.length, ...fitted);
   const boxH = boxRows.length * boxRowH + boxPadV * 2;
   const boxTop = y;
   page.drawRectangle({ x: MARGIN, y: boxTop - boxH, width: boxW, height: boxH, color: softTint(brand, 0.93) });
@@ -242,19 +282,37 @@ function renderUnified(ctx: RenderCtx): RenderResult {
   y = boxTop - boxH - 18;
 
   // --- Client block ---
-  const clientLines = [
-    devis.client_name,
-    devis.client_address,
-    devis.client_email,
-    devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null,
-  ].filter(Boolean) as string[];
-  drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 9, MUTED);
-  y -= 14;
-  for (const line of clientLines) {
-    drawText(page, line, MARGIN, y, font, 10.5, INK);
+  if (win) {
+    // Name and postal address only, as on a letter, at the window's place;
+    // e-mail and chantier go on the left below the reference box.
+    const postal = [devis.client_name, ...postalLines(devis.client_address)].filter(Boolean).slice(0, 5) as string[];
+    let wy = win.top - 10.5;
+    for (const line of postal) {
+      drawText(page, line, win.x, wy, font, 10.5, INK);
+      wy -= 13;
+    }
+    y = Math.min(y, wy) - 8;
+    const rest = [devis.client_email, devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null].filter(Boolean) as string[];
+    for (const line of rest) {
+      drawText(page, line, MARGIN, y, font, 9.5, MUTED);
+      y -= 13;
+    }
+    y -= 10;
+  } else {
+    const clientLines = [
+      devis.client_name,
+      devis.client_address,
+      devis.client_email,
+      devis.projects?.name ? pdfProjectLine(locale, org?.work_term, devis.projects.name) : null,
+    ].filter(Boolean) as string[];
+    drawText(page, pdfT(locale, 'client'), MARGIN, y, fontBold, 9, MUTED);
     y -= 14;
+    for (const line of clientLines) {
+      drawText(page, line, MARGIN, y, font, 10.5, INK);
+      y -= 14;
+    }
+    y -= 10;
   }
-  y -= 10;
 
   // --- Totals math, computed up front (needed both to size the amount
   // columns below and to draw the totals block later). A deposit already

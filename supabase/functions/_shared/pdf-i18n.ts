@@ -74,6 +74,8 @@ const LABELS = {
   paymentSection: { fr: 'Section paiement', de: 'Zahlteil', it: 'Sezione pagamento' },
   accountPayableTo: { fr: 'Compte / Payable à', de: 'Konto / Zahlbar an', it: 'Conto / Pagabile a' },
   reference: { fr: 'Référence', de: 'Referenz', it: 'Riferimento' },
+  // The client's own reference (their n° de chantier, de commande…).
+  clientReference: { fr: 'Votre référence', de: 'Ihre Referenz', it: 'Vostro riferimento' },
   payableBy: { fr: 'Payable par', de: 'Zahlbar durch', it: 'Pagabile da' },
   currency: { fr: 'Monnaie', de: 'Währung', it: 'Valuta' },
   amount: { fr: 'Montant', de: 'Betrag', it: 'Importo' },
