@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { documentOptionsReady } from '../../../../lib/documentOptions';
 import { documentVatRate, vatApplies } from '../../../../lib/vat/vatStatus';
 import { VatRateChips } from '../../../../components/VatRateChips';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
@@ -415,7 +416,7 @@ export default function NewFactureScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
-        client_reference: clientReference.trim() || null,
+        ...(documentOptionsReady(organization) ? { client_reference: clientReference.trim() || null } : {}),
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         notes: remark.trim() || null,
@@ -463,7 +464,7 @@ export default function NewFactureScreen() {
         client_name: clientName.trim(),
         client_address: clientAddress.trim() || null,
         client_email: clientEmail.trim() || null,
-        client_reference: clientReference.trim() || null,
+        ...(documentOptionsReady(organization) ? { client_reference: clientReference.trim() || null } : {}),
         client_id: clientId,
         project_id: selectedProject?.id ?? null,
         vat_rate: vatApplies(organization) ? vatRate : 0,
@@ -550,13 +551,15 @@ export default function NewFactureScreen() {
               {clientEmail ? <Text style={styles.selectedClientMeta}>{clientEmail}</Text> : null}
             </Card>
           ) : null}
-          <Field
-            label={t('devisNew.clientReferenceLabel')}
-            value={clientReference}
-            onChangeText={setClientReference}
-            placeholder={t('devisNew.clientReferencePlaceholder')}
-            maxLength={120}
-          />
+          {documentOptionsReady(organization) ? (
+            <Field
+              label={t('devisNew.clientReferenceLabel')}
+              value={clientReference}
+              onChangeText={setClientReference}
+              placeholder={t('devisNew.clientReferencePlaceholder')}
+              maxLength={120}
+            />
+          ) : null}
 
           <Text style={styles.sectionTitle}>{t('devisNew.chantierTitle')}</Text>
           <Text style={styles.sectionHint}>{t('factureNew.chantierHint')}</Text>

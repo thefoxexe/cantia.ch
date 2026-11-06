@@ -18,6 +18,7 @@ import { HEX_COLOR_RE, LOGO_PLACEMENTS } from '../../../components/PdfTemplatePi
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { downloadWindowTestPage, type WindowTestTexts } from '../../../lib/pdf/windowTestPage';
+import { documentOptionsReady } from '../../../lib/documentOptions';
 import { Platform } from 'react-native';
 
 export default function ApparenceScreen() {
@@ -86,9 +87,7 @@ export default function ApparenceScreen() {
         logo_placement: logoPlacement,
         footer_text: footerText.trim() || null,
         website: website.trim() || null,
-        client_address_position: addressPosition,
-        client_address_offset_x_mm: dx,
-        client_address_offset_y_mm: dy,
+        ...(documentOptionsReady(organization) ? { client_address_position: addressPosition, client_address_offset_x_mm: dx, client_address_offset_y_mm: dy } : {}),
       })
       .eq('id', organization.id);
     refreshOrganization();
@@ -225,56 +224,60 @@ export default function ApparenceScreen() {
             </>
           )}
 
-          <Text style={styles.sectionTitle}>{t('apparence.addressTitle')}</Text>
-          <View style={styles.placementRow}>
-            {(['left', 'right'] as const).map((p) => (
-              <Pressable
-                key={p}
-                onPress={() => isAdmin && withDirty(setAddressPosition)(p)}
-                disabled={!isAdmin}
-                style={[styles.placementChip, addressPosition === p && styles.chipActive, !isAdmin && styles.chipDisabled]}
-              >
-                <Feather name={p === 'left' ? 'align-left' : 'mail'} size={14} color={addressPosition === p ? colors.primary : colors.textMuted} />
-                <Text style={[styles.chipText, addressPosition === p && styles.chipTextActive]}>{t(`apparence.addressPositions.${p}` as any)}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {addressPosition === 'right' ? (
+          {documentOptionsReady(organization) ? (
             <>
-              <Text style={styles.hint}>{t('apparence.addressRightHint')}</Text>
-              <View style={styles.offsetRow}>
-                <View style={styles.offsetField}>
-                  <Field label={t('apparence.addressOffsetX')} value={offsetX} onChangeText={withDirty(setOffsetX)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+            <Text style={styles.sectionTitle}>{t('apparence.addressTitle')}</Text>
+            <View style={styles.placementRow}>
+              {(['left', 'right'] as const).map((p) => (
+                <Pressable
+                  key={p}
+                  onPress={() => isAdmin && withDirty(setAddressPosition)(p)}
+                  disabled={!isAdmin}
+                  style={[styles.placementChip, addressPosition === p && styles.chipActive, !isAdmin && styles.chipDisabled]}
+                >
+                  <Feather name={p === 'left' ? 'align-left' : 'mail'} size={14} color={addressPosition === p ? colors.primary : colors.textMuted} />
+                  <Text style={[styles.chipText, addressPosition === p && styles.chipTextActive]}>{t(`apparence.addressPositions.${p}` as any)}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {addressPosition === 'right' ? (
+              <>
+                <Text style={styles.hint}>{t('apparence.addressRightHint')}</Text>
+                <View style={styles.offsetRow}>
+                  <View style={styles.offsetField}>
+                    <Field label={t('apparence.addressOffsetX')} value={offsetX} onChangeText={withDirty(setOffsetX)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                  </View>
+                  <View style={styles.offsetField}>
+                    <Field label={t('apparence.addressOffsetY')} value={offsetY} onChangeText={withDirty(setOffsetY)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
+                  </View>
                 </View>
-                <View style={styles.offsetField}>
-                  <Field label={t('apparence.addressOffsetY')} value={offsetY} onChangeText={withDirty(setOffsetY)} editable={isAdmin} keyboardType="numbers-and-punctuation" />
-                </View>
-              </View>
-              <Text style={styles.hint}>{t('apparence.addressOffsetHint')}</Text>
-              {offsetError ? <Text style={styles.error}>{offsetError}</Text> : null}
-              {Platform.OS === 'web' ? (
-                <View style={{ marginTop: spacing.md, gap: spacing.xs }}>
-                  <Button
-                    title={t('apparence.addressTest')}
-                    variant="secondary"
-                    onPress={async () => {
-                      setTestError(null);
-                      const dx = parseOffset(offsetX);
-                      const dy = parseOffset(offsetY);
-                      if (dx == null || dy == null) {
-                        setOffsetError(t('apparence.addressOffsetError'));
-                        return;
-                      }
-                      const raw = t('apparence.addressTestPdf', { returnObjects: true }) as WindowTestTexts;
-                      const texts = { ...raw, offsets: t('apparence.addressTestPdf.offsets', { x: dx, y: dy }) };
-                      const { error } = await downloadWindowTestPage(dx, dy, texts, t('apparence.addressTestFile'));
-                      if (error) setTestError(error);
-                    }}
-                  />
-                  <Text style={styles.hint}>{t('apparence.addressTestHint')}</Text>
-                  {testError ? <Text style={styles.error}>{testError}</Text> : null}
-                </View>
-              ) : null}
+                <Text style={styles.hint}>{t('apparence.addressOffsetHint')}</Text>
+                {offsetError ? <Text style={styles.error}>{offsetError}</Text> : null}
+                {Platform.OS === 'web' ? (
+                  <View style={{ marginTop: spacing.md, gap: spacing.xs }}>
+                    <Button
+                      title={t('apparence.addressTest')}
+                      variant="secondary"
+                      onPress={async () => {
+                        setTestError(null);
+                        const dx = parseOffset(offsetX);
+                        const dy = parseOffset(offsetY);
+                        if (dx == null || dy == null) {
+                          setOffsetError(t('apparence.addressOffsetError'));
+                          return;
+                        }
+                        const raw = t('apparence.addressTestPdf', { returnObjects: true }) as WindowTestTexts;
+                        const texts = { ...raw, offsets: t('apparence.addressTestPdf.offsets', { x: dx, y: dy }) };
+                        const { error } = await downloadWindowTestPage(dx, dy, texts, t('apparence.addressTestFile'));
+                        if (error) setTestError(error);
+                      }}
+                    />
+                    <Text style={styles.hint}>{t('apparence.addressTestHint')}</Text>
+                    {testError ? <Text style={styles.error}>{testError}</Text> : null}
+                  </View>
+                ) : null}
+              </>
+            ) : null}
             </>
           ) : null}
         </Container>
