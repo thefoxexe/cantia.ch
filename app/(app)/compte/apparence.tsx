@@ -35,6 +35,7 @@ export default function ApparenceScreen() {
   const [offsetY, setOffsetY] = useState(String(organization?.client_address_offset_y_mm ?? 0));
   const [offsetError, setOffsetError] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const [logoColors, setLogoColors] = useState<string[]>([]);
   const isAdmin = role === 'owner' || role === 'admin';
@@ -80,7 +81,8 @@ export default function ApparenceScreen() {
       return false;
     }
     setOffsetError(null);
-    await supabase
+    setSaveError(null);
+    const { error } = await supabase
       .from('organizations')
       .update({
         brand_color: validHex ? brandColor.trim() : organization.brand_color,
@@ -90,6 +92,10 @@ export default function ApparenceScreen() {
         ...(documentOptionsReady(organization) ? { client_address_position: addressPosition, client_address_offset_x_mm: dx, client_address_offset_y_mm: dy } : {}),
       })
       .eq('id', organization.id);
+    if (error) {
+      setSaveError(`${t('entreprise.saveFailed')} (${error.message})`);
+      return false;
+    }
     refreshOrganization();
   }
 
@@ -282,6 +288,7 @@ export default function ApparenceScreen() {
           ) : null}
         </Container>
       </ScrollView>
+      {saveError ? <Text style={[styles.error, { textAlign: 'center', padding: spacing.sm }]}>{saveError}</Text> : null}
       {isAdmin ? <UnsavedChangesBar visible={dirty} saving={saving} onSave={save} onDiscard={() => discard(load)} /> : null}
       <UnsavedChangesModal visible={leaveModalVisible} saving={saving} onSave={onLeaveSave} onDiscard={onLeaveDiscard} onCancel={onLeaveCancel} />
     </AppScreen>
