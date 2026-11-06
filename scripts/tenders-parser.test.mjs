@@ -208,6 +208,50 @@ test('a descriptif with the unit before the quantity and labelled sub-lines', ()
   assert.ok(!bill[2].issues.some((i) => i.kind === 'unit_unknown' || i.kind === 'quantity_missing'));
 });
 
+// Same layout, equipment chapters: "Produit : Helios   p   1   Fr." under
+// the description of the product, details ("Type : …", "Poids : ……… kg")
+// after it, and lines that only look like headings ("6 x …", "1020 Renens").
+test('a descriptif with product lines: one position per product, named by its text', () => {
+  const it = (page, x, y, str) => ({ page, x, y, w: str.length * 4.6, h: 9, fontSize: 9, str });
+  const items = [];
+  const header = (p) => { items.push(it(p, 140, 60, 'PRESCRIPTIONS TECHNIQUES'), it(p, 368, 60, 'Unité'), it(p, 392, 60, 'Quantité'), it(p, 438, 60, 'Prix unitaire'), it(p, 510, 60, 'Somme'), it(p, 490, 800, String(p))); };
+  const block = (p, rows) => { let y = 90; for (const r of rows) { for (const [x, s] of r) items.push(it(p, x, y, s)); y += 12; } };
+  const priced = (label, u, q) => [[92, label], [372, u], [415 - q.length * 4.6, q], [474, 'Fr.'], [490, '.................']];
+  header(1);
+  block(1, [
+    [[92, '0. APPAREILS']], [[92, 'Ventilateur repris']], [[92, 'Ventilateur centrifuge insonorisé de gaine.']],
+    priced('Produit : Helios', 'p', '1'), [[92, 'Type : NG24']], [[92, 'Poids : ……………….'], [372, 'kg']],
+    [[92, 'Raccord flexible rectangulaire, avec brides']], priced('Produit : Helios', 'p', '2'), [[92, 'Type : VS 80/50']],
+    [[92, 'Matériel d’assemblage et de fixation'], [373, '%'], [474, 'Fr.'], [490, '.................']],
+  ]);
+  header(2);
+  block(2, [
+    [[92, '2 . ACCESSOIRES']], [[92, 'Amortisseur de bruit air vicié']], priced('exécuté en tôle galvanisée, avec coulisses', 'p', '1'), [[92, 'Débit d’air : 1’900 m3/h']],
+    [[92, 'Amortisseur de bruit air neuf']], priced('exécuté en tôle galvanisée, avec coulisses', 'p', '1'),
+  ]);
+  header(3);
+  block(3, [
+    [[92, '3. REGULATION']], [[92, 'Produit proposé : Siemens']], priced('Station Automatisation avec BACnet/IP', 'p', '1'), [[92, 'Type : PXC7']],
+    priced('Transformateur 250VA', 'p', '2'), [[92, '6 x Ventilateurs 230 Vac']], [[92, '1020 Renens']],
+  ]);
+  const res = parseTender({ pages: [1, 2, 3].map((p) => ({ page: p, width: W, height: H, rotation: 0, textItems: 30 })), items, scanned: false });
+  const bill = res.nodes.filter((n) => n.nodeType === 'billable_position');
+  assert.deepEqual(bill.map((n) => [n.positionPath, n.title, n.quantity, n.unit]), [
+    ['0', 'Ventilateur repris', 1, 'pce'],
+    ['0', 'Raccord flexible rectangulaire, avec brides', 2, 'pce'],
+    ['0', 'Matériel d’assemblage et de fixation', null, '%'],
+    ['2', 'Amortisseur de bruit air vicié', 1, 'pce'],
+    ['2', 'Amortisseur de bruit air neuf', 1, 'pce'],
+    ['3', 'Station Automatisation avec BACnet/IP', 1, 'pce'],
+    ['3', 'Transformateur 250VA', 2, 'pce'],
+  ]);
+  // the product's details stay with it, the next product's name does not
+  assert.match(bill[0].description, /Type : NG24/);
+  assert.doesNotMatch(bill[0].description, /Raccord flexible/);
+  // headings are "0.", "2 .", "3." only
+  assert.deepEqual(res.nodes.filter((n) => n.nodeType === 'section').map((n) => [n.positionPath, n.title]), [['0', 'APPAREILS'], ['2', 'ACCESSOIRES'], ['3', 'REGULATION']]);
+});
+
 // ---- the real reference soumission (local only: CAN texts belong to CRB) ---
 const FIXTURE = new URL('../fixtures/tenders/01_BA_maconnerie.pdf', import.meta.url);
 test('reference soumission 01_BA_maconnerie.pdf', { skip: !existsSync(FIXTURE) && 'fixture not present (gitignored)' }, async () => {

@@ -83,6 +83,10 @@ interface Fields {
 // Currency printed in the unit column of a price line.
 const CURRENCY = /^(?:fr\.?|chf|sfr\.?)$/i;
 // Label of a line that only carries the price fields of the line above.
+// A priced line that only names the product or its reference.
+const GENERIC_LABEL = /^(?:produit|type|marque|fabricant|mod[eè]le|r[ée]f[ée]rence|fabrikat|typ|marca|tipo)\b/i;
+// "Type : NG24", "Poids : ……… kg": a detail of the position above.
+const SPEC_LINE = /^[^:]{1,40}:\s?/;
 const PRICE_LABEL = /^(?:prix\s+unitaire|prix|montant(?:\s+total)?|somme|total\s+position|einheitspreis|preis|betrag|prezzo(?:\s+unitario)?|importo)\b/i;
 
 // Zone, quantity, unit, unit price and amount on the right side of a line.
@@ -147,6 +151,13 @@ function readFields(line: Line, cols: Columns): Fields | null {
     else f.amount = n;
   }
   if (afterUnit.length) f.hasPriceColumns = true;
+  if (cols.unitFirst && !f.priceLine && f.quantity == null && f.price == null && f.amount == null && f.zone == null) {
+    // "Matériel d'assemblage   %   Fr.": a known unit with its price
+    // field, quantity left for the bidder. A unit with neither ("Poids :
+    // ……… kg", a characteristic to fill) is not a position.
+    if (f.unit && normalizeUnit(f.unit).known && (f.hasPriceColumns || f.blankQuantity)) f.blankQuantity = true;
+    else return null;
+  }
   if (f.blankQuantity && !f.unit) f.blankQuantity = false;
   if (f.zone == null && f.quantity == null && f.unit == null && f.price == null && f.amount == null && !f.priceLine) return null;
   return f;
@@ -479,6 +490,13 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
   const stack: DraftNode[] = [];
   let current: DraftNode | null = null;
   let item: DraftNode | null = null; // last labelled position under `current`
+  // Text lines read since the last position: they describe it, or name the next one.
+  const pending: Line[] = [];
+  const flush = () => {
+    const target = item ?? current;
+    for (const l of pending) if (target) appendText(target, l.text.trim(), l.text);
+    pending.length = 0;
+  };
   const fieldsStart = columns.unitX != null ? columns.unitX - (columns.unitFirst ? 6 : 60) : Infinity;
   // Left margin of the text: where most lines start.
   const starts = new Map<number, number>();
@@ -489,14 +507,17 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
     const text = line.text.trim();
     if (!text || DASHES.test(text) || CARRY.test(text)) continue;
     if (TOTAL.test(text)) continue;
-    const m = /^(\d+(?:\.\d+)*)\.?\s+(.+)$/.exec(text);
+    // "1. CONDUITES", "2 . ACCESSOIRES", "1.2 Normes" — not "1020 Renens"
+    // (an address) nor "6 x Ventilateurs" (a count).
+    const m = /^(\d{1,2}(?:\.\d+)*)\s*\.?\s+(?!x\s)(.+)$/i.exec(text);
     const fields = readFields(line, columns);
     if (m && line.items[0].x < headingMaxX) {
+      flush();
       const depth = m[1].split('.').length - 1;
       while (stack.length > depth) stack.pop();
       const parent = stack.at(-1) ?? null;
       const titleItems = line.items.filter((it) => !fields || !fields.items.includes(it));
-      const title = titleItems.map((i) => i.str.trim()).join(' ').replace(/^\d+(?:\.\d+)*\.?\s*/, '');
+      const title = titleItems.map((i) => i.str.trim()).join(' ').replace(/^\d+(?:\.\d+)*\s*\.?\s*/, '');
       current = newNode(ctx, { nodeType: 'section', parent, rawNumber: m[1], positionPath: m[1], displayReference: m[1], title, description: title }, line);
       current.canChapter = null;
       stack[depth] = current;
@@ -512,7 +533,7 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
     if (!fields) {
       // "montant total Fr. ……" left blank: a field to fill, not text.
       if (PRICE_LABEL.test(text) && line.items.some((it) => isDots(it.str) || CURRENCY.test(it.str.trim()))) continue;
-      appendText(item ?? current, text, line.text);
+      pending.push(line);
       continue;
     }
     const label = line.items
@@ -545,12 +566,30 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
       continue;
     }
     if (label) {
-      item = newNode(ctx, { nodeType: 'section', parent: current, rawNumber: null, positionPath: current.positionPath, displayReference: current.displayReference, title: label, description: label }, line);
+      // "Raccord flexible rectangulaire, avec brides" / "Produit : Helios
+      // p 2 Fr.": when the priced line only names the product, the
+      // position is the text just above it, after the details ("Type : …",
+      // "Poids : …") of the previous one.
+      let own: Line[] = [];
+      // Same when it continues the sentence above ("exécuté en tôle …, avec coulisses   p 1 Fr.").
+      if ((GENERIC_LABEL.test(label) || /^[a-zà-ÿ]/.test(label)) && pending.length) {
+        let start = pending.length;
+        while (start > 0 && !SPEC_LINE.test(pending[start - 1].text.trim())) start--;
+        own = pending.splice(start === pending.length ? pending.length - 1 : start);
+      }
+      flush();
+      const name = own.length ? own[0].text.trim() : label;
+      item = newNode(ctx, { nodeType: 'section', parent: current, rawNumber: null, positionPath: current.positionPath, displayReference: current.displayReference, title: name, description: name }, own[0] ?? line);
       item.canChapter = null;
+      for (const l of own.slice(1)) appendText(item, l.text.trim(), l.text);
+      if (own.length) appendText(item, label, line.text);
+    } else {
+      flush();
     }
     ctx.current = item ?? current;
     onFields(ctx, fields, line);
   }
+  flush();
 }
 
 function finalize(ctx: Ctx, cols: Columns) {
