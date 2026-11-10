@@ -4,7 +4,7 @@ import { Link, Redirect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
-import { Btn, Eyebrow, Hover, Headline, Micro, TextLink, Wrap } from '../components/site/Primitives';
+import { Btn, Eyebrow, Hover, Headline, TextLink, Wrap } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
 import { PhoneShot, SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
 import { EXPORTS } from '../components/site/exports';
@@ -31,7 +31,7 @@ function LandingContent() {
   const copy = SITE_COPY[locale];
   const h = copy.home;
   const p = localePrefix(locale);
-  const { width } = useWindowDimensions();
+  const { width, height: winH } = useWindowDimensions();
   const phone = width <= 760;
   const tablet = !phone && width <= 1100;
 
@@ -51,9 +51,10 @@ function LandingContent() {
       <MarketingNav />
       <ScrollView style={{ flex: 1 }}>
         {/* Hero */}
-        <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 68 }}>
-          <Wrap>
-            <View style={[styles.heroTop, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
+        {/* The hero fills the first screen: content centred, trust line at the bottom. */}
+        <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 56, minHeight: winH > 0 ? Math.max(phone ? 0 : 640, winH - (phone ? 75 : 86)) : undefined }}>
+          <Wrap style={{ flex: 1, justifyContent: 'space-between' }}>
+            <View style={[styles.heroTop, { flex: 1, alignItems: 'center' }, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
               <View style={phone ? undefined : { flex: tablet ? 0.9 : 1.22, minWidth: 0 }}>
                 <Eyebrow>{h.eyebrow}</Eyebrow>
                 <Headline level={1} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
@@ -68,7 +69,6 @@ function LandingContent() {
                     <TextLink label={h.explore} href={`${p}/fonctionnalites`} size={phone || width <= 900 ? 11 : 12} />
                   </View>
                 </View>
-                <Micro style={{ fontSize: phone ? 9 : 9 }}>{h.micro}</Micro>
               </View>
               <View style={phone ? undefined : { flex: tablet ? 1.1 : 0.8, minWidth: 0 }}>
                 <HeroStage tag={h.stageTag} note={h.stageNote} phone={phone} />
@@ -254,20 +254,11 @@ function PaperImage({ source, ratio }: { source: ImageSourcePropType; ratio: num
 // Close-up of the signature block of the signed quote (lower right of the
 // same export), framed like a detail shot.
 function SignatureDetail() {
-  const [w, setW] = useState(0);
-  // Crop window in the source image (1200 x 1221 px).
-  const doc = EXPORTS[useSiteLocale()];
-  const crop = doc.signatureCrop;
-  const scale = w / crop.w;
+  const locale = useSiteLocale();
+  const shot = EXPORTS[locale].signature;
   return (
-    <View style={[styles.paper, paperShadow, { width: '100%', height: w ? crop.h * scale : 220, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      {w ? (
-        <Image
-          source={doc.devis.source}
-          style={{ position: 'absolute', width: 1200 * scale, height: 1200 * doc.devis.ratio * scale, left: -crop.x * scale, top: -crop.y * scale }}
-          accessibilityLabel={SITE_PAGES[useSiteLocale()].labels.docAlt.signer}
-        />
-      ) : null}
+    <View style={[styles.paper, paperShadow, { width: '100%', aspectRatio: 1 / shot.ratio, overflow: 'hidden' }]}>
+      <Image source={shot.source} style={{ width: '100%', height: '100%' }} resizeMode="contain" accessibilityLabel={SITE_PAGES[locale].labels.docAlt.signer} />
     </View>
   );
 }

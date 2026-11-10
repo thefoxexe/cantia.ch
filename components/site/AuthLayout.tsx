@@ -21,6 +21,9 @@ export function AuthLayout({ product = 'cantia', backHref, children, visual, loc
   const locale = forced ?? getAppLocale();
   const c = AUTH_COPY[locale];
   const story = c.stories[product];
+  const side = width >= 1080;
+  const art = visual !== undefined ? visual : product === 'cantia' ? <DefaultVisual width={side ? Math.round(Math.min(210, Math.max(150, width * 0.12))) : 200} /> : null;
+  const sideArt = !!art && side;
 
   return (
     <View style={[styles.root, wide && { flexDirection: 'row' }]}>
@@ -56,10 +59,13 @@ export function AuthLayout({ product = 'cantia', backHref, children, visual, loc
             <ProductMark product={product} />
             <Text style={[sans, styles.storyLabel]}>{story.label.toUpperCase()}</Text>
           </View>
-          <View style={styles.storyMain}>
-            <Headline plain={story.plain} accent={story.accent} size={width <= 1100 ? 45 : 55} style={{ letterSpacing: -2, marginBottom: 25 }} />
-            <Text style={[sans, styles.storyText]}>{story.text}</Text>
-            {visual !== undefined ? visual : product === 'cantia' ? <View style={{ marginTop: 34 }}><DefaultVisual /></View> : null}
+          {/* The illustration sits beside the text, not under it. */}
+          <View style={[styles.storyMain, sideArt && { maxWidth: undefined, flexDirection: 'row', alignItems: 'center', gap: width <= 1250 ? 28 : 44 }]}>
+            <View style={sideArt ? { flex: 1, minWidth: 0 } : undefined}>
+              <Headline plain={story.plain} accent={story.accent} size={sideArt ? (width <= 1250 ? 34 : width <= 1500 ? 40 : 46) : width <= 1100 ? 45 : 55} style={{ letterSpacing: -1.8, marginBottom: 25 }} />
+              <Text style={[sans, styles.storyText]}>{story.text}</Text>
+            </View>
+            {art ? <View style={sideArt ? { flexShrink: 0 } : { marginTop: 34 }}>{art}</View> : null}
           </View>
           <Text style={[sans, styles.storyBottom]}>{c.madeIn}</Text>
         </View>
@@ -69,13 +75,9 @@ export function AuthLayout({ product = 'cantia', backHref, children, visual, loc
 }
 
 // The real Cantia dashboard on a phone (sample data), cropped by the panel.
-function DefaultVisual() {
+function DefaultVisual({ width }: { width: number }) {
   const app = EXPORTS[getAppLocale()].app;
-  return (
-    <View style={{ height: 300, overflow: 'hidden' }}>
-      <PhoneShot source={app.dashMobile.source} ratio={app.dashMobile.ratio} width={210} alt="Cantia" />
-    </View>
-  );
+  return <PhoneShot source={app.dashMobile.source} ratio={app.dashMobile.ratio} width={width} maxHeight={width * 2.05} alt="Cantia" />;
 }
 
 function ProductMark({ product, small }: { product: AuthProduct; small?: boolean }) {

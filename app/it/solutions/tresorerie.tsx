@@ -11,6 +11,7 @@ export default function TresorerieSolutionPageIt() {
       title="Riuscirà a pagare i salari tra tre settimane?"
       subtitle="Fatture da incassare, salari da versare, subappaltatori da pagare, abbonamenti che partono da soli — Cantia riunisce tutto ciò che si muove sul Suo conto in un'unica proiezione a 90 giorni."
       visual={<ModuleMockup kind="tresorerie" />}
+      visualBelow
       features={[
         {
           icon: 'trending-up',

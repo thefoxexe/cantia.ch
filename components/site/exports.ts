@@ -11,11 +11,12 @@ import type { SiteLocale } from '../../lib/site/copy';
 
 export type ExportDoc = { source: ImageSourcePropType; ratio: number; pdf: string };
 export type Shot = { source: ImageSourcePropType; ratio: number };
-type Set = { app: { dash: Shot; dashMobile: Shot; tres: Shot; tresMobile: Shot }; devis: ExportDoc; facture: ExportDoc; slip: ExportDoc; rapport: ExportDoc; planning: ExportDoc; signatureCrop: { x: number; y: number; w: number; h: number } };
+type Set = { app: { dash: Shot; dashMobile: Shot; tres: Shot; tresMobile: Shot; bexio: Shot }; devis: ExportDoc; facture: ExportDoc; slip: ExportDoc; rapport: ExportDoc; planning: ExportDoc; signatureCrop: { x: number; y: number; w: number; h: number }; signature: Shot };
 
 export const EXPORTS: Record<SiteLocale, Set> = {
   fr: {
     app: {
+      bexio: { source: require('../../assets/marketing/site/app-bexio.jpg'), ratio: 1470 / 1920 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie.jpg'), ratio: 1000 / 1600 },
@@ -27,9 +28,12 @@ export const EXPORTS: Record<SiteLocale, Set> = {
     rapport: { source: require('../../assets/marketing/site/rapport-chantier.jpg'), ratio: 1247 / 1200, pdf: '/exemples/rapport-chantier-cantia.pdf' },
     planning: { source: require('../../assets/marketing/site/planning-chantier.jpg'), ratio: 501 / 2000, pdf: '/exemples/planning-chantier-cantia.pdf' },
     signatureCrop: { x: 800, y: 975, w: 360, h: 185 },
+    // Totals and both signatures, cut from the PDF rendered at 4x (sharp at any size).
+    signature: { source: require('../../assets/marketing/site/signature-devis.jpg'), ratio: 517 / 1440 },
   },
   de: {
     app: {
+      bexio: { source: require('../../assets/marketing/site/app-bexio-de.jpg'), ratio: 1470 / 1920 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord-de.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile-de.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie-de.jpg'), ratio: 1000 / 1600 },
@@ -41,9 +45,12 @@ export const EXPORTS: Record<SiteLocale, Set> = {
     rapport: { source: require('../../assets/marketing/site/rapport-chantier-de.jpg'), ratio: 1247 / 1200, pdf: '/exemples/rapport-chantier-cantia-de.pdf' },
     planning: { source: require('../../assets/marketing/site/planning-chantier-de.jpg'), ratio: 501 / 2000, pdf: '/exemples/planning-chantier-cantia-de.pdf' },
     signatureCrop: { x: 800, y: 1001, w: 360, h: 185 },
+    // Totals and both signatures, cut from the PDF rendered at 4x (sharp at any size).
+    signature: { source: require('../../assets/marketing/site/signature-devis-de.jpg'), ratio: 517 / 1440 },
   },
   it: {
     app: {
+      bexio: { source: require('../../assets/marketing/site/app-bexio-it.jpg'), ratio: 1470 / 1920 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord-it.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile-it.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie-it.jpg'), ratio: 1000 / 1600 },
@@ -55,5 +62,7 @@ export const EXPORTS: Record<SiteLocale, Set> = {
     rapport: { source: require('../../assets/marketing/site/rapport-chantier-it.jpg'), ratio: 1247 / 1200, pdf: '/exemples/rapport-chantier-cantia-it.pdf' },
     planning: { source: require('../../assets/marketing/site/planning-chantier-it.jpg'), ratio: 501 / 2000, pdf: '/exemples/planning-chantier-cantia-it.pdf' },
     signatureCrop: { x: 800, y: 975, w: 360, h: 185 },
+    // Totals and both signatures, cut from the PDF rendered at 4x (sharp at any size).
+    signature: { source: require('../../assets/marketing/site/signature-devis-it.jpg'), ratio: 517 / 1440 },
   },
 };

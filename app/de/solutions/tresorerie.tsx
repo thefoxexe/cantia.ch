@@ -11,6 +11,7 @@ export default function TresorerieSolutionPageDe() {
       title="Können Sie in drei Wochen die Löhne bezahlen?"
       subtitle="Noch nicht eingegangene Rechnungen, fällige Löhne, zu bezahlende Subunternehmer, automatisch abgebuchte Abonnements — Cantia bündelt alles, was sich auf Ihrem Konto bewegt, in einer einzigen 90-Tage-Prognose."
       visual={<ModuleMockup kind="tresorerie" />}
+      visualBelow
       features={[
         {
           icon: 'trending-up',

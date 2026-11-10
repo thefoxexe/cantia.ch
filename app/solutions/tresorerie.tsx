@@ -8,6 +8,7 @@ export default function TresorerieSolutionPage() {
       title="Saurez-vous payer les salaires dans trois semaines ?"
       subtitle="Factures à encaisser, salaires à sortir, sous-traitants à payer, abonnements qui partent tout seuls — Cantia réunit tout ce qui bouge sur votre compte en une seule projection à 90 jours."
       visual={<ModuleMockup kind="tresorerie" />}
+      visualBelow
       features={[
         {
           icon: 'trending-up',

@@ -1,178 +1,97 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { SolutionPage } from '../components/SolutionPage';
-import { BrandMark } from '../components/brand/Logo';
-import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { ScreenShot, Section, SectionHead, useSiteLayout } from '../components/site/Sections';
+import { EXPORTS } from '../components/site/exports';
+import { sans, site } from '../lib/siteTheme';
 
-type FlowIcon = keyof typeof Feather.glyphMap;
+type Dir = 'both' | 'in' | 'out';
 
-function CurvedArrow({
-  height,
-  bulge,
-  color = colors.border,
-  viewBoxWidth = 320,
-}: {
-  height: number;
-  bulge: number;
-  color?: string;
-  viewBoxWidth?: number;
-}) {
-  const y = height / 2;
-  const x1 = 6;
-  const x2 = viewBoxWidth - 6;
-  const cx = viewBoxWidth / 2;
-  const cy = y + bulge;
-  const s = 5;
+// What travels between Cantia and Bexio, read from the sync functions
+// (supabase/functions/bexio-*): "in" = Bexio -> Cantia, "out" = Cantia -> Bexio.
+const SYNC = {
+  fr: {
+    eyebrow: 'Ce qui circule',
+    title: 'Chaque donnée, dans le bon sens.',
+    text: 'Synchronisation automatique toutes les 15 minutes, ou à la demande depuis Compte → Intégrations.',
+    head: ['Donnée', 'Sens', 'Ce qui se passe'],
+    rows: [
+      ['Clients', 'both', 'Un client créé d’un côté apparaît de l’autre, puis reste à jour.'],
+      ['Articles', 'in', 'Les articles et prestations Bexio alimentent le Catalogue Cantia.'],
+      ['Devis', 'out', 'Envoyé depuis son détail comme offre Bexio, en brouillon ; son numéro Bexio revient dans Cantia.'],
+      ['Factures', 'both', 'Envoyée depuis Cantia en brouillon, ou créée dans Bexio : elle apparaît à la synchronisation suivante.'],
+      ['Statuts de paiement', 'in', 'Une facture payée dans Bexio passe en payée dans Cantia.'],
+    ],
+    legend: { both: 'Dans les deux sens', in: 'Bexio → Cantia', out: 'Cantia → Bexio' },
+  },
+  de: {
+    eyebrow: 'Was übertragen wird',
+    title: 'Jede Angabe, in die richtige Richtung.',
+    text: 'Automatische Synchronisierung alle 15 Minuten oder sofort über Konto → Integrationen.',
+    head: ['Daten', 'Richtung', 'Was passiert'],
+    rows: [
+      ['Kunden', 'both', 'Ein auf einer Seite erfasster Kunde erscheint auf der anderen und bleibt aktuell.'],
+      ['Artikel', 'in', 'Artikel und Leistungen aus Bexio speisen den Cantia-Katalog.'],
+      ['Offerten', 'out', 'Aus der Detailansicht als Bexio-Angebot gesendet, als Entwurf; die Bexio-Nummer erscheint in Cantia.'],
+      ['Rechnungen', 'both', 'Aus Cantia als Entwurf gesendet oder in Bexio erstellt: sie erscheint bei der nächsten Synchronisierung.'],
+      ['Zahlungsstatus', 'in', 'Eine in Bexio bezahlte Rechnung gilt auch in Cantia als bezahlt.'],
+    ],
+    legend: { both: 'In beide Richtungen', in: 'Bexio → Cantia', out: 'Cantia → Bexio' },
+  },
+  it: {
+    eyebrow: 'Cosa viene sincronizzato',
+    title: 'Ogni dato, nel senso giusto.',
+    text: 'Sincronizzazione automatica ogni 15 minuti, o subito da Conto → Integrazioni.',
+    head: ['Dato', 'Direzione', 'Cosa succede'],
+    rows: [
+      ['Clienti', 'both', 'Un cliente creato da una parte appare dall’altra e resta aggiornato.'],
+      ['Articoli', 'in', 'Articoli e prestazioni Bexio alimentano il Catalogo Cantia.'],
+      ['Preventivi', 'out', 'Inviato dal suo dettaglio come offerta Bexio, in bozza; il numero Bexio torna in Cantia.'],
+      ['Fatture', 'both', 'Inviata da Cantia in bozza, o creata in Bexio: appare alla sincronizzazione successiva.'],
+      ['Stato dei pagamenti', 'in', 'Una fattura pagata in Bexio risulta pagata anche in Cantia.'],
+    ],
+    legend: { both: 'Nei due sensi', in: 'Bexio → Cantia', out: 'Cantia → Bexio' },
+  },
+} as const;
+
+const DIR_ICON: Record<Dir, keyof typeof Feather.glyphMap> = { both: 'repeat', in: 'arrow-left', out: 'arrow-right' };
+
+function SyncTable() {
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const c = SYNC[locale] ?? SYNC.fr;
+  const { phone } = useSiteLayout();
   return (
-    <Svg width="100%" height={height} viewBox={`0 0 ${viewBoxWidth} ${height}`} preserveAspectRatio="none">
-      <Path d={`M${x1},${y} Q${cx},${cy} ${x2},${y}`} stroke={color} strokeWidth={2} fill="none" strokeDasharray="1,6" strokeLinecap="round" />
-      <Path d={`M${x1 + s + 3},${y - s} L${x1},${y} L${x1 + s + 3},${y + s} Z`} fill={color} />
-      <Path d={`M${x2 - s - 3},${y - s} L${x2},${y} L${x2 - s - 3},${y + s} Z`} fill={color} />
-    </Svg>
-  );
-}
-
-const ARC_ROW_HEIGHT = 44;
-const ARC_BADGE_SIZE = 26;
-
-function CantiaLogoBadge({ size }: { size: number }) {
-  return (
-    <BrandMark size={size} />
-  );
-}
-
-function BexioLogoBadge({ size }: { size: number }) {
-  return (
-    <View style={[styles.visualLogoBadge, { width: size, height: size, borderRadius: size / 2.6 }]}>
-      <Image source={require('../assets/integrations/bexio-logo.png')} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Bexio" />
-    </View>
-  );
-}
-
-function IntegrationsVisual() {
-  const { t } = useTranslation();
-  const FLOW_ROWS: { icon: FlowIcon; label: string; bulge: number; cute?: boolean }[] = [
-    { icon: 'smile', label: t('integrationsPage.flowClientsLabel'), bulge: 8, cute: true },
-    { icon: 'file-text', label: t('integrationsPage.flowDevisLabel'), bulge: -8 },
-    { icon: 'file', label: t('integrationsPage.flowFacturesLabel'), bulge: 8 },
-    { icon: 'credit-card', label: t('integrationsPage.flowPaymentsLabel'), bulge: -8 },
-  ];
-  return (
-    <View style={styles.visualFrame}>
-      <View style={styles.visualEndpoints}>
-        <View style={styles.visualEndpoint}>
-          <CantiaLogoBadge size={68} />
-          <Text style={styles.visualEndpointLabel}>{t('integrationsPage.cantiaLabel')}</Text>
-        </View>
-        <View style={styles.visualEndpoint}>
-          <BexioLogoBadge size={68} />
-          <Text style={styles.visualEndpointLabel}>{t('integrationsPage.bexioLabel')}</Text>
-        </View>
-      </View>
-
-      <View style={styles.visualLinks}>
-        {FLOW_ROWS.map((row) => (
-          <View key={row.label} style={styles.visualLinkRow}>
-            <Text style={styles.visualLinkLabel}>{row.label}</Text>
-            <View style={[styles.visualArcWrap, { height: ARC_ROW_HEIGHT }]}>
-              <CurvedArrow height={ARC_ROW_HEIGHT} bulge={row.bulge} />
-              <View
-                style={[
-                  styles.visualArcBadge,
-                  row.cute && styles.visualArcBadgeCute,
-                  {
-                    width: ARC_BADGE_SIZE,
-                    height: ARC_BADGE_SIZE,
-                    borderRadius: ARC_BADGE_SIZE / 2,
-                    top: ARC_ROW_HEIGHT / 2 + row.bulge - ARC_BADGE_SIZE / 2,
-                  },
-                ]}
-              >
-                <Feather name={row.icon} size={13} color={row.cute ? colors.accent : '#fff'} />
-              </View>
+    <Section>
+      <SectionHead eyebrow={c.eyebrow} plain={c.title} text={c.text} />
+      <View style={styles.table}>
+        {!phone ? (
+          <View style={[styles.row, styles.headRow]}>
+            <Text style={[sans, styles.th, { width: 190 }]}>{c.head[0].toUpperCase()}</Text>
+            <Text style={[sans, styles.th, { width: 190 }]}>{c.head[1].toUpperCase()}</Text>
+            <Text style={[sans, styles.th, { flex: 1 }]}>{c.head[2].toUpperCase()}</Text>
+          </View>
+        ) : null}
+        {c.rows.map(([name, dir, what]) => (
+          <View key={name} style={[styles.row, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 8 }]}>
+            <Text style={[sans, styles.name, !phone && { width: 190 }]}>{name}</Text>
+            <View style={[styles.dir, !phone && { width: 190 }]}>
+              <Feather name={DIR_ICON[dir as Dir]} size={14} color={site.copper} />
+              <Text style={[sans, styles.dirText]}>{c.legend[dir as Dir]}</Text>
             </View>
+            <Text style={[sans, styles.what, !phone && { flex: 1 }]}>{what}</Text>
           </View>
         ))}
       </View>
-
-      <Text style={styles.visualCaption}>{t('integrationsPage.visualCaption')}</Text>
-    </View>
+    </Section>
   );
 }
 
-const BAND_VB_WIDTH = 1000;
-const BAND_HEIGHT = 176;
-const BAND_X1 = 90;
-const BAND_X2 = BAND_VB_WIDTH - 90;
-const BAND_BULGE = -56;
-const BAND_CENTER_Y = BAND_HEIGHT / 2 + 14;
-
-function bandPointAt(t: number) {
-  const x = BAND_X1 + t * (BAND_X2 - BAND_X1);
-  const y = BAND_CENTER_Y + 2 * t * (1 - t) * BAND_BULGE;
-  return { leftPct: (x / BAND_VB_WIDTH) * 100, top: y };
-}
-
-function IntegrationsFlowBand() {
-  const { t: tr } = useTranslation();
-  const BAND_CHIPS: { icon: FlowIcon; label: string; t: number; cute?: boolean }[] = [
-    { icon: 'smile', label: tr('integrationsPage.flowClientsLabel'), t: 0.18, cute: true },
-    { icon: 'file-text', label: tr('integrationsPage.flowDevisLabel'), t: 0.4 },
-    { icon: 'file', label: tr('integrationsPage.flowFacturesLabel'), t: 0.6 },
-    { icon: 'credit-card', label: tr('integrationsPage.bandPaymentsLabel'), t: 0.82 },
-  ];
-  const s = 6;
-  return (
-    <View style={styles.bandOuter}>
-      <View style={styles.bandCard}>
-        <View style={[styles.bandStage, { height: BAND_HEIGHT }]}>
-          <Svg
-            width="100%"
-            height={BAND_HEIGHT}
-            viewBox={`0 0 ${BAND_VB_WIDTH} ${BAND_HEIGHT}`}
-            preserveAspectRatio="none"
-            style={StyleSheet.absoluteFill}
-          >
-            <Path
-              d={`M${BAND_X1},${BAND_CENTER_Y} Q${BAND_VB_WIDTH / 2},${BAND_CENTER_Y + BAND_BULGE} ${BAND_X2},${BAND_CENTER_Y}`}
-              stroke={colors.border}
-              strokeWidth={2.5}
-              fill="none"
-              strokeDasharray="1,8"
-              strokeLinecap="round"
-            />
-            <Path d={`M${BAND_X1 + s + 4},${BAND_CENTER_Y - s} L${BAND_X1},${BAND_CENTER_Y} L${BAND_X1 + s + 4},${BAND_CENTER_Y + s} Z`} fill={colors.border} />
-            <Path d={`M${BAND_X2 - s - 4},${BAND_CENTER_Y - s} L${BAND_X2},${BAND_CENTER_Y} L${BAND_X2 - s - 4},${BAND_CENTER_Y + s} Z`} fill={colors.border} />
-          </Svg>
-
-          <View style={[styles.bandLogoCol, styles.bandLogoColLeft]}>
-            <CantiaLogoBadge size={72} />
-            <Text style={styles.visualEndpointLabel}>Cantia</Text>
-          </View>
-          <View style={[styles.bandLogoCol, styles.bandLogoColRight]}>
-            <BexioLogoBadge size={72} />
-            <Text style={styles.visualEndpointLabel}>Bexio</Text>
-          </View>
-
-          {BAND_CHIPS.map((chip) => {
-            const { leftPct, top } = bandPointAt(chip.t);
-            return (
-              <View key={chip.label} style={[styles.bandChip, { left: `${leftPct}%`, top }]}>
-                <View style={[styles.bandChipIcon, chip.cute && styles.visualArcBadgeCute]}>
-                  <Feather name={chip.icon} size={13} color={chip.cute ? colors.accent : '#fff'} />
-                </View>
-                <Text style={styles.bandChipLabel}>{chip.label}</Text>
-              </View>
-            );
-          })}
-        </View>
-        <Text style={styles.visualCaption}>{tr('integrationsPage.visualCaption')}</Text>
-      </View>
-    </View>
-  );
+// The real Bexio settings screen of the app (connected, sample company).
+function BexioScreen() {
+  const locale = getAppLocale() as 'fr' | 'de' | 'it';
+  const shot = EXPORTS[locale]?.app.bexio ?? EXPORTS.fr.app.bexio;
+  return <ScreenShot source={shot.source} ratio={shot.ratio} alt="Cantia · Bexio" />;
 }
 
 export default function IntegrationsPage() {
@@ -185,8 +104,9 @@ export default function IntegrationsPage() {
       kicker={t('integrationsPage.kicker')}
       title={t('integrationsPage.title')}
       subtitle={t('integrationsPage.subtitle')}
-      visual={<IntegrationsVisual />}
-      afterFeatures={<IntegrationsFlowBand />}
+      visual={<BexioScreen />}
+      visualBelow
+      afterFeatures={<SyncTable />}
       features={[
         { icon: 'users', title: t('integrationsPage.feature1Title'), text: t('integrationsPage.feature1Text') },
         { icon: 'package', title: t('integrationsPage.feature2Title'), text: t('integrationsPage.feature2Text') },
@@ -218,152 +138,12 @@ export default function IntegrationsPage() {
 }
 
 const styles = StyleSheet.create({
-  visualFrame: {
-    width: '100%',
-    maxWidth: 460,
-    backgroundColor: colors.surface,
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xl,
-    gap: spacing.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-  },
-  visualEndpoints: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  visualEndpoint: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  visualLogoBadgeCantia: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  visualLogoBadge: {
-    backgroundColor: '#0A3A47',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  visualEndpointLabel: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  visualLinks: {
-    gap: spacing.md,
-  },
-  visualLinkRow: {
-    gap: 6,
-  },
-  visualLinkLabel: {
-    fontFamily: marketingFonts.mono,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  visualArcWrap: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  visualArcBadge: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -(ARC_BADGE_SIZE / 2),
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  visualArcBadgeCute: {
-    backgroundColor: colors.accentSoft,
-  },
-  visualCaption: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    textAlign: 'center',
-    paddingTop: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  bandOuter: {
-    width: '100%',
-    maxWidth: 1040,
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xl,
-  },
-  bandCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 3,
-    padding: spacing.xl,
-    gap: spacing.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-  },
-  bandStage: {
-    position: 'relative',
-    width: '100%',
-  },
-  bandLogoCol: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  bandLogoColLeft: {
-    left: 0,
-  },
-  bandLogoColRight: {
-    right: 0,
-  },
-  bandChip: {
-    position: 'absolute',
-    width: 76,
-    marginLeft: -38,
-    marginTop: -15,
-    alignItems: 'center',
-    gap: 4,
-  },
-  bandChipIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  bandChipLabel: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
+  table: { borderTopWidth: 1, borderTopColor: site.line },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 20, paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: site.line },
+  headRow: { paddingVertical: 14 },
+  th: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },
+  name: { fontSize: 16, color: site.ink, fontWeight: '500', letterSpacing: -0.3 },
+  dir: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  dirText: { fontSize: 12, color: site.copper, fontWeight: '500' },
+  what: { fontSize: 12, color: site.muted, lineHeight: 21 },
 });

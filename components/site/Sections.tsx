@@ -24,7 +24,7 @@ export function useSiteLayout() {
   return { width, phone, tablet, narrow, h2Size: phone ? 32 : width <= 900 ? 36 : 42 };
 }
 
-export function SitePage({ title, description, children, scrollRef }: { title: string; description?: string; children: React.ReactNode; scrollRef?: React.RefObject<ScrollView | null> }) {
+export function SitePage({ title, description, children, scrollRef, cta = true }: { title: string; description?: string; children: React.ReactNode; scrollRef?: React.RefObject<ScrollView | null>; cta?: boolean }) {
   useSyncMarketingLocaleFromPath();
   return (
     <View style={styles.page}>
@@ -32,7 +32,7 @@ export function SitePage({ title, description, children, scrollRef }: { title: s
       <MarketingNav />
       <ScrollView ref={scrollRef} style={{ flex: 1 }}>
         {children}
-        <SiteCta />
+        {cta ? <SiteCta /> : null}
         <MarketingFooter />
       </ScrollView>
     </View>

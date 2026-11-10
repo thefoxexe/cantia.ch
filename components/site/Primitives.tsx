@@ -52,9 +52,12 @@ export function Eyebrow({ children, color = site.copper, style }: { children: st
 
 // A headline in two parts: the plain sans line and the copper serif accent
 // on its own line ("La suite logique / de vos projets.").
+// French typography: no line may start with « ? ! : ; ».
+const nbsp = (s: string) => s.replace(/ ([?!:;»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
+
 export function Headline({
-  plain,
-  accent,
+  plain: rawPlain,
+  accent: rawAccent,
   level = 2,
   size,
   accentColor = site.copper,
@@ -71,6 +74,8 @@ export function Headline({
   style?: StyleProp<TextStyle>;
   inline?: boolean;
 }) {
+  const plain = nbsp(rawPlain);
+  const accent = rawAccent === undefined ? undefined : nbsp(rawAccent);
   const tracking = level === 1 ? -size * 0.055 : -size * 0.045;
   return (
     <Text role="heading" aria-level={level} style={[sans, { color, fontSize: size, lineHeight: size * (level === 1 ? 1.02 : 1.13), letterSpacing: tracking, fontWeight: level === 1 ? '500' : '400' }, style]}>
