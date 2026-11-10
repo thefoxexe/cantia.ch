@@ -133,6 +133,11 @@ export default function ChoosePlanScreen() {
           <Text style={styles.subtitle}>
             {customPlan ? t('authChoosePlan.customPlanSubtitle') : t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
           </Text>
+          {/* The plan picked on the site is only preselected: every plan
+              below stays choosable, and this says so plainly. */}
+          {!customPlan && intent.plan && plans.some((p) => p.id === intent.plan) ? (
+            <Text style={styles.intentHint}>{t('authChoosePlan.intentHint', { name: plans.find((p) => p.id === intent.plan)!.name })}</Text>
+          ) : null}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -343,7 +348,7 @@ function PlanCard({
         ))}
         <Feature text={t('authChoosePlan.storageFeature', { gb: (plan.storage_quota_mb / 1024).toFixed(plan.storage_quota_mb < 1024 ? 1 : 0) })} premium={premium} />
         <Feature text={t('authChoosePlan.membersFeature', { count: plan.max_members })} premium={premium} />
-        {plan.max_ai_uses_per_month ? <Feature text={t('authChoosePlan.aiAssistantQuota', { count: plan.max_ai_uses_per_month })} premium={premium} /> : null}
+        {plan.max_ai_uses_per_month && !PLAN_HIGHLIGHTS[plan.id] ? <Feature text={t('authChoosePlan.aiAssistantQuota', { count: plan.max_ai_uses_per_month })} premium={premium} /> : null}
       </View>
       <Button
         title={t('authChoosePlan.choosePlanBtn', { name: plan.name })}
@@ -381,7 +386,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: spacing.xl,
     paddingVertical: spacing.xxl,
-    maxWidth: 760,
+    maxWidth: 1040,
     width: '100%',
     alignSelf: 'center',
     justifyContent: 'center',
@@ -407,6 +412,21 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     maxWidth: 460,
     lineHeight: 23,
+  },
+  intentHint: {
+    ...sans,
+    fontSize: 13,
+    lineHeight: 20,
+    color: site.ink,
+    textAlign: 'center',
+    marginTop: spacing.md,
+    maxWidth: 520,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   error: {
     color: colors.danger,
