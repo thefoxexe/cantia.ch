@@ -3,7 +3,9 @@ import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { marketingFonts } from '../lib/marketingTheme';
+import { site } from '../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 import { supabase } from '../lib/supabase';
 import { isMarketingHost } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
@@ -88,7 +90,7 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
   return (
     <View style={styles.card}>
       <View style={styles.iconBadge}>
-        <Feather name="download" size={16} color={colors.primaryDark} />
+        <Feather name="download" size={16} color={site.ink} />
       </View>
       <Text style={styles.title}>{block.title}</Text>
       <Text style={styles.text}>{block.text}</Text>
@@ -116,7 +118,7 @@ export function BlogLeadMagnet({ block, sourceSlug, category }: { block: LeadMag
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
     borderRadius: 3,
     padding: spacing.lg,
     gap: spacing.xs,
@@ -125,21 +127,21 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 3,
-    backgroundColor: colors.surface,
+    backgroundColor: site.white,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
   },
   title: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.md,
-    fontWeight: '800',
-    color: colors.primaryDark,
+    fontWeight: '600',
+    color: site.ink,
   },
   text: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.primaryDark,
+    color: site.ink,
     opacity: 0.9,
     lineHeight: 20,
     marginBottom: spacing.sm,
@@ -170,9 +172,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   disclaimer: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: 11,
-    color: colors.primaryDark,
+    color: site.ink,
     opacity: 0.7,
     marginTop: spacing.sm,
     lineHeight: 15,
@@ -187,15 +189,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   deliveredTitle: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.md,
-    fontWeight: '800',
-    color: colors.primaryDark,
+    fontWeight: '600',
+    color: site.ink,
   },
   deliveredText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.primaryDark,
+    color: site.ink,
     opacity: 0.9,
     lineHeight: 19,
     marginBottom: spacing.sm,

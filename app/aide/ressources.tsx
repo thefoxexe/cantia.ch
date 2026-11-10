@@ -6,6 +6,9 @@ import { Heading } from '../../components/Heading';
 import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
+import { site } from '../../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // Downloadable resources library, reachable from the Centre d'aide — starts
 // with the one B2B product dossier (FR + DE PDFs in public/), both always
@@ -23,7 +26,7 @@ export default function AideRessourcesScreen() {
 
         <Container style={styles.container}>
           <Link href={aideHref as any} style={styles.backLink}>
-            <Feather name="arrow-left" size={14} color={colors.textMuted} />
+            <Feather name="arrow-left" size={14} color={site.muted} />
             <Text style={styles.backLinkText}>{t('aideRessourcesPage.backLink')}</Text>
           </Link>
           <Heading level={1} style={styles.title}>{t('aideRessourcesPage.title')}</Heading>
@@ -31,7 +34,7 @@ export default function AideRessourcesScreen() {
 
           <View style={styles.card}>
             <View style={styles.cardIcon}>
-              <Feather name="file-text" size={20} color={colors.primary} />
+              <Feather name="file-text" size={20} color={site.copper} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{t('aideRessourcesPage.dossierTitle')}</Text>
@@ -45,7 +48,7 @@ export default function AideRessourcesScreen() {
                   style={[styles.downloadButton, styles.downloadButtonSecondary]}
                   onPress={() => Linking.openURL('/cantia-dossier-b2b-de.pdf')}
                 >
-                  <Feather name="download" size={14} color={colors.primary} />
+                  <Feather name="download" size={14} color={site.copper} />
                   <Text style={[styles.downloadButtonText, styles.downloadButtonTextSecondary]}>
                     {t('aideRessourcesPage.downloadDe')}
                   </Text>
@@ -82,16 +85,16 @@ const styles = StyleSheet.create({
   backLinkText: {
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.textMuted,
+    color: site.muted,
   },
   title: {
     fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '600',
+    color: site.ink,
   },
   lead: {
     fontSize: fontSize.md,
-    color: colors.textMuted,
+    color: site.muted,
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
     maxWidth: 560,
@@ -101,8 +104,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: site.line,
+    backgroundColor: site.white,
     borderRadius: 3,
     padding: spacing.lg,
     maxWidth: 560,
@@ -111,18 +114,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 3,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: site.ink,
   },
   cardText: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
     marginTop: 2,
     lineHeight: 19,
   },
@@ -136,13 +139,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: colors.primary,
+    backgroundColor: site.copper,
     borderRadius: 3,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   downloadButtonSecondary: {
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
   },
   downloadButtonText: {
     fontSize: fontSize.xs,
@@ -150,6 +153,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   downloadButtonTextSecondary: {
-    color: colors.primary,
+    color: site.copper,
   },
 });

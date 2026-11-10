@@ -1,32 +1,35 @@
 import { forwardRef } from 'react';
 import { Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
-import { colors } from '../../lib/theme';
-import { marketingFonts } from '../../lib/marketingTheme';
+import { Feather } from '@expo/vector-icons';
+import { sans, site } from '../../lib/siteTheme';
 
-// Square-cornered brand button for the marketing pages. forwardRef so it can
-// sit under <Link asChild> like the app's own <Button>.
+// Button of the older marketing pages, drawn like the site's Btn (copper or
+// sand). forwardRef so it can sit under <Link asChild>.
 export const CtaButton = forwardRef<View, PressableProps & { title: string; tone?: 'primary' | 'light' }>(
   function CtaButton({ title, tone = 'primary', style, ...rest }, ref) {
+    const light = tone === 'light';
     return (
       <Pressable
         ref={ref}
         {...rest}
         style={(state) => [
           styles.base,
-          tone === 'light' ? styles.light : styles.primary,
+          light ? styles.light : styles.primary,
+          (state as any).hovered && { backgroundColor: light ? '#e9d9c4' : site.rust },
           state.pressed && { opacity: 0.85 },
           typeof style === 'function' ? style(state) : style,
         ]}
       >
-        <Text style={[styles.text, tone === 'light' && { color: colors.text }]}>{title}  →</Text>
+        <Text style={[sans, styles.text, light && { color: site.ink }]}>{title}</Text>
+        <Feather name="arrow-right" size={15} color={light ? site.ink : '#ffffff'} />
       </Pressable>
     );
   },
 );
 
 const styles = StyleSheet.create({
-  base: { alignSelf: 'flex-start', paddingVertical: 14, paddingHorizontal: 20, borderRadius: 3 },
-  primary: { backgroundColor: colors.primary },
-  light: { backgroundColor: '#FBF6EE' },
-  text: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: '#FBF6EE', letterSpacing: 0.1 },
+  base: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 26, paddingVertical: 14, paddingHorizontal: 20, borderRadius: 5 },
+  primary: { backgroundColor: site.copper },
+  light: { backgroundColor: '#e7d8c5' },
+  text: { fontSize: 13, fontWeight: '600', color: '#ffffff' },
 });

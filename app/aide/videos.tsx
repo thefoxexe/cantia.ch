@@ -8,6 +8,9 @@ import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome'
 import { supabase } from '../../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
+import { site } from '../../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 interface PublicTutorialVideo {
   id: string;
@@ -79,7 +82,7 @@ export default function TutorialVideosScreen() {
 
         <Container style={styles.container}>
           <Link href={aideHref as any} style={styles.backLink}>
-            <Feather name="arrow-left" size={14} color={colors.textMuted} />
+            <Feather name="arrow-left" size={14} color={site.muted} />
             <Text style={styles.backLinkText}>{t('aideVideosPage.backLink')}</Text>
           </Link>
           <Heading level={1} style={styles.title}>{t('aideVideosPage.title')}</Heading>
@@ -89,14 +92,14 @@ export default function TutorialVideosScreen() {
             onPress={() => Linking.openURL('https://www.youtube.com/@Cantiach')}
             style={styles.channelLink}
           >
-            <Feather name="youtube" size={16} color={colors.primary} />
+            <Feather name="youtube" size={16} color={site.copper} />
             <Text style={styles.channelLinkText}>{t('aideVideosPage.channelLink')}</Text>
-            <Feather name="external-link" size={13} color={colors.primary} />
+            <Feather name="external-link" size={13} color={site.copper} />
           </Pressable>
 
           {loading ? null : available.length === 0 ? (
             <View style={styles.notice}>
-              <Feather name="film" size={22} color={colors.primary} />
+              <Feather name="film" size={22} color={site.copper} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.noticeTitle}>{t('aideVideosPage.noticeTitle')}</Text>
                 <Text style={styles.noticeText}>{t('aideVideosPage.noticeText')}</Text>
@@ -105,17 +108,17 @@ export default function TutorialVideosScreen() {
           ) : (
             <>
               <View style={styles.searchBar}>
-                <Feather name="search" size={16} color={colors.textMuted} />
+                <Feather name="search" size={16} color={site.muted} />
                 <TextInput
                   value={search}
                   onChangeText={setSearch}
                   placeholder={t('aideVideosPage.searchPlaceholder')}
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={site.muted}
                   style={styles.searchInput}
                 />
                 {search ? (
                   <Pressable onPress={() => setSearch('')} hitSlop={8}>
-                    <Feather name="x" size={16} color={colors.textMuted} />
+                    <Feather name="x" size={16} color={site.muted} />
                   </Pressable>
                 ) : null}
               </View>
@@ -171,7 +174,7 @@ function VideoPlayerModal({ video, onClose }: { video: Video | null; onClose: ()
               {video?.title}
             </Text>
             <Pressable onPress={onClose} hitSlop={8} style={styles.modalCloseButton}>
-              <Feather name="x" size={18} color={colors.text} />
+              <Feather name="x" size={18} color={site.ink} />
             </Pressable>
           </View>
           <View style={styles.modalPlayer}>
@@ -215,16 +218,16 @@ const styles = StyleSheet.create({
   backLinkText: {
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.textMuted,
+    color: site.muted,
   },
   title: {
     fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '600',
+    color: site.ink,
   },
   lead: {
     fontSize: fontSize.md,
-    color: colors.textMuted,
+    color: site.muted,
     marginTop: spacing.xs,
     marginBottom: spacing.lg,
     maxWidth: 560,
@@ -240,13 +243,13 @@ const styles = StyleSheet.create({
   channelLinkText: {
     fontSize: fontSize.sm,
     fontWeight: '700',
-    color: colors.primary,
+    color: site.copper,
   },
   notice: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
     borderRadius: 3,
     padding: spacing.lg,
     maxWidth: 560,
@@ -254,11 +257,11 @@ const styles = StyleSheet.create({
   noticeTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: site.ink,
   },
   noticeText: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
     marginTop: 2,
     lineHeight: 19,
   },
@@ -268,8 +271,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     maxWidth: 360,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: site.line,
+    backgroundColor: site.white,
     borderRadius: 3,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -278,11 +281,11 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: fontSize.sm,
-    color: colors.text,
+    color: site.ink,
   },
   noResults: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
   },
   grid: {
     flexDirection: 'row',
@@ -292,8 +295,8 @@ const styles = StyleSheet.create({
   card: {
     width: 280,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: site.line,
+    backgroundColor: site.white,
     borderRadius: 3,
     padding: spacing.md,
     gap: spacing.xs,
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
   thumb: {
     height: 140,
     borderRadius: 3,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: '#efede5',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -318,18 +321,18 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.primary,
+    backgroundColor: site.copper,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardTitle: {
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: site.ink,
   },
   cardText: {
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
     lineHeight: 19,
   },
   modalBackdrop: {
@@ -342,7 +345,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 900,
-    backgroundColor: colors.surface,
+    backgroundColor: site.white,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -354,13 +357,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: site.line,
   },
   modalTitle: {
     flex: 1,
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: site.ink,
   },
   modalCloseButton: {
     width: 30,
@@ -368,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: '#efede5',
   },
   modalPlayer: {
     width: '100%',

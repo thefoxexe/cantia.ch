@@ -6,6 +6,9 @@ import { Heading } from '../components/Heading';
 import { MarketingHead } from '../components/MarketingHead';
 import { authHref } from '../lib/appHost';
 import { marketingFonts } from '../lib/marketingTheme';
+import { site } from '../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // cantia.ch/liens: the link in the Instagram / LinkedIn bio, laid out like a
 // profile card. A handful of large links only; the free tools are one entry
@@ -13,7 +16,7 @@ import { marketingFonts } from '../lib/marketingTheme';
 // to the other Cantia sites carry utm_medium=liens for the traffic report.
 
 const UTM = 'utm_source=cantia.ch&utm_medium=liens';
-const FONT = { fontFamily: `${marketingFonts.body}, system-ui, sans-serif` };
+const FONT = { fontFamily: DM };
 const MARK = require('../assets/brand/mark.png');
 const MARK_WHITE = require('../assets/brand/mark-white.png');
 
@@ -130,7 +133,7 @@ const styles = StyleSheet.create({
     borderWidth: 4, borderColor: '#FFFDF9', boxShadow: '0 6px 18px rgba(23,19,15,.12)',
   } as any,
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 14 },
-  name: { ...FONT, fontSize: 26, fontWeight: '800', color: INK, letterSpacing: -0.7 },
+  name: { ...FONT, fontSize: 26, fontWeight: '600', color: INK, letterSpacing: -0.7 },
   handle: { ...FONT, fontSize: 14, color: MUTED, marginTop: 2 },
   bio: { ...FONT, fontSize: 15, lineHeight: 22, color: '#3E352C', textAlign: 'center', marginTop: 14, maxWidth: 360 },
   meta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 14 },

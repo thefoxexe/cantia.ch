@@ -6,6 +6,9 @@ import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome'
 import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../../lib/helpArticles';
 import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
+import { site } from '../../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // Needed for the `app-marketing/` static export (web.output: "static") to
 // know which /aide/<id> pages to prerender — see app-marketing/aide/[id].tsx,
@@ -28,10 +31,10 @@ export default function HelpArticleScreen() {
       <Screen>
         <MarketingNav />
         <View style={{ maxWidth: 480, alignSelf: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxxl, alignItems: 'center', gap: spacing.md }}>
-          <Text style={{ fontSize: fontSize.xxl, fontWeight: '800', color: colors.text }}>{t('helpArticlePage.notFoundTitle')}</Text>
-          <Text style={{ fontSize: fontSize.md, color: colors.textMuted, textAlign: 'center' }}>{t('helpArticlePage.notFoundText')}</Text>
+          <Text style={{ fontSize: fontSize.xxl, fontWeight: '600', color: site.ink }}>{t('helpArticlePage.notFoundTitle')}</Text>
+          <Text style={{ fontSize: fontSize.md, color: site.muted, textAlign: 'center' }}>{t('helpArticlePage.notFoundText')}</Text>
           <Link href={(locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide') as any}>
-            <Text style={{ fontSize: fontSize.md, color: colors.primary, fontWeight: '700' }}>{t('helpArticlePage.backToAide')}</Text>
+            <Text style={{ fontSize: fontSize.md, color: site.copper, fontWeight: '700' }}>{t('helpArticlePage.backToAide')}</Text>
           </Link>
         </View>
         <MarketingFooter />

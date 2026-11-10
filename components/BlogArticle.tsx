@@ -2,14 +2,15 @@ import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container, Screen } from './ui';
+import { Container } from './ui';
 import { Heading } from './Heading';
 import { CtaButton } from './landing/CtaButton';
-import { MarketingHead } from './MarketingHead';
-import { MarketingFooter, MarketingNav } from './MarketingChrome';
+import { SitePage } from './site/Sections';
+import { Headline } from './site/Primitives';
+import { site } from '../lib/siteTheme';
 import { BlogLeadMagnet } from './BlogLeadMagnet';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 import { authHref } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
@@ -108,11 +109,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   };
 
   return (
-    <Screen>
-      <MarketingHead title={`${post.title} | Cantia`} />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav />
-
+    <SitePage title={`${post.title} | Cantia`} description={post.question} cta={false}>
         <Container style={styles.heroOuter}>
           <Animated.View
             style={{
@@ -122,17 +119,17 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           >
             <Link href={blogHrefPrefix as any} asChild>
               <Pressable style={styles.backLink}>
-                <Feather name="arrow-left" size={13} color={colors.primary} />
+                <Feather name="arrow-left" size={13} color={site.copper} />
                 <Text style={styles.backLinkText}>{t('blogArticlePage.allArticles')}</Text>
               </Pressable>
             </Link>
 
             <View style={styles.kickerPill}>
-              <Feather name={CATEGORY_ICON[post.category] ?? 'file-text'} size={12} color={colors.primaryDark} />
+              <Feather name={CATEGORY_ICON[post.category] ?? 'file-text'} size={12} color={site.ink} />
               <Text style={styles.kickerText}>{t(`blogCategories.${post.category}`)}</Text>
             </View>
 
-            <Heading level={1} style={styles.title}>{post.title}</Heading>
+            <Headline level={1} plain={post.title} size={46} style={{ letterSpacing: -1.8, lineHeight: 50 }} />
             <Text style={styles.question}>{post.question}</Text>
 
             <View style={styles.metaRow}>
@@ -169,7 +166,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <Container style={styles.section}>
             <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
               <Pressable style={styles.tradeLinkCard}>
-                <Feather name="tool" size={16} color={colors.primary} />
+                <Feather name="tool" size={16} color={site.copper} />
                 <Text style={styles.tradeLinkText}>
                   {t('blogArticlePage.tradeLinkText')} <Text style={styles.tradeLinkTextAccent}>→</Text>
                 </Text>
@@ -189,7 +186,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
                     <Text style={styles.relatedTitle}>{r.title}</Text>
                     <View style={styles.relatedMore}>
                       <Text style={styles.relatedMoreText}>{t('blogArticlePage.readArticle')}</Text>
-                      <Feather name="arrow-right" size={12} color={colors.primary} />
+                      <Feather name="arrow-right" size={12} color={site.copper} />
                     </View>
                   </Pressable>
                 </Link>
@@ -214,9 +211,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </View>
         </Container>
 
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+    </SitePage>
   );
 }
 
@@ -250,7 +245,7 @@ function BlockRenderer({
     case 'callout':
       return (
         <View style={styles.callout}>
-          <Feather name="info" size={16} color={colors.primaryDark} style={styles.calloutIcon} />
+          <Feather name="info" size={16} color={site.ink} style={styles.calloutIcon} />
           <View style={{ flex: 1 }}>
             <Text style={styles.calloutTitle}>{block.title}</Text>
             <Text style={styles.calloutText}>{block.text}</Text>
@@ -323,7 +318,7 @@ function LinkListBlock({ block }: { block: Extract<BlogPost['blocks'][number], {
           <Link key={item.href} href={item.href as any} asChild>
             <Pressable style={styles.linklistRow}>
               <Text style={styles.linklistRowText}>{item.label}</Text>
-              <Feather name="arrow-right" size={13} color={colors.primary} />
+              <Feather name="arrow-right" size={13} color={site.copper} />
             </Pressable>
           </Link>
         ))}
@@ -345,26 +340,26 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   backLinkText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.primary,
+    color: site.copper,
   },
   kickerPill: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginBottom: spacing.lg },
-  kickerText: { fontFamily: marketingFonts.mono, fontSize: 11, color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.4 },
-  title: { ...displayType, fontSize: 58, fontWeight: '800', color: '#231A12', lineHeight: 58, marginTop: 0, marginBottom: 0 } as unknown as ViewStyle,
-  question: { fontFamily: marketingFonts.body, fontSize: 19, color: '#4A3D31', marginTop: spacing.lg, lineHeight: 29 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.md, borderTopWidth: 1.5, borderTopColor: '#231A12' },
-  metaText: { fontFamily: marketingFonts.mono, fontSize: 10.5, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.3 },
+  kickerText: { fontFamily: DM, fontSize: 11, color: site.copper, textTransform: 'uppercase', letterSpacing: 0.4 },
+  title: { fontFamily: DM, fontSize: 58, fontWeight: '500', color: site.ink, lineHeight: 58, marginTop: 0, marginBottom: 0 } as unknown as ViewStyle,
+  question: { fontFamily: DM, fontSize: 19, color: site.muted, marginTop: spacing.lg, lineHeight: 29 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl, paddingTop: spacing.md, borderTopWidth: 1.5, borderTopColor: site.ink },
+  metaText: { fontFamily: DM, fontSize: 10.5, color: site.muted, textTransform: 'uppercase', letterSpacing: 0.3 },
   metaDot: {
     width: 3,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.border,
+    backgroundColor: site.line,
   },
   body: { maxWidth: 820, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md, gap: spacing.lg },
-  paragraph: { fontFamily: marketingFonts.body, fontSize: 18, color: '#231A12', lineHeight: 30 },
-  h2: { ...displayType, fontSize: 34, lineHeight: 36, fontWeight: '800', color: '#231A12', marginTop: spacing.xl } as unknown as ViewStyle,
+  paragraph: { fontFamily: DM, fontSize: 18, color: site.ink, lineHeight: 30 },
+  h2: { fontFamily: DM, fontSize: 34, lineHeight: 36, fontWeight: '500', color: site.ink, marginTop: spacing.xl } as unknown as ViewStyle,
   list: {
     gap: spacing.sm,
   },
@@ -385,25 +380,25 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.primary,
+    backgroundColor: site.copper,
   },
   listBulletNum: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.xs,
-    fontWeight: '800',
-    color: colors.primary,
+    fontWeight: '600',
+    color: site.copper,
   },
   listText: {
     flex: 1,
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.md,
-    color: colors.text,
+    color: site.ink,
     lineHeight: 24,
   },
   callout: {
     flexDirection: 'row',
     gap: spacing.md,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
     borderRadius: 3,
     padding: spacing.lg,
   },
@@ -411,41 +406,41 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   calloutTitle: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.primaryDark,
+    fontWeight: '600',
+    color: site.ink,
     marginBottom: 4,
   },
   calloutText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.primaryDark,
+    color: site.ink,
     lineHeight: 21,
     opacity: 0.9,
   },
   stat: {
     borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    borderLeftColor: site.copper,
     paddingLeft: spacing.lg,
     paddingVertical: spacing.xs,
   },
   statValue: {
-    ...displayType,
+    fontFamily: DM,
     fontSize: 30,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '600',
+    color: site.ink,
   } as unknown as ViewStyle,
   statLabel: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
     marginTop: 2,
   },
   tableScroll: {
     borderRadius: 3,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: site.line,
   },
   table: {
     minWidth: 480,
@@ -453,39 +448,39 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: site.line,
   },
   tableRowLast: {
     borderBottomWidth: 0,
   },
   tableHeadRow: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: '#efede5',
   },
   tableCell: {
     flex: 1,
     minWidth: 130,
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.text,
+    color: site.ink,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
   tableHeadCell: {
     fontWeight: '700',
-    color: colors.textMuted,
+    color: site.muted,
     fontSize: fontSize.xs,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  inlineCta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.lg, borderLeftWidth: 2, borderLeftColor: colors.primary, paddingLeft: spacing.lg, paddingVertical: spacing.sm },
-  inlineCtaTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: '#231A12' },
-  inlineCtaText: { fontFamily: marketingFonts.body, fontSize: 15, color: '#4A3D31', marginTop: 2, lineHeight: 22 },
-  linklist: { borderTopWidth: 1.5, borderTopColor: '#231A12', paddingTop: spacing.md, gap: spacing.sm },
+  inlineCta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.lg, borderLeftWidth: 2, borderLeftColor: site.copper, paddingLeft: spacing.lg, paddingVertical: spacing.sm },
+  inlineCtaTitle: { fontFamily: DM, fontSize: 17, fontWeight: '700', color: site.ink },
+  inlineCtaText: { fontFamily: DM, fontSize: 15, color: site.muted, marginTop: 2, lineHeight: 22 },
+  linklist: { borderTopWidth: 1.5, borderTopColor: site.ink, paddingTop: spacing.md, gap: spacing.sm },
   linklistTitle: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '600',
+    color: site.ink,
     marginBottom: 2,
   },
   linklistItems: {
@@ -498,14 +493,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: site.line,
   },
   linklistRowText: {
     flex: 1,
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
     fontWeight: '600',
-    color: colors.primaryDark,
+    color: site.ink,
     lineHeight: 20,
   },
   section: {
@@ -516,9 +511,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
   },
   sectionEyebrow: {
-    fontFamily: marketingFonts.mono,
+    fontFamily: DM,
     fontSize: fontSize.xs,
-    color: colors.primary,
+    color: site.copper,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
     marginBottom: spacing.lg,
@@ -527,22 +522,22 @@ const styles = StyleSheet.create({
   faqRow: {
     paddingVertical: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: site.line,
     gap: 6,
   },
   faqRowLast: {
     borderBottomWidth: 0,
   },
   faqQuestion: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.text,
+    color: site.ink,
   },
   faqAnswer: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.sm,
-    color: colors.textMuted,
+    color: site.muted,
     lineHeight: 21,
   },
   tradeLinkCard: {
@@ -551,28 +546,28 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.lg,
     borderRadius: 3,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: '#f3e6da',
   },
   tradeLinkText: {
     flex: 1,
     fontSize: fontSize.sm,
     fontWeight: '700',
-    color: colors.primaryDark,
+    color: site.ink,
   },
   tradeLinkTextAccent: {
-    color: colors.primary,
+    color: site.copper,
   },
-  relatedGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: '#231A12' },
+  relatedGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: site.ink },
   relatedCard: { flexGrow: 1, flexBasis: 260, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: '#D8C8B0', gap: spacing.xs },
   relatedCardHovered: {},
   relatedCategory: {
-    fontFamily: marketingFonts.mono,
+    fontFamily: DM,
     fontSize: fontSize.xs,
-    color: colors.primary,
+    color: site.copper,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  relatedTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: '#231A12', lineHeight: 23 },
+  relatedTitle: { fontFamily: DM, fontSize: 17, fontWeight: '700', color: site.ink, lineHeight: 23 },
   relatedMore: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -580,15 +575,15 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   relatedMoreText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.xs,
     fontWeight: '700',
-    color: colors.primary,
+    color: site.copper,
   },
   closingOuter: { width: '100%', paddingTop: spacing.xxl },
-  closing: { backgroundColor: '#231A12', paddingHorizontal: spacing.xl, paddingVertical: 96, alignItems: 'center' },
-  closingTitle: { ...displayType, fontSize: 48, lineHeight: 48, fontWeight: '800', color: '#FBF6EE', maxWidth: 1192, width: '100%' } as unknown as ViewStyle,
-  closingText: { fontFamily: marketingFonts.body, fontSize: 17, color: '#D5C8B8', marginTop: spacing.md, lineHeight: 27, maxWidth: 1192, width: '100%' },
+  closing: { backgroundColor: site.ink, paddingHorizontal: spacing.xl, paddingVertical: 96, alignItems: 'center' },
+  closingTitle: { fontFamily: DM, fontSize: 48, lineHeight: 48, fontWeight: '500', color: '#f4f3e9', maxWidth: 1192, width: '100%' } as unknown as ViewStyle,
+  closingText: { fontFamily: DM, fontSize: 17, color: '#D5C8B8', marginTop: spacing.md, lineHeight: 27, maxWidth: 1192, width: '100%' },
   closingCta: {
     marginTop: spacing.xl,
     borderWidth: 0,

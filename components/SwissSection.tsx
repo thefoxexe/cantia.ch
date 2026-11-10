@@ -7,6 +7,9 @@ import { bodyInk, ink, rule } from './landing/brand';
 import { breakpoints, colors, spacing } from '../lib/theme';
 import { marketingFonts } from '../lib/marketingTheme';
 import { useTranslation } from '../lib/translations';
+import { site } from '../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 export function SwissSection() {
   const { t } = useTranslation();
@@ -27,7 +30,7 @@ export function SwissSection() {
             key={f.title}
             style={[styles.column, isTablet ? styles.columnCompact : i > 0 && styles.columnDivider]}
           >
-            {f.icon === 'hosting' ? <SwissCross size={16} /> : <Feather name={f.icon} size={18} color={colors.primary} />}
+            {f.icon === 'hosting' ? <SwissCross size={16} /> : <Feather name={f.icon} size={18} color={site.copper} />}
             <Text style={styles.cardTitle}>{f.title}</Text>
             <Text style={styles.cardText}>{f.text}</Text>
           </View>
@@ -44,6 +47,6 @@ const styles = StyleSheet.create({
   column: { flex: 1, gap: spacing.sm, paddingRight: spacing.lg, paddingBottom: spacing.xl },
   columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.lg },
   columnCompact: { flexBasis: '50%', flexGrow: 1, minWidth: 220, borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg },
-  cardTitle: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
-  cardText: { fontFamily: marketingFonts.body, fontSize: 15, color: bodyInk, lineHeight: 22 },
+  cardTitle: { fontFamily: DM, fontSize: 17, fontWeight: '700', color: ink },
+  cardText: { fontFamily: DM, fontSize: 15, color: bodyInk, lineHeight: 22 },
 });

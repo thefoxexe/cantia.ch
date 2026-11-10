@@ -13,6 +13,9 @@ import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpAr
 import { breakpoints, colors, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
+import { site } from '../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -60,7 +63,7 @@ export default function PublicAideScreen() {
               value={query}
               onChangeText={setQuery}
               placeholder={t('aidePage.searchPlaceholder')}
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={site.muted}
               style={styles.searchInput}
             />
           </View>
@@ -70,7 +73,7 @@ export default function PublicAideScreen() {
           <View style={[styles.side, !isTablet && { width: '28%' }]}>
             <Link href={(`${aideHrefPrefix}/videos`) as any} asChild>
               <Pressable style={styles.sideRow}>
-                <Feather name="film" size={18} color={colors.primary} />
+                <Feather name="film" size={18} color={site.copper} />
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={styles.sideTitle}>{t('aidePage.videosCardTitle')}</Text>
                   <Text style={styles.sideText}>{t('aidePage.videosCardText')}</Text>
@@ -79,7 +82,7 @@ export default function PublicAideScreen() {
             </Link>
             <Link href={(`${aideHrefPrefix}/ressources`) as any} asChild>
               <Pressable style={styles.sideRow}>
-                <Feather name="download" size={18} color={colors.primary} />
+                <Feather name="download" size={18} color={site.copper} />
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={styles.sideTitle}>{t('aidePage.resourcesCardTitle')}</Text>
                   <Text style={styles.sideText}>{t('aidePage.resourcesCardText')}</Text>
@@ -87,7 +90,7 @@ export default function PublicAideScreen() {
               </Pressable>
             </Link>
             <View style={styles.sideRow}>
-              <Feather name="life-buoy" size={18} color={colors.primary} />
+              <Feather name="life-buoy" size={18} color={site.copper} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={styles.sideTitle}>{t('aidePage.contactTitle')}</Text>
                 <Text style={styles.sideText}>{t('aidePage.contactText')}</Text>
@@ -124,17 +127,17 @@ export default function PublicAideScreen() {
 
 const styles = StyleSheet.create({
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl, borderBottomWidth: 1.5, borderBottomColor: ink, paddingVertical: spacing.sm, maxWidth: 620 },
-  searchInput: { flex: 1, fontFamily: marketingFonts.body, fontSize: 19, color: ink, paddingVertical: 6, outlineStyle: 'none' } as any,
+  searchInput: { flex: 1, fontFamily: DM, fontSize: 19, color: ink, paddingVertical: 6, outlineStyle: 'none' } as any,
   layout: { flexDirection: 'row', gap: 64, alignItems: 'flex-start', paddingTop: spacing.xl, paddingBottom: 96 },
   layoutCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xxl },
   side: { borderTopWidth: 1.5, borderTopColor: ink },
   sideRow: { flexDirection: 'row', gap: spacing.md, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
-  sideTitle: { fontFamily: marketingFonts.body, fontSize: 16, fontWeight: '700', color: ink },
-  sideText: { fontFamily: marketingFonts.body, fontSize: 14, lineHeight: 21, color: bodyInk },
+  sideTitle: { fontFamily: DM, fontSize: 16, fontWeight: '700', color: ink },
+  sideText: { fontFamily: DM, fontSize: 14, lineHeight: 21, color: bodyInk },
   category: { marginBottom: spacing.xxl, borderTopWidth: 1.5, borderTopColor: ink },
-  categoryTitle: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
+  categoryTitle: { fontFamily: DM, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: site.copper, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
   articleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.lg, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
-  articleTitle: { flex: 1, fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '600', color: ink },
-  arrow: { fontSize: 16, color: colors.primary },
-  empty: { fontFamily: marketingFonts.body, fontSize: 16, color: bodyInk },
+  articleTitle: { flex: 1, fontFamily: DM, fontSize: 17, fontWeight: '600', color: ink },
+  arrow: { fontSize: 16, color: site.copper },
+  empty: { fontFamily: DM, fontSize: 16, color: bodyInk },
 });

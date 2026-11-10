@@ -13,6 +13,9 @@ import { colors, breakpoints } from '../lib/theme';
 import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 import { trackLandingEvent } from '../lib/siteAnalytics';
+import { site } from '../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // cantia.ch/presentation: the page behind the "présentation en 37 secondes"
 // e-mail. Not in the menu, the sitemap or Google (noindex): people only land
@@ -53,7 +56,7 @@ function SignupCta({ location, title = 'Essayer Cantia 14 jours', tone, centered
 function MailLink({ location, light }: { location: string; light?: boolean }) {
   return (
     <Link href={`mailto:${EMAIL}?subject=Pr%C3%A9sentation%20Cantia` as any} onPress={() => trackLandingEvent(PAGE, 'cta_email', location)}>
-      <Text style={[styles.mailText, light && { color: '#FBF6EE' }]}>
+      <Text style={[styles.mailText, light && { color: '#f4f3e9' }]}>
         ou écrivez-nous à <Text style={styles.mailStrong}>{EMAIL}</Text>
       </Text>
     </Link>
@@ -112,7 +115,7 @@ export default function PresentationScreen() {
       <Head>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <ScrollView key={mounted ? 'client' : 'static'} showsVerticalScrollIndicator={false} style={{ backgroundColor: colors.bg }}>
+      <ScrollView key={mounted ? 'client' : 'static'} showsVerticalScrollIndicator={false} style={{ backgroundColor: site.bg }}>
         {/* Logo only: nothing to wander off into. */}
         <View style={[styles.header, { paddingHorizontal: pad }]}>
           <Link href="/" accessibilityLabel="Cantia">
@@ -145,7 +148,7 @@ export default function PresentationScreen() {
           <View style={styles.grid}>
             {FEATURES.map((f) => (
               <View key={f.title} style={[styles.feature, { width: wide ? '33.333%' : width >= 640 ? '50%' : '100%' }]}>
-                <Feather name={f.icon} size={20} color={colors.primary} />
+                <Feather name={f.icon} size={20} color={site.copper} />
                 <Text style={styles.featureTitle}>{f.title}</Text>
                 <Text style={styles.featureText}>{f.text}</Text>
               </View>
@@ -185,16 +188,16 @@ const styles = StyleSheet.create({
   proof: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, marginBottom: 64 },
   proofItem: { paddingVertical: 20, paddingHorizontal: 16, gap: 4 },
   proofRule: { borderLeftWidth: 1, borderLeftColor: rule },
-  proofValue: { ...displayType, fontSize: 22, fontWeight: '800', color: ink } as any,
+  proofValue: { fontFamily: DM, fontSize: 22, fontWeight: '500', color: ink } as any,
   proofLabel: { fontFamily: landingFonts.body, fontSize: 13.5, color: bodyInk },
-  sectionKicker: { ...monoType, fontSize: 12, letterSpacing: 1.4, color: colors.primary, marginBottom: 10 },
-  sectionTitle: { ...displayType, color: ink, fontWeight: '800', letterSpacing: -0.5, maxWidth: 720, marginBottom: 28 } as any,
+  sectionKicker: { fontFamily: DM, fontSize: 12, letterSpacing: 1.4, color: site.copper, marginBottom: 10 },
+  sectionTitle: { fontFamily: DM, color: ink, fontWeight: '500', letterSpacing: -0.5, maxWidth: 720, marginBottom: 28 } as any,
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -12 },
   feature: { padding: 12, paddingBottom: 28, gap: 8 },
   featureTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
   featureText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 23, color: bodyInk },
   closing: { backgroundColor: '#16120E', paddingVertical: 64 },
   closingInner: { width: '100%', maxWidth: 1200, alignSelf: 'center', gap: 18 },
-  closingTitle: { ...displayType, color: '#FBF6EE', fontWeight: '800', letterSpacing: -0.5 } as any,
+  closingTitle: { fontFamily: DM, color: '#f4f3e9', fontWeight: '500', letterSpacing: -0.5 } as any,
   closingText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 24, color: '#D9CDBD', maxWidth: 560 },
 });

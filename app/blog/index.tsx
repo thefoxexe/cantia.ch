@@ -2,17 +2,18 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Container, Screen } from '../../components/ui';
-import { Heading } from '../../components/Heading';
-import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
+import { Container } from '../../components/ui';
+import { SitePage } from '../../components/site/Sections';
+import { Headline } from '../../components/site/Primitives';
+import { site } from '../../lib/siteTheme';
 import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
 import { BlogCategory } from '../../lib/blog/types';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { displayType, marketingFonts } from '../../lib/marketingTheme';
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
 const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap; color: string; soft: string }> = {
-  'Devis & facturation': { icon: 'file-text', color: colors.primary, soft: colors.primarySoft },
+  'Devis & facturation': { icon: 'file-text', color: site.copper, soft: '#f3e6da' },
   'Juridique & normes': { icon: 'shield', color: colors.danger, soft: colors.dangerSoft },
   'RH & salaires': { icon: 'users', color: colors.warning, soft: colors.warningSoft },
   'Chantier & rentabilité': { icon: 'trending-up', color: colors.success, soft: colors.successSoft },
@@ -52,29 +53,27 @@ export default function BlogIndexScreen() {
   const [featured, ...rest] = filtered;
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav />
+    <SitePage title={`${t('blogIndexPage.title')} | Cantia`} description={t('blogIndexPage.subtitle')}>
 
         <Container style={styles.heroOuter}>
           <View style={styles.kickerPill}>
             <Text style={styles.kickerText}>{t('blogIndexPage.kicker')}</Text>
           </View>
-          <Heading level={1} style={styles.title}>{t('blogIndexPage.title')}</Heading>
+          <Headline level={1} plain={t('blogIndexPage.title')} size={52} style={{ letterSpacing: -2.2 }} />
           <Text style={styles.subtitle}>{t('blogIndexPage.subtitle')}</Text>
 
           <View style={styles.searchRow}>
-            <Feather name="search" size={16} color={colors.textMuted} />
+            <Feather name="search" size={16} color={site.muted} />
             <TextInput
               value={query}
               onChangeText={setQuery}
               placeholder={t('blogIndexPage.searchPlaceholder')}
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={site.muted}
               style={styles.searchInput}
             />
             {query ? (
               <Pressable onPress={() => setQuery('')} hitSlop={8}>
-                <Feather name="x" size={16} color={colors.textMuted} />
+                <Feather name="x" size={16} color={site.muted} />
               </Pressable>
             ) : null}
           </View>
@@ -118,7 +117,7 @@ export default function BlogIndexScreen() {
                       <View style={{ flex: 1 }} />
                       <View style={styles.readMore}>
                         <Text style={styles.readMoreText}>{t('blogIndexPage.readArticle')}</Text>
-                        <Feather name="arrow-right" size={13} color={colors.primary} />
+                        <Feather name="arrow-right" size={13} color={site.copper} />
                       </View>
                     </View>
                   </Pressable>
@@ -144,7 +143,7 @@ export default function BlogIndexScreen() {
                           <View style={styles.cardMetaDot} />
                           <Text style={styles.cardMetaText}>{t('blogIndexPage.minRead', { count: p.readMinutes })}</Text>
                         </View>
-                        <Feather name="arrow-right" size={14} color={colors.textMuted} />
+                        <Feather name="arrow-right" size={14} color={site.muted} />
                       </View>
                     </Pressable>
                   </Link>
@@ -154,9 +153,7 @@ export default function BlogIndexScreen() {
           )}
         </Container>
 
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+    </SitePage>
   );
 }
 
@@ -167,31 +164,31 @@ const styles = StyleSheet.create({
   heroOuter: { maxWidth: 1240, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxxl, paddingBottom: spacing.lg },
   kickerPill: { alignSelf: 'flex-start', marginBottom: spacing.xl },
   kickerText: {
-    fontFamily: marketingFonts.mono,
+    fontFamily: DM,
     fontSize: fontSize.xs,
-    color: colors.primaryDark,
+    color: site.ink,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  title: { ...displayType, fontSize: 80, fontWeight: '800', color: '#231A12', lineHeight: 76, maxWidth: 900 } as unknown as ViewStyle,
-  subtitle: { fontFamily: marketingFonts.body, fontSize: 19, lineHeight: 29, color: '#4A3D31', marginTop: spacing.xl, maxWidth: 640 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl, borderBottomWidth: 1.5, borderBottomColor: '#231A12', paddingVertical: spacing.sm, maxWidth: 620 },
-  searchInput: { flex: 1, fontFamily: marketingFonts.body, fontSize: 18, color: '#231A12', paddingVertical: 6, outlineStyle: 'none' } as any,
+  title: { fontFamily: DM, fontSize: 80, fontWeight: '500', color: site.ink, lineHeight: 76, maxWidth: 900 } as unknown as ViewStyle,
+  subtitle: { fontFamily: DM, fontSize: 19, lineHeight: 29, color: site.muted, marginTop: spacing.xl, maxWidth: 640 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl, borderBottomWidth: 1.5, borderBottomColor: site.ink, paddingVertical: spacing.sm, maxWidth: 620 },
+  searchInput: { flex: 1, fontFamily: DM, fontSize: 18, color: site.ink, paddingVertical: 6, outlineStyle: 'none' } as any,
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xl },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#D8C8B0', borderRadius: 3, paddingVertical: 7, paddingHorizontal: 12 },
-  chipActive: { backgroundColor: '#231A12', borderColor: '#231A12' },
+  chipActive: { backgroundColor: site.ink, borderColor: site.ink },
   chipDot: { width: 6, height: 6 },
-  chipText: { fontFamily: marketingFonts.body, fontSize: 14, fontWeight: '600', color: '#231A12' },
+  chipText: { fontFamily: DM, fontSize: 14, fontWeight: '600', color: site.ink },
   chipTextActive: {
     color: '#fff',
   },
   section: { maxWidth: 1240, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxl, paddingBottom: 96 },
   empty: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.md,
-    color: colors.textMuted,
+    color: site.muted,
   },
-  featuredCard: { borderTopWidth: 1.5, borderTopColor: '#231A12', borderBottomWidth: 1, borderBottomColor: '#D8C8B0', paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.md },
+  featuredCard: { borderTopWidth: 1.5, borderTopColor: site.ink, borderBottomWidth: 1, borderBottomColor: '#D8C8B0', paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.md },
   featuredTop: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -199,29 +196,29 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   featuredBadge: {},
-  featuredBadgeText: { fontFamily: marketingFonts.mono, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
+  featuredBadgeText: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: site.copper },
   categoryBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'transparent' },
-  categoryBadgeText: { fontFamily: marketingFonts.mono, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
-  featuredTitle: { ...displayType, fontSize: 48, lineHeight: 48, fontWeight: '800', color: '#231A12', maxWidth: 900 },
-  featuredExcerpt: { fontFamily: marketingFonts.body, fontSize: 18, lineHeight: 28, color: '#4A3D31', maxWidth: 720 },
-  gridCount: { fontFamily: marketingFonts.mono, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.textMuted, marginTop: 64, marginBottom: spacing.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: '#231A12' },
+  categoryBadgeText: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
+  featuredTitle: { fontFamily: DM, fontSize: 48, lineHeight: 48, fontWeight: '500', color: site.ink, maxWidth: 900 },
+  featuredExcerpt: { fontFamily: DM, fontSize: 18, lineHeight: 28, color: site.muted, maxWidth: 720 },
+  gridCount: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: site.muted, marginTop: 64, marginBottom: spacing.md },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: site.ink },
   card: { flexGrow: 1, flexBasis: 320, maxWidth: '100%', gap: spacing.sm, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: '#D8C8B0' } as any,
-  cardCategory: { fontFamily: marketingFonts.mono, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
-  cardTitle: { fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '700', lineHeight: 24, color: '#231A12' },
-  cardExcerpt: { fontFamily: marketingFonts.body, fontSize: 15, lineHeight: 22, color: '#4A3D31' },
+  cardCategory: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
+  cardTitle: { fontFamily: DM, fontSize: 18, fontWeight: '700', lineHeight: 24, color: site.ink },
+  cardExcerpt: { fontFamily: DM, fontSize: 15, lineHeight: 22, color: site.muted },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' as any },
   cardMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
-  cardMetaText: { fontFamily: marketingFonts.mono, fontSize: 10.5, color: colors.textMuted },
+  cardMetaText: { fontFamily: DM, fontSize: 10.5, color: site.muted },
   cardMetaDot: {
     width: 3,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.border,
+    backgroundColor: site.line,
   },
   readMore: {
     flexDirection: 'row',
@@ -229,9 +226,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   readMoreText: {
-    fontFamily: marketingFonts.body,
+    fontFamily: DM,
     fontSize: fontSize.xs,
     fontWeight: '700',
-    color: colors.primary,
+    color: site.copper,
   },
 });

@@ -15,7 +15,7 @@ type PlanFigures = { monthly: number; yearly: number | null; members: number; st
 // Same figures as the plans table on 10.11.2026. The page reads the live rows
 // on load and only falls back to these when the request fails, so the prices
 // shown never drift from what Stripe charges.
-const FALLBACK: Record<PlanId, PlanFigures> = {
+export const FALLBACK: Record<PlanId, PlanFigures> = {
   solo: { monthly: 39, yearly: 374.4, members: 3, storageMb: 5120, aiUses: 150 },
   equipe: { monthly: 79, yearly: 758.4, members: 10, storageMb: 15360, aiUses: 600 },
   pro: { monthly: 129, yearly: 1238.4, members: 25, storageMb: 40960, aiUses: 2000 },

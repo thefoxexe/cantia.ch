@@ -4,7 +4,6 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Screen } from '../components/ui';
 import { CtaButton } from '../components/landing/CtaButton';
-import { SectionHead } from '../components/landing/SectionHead';
 import { Cartouche } from '../components/landing/Cartouche';
 import { useHeroFit } from '../components/landing/useHeroFit';
 import { bodyInk, ink, rule } from '../components/landing/brand';
@@ -21,6 +20,16 @@ import { authHref } from '../lib/appHost';
 import { supabase } from '../lib/supabase';
 import { useMarketingDict } from '../lib/i18n';
 import { BrandLockup } from '../components/brand/Logo';
+import { site } from '../lib/siteTheme';
+
+import { Eyebrow, Headline, Hover, TextLink, Wrap } from '../components/site/Primitives';
+import { DocVisual, Section, SectionHead, SitePage, useSiteLayout } from '../components/site/Sections';
+import { FaqItem, PhoneStage } from '../components/site/FamilyPage';
+import { ProblemBand } from '../components/solutions/ProblemBand';
+import { EXPORTS } from '../components/site/exports';
+import { SITE_PAGES } from '../lib/site/pages';
+import { sans, serif } from '../lib/siteTheme';
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -154,10 +163,10 @@ function trackCta(location: string) {
   gtag?.('event', 'cta_click', { event_category: 'logiciel_chantier', event_label: location });
 }
 
-function Cta({ label = 'Essayer 14 jours', location, small }: { label?: string; location: string; small?: boolean }) {
+function Cta({ label = 'Essayer 14 jours', location, small, light }: { label?: string; location: string; small?: boolean; light?: boolean }) {
   return (
     <Link href={authHref('signup')} asChild onPress={() => trackCta(location)}>
-      <CtaButton title={label} style={small ? { paddingVertical: 9, paddingHorizontal: 14 } : undefined} />
+      <CtaButton title={label} tone={light ? 'light' : 'primary'} style={small ? { paddingVertical: 9, paddingHorizontal: 14 } : undefined} />
     </Link>
   );
 }
@@ -327,26 +336,13 @@ function RoiExplainer({ field, hours, rate }: { field: number; hours: number; ra
 }
 
 export default function LogicielChantierPage() {
-  const scrollRef = useRef<ScrollView>(null);
-  const pricingRef = useRef<View>(null);
+  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const isTablet = width < 1000;
+  const X = EXPORTS.fr;
+  const L = SITE_PAGES.fr.labels;
   const docsRef = useRef<View>(null);
-  const heroMountainRef = useRef<View>(null);
-  const dict = useMarketingDict();
-
-  const { width, height } = useWindowDimensions();
-  const isMobile = width < breakpoints.tablet;
-  const isTablet = width < breakpoints.desktop;
-  // Same fit-to-screen hero as the homepage (components/landing/useHeroFit).
-  const [navHeight, setNavHeight] = useState(isMobile ? 64 : 72);
-  const heroAvailable = Math.max(0, height - navHeight);
-  const heroFit = useHeroFit({
-    designed: isMobile ? clamp(42, width * 0.12, 60) : clamp(60, width * 0.066, 104),
-    min: isMobile ? 32 : 46,
-    available: heroAvailable,
-    chrome: isMobile ? spacing.xxxl + spacing.xl : spacing.xxxl + spacing.xxl + spacing.xl,
-  });
-  const heroTitleSize = heroFit.size;
-  const heroMinHeight = heroAvailable || undefined;
+  const [docsY, setDocsY] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
 
   // Real, live number of companies on Cantia (landing_stats, public read).
   const [orgCount, setOrgCount] = useState<number | null>(null);
@@ -359,432 +355,241 @@ export default function LogicielChantierPage() {
         if (data?.organizations_count) setOrgCount(data.organizations_count);
       });
   }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const node = heroMountainRef.current as unknown as HTMLElement | null;
-    if (node?.style) node.style.backgroundPosition = 'right top';
-  }, []);
-
-  function scrollToRef(ref: React.RefObject<View | null>) {
-    ref.current?.measure((_x, y) => {
-      scrollRef.current?.scrollTo({ y: y - 12, animated: true });
-    });
-  }
-
-  const solutionHref = (slug: string) => `/solutions/${slug}`;
+  const h1 = phone ? 44 : tablet ? 54 : 66;
 
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead
-        title="Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia"
-        description="Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse."
-      />
-
-      {/* Landing header: always visible, one goal. No site navigation to
-          leak ad traffic away — just the brand, a phone number and the CTA. */}
-      <View style={styles.header} onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
-        <View style={[styles.wrap, styles.headerInner]}>
-          <Link href="/" style={styles.brand}>
-            <View style={styles.brandRow}>
-              <BrandLockup height={isMobile ? 32 : 30} compact={isMobile} />
-            </View>
-          </Link>
-          <View style={styles.headerRight}>
-            {!isMobile ? (
-              <Link href={PHONE_TEL as any} onPress={() => trackCta('header_phone')}>
-                <Text style={styles.headerPhone}>{PHONE_DISPLAY}</Text>
-              </Link>
-            ) : null}
-            {!isMobile ? (
-              <Pressable onPress={() => scrollToRef(pricingRef)}>
-                <Text style={styles.headerLink}>Tarifs</Text>
-              </Pressable>
-            ) : null}
-            <Cta location="header" small label={isMobile ? '14 jours d’essai' : 'Essayer 14 jours'} />
-          </View>
-        </View>
-      </View>
-
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
-        {/* 1 · Hero */}
-        <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
-          <View
-            ref={heroMountainRef}
-            pointerEvents="none"
-            style={[styles.heroMountainBase, isMobile ? styles.heroMountainMaskPeek : styles.heroMountainMaskFull]}
-          />
-          <View pointerEvents="none" style={styles.heroBottomFade} />
-          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }]}>
-            <View onLayout={heroFit.onPartLayout('main')} style={!isTablet ? { maxWidth: '58%' } : undefined}>
-              <ScrollReveal style={styles.heroKicker}>
-                <SwissCross size={14} />
-                <Text style={styles.heroKickerText}>Logiciel de gestion de chantier · Suisse</Text>
-              </ScrollReveal>
-              <ScrollReveal delay={120}>
-                <Text onLayout={heroFit.onTitleLayout} role="heading" aria-level={1} style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>
-                  Reprenez le contrôle de vos chantiers.
+    <SitePage
+      title="Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia"
+      description="Devis, factures QR, rapports, planning et salaires dans un seul outil suisse. 14 jours d’essai, sans engagement."
+      scrollRef={scrollRef}
+      cta={false}
+    >
+      {/* Hero */}
+      <View style={{ paddingTop: phone ? 36 : 64, paddingBottom: phone ? 40 : 64 }}>
+        <Wrap>
+          <View style={[styles.heroRow, isTablet && { flexDirection: 'column', alignItems: 'stretch', gap: 34 }]}>
+            <View style={!isTablet ? { flex: 1.1, minWidth: 0 } : undefined}>
+              <Eyebrow>Logiciel de gestion de chantier · Suisse</Eyebrow>
+              <Headline level={1} plain="Reprenez le contrôle" accent="de vos chantiers." size={h1} style={{ marginTop: 20, marginBottom: 24 }} />
+              <Text style={[sans, styles.lede, phone && { fontSize: 13, lineHeight: 24 }]}>
+                Devis, factures QR, rapports, planning et salaires dans un seul outil suisse. Vos devis partent depuis le chantier, vos suppléments sont signés, vos factures sont payées.
+              </Text>
+              <View style={styles.ctaRow}>
+                <Cta location="hero" />
+                <Hover onPress={() => { trackCta('hero_examples'); scrollRef.current?.scrollTo({ y: Math.max(0, docsY - 10), animated: true }); }} accessibilityRole="link" base={styles.more} hover={{ opacity: 0.7 }}>
+                  <Text style={[sans, styles.moreText]}>Voir des documents réels</Text>
+                  <Feather name="arrow-down" size={13} color={site.ink} />
+                </Hover>
+              </View>
+              <Text style={[sans, styles.risk]}>Aucun débit pendant 14 jours · Sans engagement · Résiliable en ligne</Text>
+              {orgCount ? (
+                <Text style={[sans, styles.count]}>
+                  <Text style={{ color: site.ink, fontWeight: '600' }}>{orgCount}</Text> entreprises du bâtiment utilisent déjà Cantia
                 </Text>
-                <View style={styles.crossedWrap}>
-                  <Text style={[styles.crossedText, { fontSize: heroTitleSize * 0.42, lineHeight: heroTitleSize * 0.5 }]}>
-                    Pas ce que vous oubliez de facturer.
-                  </Text>
-                  <HeroCross />
-                </View>
-              </ScrollReveal>
-              <ScrollReveal delay={420} style={styles.heroBody}>
-                <Text style={[styles.heroLede, isMobile && { fontSize: 17, lineHeight: 25 }]}>
-                  Devis, factures QR, rapports, planning et salaires dans un seul outil suisse. Vos devis partent depuis le
-                  chantier, vos suppléments sont signés, vos factures sont payées.
-                </Text>
-                <View style={styles.ctaRow}>
-                  <Cta location="hero" />
-                  <Pressable onPress={() => { trackCta('hero_examples'); scrollToRef(docsRef); }}>
-                    <Text style={styles.underlineLink}>Voir des documents réels</Text>
-                  </Pressable>
-                </View>
-                <Text style={styles.riskLine}>Aucun débit pendant 14 jours · Sans engagement · Résiliable en ligne</Text>
-                {orgCount ? (
-                  <Text style={styles.heroCount}>
-                    <Text style={styles.heroCountNum}>{orgCount}</Text> entreprises du bâtiment utilisent déjà Cantia
-                  </Text>
-                ) : null}
-              </ScrollReveal>
+              ) : null}
             </View>
-            {!isMobile ? (
-              <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && { alignSelf: 'stretch', maxWidth: undefined }]}>
-                <View onLayout={heroFit.onPartLayout('cartouche')}>
-                  <Cartouche cells={CARTOUCHE} compact={false} />
-                </View>
-              </ScrollReveal>
-            ) : null}
+            <View style={!isTablet ? { flex: 0.9, minWidth: 0 } : undefined}>
+              <PhoneStage shot={X.app.dashMobile} alt={L.appAlt} caption={`${L.appScreen} · ${L.sample}`} />
+            </View>
           </View>
-        </View>
-
-        {/* 2 · Proof strip */}
-        <View style={styles.wrap}>
-          <View style={[styles.proof, isTablet && styles.proofCompact]}>
-            {PROOF.map((p, i) => (
-              <View key={p.value} style={[styles.proofCell, isTablet ? styles.proofCellCompact : i > 0 && styles.proofDivider]}>
-                <Text style={styles.proofValue}>{p.value}</Text>
-                <Text style={styles.proofLabel}>{p.label}</Text>
+          <View style={[styles.proof, isTablet && { flexWrap: 'wrap', rowGap: 22 }]}>
+            {PROOF.filter((p) => !p.value.startsWith('CHF')).map((p) => (
+              <View key={p.value} style={[styles.proofCell, isTablet && { width: phone ? '100%' : '47%' }]}>
+                <Text style={[sans, styles.proofValue]}>{p.value}</Text>
+                <Text style={[sans, styles.proofLabel]}>{p.label}</Text>
               </View>
             ))}
           </View>
-        </View>
+        </Wrap>
+      </View>
 
-        {/* 3 · The problem, and what it costs */}
-        <View style={styles.darkBand}>
-          <ScrollReveal style={styles.wrap}>
-            <Text style={styles.darkEyebrow}>La facture cachée</Text>
-            <Text style={styles.darkH2}>Vous perdez de l’argent sur vos chantiers, souvent sans le voir.</Text>
-            <View style={[styles.problemGrid, isTablet && { flexDirection: 'column' }]}>
-              {PROBLEM_CARDS.map((p) => (
-                <View key={p.problem} style={styles.problemCard}>
-                  <Feather name={p.icon} size={18} color="#F3A98C" />
-                  <Text style={styles.problemText}>{p.problem}</Text>
-                  <Text style={styles.problemConsequence}>{p.consequence}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.reliefCard}>
-              <Text style={styles.reliefLabel}>Avec Cantia, ces angles morts disparaissent</Text>
-              <View style={styles.reliefGrid}>
-                {RELIEF_ITEMS.map((r) => (
-                  <View key={r} style={styles.reliefRow}>
-                    <Feather name="check" size={16} color={colors.primary} style={{ marginTop: 3 }} />
-                    <Text style={styles.reliefText}>{r}</Text>
-                  </View>
-                ))}
-              </View>
-              <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
-                <Cta location="problem" label="Arrêter de perdre de l’argent" />
-                <Text style={styles.ctaNote}>14 jours pour essayer, sans engagement</Text>
-              </View>
-            </View>
-          </ScrollReveal>
-        </View>
+      {/* The hidden bill */}
+      <ProblemBand eyebrow="La facture cachée" headline="Vous perdez de l’argent sur vos chantiers, souvent sans le voir." problems={PROBLEM_CARDS} reliefLabel="Avec Cantia, ces angles morts disparaissent" reliefItems={RELIEF_ITEMS} />
 
-        {/* 4 · Real documents */}
-        <View ref={docsRef} style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-            <SectionHead label="La preuve" title="Voici ce que vos clients recevront." intro={dict.documents.intro} />
-            <DocumentShowcase dict={{ ...dict.documents, docs: dict.documents.docs.filter((d) => d.id !== 'devisAutre') }} hrefFor={solutionHref} />
-            <View style={[styles.ctaRow, { marginTop: spacing.xxl }]}>
-              <Cta location="documents" label="Créer mon premier devis" />
-              <Text style={styles.ctaNote}>À vos couleurs, avec votre logo, dès aujourd’hui</Text>
-            </View>
-          </ScrollReveal>
-        </View>
-
-        {/* 5 · ROI calculator */}
-        <View style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-            <SectionHead label="Faites le calcul" title="Combien vous coûte l’administratif ?" intro="Trois chiffres suffisent : le temps passé chaque semaine sur l’administratif au bureau, le nombre de personnes sur vos chantiers, et ce que vous coûte une heure." />
-            <RoiCalculator compact={isTablet} />
-          </ScrollReveal>
-        </View>
-
-        {/* 6 · How to start */}
-        <View style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-            <SectionHead label="Démarrer" title="Opérationnel aujourd’hui, en trois étapes." />
-            <View style={[styles.columns, isTablet && styles.columnsCompact]}>
-              {STEPS.map((step, i) => (
-                <View key={step.title} style={[styles.column, isTablet ? styles.columnCompact : i > 0 && styles.columnDivider]}>
-                  <Text style={styles.stepNum}>{String(i + 1).padStart(2, '0')}</Text>
-                  <Text style={styles.columnTitle}>{step.title}</Text>
-                  <Text style={styles.bodyText}>{step.text}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
-              <Cta location="steps" label="Créer mon compte" />
-              <Text style={styles.ctaNote}>Deux minutes, aucun débit pendant 14 jours</Text>
-            </View>
-          </ScrollReveal>
-        </View>
-
-        {/* 7 · Everything included */}
-        <View style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-            <SectionHead label="Tout inclus" title="Un seul outil à la place de cinq." />
-            <View style={styles.featureGrid}>
-              {FEATURES.map((f) => (
-                <Link key={f.title} href={f.href as any} asChild>
-                  <Pressable style={StyleSheet.flatten([styles.featureCard, isMobile && { flexBasis: '100%' }])}>
-                    <Feather name={f.icon} size={20} color={colors.primary} />
-                    <Text style={styles.featureTitle}>{f.title}</Text>
-                    <Text style={styles.featureText}>{f.text}</Text>
-                  </Pressable>
-                </Link>
-              ))}
-            </View>
-          </ScrollReveal>
-        </View>
-
-        {/* 8 · Pricing */}
-        <View ref={pricingRef} style={{ paddingTop: 64 }}>
-          <PricingSection />
-        </View>
-
-        {/* 9 · Risk reversal */}
-        <View style={[styles.wrap, styles.section]}>
-          <View style={[styles.noRisk, isTablet && styles.noRiskCompact]}>
-            <View style={!isTablet ? { width: '32%' } : undefined}>
-              <Text style={styles.noRiskEyebrow}>Ce que vous risquez</Text>
-              <Text style={styles.noRiskTitle}>Rien.</Text>
+      {/* Real exports */}
+      <View onLayout={(e) => setDocsY(e.nativeEvent.layout.y)}>
+        <Section white>
+          <SectionHead eyebrow="La preuve" plain="Voici ce que vos clients" accent="recevront." text="Générés par Cantia avec des données d’exemple : même mise en page, mêmes calculs que vos propres documents." />
+          <View style={[styles.docs, phone && { flexDirection: 'column' }]}>
+            <View style={{ flex: 1 }}>
+              <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption="Devis signé en ligne" />
             </View>
             <View style={{ flex: 1 }}>
-              {NO_RISK.map((r) => (
-                <View key={r.title} style={styles.noRiskRow}>
-                  <Feather name="check" size={18} color={colors.primary} style={{ marginTop: 2 }} />
-                  <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={styles.noRiskRowTitle}>{r.title}</Text>
-                    <Text style={styles.bodyText}>{r.text}</Text>
-                  </View>
-                </View>
-              ))}
-              <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
-                <Cta location="no_risk" />
+              <DocVisual source={X.facture.source} ratio={X.facture.ratio} alt={L.docAlt.facturer} caption="Facture avec bulletin QR" />
+            </View>
+            {!tablet ? (
+              <View style={{ flex: 1 }}>
+                <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption="Rapport de chantier" />
               </View>
+            ) : null}
+          </View>
+          <View style={[styles.ctaRow, { marginTop: 34 }]}>
+            <Cta location="documents" label="Créer mon premier devis" />
+            <Text style={[sans, styles.note]}>À vos couleurs, avec votre logo, dès aujourd’hui</Text>
+          </View>
+        </Section>
+      </View>
+
+      {/* ROI */}
+      <Section>
+        <SectionHead eyebrow="Faites le calcul" plain="Combien vous coûte" accent="l’administratif ?" text="Trois chiffres suffisent : le temps passé chaque semaine sur l’administratif au bureau, le nombre de personnes sur vos chantiers, et ce que vous coûte une heure." />
+        <RoiCalculator compact={isTablet} />
+      </Section>
+
+      {/* Steps */}
+      <Section white>
+        <SectionHead eyebrow="Démarrer" plain="Opérationnel aujourd’hui," accent="en trois étapes." />
+        <View style={[styles.steps, phone && { flexDirection: 'column', gap: 10 }]}>
+          {STEPS.map((step, i) => (
+            <View key={step.title} style={[styles.step, !phone && { flex: 1 }]}>
+              <Text style={[serif, styles.stepNum]}>{String(i + 1).padStart(2, '0')}</Text>
+              <Text style={[sans, styles.stepTitle]}>{step.title}</Text>
+              <Text style={[sans, styles.body]}>{step.text}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={[styles.ctaRow, { marginTop: 30 }]}>
+          <Cta location="steps" label="Créer mon compte" />
+          <Text style={[sans, styles.note]}>Deux minutes, aucun débit pendant 14 jours</Text>
+        </View>
+      </Section>
+
+      {/* Everything included */}
+      <Section>
+        <SectionHead eyebrow="Tout inclus" plain="Un seul outil" accent="à la place de cinq." />
+        <View style={styles.grid}>
+          {FEATURES.map((f) => (
+            <Link key={f.title} href={f.href as any} asChild>
+              <Hover accessibilityRole="link" base={[styles.card, { width: phone ? '100%' : width <= 900 ? '47.5%' : '31.5%' }]} hover={{ borderColor: site.copper }}>
+                <Feather name={f.icon} size={18} color={site.copper} />
+                <Text style={[sans, styles.cardTitle]}>{f.title}</Text>
+                <Text style={[sans, styles.body]}>{f.text}</Text>
+              </Hover>
+            </Link>
+          ))}
+        </View>
+        <View style={{ marginTop: 30 }}>
+          <TextLink label="Comparer les formules" href="/tarifs" />
+        </View>
+      </Section>
+
+      {/* No risk */}
+      <Section white>
+        <View style={[styles.noRisk, isTablet && { flexDirection: 'column', gap: 26 }]}>
+          <View style={!isTablet ? { width: '32%' } : undefined}>
+            <Eyebrow>Ce que vous risquez</Eyebrow>
+            <Text style={[serif, styles.nothing]}>Rien.</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            {NO_RISK.map((r, i) => (
+              <View key={r.title} style={[styles.riskRow, i === NO_RISK.length - 1 && { borderBottomWidth: 1 }]}>
+                <Feather name="check" size={16} color={site.copper} style={{ marginTop: 3 }} />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <Text style={[sans, styles.riskTitle]}>{r.title}</Text>
+                  <Text style={[sans, styles.body]}>{r.text}</Text>
+                </View>
+              </View>
+            ))}
+            <View style={[styles.ctaRow, { marginTop: 28 }]}>
+              <Cta location="no_risk" />
             </View>
           </View>
         </View>
+      </Section>
 
-        {/* 10 · Objections */}
-        <View style={[styles.wrap, styles.section]}>
-          <ScrollReveal>
-            <SectionHead label="Avant de vous lancer" title="Les questions qu’on nous pose." />
-            <View style={styles.faqList}>
-              {FAQ.map((f) => (
-                <View key={f.question} style={styles.faqRow}>
-                  <Text style={styles.faqQuestion}>{f.question}</Text>
-                  <Text style={styles.faqAnswer}>{f.answer}</Text>
-                </View>
-              ))}
-            </View>
-          </ScrollReveal>
+      {/* FAQ: answers stay in the page. */}
+      <Section>
+        <View style={styles.faq}>
+          <Eyebrow>Avant de vous lancer</Eyebrow>
+          <Headline plain="Les questions qu’on nous pose." size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+          {FAQ.map((f, i) => (
+            <FaqItem key={f.question} q={f.question} a={f.answer} last={i === FAQ.length - 1} />
+          ))}
         </View>
+      </Section>
 
-        {/* 11 · Final call */}
-        <View style={styles.closing}>
-          <ScrollReveal style={styles.wrap}>
-            <Text style={styles.closingEyebrow}>Prêt à essayer ?</Text>
-            <Text style={[styles.closingTitle, isMobile && { fontSize: 42, lineHeight: 42 }]}>Votre prochain devis peut partir ce soir.</Text>
-            <Text style={styles.closingText}>
-              Créez votre compte, dictez votre premier devis, envoyez-le. 14 jours pour juger sur vos vrais chantiers.
-            </Text>
-            <View style={styles.ctaRow}>
-              <Cta location="closing" />
-              <Link href={PHONE_TEL as any} onPress={() => trackCta('closing_phone')}>
-                <Text style={styles.closingPhone}>Une question avant ? {PHONE_DISPLAY}</Text>
-              </Link>
-            </View>
-            <Text style={styles.closingFacts}>{FACTS.join('   ·   ')}</Text>
-          </ScrollReveal>
-        </View>
-
-        <MarketingFooter onPricingPress={() => scrollToRef(pricingRef)} />
-      </ScrollView>
-    </Screen>
+      {/* Closing */}
+      <View style={[styles.closing, { paddingVertical: phone ? 44 : 64 }]}>
+        <Wrap style={!isTablet ? { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 } : { gap: 22 }}>
+          <View style={!isTablet ? { flex: 1, maxWidth: 720 } : undefined}>
+            <Headline plain="Votre prochain devis" accent="peut partir ce soir." size={phone ? 32 : 40} color="#f4f3e9" accentColor="#d9aa85" />
+            <Text style={[sans, styles.closingFacts]}>{FACTS.filter((f) => !f.startsWith('Dès')).join('   ·   ')}</Text>
+          </View>
+          <View style={{ gap: 14 }}>
+            <Cta location="closing" light />
+            <Link href={PHONE_TEL as any} onPress={() => trackCta('closing_phone')}>
+              <Text style={[sans, styles.phone]}>Une question avant ? {PHONE_DISPLAY}</Text>
+            </Link>
+          </View>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: colors.bg, borderBottomWidth: 1, borderBottomColor: rule, zIndex: 5 },
-  headerInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 },
-  brand: {},
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  brandLogo: { width: 26, height: 26 },
-  brandText: { ...displayType, fontSize: 24, fontWeight: '800', color: ink },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
-  headerPhone: { ...monoType, fontSize: 12, color: ink },
-  headerLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink },
-  riskLine: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
-  heroCount: { fontFamily: landingFonts.body, fontSize: 15, color: bodyInk },
-  heroCountNum: { fontWeight: '800', color: colors.primary },
-  ctaNote: { ...monoType, fontSize: 10.5, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.2 },
-
-  proof: { flexDirection: 'row', borderTopWidth: 1.5, borderTopColor: ink, borderBottomWidth: 1, borderBottomColor: rule, marginTop: spacing.lg },
-  proofCompact: { flexDirection: 'row', flexWrap: 'wrap' },
-  proofCell: { flex: 1, paddingVertical: spacing.lg, paddingRight: spacing.lg, gap: 4 },
-  proofCellCompact: { flexBasis: '50%', flexGrow: 0, width: '50%', paddingRight: spacing.md },
-  proofDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.lg },
-  proofValue: { ...displayType, fontSize: 34, lineHeight: 36, fontWeight: '800', color: ink },
-  proofLabel: { fontFamily: landingFonts.body, fontSize: 14, lineHeight: 20, color: bodyInk },
-
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 64 },
+  lede: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 560 },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 24, marginTop: 28 },
+  more: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
+  moreText: { fontSize: 12, color: site.ink, fontWeight: '600' },
+  risk: { fontSize: 10, color: '#8b9380', marginTop: 18 },
+  count: { fontSize: 11, color: site.muted, marginTop: 8 },
+  proof: { flexDirection: 'row', justifyContent: 'space-between', gap: 30, marginTop: 56, paddingTop: 26, borderTopWidth: 1, borderTopColor: site.line },
+  proofCell: { flex: 1, minWidth: 160 },
+  proofValue: { fontSize: 22, letterSpacing: -0.6, color: site.ink },
+  proofLabel: { fontSize: 11, color: site.muted, marginTop: 6, lineHeight: 18 },
+  docs: { flexDirection: 'row', gap: 22 },
+  note: { fontSize: 11, color: site.muted },
+  steps: { flexDirection: 'row', gap: 35 },
+  step: { borderTopWidth: 1, borderTopColor: site.line, paddingVertical: 22 },
+  stepNum: { fontSize: 32, color: site.copper, lineHeight: 38 },
+  stepTitle: { fontSize: 17, fontWeight: '500', letterSpacing: -0.4, color: site.ink, marginTop: 12, marginBottom: 8 },
+  body: { fontSize: 12, color: site.muted, lineHeight: 22 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 18 },
+  card: { padding: 24, borderWidth: 1, borderColor: site.line, borderRadius: 8, backgroundColor: site.white },
+  cardTitle: { fontSize: 17, color: site.ink, letterSpacing: -0.3, marginTop: 16, marginBottom: 8 },
+  noRisk: { flexDirection: 'row', gap: 60 },
+  nothing: { fontSize: 96, lineHeight: 104, color: site.copper, marginTop: 10 },
+  riskRow: { flexDirection: 'row', gap: 14, paddingVertical: 18, borderTopWidth: 1, borderColor: site.line },
+  riskTitle: { fontSize: 15, color: site.ink, fontWeight: '500' },
+  faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
+  closing: { backgroundColor: '#293128' },
+  closingFacts: { fontSize: 11, color: '#b2b9a7', marginTop: 16 },
+  phone: { fontSize: 12, color: '#d9aa85' },
+  stepper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#d7dacf', borderRadius: 5, backgroundColor: site.white },
+  stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  stepBtnText: { fontSize: 18, color: site.ink, lineHeight: 22 },
+  stepValue: { fontFamily: DM, minWidth: 84, textAlign: 'center', fontSize: 14, color: site.ink, borderLeftWidth: 1, borderRightWidth: 1, borderColor: '#d7dacf', paddingVertical: 10 },
   roi: { flexDirection: 'row', gap: 48, borderTopWidth: 1.5, borderTopColor: ink, paddingTop: spacing.xl },
   roiCompact: { flexDirection: 'column', gap: spacing.xxl },
   roiInputs: { gap: 0 },
   roiRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule, flexWrap: 'wrap' },
   roiLabel: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '600', color: ink },
-  roiHint: { fontFamily: landingFonts.body, fontSize: 13, lineHeight: 18, color: colors.textMuted, marginTop: 2 },
-  stepper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ink, borderRadius: 3 },
-  stepBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  stepBtnText: { fontSize: 20, color: ink, lineHeight: 22 },
-  stepValue: { ...monoType, minWidth: 84, textAlign: 'center', fontSize: 14, color: ink, borderLeftWidth: 1, borderRightWidth: 1, borderColor: ink, paddingVertical: 10 },
+  roiHint: { fontFamily: landingFonts.body, fontSize: 13, lineHeight: 18, color: site.muted, marginTop: 2 },
   roiResult: { backgroundColor: ink, borderRadius: 3, padding: spacing.xl },
-  roiResultLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89' },
+  roiResultLabel: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: '#E8AD89' },
   explain: { marginTop: spacing.xl, borderTopWidth: 1, borderTopColor: rule, borderBottomWidth: 1, borderBottomColor: rule },
   explainToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md },
   explainToggleText: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
   explainBody: { paddingBottom: spacing.xl, gap: spacing.md },
   explainP: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 23, color: bodyInk, maxWidth: 760 },
-  explainPlan: { borderLeftWidth: 3, borderLeftColor: colors.primary, paddingLeft: spacing.md, gap: 3 },
+  explainPlan: { borderLeftWidth: 3, borderLeftColor: site.copper, paddingLeft: spacing.md, gap: 3 },
   explainPlanName: { fontFamily: landingFonts.body, fontSize: 16, fontWeight: '700', color: ink },
-  explainLine: { ...monoType, fontSize: 12.5, lineHeight: 20, color: bodyInk },
+  explainLine: { fontFamily: DM, fontSize: 12.5, lineHeight: 20, color: bodyInk },
   explainTable: { borderTopWidth: 1, borderTopColor: rule },
   explainRow: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.md, rowGap: 2, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: rule },
   explainTask: { flexGrow: 1, flexBasis: 260, fontFamily: landingFonts.body, fontSize: 14.5, color: ink },
-  explainCell: { ...monoType, fontSize: 12, color: colors.primary, flexBasis: 190 },
-  explainPlans: { fontFamily: landingFonts.body, fontSize: 13, color: colors.textMuted, flexBasis: 240, flexGrow: 1 },
+  explainCell: { fontFamily: DM, fontSize: 12, color: site.copper, flexBasis: 190 },
+  explainPlans: { fontFamily: landingFonts.body, fontSize: 13, color: site.muted, flexBasis: 240, flexGrow: 1 },
   roiBigRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl, marginTop: spacing.md },
-  roiBigValue: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: '#FBF6EE', fontVariant: ['tabular-nums'] },
+  roiBigValue: { fontFamily: DM, fontSize: 52, lineHeight: 56, fontWeight: '500', color: '#f4f3e9', fontVariant: ['tabular-nums'] },
   roiPaybackBox: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: 'rgba(251,246,238,0.2)', gap: 6 },
-  roiPaybackText: { ...displayType, fontSize: 30, lineHeight: 34, fontWeight: '800', color: '#E8AD89' },
+  roiPaybackText: { fontFamily: DM, fontSize: 30, lineHeight: 34, fontWeight: '500', color: '#E8AD89' },
   roiCompareLink: { marginTop: spacing.md, fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: '#E8AD89', textDecorationLine: 'underline' },
   roiTimeRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
-  roiResultLabelLight: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
-  roiMid: { ...displayType, fontSize: 52, lineHeight: 56, fontWeight: '800', color: ink },
+  roiResultLabelLight: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: site.copper },
+  roiMid: { fontFamily: DM, fontSize: 52, lineHeight: 56, fontWeight: '500', color: ink },
   roiPlanScope: { fontFamily: landingFonts.body, fontSize: 13.5, lineHeight: 19, color: '#D5C8B8' },
-  roiFigLabel: { ...monoType, fontSize: 9.5, letterSpacing: 0.3, textTransform: 'uppercase', color: '#BFB2A2' },
-
-  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
-  columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
-  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.xl, paddingBottom: spacing.xl },
-  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
-  columnCompact: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg, paddingRight: 0 },
-  columnTitle: { fontFamily: landingFonts.body, fontSize: 20, fontWeight: '700', lineHeight: 26, color: ink },
-  stepNum: { ...monoType, fontSize: 12, color: colors.primary },
-  bodyText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
-
-  noRisk: { flexDirection: 'row', gap: 48, borderTopWidth: 1.5, borderTopColor: ink, paddingTop: spacing.xl },
-  noRiskCompact: { flexDirection: 'column', gap: spacing.lg },
-  noRiskEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
-  noRiskTitle: { ...displayType, fontSize: 96, lineHeight: 96, fontWeight: '800', color: ink, marginTop: spacing.sm },
-  noRiskRow: { flexDirection: 'row', gap: spacing.md, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
-  noRiskRowTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
-  closingPhone: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: '#F1E6D5', borderBottomWidth: 1.5, borderBottomColor: '#F1E6D5', paddingBottom: 2 },
-  closingFacts: { ...monoType, fontSize: 10.5, letterSpacing: 0.2, color: '#A8988A', textTransform: 'uppercase', marginTop: spacing.xxl },
-
-  wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
-  section: { paddingTop: 112 },
-  bodyLarge: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 30, color: bodyInk, maxWidth: 520 },
-  underlineLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
-
-  hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
-  heroMountainBase: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: 'url(/hero-mountain.webp)',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'no-repeat',
-  } as unknown as ViewStyle,
-  heroMountainMaskFull: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 48%, black 72%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 48%, black 72%)',
-  } as unknown as ViewStyle,
-  heroMountainMaskPeek: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
-  } as unknown as ViewStyle,
-  heroBottomFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 180,
-    backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
-  } as unknown as ViewStyle,
-  heroCopy: { paddingTop: spacing.xxxl, flex: 1, justifyContent: 'space-between' },
-  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
-  heroKickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
-  h1: { ...displayType, fontWeight: '800', letterSpacing: -0.5, color: ink },
-  crossedWrap: { position: 'relative', alignSelf: 'flex-start', marginTop: spacing.lg },
-  crossedText: { ...displayType, fontWeight: '600', color: '#786653' },
-  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 680 },
-  heroLede: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 29, color: ink, maxWidth: 540 },
-  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xs },
-  heroFacts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
-  heroCartouche: { alignSelf: 'flex-end', width: '100%', maxWidth: 820, marginTop: spacing.xxl },
-
-  split: { flexDirection: 'row', gap: 64, alignItems: 'center' },
-  splitCompact: { flexDirection: 'column', gap: spacing.xxl, alignItems: 'stretch' },
-  splitCol: { flex: 1 },
-  // Stacked (phones, tablets): size to the content. flex: 1 has a 0 basis,
-  // so in a column the text overflowed onto the next block.
-  splitColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
-
-  darkBand: { backgroundColor: colors.primaryDark, paddingVertical: 96, marginTop: 112 },
-  darkEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8B79A', textTransform: 'uppercase' },
-  darkH2: { ...displayType, fontSize: 48, fontWeight: '800', lineHeight: 48, color: '#fff', marginTop: spacing.md, marginBottom: spacing.xxl, maxWidth: 820 },
-  problemGrid: { flexDirection: 'row', gap: spacing.xl },
-  problemCard: { flex: 1, gap: spacing.sm, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.28)', paddingTop: spacing.lg },
-  problemText: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: '#fff', lineHeight: 24 },
-  problemConsequence: { fontFamily: landingFonts.body, fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 23 },
-  reliefCard: { marginTop: spacing.xxl, backgroundColor: colors.bg, borderRadius: 3, padding: spacing.xl },
-  reliefLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase', marginBottom: spacing.lg },
-  reliefGrid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xl, rowGap: spacing.md },
-  reliefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, flexBasis: 440, flexGrow: 1, flexShrink: 1, minWidth: 0, maxWidth: '100%' },
-  reliefText: { flex: 1, fontFamily: landingFonts.body, fontSize: 16, color: ink, lineHeight: 24 },
-
-  featureGrid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: ink },
-  featureCard: { flexGrow: 1, flexBasis: '25%', minWidth: 240, gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.xl, paddingRight: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
-  featureTitle: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
-  featureText: { fontFamily: landingFonts.body, fontSize: 15, color: bodyInk, lineHeight: 23 },
-  featureLink: { ...monoType, fontSize: 10.5, color: colors.primary, marginTop: spacing.xs },
-
-  faqList: { maxWidth: 820, alignSelf: 'flex-end', width: '100%' },
-  faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule, gap: 6 },
-  faqQuestion: { fontFamily: landingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
-  faqAnswer: { fontFamily: landingFonts.body, fontSize: 16, color: bodyInk, lineHeight: 25 },
-
-  closing: { backgroundColor: ink, paddingVertical: 112, marginTop: 112 },
-  closingEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8AD89', textTransform: 'uppercase' },
-  closingTitle: { ...displayType, fontSize: 60, lineHeight: 58, fontWeight: '800', color: '#FBF6EE', marginVertical: spacing.lg, maxWidth: 900 },
-  closingText: { fontFamily: landingFonts.body, fontSize: 18, lineHeight: 28, color: '#D5C8B8', maxWidth: 560, marginBottom: spacing.xl },
+  roiFigLabel: { fontFamily: DM, fontSize: 9.5, letterSpacing: 0.3, textTransform: 'uppercase', color: '#BFB2A2' },
 });

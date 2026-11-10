@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { TFunction } from 'i18next';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Screen, Switch } from './ui';
-import { CtaButton } from './landing/CtaButton';
-import { SectionHead } from './landing/SectionHead';
-import { pageWrap } from './landing/PageHero';
-import { SwissCross } from './SwissCross';
-import { bodyInk, ink, rule } from './landing/brand';
-import { Heading } from './Heading';
-import { MarketingHead } from './MarketingHead';
-import { MarketingFooter, MarketingNav } from './MarketingChrome';
+import { Btn, Eyebrow, Headline, TextLink, Wrap } from './site/Primitives';
+import { Breadcrumbs, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
+import { FaqItem } from './site/FamilyPage';
+import { SITE_PAGES } from '../lib/site/pages';
+import { PRICING_COPY } from '../lib/site/pricing';
+import { FALLBACK } from './site/PricingPage';
+import { sans, site } from '../lib/siteTheme';
 import { supabase } from '../lib/supabase';
-import { breakpoints, colors, spacing } from '../lib/theme';
-import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
 import { authHref, planHref } from '../lib/appHost';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import type { Plan } from '../lib/types';
@@ -128,12 +124,12 @@ function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): Compar
 // (unlike the /solutions/* pages, which hardcode prose per language).
 export function PlanDetailPage({ planId }: { planId: PlanId }) {
   const { t } = useTranslation();
-  const pricingHref = getAppLocale() === 'de' ? '/de/#pricing' : getAppLocale() === 'it' ? '/it/#pricing' : '/#pricing';
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const P = PRICING_COPY[locale] ?? PRICING_COPY.fr;
+  const pre = locale === 'fr' ? '' : `/${locale}`;
   const [plans, setPlans] = useState<Record<string, Plan>>({});
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
-  const { width } = useWindowDimensions();
-  const isTablet = width < breakpoints.desktop;
-  const titleSize = isTablet ? 56 : 96;
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
+  const { phone, tablet, width, h2Size } = useSiteLayout();
 
   useEffect(() => {
     supabase
@@ -153,231 +149,219 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
   const everyPlanItems = t('planPage.everyPlanItems', { returnObjects: true }) as string[];
   const heroText = t(`planPage.plans.${planId}.heroText`);
   const nextPlanId = NEXT_PLAN[planId];
-  const name = plan?.name ?? '';
+  const nameOf = (id: PlanId) => P.plans[id]?.name ?? plans[id]?.name ?? id;
+  const name = nameOf(planId);
 
   const isYearly = billingInterval === 'year';
-  const displayMonthly = plan ? (isYearly && plan.price_chf_yearly != null ? plan.price_chf_yearly / 12 : plan.price_chf_monthly ?? 0) : null;
+  // Live figures from the plans table; the same fallback as /tarifs until they load.
+  const fb = FALLBACK[planId];
+  const monthly = plan?.price_chf_monthly ?? fb.monthly;
+  const yearly = plan?.price_chf_yearly ?? fb.yearly;
+  const displayMonthly = isYearly && yearly != null ? yearly / 12 : monthly;
+  const h1 = phone ? 54 : tablet ? 64 : 84;
+  const faq = [
+    { q: t('planPage.faqChangePlanQ'), a: t('planPage.faqChangePlanA') },
+    { q: t('planPage.faqCommitmentQ'), a: t('planPage.faqCommitmentA') },
+    { q: t('planPage.faqVatQ'), a: t('planPage.faqVatA') },
+  ];
 
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead title={name ? `${name} | Cantia` : 'Cantia'} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <MarketingNav />
-
-        <View style={[styles.wrap, styles.hero, isTablet && styles.heroCompact]}>
-          <View style={{ flex: 1.2, maxWidth: 720 }}>
-            <View style={styles.kicker}>
-              <SwissCross size={13} />
-              <Text style={styles.kickerText}>{t('pricingSection.eyebrow')}</Text>
-            </View>
-            <Heading level={1} style={[styles.title, { fontSize: titleSize, lineHeight: titleSize * 0.94 }] as any}>{name || ' '}</Heading>
-            <Text style={styles.lede}>{heroText}</Text>
-            <View style={styles.ctaRow}>
-              <Link href={authHref('signup')} asChild>
-                <CtaButton title={t('planPage.ctaTrial')} />
-              </Link>
-              <Link href={pricingHref as any}>
-                <Text style={styles.underlineLink}>{t('planPage.ctaAllPlans')}</Text>
-              </Link>
-            </View>
-          </View>
-          {plan ? (
-            <View style={styles.priceBlock}>
-              <Text style={styles.priceLabel}>{t('planPage.comparePrice')}</Text>
-              <View style={styles.priceRow}>
-                <Text style={styles.currency}>CHF</Text>
-                <Text style={styles.price}>{Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly?.toFixed(2)}</Text>
-                <Text style={styles.period}>{t('planPage.perMonth')}</Text>
+    <SitePage title={`${name} | Cantia`} description={heroText} cta={false}>
+      {/* Hero with the live price */}
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 40 : 70 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: SITE_PAGES[locale].labels.home, href: pre || '/' }, { label: P.eyebrow, href: `${pre}/tarifs` }, { label: name }]} />
+          <View style={[styles.lead, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 30 } : { gap: 60 }]}>
+            <View style={phone ? undefined : { flex: 1.2, minWidth: 0 }}>
+              <Eyebrow>{t('pricingSection.eyebrow')}</Eyebrow>
+              <Headline level={1} plain={name} size={h1} style={{ marginTop: 16, marginBottom: 20 }} />
+              <Text style={[sans, styles.leadText, phone && { fontSize: 13, lineHeight: 24 }]}>{heroText}</Text>
+              <View style={styles.actions}>
+                <View>
+                  <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} small={phone} />
+                </View>
+                <View>
+                  <TextLink label={t('planPage.ctaAllPlans')} href={`${pre}/tarifs`} size={phone ? 11 : 12} />
+                </View>
               </View>
-              <Pressable onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))} style={styles.billingToggle}>
-                <Text style={styles.billingToggleLabel}>{billingInterval === 'year' ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}</Text>
-                <Switch value={isYearly} onChange={(v) => setBillingInterval(v ? 'year' : 'month')} />
+            </View>
+            <View style={[styles.priceCard, phone ? undefined : { flex: 0.8 }]}>
+              <Text style={[sans, styles.priceLabel]}>{t('planPage.comparePrice').toUpperCase()}</Text>
+              <View style={styles.priceRow}>
+                <Text style={[sans, styles.currency]}>CHF</Text>
+                <Text style={[sans, styles.price]}>{Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
+                <Text style={[sans, styles.period]}>{t('planPage.perMonth')}</Text>
+              </View>
+              <Pressable onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))} style={styles.toggle} accessibilityRole="switch" accessibilityState={{ checked: isYearly }}>
+                <View style={[styles.track, isYearly && { backgroundColor: site.copper }]}>
+                  <View style={[styles.knob, isYearly && { transform: [{ translateX: 16 }] }]} />
+                </View>
+                <Text style={[sans, styles.toggleText]}>{isYearly ? t('authChoosePlan.billingYearly') : t('authChoosePlan.billingMonthly')}</Text>
               </Pressable>
             </View>
-          ) : null}
-        </View>
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead title={t('planPage.keyFeaturesTitle')} />
-          <View style={styles.grid}>
-            {(keyFeatures ?? []).map((f) => (
-              <View key={f.title} style={styles.gridCell}>
-                <Feather name={f.icon} size={20} color={colors.primary} />
-                <Text style={styles.cellTitle}>{f.title}</Text>
-                <Text style={styles.bodyText}>{f.text}</Text>
-              </View>
-            ))}
           </View>
-        </View>
+        </Wrap>
+      </View>
 
-        <View style={[styles.wrap, styles.section, styles.split, isTablet && styles.splitCompact]}>
+      {/* Key features */}
+      <Section white>
+        <SectionHead eyebrow={name} plain={t('planPage.keyFeaturesTitle')} />
+        <View style={styles.grid}>
+          {(keyFeatures ?? []).map((f) => (
+            <View key={f.title} style={[styles.card, { width: phone ? '100%' : width <= 900 ? '47%' : '30.5%' }]}>
+              <Feather name={f.icon} size={18} color={site.copper} />
+              <Text style={[sans, styles.cardTitle]}>{f.title}</Text>
+              <Text style={[sans, styles.body]}>{f.text}</Text>
+            </View>
+          ))}
+        </View>
+      </Section>
+
+      {/* Included in every plan / not in this one */}
+      <Section>
+        <View style={[styles.split, phone && { flexDirection: 'column', gap: 36 }]}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.listHead}>{t('planPage.everyPlanTitle')}</Text>
+            <Text style={[sans, styles.listHead]}>{t('planPage.everyPlanTitle')}</Text>
             {(everyPlanItems ?? []).map((item) => (
               <View key={item} style={styles.listRow}>
-                <Feather name="check" size={16} color={colors.primary} />
-                <Text style={styles.listText}>{item}</Text>
+                <Feather name="check" size={15} color={site.copper} style={{ marginTop: 3 }} />
+                <Text style={[sans, styles.listText]}>{item}</Text>
               </View>
             ))}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.listHead}>{t('planPage.notIncludedTitle')}</Text>
+            <Text style={[sans, styles.listHead]}>{t('planPage.notIncludedTitle')}</Text>
             {notIncluded && notIncluded.length > 0 ? (
               <>
                 {notIncluded.map((item) => (
                   <View key={item} style={styles.listRow}>
-                    <Feather name="minus" size={16} color={colors.textMuted} />
-                    <Text style={[styles.listText, { color: bodyInk }]}>{item}</Text>
+                    <Feather name="minus" size={15} color={site.muted} style={{ marginTop: 3 }} />
+                    <Text style={[sans, styles.listText, { color: site.muted }]}>{item}</Text>
                   </View>
                 ))}
                 {nextPlanId ? (
-                  <Link href={planHref(nextPlanId) as any}>
-                    <Text style={styles.textLink}>{t('planPage.notIncludedUpgradeCta', { name: plans[nextPlanId]?.name ?? '' })}</Text>
-                  </Link>
+                  <View style={{ marginTop: 18 }}>
+                    <TextLink label={t('planPage.notIncludedUpgradeCta', { name: nameOf(nextPlanId) })} href={planHref(nextPlanId)} />
+                  </View>
                 ) : null}
               </>
             ) : (
               <View style={styles.listRow}>
-                <Feather name="award" size={18} color={colors.primary} />
+                <Feather name="award" size={16} color={site.copper} style={{ marginTop: 3 }} />
                 <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={styles.listText}>{t('planPage.notIncludedNoneTitle')}</Text>
-                  <Text style={styles.bodyText}>{t('planPage.notIncludedNoneText', { name })}</Text>
+                  <Text style={[sans, styles.listText]}>{t('planPage.notIncludedNoneTitle')}</Text>
+                  <Text style={[sans, styles.body]}>{t('planPage.notIncludedNoneText', { name })}</Text>
                 </View>
               </View>
             )}
           </View>
         </View>
+      </Section>
 
-        {Object.keys(plans).length === PLAN_ORDER.length ? (
-          <View style={[styles.wrap, styles.section]}>
-            <SectionHead title={t('planPage.compareTitle')} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.compareTable}>
-                <View style={[styles.compareRow, styles.compareHead]}>
-                  <View style={styles.compareLabelCol} />
-                  {PLAN_ORDER.map((id) => (
-                    <View key={id} style={[styles.compareCol, id === planId && styles.compareColActive]}>
-                      {id === planId ? <Text style={styles.compareBadge}>{t('planPage.compareCurrentBadge')}</Text> : null}
-                      <Link href={planHref(id) as any} asChild>
-                        <Pressable disabled={id === planId}>
-                          <Text style={styles.comparePlanName}>{plans[id]?.name}</Text>
-                        </Pressable>
-                      </Link>
-                    </View>
-                  ))}
-                </View>
-                {buildCompareRows(t, plans).map((row) => (
-                  <View key={row.label} style={styles.compareRow}>
-                    <View style={styles.compareLabelCol}>
-                      <Text style={styles.compareLabel}>{row.label}</Text>
-                    </View>
-                    {PLAN_ORDER.map((id) => {
-                      const cell = row.cells[id];
-                      return (
-                        <View key={id} style={[styles.compareCol, id === planId && styles.compareColActive]}>
-                          {'bool' in cell ? (
-                            <Feather name={cell.bool ? 'check' : 'minus'} size={16} color={cell.bool ? colors.primary : colors.textMuted} />
-                          ) : (
-                            <Text style={styles.compareCellText}>{cell.text}</Text>
-                          )}
-                        </View>
-                      );
-                    })}
+      {/* Comparison */}
+      {Object.keys(plans).length === PLAN_ORDER.length ? (
+        <Section white>
+          <SectionHead eyebrow={P.eyebrow} plain={t('planPage.compareTitle')} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.table}>
+              <View style={[styles.tRow, styles.tHead]}>
+                <View style={styles.tLabel} />
+                {PLAN_ORDER.map((id) => (
+                  <View key={id} style={[styles.tCol, id === planId && styles.tColOn]}>
+                    <Link href={planHref(id) as any}>
+                      <Text style={[sans, styles.tPlan, id === planId && { color: site.copper }]}>{nameOf(id)}</Text>
+                    </Link>
                   </View>
                 ))}
               </View>
-            </ScrollView>
-          </View>
-        ) : null}
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead title={t('planPage.faqEyebrow')} />
-          {[
-            { q: t('planPage.faqChangePlanQ'), a: t('planPage.faqChangePlanA') },
-            { q: t('planPage.faqCommitmentQ'), a: t('planPage.faqCommitmentA') },
-            { q: t('planPage.faqVatQ'), a: t('planPage.faqVatA') },
-          ].map((f) => (
-            <View key={f.q} style={styles.faqRow}>
-              <Text style={styles.faqQuestion}>{f.q}</Text>
-              <Text style={styles.bodyText}>{f.a}</Text>
+              {buildCompareRows(t, plans).map((row) => (
+                <View key={row.label} style={styles.tRow}>
+                  <View style={styles.tLabel}>
+                    <Text style={[sans, styles.tLabelText]}>{row.label}</Text>
+                  </View>
+                  {PLAN_ORDER.map((id) => {
+                    const cell = row.cells[id];
+                    return (
+                      <View key={id} style={[styles.tCol, id === planId && styles.tColOn]}>
+                        {'bool' in cell ? <Feather name={cell.bool ? 'check' : 'minus'} size={15} color={cell.bool ? site.copper : '#b5b8ab'} /> : <Text style={[sans, styles.tCell]}>{cell.text}</Text>}
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
             </View>
+          </ScrollView>
+        </Section>
+      ) : null}
+
+      {/* FAQ */}
+      <Section>
+        <View style={styles.faq}>
+          <Eyebrow>{SITE_PAGES[locale].labels.faqEyebrow}</Eyebrow>
+          <Headline plain={t('planPage.faqEyebrow')} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+          {faq.map((f, i) => (
+            <FaqItem key={f.q} q={f.q} a={f.a} last={i === faq.length - 1} />
           ))}
-          <View style={styles.otherPlans}>
-            <Text style={styles.listHeadInline}>{t('planPage.otherPlansTitle')}</Text>
+          <View style={styles.others}>
+            <Text style={[sans, styles.othersLabel]}>{t('planPage.otherPlansTitle')}</Text>
             {PLAN_ORDER.filter((id) => id !== planId).map((id) => (
-              <Link key={id} href={planHref(id) as any}>
-                <Text style={styles.underlineLink}>{plans[id]?.name ?? id} →</Text>
-              </Link>
+              <View key={id}>
+                <TextLink label={nameOf(id)} href={planHref(id)} size={12} />
+              </View>
             ))}
           </View>
         </View>
+      </Section>
 
-        <View style={styles.closing}>
-          <View style={styles.wrap}>
-            <Text style={styles.closingTitle}>{t('planPage.closingTitle', { name })}</Text>
-            <Text style={styles.closingText}>{t('planPage.closingText')}</Text>
-            <Link href={authHref('signup')} asChild>
-              <CtaButton title={t('planPage.ctaTrial')} style={{ marginTop: spacing.xl }} />
-            </Link>
+      <View style={[styles.cta, { paddingVertical: phone ? 40 : 58 }]}>
+        <Wrap style={phone ? undefined : styles.ctaRow}>
+          <View style={phone ? undefined : { flex: 1, maxWidth: 720 }}>
+            <Headline plain={t('planPage.closingTitle', { name })} size={phone ? 30 : 36} color="#f4f3e9" />
+            <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{t('planPage.closingText')}</Text>
           </View>
-        </View>
-
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+          <View style={phone ? { marginTop: 22 } : undefined}>
+            <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} tone="sand" />
+          </View>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: pageWrap,
-  section: { paddingTop: 96 },
-  hero: { flexDirection: 'row', alignItems: 'flex-end', gap: 64, paddingTop: spacing.xxxl, paddingBottom: spacing.xl },
-  heroCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xxl },
-  kicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
-  kickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
-  title: { ...displayType, fontWeight: '800', color: ink, marginTop: 0, marginBottom: 0 },
-  lede: { fontFamily: marketingFonts.body, fontSize: 19, lineHeight: 29, color: bodyInk, marginTop: spacing.xl, maxWidth: 580 },
-  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
-  underlineLink: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
-  textLink: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: colors.primary, marginTop: spacing.lg },
-
-  priceBlock: { flex: 0.8, borderTopWidth: 1.5, borderTopColor: ink, paddingTop: spacing.md, gap: spacing.sm },
-  priceLabel: { ...monoType, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.textMuted },
-  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-  currency: { ...monoType, fontSize: 14, color: ink },
-  price: { ...displayType, fontSize: 120, lineHeight: 118, fontWeight: '800', color: ink },
-  period: { fontFamily: marketingFonts.body, fontSize: 16, color: bodyInk },
-  billingToggle: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.md },
-  billingToggleLabel: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink },
-
-  bodyText: { fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: ink },
-  gridCell: { flexGrow: 1, flexBasis: 300, gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.xl, paddingRight: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
-  cellTitle: { fontFamily: marketingFonts.body, fontSize: 19, fontWeight: '700', color: ink, lineHeight: 25 },
-
-  split: { flexDirection: 'row', gap: 64 },
-  splitCompact: { flexDirection: 'column', gap: spacing.xxl },
-  listHead: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary, paddingBottom: spacing.md, borderBottomWidth: 1.5, borderBottomColor: ink },
-  listHeadInline: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
-  listRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
-  listText: { flex: 1, fontFamily: marketingFonts.body, fontSize: 16, fontWeight: '600', lineHeight: 23, color: ink },
-
-  compareTable: { minWidth: 720, width: '100%', borderTopWidth: 1.5, borderTopColor: ink },
-  compareHead: { borderBottomColor: ink },
-  compareRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: rule },
-  compareLabelCol: { width: 260, paddingVertical: 14, paddingRight: spacing.lg },
-  compareLabel: { fontFamily: marketingFonts.body, fontSize: 15, color: bodyInk },
-  compareCol: { flex: 1, minWidth: 150, alignItems: 'center', paddingVertical: 14, paddingHorizontal: spacing.sm, gap: 4 },
-  compareColActive: { backgroundColor: 'rgba(188,90,49,0.07)' },
-  compareBadge: { ...monoType, fontSize: 9.5, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
-  comparePlanName: { ...displayType, fontSize: 24, fontWeight: '800', color: ink },
-  compareCellText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink, textAlign: 'center' },
-
-  faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule, gap: 6, maxWidth: 900 },
-  faqQuestion: { fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
-  otherPlans: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xxl },
-
-  closing: { backgroundColor: ink, paddingVertical: 96, marginTop: 96 },
-  closingTitle: { ...displayType, fontSize: 52, lineHeight: 52, fontWeight: '800', color: '#FBF6EE', maxWidth: 860 },
-  closingText: { fontFamily: marketingFonts.body, fontSize: 17, lineHeight: 27, color: '#D5C8B8', maxWidth: 620, marginTop: spacing.lg },
+  lead: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  leadText: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 600 },
+  actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 25, marginTop: 26 },
+  priceCard: { backgroundColor: site.white, borderWidth: 1, borderColor: site.line, borderRadius: 10, padding: 30 },
+  priceLabel: { fontSize: 9, letterSpacing: 1.5, color: site.muted, fontWeight: '600' },
+  priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 14 },
+  currency: { fontSize: 14, color: site.muted, marginBottom: 10 },
+  price: { fontSize: 64, lineHeight: 68, letterSpacing: -2.5, color: site.ink, fontVariant: ['tabular-nums'] },
+  period: { fontSize: 12, color: site.muted, marginBottom: 12 },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 22, alignSelf: 'flex-start' },
+  track: { width: 36, height: 20, borderRadius: 10, backgroundColor: '#d7dacf', padding: 2 },
+  knob: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#ffffff' },
+  toggleText: { fontSize: 12, color: site.ink },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 34 },
+  card: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 24 },
+  cardTitle: { fontSize: 18, lineHeight: 25, letterSpacing: -0.3, color: site.ink, marginTop: 18, marginBottom: 10 },
+  body: { fontSize: 12, color: site.muted, lineHeight: 22 },
+  split: { flexDirection: 'row', gap: 70 },
+  listHead: { fontSize: 18, color: site.ink, letterSpacing: -0.3, marginBottom: 16 },
+  listRow: { flexDirection: 'row', gap: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: site.line, alignItems: 'flex-start' },
+  listText: { flex: 1, fontSize: 13, color: site.ink, lineHeight: 21 },
+  table: { minWidth: 640, width: '100%', borderTopWidth: 1, borderTopColor: site.line },
+  tRow: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: site.line, minHeight: 48 },
+  tHead: { minHeight: 56 },
+  tLabel: { flex: 1.6, paddingRight: 12 },
+  tLabelText: { fontSize: 12, color: site.ink },
+  tCol: { flex: 1, alignItems: 'center', justifyContent: 'center', alignSelf: 'stretch' },
+  tColOn: { backgroundColor: '#f6ebe1' },
+  tPlan: { fontSize: 14, color: site.ink, fontWeight: '500' },
+  tCell: { fontSize: 12, color: site.ink, textAlign: 'center' },
+  faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
+  others: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 22, marginTop: 30 },
+  othersLabel: { fontSize: 12, color: site.muted },
+  cta: { backgroundColor: '#293128' },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 },
 });

@@ -1,10 +1,8 @@
-import { colors } from '../../lib/theme';
+import { site } from '../../lib/siteTheme';
 
-// Homepage-only tones on top of the shared palette: body copy one step
-// darker than colors.textMuted (readability was the weak point of the old
-// layout), and a hairline a little stronger than colors.border, since rules
-// now carry the structure the cards used to.
-export const ink = colors.text;
-export const bodyInk = '#4A3D31';
-export const rule = '#D8C8B0';
-export const redPen = '#C33F32';
+// Tones of the older marketing pages, now mapped onto the November 2026 site
+// palette (lib/siteTheme.ts) so every page reads the same.
+export const ink = site.ink;
+export const bodyInk = site.muted;
+export const rule = site.line;
+export const redPen = '#b4472f';

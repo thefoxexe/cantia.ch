@@ -1,18 +1,12 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Link } from 'expo-router';
-import { breakpoints, colors, spacing } from '../../lib/theme';
-import { displayType, marketingFonts, monoType } from '../../lib/marketingTheme';
-import { Heading } from '../Heading';
-import { SwissCross } from '../SwissCross';
-import { CtaButton } from './CtaButton';
-import { Cartouche } from './Cartouche';
-import { bodyInk, ink } from './brand';
+import { Btn, Eyebrow, Headline, TextLink } from '../site/Primitives';
+import { sans, site } from '../../lib/siteTheme';
 
-// Shared opening for every secondary marketing page (tarifs, téléchargement,
-// métiers, contact…): the same kicker / condensed H1 / lede / CTA / facts
-// stack as the homepage hero, without the mountain, with an optional visual
-// on the right and an optional title block underneath.
+// Page heading of the older marketing pages (aide, logiciel-chantier…), in
+// the November 2026 identity: eyebrow, title, lead, buttons, facts, and an
+// optional visual on the right. `cartouche` is no longer drawn (it belonged
+// to the September 2026 "plan" identity) but stays accepted.
 export function PageHero({
   kicker,
   title,
@@ -20,7 +14,6 @@ export function PageHero({
   cta,
   secondary,
   facts,
-  cartouche,
   aside,
   children,
 }: {
@@ -35,63 +28,58 @@ export function PageHero({
   children?: ReactNode;
 }) {
   const { width } = useWindowDimensions();
-  const isMobile = width < breakpoints.tablet;
-  const isTablet = width < breakpoints.desktop;
-  const size = isMobile ? Math.min(56, Math.max(40, width * 0.11)) : Math.min(88, Math.max(52, width * 0.058));
-  const secondaryText = secondary ? <Text style={styles.secondary} onPress={secondary.onPress}>{secondary.title}</Text> : null;
+  const phone = width <= 760;
+  const stacked = width < 1000;
+  const size = phone ? 40 : width <= 1100 ? 48 : 56;
   return (
-    <View style={styles.wrap}>
-      <View style={[styles.row, isTablet && styles.rowCompact]}>
-        <View style={[styles.main, !isTablet && aside ? { flex: 1.15 } : null]}>
-          <View style={styles.kicker}>
-            <SwissCross size={13} />
-            <Text style={styles.kickerText}>{kicker}</Text>
-          </View>
-          <Heading level={1} style={[styles.title, { fontSize: size, lineHeight: Math.round(size * 0.94) }] as any}>
-            {title}
-          </Heading>
-          {lede ? <Text style={styles.lede}>{lede}</Text> : null}
+    <View style={[styles.wrap, { paddingHorizontal: width > 760 ? 54 : 22, paddingTop: phone ? 36 : 64 }]}>
+      <View style={[styles.row, stacked && styles.rowCompact]}>
+        <View style={[styles.main, !stacked && aside ? { flex: 1.15 } : null]}>
+          <Eyebrow>{kicker}</Eyebrow>
+          <Headline level={1} plain={title} size={size} style={{ marginTop: 18, letterSpacing: phone ? -1.6 : -2.4, lineHeight: size * 1.06 }} />
+          {lede ? <Text style={[sans, styles.lede, phone && { fontSize: 13, lineHeight: 24 }]}>{lede}</Text> : null}
           {cta || secondary ? (
             <View style={styles.ctas}>
               {cta ? (
-                <Link href={cta.href as any} asChild>
-                  <CtaButton title={cta.title} />
-                </Link>
+                <View>
+                  <Btn label={cta.title} href={cta.href} small={phone} />
+                </View>
               ) : null}
-              {secondary?.href ? <Link href={secondary.href as any}>{secondaryText}</Link> : secondaryText}
+              {secondary ? (
+                secondary.href ? (
+                  <View>
+                    <TextLink label={secondary.title} href={secondary.href} size={phone ? 11 : 12} />
+                  </View>
+                ) : (
+                  <Text style={[sans, styles.secondary]} onPress={secondary.onPress}>
+                    {secondary.title}
+                  </Text>
+                )
+              ) : null}
             </View>
           ) : null}
-          {facts?.length ? <Text style={styles.facts}>{facts.join(isMobile ? '\n' : '   ·   ')}</Text> : null}
+          {facts?.length ? <Text style={[sans, styles.facts]}>{facts.join(phone ? '\n' : '   ·   ')}</Text> : null}
           {children}
         </View>
-        {aside ? <View style={[styles.aside, !isTablet && { flex: 1 }]}>{aside}</View> : null}
+        {aside ? <View style={[styles.aside, !stacked && { flex: 1 }]}>{aside}</View> : null}
       </View>
-      {cartouche?.length ? (
-        <View style={[styles.cartouche, isTablet && { alignSelf: 'stretch', maxWidth: undefined }]}>
-          <Cartouche cells={cartouche} compact={isMobile} />
-        </View>
-      ) : null}
     </View>
   );
 }
 
-// Shared page gutter for sections under a PageHero.
-export const pageWrap = { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl } as const;
+// Side gutter follows the header (22 px on phones, 54 px on desktop).
+export const pageWrap = { width: '100%', maxWidth: 1320, alignSelf: 'center', paddingHorizontal: 'clamp(22px, 4.2vw, 54px)' as any } as const;
 
 const styles = StyleSheet.create({
-  wrap: { ...pageWrap, paddingTop: spacing.xxxl, paddingBottom: spacing.xl },
+  wrap: { width: '100%', maxWidth: 1320, alignSelf: 'center', paddingBottom: 40 },
   row: { flexDirection: 'row', gap: 64, alignItems: 'center' },
-  rowCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xxl },
-  main: { flex: 1, maxWidth: 760 },
+  rowCompact: { flexDirection: 'column', alignItems: 'stretch', gap: 36 },
+  main: { flex: 1, maxWidth: 780 },
   aside: { alignItems: 'center' },
-  kicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
-  kickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
-  title: { ...displayType, fontWeight: '800', letterSpacing: -0.4, color: ink, marginTop: 0, marginBottom: 0 },
-  lede: { fontFamily: marketingFonts.body, fontSize: 19, lineHeight: 29, color: bodyInk, marginTop: spacing.xl, maxWidth: 580 },
-  ctas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
-  secondary: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
-  facts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase', marginTop: spacing.lg },
-  cartouche: { alignSelf: 'flex-end', width: '100%', maxWidth: 820, marginTop: spacing.xxl },
+  lede: { fontSize: 15, lineHeight: 28, color: site.muted, marginTop: 20, maxWidth: 600 },
+  ctas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 25, marginTop: 28 },
+  secondary: { fontSize: 12, fontWeight: '600', color: site.ink },
+  facts: { fontSize: 10, lineHeight: 18, color: '#8b9380', marginTop: 18 },
 });
 
-export const pageColors = { ink, bodyInk, primary: colors.primary };
+export const pageColors = { ink: site.ink, bodyInk: site.muted, primary: site.copper };
