@@ -1,34 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle, useWindowDimensions } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType } from 'react-native';
 import { Link, Redirect } from 'expo-router';
-import { Screen } from '../components/ui';
+import { Feather } from '@expo/vector-icons';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
-import { PricingSection } from '../components/PricingSection';
-import { HeroCross } from '../components/landing/HeroCross';
-import { ScrollReveal } from '../components/landing/ScrollReveal';
-import { SwissCross } from '../components/SwissCross';
-import { BrandMark, Wordmark } from '../components/brand/Logo';
-import { CtaButton } from '../components/landing/CtaButton';
-import { SectionHead } from '../components/landing/SectionHead';
-import { Cartouche } from '../components/landing/Cartouche';
-import { DocumentShowcase } from '../components/landing/DocumentShowcase';
-import { useHeroFit } from '../components/landing/useHeroFit';
-import { bodyInk, ink, rule } from '../components/landing/brand';
-import { StoryShowcase } from '../components/landing/StoryShowcase';
-import { FeatureCatalog } from '../components/landing/FeatureCatalog';
-import { VoiceDemo } from '../components/landing/VoiceDemo';
-import { Disclosure } from '../components/landing/Disclosure';
-import { useMarketingDict } from '../lib/i18n';
-import { getAppLocale } from '../lib/translations';
+import { Btn, Eyebrow, Hover, Headline, Micro, TextLink, Wrap } from '../components/site/Primitives';
+import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
+import { SITE_COPY } from '../lib/site/copy';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
-import { colors, breakpoints, spacing } from '../lib/theme';
-import { displayType, landingFonts, monoType } from '../lib/landingTheme';
+import { sans, site } from '../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 
-function clamp(min: number, value: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
+// Real PDFs produced by Cantia's own renderer (sample data: Atelier Martin SA
+// for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
+// still carry the old logo.
+const DEVIS = require('../assets/marketing/site/devis-signe.jpg');
+const FACTURE = require('../assets/marketing/site/facture-qr.jpg');
+const QR_SLIP = require('../assets/marketing/site/facture-qr-section.jpg');
+const DEVIS_RATIO = 1221 / 1200;
+const FACTURE_RATIO = 1696 / 1200;
+const QR_RATIO = 713 / 1400;
+
+const paperShadow = Platform.OS === 'web' ? ({ boxShadow: '0 22px 48px rgba(86,58,34,0.16), 0 2px 6px rgba(86,58,34,0.08)' } as object) : {};
 
 export default function LandingScreen() {
   if (Platform.OS !== 'web') return <Redirect href="/(auth)/login" />;
@@ -36,532 +29,396 @@ export default function LandingScreen() {
 }
 
 function LandingContent() {
-  const t = useMarketingDict();
   useSyncMarketingLocaleFromPath();
-  const appLocale = getAppLocale();
-  const localePrefix = appLocale === 'de' ? '/de' : appLocale === 'it' ? '/it' : '';
-  const pageHref = useCallback((slug: string) => `${localePrefix}/${slug}`, [localePrefix]);
-  const solutionHref = useCallback((slug: string) => `${localePrefix}/solutions/${slug}`, [localePrefix]);
+  const locale = useSiteLocale();
+  const copy = SITE_COPY[locale];
+  const h = copy.home;
+  const p = localePrefix(locale);
+  const { width } = useWindowDimensions();
+  const phone = width <= 760;
+  const tablet = !phone && width <= 1100;
 
-
-  const { width, height } = useWindowDimensions();
-  const isMobile = width < breakpoints.tablet;
-  const isTablet = width < breakpoints.desktop;
-  const showHeroMountainFull = !isMobile;
-  const showHeroMountainPeek = isMobile;
-  // The hero always fills exactly the screen under the nav, and its headline
-  // shrinks as needed so everything down to the title block stays visible.
-  const [navHeight, setNavHeight] = useState(isMobile ? 80 : 96);
-  const heroAvailable = Math.max(0, height - navHeight);
-  const heroDesigned = isMobile ? clamp(44, width * 0.13, 64) : clamp(64, width * 0.075, 116);
-  // chrome: heroCopy paddingTop + cartouche marginTop + hero paddingBottom.
-  const heroFit = useHeroFit({ designed: heroDesigned, min: isMobile ? 34 : 48, available: heroAvailable, chrome: isMobile ? spacing.xxxl + spacing.xl : spacing.xxxl + spacing.xl + spacing.xl });
-  const heroTitleSize = heroFit.size;
-  const heroMinHeight = heroAvailable || undefined;
-  const closingTitleSize = clamp(44, width * 0.07, 96);
-
-  const scrollRef = useRef<ScrollView>(null);
-  const storiesRef = useRef<View>(null);
-  const pricingRef = useRef<View>(null);
-  const heroMountainRef = useRef<View>(null);
-
-  useEffect(() => {
-    if (!showHeroMountainFull && !showHeroMountainPeek) return;
-    const node = heroMountainRef.current as unknown as HTMLElement | null;
-    if (node?.style) node.style.backgroundPosition = 'right top';
-  }, [showHeroMountainFull, showHeroMountainPeek]);
-
-  function scrollToRef(ref: React.RefObject<View | null>) {
-    ref.current?.measure((_x, y) => {
-      scrollRef.current?.scrollTo({ y: y - 12, animated: true });
-    });
-  }
-
-  // Lets an external link (e.g. cantia.ch/#pricing, submitted to a directory
-  // like Capterra) land directly on the pricing section instead of just the
-  // top of the homepage — the nav/footer buttons already call scrollToRef,
-  // this covers arriving with the hash already in the URL on first load.
+  // Old links to cantia.ch/#pricing (directories, ads) now land on the
+  // pricing page: the home page no longer carries the price grid.
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    if (window.location.hash !== '#pricing') return;
-    const id = setTimeout(() => scrollToRef(pricingRef), 300);
-    return () => clearTimeout(id);
-  }, []);
+    if (window.location.hash === '#pricing') window.location.replace(`${p}/tarifs`);
+  }, [p]);
+
+  const heroSize = phone ? (width <= 370 ? 49 : 56) : tablet ? Math.min(54, Math.max(39, width * 0.05)) : Math.min(88, Math.max(60, width * 0.063));
+  const h2Size = phone ? 32 : width <= 900 ? 36 : 42;
 
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead title={marketingPageTitle('home', appLocale)} />
-
-      <View onLayout={(e) => setNavHeight(e.nativeEvent.layout.height)}>
-        <MarketingNav onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
-      </View>
-
-      <ScrollView ref={scrollRef}>
-        {/* ——— Hero: the mountain stays, the type does the talking ——— */}
-        <View style={[styles.hero, heroMinHeight ? { minHeight: heroMinHeight } : null]}>
-          {showHeroMountainFull || showHeroMountainPeek ? (
-            <View
-              ref={heroMountainRef}
-              pointerEvents="none"
-              style={[styles.heroMountainBase, showHeroMountainFull ? styles.heroMountainMaskFull : styles.heroMountainMaskPeek]}
-            />
-          ) : null}
-          {showHeroMountainFull || showHeroMountainPeek ? <View pointerEvents="none" style={styles.heroBottomFade} /> : null}
-          <View style={[styles.wrap, styles.heroCopy, { zIndex: 1 }, styles.heroCopySpread]}>
-            <View onLayout={heroFit.onPartLayout('main')} style={[styles.heroMain, !isTablet && { maxWidth: '56%' }]}>
-              <ScrollReveal style={styles.heroKicker}>
-                <SwissCross size={14} />
-                <Text style={styles.heroKickerText}>{t.hero.kicker}</Text>
-              </ScrollReveal>
-
-              <ScrollReveal delay={120}>
-                {/* One <h1> for the whole headline (role heading → <h1> on web). */}
-                <View role="heading" aria-level={1} onLayout={heroFit.onTitleLayout}>
-                <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titlePrefix}</Text>
-                <View style={styles.h1Line2}>
-                  <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.titleHighlight} </Text>
-                  <View style={styles.crossedWrap}>
-                    <Text style={[styles.h1, { fontSize: heroTitleSize, lineHeight: heroTitleSize * 0.92 }]}>{t.hero.crossedText}</Text>
-                    <HeroCross />
-                  </View>
+    <View style={styles.page}>
+      <MarketingHead title={marketingPageTitle('home', locale)} />
+      <MarketingNav />
+      <ScrollView style={{ flex: 1 }}>
+        {/* Hero */}
+        <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 68 }}>
+          <Wrap>
+            <View style={[styles.heroTop, phone ? { flexDirection: 'column', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
+              <View style={phone ? undefined : { flex: tablet ? 0.9 : 1.22, minWidth: 0 }}>
+                <Eyebrow>{h.eyebrow}</Eyebrow>
+                <Headline level={1} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
+                <Text style={[sans, styles.lead, { fontSize: phone || tablet ? (tablet ? 13 : 14) : 15 }]}>
+                  <Text style={{ color: site.ink, fontWeight: '500' }}>{h.leadStrong}</Text> {h.lead}
+                </Text>
+                <View style={[styles.actions, { gap: phone ? 23 : 25, marginTop: phone ? 24 : 26 }]}>
+                  <Btn label={h.tryCta} href={authHref('signup')} />
+                  <TextLink label={h.explore} href={`${p}/${copy.families[0].slug}`} size={phone ? 11 : 12} />
                 </View>
-                </View>
-              </ScrollReveal>
-
-              <ScrollReveal delay={420} style={styles.heroBody}>
-                <Text style={[styles.heroLede, isMobile && styles.heroLedeMobile]}>{t.hero.lede}</Text>
-                <View style={styles.heroCtas}>
-                  <Link href={authHref('signup')} asChild>
-                    <CtaButton title={t.hero.cta} />
-                  </Link>
-                  <Pressable onPress={() => scrollToRef(pricingRef)}>
-                    <Text style={styles.underlineLink}>{t.hero.secondaryCta}</Text>
-                  </Pressable>
-                </View>
-                <Text style={styles.heroFacts}>{t.hero.facts.join(isMobile ? '\n' : '   ·   ')}</Text>
-              </ScrollReveal>
-            </View>
-
-            {/* On phones the title block moves just below the hero, so the
-                hero itself (headline, lede, CTA, facts) fits one screen. */}
-            {!isMobile ? (
-              <ScrollReveal delay={640} style={[styles.heroCartouche, isTablet && styles.heroCartoucheCompact]}>
-                <View onLayout={heroFit.onPartLayout('cartouche')}>
-                  <Cartouche cells={t.hero.cartouche} compact={false} />
-                </View>
-              </ScrollReveal>
-            ) : null}
-          </View>
-        </View>
-
-        {isMobile ? (
-          <View style={[styles.wrap, { marginTop: spacing.lg }]}>
-            <Cartouche cells={t.hero.cartouche} compact />
-          </View>
-        ) : null}
-
-        {/* ——— Swiss facts: three ruled columns, no cards ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.trust.locationLabel} title={t.trust.title} intro={t.trust.text} />
-          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
-            {t.trust.cards.map((card, i) => (
-              <View key={card.label} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
-                <Text style={styles.monoLabel}>{card.label}</Text>
-                <Text style={styles.columnTitle}>{card.title}</Text>
-                <Text style={styles.bodyText}>{card.text}</Text>
-                {i === t.trust.cards.length - 1 ? (
-                  <Link href={pageHref('contact') as any}>
-                    <Text style={styles.textLink}>{t.trust.contactCta} →</Text>
-                  </Link>
-                ) : null}
+                <Micro style={{ fontSize: phone ? 9 : 9 }}>{h.micro}</Micro>
               </View>
-            ))}
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Everyday situations ——— */}
-        <View style={[styles.wrap, styles.section]} ref={storiesRef}>
-          <ScrollReveal>
-            <SectionHead label={t.landingNav.features} title={t.stories.title} intro={t.stories.subtitle} />
-            <StoryShowcase dict={t.stories} hrefFor={solutionHref} />
-          </ScrollReveal>
-        </View>
-
-        {/* ——— Nomenclature: every feature, visible without clicking ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead title={t.catalog.title} intro={t.catalog.subtitle} />
-          <FeatureCatalog dict={t.catalog} hrefFor={(slug) => (slug === 'sur-mesure' ? pageHref('sur-mesure') : solutionHref(slug))} />
-        </ScrollReveal>
-
-        {/* ——— Trades ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.profession.eyebrow} title={t.profession.title} intro={t.profession.text} />
-          <View style={[styles.split, isTablet && styles.splitCompact]}>
-            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
-              {t.profession.links.map((link) => (
-                <Link key={link.slug} href={pageHref(link.slug) as any} asChild>
-                  <Pressable style={styles.listRow}>
-                    <Text style={styles.listRowText}>{link.label}</Text>
-                    <Text style={styles.listRowArrow}>→</Text>
-                  </Pressable>
-                </Link>
-              ))}
-              <Link href={pageHref('metiers') as any}>
-                <Text style={styles.textLink}>{t.profession.allLink} →</Text>
-              </Link>
-            </View>
-            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
-              <Text style={styles.subHead}>{t.profession.personalTitle}</Text>
-              {t.profession.items.map((item) => (
-                <View key={item.title} style={styles.defRow}>
-                  <Text style={styles.defTerm}>{item.title}</Text>
-                  <Text style={[styles.bodyText, { flex: 1 }]}>{item.text}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Beyond construction: any business that works by projects ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <View style={[styles.beyond, isTablet && styles.beyondCompact]}>
-            <View style={[styles.beyondIntro, isTablet && styles.beyondColStacked]}>
-              <Text style={styles.monoLabel}>{t.beyond.eyebrow}</Text>
-              <Text style={styles.beyondTitle}>{t.beyond.title}</Text>
-              <Text style={styles.bodyText}>{t.beyond.text}</Text>
-              <View style={styles.vocabBox}>
-                <Text style={styles.beyondLabel}>{t.beyond.vocabLabel}</Text>
-                <View style={styles.vocabRow}>
-                  {t.beyond.vocab.map((word, i) => (
-                    <View key={word} style={[styles.vocabChip, i === 0 && styles.vocabChipOn]}>
-                      <Text style={[styles.vocabText, i === 0 && styles.vocabTextOn]}>{word}</Text>
-                    </View>
-                  ))}
-                </View>
-                <Text style={styles.vocabNote}>{t.beyond.vocabText}</Text>
+              <View style={phone ? undefined : { flex: tablet ? 1.1 : 0.8, minWidth: 0 }}>
+                <HeroStage tag={h.stageTag} note={h.stageNote} chip={h.exportDevis} phone={phone} />
               </View>
             </View>
-            <View style={[styles.beyondNiches, isTablet && styles.beyondColStacked]}>
-              <Text style={styles.beyondLabel}>{t.beyond.nichesLabel}</Text>
-              {t.beyond.niches.map((niche, i) => (
-                <View key={niche} style={[styles.nicheRow, i === 0 && { borderTopWidth: 0 }]}>
-                  <Text style={styles.nicheIndex}>{String(i + 1).padStart(2, '0')}</Text>
-                  <Text style={styles.nicheText}>{niche}</Text>
+
+            <View style={[styles.trust, phone && styles.trustPhone]}>
+              {h.trust.map((item, i) => (
+                <View key={item} style={styles.trustItem}>
+                  <Feather name={(['map-pin', 'grid', 'globe'] as const)[i]} size={phone ? 12 : 14} color={site.copper} />
+                  <Text style={[sans, styles.trustText, phone && { fontSize: 8 }]}>{item}</Text>
                 </View>
               ))}
-              <Link href={authHref('signup')}>
-                <Text style={styles.textLink}>{t.beyond.cta} →</Text>
-              </Link>
             </View>
-          </View>
-        </ScrollReveal>
+          </Wrap>
+        </View>
 
-        {/* ——— Team ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.team.eyebrow} title={`${t.team.titlePrefix} ${t.team.titleEm}`} intro={t.team.text} />
-          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
-            {t.team.roles.map((role, i) => (
-              <View key={role.number} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
-                <Text style={styles.monoLabel}>{role.number}</Text>
-                <Text style={styles.columnTitle}>{role.title}</Text>
-                <Text style={styles.bodyText}>{role.text}</Text>
+        {/* Five families */}
+        <View style={[styles.section, { backgroundColor: site.white, paddingVertical: phone ? 53 : 86 }]}>
+          <Wrap>
+            <SectionHead eyebrow={h.familiesEyebrow} plain={h.familiesTitlePlain} accent={h.familiesTitleAccent} text={h.familiesText} size={h2Size} phone={phone} />
+            <Families phone={phone} narrow={!phone && width <= 900} />
+            <View style={[styles.sectionBottom, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 14 }]}>
+              <Text style={[sans, styles.small]}>{h.familiesNote}</Text>
+              <TextLink label={h.allFeatures} href={`${p}/tarifs`} />
+            </View>
+          </Wrap>
+        </View>
+
+        {/* Real exports */}
+        <View style={[styles.section, { paddingVertical: phone ? 53 : 86 }]}>
+          <Wrap>
+            <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} size={h2Size} phone={phone} />
+            <View style={[styles.exportsRow, phone && { flexDirection: 'column' }]}>
+              <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} flex={1}>
+                <SignatureDetail />
+              </ExportCard>
+              <ExportCard title={h.exportFacture} meta={h.exportFactureMeta} phone={phone} flex={1.25}>
+                <PaperImage source={QR_SLIP} ratio={QR_RATIO} />
+              </ExportCard>
+            </View>
+          </Wrap>
+        </View>
+
+        {/* Assistant */}
+        <View style={[styles.section, { backgroundColor: site.white, paddingVertical: phone ? 53 : 86 }]}>
+          <Wrap>
+            <View style={[styles.split, phone ? { flexDirection: 'column', gap: 29, alignItems: 'stretch' } : { gap: tablet ? 45 : 75 }]}>
+              <View style={phone ? undefined : { flex: 1 }}>
+                <Eyebrow>{h.assistantEyebrow}</Eyebrow>
+                <Headline plain={h.assistantTitlePlain} accent={h.assistantTitleAccent} size={h2Size} style={{ marginTop: 15 }} />
+                <Text style={[sans, styles.copy, phone && { fontSize: 13, maxWidth: '100%' }]}>{h.assistantText}</Text>
+                <View style={{ marginTop: 20 }}>
+                  <TextLink label={h.assistantLink} href={`${p}/solutions/dictee-vocale`} />
+                </View>
               </View>
-            ))}
-          </View>
-          <View style={[styles.noteRow, isMobile && styles.noteRowCompact]}>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text style={styles.columnTitle}>{t.team.permTitle}</Text>
-              <Text style={styles.bodyText}>{t.team.permText}</Text>
-              <Text style={styles.fineNote}>{t.team.permNote}</Text>
-            </View>
-            <Link href={solutionHref('rh-salaires') as any}>
-              <Text style={styles.textLink}>{t.team.permLink} →</Text>
-            </Link>
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Voice ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.automation.eyebrow} title={t.automation.title} intro={t.automation.text} />
-          <View style={[styles.split, isTablet && styles.splitCompact]}>
-            <View style={[styles.splitCol, isTablet && styles.splitColStacked, { gap: spacing.md }]}>
-              <Text style={styles.subHead}>{t.automation.commandTitle}</Text>
-              <Text style={styles.bodyText}>{t.automation.commandText}</Text>
-              <Link href={solutionHref('dictee-vocale') as any}>
-                <Text style={styles.textLink}>{t.automation.link} →</Text>
-              </Link>
-            </View>
-            <View style={[styles.commandDemo, !isTablet && { flex: 1.15 }]}>
-              <VoiceDemo dict={t.automation} />
-            </View>
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Real exports, annotated like a drawing ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.documents.eyebrow} title={t.documents.title} intro={t.documents.intro} />
-          <DocumentShowcase dict={t.documents} hrefFor={solutionHref} />
-        </ScrollReveal>
-
-        {/* ——— Field / office band ——— */}
-        <View style={styles.terrainOuter}>
-          <ScrollReveal style={[styles.wrap, styles.split, isTablet && styles.splitCompact]}>
-            <View style={[styles.splitCol, isTablet && styles.splitColStacked, isTablet && styles.splitColStacked]}>
-              <Text style={styles.monoLabel}>{t.terrain.eyebrow}</Text>
-              <Text style={styles.bandTitle}>{t.terrain.title}</Text>
-              <Text style={styles.bodyText}>{t.terrain.text}</Text>
-              <Link href={pageHref('telechargement') as any} asChild>
-                <CtaButton title={t.terrain.installCta} style={{ marginTop: spacing.lg }} />
-              </Link>
-              <Text style={styles.fineNote}>{t.terrain.installNote}</Text>
-            </View>
-            <View style={[styles.splitCol, isTablet && styles.splitColStacked, { justifyContent: 'center' }]}>
-              {t.terrain.points.map((p) => (
-                <View key={p.label} style={[styles.defRow, { borderTopColor: '#E3B89C' }]}>
-                  <Text style={styles.defTerm}>{p.label}</Text>
-                  <Text style={[styles.bodyText, { flex: 1 }]}>{p.text}</Text>
-                </View>
-              ))}
-            </View>
-          </ScrollReveal>
-        </View>
-
-        {/* ——— Custom modules ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.tailored.eyebrow} title={t.tailored.title} intro={t.tailored.text} />
-          <View style={[styles.columns, isTablet && styles.columnsCompact]}>
-            {t.tailored.steps.map((step, i) => (
-              <View key={step.num} style={[styles.column, !isTablet && i > 0 && styles.columnDivider, isTablet && styles.columnCompact]}>
-                <Text style={styles.stepNum}>{step.num}</Text>
-                <Text style={styles.columnTitle}>{step.title}</Text>
-                <Text style={styles.bodyText}>{step.text}</Text>
+              <View style={phone ? undefined : { flex: 1 }}>
+                <VoiceBox h={h} compact={phone || width <= 900} />
               </View>
-            ))}
-          </View>
-          <View style={[styles.ctaRow, isMobile && styles.noteRowCompact]}>
-            <Link href={pageHref('contact') as any} asChild>
-              <CtaButton title={t.tailored.cta} />
-            </Link>
-            <Link href={pageHref('sur-mesure') as any}>
-              <Text style={styles.underlineLink}>{t.tailored.link}</Text>
-            </Link>
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Bexio ——— */}
-        <ScrollReveal style={styles.wrap}>
-          <View style={[styles.bexioRow, isMobile && styles.noteRowCompact]}>
-            <View style={styles.bexioIcon}>
-              <BrandMark size={28} />
-              <Text style={styles.bexioIconArrow}>↔</Text>
-              <Text style={styles.bexioWord}>bexio</Text>
             </View>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text style={styles.columnTitle}>{t.bexio.title}</Text>
-              <Text style={styles.bodyText}>{t.bexio.text}</Text>
-            </View>
-            <Link href={pageHref('integrations') as any}>
-              <Text style={styles.textLink}>{t.bexio.link} →</Text>
-            </Link>
-          </View>
-        </ScrollReveal>
 
-        {/* ——— Products: the app, the fiduciary space, the partner program ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.products.eyebrow} title={t.products.title} />
-          <View style={[styles.products, isTablet && styles.productsStacked]}>
-            {t.products.items.map((item, i) => {
-              const href = i === 0 ? authHref('signup') : i === 1 ? `https://accounting.cantia.ch${localePrefix}` : `https://partners.cantia.ch${localePrefix}`;
-              return (
-                <View key={item.name} style={[styles.productCard, isTablet && styles.productCardStacked, i === 0 && styles.productCardMain, isMobile && styles.productCardPhone]}>
-                  <View style={styles.productHead}>
-                    <Wordmark height={isMobile ? 14 : 16} stacked={isMobile} product={i === 1 ? 'Accounting' : i === 2 ? 'Partners' : undefined} />
-                  </View>
-                  <Text style={styles.productTag}>{item.tag}</Text>
-                  <Text style={[styles.bodyText, !isTablet && { flexGrow: 1 }]}>{item.text}</Text>
-                  <Link href={href as any}>
-                    <Text style={styles.textLink}>{item.cta} →</Text>
-                  </Link>
+            <View style={[styles.sectorStrip, phone && { flexDirection: 'column', gap: 22, marginTop: 40, paddingTop: 28 }]}>
+              <View style={phone ? undefined : { flex: 1 }}>
+                <Headline level={3} plain={h.sectorTitlePlain} accent={h.sectorTitleAccent} inline size={phone ? 23 : 22} style={{ lineHeight: (phone ? 23 : 22) * 1.4, maxWidth: phone ? 290 : undefined }} />
+              </View>
+              <View style={[styles.pills, phone ? undefined : { flex: 2 }]}>
+                {h.sectors.map((s) => (
+                  <Pill key={s} label={s} href={`${p}/metiers`} small={phone} />
+                ))}
+                <View style={{ marginLeft: 6 }}>
+                  <TextLink label={h.sectorLink} href={`${p}/metiers`} size={phone ? 11 : 12} />
                 </View>
-              );
-            })}
-          </View>
-        </ScrollReveal>
-
-        <View ref={pricingRef}>
-          <ScrollReveal>
-            <PricingSection />
-          </ScrollReveal>
+              </View>
+            </View>
+          </Wrap>
         </View>
 
-        {/* ——— FAQ ——— */}
-        <ScrollReveal style={[styles.wrap, styles.section]}>
-          <SectionHead label={t.faq.eyebrow} title={t.faq.title} />
-          <View style={[styles.split, { gap: 0 }, isTablet && styles.splitCompact]}>
-            <View style={!isTablet ? { width: '25%' } : { marginBottom: spacing.lg }}>
-              <Link href={pageHref('aide') as any}>
-                <Text style={styles.textLink}>{t.faq.link} →</Text>
-              </Link>
+        {/* Closing call to action */}
+        <View style={[styles.cta, { paddingVertical: phone ? 38 : 54 }]}>
+          <Wrap style={phone ? undefined : styles.ctaRow}>
+            <View style={phone ? undefined : { flex: 1 }}>
+              <Headline plain={h.ctaTitlePlain} accent={h.ctaTitleAccent} size={phone ? 32 : 36} color="#f4f3e9" accentColor="#d9aa85" />
+              <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{h.ctaText}</Text>
             </View>
-            <View style={{ flex: 1 }}>
-              {t.faq.items.map((item) => (
-                <Disclosure key={item.q} title={item.q}>
-                  <Text style={styles.bodyText}>{item.a}</Text>
-                </Disclosure>
-              ))}
+            <View style={phone ? { marginTop: 20 } : undefined}>
+              <Btn label={h.ctaButton} href={authHref('signup')} tone="sand" />
+              <Micro color="#a4ae97" style={{ fontSize: 9 }}>{h.ctaMicro}</Micro>
             </View>
-          </View>
-        </ScrollReveal>
-
-        {/* ——— Closing ——— */}
-        <View style={styles.closing}>
-          <ScrollReveal style={styles.wrap}>
-            <Text style={styles.closingEyebrow}>{t.closing.eyebrow}</Text>
-            <Text style={[styles.closingTitle, { fontSize: closingTitleSize, lineHeight: closingTitleSize * 0.95 }]}>
-              {t.closing.titlePrefix}
-              {'\n'}
-              <Text style={{ color: '#E8AD89' }}>{t.closing.titleEm}</Text>
-            </Text>
-            <Text style={styles.closingText}>{t.closing.text}</Text>
-            <View style={[styles.ctaRow, { marginTop: spacing.xl }]}>
-              <Link href={authHref('signup')} asChild>
-                <CtaButton title={t.closing.cta} />
-              </Link>
-              <Link href={pageHref('contact') as any}>
-                <Text style={styles.closingContact}>{t.closing.contact}</Text>
-              </Link>
-            </View>
-            <Text style={styles.closingFacts}>{t.hero.facts.join('   ·   ')}</Text>
-          </ScrollReveal>
+          </Wrap>
         </View>
 
-        <MarketingFooter onServicesPress={() => scrollToRef(storiesRef)} onPricingPress={() => scrollToRef(pricingRef)} />
+        <MarketingFooter />
       </ScrollView>
-    </Screen>
+    </View>
   );
 }
 
+// The sand stage of the hero: the signed quote in front, the matching QR
+// invoice behind it. Both are untouched exports.
+function HeroStage({ tag, note, chip, phone }: { tag: string; note: string; chip: string; phone: boolean }) {
+  const [w, setW] = useState(0);
+  const pad = phone ? 12 : 26;
+  const devisW = w * (phone ? 0.7 : 0.66);
+  const factureW = w * (phone ? 0.58 : 0.6);
+  const top = phone ? 44 : 62;
+  const height = w ? top + 30 + devisW * DEVIS_RATIO + (phone ? 22 : 30) : phone ? 300 : 440;
+  return (
+    <View style={[styles.stage, { height, borderRadius: phone ? 10 : 15 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <View style={styles.stageRing} pointerEvents="none" />
+      <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 15 : 24 }]}>
+        <Text style={[sans, styles.stageTagText, phone && { fontSize: 7, letterSpacing: 0.3 }]} numberOfLines={1}>
+          {tag.toUpperCase()}
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Feather name="info" size={phone ? 9 : 11} color="#8c705a" />
+          <Text style={[sans, styles.stageTagText, phone && { fontSize: 7 }]}>{note.toUpperCase()}</Text>
+        </View>
+      </View>
+      {w ? (
+        <>
+          <View style={[styles.paper, paperShadow, { position: 'absolute', width: factureW, right: w * 0.06, top: top - 8 }]}>
+            <Image source={FACTURE} style={{ width: factureW, height: factureW * FACTURE_RATIO }} resizeMode="cover" accessibilityLabel="Facture QR générée par Cantia" />
+          </View>
+          <View style={[styles.paper, paperShadow, { position: 'absolute', width: devisW, left: w * 0.07, top: top + 30 }]}>
+            <Image source={DEVIS} style={{ width: devisW, height: devisW * DEVIS_RATIO }} resizeMode="cover" accessibilityLabel="Devis signé en ligne, généré par Cantia" />
+          </View>
+          <View style={[styles.chip, paperShadow, { right: w * 0.05, top: top + 30 + devisW * DEVIS_RATIO * 0.74 }, phone && { paddingVertical: 6, paddingHorizontal: 9 }]}>
+            <Feather name="check-circle" size={phone ? 11 : 13} color={site.copper} />
+            <Text style={[sans, styles.chipText, phone && { fontSize: 9 }]} numberOfLines={1}>
+              {chip}
+            </Text>
+          </View>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+function SectionHead({ eyebrow, plain, accent, text, size, phone }: { eyebrow: string; plain: string; accent: string; text: string; size: number; phone: boolean }) {
+  return (
+    <View style={[styles.sectionHead, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 17, marginBottom: 27 }]}>
+      <View style={{ flexShrink: 1 }}>
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <Headline plain={plain} accent={accent} size={size} style={{ marginTop: 15 }} />
+      </View>
+      <Text style={[sans, styles.sectionText, phone && { fontSize: 12, maxWidth: '100%' }]}>{text}</Text>
+    </View>
+  );
+}
+
+function Families({ phone, narrow }: { phone: boolean; narrow: boolean }) {
+  const locale = useSiteLocale();
+  const families = SITE_COPY[locale].families;
+  const p = localePrefix(locale);
+  return (
+    <View style={[styles.families, !phone && { flexDirection: 'row', flexWrap: narrow ? 'wrap' : 'nowrap' }]}>
+      {families.map((f, i) => {
+        const lastInRow = narrow ? i === 2 || i === 4 : i === families.length - 1;
+        const borderBottom = phone ? i < families.length - 1 : narrow ? i < 3 : false;
+        return (
+          <Link key={f.key} href={`${p}/${f.slug}` as any} asChild>
+            <Hover
+              accessibilityRole="link"
+              hover={{ backgroundColor: '#ede5d8' }}
+              base={[
+                phone ? styles.familyPhone : styles.family,
+                !phone && { width: narrow ? '33.333%' : '20%', borderRightWidth: lastInRow ? 0 : 1, paddingHorizontal: narrow || phone ? 15 : 20 },
+                borderBottom && { borderBottomWidth: 1 },
+              ]}
+            >
+              {phone ? (
+                <>
+                  <Feather name={FAMILY_ICONS[f.key]} size={18} color={site.copper} style={{ width: 35 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[sans, styles.familyName]}>{f.name}</Text>
+                    <Text style={[sans, styles.familyText, { marginTop: 4, marginBottom: 0 }]}>{f.text}</Text>
+                  </View>
+                  <Feather name="arrow-right" size={16} color={site.ink} />
+                </>
+              ) : (
+                <>
+                  <View style={styles.familyTop}>
+                    <Feather name={FAMILY_ICONS[f.key]} size={18} color={site.copper} />
+                    <Text style={[sans, styles.familyNum]}>{String(i + 1).padStart(2, '0')}</Text>
+                  </View>
+                  <Text style={[sans, styles.familyName, narrow && { fontSize: 16 }]}>{f.name}</Text>
+                  <Text style={[sans, styles.familyText]}>{f.text}</Text>
+                  <Feather name="arrow-right" size={16} color={site.ink} />
+                </>
+              )}
+            </Hover>
+          </Link>
+        );
+      })}
+    </View>
+  );
+}
+
+function ExportCard({ title, meta, phone, flex, children }: { title: string; meta: string; phone: boolean; flex: number; children: React.ReactNode }) {
+  return (
+    <View style={[styles.exportCard, phone ? undefined : { flex }]}>
+      <View style={[styles.exportStage, phone && { padding: 16 }]}>{children}</View>
+      <View style={styles.exportMeta}>
+        <Text style={[sans, styles.exportTitle]}>{title}</Text>
+        <Text style={[sans, styles.small]}>{meta}</Text>
+      </View>
+    </View>
+  );
+}
+
+function PaperImage({ source, ratio }: { source: ImageSourcePropType; ratio: number }) {
+  const [w, setW] = useState(0);
+  return (
+    <View style={[styles.paper, paperShadow, { width: '100%' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 200 }} resizeMode="cover" />
+    </View>
+  );
+}
+
+// Close-up of the signature block of the signed quote (lower right of the
+// same export), framed like a detail shot.
+function SignatureDetail() {
+  const [w, setW] = useState(0);
+  // Crop window in the source image (1200 x 1221 px).
+  const crop = { x: 800, y: 975, w: 360, h: 205 };
+  const scale = w / crop.w;
+  return (
+    <View style={[styles.paper, paperShadow, { width: '100%', height: w ? crop.h * scale : 220, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      {w ? (
+        <Image
+          source={DEVIS}
+          style={{ position: 'absolute', width: 1200 * scale, height: 1221 * scale, left: -crop.x * scale, top: -crop.y * scale }}
+          accessibilityLabel="Signature électronique du client sur le devis"
+        />
+      ) : null}
+    </View>
+  );
+}
+
+const BARS = [11, 20, 29, 16, 34, 24, 14, 28, 35, 18, 9, 25, 33, 20, 12, 29, 23, 14, 31, 18, 27, 10, 20, 31, 15, 24];
+
+function VoiceBox({ h, compact }: { h: (typeof SITE_COPY)['fr']['home']; compact: boolean }) {
+  const [state, setState] = useState<'idle' | 'running' | 'done'>('idle');
+  const [tick, setTick] = useState(0);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => {
+    if (state !== 'running') return;
+    const id = setInterval(() => setTick((t) => t + 1), 90);
+    return () => clearInterval(id);
+  }, [state]);
+
+  const play = () => {
+    if (state === 'running') return;
+    setState('running');
+    timers.current.push(setTimeout(() => setState('done'), 2400));
+  };
+
+  return (
+    <View style={[styles.voiceBox, { padding: compact ? 25 : 35 }]}>
+      <View style={styles.voiceTop}>
+        <Text style={[sans, styles.voiceTag]}>{h.voiceTag.toUpperCase()}</Text>
+        <Feather name="mic" size={14} color="#8a8f7c" />
+      </View>
+      <Text style={[sans, styles.quote, { fontSize: compact ? 20 : 22 }]}>{h.voiceQuote}</Text>
+      <View style={styles.voicePlay}>
+        <Pressable onPress={play} accessibilityRole="button" accessibilityLabel={h.voicePlay} style={styles.playButton}>
+          <Feather name={state === 'done' ? 'rotate-ccw' : 'play'} size={16} color="#ffffff" />
+        </Pressable>
+        <View style={styles.wave} aria-hidden>
+          {BARS.map((b, i) => {
+            const k = state === 'running' ? 0.35 + 0.65 * Math.abs(Math.sin(tick * 0.55 + i * 0.7)) : 1;
+            return <View key={i} style={[styles.bar, { height: Math.max(4, b * k) }, state !== 'idle' && { backgroundColor: state === 'running' ? site.copper : '#a1a88f' }]} />;
+          })}
+        </View>
+        <Text style={[sans, { fontSize: 9, color: '#929982' }]}>0:06</Text>
+      </View>
+      {state === 'done' ? (
+        <View style={styles.voiceResult} aria-live="polite">
+          <Text style={[sans, { color: site.copper, fontWeight: '600', fontSize: 12, marginBottom: 8 }]}>{h.voiceResultTitle}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+            <Text style={[sans, { fontSize: 12, color: site.ink }]}>{h.voiceResultLine}</Text>
+            <Text style={[sans, { fontSize: 12, color: site.ink, fontWeight: '700' }]}>{h.voiceResultQty}</Text>
+          </View>
+          <Text style={[sans, { fontSize: 11, color: '#858d77', marginTop: 10, lineHeight: 17 }]}>{h.voiceResultText}</Text>
+        </View>
+      ) : null}
+      <Text style={[sans, styles.demoCaption]}>{h.voiceCaption}</Text>
+    </View>
+  );
+}
+
+function Pill({ label, href, small }: { label: string; href: string; small: boolean }) {
+  return (
+    <Link href={href as any} asChild>
+      <Hover accessibilityRole="link" base={[styles.pill, small && { paddingVertical: 7, paddingHorizontal: 11 }]} hover={{ borderColor: site.copper }}>
+        {(hovered) => <Text style={[sans, { fontSize: small ? 9 : 10, color: hovered ? site.copper : site.ink }]}>{label}</Text>}
+      </Hover>
+    </Link>
+  );
+}
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', maxWidth: 1240, alignSelf: 'center', paddingHorizontal: spacing.xl },
-  section: { paddingTop: 112 },
-  beyond: { flexDirection: 'row', gap: 64, borderWidth: 1, borderColor: rule, borderRadius: 20, backgroundColor: colors.surface, padding: 48 },
-  beyondCompact: { flexDirection: 'column', gap: spacing.xl, padding: 24 },
-  beyondIntro: { flex: 1.1, gap: spacing.md },
-  beyondNiches: { flex: 1, gap: 0 },
-  beyondColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
-  beyondTitle: { ...displayType, fontSize: 34, lineHeight: 40, fontWeight: '700', letterSpacing: -0.6, color: ink },
-  beyondLabel: { ...monoType, fontSize: 11, letterSpacing: 0.6, color: colors.textMuted, textTransform: 'uppercase', marginBottom: spacing.sm },
-  vocabBox: { marginTop: spacing.md, padding: 20, borderRadius: 14, backgroundColor: colors.bg, borderWidth: 1, borderColor: rule },
-  vocabRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  vocabChip: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: rule, backgroundColor: colors.surface },
-  vocabChipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
-  vocabText: { fontFamily: landingFonts.body, fontSize: 14, fontWeight: '600', color: ink },
-  vocabTextOn: { color: '#FFFFFF' },
-  vocabNote: { fontFamily: landingFonts.body, fontSize: 14, lineHeight: 21, color: colors.textMuted, marginTop: spacing.md },
-  nicheRow: { flexDirection: 'row', alignItems: 'baseline', gap: 16, paddingVertical: 13, borderTopWidth: 1, borderTopColor: rule },
-  nicheIndex: { ...monoType, fontSize: 11, color: colors.primary, width: 20 },
-  nicheText: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '600', color: ink, flex: 1 },
-  monoLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: colors.primary, textTransform: 'uppercase' },
-  bodyText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
-  textLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: colors.primary, marginTop: spacing.sm },
-  underlineLink: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
-  fineNote: { ...monoType, fontSize: 10.5, lineHeight: 17, color: colors.textMuted, marginTop: spacing.md },
-
-  hero: { backgroundColor: colors.bg, paddingBottom: spacing.xl, position: 'relative', overflow: 'hidden' },
-  heroMountainBase: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: 'url(/hero-mountain.webp)',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'no-repeat',
-  } as unknown as ViewStyle,
-  heroMountainMaskFull: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 70%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 46%, black 70%)',
-  } as unknown as ViewStyle,
-  heroMountainMaskPeek: {
-    maskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
-    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 45%, rgba(0,0,0,0.45) 100%)',
-  } as unknown as ViewStyle,
-  heroBottomFade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 180,
-    backgroundImage: `linear-gradient(to bottom, transparent 0%, ${colors.bg} 100%)`,
-  } as unknown as ViewStyle,
-  heroCopy: { paddingTop: spacing.xxxl },
-  heroCopySpread: { flex: 1, justifyContent: 'space-between' },
-  heroMain: { paddingBottom: spacing.xxl },
-  heroKicker: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl },
-  heroKickerText: { ...monoType, fontSize: 11.5, letterSpacing: 0.3, color: '#674932', textTransform: 'uppercase' },
-  h1: { ...displayType, fontWeight: '800', letterSpacing: -0.5, color: ink },
-  h1Line2: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end' },
-  crossedWrap: { position: 'relative' },
-  heroBody: { marginTop: spacing.xxl, gap: spacing.lg, maxWidth: 780 },
-  heroLedeMobile: { fontSize: 17, lineHeight: 25 },
-  heroLede: { fontFamily: landingFonts.body, fontSize: 19, lineHeight: 29, color: ink, maxWidth: 540 },
-  heroCtas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xs },
-  heroFacts: { ...monoType, fontSize: 11, letterSpacing: 0.2, lineHeight: 18, color: '#5D4F42', textTransform: 'uppercase' },
-  heroCartouche: { alignSelf: 'flex-end', width: '100%', maxWidth: 760, marginTop: spacing.xl },
-  heroCartoucheCompact: { alignSelf: 'stretch', maxWidth: undefined },
-
-  columns: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: rule },
-  columnsCompact: { flexDirection: 'column', borderBottomWidth: 0 },
-  column: { flex: 1, gap: spacing.sm, paddingRight: spacing.xl, paddingBottom: spacing.xl },
-  columnDivider: { borderLeftWidth: 1, borderLeftColor: rule, paddingLeft: spacing.xl },
-  columnCompact: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg, paddingRight: 0 },
-  columnTitle: { fontFamily: landingFonts.body, fontSize: 20, fontWeight: '700', lineHeight: 26, letterSpacing: -0.2, color: ink },
-  stepNum: { ...monoType, fontSize: 12, color: colors.primary },
-
-  split: { flexDirection: 'row', gap: 64 },
-  splitCompact: { flexDirection: 'column', gap: spacing.xxl },
-  splitCol: { flex: 1 },
-  // Stacked (phones, tablets): size to the content. flex: 1 has a 0 basis,
-  // so in a column the text overflowed onto the next block.
-  splitColStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto' },
-  subHead: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', lineHeight: 29, letterSpacing: -0.3, color: ink, marginBottom: spacing.md },
-  listRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
-  listRowText: { ...displayType, fontSize: 26, fontWeight: '700', color: ink },
-  listRowArrow: { fontSize: 18, color: colors.primary },
-  defRow: { flexDirection: 'row', gap: spacing.lg, borderTopWidth: 1, borderTopColor: rule, paddingVertical: spacing.md },
-  defTerm: { width: 130, fontFamily: landingFonts.body, fontSize: 15, fontWeight: '700', color: ink, lineHeight: 25 },
-
-  noteRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, paddingVertical: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
-  noteRowCompact: { flexDirection: 'column', alignItems: 'flex-start' },
-  ctaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, marginTop: spacing.xl },
-
-  commandDemo: { backgroundColor: ink, borderRadius: 4, padding: spacing.xl },
-
-
-  terrainOuter: { backgroundColor: colors.primarySoft, paddingVertical: 88, marginTop: 112 },
-  bandTitle: { ...displayType, fontSize: 44, fontWeight: '800', lineHeight: 44, color: ink, marginVertical: spacing.md },
-
-  products: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.xl, marginBottom: spacing.xxxl },
-  productsStacked: { flexDirection: 'column' },
-  productCardStacked: { flex: 0, flexGrow: 0, flexBasis: 'auto' },
-  productCard: { flex: 1, gap: spacing.sm, borderWidth: 1, borderColor: rule, borderRadius: 4, padding: spacing.xl, backgroundColor: '#FFFFFF' },
-  productCardMain: { borderColor: colors.primary, borderTopWidth: 3 },
-  productCardPhone: { padding: spacing.lg },
-  productHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  productLogo: { width: 22, height: 22 },
-  productName: { fontFamily: landingFonts.display, fontSize: 22, fontWeight: '800', letterSpacing: -0.3, color: ink },
-  productTag: { fontFamily: landingFonts.mono, fontSize: 11, letterSpacing: 0.6, textTransform: 'uppercase', color: colors.primary },
-  bexioRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl, borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, paddingVertical: spacing.xl, marginTop: 112, marginBottom: spacing.xxxl },
-  bexioIcon: { flexDirection: 'row', alignItems: 'center', gap: 8, width: 160 },
-  bexioLogo: { width: 26, height: 26 },
-  bexioIconArrow: { color: colors.textMuted },
-  bexioWord: { fontFamily: landingFonts.body, fontSize: 22, fontWeight: '700', color: '#64764e', letterSpacing: -1 },
-
-  closing: { backgroundColor: ink, paddingVertical: 112, marginTop: 112 },
-  closingEyebrow: { ...monoType, fontSize: 11, letterSpacing: 0.4, color: '#E8AD89', textTransform: 'uppercase' },
-  closingTitle: { ...displayType, fontWeight: '800', color: '#FBF6EE', marginTop: spacing.lg },
-  closingText: { fontFamily: landingFonts.body, fontSize: 18, lineHeight: 28, color: '#D5C8B8', maxWidth: 560, marginTop: spacing.xl },
-  closingContact: { fontFamily: landingFonts.body, fontSize: 15, fontWeight: '600', color: '#F1E6D5', borderBottomWidth: 1.5, borderBottomColor: '#F1E6D5', paddingBottom: 2 },
-  closingFacts: { ...monoType, fontSize: 10.5, letterSpacing: 0.2, color: '#A8988A', textTransform: 'uppercase', marginTop: spacing.xxl },
+  page: { flex: 1, backgroundColor: site.bg },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-end' },
+  lead: { lineHeight: 26, color: '#73776c', maxWidth: 400 },
+  actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  stage: { backgroundColor: site.stage, borderWidth: 1, borderColor: site.stageBorder, overflow: 'hidden', position: 'relative' },
+  stageRing: { position: 'absolute', width: 570, height: 570, borderRadius: 285, borderWidth: 1, borderColor: 'rgba(255,255,255,0.47)', right: -190, top: -230 },
+  stageTag: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
+  stageTagText: { fontSize: 9, color: '#8c705a', letterSpacing: 0.7, flexShrink: 1 },
+  paper: { backgroundColor: '#ffffff', borderRadius: 3, overflow: 'hidden' },
+  chip: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: site.white, borderRadius: 30, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: site.stageBorder },
+  chipText: { fontSize: 11, fontWeight: '600', color: site.ink },
+  trust: { flexDirection: 'row', justifyContent: 'center', gap: 55, paddingVertical: 24 },
+  trustPhone: { justifyContent: 'space-between', gap: 12, paddingVertical: 19, flexWrap: 'wrap' },
+  trustItem: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  trustText: { fontSize: 10, color: '#7a7d72' },
+  section: {},
+  sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60, marginBottom: 35 },
+  sectionText: { fontSize: 13, maxWidth: 320, color: site.muted, lineHeight: 23 },
+  families: { borderWidth: 1, borderColor: site.line, borderRadius: 9, overflow: 'hidden' },
+  family: { paddingVertical: 25, borderColor: site.line, alignItems: 'flex-start' },
+  familyPhone: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderColor: site.line },
+  familyTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignSelf: 'stretch', marginBottom: 26 },
+  familyNum: { fontSize: 9, color: '#9b9d92' },
+  familyName: { fontSize: 17, fontWeight: '600', letterSpacing: -0.5, color: site.ink, marginBottom: 9 },
+  familyText: { fontSize: 11, lineHeight: 20, color: site.muted, marginBottom: 22 },
+  sectionBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 30, marginTop: 23 },
+  small: { fontSize: 11, color: site.muted, lineHeight: 17 },
+  exportsRow: { flexDirection: 'row', gap: 24, alignItems: 'stretch' },
+  exportCard: { borderWidth: 1, borderColor: site.line, borderRadius: 12, overflow: 'hidden', backgroundColor: site.white },
+  exportStage: { flex: 1, backgroundColor: site.stage, padding: 30, justifyContent: 'center' },
+  exportMeta: { paddingVertical: 18, paddingHorizontal: 22, gap: 4, borderTopWidth: 1, borderTopColor: site.line },
+  exportTitle: { fontSize: 14, fontWeight: '600', color: site.ink, letterSpacing: -0.3 },
+  split: { flexDirection: 'row', alignItems: 'center' },
+  copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390, marginTop: 20 },
+  voiceBox: { backgroundColor: '#ebe9e0', borderWidth: 1, borderColor: '#deded2', borderRadius: 12 },
+  voiceTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  voiceTag: { fontSize: 9, letterSpacing: 1, color: '#8a8f7c' },
+  quote: { lineHeight: 33, letterSpacing: -0.6, color: site.ink, marginVertical: 29, maxWidth: 390 },
+  voicePlay: { flexDirection: 'row', alignItems: 'center', gap: 15 },
+  playButton: { width: 43, height: 43, borderRadius: 22, backgroundColor: site.ink, alignItems: 'center', justifyContent: 'center' },
+  wave: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, height: 35, overflow: 'hidden' },
+  bar: { width: 3, borderRadius: 5, backgroundColor: '#a1a88f' },
+  voiceResult: { marginTop: 23, borderTopWidth: 1, borderTopColor: '#d6d8c9', paddingTop: 20 },
+  demoCaption: { fontSize: 9, color: '#969b87', marginTop: 18 },
+  sectorStrip: { flexDirection: 'row', gap: 40, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 34, marginTop: 65 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 9 },
+  pill: { paddingVertical: 8, paddingHorizontal: 13, borderWidth: 1, borderColor: site.line, borderRadius: 30 },
+  cta: { backgroundColor: site.dark },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 },
 });
