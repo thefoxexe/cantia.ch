@@ -7,6 +7,8 @@ import { MarketingHead } from '../components/MarketingHead';
 import { Btn, Eyebrow, Hover, Headline, Micro, TextLink, Wrap } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
 import { SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
+import { EXPORTS } from '../components/site/exports';
+import { SITE_PAGES } from '../lib/site/pages';
 import { SITE_COPY } from '../lib/site/copy';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { sans, site } from '../lib/siteTheme';
@@ -15,10 +17,6 @@ import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 // Real PDFs produced by Cantia's own renderer (sample data: Atelier Martin SA
 // for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
 // still carry the old logo.
-const DEVIS = require('../assets/marketing/site/devis-signe.jpg');
-const QR_SLIP = require('../assets/marketing/site/facture-qr-section.jpg');
-const DEVIS_RATIO = 1221 / 1200;
-const QR_RATIO = 713 / 1400;
 
 const paperShadow = Platform.OS === 'web' ? ({ boxShadow: '0 22px 48px rgba(86,58,34,0.16), 0 2px 6px rgba(86,58,34,0.08)' } as object) : {};
 
@@ -111,7 +109,7 @@ function LandingContent() {
                 <SignatureDetail />
               </ExportCard>
               <ExportCard title={h.exportFacture} meta={h.exportFactureMeta} phone={phone} flex={1.25}>
-                <PaperImage source={QR_SLIP} ratio={QR_RATIO} />
+                <PaperImage source={EXPORTS[locale].slip.source} ratio={EXPORTS[locale].slip.ratio} />
               </ExportCard>
             </View>
           </Wrap>
@@ -161,11 +159,12 @@ function LandingContent() {
 // The sand stage of the hero: one signed quote, exactly as Cantia exports it.
 function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boolean }) {
   const [w, setW] = useState(0);
+  const devis = EXPORTS[useSiteLocale()].devis;
   const pad = phone ? 14 : 26;
   const top = phone ? 46 : 64;
   const bottom = phone ? 26 : 36;
   const paperW = w * (phone ? 0.76 : 0.72);
-  const height = w ? top + paperW * DEVIS_RATIO + bottom : phone ? 300 : 440;
+  const height = w ? top + paperW * devis.ratio + bottom : phone ? 300 : 440;
   return (
     <View style={[styles.stage, { height, borderRadius: phone ? 10 : 15 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 16 : 24 }]}>
@@ -176,7 +175,7 @@ function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boo
       </View>
       {w ? (
         <View style={[styles.paper, paperShadow, { position: 'absolute', width: paperW, left: (w - paperW) / 2, top }]}>
-          <Image source={DEVIS} style={{ width: paperW, height: paperW * DEVIS_RATIO }} resizeMode="cover" accessibilityLabel="Devis signé en ligne, généré par Cantia" />
+          <Image source={devis.source} style={{ width: paperW, height: paperW * devis.ratio }} resizeMode="cover" accessibilityLabel={SITE_PAGES[useSiteLocale()].labels.docAlt.signer} />
         </View>
       ) : null}
     </View>
@@ -257,15 +256,16 @@ function PaperImage({ source, ratio }: { source: ImageSourcePropType; ratio: num
 function SignatureDetail() {
   const [w, setW] = useState(0);
   // Crop window in the source image (1200 x 1221 px).
-  const crop = { x: 800, y: 975, w: 360, h: 205 };
+  const doc = EXPORTS[useSiteLocale()];
+  const crop = doc.signatureCrop;
   const scale = w / crop.w;
   return (
     <View style={[styles.paper, paperShadow, { width: '100%', height: w ? crop.h * scale : 220, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       {w ? (
         <Image
-          source={DEVIS}
-          style={{ position: 'absolute', width: 1200 * scale, height: 1221 * scale, left: -crop.x * scale, top: -crop.y * scale }}
-          accessibilityLabel="Signature électronique du client sur le devis"
+          source={doc.devis.source}
+          style={{ position: 'absolute', width: 1200 * scale, height: 1200 * doc.devis.ratio * scale, left: -crop.x * scale, top: -crop.y * scale }}
+          accessibilityLabel={SITE_PAGES[useSiteLocale()].labels.docAlt.signer}
         />
       ) : null}
     </View>

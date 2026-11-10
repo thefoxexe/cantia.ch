@@ -6,6 +6,7 @@ import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
 import { Breadcrumbs, Callout, DocVisual, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { FaqItem } from './FamilyPage';
 import { useSiteLocale } from './SiteNav';
+import { EXPORTS } from './exports';
 import { INNER_COPY } from '../../lib/site/inner';
 import { SITE_PAGES } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
@@ -18,8 +19,6 @@ import { ContactForm } from '../ContactForm';
 type IconName = React.ComponentProps<typeof Feather>['name'];
 const HOME = { fr: 'Accueil', de: 'Startseite', it: 'Home' } as const;
 
-// Real export from Cantia's report renderer (sample data).
-const REPORT = { source: require('../../assets/marketing/site/rapport-chantier.jpg'), ratio: 1247 / 1200 };
 
 function PageHero({ crumb, eyebrow, plain, accent, lead, children, visual }: { crumb: string; eyebrow: string; plain: string; accent: string; lead: string; children?: React.ReactNode; visual?: React.ReactNode }) {
   const locale = useSiteLocale();
@@ -383,7 +382,7 @@ export function AppPage() {
         plain={c.h1Plain}
         accent={c.h1Accent}
         lead={c.lead}
-        visual={<DocVisual source={REPORT.source} ratio={REPORT.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />}
+        visual={<DocVisual source={EXPORTS[locale].rapport.source} ratio={EXPORTS[locale].rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />}
       >
         <Actions>
           <View>

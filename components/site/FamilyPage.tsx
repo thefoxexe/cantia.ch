@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
 import { Breadcrumbs, DocVisual, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
+import { EXPORTS } from './exports';
 import { SITE_COPY } from '../../lib/site/copy';
 import { SITE_PAGES, type FamilyKey, type PageLabels } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
@@ -21,26 +22,6 @@ export const TOOL_ICONS: Record<FamilyKey, IconName[]> = {
   piloter: ['shopping-bag', 'bar-chart-2', 'activity', 'refresh-cw', 'calendar', 'link'],
 };
 
-// Real exports from Cantia's own PDF renderer (sample data, Atelier Martin SA).
-const DOCS = {
-  signer: { source: require('../../assets/marketing/site/devis-signe.jpg'), ratio: 1221 / 1200 },
-  collaborer: { source: require('../../assets/marketing/site/rapport-chantier.jpg'), ratio: 1247 / 1200 },
-  facturerSlip: { source: require('../../assets/marketing/site/facture-qr-section.jpg'), ratio: 713 / 1400 },
-  facturerFull: { source: require('../../assets/marketing/site/facture-qr.jpg'), ratio: 1696 / 1200 },
-};
-const PLANNING = {
-  fr: { full: require('../../assets/marketing/site/planning-chantier.jpg') },
-  de: { full: require('../../assets/marketing/site/planning-chantier-de.jpg') },
-  it: { full: require('../../assets/marketing/site/planning-chantier-it.jpg') },
-};
-const PLANNING_FULL_RATIO = 501 / 2000;
-const PDFS: Partial<Record<FamilyKey, string>> = {
-  signer: '/exemples/devis-signe-cantia.pdf',
-  organiser: '/exemples/planning-chantier-cantia.pdf',
-  collaborer: '/exemples/rapport-chantier-cantia.pdf',
-  facturer: '/exemples/facture-qr-cantia.pdf',
-};
-
 export function FamilyPage({ family }: { family: FamilyKey }) {
   const locale = useSiteLocale();
   const { labels: L, families } = SITE_PAGES[locale];
@@ -48,6 +29,8 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
   const copy = SITE_COPY[locale];
   const p = usePrefix();
   const { phone, tablet, width } = useSiteLayout();
+  const X = EXPORTS[locale];
+  const PDFS: Partial<Record<FamilyKey, string>> = { signer: X.devis.pdf, organiser: X.planning.pdf, collaborer: X.rapport.pdf, facturer: X.facture.pdf };
   const scrollRef = useRef<ScrollView>(null);
   const anchors = useRef<Record<string, number>>({});
   const setAnchor = (k: string) => (y: number) => {
@@ -97,7 +80,7 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
           </View>
           {family === 'organiser' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
-              <DocVisual source={PLANNING[locale].full} ratio={PLANNING_FULL_RATIO} alt={L.docAlt.organiser} caption={`${L.realExport} · ${L.sample}`} maxHeight={2000} />
+              <DocVisual source={X.planning.source} ratio={X.planning.ratio} alt={L.docAlt.organiser} caption={`${L.realExport} · ${L.sample}`} maxHeight={2000} />
               <View style={{ marginTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                 <Text style={[sans, styles.proofNote, { marginTop: 0, maxWidth: 640, fontSize: 11, lineHeight: 18 }]}>{L.planningShowcase.text}</Text>
                 <OpenPdfLink label={L.openPdf} href={PDFS.organiser!} />
@@ -161,7 +144,7 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
         <Section white>
           <View style={[styles.showcase, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 30 } : { gap: tablet ? 40 : 70 }]}>
             <View style={phone ? undefined : { flex: 1 }}>
-              <DocVisual source={DOCS.facturerFull.source} ratio={DOCS.facturerFull.ratio} alt={L.docAlt.facturer} maxHeight={phone ? 380 : 460} />
+              <DocVisual source={X.facture.source} ratio={X.facture.ratio} alt={L.docAlt.facturer} maxHeight={phone ? 380 : 460} />
               <View style={{ marginTop: 18, alignItems: 'center' }}>
                 <OpenPdfLink label={L.openPdf} href={PDFS.facturer!} />
               </View>
@@ -240,9 +223,10 @@ export function FaqItem({ q, a, last }: { q: string; a: string; last?: boolean }
 
 function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabels }) {
   const { phone } = useSiteLayout();
-  if (family === 'signer') return <DocVisual source={DOCS.signer.source} ratio={DOCS.signer.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
-  if (family === 'collaborer') return <DocVisual source={DOCS.collaborer.source} ratio={DOCS.collaborer.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
-  if (family === 'facturer') return <DocVisual source={DOCS.facturerSlip.source} ratio={DOCS.facturerSlip.ratio} alt={L.docAlt.facturer} caption={`${L.realExport} · ${L.sample}`} maxHeight={300} />;
+  const X = EXPORTS[useSiteLocale()];
+  if (family === 'signer') return <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
+  if (family === 'collaborer') return <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
+  if (family === 'facturer') return <DocVisual source={X.slip.source} ratio={X.slip.ratio} alt={L.docAlt.facturer} caption={`${L.realExport} · ${L.sample}`} maxHeight={300} />;
   return <TreasuryPaper labels={L} />;
 }
 
