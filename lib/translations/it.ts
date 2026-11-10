@@ -1637,7 +1637,8 @@ export const it: TranslationDict = {
   },
   notificationSettings: {
     title: 'Notifiche',
-    hint: "Per ogni tipo di evento, scelga come vuole essere avvisato. Nell'applicazione, per e-mail e sul suo telefono.",
+    hint: 'Per ogni evento scelga dove essere avvisato: nell’app, via e-mail, sul telefono. Ogni canale si regola separatamente e le modifiche vengono salvate subito.',
+    saveError: 'L’impostazione non è stata salvata. Riprovi tra un attimo.',
     newsletterLabel: 'Newsletter Cantia',
     newsletterDescription: "Riceva un'e-mail occasionale per le grandi novità, niente spam, al massimo qualche e-mail all'anno.",
     colInApp: 'In-app',

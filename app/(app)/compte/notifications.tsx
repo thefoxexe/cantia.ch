@@ -30,6 +30,7 @@ export default function NotificationSettingsScreen() {
   const { organization, user } = useAuth();
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(true);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!organization || !user) return;
@@ -47,14 +48,28 @@ export default function NotificationSettingsScreen() {
   async function toggleNewsletter(value: boolean) {
     if (!user) return;
     setNewsletterSubscribed(value);
-    await setMyNewsletterSubscription(user.id, value);
+    setSaveError(null);
+    const { error } = await setMyNewsletterSubscription(user.id, value);
+    if (error) {
+      setNewsletterSubscribed(!value);
+      setSaveError(t('notificationSettings.saveError'));
+    }
   }
 
   async function toggle(type: NotificationType, field: 'in_app' | 'email' | 'push', value: boolean) {
     if (!organization || !user || !prefs) return;
-    setPrefs({ ...prefs, [type]: { ...prefs[type], [field]: value } });
-    const fieldName = field === 'in_app' ? 'in_app_enabled' : field === 'email' ? 'email_enabled' : 'push_enabled';
-    await upsertPreference(organization.id, user.id, type, { [fieldName]: value });
+    const before = prefs;
+    const next = { ...prefs[type], [field]: value };
+    setPrefs({ ...prefs, [type]: next });
+    setSaveError(null);
+    // The whole row is written each time, so a first save never leaves the
+    // other two channels to the database defaults.
+    const { error } = await upsertPreference(organization.id, user.id, type, { in_app_enabled: next.in_app, email_enabled: next.email, push_enabled: next.push });
+    if (error) {
+      setPrefs(before);
+      setSaveError(t('notificationSettings.saveError'));
+      return;
+    }
     if (field === 'push' && value && Platform.OS !== 'web') {
       registerForPushNotificationsAsync(user.id);
     }
@@ -68,6 +83,7 @@ export default function NotificationSettingsScreen() {
         <Container>
           <PageHeader title={t('notificationSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('notificationSettings.hint')}</Text>
+          {saveError ? <Text style={styles.error}>{saveError}</Text> : null}
 
           <Card style={styles.newsletterRow}>
             <View style={{ flex: 1 }}>
@@ -110,6 +126,11 @@ export default function NotificationSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  error: {
+    fontSize: fontSize.sm,
+    color: colors.danger,
+    marginBottom: spacing.md,
+  },
   hint: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
@@ -125,6 +146,7 @@ const styles = StyleSheet.create({
   columnHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.sm,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
   },

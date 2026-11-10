@@ -1615,7 +1615,8 @@ export const fr = {
   },
   notificationSettings: {
     title: 'Notifications',
-    hint: "Pour chaque type d'événement, choisissez comment vous voulez être prévenu. Dans l'application, par e-mail, et sur votre téléphone.",
+    hint: 'Pour chaque type d’événement, choisissez où vous êtes prévenu : dans l’application, par e-mail, sur votre téléphone. Chaque canal se règle séparément, et les changements sont enregistrés tout de suite.',
+    saveError: 'Le réglage n’a pas pu être enregistré. Réessayez dans un instant.',
     newsletterLabel: 'Newsletter Cantia',
     newsletterDescription: 'Recevez un e-mail occasionnel pour les grandes nouveautés, pas de spam, quelques e-mails par an tout au plus.',
     colInApp: 'In-app',

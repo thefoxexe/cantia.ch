@@ -1629,7 +1629,8 @@ export const de: TranslationDict = {
   },
   notificationSettings: {
     title: 'Benachrichtigungen',
-    hint: 'Wählen Sie für jede Ereignisart, wie Sie benachrichtigt werden möchten. In der App, per E-Mail und auf Ihrem Telefon.',
+    hint: 'Wählen Sie für jedes Ereignis, wo Sie benachrichtigt werden: in der App, per E-Mail, auf dem Telefon. Jeder Kanal lässt sich einzeln einstellen, Änderungen werden sofort gespeichert.',
+    saveError: 'Die Einstellung konnte nicht gespeichert werden. Bitte versuchen Sie es gleich nochmals.',
     newsletterLabel: 'Cantia-Newsletter',
     newsletterDescription: 'Erhalten Sie gelegentlich eine E-Mail zu grösseren Neuigkeiten, kein Spam, höchstens ein paar E-Mails pro Jahr.',
     colInApp: 'In-App',

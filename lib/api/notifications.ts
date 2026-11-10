@@ -26,6 +26,9 @@ export async function listNotifications(organizationId: string, limit = 50): Pro
     .from('notifications')
     .select('*')
     .eq('organization_id', organizationId)
+    // A row can exist only for its e-mail or push (the user switched
+    // "Dans l'app" off for that type): the bell doesn't show it.
+    .eq('in_app', true)
     .order('created_at', { ascending: false })
     .limit(limit);
   return data ?? [];
@@ -36,6 +39,7 @@ export async function unreadCount(organizationId: string): Promise<number> {
     .from('notifications')
     .select('id', { count: 'exact', head: true })
     .eq('organization_id', organizationId)
+    .eq('in_app', true)
     .is('read_at', null);
   return count ?? 0;
 }
@@ -84,7 +88,10 @@ export function subscribeToNotifications(userId: string, onChange: () => void): 
 // (in_app + push on, email off), resolved here rather than left for every
 // caller to reimplement.
 export async function listPreferences(organizationId: string, userId: string): Promise<Record<NotificationType, NotificationPreference | null>> {
-  const { data } = await supabase.from('notification_preferences').select('*').eq('organization_id', organizationId).eq('user_id', userId);
+  // One row per user and type (unique user_id,type), whatever company it
+  // was first saved under: filtering by organization hid saved choices.
+  void organizationId;
+  const { data } = await supabase.from('notification_preferences').select('*').eq('user_id', userId);
   const byType = new Map((data ?? []).map((p) => [p.type as NotificationType, p as NotificationPreference]));
   const result = {} as Record<NotificationType, NotificationPreference | null>;
   for (const { type } of NOTIFICATION_TYPES) result[type] = byType.get(type) ?? null;
