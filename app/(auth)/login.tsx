@@ -1,18 +1,18 @@
 import { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
-import { BackToSiteButton, Button, Field, Screen, enterGoesTo } from '../../components/ui';
-import { useTranslation } from '../../lib/translations';
-import { colors, fontSize, spacing } from '../../lib/theme';
+import { enterGoesTo } from '../../components/ui';
+import { AuthDivider, AuthField, AuthHeading, AuthLayout, AuthNote, AuthSubmit, AuthSwitch, authStyles } from '../../components/site/AuthLayout';
+import { getAppLocale, useTranslation } from '../../lib/translations';
 import { siteHomeHref } from '../../lib/appHost';
-import { displayType } from '../../lib/marketingTheme';
-import { BrandLogo } from '../../components/brand/Logo';
+import { AUTH_COPY } from '../../lib/site/auth';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
+  const c = AUTH_COPY[getAppLocale()];
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,126 +38,45 @@ export default function LoginScreen() {
   }
 
   return (
-    <Screen background="mountain">
-      <BackToSiteButton href={siteHomeHref()} />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={styles.subtitle}>{t('authLogin.subtitle')}</Text>
-
-          <View style={styles.form}>
-            <Field
-              label={t('authLogin.emailLabel')}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              placeholder={t('authLogin.emailPlaceholder')}
-              returnKeyType="next"
-              onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
-            />
-            <Field
-              label={t('authLogin.passwordLabel')}
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t('authLogin.passwordPlaceholder')}
-              ref={passwordRef}
-              returnKeyType="go"
-              onSubmitEditing={handleSubmit}
-            />
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button title={t('authLogin.submit')} onPress={handleSubmit} loading={loading} />
-            <Link href="/(auth)/forgot-password" style={styles.forgotLink}>
-              <Text style={styles.linkText}>{t('authLogin.forgotPassword')}</Text>
-            </Link>
-          </View>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>{t('authLogin.or')}</Text>
-            <View style={styles.dividerLine} />
-          </View>
-          <View style={{ gap: spacing.sm }}>
-            <GoogleSignInButton />
-            <MicrosoftSignInButton />
-          </View>
-
-          <Link href="/(auth)/signup" style={styles.link}>
-            <Text style={styles.linkText}>{t('authLogin.noAccount')}</Text>
+    <AuthLayout backHref={siteHomeHref()}>
+      <AuthHeading eyebrow={c.login.eyebrow.cantia} title={c.login.title} text={c.login.text.cantia} />
+      <AuthField
+        label={t('authLogin.emailLabel')}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+        value={email}
+        onChangeText={setEmail}
+        placeholder={t('authLogin.emailPlaceholder')}
+        returnKeyType="next"
+        onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
+      />
+      <AuthField
+        ref={passwordRef}
+        label={t('authLogin.passwordLabel')}
+        password
+        showLabel={c.show}
+        hideLabel={c.hide}
+        autoComplete="current-password"
+        value={password}
+        onChangeText={setPassword}
+        placeholder={t('authLogin.passwordPlaceholder')}
+        returnKeyType="go"
+        onSubmitEditing={handleSubmit}
+        aside={
+          <Link href="/(auth)/forgot-password">
+            <Text style={authStyles.smallLink}>{t('authLogin.forgotPassword')}</Text>
           </Link>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Screen>
+        }
+      />
+      {error ? <AuthNote tone="error">{error}</AuthNote> : null}
+      <AuthSubmit label={t('authLogin.submit')} onPress={handleSubmit} loading={loading} />
+      <AuthDivider label={t('authLogin.or')} />
+      <View style={{ gap: 10 }}>
+        <GoogleSignInButton />
+        <MicrosoftSignInButton />
+      </View>
+      <AuthSwitch text="" link={t('authLogin.noAccount')} href="/(auth)/signup" />
+    </AuthLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxl,
-    maxWidth: 420,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  logo: {
-    width: 44,
-    height: 44,
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  brand: {
-    ...displayType,
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.primary,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    marginBottom: spacing.xxl,
-  },
-  form: {
-    marginTop: spacing.md,
-  },
-  forgotLink: {
-    alignSelf: 'center',
-    marginTop: spacing.md,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    fontWeight: '600',
-  },
-  error: {
-    color: colors.danger,
-    marginBottom: spacing.md,
-    fontSize: fontSize.sm,
-  },
-  link: {
-    marginTop: spacing.xl,
-    alignSelf: 'center',
-  },
-  linkText: {
-    color: colors.primary,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-  },
-});

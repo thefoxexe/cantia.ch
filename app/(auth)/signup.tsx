@@ -1,21 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../lib/auth-context';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import { MicrosoftSignInButton } from '../../components/MicrosoftSignInButton';
-import { BackToSiteButton, Button, Field, Screen, enterGoesTo } from '../../components/ui';
-import { useTranslation } from '../../lib/translations';
-import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { enterGoesTo } from '../../components/ui';
+import { AuthDivider, AuthField, AuthHeading, AuthLayout, AuthNote, AuthSubmit, AuthSwitch } from '../../components/site/AuthLayout';
+import { getAppLocale, useTranslation } from '../../lib/translations';
 import { siteHomeHref } from '../../lib/appHost';
-import { displayType } from '../../lib/marketingTheme';
 import { getStoredFiduciaryInvite } from '../../lib/siteAnalytics';
 import { supabase } from '../../lib/supabase';
-import { BrandLogo } from '../../components/brand/Logo';
+import { AUTH_COPY } from '../../lib/site/auth';
+import { sans, site } from '../../lib/siteTheme';
 
 export default function SignupScreen() {
   const { t } = useTranslation();
+  const c = AUTH_COPY[getAppLocale()];
   const { signUp } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -73,182 +74,93 @@ export default function SignupScreen() {
 
   if (done) {
     return (
-      <Screen background="mountain">
-        <View style={styles.container}>
-          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={[styles.subtitle, { marginTop: spacing.lg }]}>{t('authSignup.accountCreated')}</Text>
-          <Button title={t('authSignup.continueBtn')} onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
-        </View>
-      </Screen>
+      <AuthLayout backHref={siteHomeHref()}>
+        <AuthHeading eyebrow={c.login.eyebrow.cantia} title={c.signup.title} />
+        <AuthNote>{t('authSignup.accountCreated')}</AuthNote>
+        <AuthSubmit label={t('authSignup.continueBtn')} onPress={() => router.replace('/(auth)/login')} />
+      </AuthLayout>
     );
   }
 
+  const legalBase = c.privacyHref.replace(/\/confidentialite$/, '');
   return (
-    <Screen background="mountain">
-      <BackToSiteButton href={siteHomeHref()} />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
-          <Text style={styles.subtitle}>{t('authSignup.subtitle')}</Text>
-          {invitedBy ? (
-            <View style={styles.invited}>
-              <Feather name="briefcase" size={16} color={colors.primary} />
-              <Text style={styles.invitedText}>{t('authSignup.invitedByFiduciary', { firm: invitedBy })}</Text>
-            </View>
-          ) : null}
-
-          <View style={styles.form}>
-            <Field
-              label={t('authSignup.nameLabel')}
-              value={fullName}
-              onChangeText={setFullName}
-              placeholder={t('authSignup.namePlaceholder')}
-              autoCapitalize="words"
-              returnKeyType="next"
-              onSubmitEditing={enterGoesTo(emailRef, handleSubmit)}
-            />
-            <Field
-              label={t('authSignup.emailLabel')}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              placeholder={t('authSignup.emailPlaceholder')}
-              ref={emailRef}
-              returnKeyType="next"
-              onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
-            />
-            <Field
-              label={t('authSignup.passwordLabel')}
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t('authSignup.passwordPlaceholderMin')}
-              ref={passwordRef}
-              returnKeyType="go"
-              onSubmitEditing={handleSubmit}
-            />
-            <Pressable onPress={() => setNewsletterOptIn((v) => !v)} style={styles.checkboxRow} hitSlop={4}>
-              <View style={[styles.checkbox, newsletterOptIn && styles.checkboxChecked]}>
-                {newsletterOptIn ? <Feather name="check" size={12} color="#fff" /> : null}
-              </View>
-              <Text style={styles.checkboxLabel}>{t('authSignup.newsletterOptIn')}</Text>
-            </Pressable>
-
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button title={t('authSignup.submit')} onPress={handleSubmit} loading={loading} />
-          </View>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>{t('authSignup.or')}</Text>
-            <View style={styles.dividerLine} />
-          </View>
-          <View style={{ gap: spacing.sm }}>
-            <GoogleSignInButton />
-            <MicrosoftSignInButton />
-          </View>
-
-          <Link href="/(auth)/login" style={styles.link}>
-            <Text style={styles.linkText}>{t('authSignup.haveAccount')}</Text>
-          </Link>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Screen>
+    <AuthLayout backHref={siteHomeHref()}>
+      <AuthHeading eyebrow={c.login.eyebrow.cantia} title={c.signup.title} text={c.signup.text} />
+      {invitedBy ? (
+        <View style={styles.invited}>
+          <Feather name="briefcase" size={15} color={site.copper} />
+          <Text style={[sans, styles.invitedText]}>{t('authSignup.invitedByFiduciary', { firm: invitedBy })}</Text>
+        </View>
+      ) : null}
+      <AuthField
+        label={t('authSignup.nameLabel')}
+        value={fullName}
+        onChangeText={setFullName}
+        placeholder={t('authSignup.namePlaceholder')}
+        autoCapitalize="words"
+        autoComplete="name"
+        returnKeyType="next"
+        onSubmitEditing={enterGoesTo(emailRef, handleSubmit)}
+      />
+      <AuthField
+        ref={emailRef}
+        label={t('authSignup.emailLabel')}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+        value={email}
+        onChangeText={setEmail}
+        placeholder={t('authSignup.emailPlaceholder')}
+        returnKeyType="next"
+        onSubmitEditing={enterGoesTo(passwordRef, handleSubmit)}
+      />
+      <AuthField
+        ref={passwordRef}
+        label={t('authSignup.passwordLabel')}
+        password
+        showLabel={c.show}
+        hideLabel={c.hide}
+        autoComplete="new-password"
+        value={password}
+        onChangeText={setPassword}
+        placeholder={t('authSignup.passwordPlaceholderMin')}
+        returnKeyType="go"
+        onSubmitEditing={handleSubmit}
+      />
+      <Pressable onPress={() => setNewsletterOptIn((v) => !v)} style={styles.checkboxRow} hitSlop={4} accessibilityRole="checkbox" aria-checked={newsletterOptIn}>
+        <View style={[styles.checkbox, newsletterOptIn && styles.checkboxChecked]}>{newsletterOptIn ? <Feather name="check" size={11} color="#fff" /> : null}</View>
+        <Text style={[sans, styles.checkboxLabel]}>{t('authSignup.newsletterOptIn')}</Text>
+      </Pressable>
+      <Text style={[sans, styles.legal]}>
+        {c.signup.legalBefore}
+        <Link href={`${legalBase}/conditions-generales` as any}>
+          <Text style={styles.legalLink}>{c.signup.terms}</Text>
+        </Link>
+        {c.signup.legalMiddle}
+        <Link href={c.privacyHref as any}>
+          <Text style={styles.legalLink}>{c.signup.privacy}</Text>
+        </Link>
+        {c.signup.legalAfter}
+      </Text>
+      {error ? <AuthNote tone="error">{error}</AuthNote> : null}
+      <AuthSubmit label={t('authSignup.submit')} onPress={handleSubmit} loading={loading} />
+      <AuthDivider label={t('authSignup.or')} />
+      <View style={{ gap: 10 }}>
+        <GoogleSignInButton />
+        <MicrosoftSignInButton />
+      </View>
+      <AuthSwitch text="" link={t('authSignup.haveAccount')} href="/(auth)/login" />
+    </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxl,
-    maxWidth: 420,
-    width: '100%',
-    alignSelf: 'center',
-  },
-  logo: {
-    width: 44,
-    height: 44,
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  brand: {
-    ...displayType,
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.primary,
-    textAlign: 'center',
-  },
-  invited: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.md, maxWidth: 420, alignSelf: 'center' },
-  invitedText: { flex: 1, fontSize: fontSize.sm, lineHeight: 19, color: colors.text },
-  subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    marginBottom: spacing.xxl,
-  },
-  form: {
-    marginTop: spacing.md,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: radius.sm,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  checkboxLabel: {
-    flex: 1,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    lineHeight: 17,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    fontWeight: '600',
-  },
-  error: {
-    color: colors.danger,
-    marginBottom: spacing.md,
-    fontSize: fontSize.sm,
-  },
-  link: {
-    marginTop: spacing.xl,
-    alignSelf: 'center',
-  },
-  linkText: {
-    color: colors.primary,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-  },
+  invited: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 5, backgroundColor: '#f6ede3', borderWidth: 1, borderColor: '#e6d3bf', marginVertical: 8 },
+  invitedText: { flex: 1, fontSize: 11, color: site.ink, lineHeight: 17 },
+  checkboxRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 8 },
+  checkbox: { width: 17, height: 17, borderRadius: 4, borderWidth: 1, borderColor: '#c9cdbf', alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  checkboxChecked: { backgroundColor: site.copper, borderColor: site.copper },
+  checkboxLabel: { flex: 1, fontSize: 11, color: site.muted, lineHeight: 17 },
+  legal: { fontSize: 10, color: site.muted, lineHeight: 17, marginTop: 14 },
+  legalLink: { textDecorationLine: 'underline', color: site.ink },
 });
