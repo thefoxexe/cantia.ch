@@ -1,34 +1,32 @@
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Screen } from './ui';
-import { PageHero, pageWrap } from './landing/PageHero';
-import { SectionHead } from './landing/SectionHead';
-import { CtaButton } from './landing/CtaButton';
-import { bodyInk, ink, rule } from './landing/brand';
-import { MarketingHead } from './MarketingHead';
-import { MarketingFooter, MarketingNav } from './MarketingChrome';
-import { PricingSection } from './PricingSection';
-import { SwissSection } from './SwissSection';
-import { breakpoints, colors, spacing } from '../lib/theme';
-import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
+import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './site/Primitives';
+import { Breadcrumbs, DocVisual, PhoneShot, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
+import { FaqItem } from './site/FamilyPage';
+import { EXPORTS } from './site/exports';
+import { SITE_PAGES } from '../lib/site/pages';
+import { sans, serif, site } from '../lib/siteTheme';
 import { authHref } from '../lib/appHost';
 import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostByBase } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
-import { useMarketingDict } from '../lib/i18n';
 
+// One trade page (cantia.ch/charpentier, /de/zimmermann…): the trade's
+// situations, uses, a day with Cantia, before/after, included modules,
+// questions and reading, in the November 2026 identity. Content:
+// lib/tradeLandingPages.ts.
 export function TradePage({ slug }: { slug: string }) {
   const { t } = useTranslation();
-  const dict = useMarketingDict();
-  const locale = getAppLocale();
+  const locale = getAppLocale() as 'fr' | 'de' | 'it';
   const trade = getTradePage(slug, locale)!;
-  const { width } = useWindowDimensions();
-  const isTablet = width < breakpoints.desktop;
+  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const L = SITE_PAGES[locale]?.labels ?? SITE_PAGES.fr.labels;
+  const X = EXPORTS[locale] ?? EXPORTS.fr;
 
   // Outside the building trades, the shared copy talks about projects.
   const general = !!trade.general;
-  const SECONDARY_FEATURES: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
+  const SECONDARY: { icon: keyof typeof Feather.glyphMap; title: string; text: string }[] = [
     { icon: 'users', title: t('tradePage.secondaryClientsTitle'), text: t(general ? 'tradePage.generalClientsText' : 'tradePage.secondaryClientsText') },
     { icon: 'credit-card', title: t('tradePage.secondaryQrTitle'), text: t('tradePage.secondaryQrText') },
     { icon: 'dollar-sign', title: t('tradePage.secondaryExpensesTitle'), text: t(general ? 'tradePage.generalExpensesText' : 'tradePage.secondaryExpensesText') },
@@ -40,162 +38,182 @@ export function TradePage({ slug }: { slug: string }) {
   ];
 
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
-
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
   const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostByBase(s, locale)).filter((p) => !!p);
-  const hrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
+  const pre = locale === 'fr' ? '/' : `/${locale}/`;
+  const cols = phone ? 1 : width <= 900 ? 2 : 3;
+  const cellW = cols === 1 ? '100%' : cols === 2 ? '47%' : '30.5%';
+  const h1 = phone ? 38 : tablet ? 44 : 52;
 
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead title={trade.seo.title} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <MarketingNav />
-
-        <View style={[styles.wrap, styles.breadcrumb]}>
-          <Link href={locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/'}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbHome')}</Text></Link>
-          <Text style={styles.breadcrumbSep}>/</Text>
-          <Link href={`${hrefPrefix}metiers` as any}><Text style={styles.breadcrumbLink}>{t('tradePage.breadcrumbTrades')}</Text></Link>
-          <Text style={styles.breadcrumbSep}>/</Text>
-          <Text style={styles.breadcrumbCurrent}>{trade.tradeName}</Text>
-        </View>
-
-        <PageHero
-          kicker={trade.hero.eyebrow}
-          title={trade.hero.title}
-          lede={trade.hero.subtitle}
-          cta={{ title: t('tradePage.ctaTrial'), href: authHref('signup') }}
-          secondary={{ title: t('tradePage.discoverFor', { trade: forTrade }), href: `${hrefPrefix}#services` }}
-          facts={[t('tradePage.heroTrust')]}
-          cartouche={dict.hero.cartouche}
-        />
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead label={t('tradePage.painEyebrow')} title={t('tradePage.painTitle')} />
-          {!isTablet ? (
-            <View style={[styles.tableRow, styles.tableHead]}>
-              <Text style={[styles.headCell, { flex: 1 }]}> </Text>
-              <Text style={[styles.headCell, { flex: 1 }]}>{t('tradePage.painConsequence')}</Text>
-              <Text style={[styles.headCell, { flex: 1, color: colors.primary }]}>{t('tradePage.painResponse')}</Text>
+    <SitePage title={trade.seo.title} description={trade.seo.description} cta={false}>
+      {/* Hero */}
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 40 : 70 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: t('tradePage.breadcrumbHome'), href: pre === '/' ? '/' : pre.slice(0, -1) }, { label: t('tradePage.breadcrumbTrades'), href: `${pre}metiers` }, { label: trade.tradeName }]} />
+          <View style={[styles.lead, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 70 }]}>
+            <View style={phone ? undefined : { flex: 1.1, minWidth: 0 }}>
+              <Eyebrow>{trade.hero.eyebrow}</Eyebrow>
+              <Headline level={1} plain={trade.hero.title} size={h1} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.08 }} />
+              <Text style={[sans, styles.leadText, phone && { fontSize: 13, lineHeight: 24 }]}>{trade.hero.subtitle}</Text>
+              <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
+                <View>
+                  <Btn label={t('tradePage.ctaTrial')} href={authHref('signup')} small={phone} />
+                </View>
+                <View>
+                  <TextLink label={L.compare} href={`${pre}tarifs`} size={phone ? 11 : 12} />
+                </View>
+              </View>
+              <Text style={[sans, styles.trust]}>{t('tradePage.heroTrust')}</Text>
             </View>
-          ) : null}
-          {trade.painPoints.map((p) => (
-            <View key={p.problem} style={[styles.tableRow, isTablet && styles.tableRowCompact]}>
-              <Text style={[styles.painProblem, !isTablet && { flex: 1 }]}>{p.problem}</Text>
-              <View style={[!isTablet && { flex: 1 }, styles.cellGap]}>
-                {isTablet ? <Text style={styles.headCell}>{t('tradePage.painConsequence')}</Text> : null}
-                <Text style={styles.bodyText}>{p.consequence}</Text>
-              </View>
-              <View style={[!isTablet && { flex: 1 }, styles.cellGap]}>
-                {isTablet ? <Text style={[styles.headCell, { color: colors.primary }]}>{t('tradePage.painResponse')}</Text> : null}
-                <Text style={[styles.bodyText, { color: ink }]}>{p.response}</Text>
-              </View>
+            <View style={phone ? undefined : { flex: 0.9, minWidth: 0 }}>
+              {general ? (
+                <View style={{ alignItems: 'center' }}>
+                  <PhoneShot source={X.app.dashMobile.source} ratio={X.app.dashMobile.ratio} width={250} maxHeight={480} alt={L.appAlt} />
+                </View>
+              ) : (
+                <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} />
+              )}
             </View>
-          ))}
-        </View>
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead label={t('tradePage.usagesEyebrow')} title={t('tradePage.usagesTitle', { trade: forTrade })} />
-          <View style={styles.grid}>
-            {trade.usages.map((u) => (
-              <View key={u.title} style={styles.gridCell}>
-                <Feather name={u.icon} size={20} color={colors.primary} />
-                <Text style={styles.cellTitle}>{u.title}</Text>
-                <Text style={styles.bodyText}>{u.text}</Text>
-              </View>
-            ))}
           </View>
-        </View>
+        </Wrap>
+      </View>
 
-        <View style={[styles.wrap, styles.section]}>
-          <View style={styles.scenario}>
-            <Text style={styles.scenarioTitle}>{trade.scenario.title}</Text>
-            <Text style={styles.scenarioText}>{trade.scenario.text}</Text>
-          </View>
-        </View>
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead title={t('tradePage.comparisonEyebrow')} />
-          <View style={[styles.tableRow, styles.tableHead]}>
-            <Text style={[styles.headCell, { flex: 1 }]}>{t('tradePage.comparisonBefore')}</Text>
-            <Text style={[styles.headCell, { flex: 1, color: colors.primary }]}>{t('tradePage.comparisonAfter')}</Text>
-          </View>
-          {trade.comparison.map((row) => (
-            <View key={row.before} style={styles.tableRow}>
-              <Text style={[styles.bodyText, styles.before, { flex: 1 }]}>{row.before}</Text>
-              <Text style={[styles.bodyText, { flex: 1, color: ink, fontWeight: '600' }]}>{row.after}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead title={t('tradePage.secondaryEyebrow')} />
-          <View style={styles.grid}>
-            {SECONDARY_FEATURES.map((f) => (
-              <View key={f.title} style={styles.gridCell}>
-                <Feather name={f.icon} size={18} color={colors.primary} />
-                <Text style={styles.cellTitleSmall}>{f.title}</Text>
-                <Text style={styles.bodySmall}>{f.text}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <SwissSection />
-        <PricingSection />
-
-        {relatedPosts.length ? (
-          <View style={[styles.wrap, styles.section]}>
-            <SectionHead title={t('tradePage.furtherReadingEyebrow')} />
-            {relatedPosts.map((post) => (
-              <Link key={post!.slug} href={`${hrefPrefix}blog/${post!.slug}` as any} asChild>
-                <Pressable style={styles.listRow}>
-                  <Text style={styles.listRowText}>{post!.title}</Text>
-                  <Text style={styles.arrow}>→</Text>
-                </Pressable>
-              </Link>
-            ))}
+      {/* Situations of the trade */}
+      <Section white>
+        <SectionHead eyebrow={t('tradePage.painEyebrow')} plain={t('tradePage.painTitle')} />
+        {!tablet ? (
+          <View style={[styles.row, styles.headRow]}>
+            <Text style={[sans, styles.th, { flex: 1 }]}> </Text>
+            <Text style={[sans, styles.th, { flex: 1 }]}>{t('tradePage.painConsequence').toUpperCase()}</Text>
+            <Text style={[sans, styles.th, { flex: 1, color: site.copper }]}>{t('tradePage.painResponse').toUpperCase()}</Text>
           </View>
         ) : null}
+        {trade.painPoints.map((p) => (
+          <View key={p.problem} style={[styles.row, tablet && { flexDirection: 'column', alignItems: 'flex-start', gap: 10 }]}>
+            <Text style={[sans, styles.problem, !tablet && { flex: 1 }]}>{p.problem}</Text>
+            <View style={!tablet ? { flex: 1 } : undefined}>
+              {tablet ? <Text style={[sans, styles.th, { marginBottom: 4 }]}>{t('tradePage.painConsequence').toUpperCase()}</Text> : null}
+              <Text style={[sans, styles.body]}>{p.consequence}</Text>
+            </View>
+            <View style={!tablet ? { flex: 1 } : undefined}>
+              {tablet ? <Text style={[sans, styles.th, { marginBottom: 4, color: site.copper }]}>{t('tradePage.painResponse').toUpperCase()}</Text> : null}
+              <Text style={[sans, styles.body, { color: site.ink }]}>{p.response}</Text>
+            </View>
+          </View>
+        ))}
+      </Section>
 
-        <View style={[styles.wrap, styles.section]}>
-          <SectionHead title={t('tradePage.faqEyebrow')} />
-          {trade.faq.map((f) => (
-            <View key={f.question} style={styles.faqRow}>
-              <Text style={styles.faqQuestion}>{f.question}</Text>
-              <Text style={styles.bodyText}>{f.answer}</Text>
+      {/* Uses */}
+      <Section>
+        <SectionHead eyebrow={t('tradePage.usagesEyebrow')} plain={t('tradePage.usagesTitle', { trade: forTrade })} />
+        <View style={styles.grid}>
+          {trade.usages.map((u) => (
+            <View key={u.title} style={[styles.card, { width: cellW }]}>
+              <Feather name={u.icon} size={18} color={site.copper} />
+              <Text style={[sans, styles.cardTitle]}>{u.title}</Text>
+              <Text style={[sans, styles.body]}>{u.text}</Text>
             </View>
           ))}
         </View>
+        {/* A day with Cantia */}
+        <View style={[styles.scenario, phone && { padding: 24 }]}>
+          <Text style={[serif, styles.quote]}>“</Text>
+          <Text style={[sans, styles.scenarioTitle, phone && { fontSize: 20, lineHeight: 27 }]}>{trade.scenario.title}</Text>
+          <Text style={[sans, styles.scenarioText]}>{trade.scenario.text}</Text>
+        </View>
+      </Section>
 
-        {related.length ? (
-          <View style={[styles.wrap, styles.section]}>
-            <Text style={styles.seeAlsoLabel}>{t('tradePage.seeAlsoEyebrow')}</Text>
-            <View style={styles.relatedRow}>
-              {related.map((r) => (
-                <Link key={r.slug} href={`${hrefPrefix}${r.slug}` as any}>
-                  <Text style={styles.relatedLink}>{t('tradePage.seeAlsoTradeChip', { trade: r.tradeName })} →</Text>
-                </Link>
-              ))}
-              <Link href={`${hrefPrefix}metiers` as any}>
-                <Text style={styles.relatedLink}>{t('tradePage.seeAlsoAllTrades')} →</Text>
-              </Link>
-            </View>
+      {/* Before / with Cantia */}
+      <Section white>
+        <SectionHead eyebrow={t('tradePage.comparisonEyebrow')} plain={t('tradePage.comparisonAfter') + '.'} />
+        <View style={[styles.row, styles.headRow]}>
+          <Text style={[sans, styles.th, { flex: 1 }]}>{t('tradePage.comparisonBefore').toUpperCase()}</Text>
+          <Text style={[sans, styles.th, { flex: 1, color: site.copper }]}>{t('tradePage.comparisonAfter').toUpperCase()}</Text>
+        </View>
+        {trade.comparison.map((r) => (
+          <View key={r.before} style={styles.row}>
+            <Text style={[sans, styles.body, styles.before, { flex: 1 }]}>{r.before}</Text>
+            <Text style={[sans, styles.body, { flex: 1, color: site.ink, fontWeight: '500' }]}>{r.after}</Text>
           </View>
-        ) : null}
+        ))}
+      </Section>
 
-        <View style={styles.closing}>
-          <View style={styles.wrap}>
-            <Text style={styles.closingTitle}>{t(general ? 'tradePage.generalClosingTitle' : 'tradePage.closingTitle')}</Text>
-            <Text style={styles.closingText}>{t('tradePage.closingText')}</Text>
-            <Link href={authHref('signup')} asChild>
-              <CtaButton title={t('tradePage.closingCta')} style={{ marginTop: spacing.xl }} />
+      {/* Also included */}
+      <Section>
+        <SectionHead eyebrow={t('tradePage.secondaryEyebrow')} plain={L.toolsEyebrow + '.'} />
+        <View style={styles.grid}>
+          {SECONDARY.map((f) => (
+            <View key={f.title} style={[styles.card, { width: cellW }]}>
+              <Feather name={f.icon} size={17} color={site.copper} />
+              <Text style={[sans, styles.cardTitle, { fontSize: 16 }]}>{f.title}</Text>
+              <Text style={[sans, styles.body]}>{f.text}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={{ marginTop: 34 }}>
+          <TextLink label={L.compare} href={`${pre}tarifs`} />
+        </View>
+      </Section>
+
+      {/* Reading */}
+      {relatedPosts.length ? (
+        <Section white>
+          <Eyebrow style={{ marginBottom: 22 }}>{t('tradePage.furtherReadingEyebrow')}</Eyebrow>
+          {relatedPosts.map((post, i) => (
+            <Link key={post!.slug} href={`${pre}blog/${post!.slug}` as any} asChild>
+              <Hover accessibilityRole="link" base={[styles.postRow, i === relatedPosts.length - 1 && { borderBottomWidth: 1 }]} hover={{ opacity: 0.75 }}>
+                <Text style={[sans, styles.postText]}>{post!.title}</Text>
+                <Feather name="arrow-right" size={16} color={site.copper} />
+              </Hover>
             </Link>
-          </View>
-        </View>
+          ))}
+        </Section>
+      ) : null}
 
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+      {/* FAQ: answers stay in the page for search engines. */}
+      <Section white={!relatedPosts.length}>
+        <View style={styles.faq}>
+          <Eyebrow>{L.faqEyebrow}</Eyebrow>
+          <Headline plain={t('tradePage.faqEyebrow') + '.'} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+          {trade.faq.map((f, i) => (
+            <FaqItem key={f.question} q={f.question} a={f.answer} last={i === trade.faq.length - 1} />
+          ))}
+        </View>
+      </Section>
+
+      {/* Other trades */}
+      {related.length ? (
+        <Section white={!!relatedPosts.length}>
+          <Eyebrow>{t('tradePage.seeAlsoEyebrow')}</Eyebrow>
+          <View style={styles.chips}>
+            {related.map((r) => (
+              <Link key={r.slug} href={`${pre}${r.slug}` as any} asChild>
+                <Hover accessibilityRole="link" base={styles.chip} hover={{ borderColor: site.copper }}>
+                  <Text style={[sans, styles.chipText]}>{t('tradePage.seeAlsoTradeChip', { trade: r.tradeName })}</Text>
+                </Hover>
+              </Link>
+            ))}
+            <View style={{ justifyContent: 'center', marginLeft: 6 }}>
+              <TextLink label={t('tradePage.seeAlsoAllTrades')} href={`${pre}metiers`} size={12} />
+            </View>
+          </View>
+        </Section>
+      ) : null}
+
+      {/* Closing */}
+      <View style={[styles.cta, { paddingVertical: phone ? 40 : 58 }]}>
+        <Wrap style={phone ? undefined : styles.ctaRow}>
+          <View style={phone ? undefined : { flex: 1, maxWidth: 720 }}>
+            <Headline plain={t(general ? 'tradePage.generalClosingTitle' : 'tradePage.closingTitle')} size={phone ? 30 : 36} color="#f4f3e9" />
+            <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{t('tradePage.closingText')}</Text>
+          </View>
+          <View style={phone ? { marginTop: 22 } : undefined}>
+            <Btn label={t('tradePage.closingCta')} href={authHref('signup')} tone="sand" />
+          </View>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
@@ -210,45 +228,29 @@ function genderedFor(tradeName: string): string {
 }
 
 const styles = StyleSheet.create({
-  wrap: pageWrap,
-  section: { paddingTop: 96 },
-  breadcrumb: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap', paddingTop: spacing.lg },
-  breadcrumbLink: { ...monoType, fontSize: 11, color: colors.textMuted, textDecorationLine: 'underline' },
-  breadcrumbSep: { ...monoType, fontSize: 11, color: colors.textMuted },
-  breadcrumbCurrent: { ...monoType, fontSize: 11, color: ink },
-
-  bodyText: { fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk },
-  bodySmall: { fontFamily: marketingFonts.body, fontSize: 15, lineHeight: 23, color: bodyInk },
-  cellGap: { gap: 6 },
-  headCell: { ...monoType, fontSize: 10, letterSpacing: 0.5, textTransform: 'uppercase', color: colors.textMuted },
-
-  tableRow: { flexDirection: 'row', gap: spacing.xxl, paddingVertical: spacing.lg + 2, borderBottomWidth: 1, borderBottomColor: rule },
-  tableRowCompact: { flexDirection: 'column', gap: spacing.md },
-  tableHead: { paddingVertical: spacing.sm, borderTopWidth: 1.5, borderTopColor: ink, borderBottomColor: ink },
-  painProblem: { ...displayType, fontSize: 26, fontWeight: '800', lineHeight: 28, color: ink },
-  before: { textDecorationLine: 'line-through', textDecorationColor: 'rgba(195,63,50,0.55)' } as any,
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1.5, borderTopColor: ink },
-  gridCell: { flexGrow: 1, flexBasis: 300, gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.xl, paddingRight: spacing.xl, borderBottomWidth: 1, borderBottomColor: rule },
-  cellTitle: { fontFamily: marketingFonts.body, fontSize: 19, fontWeight: '700', color: ink, lineHeight: 25 },
-  cellTitleSmall: { fontFamily: marketingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
-
-  scenario: { borderLeftWidth: 2, borderLeftColor: colors.primary, paddingLeft: spacing.xl, gap: spacing.md, maxWidth: 860 },
-  scenarioTitle: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary },
-  scenarioText: { fontFamily: marketingFonts.body, fontSize: 22, lineHeight: 34, color: ink, fontStyle: 'italic' },
-
-  listRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.lg, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
-  listRowText: { flex: 1, fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '600', color: ink },
-  arrow: { fontSize: 18, color: colors.primary },
-
-  faqRow: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule, gap: 6, maxWidth: 900 },
-  faqQuestion: { fontFamily: marketingFonts.body, fontSize: 18, fontWeight: '700', color: ink },
-
-  seeAlsoLabel: { ...monoType, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: colors.primary, marginBottom: spacing.md },
-  relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xl },
-  relatedLink: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: ink, borderBottomWidth: 1.5, borderBottomColor: ink, paddingBottom: 2 },
-
-  closing: { backgroundColor: ink, paddingVertical: 96, marginTop: 96 },
-  closingTitle: { ...displayType, fontSize: 52, lineHeight: 52, fontWeight: '800', color: '#FBF6EE', maxWidth: 860 },
-  closingText: { fontFamily: marketingFonts.body, fontSize: 18, lineHeight: 28, color: '#D5C8B8', maxWidth: 560, marginTop: spacing.lg },
+  lead: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  leadText: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 600 },
+  actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 26 },
+  trust: { fontSize: 10, color: '#8b9380', marginTop: 18 },
+  row: { flexDirection: 'row', gap: 30, paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: site.line },
+  headRow: { paddingVertical: 12, borderTopWidth: 1, borderTopColor: site.line },
+  th: { fontSize: 9, letterSpacing: 1.3, color: site.muted, fontWeight: '600' },
+  problem: { fontSize: 15, color: site.ink, fontWeight: '500', letterSpacing: -0.2, lineHeight: 22 },
+  body: { fontSize: 12, color: site.muted, lineHeight: 22 },
+  before: { textDecorationLine: 'line-through', textDecorationColor: '#c9c6b8' } as object,
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 34 },
+  card: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 24 },
+  cardTitle: { fontSize: 18, lineHeight: 25, letterSpacing: -0.3, color: site.ink, marginTop: 18, marginBottom: 10 },
+  scenario: { marginTop: 56, backgroundColor: '#e7d8c5', borderRadius: 12, padding: 40 },
+  quote: { fontSize: 60, lineHeight: 50, color: site.copper },
+  scenarioTitle: { fontSize: 24, lineHeight: 31, letterSpacing: -0.6, color: site.ink, marginTop: 6, maxWidth: 760 },
+  scenarioText: { fontSize: 13, lineHeight: 24, color: '#6e6352', marginTop: 14, maxWidth: 760 },
+  postRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 20, paddingVertical: 18, borderTopWidth: 1, borderColor: site.line },
+  postText: { flex: 1, fontSize: 14, color: site.ink },
+  faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 20 },
+  chip: { borderWidth: 1, borderColor: site.line, borderRadius: 5, paddingVertical: 9, paddingHorizontal: 13, backgroundColor: site.white },
+  chipText: { fontSize: 11, color: site.ink },
+  cta: { backgroundColor: '#293128' },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 },
 });
