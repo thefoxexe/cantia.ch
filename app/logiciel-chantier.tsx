@@ -24,11 +24,13 @@ import { site } from '../lib/siteTheme';
 
 import { Eyebrow, Headline, Hover, TextLink, Wrap } from '../components/site/Primitives';
 import { DocVisual, Section, SectionHead, SitePage, useSiteLayout } from '../components/site/Sections';
-import { FaqItem, PhoneStage } from '../components/site/FamilyPage';
+import { FaqItem } from '../components/site/FamilyPage';
 import { ProblemBand } from '../components/solutions/ProblemBand';
 import { EXPORTS } from '../components/site/exports';
 import { SITE_PAGES } from '../lib/site/pages';
 import { sans, serif } from '../lib/siteTheme';
+import { LaptopShot } from '../components/site/Laptop';
+import { APP_SCREENS } from '../components/site/appScreens';
 const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 type IconName = keyof typeof Feather.glyphMap;
@@ -389,7 +391,7 @@ export default function LogicielChantierPage() {
               ) : null}
             </View>
             <View style={!isTablet ? { flex: 0.9, minWidth: 0 } : undefined}>
-              <PhoneStage shot={X.app.dashMobile} alt={L.appAlt} caption={`${L.appScreen} · ${L.sample}`} />
+              <LaptopShot source={APP_SCREENS.fr.chantier} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} />
             </View>
           </View>
           <View style={[styles.proof, isTablet && { flexWrap: 'wrap', rowGap: 22 }]}>

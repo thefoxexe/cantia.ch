@@ -6,6 +6,8 @@ import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
 import { Breadcrumbs, DocVisual, PhoneShot, ScreenShot, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
+import { LaptopShot } from './Laptop';
+import { APP_SCREENS, type ScreenKind } from './appScreens';
 import { SITE_COPY } from '../../lib/site/copy';
 import { SITE_PAGES, type FamilyKey, type PageLabels } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
@@ -78,9 +80,9 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
             </View>
             )}
           </View>
-          {family === 'piloter' && !phone ? (
-            <View style={{ marginTop: 44 }}>
-              <ScreenShot source={X.app.tres.source} ratio={X.app.tres.ratio} alt={L.treasuryAlt} />
+          {family === 'piloter' ? (
+            <View style={{ marginTop: phone ? 30 : 44 }}>
+              <LaptopShot source={APP_SCREENS[locale].rentabilite} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} maxWidth={900} />
             </View>
           ) : null}
           {family === 'organiser' ? (
@@ -226,13 +228,12 @@ export function FaqItem({ q, a, last }: { q: string; a: string; last?: boolean }
   );
 }
 
+// The real screen of the family's main feature, in the laptop.
+const FAMILY_SCREEN: Record<FamilyKey, ScreenKind> = { signer: 'devis', organiser: 'planning', collaborer: 'rapports-chantier', facturer: 'facturation', piloter: 'tresorerie' };
+
 function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabels }) {
-  const { phone } = useSiteLayout();
-  const X = EXPORTS[useSiteLocale()];
-  if (family === 'signer') return <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
-  if (family === 'collaborer') return <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
-  if (family === 'facturer') return <DocVisual source={X.slip.source} ratio={X.slip.ratio} alt={L.docAlt.facturer} caption={`${L.realExport} · ${L.sample}`} maxHeight={300} />;
-  return <PhoneStage shot={X.app.tresMobile} alt={L.treasuryAlt} caption={`${L.appScreen} · ${L.sample}`} />;
+  const locale = useSiteLocale();
+  return <LaptopShot source={APP_SCREENS[locale][FAMILY_SCREEN[family]]} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} />;
 }
 
 // The sand ground with a real phone screen of the app, cropped at the bottom.

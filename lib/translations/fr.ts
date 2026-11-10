@@ -2540,9 +2540,9 @@ export const fr = {
   voiceAssistant: {
     title: 'Assistant vocal',
     idleHint: 'Décrivez à voix haute ce que vous voulez faire.',
-    example1: '« Chantier villa, de 7h à 15h, coffrage »',
-    example2: '« Chantier villa, achat de vis chez Bauhaus, 45 francs »',
-    example3: '« Crée un devis pour Marc Dupont, 20m² de carrelage à 85 francs »',
+    example1: '« Client Favre, de 8h à 12h, entretien du jardin »',
+    example2: '« Achat de produits de nettoyage, 64 francs »',
+    example3: '« Crée un devis pour Marc Dupont : remplacement de 6 prises, 45 francs pièce »',
     example4: '« Quelles factures sont en retard ? »',
     tapToSpeak: 'Appuyez pour parler',
     listeningStop: 'Appuyez pour arrêter',

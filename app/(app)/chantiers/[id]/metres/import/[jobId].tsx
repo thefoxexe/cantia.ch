@@ -459,7 +459,7 @@ function Row({ n, c, unit, review, flat, onPress }: { n: EditableNode; c: Tender
           {n.isReserved ? <Text style={styles.r}>R</Text> : null}
           {ref ? (
             <Text style={[styles.ref, heading && { fontWeight: '800' }]} numberOfLines={1}>
-              {heading && n.nodeType === 'chapter' ? `CAN ${n.rawNumber}` : ref}
+              {heading && n.nodeType === 'chapter' && n.displayReference?.startsWith('CAN ') ? `CAN ${n.rawNumber}` : ref}
             </Text>
           ) : null}
           <Text style={[styles.desc, (heading || !billable) && { fontWeight: heading ? '800' : '600' }, !billable && !heading && { color: colors.textMuted }]} numberOfLines={billable ? 2 : 1}>

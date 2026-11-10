@@ -1,6 +1,7 @@
 import { createElement, useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Platform, StyleSheet, Text, View } from 'react-native';
-import { sans, site } from '../../lib/siteTheme';
+import { sans } from '../../lib/siteTheme';
+import { LaptopFrame } from './Laptop';
 
 type Locale = 'fr' | 'de' | 'it';
 
@@ -79,17 +80,10 @@ export function HeroDevices({ locale, phoneOnly, labels, media = '/videos/hero' 
       {w ? (
         <View style={{ height: stageH, width: '100%' }}>
           {!phoneOnly ? (
-            <View style={{ position: 'absolute', left: 0, top: 0, width: laptopW, alignItems: 'center' }}>
-              {/* Same bezel on both sides: the lid is exactly the screen plus one bezel each side. */}
-              <View style={[styles.lid, { width: laptopW, paddingHorizontal: (laptopW - screenW) / 2, paddingTop: (laptopW - screenW) / 2, paddingBottom: (laptopW - screenW) / 2 + 2, borderRadius: laptopW * 0.025, alignItems: 'center' }]}>
-                <View style={[styles.camera, { top: laptopW * 0.009 }]} />
-                <View style={{ width: screenW, height: screenH, overflow: 'hidden', borderRadius: 3, backgroundColor: '#f7f1e6' }}>
-                  <Clip base={media} onReady={onReady} kind="desktop" locale={locale} label={labels.desktop} width={screenW} height={screenH} />
-                </View>
-              </View>
-              <View style={[styles.base, { width: laptopW * 1.08, height: Math.max(10, laptopW * 0.022), marginLeft: 0 }]}>
-                <View style={[styles.notch, { width: laptopW * 0.16 }]} />
-              </View>
+            <View style={{ position: 'absolute', left: 0, top: 0 }}>
+              <LaptopFrame width={laptopW}>
+                <Clip base={media} onReady={onReady} kind="desktop" locale={locale} label={labels.desktop} width={screenW} height={screenH} />
+              </LaptopFrame>
             </View>
           ) : null}
           <View
@@ -120,10 +114,6 @@ export function HeroDevices({ locale, phoneOnly, labels, media = '/videos/hero' 
 }
 
 const styles = StyleSheet.create({
-  lid: { backgroundColor: '#1f241c', borderWidth: 1, borderColor: '#3a4136', boxShadow: '0 30px 60px rgba(37,41,33,0.22)' } as object,
-  camera: { position: 'absolute', alignSelf: 'center', width: 5, height: 5, borderRadius: 3, backgroundColor: '#3d453a' },
-  base: { backgroundColor: '#cfd0c6', borderBottomLeftRadius: 12, borderBottomRightRadius: 12, alignItems: 'center', boxShadow: '0 14px 24px rgba(37,41,33,0.18)' } as object,
-  notch: { height: 5, backgroundColor: '#b8b9ae', borderBottomLeftRadius: 5, borderBottomRightRadius: 5 },
   phone: { backgroundColor: '#1f241c', borderWidth: 1, borderColor: '#3a4136', boxShadow: '0 26px 50px rgba(37,41,33,0.28)' } as object,
   note: { fontSize: 8, color: '#8f927f', letterSpacing: 0.6, textAlign: 'center', marginTop: 16 },
 });

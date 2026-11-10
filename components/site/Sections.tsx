@@ -161,66 +161,6 @@ export function ScreenShot({ source, ratio, alt }: { source: ImageSourcePropType
   );
 }
 
-const BARS = [11, 20, 29, 16, 34, 24, 14, 28, 35, 18, 9, 25, 33, 20, 12, 29, 23, 14, 31, 18, 27, 10, 20, 31, 15, 24];
-
-// Illustrative dictation: pressing play animates the wave, then shows the
-// draft line Cantia would prepare. No microphone is ever used.
-export function VoiceBox() {
-  const locale = useSiteLocale();
-  const h = SITE_COPY[locale].home;
-  const { phone, width } = useSiteLayout();
-  const compact = phone || width <= 900;
-  const [state, setState] = useState<'idle' | 'running' | 'done'>('idle');
-  const [tick, setTick] = useState(0);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-  useEffect(() => {
-    if (state !== 'running') return;
-    const id = setInterval(() => setTick((t) => t + 1), 90);
-    return () => clearInterval(id);
-  }, [state]);
-
-  const play = () => {
-    if (state === 'running') return;
-    setState('running');
-    timers.current.push(setTimeout(() => setState('done'), 2400));
-  };
-
-  return (
-    <View style={[styles.voiceBox, { padding: compact ? 25 : 35 }]}>
-      <View style={styles.voiceTop}>
-        <Text style={[sans, styles.voiceTag]}>{h.voiceTag.toUpperCase()}</Text>
-        <Feather name="mic" size={14} color="#8a8f7c" />
-      </View>
-      <Text style={[sans, styles.quote, { fontSize: compact ? 20 : 22 }]}>{h.voiceQuote}</Text>
-      <View style={styles.voicePlay}>
-        <Pressable onPress={play} accessibilityRole="button" accessibilityLabel={h.voicePlay} style={styles.playButton}>
-          <Feather name={state === 'done' ? 'rotate-ccw' : 'play'} size={16} color="#ffffff" />
-        </Pressable>
-        <View style={styles.wave} aria-hidden>
-          {BARS.map((b, i) => {
-            const k = state === 'running' ? 0.35 + 0.65 * Math.abs(Math.sin(tick * 0.55 + i * 0.7)) : 1;
-            return <View key={i} style={[styles.bar, { height: Math.max(4, b * k) }, state === 'running' && { backgroundColor: site.copper }]} />;
-          })}
-        </View>
-        <Text style={[sans, { fontSize: 9, color: '#929982' }]}>0:06</Text>
-      </View>
-      {state === 'done' ? (
-        <View style={styles.voiceResult} aria-live="polite">
-          <Text style={[sans, { color: site.copper, fontWeight: '600', fontSize: 12, marginBottom: 8 }]}>{h.voiceResultTitle}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-            <Text style={[sans, { fontSize: 12, color: site.ink }]}>{h.voiceResultLine}</Text>
-            <Text style={[sans, { fontSize: 12, color: site.ink, fontWeight: '700' }]}>{h.voiceResultQty}</Text>
-          </View>
-          <Text style={[sans, { fontSize: 11, color: '#858d77', marginTop: 10, lineHeight: 17 }]}>{h.voiceResultText}</Text>
-        </View>
-      ) : null}
-      <Text style={[sans, styles.demoCaption]}>{h.voiceCaption}</Text>
-    </View>
-  );
-}
-
 export function Callout({ strong, text, link }: { strong: string; text: string; link?: React.ReactNode }) {
   return (
     <View style={styles.callout}>

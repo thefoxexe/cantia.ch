@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
-import { Breadcrumbs, Callout, Section, SectionHead, SitePage, VoiceBox, useSiteLayout, usePrefix } from './Sections';
+import { Breadcrumbs, Callout, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
 import { FAMILY_ICONS, useSiteLocale } from './SiteNav';
+import { ModuleMockup } from '../solutions/ModuleMockup';
 import { SITE_PAGES, FAMILY_KEYS, type FamilyKey } from '../../lib/site/pages';
 import { sans, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
@@ -35,8 +36,8 @@ export function AssistantPage() {
                 </View>
               </View>
             </View>
-            <View style={phone ? undefined : { flex: 0.8, minWidth: 0 }}>
-              <VoiceBox />
+            <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
+              <ModuleMockup kind="dictee-vocale" />
             </View>
           </View>
         </Wrap>

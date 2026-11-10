@@ -6,7 +6,8 @@ import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
 import { Btn, Eyebrow, Hover, Headline, TextLink, Wrap, useSiteFontScope } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
-import { PhoneShot, SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
+import { PhoneShot, SectionHead, SiteCta } from '../components/site/Sections';
+import { ModuleMockup } from '../components/solutions/ModuleMockup';
 import { EXPORTS } from '../components/site/exports';
 import { SITE_PAGES } from '../lib/site/pages';
 import { SITE_COPY } from '../lib/site/copy';
@@ -130,7 +131,7 @@ function LandingContent() {
                 </View>
               </View>
               <View style={phone ? undefined : { flex: 1 }}>
-                <VoiceBox />
+                <ModuleMockup kind="dictee-vocale" />
               </View>
             </View>
 

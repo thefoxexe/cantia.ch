@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './site/Primitives';
-import { Breadcrumbs, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './site/Sections';
+import { Breadcrumbs, DocVisual, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './site/Sections';
+import { EXPORTS } from './site/exports';
 import { FaqItem } from './site/FamilyPage';
 import { useSiteLocale } from './site/SiteNav';
 import { SITE_PAGES } from '../lib/site/pages';
@@ -91,6 +92,10 @@ export function SolutionPage({
   const { phone, tablet, width } = useSiteLayout();
   const docsDict = useMarketingDict().documents;
   const doc = documentId ? docsDict.docs.find((d) => d.id === documentId) : undefined;
+  // The real export of this document, beside what it shows (when Cantia
+  // has rendered it in every language).
+  const X = EXPORTS[locale];
+  const pdf = documentId === 'devis' ? X.devisFull : documentId === 'facture' ? X.facture : documentId === 'rapport' ? X.rapport : null;
   const [plain, accent] = splitTitle(title);
   const h1Size = phone ? 38 : tablet ? 44 : 52;
   const cols = phone ? 1 : width <= 900 ? 2 : 3;
@@ -139,14 +144,21 @@ export function SolutionPage({
       {doc ? (
         <Section>
           <SectionHead eyebrow={docsDict.eyebrow} plain={t.docTitle} text={docsDict.intro} />
-          <View style={[styles.points, phone && { flexDirection: 'column' }]}>
+          <View style={[styles.docRow, (phone || tablet) && { flexDirection: 'column', gap: 34 }]}>
+            {pdf ? (
+              <View style={phone || tablet ? undefined : { flex: 1, minWidth: 0 }}>
+                <DocVisual source={pdf.source} ratio={pdf.ratio} alt={doc.points[0]?.title ?? kicker} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 420 : 620} />
+              </View>
+            ) : null}
+          <View style={[styles.points, (phone || pdf) && { flexDirection: 'column', gap: pdf ? 0 : 30 }, pdf && !phone && !tablet && { flex: 1 }]}>
             {doc.points.map((pt, i) => (
-              <View key={pt.title} style={[styles.point, !phone && { flex: 1 }]}>
+              <View key={pt.title} style={[styles.point, !phone && !pdf && { flex: 1 }]}>
                 <Text style={[serif, styles.pointNum]}>{String(i + 1).padStart(2, '0')}</Text>
                 <Text style={[sans, styles.pointTitle]}>{pt.title}</Text>
                 <Text style={[sans, styles.cardText]}>{pt.text}</Text>
               </View>
             ))}
+          </View>
           </View>
         </Section>
       ) : null}
@@ -225,6 +237,7 @@ const styles = StyleSheet.create({
   card: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 25 },
   cardTitle: { fontSize: 18, lineHeight: 25, letterSpacing: -0.3, color: site.ink, marginTop: 20, marginBottom: 11 },
   cardText: { fontSize: 12, color: site.muted, lineHeight: 23, maxWidth: 500 },
+  docRow: { flexDirection: 'row', gap: 60, alignItems: 'flex-start' },
   points: { flexDirection: 'row', gap: 30 },
   point: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 22, paddingBottom: 8 },
   pointNum: { fontSize: 30, color: site.copper, lineHeight: 36 },

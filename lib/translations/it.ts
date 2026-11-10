@@ -2562,9 +2562,9 @@ export const it: TranslationDict = {
   voiceAssistant: {
     title: 'Assistente vocale',
     idleHint: 'Descriva a voce alta cosa vuole fare.',
-    example1: '«Cantiere villa, dalle 7 alle 15, casseratura»',
-    example2: '«Cantiere villa, acquisto viti da Bauhaus, 45 franchi»',
-    example3: '«Crea un preventivo per Marco Rossi, 20m² di piastrelle a 85 franchi»',
+    example1: '«Cliente Favre, dalle 8 alle 12, manutenzione del giardino»',
+    example2: '«Acquisto prodotti per la pulizia, 64 franchi»',
+    example3: '«Crea un preventivo per Marco Rossi: sostituzione di 6 prese, 45 franchi l’una»',
     example4: '«Quali fatture sono in ritardo?»',
     tapToSpeak: 'Tocchi per parlare',
     listeningStop: 'Tocchi per fermare',

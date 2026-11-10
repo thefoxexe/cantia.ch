@@ -1047,7 +1047,10 @@ function Row({ row, c, phone, selected, collapsed, position, price, amount, subt
   const { node, level, hasChildren } = row;
   const indent = flat ? 0 : Math.min(level, 6) * (phone ? 12 : 16);
   // The chapter is already the heading: show the local reference only.
-  const ref = node.node_type === 'chapter' ? `CAN ${node.raw_number ?? ''}` : node.position_path ?? node.raw_number ?? node.display_reference ?? '';
+  // "CAN" only for chapters of a CAN document (the parser stores them as
+  // "CAN 241"); a custom soumission keeps its own numbering.
+  const canChapter = node.classification_type === 'CAN' || !!node.display_reference?.startsWith('CAN ');
+  const ref = node.node_type === 'chapter' ? (canChapter ? `CAN ${node.raw_number ?? ''}` : node.raw_number ?? '') : node.position_path ?? node.raw_number ?? node.display_reference ?? '';
   const text = position ? (node.description || node.title || '').replace(/\s*\n\s*/g, ' ') : node.title || node.description;
   const isStructure = !position && STRUCTURE.includes(node.node_type);
   const isFinancial = ['carry_forward', 'subtotal', 'chapter_total', 'financial_adjustment'].includes(node.node_type);

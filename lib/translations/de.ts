@@ -2554,9 +2554,9 @@ export const de: TranslationDict = {
   voiceAssistant: {
     title: 'Sprachassistent',
     idleHint: 'Beschreiben Sie laut, was Sie tun möchten.',
-    example1: '«Baustelle Villa, von 7 bis 15 Uhr, Schalung»',
-    example2: '«Baustelle Villa, Schrauben gekauft bei Bauhaus, 45 Franken»',
-    example3: '«Erstelle eine Offerte für Marc Dupont, 20m² Plättli à 85 Franken»',
+    example1: '«Kunde Favre, von 8 bis 12 Uhr, Gartenpflege»',
+    example2: '«Reinigungsmittel gekauft, 64 Franken»',
+    example3: '«Erstelle eine Offerte für Marc Dupont: 6 Steckdosen ersetzen, 45 Franken pro Stück»',
     example4: '«Welche Rechnungen sind überfällig?»',
     tapToSpeak: 'Zum Sprechen antippen',
     listeningStop: 'Zum Stoppen antippen',
