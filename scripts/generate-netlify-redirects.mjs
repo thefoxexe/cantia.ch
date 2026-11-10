@@ -29,7 +29,7 @@ const nonBlog = ROUTES.filter(
 );
 
 const blocks = nonBlog
-  .map((r) => `[[redirects]]\n  from = "/${r.path}"\n  to = "/${r.path}/index.html"\n  status = 200`)
+  .map((r) => `[[redirects]]\n  from = "/${r.path}"\n  to = "/${r.path}.html"\n  status = 200`)
   .join('\n\n');
 
 // 301s of the blog content triage (lib/blog/triage.json).

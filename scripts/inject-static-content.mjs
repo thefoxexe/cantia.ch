@@ -87,10 +87,10 @@ async function main() {
   }
   const block = buildNoscriptBlock(plans);
 
-  const tarifsPath = path.join(distDir, 'tarifs', 'index.html');
+  const tarifsPath = path.join(distDir, 'tarifs.html');
   const html = readFileSync(tarifsPath, 'utf8');
   if (html.includes('data-cantia-fallback="tarifs"')) {
-    console.warn('inject-static-content: dist/tarifs/index.html already has our fallback block — skipping to avoid double-injecting.');
+    console.warn('inject-static-content: dist/tarifs.html already has our fallback block — skipping to avoid double-injecting.');
     return;
   }
   // Expo's own template already ships a generic "enable JavaScript" <noscript>
@@ -98,10 +98,10 @@ async function main() {
   // right after <body>, so there's exactly one clear place all the no-JS
   // fallback content lives together.
   if (!html.includes('<div id="root">')) {
-    throw new Error('inject-static-content: expected <div id="root"> in dist/tarifs/index.html — Expo\'s web template may have changed, update this script\'s insertion point.');
+    throw new Error('inject-static-content: expected <div id="root"> in dist/tarifs.html — Expo\'s web template may have changed, update this script\'s insertion point.');
   }
   writeFileSync(tarifsPath, html.replace('<div id="root">', `${block}\n    <div id="root">`));
-  console.log(`Static pricing fallback injected: dist/tarifs/index.html (${plans.length} plans).`);
+  console.log(`Static pricing fallback injected: dist/tarifs.html (${plans.length} plans).`);
 }
 
 main().catch((err) => {

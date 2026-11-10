@@ -117,7 +117,7 @@ function patch(baseHtml, sourceRoute) {
 // AI tools that don't run JavaScript read the actual page text. This script
 // then (1) replaces the per-page <head> tags expo-router/head produced with
 // the canonical SEO set from scripts/seo-routes.mjs, and moves each page to
-// dist/<route>/index.html (what netlify.toml's explicit rules point at), and
+// dist/<route>.html (what netlify.toml's explicit rules point at), and
 // (2) turns every non-marketing page (the signed-in app, auth screens,
 // dynamic [id] templates) back into a plain client-rendered shell, exactly
 // like the previous single-page build — those screens depend on a session
@@ -138,12 +138,15 @@ function stripHeadManagerTags(html) {
 // build can't know) and #root stays hidden until React has rendered
 // (app/_layout.tsx adds .hydrated), so nobody sees the desktop snapshot
 // jump to a phone layout.
-const HYDRATION_STYLE = `<style>html:not(.hydrated) #root{visibility:hidden}</style>`;
+// While #root is hidden, a slow load (more than 0.4 s: a phone on 4G, a
+// cold cache) shows the logo in the middle of the page instead of an empty
+// background; a fast one never sees it.
+const HYDRATION_STYLE = `<style>html:not(.hydrated) #root{visibility:hidden}html:not(.hydrated) body::before{content:"";position:fixed;inset:0;margin:auto;width:150px;height:28px;background:url(/logo-email.png) center/contain no-repeat;opacity:0;animation:cantia-wait .5s ease .4s forwards}@keyframes cantia-wait{from{opacity:0}50%{opacity:.85}to{opacity:.85}}html.hydrated body::before{content:none}</style>`;
 const HYDRATE_FLAG = /<script type="module">globalThis\.__EXPO_ROUTER_HYDRATE__=true;<\/script>/;
 
 function headExtras(html) {
   let extras = '';
-  if (!html.includes('fonts.googleapis.com/css2')) extras += FONT_LINKS;
+  if (!html.includes('/fonts/dm-sans-latin.woff2') && !html.includes('fonts.googleapis.com/css2')) extras += FONT_LINKS;
   if (!html.includes('googletagmanager.com/gtag')) extras += GTAG_SCRIPT;
   if (!html.includes('html:not(.hydrated)')) extras += HYDRATION_STYLE;
   return extras;
@@ -173,6 +176,14 @@ function routeOf(file) {
   return rel;
 }
 
+// One flat file per page (dist/tarifs.html, dist/de/blog/x.html), never a
+// folder with an index.html: for a folder, Netlify answers /tarifs with a 301
+// to /tarifs/, and the edge function (netlify/edge-functions/trailing-slash.ts)
+// sends /tarifs/ back to /tarifs, an endless loop.
+function pageFile(route) {
+  return route ? path.join(distDir, `${route}.html`) : distIndex;
+}
+
 const routesByPath = new Map(ROUTES.map((r) => [r.path, r]));
 const homeHtml = readFileSync(distIndex, 'utf8');
 if (!homeHtml.includes('__EXPO_ROUTER_HYDRATE__')) {
@@ -193,17 +204,21 @@ let shelled = 0;
 for (const file of files) {
   const route = routeOf(file);
   if (routesByPath.has(route)) {
-    if (file.endsWith('.html') && !file.endsWith(`${path.sep}index.html`) && route !== '') rmSync(file);
+    if (route !== '' && file !== pageFile(route)) rmSync(file);
     continue;
   }
-  writeFileSync(file, shell);
+  // Same flat layout for the app's own screens (dist/devis/index.html ->
+  // dist/devis.html), so none of them can fall into the slash loop either.
+  const flat = file.endsWith(`${path.sep}index.html`) && route !== '' ? pageFile(route) : file;
+  if (flat !== file) rmSync(file);
+  writeFileSync(flat, shell);
   shelled++;
 }
 
 for (const route of ROUTES) {
   const source = rendered.get(route.path);
   const html = patch(source ?? shell, route);
-  const target = route.path ? path.join(distDir, route.path, 'index.html') : distIndex;
+  const target = pageFile(route.path);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, html);
   if (!source) console.warn(`inject-seo-meta: no pre-rendered page for /${route.path}, served as a client-rendered shell.`);
