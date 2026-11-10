@@ -79,14 +79,14 @@ export function ProductNav({
   // beside the logo. The language sits in the nav.
   return (
     <View style={styles.navWrap}>
-      <View style={[styles.nav, { minHeight: wide ? 86 : 75, paddingHorizontal: wide ? 54 : 22 }]}>
+      <View style={[styles.nav, { minHeight: wide ? 86 : 75, paddingHorizontal: wide ? 54 : 22 }, !wide && { flexWrap: 'wrap', rowGap: 8, paddingVertical: 14 }]}>
         <Link href={(locale === 'fr' ? '/' : `/${locale}`) as any} asChild>
           <Pressable accessibilityLabel={`Cantia ${PRODUCT_NAME[product]}`} style={styles.brand}>
             <Image source={SITE_LOGO} style={{ width: wide ? 148 : 118, height: (wide ? 148 : 118) * (192 / 1036) }} resizeMode="contain" />
             <Text style={[sans, styles.productTag, !wide && { fontSize: 8, paddingLeft: 8 }]}>{PRODUCT_NAME[product].toUpperCase()}</Text>
           </Pressable>
         </Link>
-        <View style={[styles.navRight, { gap: wide ? 22 : 12 }]}>
+        <View style={[styles.navRight, { gap: wide ? 22 : 14 }]}>
           {localeSwitch}
           {login ? (
             <Link href={login.href as any} style={[sans, styles.navLink]}>

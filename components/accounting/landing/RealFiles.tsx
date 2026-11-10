@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, type ImageSourcePropType, type TextStyle } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType, type TextStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSiteCopy } from '../../../lib/accounting/siteCopy';
 import { formatEntries } from '../../../lib/accounting/exports';
@@ -9,7 +9,7 @@ import { buildAfcForm, FIGURE_LABELS } from '../../../lib/vat/afcForm';
 import { LABELS_DE, LABELS_IT } from '../../../lib/vat/figureLabels';
 import { buildEch0217Xml } from '../../../lib/vat/ech0217';
 import { fill } from '../../../lib/accounting/copy';
-import { displayType, monoType } from '../../../lib/marketingTheme';
+import { monoType } from '../../../lib/marketingTheme';
 import { colors, radius, spacing } from '../../../lib/theme';
 import { Window } from './Mockups';
 
@@ -107,6 +107,7 @@ const CHF = (n: number) =>
 
 export function RealFiles({ wide }: { wide: boolean }) {
   const { s, locale } = useSiteCopy();
+  const { width } = useWindowDimensions();
   const t = s.realFiles;
   const { files, form, formLines } = useMemo(buildFiles, []);
   const [tab, setTab] = useState<Key>('banana');
@@ -115,7 +116,7 @@ export function RealFiles({ wide }: { wide: boolean }) {
   const lineCount = file.content.replace(/^﻿/, '').trimEnd().split(/\r?\n/).length;
 
   return (
-    <View style={styles.band} nativeID="formats">
+    <View style={[styles.band, { paddingHorizontal: width > 760 ? 54 : 22 }]} nativeID="formats">
       <View style={[styles.inner, wide && styles.innerWide]}>
         <View style={[styles.left, wide && { flex: 0.82 }]}>
           <Text style={styles.eyebrow}>{t.eyebrow}</Text>
@@ -345,11 +346,11 @@ function FormView({ lines, labels, t }: { lines: { figure: string; amount: numbe
 
 const styles = StyleSheet.create({
   band: { backgroundColor: colors.bg, paddingVertical: 80 },
-  inner: { width: '100%', maxWidth: 1180, alignSelf: 'center', paddingHorizontal: spacing.lg, gap: 40 },
+  inner: { width: '100%', maxWidth: 1212, alignSelf: 'center', gap: 40 },
   innerWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 56 },
   left: { gap: 16 },
   eyebrow: { fontSize: 12, fontWeight: '800', letterSpacing: 1.6, textTransform: 'uppercase', color: colors.primary },
-  h2: { ...displayType, fontSize: 30, lineHeight: 36, fontWeight: '800', color: colors.text },
+  h2: { fontFamily: "'DM Sans', Arial, sans-serif", fontSize: 30, lineHeight: 36, fontWeight: '400', letterSpacing: -0.9, color: '#2f3527' } as TextStyle,
   lead: { fontSize: 16, lineHeight: 25, color: colors.textMuted, maxWidth: 560 },
 
   list: { marginTop: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden' },

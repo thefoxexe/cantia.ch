@@ -1,26 +1,27 @@
 import { useState, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View, type DimensionValue, type ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type DimensionValue, type ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import Head from 'expo-router/head';
 import { Feather } from '@expo/vector-icons';
 import { AccNav, AccPage, NavButton, PAGE_MAX, useIsWide } from './AccountingChrome';
 import { ClosingMock, EntryMock, FirmMock, OverviewMock, PortalMock, ReportsMock, VatMock } from './landing/Mockups';
 import { useSiteCopy, type ChapterKey } from '../../lib/accounting/siteCopy';
-import { monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { RealFiles } from './landing/RealFiles';
+import { Btn, Eyebrow, Headline, Hover, Micro } from '../site/Primitives';
+import { sans, site } from '../../lib/siteTheme';
 
 // accounting.cantia.ch home (FR at /, DE at /de, IT at /it): what the firm
 // workspace does, chapter by chapter, each with a mockup of the real screen.
 // Strings and example data: lib/accounting/siteCopy.ts.
 
 const ORIGIN = 'https://accounting.cantia.ch';
-const INK = '#16120E';
+const INK = '#293128';
 const INK_TEXT = '#EFE4D6';
 const INK_MUTED = '#B9A994';
 const INK_LINE = 'rgba(255,255,255,0.12)';
-const COPPER = '#D9895A';
-const WIDTH = PAGE_MAX - spacing.lg * 2;
+const COPPER = '#d9aa85';
+const WIDTH = 1320 - 108;
 
 const MOCKS: Record<ChapterKey, () => ReactNode> = {
   entry: () => <EntryMock />,
@@ -112,9 +113,16 @@ export function AccountingLanding() {
 
 // ------------------------------------------------------------ building blocks
 
+// Same side gutter as the header, so every section lines up with the logo.
+function useGutter() {
+  const { width } = useWindowDimensions();
+  return width > 760 ? 54 : 22;
+}
+
 function Band({ children, tone = 'page', style }: { children: ReactNode; tone?: 'page' | 'surface' | 'ink'; style?: object }) {
+  const gutter = useGutter();
   return (
-    <View style={[styles.band, tone === 'surface' && styles.bandSurface, tone === 'ink' && styles.bandInk, style]}>
+    <View style={[styles.band, { paddingHorizontal: gutter }, tone === 'surface' && styles.bandSurface, tone === 'ink' && styles.bandInk, style]}>
       <View style={styles.inner}>{children}</View>
     </View>
   );
@@ -136,36 +144,43 @@ function Heading({ eyebrow, title, text, inverse = false, center = false }: { ey
 
 function Hero({ wide }: { wide: boolean }) {
   const { s } = useSiteCopy();
+  const gutter = useGutter();
+  // "Vos mandants.\nLe même fil." style titles: the last line is the serif accent.
+  // Without a line break, the last sentence is the accent.
+  const title = s.hero.title.trim();
+  const nl = title.lastIndexOf('\n');
+  const dot = title.slice(0, -1).lastIndexOf('. ');
+  const cut = nl > 0 ? nl : dot > 0 ? dot + 1 : -1;
+  const plain = cut > 0 ? title.slice(0, cut).trim() : title;
+  const accent = cut > 0 ? title.slice(cut).trim() : undefined;
   return (
-    <View style={styles.heroWrap}>
-      <View style={styles.heroGrid} aria-hidden />
-      <View style={[styles.inner, styles.heroInner, wide && styles.heroInnerWide]}>
-        <View style={styles.heroText}>
-          <View style={[styles.heroBadge, wide && { alignSelf: 'center' }]}>
-            <View style={styles.heroBadgeDot} />
-            <Text style={styles.heroBadgeText}>{s.hero.eyebrow}</Text>
+    <View style={[styles.heroWrap, { paddingTop: wide ? 64 : 40, paddingHorizontal: gutter }]}>
+      <View style={[styles.inner, wide ? styles.heroRow : { gap: 30 }]}>
+        <View style={wide ? { flex: 1, minWidth: 0 } : undefined}>
+          <Eyebrow>{s.hero.eyebrow}</Eyebrow>
+          <Headline level={1} plain={plain} accent={accent} size={wide ? 58 : 43} style={{ marginTop: 20, marginBottom: 22, fontWeight: '400', letterSpacing: wide ? -2.6 : -1.9 }} />
+          <Text style={[sans, styles.heroLead, !wide && { fontSize: 13, lineHeight: 24 }]}>{s.hero.text}</Text>
+          <View style={styles.ctaRow}>
+            <View>
+              <Btn label={s.hero.cta} href="/connexion?mode=signup" small={!wide} />
+            </View>
+            <Hover onPress={scrollToFeatures} accessibilityRole="button" base={styles.ghostLarge} hover={{ opacity: 0.75 }}>
+              <Text style={[sans, styles.ghostLargeText]}>{s.hero.secondary}</Text>
+              <Feather name="arrow-down" size={14} color={site.ink} />
+            </Hover>
           </View>
-          <Text style={[styles.h1, wide && styles.h1Wide]} role="heading" aria-level={1}>
-            {s.hero.title}
-          </Text>
-          <Text style={[styles.heroLead, wide && { textAlign: 'center', alignSelf: 'center' }]}>{s.hero.text}</Text>
-          <View style={[styles.ctaRow, wide && { justifyContent: 'center' }]}>
-            <NavButton href="/connexion?mode=signup" label={s.hero.cta} primary large />
-            <Pressable onPress={scrollToFeatures} style={styles.ghostLarge} accessibilityRole="button">
-              <Text style={styles.ghostLargeText}>{s.hero.secondary}</Text>
-              <Feather name="arrow-down" size={16} color={colors.text} />
-            </Pressable>
-          </View>
-          <View style={[styles.points, wide && { justifyContent: 'center' }]}>
+          <View style={styles.points}>
             {s.hero.points.map((p) => (
               <View key={p} style={styles.point}>
-                <Feather name="check" size={14} color={colors.success} />
-                <Text style={styles.pointText}>{p}</Text>
+                <Feather name="check" size={13} color={site.copper} />
+                <Text style={[sans, styles.pointText]}>{p}</Text>
               </View>
             ))}
           </View>
         </View>
-        <OverviewMock wide={wide} />
+        <View style={wide ? { flex: 1.08, minWidth: 0 } : undefined}>
+          <OverviewMock wide={wide} />
+        </View>
       </View>
     </View>
   );
@@ -207,7 +222,7 @@ function Chapters({ wide }: { wide: boolean }) {
                   {c.bullets.map((b) => (
                     <View key={b} style={styles.bullet}>
                       <View style={styles.bulletIcon}>
-                        <Feather name="check" size={12} color={colors.primary} />
+                        <Feather name="check" size={12} color={site.copper} />
                       </View>
                       <Text style={styles.bulletText}>{b}</Text>
                     </View>
@@ -232,7 +247,7 @@ function Kinds({ wide }: { wide: boolean }) {
     <View style={[styles.kind, dark && styles.kindDark, wide && { flex: 1 }]}>
       <View style={styles.kindHead}>
         <View style={[styles.kindIcon, dark && { backgroundColor: 'rgba(217,137,90,0.16)' }]}>
-          <Feather name={icon} size={18} color={dark ? COPPER : colors.primary} />
+          <Feather name={icon} size={18} color={dark ? COPPER : site.copper} />
         </View>
         <Text style={[styles.kindLabel, dark && { color: COPPER }]}>{item.label}</Text>
       </View>
@@ -240,7 +255,7 @@ function Kinds({ wide }: { wide: boolean }) {
       <View style={{ gap: spacing.md }}>
         {item.items.map((line) => (
           <View key={line} style={styles.kindRow}>
-            <Feather name="check" size={16} color={dark ? COPPER : colors.primary} style={{ marginTop: 3 }} />
+            <Feather name="check" size={16} color={dark ? COPPER : site.copper} style={{ marginTop: 3 }} />
             <Text style={[styles.body, { flex: 1 }, dark && { color: INK_TEXT }]}>{line}</Text>
           </View>
         ))}
@@ -476,35 +491,36 @@ function Final({ wide }: { wide: boolean }) {
 // ------------------------------------------------------------ styles
 
 const heading = {
-  fontFamily: 'Archivo, system-ui, sans-serif',
-  color: colors.text,
+  fontFamily: "'DM Sans', Arial, sans-serif",
+  color: site.ink,
 };
 
 const styles = StyleSheet.create({
   band: {
     paddingHorizontal: spacing.lg,
     paddingVertical: 88,
-    backgroundColor: colors.bg,
+    backgroundColor: site.bg,
   },
   bandSurface: {
-    backgroundColor: '#FFFDF9',
+    backgroundColor: site.white,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: colors.border,
+    borderColor: site.line,
   },
   bandInk: { backgroundColor: INK },
   inner: { width: '100%', maxWidth: WIDTH, alignSelf: 'center', gap: 40 },
   heading: { gap: spacing.md, maxWidth: 760 },
   eyebrow: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.primary,
+    ...sans,
+    fontSize: 10,
+    fontWeight: '600',
+    color: site.copper,
     textTransform: 'uppercase',
-    letterSpacing: 1.6,
+    letterSpacing: 1.65,
   },
   h1: {
     ...heading,
-    fontWeight: '800',
+    fontWeight: '400',
     fontSize: 38,
     lineHeight: 44,
     letterSpacing: -1,
@@ -517,25 +533,26 @@ const styles = StyleSheet.create({
   },
   h2: {
     ...heading,
-    fontWeight: '800',
+    fontWeight: '400',
     fontSize: 34,
     lineHeight: 40,
     letterSpacing: -0.9,
   },
   h3: {
     ...heading,
-    fontWeight: '800',
+    fontWeight: '400',
     fontSize: 25,
     lineHeight: 31,
     letterSpacing: -0.5,
   },
-  lead: { fontSize: 18, lineHeight: 28, color: '#4A3F35', maxWidth: 680 },
-  body: { fontSize: fontSize.md, lineHeight: 25, color: '#4A3F35' },
+  lead: { ...sans, fontSize: 14, lineHeight: 26, color: site.muted, maxWidth: 680 },
+  body: { ...sans, fontSize: 13, lineHeight: 23, color: site.muted },
   cardTitle: {
+    ...sans,
     fontSize: 18,
     lineHeight: 25,
-    fontWeight: '800',
-    color: colors.text,
+    fontWeight: '500',
+    color: site.ink,
   },
   note: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
   srOnly: {
@@ -550,7 +567,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: 56,
     paddingBottom: 72,
-    backgroundColor: colors.bg,
+    backgroundColor: site.bg,
     overflow: 'hidden',
   },
   heroGrid: {
@@ -569,8 +586,7 @@ const styles = StyleSheet.create({
         } as object)
       : {}),
   },
-  heroInner: { gap: 48 },
-  heroInnerWide: { paddingTop: 40, gap: 64 },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 60 },
   heroText: {
     gap: 22,
     maxWidth: 900,
@@ -593,7 +609,7 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: colors.primary,
+    backgroundColor: site.copper,
   },
   heroBadgeText: {
     fontSize: 12.5,
@@ -601,44 +617,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     letterSpacing: 0.3,
   },
-  heroLead: { fontSize: 19, lineHeight: 30, color: '#4A3F35', maxWidth: 720 },
+  heroLead: { fontSize: 15, lineHeight: 28, color: site.muted, maxWidth: 560 },
   ctaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
-    alignSelf: 'stretch',
-  },
-  ghostLarge: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    gap: 25,
+    marginTop: 26,
   },
-  ghostLargeText: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  points: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 18,
-    alignSelf: 'stretch',
-  },
-  point: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  pointText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
+  ghostLarge: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  ghostLargeText: { fontSize: 12, fontWeight: '600', color: site.ink },
+  points: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 18 },
+  point: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  pointText: { fontSize: 10, color: '#7a7d72' },
 
   formatsWrap: {
     paddingHorizontal: spacing.lg,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: site.white,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: colors.border,
+    borderColor: site.line,
   },
   formats: { paddingVertical: 22, gap: 14 },
   formatsWide: { flexDirection: 'row', alignItems: 'center', gap: 32 },
@@ -657,7 +655,7 @@ const styles = StyleSheet.create({
     rowGap: 10,
   },
   formatItem: {
-    ...monoType,
+    ...sans,
     fontSize: 12.5,
     color: colors.text,
     letterSpacing: 0.2,
@@ -671,22 +669,22 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     gap: 4,
   },
-  indexNum: { ...monoType, fontSize: 12, color: colors.primary },
+  indexNum: { fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic', fontSize: 22, color: site.copper },
   indexLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
   chapterBand: { paddingVertical: 96 },
   chapter: { gap: 40 },
   chapterWide: { flexDirection: 'row', alignItems: 'center', gap: 72 },
   chapterText: { gap: 18 },
   chapterEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  chapterNum: { ...monoType, fontSize: 13, color: colors.primary },
-  chapterRule: { width: 28, height: 1, backgroundColor: colors.primary },
+  chapterNum: { fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic', fontSize: 20, color: site.copper },
+  chapterRule: { width: 28, height: 1, backgroundColor: site.copper },
   bullets: { gap: 12, marginTop: 4 },
   bullet: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   bulletIcon: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: site.clay,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -712,7 +710,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 8,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: site.clay,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -721,7 +719,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
-    color: colors.primary,
+    color: site.copper,
   },
   kindRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
 
@@ -741,7 +739,7 @@ const styles = StyleSheet.create({
   calMonth: { flex: 1, paddingVertical: 10, alignItems: 'center' },
   calMonthDivider: { borderLeftWidth: 1, borderLeftColor: colors.border },
   calMonthText: {
-    ...monoType,
+    ...sans,
     fontSize: 11.5,
     color: colors.textMuted,
     textTransform: 'uppercase',
@@ -758,7 +756,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: colors.primary,
+    backgroundColor: site.copper,
     marginTop: 4,
   },
   calLabel: {
@@ -777,10 +775,10 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   calListMonth: {
-    ...monoType,
+    ...sans,
     width: 44,
     fontSize: 12,
-    color: colors.primary,
+    color: site.copper,
     marginTop: 4,
     textTransform: 'uppercase',
   },
@@ -854,12 +852,12 @@ const styles = StyleSheet.create({
     height: 34,
     borderRadius: 17,
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: site.copper,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
   },
-  stepDotText: { fontSize: 14, fontWeight: '800', color: colors.primary },
+  stepDotText: { fontSize: 14, fontWeight: '800', color: site.copper },
   stepLine: { flex: 1, width: 1, backgroundColor: colors.border, marginTop: 4 },
 
   partner: {
@@ -879,7 +877,7 @@ const styles = StyleSheet.create({
   partnerLink: {
     fontSize: fontSize.md,
     fontWeight: '700',
-    color: colors.primary,
+    color: site.copper,
   },
 
   faq: { borderTopWidth: 1, borderTopColor: colors.border },
