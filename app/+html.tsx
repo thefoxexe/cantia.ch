@@ -1,5 +1,6 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
+import { FontHead } from '../components/site/FontHead';
 
 // The root HTML document of every page pre-rendered at build time
 // (app.json web.output "static"; native ignores this file). Loads the brand
@@ -16,12 +17,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="192x192" href="/pwa-icon-192.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=DM+Serif+Display:ital@0;1&family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&family=Michroma&display=swap"
-        />
+        <FontHead />
         {/* Matches lib/theme.ts colors.bg — without this, the raw white
             html/body shows through for an instant during the mobile
             overscroll bounce at the top of the page, which reads as a

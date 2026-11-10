@@ -491,7 +491,7 @@ function Final({ wide }: { wide: boolean }) {
 // ------------------------------------------------------------ styles
 
 const heading = {
-  fontFamily: "'DM Sans', Arial, sans-serif",
+  fontFamily: "'DM Sans', 'DM Sans Fallback', Arial, sans-serif",
   color: site.ink,
 };
 
@@ -669,14 +669,14 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     gap: 4,
   },
-  indexNum: { fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic', fontSize: 22, color: site.copper },
+  indexNum: { fontFamily: "'DM Serif Display', 'DM Serif Fallback', Georgia, serif", fontStyle: 'italic', fontSize: 22, color: site.copper },
   indexLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
   chapterBand: { paddingVertical: 96 },
   chapter: { gap: 40 },
   chapterWide: { flexDirection: 'row', alignItems: 'center', gap: 72 },
   chapterText: { gap: 18 },
   chapterEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  chapterNum: { fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic', fontSize: 20, color: site.copper },
+  chapterNum: { fontFamily: "'DM Serif Display', 'DM Serif Fallback', Georgia, serif", fontStyle: 'italic', fontSize: 20, color: site.copper },
   chapterRule: { width: 28, height: 1, backgroundColor: site.copper },
   bullets: { gap: 12, marginTop: 4 },
   bullet: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },

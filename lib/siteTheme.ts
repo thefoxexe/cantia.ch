@@ -24,11 +24,11 @@ export const site = {
 // headline. Loaded as <link> tags on web (app/+html.tsx, scripts/inject-seo-meta.mjs);
 // native keeps the system font.
 export const sans = (Platform.OS === 'web'
-  ? { fontFamily: "'DM Sans', Arial, sans-serif" }
+  ? { fontFamily: "'DM Sans', 'DM Sans Fallback', Arial, sans-serif" }
   : {}) as TextStyle;
 
 export const serif = (Platform.OS === 'web'
-  ? { fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic', fontWeight: '400' }
+  ? { fontFamily: "'DM Serif Display', 'DM Serif Fallback', Georgia, serif", fontStyle: 'italic', fontWeight: '400' }
   : { fontStyle: 'italic' }) as TextStyle;
 
 // Side padding of the 1320 px content column, per viewport width.

@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   innerWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 56 },
   left: { gap: 16 },
   eyebrow: { fontSize: 12, fontWeight: '800', letterSpacing: 1.6, textTransform: 'uppercase', color: colors.primary },
-  h2: { fontFamily: "'DM Sans', Arial, sans-serif", fontSize: 30, lineHeight: 36, fontWeight: '400', letterSpacing: -0.9, color: '#2f3527' } as TextStyle,
+  h2: { fontFamily: "'DM Sans', 'DM Sans Fallback', Arial, sans-serif", fontSize: 30, lineHeight: 36, fontWeight: '400', letterSpacing: -0.9, color: '#2f3527' } as TextStyle,
   lead: { fontSize: 16, lineHeight: 25, color: colors.textMuted, maxWidth: 560 },
 
   list: { marginTop: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, overflow: 'hidden' },
