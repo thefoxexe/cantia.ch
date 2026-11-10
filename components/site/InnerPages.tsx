@@ -15,6 +15,7 @@ import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../../lib/trade
 import { useTranslation } from '../../lib/translations';
 import { SurMesureContactForm } from '../SurMesureContactForm';
 import { ContactForm } from '../ContactForm';
+import { HeroDevices } from './HeroDevices';
 
 type IconName = React.ComponentProps<typeof Feather>['name'];
 const HOME = { fr: 'Accueil', de: 'Startseite', it: 'Home' } as const;
@@ -437,27 +438,12 @@ export function AppPage() {
 
 // The real dashboard on a computer with the treasury on a phone in front:
 // both rendered from the app itself with sample data.
+// The real app recorded on a computer and a phone (components/site/HeroDevices).
 function DevicesStage() {
   const locale = useSiteLocale();
   const L = SITE_PAGES[locale].labels;
-  const app = EXPORTS[locale].app;
-  const [w, setW] = useState(0);
-  const phoneW = Math.min(w * 0.3, 150);
-  return (
-    <View>
-      <View style={[styles.visual, { padding: 22, paddingBottom: 60, alignItems: 'stretch', minHeight: 0 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-        <View style={{ width: '86%' }}>
-          <ScreenShot source={app.dash.source} ratio={app.dash.ratio} alt={L.appAlt} />
-        </View>
-        {w ? (
-          <View style={{ position: 'absolute', right: 18, bottom: 18 }}>
-            <PhoneShot source={app.tresMobile.source} ratio={app.tresMobile.ratio} width={phoneW} maxHeight={phoneW * 1.9} alt={L.treasuryAlt} />
-          </View>
-        ) : null}
-      </View>
-      <Text style={[sans, styles.proof, { textAlign: 'center', marginTop: 12 }]}>{`${L.appScreen} · ${L.sample}`.toUpperCase()}</Text>
-    </View>
-  );
+  const { phone } = useSiteLayout();
+  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.treasuryAlt, note: `${L.appScreen} · ${L.sample}` }} />;
 }
 
 // ─── Découvrir ──────────────────────────────────────────────────────────────

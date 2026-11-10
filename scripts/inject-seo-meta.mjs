@@ -108,8 +108,19 @@ function patch(baseHtml, sourceRoute) {
 
   let html = stripHeadManagerTags(baseHtml).replace(HYDRATE_FLAG, '').replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
   html = html.replace('<head>', `<head><title>${title}</title>${metaTags}${headExtras(html)}`);
+  if (SPLASH_ROUTES.has(route.path)) html = html.replace(/<body[^>]*>/, (tag) => `${tag}${SPLASH}`);
   return html;
 }
+
+// Arrival loader of the home page (cantia.ch, /de, /it): the logo and a thin
+// copper line on the page background, shown until React has rendered and the
+// fonts are ready (app/_layout.tsx adds .hydrated), at least 0.8 s (15 s
+// failsafe), then it fades out. Once per browser tab: going back home later shows
+// the page straight away.
+const SPLASH_ROUTES = new Set(['', 'de', 'it']);
+const SPLASH = `<div id="cantia-splash" aria-hidden="true"><img src="/logo-splash.png" alt="" width="190" height="35" /><span><i></i></span></div>
+<style>#cantia-splash{position:fixed;inset:0;z-index:2147483646;background:#f6f4ef;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .45s ease}#cantia-splash img{width:190px;height:auto;animation:cs-in .5s ease both}#cantia-splash span{position:relative;width:120px;height:2px;background:#e2dfd4;overflow:hidden;border-radius:2px;animation:cs-in .5s .15s ease both}#cantia-splash i{position:absolute;left:0;top:0;height:100%;width:40%;background:#a65d36;border-radius:2px;animation:cs-bar 1.1s ease-in-out infinite}#cantia-splash.out{opacity:0;pointer-events:none}html.has-splash body::before{content:none!important}@keyframes cs-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@keyframes cs-bar{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}@media (prefers-reduced-motion:reduce){#cantia-splash img,#cantia-splash span{animation:none}#cantia-splash i{animation:none;width:100%}}</style>
+<script>(function(){var s=document.getElementById('cantia-splash'),d=document.documentElement;try{if(sessionStorage.getItem('cantia-splash')){s.parentNode.removeChild(s);return}sessionStorage.setItem('cantia-splash','1')}catch(e){}d.classList.add('has-splash');var t0=Date.now(),gone=false;function done(){if(gone)return;gone=true;setTimeout(function(){s.className='out';setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);d.classList.remove('has-splash')},460)},Math.max(0,800-(Date.now()-t0)))}if(d.classList.contains('hydrated'))done();else new MutationObserver(function(m,o){if(d.classList.contains('hydrated')){o.disconnect();done()}}).observe(d,{attributes:true,attributeFilter:['class']});setTimeout(done,15000)})();</script>`;
 
 
 // ─── Static output (app.json web.output "static") ───────────────────────────

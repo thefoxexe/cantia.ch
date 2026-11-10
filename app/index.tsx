@@ -13,6 +13,7 @@ import { SITE_COPY } from '../lib/site/copy';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { sans, site } from '../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
+import { HeroDevices } from '../components/site/HeroDevices';
 
 // Real PDFs produced by Cantia's own renderer (sample data: Atelier Martin SA
 // for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
@@ -55,7 +56,7 @@ function LandingContent() {
         <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 56, minHeight: winH > 0 ? Math.max(phone ? 0 : 640, winH - (phone ? 75 : 86)) : undefined }}>
           <Wrap style={{ flex: 1, justifyContent: 'space-between' }}>
             <View style={[styles.heroTop, { flex: 1, alignItems: 'center' }, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
-              <View style={phone ? undefined : { flex: tablet ? 0.9 : 1.22, minWidth: 0 }}>
+              <View style={phone ? undefined : { flex: tablet ? 0.9 : 0.95, minWidth: 0 }}>
                 <Eyebrow>{h.eyebrow}</Eyebrow>
                 <Headline level={1} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
                 <Text style={[sans, styles.lead, { fontSize: phone || tablet ? (tablet ? 13 : 14) : 15 }]}>
@@ -70,7 +71,7 @@ function LandingContent() {
                   </View>
                 </View>
               </View>
-              <View style={phone ? undefined : { flex: tablet ? 1.1 : 0.8, minWidth: 0 }}>
+              <View style={phone ? undefined : { flex: tablet ? 1.1 : 1.05, minWidth: 0 }}>
                 <HeroStage tag={h.stageTag} note={h.stageNote} phone={phone} />
               </View>
             </View>
@@ -156,30 +157,12 @@ function LandingContent() {
   );
 }
 
-// The sand stage of the hero: the real Cantia dashboard on a phone, rendered
-// from the app itself with sample data (components/site/exports.ts).
+// The hero stage: the real app recorded on a computer and on a phone
+// (components/site/HeroDevices). A phone screen shows the phone only.
 function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boolean }) {
-  const [w, setW] = useState(0);
   const locale = useSiteLocale();
-  const shot = EXPORTS[locale].app.dashMobile;
-  const pad = phone ? 14 : 26;
-  const height = phone ? 400 : 470;
-  const phoneW = Math.min(phone ? w * 0.66 : w * 0.56, 270);
-  return (
-    <View style={[styles.stage, { height, borderRadius: phone ? 10 : 15 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 16 : 24 }]}>
-        <Text style={[sans, styles.stageTagText, phone && { fontSize: 7, letterSpacing: 0.3 }]} numberOfLines={1}>
-          {tag.toUpperCase()}
-        </Text>
-        <Text style={[sans, styles.stageTagText, phone && { fontSize: 7 }]}>{note.toUpperCase()}</Text>
-      </View>
-      {w ? (
-        <View style={{ position: 'absolute', top: phone ? 48 : 66, left: (w - phoneW) / 2 }}>
-          <PhoneShot source={shot.source} ratio={shot.ratio} width={phoneW} alt={SITE_PAGES[locale].labels.appAlt} />
-        </View>
-      ) : null}
-    </View>
-  );
+  const L = SITE_PAGES[locale].labels;
+  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt, note: `${tag} · ${note}` }} />;
 }
 
 function Families({ phone, narrow }: { phone: boolean; narrow: boolean }) {
