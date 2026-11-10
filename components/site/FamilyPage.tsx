@@ -28,7 +28,18 @@ const DOCS = {
   facturerSlip: { source: require('../../assets/marketing/site/facture-qr-section.jpg'), ratio: 713 / 1400 },
   facturerFull: { source: require('../../assets/marketing/site/facture-qr.jpg'), ratio: 1696 / 1200 },
 };
-const SAMPLE_INVOICE_PDF = '/exemples/facture-qr-cantia.pdf';
+const PLANNING = {
+  fr: { full: require('../../assets/marketing/site/planning-chantier.jpg') },
+  de: { full: require('../../assets/marketing/site/planning-chantier-de.jpg') },
+  it: { full: require('../../assets/marketing/site/planning-chantier-it.jpg') },
+};
+const PLANNING_FULL_RATIO = 501 / 2000;
+const PDFS: Partial<Record<FamilyKey, string>> = {
+  signer: '/exemples/devis-signe-cantia.pdf',
+  organiser: '/exemples/planning-chantier-cantia.pdf',
+  collaborer: '/exemples/rapport-chantier-cantia.pdf',
+  facturer: '/exemples/facture-qr-cantia.pdf',
+};
 
 export function FamilyPage({ family }: { family: FamilyKey }) {
   const locale = useSiteLocale();
@@ -73,10 +84,26 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
                 ))}
               </View>
             </View>
+            {family === 'organiser' ? null : (
             <View style={phone ? undefined : { flex: 0.8, minWidth: 0 }}>
               <HeroVisual family={family} labels={L} />
+              {family === 'signer' || family === 'collaborer' ? (
+                <View style={{ marginTop: 16, alignItems: 'center' }}>
+                  <OpenPdfLink label={L.openPdf} href={PDFS[family]!} />
+                </View>
+              ) : null}
             </View>
+            )}
           </View>
+          {family === 'organiser' ? (
+            <View style={{ marginTop: phone ? 30 : 44 }}>
+              <DocVisual source={PLANNING[locale].full} ratio={PLANNING_FULL_RATIO} alt={L.docAlt.organiser} caption={`${L.realExport} · ${L.sample}`} maxHeight={2000} />
+              <View style={{ marginTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <Text style={[sans, styles.proofNote, { marginTop: 0, maxWidth: 640, fontSize: 11, lineHeight: 18 }]}>{L.planningShowcase.text}</Text>
+                <OpenPdfLink label={L.openPdf} href={PDFS.organiser!} />
+              </View>
+            </View>
+          ) : null}
         </Wrap>
       </View>
 
@@ -136,7 +163,7 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
             <View style={phone ? undefined : { flex: 1 }}>
               <DocVisual source={DOCS.facturerFull.source} ratio={DOCS.facturerFull.ratio} alt={L.docAlt.facturer} maxHeight={phone ? 380 : 460} />
               <View style={{ marginTop: 18, alignItems: 'center' }}>
-                <OpenPdfLink label={L.openPdf} />
+                <OpenPdfLink label={L.openPdf} href={PDFS.facturer!} />
               </View>
             </View>
             <View style={phone ? undefined : { flex: 0.8 }}>
@@ -184,9 +211,9 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
   );
 }
 
-function OpenPdfLink({ label }: { label: string }) {
+function OpenPdfLink({ label, href }: { label: string; href: string }) {
   const open = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(SAMPLE_INVOICE_PDF, '_blank', 'noopener');
+    if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(href, '_blank', 'noopener');
   };
   return (
     <Hover onPress={open} accessibilityRole="link" base={styles.inlineLink} hover={{ opacity: 0.75 }}>
@@ -216,15 +243,8 @@ function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabe
   if (family === 'signer') return <DocVisual source={DOCS.signer.source} ratio={DOCS.signer.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
   if (family === 'collaborer') return <DocVisual source={DOCS.collaborer.source} ratio={DOCS.collaborer.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
   if (family === 'facturer') return <DocVisual source={DOCS.facturerSlip.source} ratio={DOCS.facturerSlip.ratio} alt={L.docAlt.facturer} caption={`${L.realExport} · ${L.sample}`} maxHeight={300} />;
-  if (family === 'organiser') return <PlanningPaper labels={L} />;
   return <TreasuryPaper labels={L} />;
 }
-
-const PLANNING_ROWS: [string, string[]][] = [
-  ['Lucas M.', ['VV', 'VV', 'AM', 'AM', 'AM']],
-  ['Julie D.', ['EV', 'EV', 'EV', '', 'VV']],
-  ['Sarah R.', ['AM', 'AM', 'AM', 'VV', 'VV']],
-];
 
 function PaperFrame({ children }: { children: React.ReactNode }) {
   const { phone } = useSiteLayout();
@@ -232,39 +252,6 @@ function PaperFrame({ children }: { children: React.ReactNode }) {
     <View style={[styles.visual, { padding: phone ? 22 : 30 }]}>
       <View style={[styles.paperCard, paperShadow, phone && { padding: 20 }]}>{children}</View>
     </View>
-  );
-}
-
-function PlanningPaper({ labels: L }: { labels: PageLabels }) {
-  const t = L.planning;
-  return (
-    <PaperFrame>
-      <View style={styles.paperTop}>
-        <Text style={[sans, styles.paperTopText]}>{t.tag}</Text>
-        <Text style={[sans, styles.paperTopText]}>{t.week}</Text>
-      </View>
-      <Text style={[sans, styles.paperTitle]}>{t.title}</Text>
-      <Text style={[sans, styles.paperSub]}>{t.sub}</Text>
-      <View style={styles.hoursRow}>
-        <Text style={[sans, styles.hoursName, { color: '#9da18e' }]}>{t.team}</Text>
-        {t.days.map((d) => (
-          <Text key={d} style={[sans, styles.hoursHead]}>
-            {d}
-          </Text>
-        ))}
-      </View>
-      {PLANNING_ROWS.map(([name, cells]) => (
-        <View key={name} style={styles.hoursRow}>
-          <Text style={[sans, styles.hoursName]}>{name}</Text>
-          {cells.map((c, i) => (
-            <View key={i} style={[styles.cell, !c && styles.cellBlank]}>
-              <Text style={[sans, styles.cellText, !c && { color: '#c0c5b6' }]}>{c || '—'}</Text>
-            </View>
-          ))}
-        </View>
-      ))}
-      <Text style={[sans, styles.paperCaption]}>{t.legend}</Text>
-    </PaperFrame>
   );
 }
 
@@ -315,6 +302,7 @@ const styles = StyleSheet.create({
   stepTitle: { fontSize: 17, fontWeight: '500', letterSpacing: -0.4, color: site.ink, marginTop: 12, marginBottom: 8 },
   stepText: { fontSize: 12, color: site.muted, lineHeight: 22 },
   showcase: { flexDirection: 'row', alignItems: 'center' },
+  showcaseHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60, marginBottom: 35 },
   copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390 },
   proofNote: { fontSize: 9, color: '#8b9380', marginTop: 15 },
   inlineLink: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center' },

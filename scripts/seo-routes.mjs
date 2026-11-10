@@ -27,9 +27,15 @@ export const ROUTES = [
   HOME,
   {
     path: 'tarifs',
-    title: 'Tarifs | Cantia',
+    title: "Tarifs : Essentiel, Équipe et Entreprise | Cantia",
     description:
-      'Les tarifs de Cantia, le logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie. Sans engagement, 14 jours d’essai.',
+      "Les tarifs de Cantia : trois formules dès CHF 39.– par mois, selon la taille de votre équipe, facturation mensuelle ou annuelle, 14 jours d’essai.",
+    faq: [
+      { q: "Que comprend l’essai ?", a: "Choisissez votre formule lors de l’inscription et découvrez Cantia pendant 14 jours. Une carte bancaire est requise. Consultez les conditions de la formule avant de confirmer." },
+      { q: "Comment fonctionne la facturation annuelle ?", a: "Le prix affiché est un équivalent mensuel. Le montant annuel complet est facturé une fois par an et apparaît sous le prix après sélection du mode annuel." },
+      { q: "Quelles limites s’appliquent à l’assistant ?", a: "Les quotas mensuels sont de 150, 600 et 2’000 utilisations selon la formule. Les quotas de soumissions, en bêta, sont distincts." },
+      { q: "Puis-je utiliser Cantia sans Bexio ?", a: "Oui. Cantia fonctionne de façon autonome. L’intégration Bexio est destinée aux entreprises qui l’utilisent déjà." },
+    ],
   },
   {
     path: 'liens',
@@ -3573,15 +3579,27 @@ export const ROUTES = [
   },
   {
     path: 'de/tarifs',
-    title: 'Preise | Cantia',
+    title: "Preise: Essentiel, Team und Entreprise | Cantia",
     description:
-      'Die Preise von Cantia, der Schweizer Software für Bauunternehmen: Offerten, Rechnungen, Baustellen, Personal und Liquidität. 14 Tage gratis testen.',
+      "Die Preise von Cantia: drei Abos ab CHF 39.– pro Monat, nach Teamgrösse, monatliche oder jährliche Abrechnung, 14 Tage Testphase.",
+    faq: [
+      { q: "Was umfasst die Testphase?", a: "Wählen Sie bei der Registrierung Ihr Abo und lernen Sie Cantia 14 Tage lang kennen. Eine Kreditkarte ist erforderlich. Prüfen Sie die Bedingungen des Abos vor der Bestätigung." },
+      { q: "Wie funktioniert die jährliche Abrechnung?", a: "Der angezeigte Preis ist ein Monatsäquivalent. Der volle Jahresbetrag wird einmal pro Jahr verrechnet und erscheint nach Wahl der jährlichen Abrechnung unter dem Preis." },
+      { q: "Welche Grenzen gelten für den Assistenten?", a: "Die Monatskontingente betragen je nach Abo 150, 600 und 2’000 Nutzungen. Die Kontingente für Ausschreibungen (Beta) sind separat." },
+      { q: "Kann ich Cantia ohne Bexio nutzen?", a: "Ja. Cantia funktioniert eigenständig. Die Bexio-Integration richtet sich an Unternehmen, die Bexio bereits nutzen." },
+    ],
   },
   {
     path: 'it/tarifs',
-    title: 'Prezzi | Cantia',
+    title: "Prezzi: Essentiel, Team ed Entreprise | Cantia",
     description:
-      'I prezzi di Cantia, il software svizzero per le imprese edili: preventivi, fatture, cantieri, personale e liquidità. 14 giorni di prova gratuita.',
+      "I prezzi di Cantia: tre piani da CHF 39.– al mese, secondo la dimensione del team, fatturazione mensile o annuale, 14 giorni di prova.",
+    faq: [
+      { q: "Cosa comprende la prova?", a: "Scegliete il piano all’iscrizione e scoprite Cantia per 14 giorni. È richiesta una carta di credito. Consultate le condizioni del piano prima di confermare." },
+      { q: "Come funziona la fatturazione annuale?", a: "Il prezzo indicato è un equivalente mensile. L’importo annuale completo è fatturato una volta all’anno e appare sotto il prezzo dopo aver scelto la modalità annuale." },
+      { q: "Quali limiti valgono per l’assistente?", a: "Le quote mensili sono di 150, 600 e 2’000 utilizzi secondo il piano. Le quote dei capitolati, in beta, sono separate." },
+      { q: "Posso usare Cantia senza Bexio?", a: "Sì. Cantia funziona in modo autonomo. L’integrazione Bexio è pensata per le aziende che la usano già." },
+    ],
   },
   {
     path: 'de/contact',

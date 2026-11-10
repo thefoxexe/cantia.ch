@@ -53,9 +53,10 @@ export interface PageLabels {
   showcaseAccent: string;
   showcaseText: string;
   showcaseNote: string;
+  planningShowcase: { plain: string; accent: string; text: string };
   planning: { tag: string; week: string; title: string; sub: string; team: string; days: string[]; legend: string };
   treasury: { tag: string; horizon: string; amount: string; sub: string; lines: [string, string][]; total: [string, string]; caption: string };
-  docAlt: { signer: string; collaborer: string; facturer: string };
+  docAlt: { signer: string; organiser: string; collaborer: string; facturer: string };
 }
 
 export interface AssistantContent {
@@ -118,6 +119,7 @@ const fr: Bundle = {
     showcaseAccent: 'Votre facture.',
     showcaseText: 'Le document reprend les coordonnées, le logo et les couleurs de l’entreprise. Le bulletin QR accompagne la facture pour le paiement.',
     showcaseNote: 'PDF généré par Cantia avec des données d’exemple.',
+    planningShowcase: { plain: 'Le planning du chantier.', accent: 'Prêt à partager.', text: 'Phases, tâches, corps de métier, entreprises intervenantes et avancement : le planning s’exporte en PDF A3, avec la date du jour et la légende, pour le client, l’architecte ou les sous-traitants.' },
     planning: {
       tag: 'PLANNING PARTAGÉ',
       week: '9–13 NOVEMBRE',
@@ -143,6 +145,7 @@ const fr: Bundle = {
     },
     docAlt: {
       signer: 'Devis signé en ligne par le client, exporté depuis Cantia',
+      organiser: 'Planning de chantier PDF exporté depuis Cantia',
       collaborer: 'Rapport de chantier PDF exporté depuis Cantia',
       facturer: 'Facture avec bulletin QR suisse, exportée depuis Cantia',
     },
@@ -366,6 +369,7 @@ const de: Bundle = {
     showcaseAccent: 'Ihre Rechnung.',
     showcaseText: 'Das Dokument übernimmt Adresse, Logo und Farben Ihres Unternehmens. Der QR-Einzahlungsschein gehört direkt zur Rechnung.',
     showcaseNote: 'Von Cantia erstelltes PDF mit Beispieldaten.',
+    planningShowcase: { plain: 'Das Bauprogramm.', accent: 'Bereit zum Teilen.', text: 'Phasen, Aufgaben, Gewerke, ausführende Firmen und Fortschritt: Das Bauprogramm lässt sich als A3-PDF exportieren, mit Stichtag und Legende, für Bauherrschaft, Architekt oder Subunternehmer.' },
     planning: {
       tag: 'GETEILTE PLANUNG',
       week: '9.–13. NOVEMBER',
@@ -391,6 +395,7 @@ const de: Bundle = {
     },
     docAlt: {
       signer: 'Vom Kunden online unterschriebene Offerte, aus Cantia exportiert',
+      organiser: 'Bauprogramm als PDF, aus Cantia exportiert',
       collaborer: 'Baustellenrapport als PDF, aus Cantia exportiert',
       facturer: 'Rechnung mit Schweizer QR-Einzahlungsschein, aus Cantia exportiert',
     },
@@ -614,6 +619,7 @@ const it: Bundle = {
     showcaseAccent: 'La vostra fattura.',
     showcaseText: 'Il documento riprende indirizzo, logo e colori dell’azienda. La polizza QR accompagna la fattura per il pagamento.',
     showcaseNote: 'PDF generato da Cantia con dati di esempio.',
+    planningShowcase: { plain: 'Il programma del cantiere.', accent: 'Pronto da condividere.', text: 'Fasi, attività, mestieri, imprese e avanzamento: il programma si esporta in PDF A3, con la data del giorno e la legenda, per il committente, l’architetto o i subappaltatori.' },
     planning: {
       tag: 'PIANIFICAZIONE CONDIVISA',
       week: '9–13 NOVEMBRE',
@@ -639,6 +645,7 @@ const it: Bundle = {
     },
     docAlt: {
       signer: 'Preventivo firmato online dal cliente, esportato da Cantia',
+      organiser: 'Programma di cantiere PDF esportato da Cantia',
       collaborer: 'Rapporto di cantiere PDF esportato da Cantia',
       facturer: 'Fattura con polizza QR svizzera, esportata da Cantia',
     },

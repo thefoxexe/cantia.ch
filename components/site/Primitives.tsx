@@ -85,20 +85,29 @@ export function Headline({
   );
 }
 
-type BtnTone = 'copper' | 'ink' | 'sand';
-const TONES: Record<BtnTone, { bg: string; fg: string; hover: string }> = {
+type BtnTone = 'copper' | 'ink' | 'sand' | 'light';
+const TONES: Record<BtnTone, { bg: string; fg: string; hover: string; border?: string; hoverFg?: string }> = {
   copper: { bg: site.copper, fg: '#ffffff', hover: site.rust },
   ink: { bg: site.ink, fg: '#ffffff', hover: '#3a3f35' },
   sand: { bg: '#e3d1ba', fg: '#4c4b3c', hover: '#d9c3a8' },
+  light: { bg: '#ffffff', fg: site.ink, hover: '#ffffff', border: site.line, hoverFg: site.copper },
 };
 
-export function Btn({ label, href, tone = 'copper', large = false, small = false }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean }) {
+export function Btn({ label, href, tone = 'copper', large = false, small = false, block = false }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean; block?: boolean }) {
   const t = TONES[tone];
   return (
     <Link href={href as any} asChild>
-      <Hover accessibilityRole="link" base={[styles.btn, large && styles.btnLarge, small && styles.btnSmall, { backgroundColor: t.bg, borderColor: t.bg }]} hover={{ backgroundColor: t.hover, borderColor: t.hover }}>
-        <Text style={[sans, styles.btnText, large && styles.btnTextLarge, small && { fontSize: 11 }, { color: t.fg }]}>{label}</Text>
-        <Feather name="arrow-right" size={large ? 16 : 14} color={t.fg} />
+      <Hover
+        accessibilityRole="link"
+        base={[styles.btn, large && styles.btnLarge, small && styles.btnSmall, block && { alignSelf: 'stretch' }, { backgroundColor: t.bg, borderColor: t.border ?? t.bg }]}
+        hover={{ backgroundColor: t.hover, borderColor: t.hoverFg ?? t.hover }}
+      >
+        {(hovered) => (
+          <>
+            <Text style={[sans, styles.btnText, large && styles.btnTextLarge, small && { fontSize: 11 }, { color: hovered && t.hoverFg ? t.hoverFg : t.fg }]}>{label}</Text>
+            <Feather name="arrow-right" size={large ? 16 : 14} color={hovered && t.hoverFg ? t.hoverFg : t.fg} />
+          </>
+        )}
       </Hover>
     </Link>
   );
