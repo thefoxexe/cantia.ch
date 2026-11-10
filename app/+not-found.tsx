@@ -1,70 +1,35 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
-import { Button, Container, Screen } from '../components/ui';
-import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { colors, fontSize, spacing } from '../lib/theme';
+import { StyleSheet, Text, View } from 'react-native';
 import { i18next } from '../lib/translations';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import Head from 'expo-router/head';
+import { Btn, Eyebrow, Headline, Wrap } from '../components/site/Primitives';
+import { SitePage, useSiteLayout } from '../components/site/Sections';
+import { sans, site } from '../lib/siteTheme';
 
-// Expo Router's built-in convention for a 404 — any unmatched route renders
-// this instead of the framework's bare default page. Kept branded and on
-// the same chrome (nav + footer) as the rest of the marketing site so a
-// dead/mistyped link doesn't dead-end the visitor with no way back in.
+// Unknown address on cantia.ch: a real 404 in the site identity.
 export default function NotFoundScreen() {
+  const { phone } = useSiteLayout();
   return (
-    <Screen>
-      <MarketingNav />
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Container style={styles.container}>
-          <Text style={styles.kicker}>{i18next.t('notFoundPage.kicker')}</Text>
-          <Text style={styles.title}>{i18next.t('notFoundPage.title')}</Text>
-          <Text style={styles.text}>{i18next.t('notFoundPage.text')}</Text>
-          <View style={styles.actions}>
-            <Link href="/" asChild>
-              <Button title={i18next.t('uiMisc.backHome')} onPress={() => {}} />
-            </Link>
+    <SitePage title={`${i18next.t('notFoundPage.title')} | Cantia`} cta={false}>
+      <Head>
+        <meta name="robots" content="noindex" />
+      </Head>
+      <View style={{ paddingVertical: phone ? 70 : 130 }}>
+        <Wrap>
+          <View style={styles.col}>
+            <Eyebrow>{i18next.t('notFoundPage.kicker')}</Eyebrow>
+            <Headline level={1} plain={i18next.t('notFoundPage.title')} size={phone ? 38 : 52} style={{ marginTop: 18, marginBottom: 18 }} />
+            <Text style={[sans, styles.text]}>{i18next.t('notFoundPage.text')}</Text>
+            <View style={{ marginTop: 28, alignSelf: 'flex-start' }}>
+              <Btn label={i18next.t('uiMisc.backHome')} href="/" />
+            </View>
           </View>
-        </Container>
-      </ScrollView>
-      <MarketingFooter />
-    </Screen>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-  },
-  container: {
-    maxWidth: 560,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xxxl,
-    alignItems: 'flex-start',
-  },
-  kicker: {
-    fontFamily: marketingFonts.mono,
-    fontSize: fontSize.xs,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-    color: colors.primary,
-    marginBottom: spacing.sm,
-  },
-  title: {
-    ...displayType,
-    fontSize: 34,
-    fontWeight: '800',
-    letterSpacing: -0.4,
-    color: colors.text,
-    marginBottom: spacing.md,
-  },
-  text: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    lineHeight: 24,
-    marginBottom: spacing.xl,
-  },
-  actions: {
-    flexDirection: 'row',
-  },
+  col: { maxWidth: 640 },
+  text: { fontSize: 14, color: site.muted, lineHeight: 25 },
 });
