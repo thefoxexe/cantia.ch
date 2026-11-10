@@ -2844,10 +2844,62 @@ export const ROUTES = [
     ],
   },
   {
-    path: 'metiers',
-    title: 'Cantia pour votre métier | Logiciel de gestion par métier',
+    path: "metiers",
+    title: "Logiciel de gestion par métier : bâtiment, service, bureaux d’études, agences | Cantia",
     description:
-      "Cantia centralise devis, chantiers, équipes et facturation. Découvrez comment il s'adapte au quotidien de votre métier du bâtiment en Suisse.",
+      "Chantier, dossier, mandat ou projet : Cantia parle comme votre métier. Bâtiment et artisanat, service et entretien, bureaux d’études, agences et événementiel en Suisse.",
+  },
+  {
+    path: "metiers/batiment-artisanat",
+    title: "Logiciel de gestion pour le bâtiment et l’artisanat en Suisse | Cantia",
+    description:
+      "Devis signés en ligne, soumissions remplies, planning de chantier, rapports avec photos, heures et factures QR : le logiciel des entreprises du bâtiment en Suisse.",
+    faq: [
+      { q: "Cantia convient-il à une petite entreprise du bâtiment ?", a: "Oui. Une entreprise individuelle commence avec les devis, les chantiers et les factures, puis ajoute l’équipe, le planning ou les salaires quand elle grandit." },
+      { q: "Puis-je remplir les soumissions de l’architecte ?", a: "Oui. Vous importez la soumission PDF, les positions et quantités sont reprises, vous mettez vos prix et vous renvoyez le PDF d’origine rempli. La fonction est en bêta." },
+      { q: "Mes ouvriers peuvent-ils saisir leurs heures sur le chantier ?", a: "Oui, depuis leur téléphone, sans rien installer. Chaque heure est rattachée à un chantier et à un type de travail." },
+      { q: "Les factures sont-elles conformes en Suisse ?", a: "Oui : QR-facture, TVA, numérotation et mentions obligatoires. Vous pouvez aussi synchroniser vos factures avec Bexio." },
+      { q: "Combien de temps pour démarrer ?", a: "Quelques minutes pour créer l’entreprise et votre premier devis. Vos clients et votre catalogue s’importent depuis Excel." },
+    ],
+  },
+  {
+    path: "metiers/service-entretien",
+    title: "Logiciel pour entreprises de nettoyage, conciergerie et entretien en Suisse | Cantia",
+    description:
+      "Interventions, équipes, heures, rapports avec photos, devis et factures QR : Cantia organise les entreprises de nettoyage, de conciergerie, d’entretien et de jardinage en Suisse.",
+    faq: [
+      { q: "Cantia convient-il à une entreprise de nettoyage ?", a: "Oui. Vous gérez vos clients et vos adresses par dossier, vos équipes au planning, les heures sur téléphone, puis les devis et les factures QR." },
+      { q: "Puis-je appeler mes interventions « dossiers » ?", a: "Oui. Vous choisissez entre chantier, projet, mandat ou dossier ; le mot est utilisé dans toute l’application et sur vos documents." },
+      { q: "Mes employés ont-ils besoin d’une application ?", a: "Non. Ils ouvrent Cantia dans le navigateur de leur téléphone, ou l’ajoutent à leur écran d’accueil. Rien à installer." },
+      { q: "Puis-je facturer une gérance pour plusieurs immeubles ?", a: "Oui. La gérance est un client, chaque immeuble a son dossier, et chaque facture précise l’immeuble concerné." },
+      { q: "Les salaires sont-ils gérés ?", a: "Oui, avec la formule Équipe : les heures saisies alimentent les fiches de salaire, avec les déductions suisses." },
+    ],
+  },
+  {
+    path: "metiers/bureaux-etudes",
+    title: "Logiciel de gestion pour bureaux d’études, ingénieurs et architectes en Suisse | Cantia",
+    description:
+      "Mandats, offres d’honoraires, temps passé par collaborateur, documents, dépenses et factures QR : Cantia organise les bureaux d’études, d’ingénieurs et d’architectes en Suisse.",
+    faq: [
+      { q: "Cantia convient-il à un bureau d’ingénieurs ou d’architectes ?", a: "Oui. Vous organisez votre activité par mandat, avec les offres, le temps passé par collaborateur, les documents, les dépenses et les factures." },
+      { q: "Puis-je facturer au temps passé ?", a: "Oui. Les heures saisies sur un mandat peuvent être reprises dans la facture, ou vous facturez au forfait avec des acomptes." },
+      { q: "Puis-je appeler mes dossiers « mandats » ?", a: "Oui. Le mot choisi est utilisé dans toute l’application et sur vos documents PDF." },
+      { q: "Les collaborateurs voient-ils les honoraires ?", a: "Non, pas forcément. Les rôles définissent qui voit les montants et qui ne saisit que son temps." },
+      { q: "Peut-on relier Cantia à notre comptabilité ?", a: "Oui : synchronisation avec Bexio, et accès en lecture pour votre fiduciaire avec Cantia Accounting." },
+    ],
+  },
+  {
+    path: "metiers/agences-evenementiel",
+    title: "Logiciel de gestion pour agences, studios et entreprises d’événementiel en Suisse | Cantia",
+    description:
+      "Offres signées en ligne, projets, équipe et prestataires, acomptes et factures QR : Cantia organise les agences, studios créatifs, photographes, traiteurs et entreprises d’événementiel en Suisse.",
+    faq: [
+      { q: "Cantia convient-il à une agence ou un studio ?", a: "Oui. Vous organisez votre activité par projet, avec les offres signées en ligne, les heures de l’équipe, les acomptes et les factures QR." },
+      { q: "Puis-je demander un acompte à la signature ?", a: "Oui. Vous facturez un acompte, puis le solde ; Cantia suit ce qui a été payé et ce qui reste." },
+      { q: "Puis-je appeler mes dossiers « projets » ?", a: "Oui. Vous choisissez le mot à l’inscription ; il est utilisé dans toute l’application et sur vos documents." },
+      { q: "Mes offres peuvent-elles porter mon identité visuelle ?", a: "Oui : votre logo, votre couleur et vos textes sur chaque offre et chaque facture." },
+      { q: "Et si un client ajoute une prestation le jour même ?", a: "Vous l’ajoutez au projet et le client la signe sur votre téléphone. Elle est reprise dans la facture finale." },
+    ],
   },
   {
     path: 'charpentier',
@@ -3523,10 +3575,62 @@ export const ROUTES = [
   },
   ...TRADE_SEO_DE,
   {
-    path: 'de/metiers',
-    title: 'Cantia für Ihr Gewerbe | Verwaltungssoftware nach Beruf',
+    path: "de/metiers",
+    title: "Software nach Branche: Bau, Service, Planungsbüros, Agenturen | Cantia",
     description:
-      'Cantia zentralisiert Offerten, Baustellen, Teams und Rechnungsstellung. Entdecken Sie, wie es sich an den Alltag Ihres Baugewerbes in der Schweiz anpasst.',
+      "Baustelle, Dossier, Mandat oder Projekt: Cantia spricht wie Ihre Branche. Bau und Handwerk, Service und Unterhalt, Planungsbüros, Agenturen und Events in der Schweiz.",
+  },
+  {
+    path: "de/metiers/batiment-artisanat",
+    title: "Software für Bau- und Handwerksbetriebe in der Schweiz | Cantia",
+    description:
+      "Online unterschriebene Offerten, ausgefüllte Ausschreibungen, Bauprogramm, Rapporte mit Fotos, Stunden und QR-Rechnungen: die Software für Baubetriebe in der Schweiz.",
+    faq: [
+      { q: "Eignet sich Cantia für einen kleinen Baubetrieb?", a: "Ja. Eine Einzelfirma beginnt mit Offerten, Baustellen und Rechnungen und ergänzt Team, Planung oder Löhne, wenn sie wächst." },
+      { q: "Kann ich die Ausschreibungen des Architekten ausfüllen?", a: "Ja. Sie importieren die PDF-Ausschreibung, Positionen und Mengen werden übernommen, Sie setzen Ihre Preise und senden das ausgefüllte Original-PDF zurück. Die Funktion ist in der Beta-Phase." },
+      { q: "Können meine Mitarbeitenden ihre Stunden auf der Baustelle erfassen?", a: "Ja, auf dem Handy, ohne etwas zu installieren. Jede Stunde gehört zu einer Baustelle und einer Tätigkeit." },
+      { q: "Sind die Rechnungen in der Schweiz konform?", a: "Ja: QR-Rechnung, MWST, Nummerierung und Pflichtangaben. Sie können Ihre Rechnungen auch mit Bexio synchronisieren." },
+      { q: "Wie lange dauert der Start?", a: "Einige Minuten für das Unternehmen und die erste Offerte. Kunden und Katalog lassen sich aus Excel importieren." },
+    ],
+  },
+  {
+    path: "de/metiers/service-entretien",
+    title: "Software für Reinigung, Hauswartung und Unterhalt in der Schweiz | Cantia",
+    description:
+      "Einsätze, Teams, Stunden, Rapporte mit Fotos, Offerten und QR-Rechnungen: Cantia organisiert Reinigungsfirmen, Hauswartungen, Unterhalts- und Gartenbetriebe in der Schweiz.",
+    faq: [
+      { q: "Eignet sich Cantia für eine Reinigungsfirma?", a: "Ja. Sie verwalten Kunden und Adressen pro Dossier, Ihre Teams im Plan, die Stunden auf dem Handy, dann Offerten und QR-Rechnungen." },
+      { q: "Kann ich meine Einsätze «Dossiers» nennen?", a: "Ja. Sie wählen zwischen Baustelle, Projekt, Mandat oder Dossier; der Begriff erscheint in der ganzen App und auf Ihren Dokumenten." },
+      { q: "Brauchen meine Mitarbeitenden eine App?", a: "Nein. Sie öffnen Cantia im Browser des Handys oder legen es auf den Startbildschirm. Nichts zu installieren." },
+      { q: "Kann ich einer Verwaltung mehrere Liegenschaften verrechnen?", a: "Ja. Die Verwaltung ist ein Kunde, jede Liegenschaft hat ihr Dossier, und jede Rechnung nennt die betreffende Liegenschaft." },
+      { q: "Werden die Löhne verwaltet?", a: "Ja, mit dem Abo Team: Die erfassten Stunden fliessen in die Lohnabrechnungen, mit den Schweizer Abzügen." },
+    ],
+  },
+  {
+    path: "de/metiers/bureaux-etudes",
+    title: "Software für Ingenieur-, Planungs- und Architekturbüros in der Schweiz | Cantia",
+    description:
+      "Mandate, Honorarofferten, Zeit pro Mitarbeitende, Dokumente, Ausgaben und QR-Rechnungen: Cantia organisiert Ingenieur-, Planungs- und Architekturbüros in der Schweiz.",
+    faq: [
+      { q: "Eignet sich Cantia für ein Ingenieur- oder Architekturbüro?", a: "Ja. Sie organisieren Ihre Tätigkeit nach Mandaten, mit Offerten, Zeit pro Mitarbeitende, Dokumenten, Ausgaben und Rechnungen." },
+      { q: "Kann ich nach Aufwand verrechnen?", a: "Ja. Die auf einem Mandat erfassten Stunden können in die Rechnung übernommen werden, oder Sie verrechnen pauschal mit Akontos." },
+      { q: "Kann ich meine Dossiers «Mandate» nennen?", a: "Ja. Der gewählte Begriff erscheint in der ganzen App und auf Ihren PDF-Dokumenten." },
+      { q: "Sehen die Mitarbeitenden die Honorare?", a: "Nicht unbedingt. Die Rollen legen fest, wer Beträge sieht und wer nur seine Zeit erfasst." },
+      { q: "Lässt sich Cantia mit unserer Buchhaltung verbinden?", a: "Ja: Synchronisation mit Bexio und Lesezugriff für Ihre Treuhand mit Cantia Accounting." },
+    ],
+  },
+  {
+    path: "de/metiers/agences-evenementiel",
+    title: "Software für Agenturen, Studios und Eventfirmen in der Schweiz | Cantia",
+    description:
+      "Online unterschriebene Offerten, Projekte, Team und Dienstleister, Akontos und QR-Rechnungen: Cantia organisiert Agenturen, Studios, Fotografen, Caterer und Eventfirmen in der Schweiz.",
+    faq: [
+      { q: "Eignet sich Cantia für eine Agentur oder ein Studio?", a: "Ja. Sie organisieren Ihre Tätigkeit nach Projekten, mit online unterschriebenen Offerten, Stunden des Teams, Akontos und QR-Rechnungen." },
+      { q: "Kann ich bei der Unterschrift ein Akonto verlangen?", a: "Ja. Sie verrechnen ein Akonto, dann den Rest; Cantia verfolgt, was bezahlt ist und was offen bleibt." },
+      { q: "Kann ich meine Dossiers «Projekte» nennen?", a: "Ja. Sie wählen den Begriff bei der Registrierung; er erscheint in der ganzen App und auf Ihren Dokumenten." },
+      { q: "Können meine Offerten mein Erscheinungsbild tragen?", a: "Ja: Ihr Logo, Ihre Farbe und Ihre Texte auf jeder Offerte und jeder Rechnung." },
+      { q: "Und wenn ein Kunde am selben Tag eine Leistung ergänzt?", a: "Sie fügen sie dem Projekt hinzu, und der Kunde unterschreibt auf Ihrem Handy. Sie erscheint in der Schlussrechnung." },
+    ],
   },
   {
     path: 'de/telechargement',
@@ -3806,10 +3910,62 @@ export const ROUTES = [
   },
   ...TRADE_SEO_IT,
   {
-    path: 'it/metiers',
-    title: 'Cantia per il Suo mestiere | Software di gestione per mestiere',
+    path: "it/metiers",
+    title: "Software gestionale per mestiere: edilizia, servizi, studi tecnici, agenzie | Cantia",
     description:
-      'Cantia centralizza preventivi, cantieri, squadra e fatturazione. Scopra come si adatta al quotidiano del Suo mestiere edile in Svizzera.',
+      "Cantiere, dossier, mandato o progetto: Cantia parla come il suo mestiere. Edilizia e artigianato, servizi e manutenzione, studi tecnici, agenzie ed eventi in Svizzera.",
+  },
+  {
+    path: "it/metiers/batiment-artisanat",
+    title: "Software gestionale per edilizia e artigianato in Svizzera | Cantia",
+    description:
+      "Preventivi firmati online, capitolati compilati, programma lavori, rapporti con foto, ore e fatture QR: il software delle imprese edili in Svizzera.",
+    faq: [
+      { q: "Cantia è adatto a una piccola impresa edile?", a: "Sì. Una ditta individuale inizia con preventivi, cantieri e fatture, poi aggiunge squadra, programma o salari quando cresce." },
+      { q: "Posso compilare i capitolati dell’architetto?", a: "Sì. Importa il capitolato PDF, posizioni e quantità vengono riprese, inserisce i suoi prezzi e rimanda il PDF originale compilato. La funzione è in beta." },
+      { q: "I miei operai possono registrare le ore in cantiere?", a: "Sì, dal telefono, senza installare nulla. Ogni ora è legata a un cantiere e a un tipo di lavoro." },
+      { q: "Le fatture sono conformi in Svizzera?", a: "Sì: QR-fattura, IVA, numerazione e menzioni obbligatorie. Può anche sincronizzare le fatture con Bexio." },
+      { q: "Quanto tempo serve per iniziare?", a: "Pochi minuti per creare l’azienda e il primo preventivo. Clienti e catalogo si importano da Excel." },
+    ],
+  },
+  {
+    path: "it/metiers/service-entretien",
+    title: "Software per imprese di pulizia, portineria e manutenzione in Svizzera | Cantia",
+    description:
+      "Interventi, squadre, ore, rapporti con foto, preventivi e fatture QR: Cantia organizza imprese di pulizia, portinerie, manutenzione e giardinaggio in Svizzera.",
+    faq: [
+      { q: "Cantia è adatto a un’impresa di pulizia?", a: "Sì. Gestisce clienti e indirizzi per dossier, squadre nel programma, ore sul telefono, poi preventivi e fatture QR." },
+      { q: "Posso chiamare i miei interventi «dossier»?", a: "Sì. Sceglie tra cantiere, progetto, mandato o dossier; la parola è usata in tutta l’applicazione e sui documenti." },
+      { q: "I miei dipendenti hanno bisogno di un’app?", a: "No. Aprono Cantia nel browser del telefono o lo aggiungono alla schermata Home. Niente da installare." },
+      { q: "Posso fatturare a un’amministrazione più stabili?", a: "Sì. L’amministrazione è un cliente, ogni stabile ha il suo dossier e ogni fattura indica lo stabile interessato." },
+      { q: "I salari sono gestiti?", a: "Sì, con il piano Squadra: le ore registrate alimentano le buste paga, con le deduzioni svizzere." },
+    ],
+  },
+  {
+    path: "it/metiers/bureaux-etudes",
+    title: "Software gestionale per studi d’ingegneria, tecnici e di architettura in Svizzera | Cantia",
+    description:
+      "Mandati, offerte d’onorario, tempo per collaboratore, documenti, spese e fatture QR: Cantia organizza studi d’ingegneria, tecnici e di architettura in Svizzera.",
+    faq: [
+      { q: "Cantia è adatto a uno studio d’ingegneria o di architettura?", a: "Sì. Organizza l’attività per mandato, con offerte, tempo per collaboratore, documenti, spese e fatture." },
+      { q: "Posso fatturare a ore?", a: "Sì. Le ore registrate su un mandato possono essere riprese in fattura, oppure fattura a forfait con acconti." },
+      { q: "Posso chiamare i miei dossier «mandati»?", a: "Sì. La parola scelta è usata in tutta l’applicazione e sui documenti PDF." },
+      { q: "I collaboratori vedono gli onorari?", a: "Non necessariamente. I ruoli definiscono chi vede gli importi e chi registra solo il proprio tempo." },
+      { q: "Si può collegare Cantia alla nostra contabilità?", a: "Sì: sincronizzazione con Bexio e accesso in lettura per la sua fiduciaria con Cantia Accounting." },
+    ],
+  },
+  {
+    path: "it/metiers/agences-evenementiel",
+    title: "Software gestionale per agenzie, studi creativi ed eventi in Svizzera | Cantia",
+    description:
+      "Offerte firmate online, progetti, squadra e fornitori, acconti e fatture QR: Cantia organizza agenzie, studi creativi, fotografi, catering e aziende di eventi in Svizzera.",
+    faq: [
+      { q: "Cantia è adatto a un’agenzia o a uno studio?", a: "Sì. Organizza l’attività per progetto, con offerte firmate online, ore della squadra, acconti e fatture QR." },
+      { q: "Posso chiedere un acconto alla firma?", a: "Sì. Fattura un acconto, poi il saldo; Cantia segue ciò che è stato pagato e ciò che resta." },
+      { q: "Posso chiamare i miei dossier «progetti»?", a: "Sì. Sceglie la parola all’iscrizione; è usata in tutta l’applicazione e sui documenti." },
+      { q: "Le mie offerte possono avere la mia identità visiva?", a: "Sì: il suo logo, il suo colore e i suoi testi su ogni offerta e ogni fattura." },
+      { q: "E se un cliente aggiunge una prestazione il giorno stesso?", a: "La aggiunge al progetto e il cliente la firma sul suo telefono. Viene ripresa nella fattura finale." },
+    ],
   },
   {
     path: 'it/telechargement',

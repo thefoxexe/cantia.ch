@@ -11,7 +11,6 @@ import { INNER_COPY } from '../../lib/site/inner';
 import { SITE_PAGES } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
-import { getTradePage, TRADE_PAGE_SLUGS, pluralTradeName } from '../../lib/tradeLandingPages';
 import { useTranslation } from '../../lib/translations';
 import { SurMesureContactForm } from '../SurMesureContactForm';
 import { ContactForm } from '../ContactForm';
@@ -130,127 +129,6 @@ function Faq({ eyebrow, title, items }: { eyebrow: string; title: string; items:
 function useHref() {
   const p = usePrefix();
   return (slug: string) => (slug.startsWith('http') ? slug : `${p}/${slug}`);
-}
-
-// ─── Votre métier ───────────────────────────────────────────────────────────
-
-const TRADE_ICONS: Record<string, IconName> = {
-  charpentier: 'layout', macon: 'grid', electricien: 'zap', plombier: 'droplet', peintre: 'edit-3', menuisier: 'tool',
-  'entreprise-generale': 'briefcase', paysagiste: 'sun', couvreur: 'home', chauffagiste: 'thermometer', carreleur: 'square',
-  platrier: 'layers', 'genie-civil': 'trending-up', terrassier: 'truck', 'entreprise-renovation': 'refresh-cw', serrurier: 'lock',
-  ferblantier: 'wind', facadier: 'columns', etancheur: 'umbrella', 'construction-bois': 'feather', vitrier: 'square',
-  parqueteur: 'grid', echafaudeur: 'bar-chart-2', demolition: 'x-octagon',
-};
-
-export function MetiersPage() {
-  const locale = useSiteLocale();
-  const c = INNER_COPY[locale].metiers;
-  const p = usePrefix();
-  const { phone, tablet, width } = useSiteLayout();
-  const [active, setActive] = useState(c.sectors[0].key);
-  const sector = c.sectors.find((s) => s.key === active)!;
-  // Building trades only: the pages for other sectors stay out of this index
-  // (docs/seo-tri-contenu.md).
-  const trades = TRADE_PAGE_SLUGS.filter((s) => !getTradePage(s, 'fr')!.general);
-  const twoCols = width > 900;
-
-  return (
-    <SitePage title={c.seoTitle} description={c.seoDescription}>
-      <PageHero crumb={c.crumb} eyebrow={c.eyebrow} plain={c.h1Plain} accent={c.h1Accent} lead={c.lead} />
-
-      <Section white>
-        <View style={[styles.sectorLayout, phone ? { flexDirection: 'column', gap: 25 } : { gap: tablet ? 30 : 60 }]}>
-          <View style={[phone ? styles.sectorChips : { flex: 0.7 }]} role="tablist">
-            {c.sectors.map((s, i) => {
-              const on = s.key === active;
-              return phone ? (
-                <Hover key={s.key} onPress={() => setActive(s.key)} accessibilityRole="tab" aria-selected={on} base={[styles.chip, on && { borderColor: site.copper, backgroundColor: '#eae1d3' }]}>
-                  <Text style={[sans, { fontSize: 10, color: on ? site.copper : site.ink }]}>{s.label}</Text>
-                </Hover>
-              ) : (
-                <Hover
-                  key={s.key}
-                  onPress={() => setActive(s.key)}
-                  accessibilityRole="tab"
-                  aria-selected={on}
-                  base={[styles.sectorBtn, i === c.sectors.length - 1 && { borderBottomWidth: 1 }, on && { backgroundColor: '#eae1d3' }]}
-                  hover={on ? undefined : { backgroundColor: site.bg }}
-                >
-                  <Text style={[sans, { fontSize: 13, color: on ? site.copper : site.ink }]}>{s.label}</Text>
-                  <Feather name="arrow-right" size={15} color={on ? site.copper : site.muted} />
-                </Hover>
-              );
-            })}
-          </View>
-          <View style={[styles.sectorContent, phone ? { padding: 25 } : { flex: 1.4, padding: tablet ? 30 : 40 }]}>
-            <Eyebrow>{sector.eyebrow}</Eyebrow>
-            <Headline level={2} plain={sector.title} size={phone ? 29 : 36} style={{ marginTop: 15, marginBottom: 18 }} />
-            <Text style={[sans, styles.copy, { maxWidth: 500, fontSize: phone ? 12 : 13 }]}>{sector.desc}</Text>
-            <View style={styles.vocab}>
-              {c.words.map((w) => (
-                <Text key={w} style={[serif, styles.word, w === sector.word && styles.wordOn, phone && { fontSize: 18, paddingHorizontal: 13 }]}>
-                  {w}
-                </Text>
-              ))}
-            </View>
-            <View style={{ gap: 10, marginVertical: 20 }}>
-              {sector.items.map((it) => (
-                <View key={it} style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
-                  <Feather name="check" size={14} color={site.copper} style={{ marginTop: 3 }} />
-                  <Text style={[sans, { fontSize: 12, color: site.ink, lineHeight: 20, flex: 1 }]}>{it}</Text>
-                </View>
-              ))}
-            </View>
-            <TextLink label={c.sectorLinks[sector.link]} href={`${p}/${sector.link}`} />
-          </View>
-        </View>
-        <Text style={[sans, styles.proof]}>{c.proof}</Text>
-      </Section>
-
-      <Section>
-        <SectionHead eyebrow={c.tradesEyebrow} plain={c.tradesTitle} text={c.tradesText} />
-        <View style={[styles.tradeIndex, twoCols && { flexDirection: 'row', flexWrap: 'wrap', columnGap: 40 }]}>
-          {trades.map((slug) => {
-            const trade = getTradePage(slug, locale)!;
-            return (
-              <Link key={slug} href={`${p}/${slug}` as any} asChild>
-                <Hover accessibilityRole="link" base={[styles.tradeRow, twoCols && { width: '47.5%' }]} hover={{ opacity: 0.8 }}>
-                  {(hovered) => (
-                    <>
-                      <Feather name={TRADE_ICONS[slug] ?? 'tool'} size={17} color={site.copper} style={{ marginTop: 2 }} />
-                      <View style={{ flex: 1, gap: 4 }}>
-                        <Text style={[sans, styles.tradeName, hovered && { color: site.copper }]}>{locale === 'fr' ? pluralTradeName(trade.tradeName) : trade.tradeName}</Text>
-                        <Text style={[sans, styles.tradeText]} numberOfLines={2}>
-                          {trade.hero.subtitle}
-                        </Text>
-                      </View>
-                      <Feather name="arrow-right" size={15} color={hovered ? site.copper : site.muted} style={{ marginTop: 2 }} />
-                    </>
-                  )}
-                </Hover>
-              </Link>
-            );
-          })}
-        </View>
-      </Section>
-
-      <Section white>
-        <View style={[styles.split, phone ? { flexDirection: 'column', gap: 29, alignItems: 'stretch' } : { gap: tablet ? 45 : 75 }]}>
-          <View style={phone ? undefined : { flex: 1 }}>
-            <Eyebrow>{c.splitEyebrow}</Eyebrow>
-            <Headline plain={c.splitPlain} accent={c.splitAccent} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 22 }} />
-            <Text style={[sans, styles.copy]}>{c.splitText}</Text>
-            <View style={{ marginTop: 20 }}>
-              <TextLink label={c.splitLink} href={`${p}/sur-mesure`} />
-            </View>
-          </View>
-          <View style={phone ? undefined : { flex: 1 }}>
-            <Callout strong={c.calloutStrong} text={c.callout} />
-          </View>
-        </View>
-      </Section>
-    </SitePage>
-  );
 }
 
 // ─── Sur mesure ─────────────────────────────────────────────────────────────

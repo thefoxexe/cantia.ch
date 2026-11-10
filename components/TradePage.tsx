@@ -2,9 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './site/Primitives';
-import { Breadcrumbs, DocVisual, PhoneShot, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
+import { Breadcrumbs, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
+import { LaptopShot } from './site/Laptop';
+import { APP_SCREENS } from './site/appScreens';
+import { SECTOR_SLUGS, SECTOR_UI, SECTORS_COPY, type SectorKey } from '../lib/site/sectors';
 import { FaqItem } from './site/FamilyPage';
-import { EXPORTS } from './site/exports';
 import { SITE_PAGES } from '../lib/site/pages';
 import { sans, serif, site } from '../lib/siteTheme';
 import { authHref } from '../lib/appHost';
@@ -22,7 +24,6 @@ export function TradePage({ slug }: { slug: string }) {
   const trade = getTradePage(slug, locale)!;
   const { phone, tablet, width, h2Size } = useSiteLayout();
   const L = SITE_PAGES[locale]?.labels ?? SITE_PAGES.fr.labels;
-  const X = EXPORTS[locale] ?? EXPORTS.fr;
 
   // Outside the building trades, the shared copy talks about projects.
   const general = !!trade.general;
@@ -38,6 +39,10 @@ export function TradePage({ slug }: { slug: string }) {
   ];
 
   const forTrade = locale === 'fr' ? genderedFor(trade.tradeName) : trade.tradeName;
+  // The building trades sit in « Bâtiment & artisanat », the landscaper too
+  // (outdoor work is part of the site, CFC 4).
+  const sectorKey: SectorKey = 'batiment';
+  const sector = SECTORS_COPY[locale][sectorKey];
   const related = (trade.relatedTrades ?? []).map((s) => getTradePage(s, locale)).filter((p): p is NonNullable<typeof p> => !!p);
   const relatedPosts = (trade.relatedBlogSlugs ?? []).map((s) => getPostByBase(s, locale)).filter((p) => !!p);
   const pre = locale === 'fr' ? '/' : `/${locale}/`;
@@ -50,7 +55,14 @@ export function TradePage({ slug }: { slug: string }) {
       {/* Hero */}
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 40 : 70 }}>
         <Wrap>
-          <Breadcrumbs items={[{ label: t('tradePage.breadcrumbHome'), href: pre === '/' ? '/' : pre.slice(0, -1) }, { label: t('tradePage.breadcrumbTrades'), href: `${pre}metiers` }, { label: trade.tradeName }]} />
+          <Breadcrumbs
+            items={[
+              { label: t('tradePage.breadcrumbHome'), href: pre === '/' ? '/' : pre.slice(0, -1) },
+              { label: SECTOR_UI[locale].crumbTrades, href: `${pre}metiers` },
+              { label: sector.label, href: `${pre}metiers/${SECTOR_SLUGS[sectorKey]}` },
+              { label: capitalize(trade.tradeName) },
+            ]}
+          />
           <View style={[styles.lead, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 70 }]}>
             <View style={phone ? undefined : { flex: 1.1, minWidth: 0 }}>
               <Eyebrow>{trade.hero.eyebrow}</Eyebrow>
@@ -66,14 +78,8 @@ export function TradePage({ slug }: { slug: string }) {
               </View>
               <Text style={[sans, styles.trust]}>{t('tradePage.heroTrust')}</Text>
             </View>
-            <View style={phone ? undefined : { flex: 0.9, minWidth: 0 }}>
-              {general ? (
-                <View style={{ alignItems: 'center' }}>
-                  <PhoneShot source={X.app.dashMobile.source} ratio={X.app.dashMobile.ratio} width={250} maxHeight={480} alt={L.appAlt} />
-                </View>
-              ) : (
-                <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} />
-              )}
+            <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
+              <LaptopShot source={APP_SCREENS[locale].chantier} alt={`${capitalize(trade.tradeName)} · Cantia`} />
             </View>
           </View>
         </Wrap>
@@ -195,7 +201,7 @@ export function TradePage({ slug }: { slug: string }) {
               </Link>
             ))}
             <View style={{ justifyContent: 'center', marginLeft: 6 }}>
-              <TextLink label={t('tradePage.seeAlsoAllTrades')} href={`${pre}metiers`} size={12} />
+              <TextLink label={t('tradePage.seeAlsoAllTrades')} href={`${pre}metiers/${SECTOR_SLUGS[sectorKey]}`} size={12} />
             </View>
           </View>
         </Section>
@@ -215,6 +221,10 @@ export function TradePage({ slug }: { slug: string }) {
       </View>
     </SitePage>
   );
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function genderedFor(tradeName: string): string {

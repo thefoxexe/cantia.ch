@@ -275,6 +275,26 @@
   status = 200
 
 [[redirects]]
+  from = "/metiers/batiment-artisanat"
+  to = "/metiers/batiment-artisanat.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien"
+  to = "/metiers/service-entretien.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes"
+  to = "/metiers/bureaux-etudes.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel"
+  to = "/metiers/agences-evenementiel.html"
+  status = 200
+
+[[redirects]]
   from = "/charpentier"
   to = "/charpentier.html"
   status = 200
@@ -392,56 +412,6 @@
 [[redirects]]
   from = "/demolition"
   to = "/demolition.html"
-  status = 200
-
-[[redirects]]
-  from = "/entreprise-nettoyage"
-  to = "/entreprise-nettoyage.html"
-  status = 200
-
-[[redirects]]
-  from = "/conciergerie"
-  to = "/conciergerie.html"
-  status = 200
-
-[[redirects]]
-  from = "/garagiste"
-  to = "/garagiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/demenageur"
-  to = "/demenageur.html"
-  status = 200
-
-[[redirects]]
-  from = "/informaticien"
-  to = "/informaticien.html"
-  status = 200
-
-[[redirects]]
-  from = "/graphiste"
-  to = "/graphiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/photographe"
-  to = "/photographe.html"
-  status = 200
-
-[[redirects]]
-  from = "/traiteur"
-  to = "/traiteur.html"
-  status = 200
-
-[[redirects]]
-  from = "/consultant"
-  to = "/consultant.html"
-  status = 200
-
-[[redirects]]
-  from = "/formateur"
-  to = "/formateur.html"
   status = 200
 
 [[redirects]]
@@ -830,58 +800,28 @@
   status = 200
 
 [[redirects]]
-  from = "/de/entreprise-nettoyage"
-  to = "/de/entreprise-nettoyage.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/conciergerie"
-  to = "/de/conciergerie.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/garagiste"
-  to = "/de/garagiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/demenageur"
-  to = "/de/demenageur.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/informaticien"
-  to = "/de/informaticien.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/graphiste"
-  to = "/de/graphiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/photographe"
-  to = "/de/photographe.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/traiteur"
-  to = "/de/traiteur.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/consultant"
-  to = "/de/consultant.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/formateur"
-  to = "/de/formateur.html"
-  status = 200
-
-[[redirects]]
   from = "/de/metiers"
   to = "/de/metiers.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/batiment-artisanat"
+  to = "/de/metiers/batiment-artisanat.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien"
+  to = "/de/metiers/service-entretien.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes"
+  to = "/de/metiers/bureaux-etudes.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel"
+  to = "/de/metiers/agences-evenementiel.html"
   status = 200
 
 [[redirects]]
@@ -1285,58 +1225,28 @@
   status = 200
 
 [[redirects]]
-  from = "/it/entreprise-nettoyage"
-  to = "/it/entreprise-nettoyage.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/conciergerie"
-  to = "/it/conciergerie.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/garagiste"
-  to = "/it/garagiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/demenageur"
-  to = "/it/demenageur.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/informaticien"
-  to = "/it/informaticien.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/graphiste"
-  to = "/it/graphiste.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/photographe"
-  to = "/it/photographe.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/traiteur"
-  to = "/it/traiteur.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/consultant"
-  to = "/it/consultant.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/formateur"
-  to = "/it/formateur.html"
-  status = 200
-
-[[redirects]]
   from = "/it/metiers"
   to = "/it/metiers.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/batiment-artisanat"
+  to = "/it/metiers/batiment-artisanat.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien"
+  to = "/it/metiers/service-entretien.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes"
+  to = "/it/metiers/bureaux-etudes.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel"
+  to = "/it/metiers/agences-evenementiel.html"
   status = 200
 
 [[redirects]]
@@ -2441,6 +2351,18 @@
 [[redirects]]
   from = "/blog/zahlungsfrist-rechnung-handwerker-schweiz"
   to = "/blog/delai-paiement-facture-artisan-code-obligations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/conciergerie"
+  to = "/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/consultant"
+  to = "/metiers/bureaux-etudes"
   status = 301
   force = true
 
@@ -3611,6 +3533,102 @@
 [[redirects]]
   from = "/de/blog/variante-soumission-proposer-alternative"
   to = "/de/blog/remplir-soumission-pdf-architecte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/conciergerie"
+  to = "/de/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/consultant"
+  to = "/de/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/demenageur"
+  to = "/de/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/entreprise-nettoyage"
+  to = "/de/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/formateur"
+  to = "/de/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/garagiste"
+  to = "/de/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/graphiste"
+  to = "/de/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/informaticien"
+  to = "/de/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/photographe"
+  to = "/de/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/traiteur"
+  to = "/de/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/demenageur"
+  to = "/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/entreprise-nettoyage"
+  to = "/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/formateur"
+  to = "/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/garagiste"
+  to = "/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/graphiste"
+  to = "/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/informaticien"
+  to = "/metiers/bureaux-etudes"
   status = 301
   force = true
 
@@ -4793,6 +4811,78 @@
 [[redirects]]
   from = "/it/blog/zahlungsfrist-rechnung-handwerker-schweiz"
   to = "/it/blog/delai-paiement-facture-artisan-code-obligations"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/conciergerie"
+  to = "/it/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/consultant"
+  to = "/it/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/demenageur"
+  to = "/it/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/entreprise-nettoyage"
+  to = "/it/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/formateur"
+  to = "/it/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/garagiste"
+  to = "/it/metiers/service-entretien"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/graphiste"
+  to = "/it/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/informaticien"
+  to = "/it/metiers/bureaux-etudes"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/photographe"
+  to = "/it/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/traiteur"
+  to = "/it/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/photographe"
+  to = "/metiers/agences-evenementiel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/traiteur"
+  to = "/metiers/agences-evenementiel"
   status = 301
   force = true
 # END generated blog redirects

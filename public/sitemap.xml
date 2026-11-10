@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/outils</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -42,12 +42,12 @@
   </url>
   <url>
     <loc>https://cantia.ch/calculateur-salaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/logiciel-chantier</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
@@ -97,17 +97,17 @@
   </url>
   <url>
     <loc>https://cantia.ch/solutions/tresorerie</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://cantia.ch/integrations</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/sur-mesure</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -127,7 +127,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -697,7 +697,23 @@
   </url>
   <url>
     <loc>https://cantia.ch/metiers</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/metiers/batiment-artisanat</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/metiers/service-entretien</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/metiers/bureaux-etudes</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/metiers/agences-evenementiel</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -822,182 +838,182 @@
   </url>
   <url>
     <loc>https://cantia.ch/telechargement</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/mentions-legales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/confidentialite</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/conditions-generales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/contact</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/videos</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/ressources</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/demarrage</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/devis-creation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/devis-trames</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/facturation-acomptes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/facturation-email-lien</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/chantiers-rapports</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/rentabilite</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/planning</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/metre</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/inventaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/equipe-modules</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/personnalisation-abonnement</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/tableau-de-bord</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/rejoindre-organisation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/dictee-vocale</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/chantiers-documents</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/chantiers-sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/travaux-supplementaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/rh-heures-salaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/rh-heures-guide</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/tresorerie</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/depenses</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/clients</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/integration-bexio</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/relances-impayes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/import-releve-bancaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/aide/portail-client</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1052,17 +1068,17 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/solutions/tresorerie</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/integrations</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/sur-mesure</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1082,7 +1098,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1207,37 +1223,53 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/metiers/batiment-artisanat</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/metiers/service-entretien</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/metiers/bureaux-etudes</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/metiers/agences-evenementiel</loc>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/telechargement</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/mentions-legales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/confidentialite</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/conditions-generales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/calculateur-salaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1252,157 +1284,157 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/contact</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/videos</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/ressources</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/demarrage</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/devis-creation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/devis-trames</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/facturation-acomptes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/facturation-email-lien</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/chantiers-rapports</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/rentabilite</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/planning</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/metre</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/inventaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/equipe-modules</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/personnalisation-abonnement</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/tableau-de-bord</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/rejoindre-organisation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/dictee-vocale</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/chantiers-documents</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/chantiers-sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/travaux-supplementaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/rh-heures-salaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/rh-heures-guide</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/tresorerie</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/depenses</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/clients</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/integration-bexio</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/relances-impayes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/import-releve-bancaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/aide/portail-client</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1747,17 +1779,17 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/solutions/tresorerie</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/integrations</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/sur-mesure</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1777,7 +1809,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1902,52 +1934,68 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers</loc>
-    <lastmod>2026-11-04</lastmod>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/metiers/batiment-artisanat</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/metiers/service-entretien</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/metiers/bureaux-etudes</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/metiers/agences-evenementiel</loc>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/telechargement</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/mentions-legales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/confidentialite</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/conditions-generales</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide</loc>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/calculateur-salaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/contact</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/videos</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/ressources</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2057,142 +2105,142 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/demarrage</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/devis-creation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/devis-trames</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/facturation-acomptes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/facturation-email-lien</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/chantiers-rapports</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/rentabilite</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/planning</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/metre</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/inventaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/equipe-modules</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/personnalisation-abonnement</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/tableau-de-bord</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/rejoindre-organisation</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/dictee-vocale</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/chantiers-documents</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/chantiers-sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/travaux-supplementaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/rh-heures-salaires</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/rh-heures-guide</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/tresorerie</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/depenses</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/clients</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/sous-traitants</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/integration-bexio</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/relances-impayes</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/import-releve-bancaire</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/aide/portail-client</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2627,26 +2675,32 @@
   </url>
   <url>
     <loc>https://cantia.ch/ecosysteme</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/ressources</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/ecosysteme</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/ressources</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/ecosysteme</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/ressources</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
 </urlset>

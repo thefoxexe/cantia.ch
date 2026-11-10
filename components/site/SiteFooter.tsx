@@ -6,6 +6,9 @@ import { sans, site } from '../../lib/siteTheme';
 import { SITE_COPY } from '../../lib/site/copy';
 import { authHref } from '../../lib/appHost';
 import { StatusLink } from '../StatusLink';
+import { SECTOR_KEYS, SECTOR_SLUGS, SECTORS_COPY } from '../../lib/site/sectors';
+
+const SECTORS_TITLE = { fr: 'Secteurs', de: 'Branchen', it: 'Settori' } as const;
 
 const LOGO = require('../../assets/brand/logo.png');
 
@@ -29,6 +32,10 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
         ...c.families.map((fam) => ({ label: fam.name, href: `${p}/${fam.slug}` })),
         { label: c.nav.assistant.name, href: `${p}/assistant` },
       ],
+    },
+    {
+      title: SECTORS_TITLE[locale],
+      links: SECTOR_KEYS.map((k) => ({ label: SECTORS_COPY[locale][k].label, href: `${p}/metiers/${SECTOR_SLUGS[k]}` })),
     },
     {
       title: f.company,
