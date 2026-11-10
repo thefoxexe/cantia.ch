@@ -701,10 +701,12 @@ export default function AdminNewsletterScreen() {
                         {c.audience_label}
                       </Text>
                     ) : null}
+                    {c.error ? <Text style={[styles.historyMeta, { color: colors.danger }]}>{c.error}</Text> : null}
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={styles.historyCount}>{c.sent_count} envoyé{c.sent_count > 1 ? 's' : ''}</Text>
                     {c.skipped_count > 0 ? <Text style={styles.historyMeta}>{c.skipped_count} ignoré{c.skipped_count > 1 ? 's' : ''}</Text> : null}
+                    {c.failed_count ? <Text style={[styles.historyMeta, { color: colors.danger }]}>{c.failed_count} en échec</Text> : null}
                   </View>
                 </View>
               ))}

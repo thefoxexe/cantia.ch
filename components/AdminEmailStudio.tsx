@@ -55,7 +55,7 @@ export function AdminEmailStudio({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState<string | null>(null);
-  const { organization } = useAuth();
+  const { organization, isPlatformAdmin } = useAuth();
   // Which field the current recording fills.
   const [dictTarget, setDictTarget] = useState<'brief' | 'revision' | null>(null);
   const dictation = useDictation((text) => {
@@ -72,7 +72,7 @@ export function AdminEmailStudio({
       setDictTarget(null);
       return;
     }
-    if (!organization) {
+    if (!organization && !isPlatformAdmin) {
       setError('La dictée a besoin d’une entreprise liée à votre compte.');
       return;
     }

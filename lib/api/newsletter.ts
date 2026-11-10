@@ -67,6 +67,8 @@ export interface NewsletterCampaign {
   recipient_emails: string[];
   sent_count: number;
   skipped_count: number;
+  failed_count?: number;
+  error?: string | null;
   total_count: number;
   created_at: string;
   variants?: LangVariants | null;
@@ -78,7 +80,7 @@ export interface NewsletterCampaign {
 export async function listCampaigns(limit = 20): Promise<NewsletterCampaign[]> {
   const { data } = await supabase
     .from('newsletter_campaigns')
-    .select('id, subject, from_persona, sent_by, recipient_emails, sent_count, skipped_count, total_count, created_at, variants, audience_label')
+    .select('id, subject, from_persona, sent_by, recipient_emails, sent_count, skipped_count, failed_count, error, total_count, created_at, variants, audience_label')
     .order('created_at', { ascending: false })
     .limit(limit);
   return (data ?? []) as NewsletterCampaign[];

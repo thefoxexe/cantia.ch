@@ -20,8 +20,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { storage_path } = await req.json();
-    if (!storage_path) return json({ error: 'storage_path requis' }, 400);
+    const { storage_path, audio_base64, mime } = await req.json();
+    if (!storage_path && !audio_base64) return json({ error: 'storage_path requis' }, 400);
 
     const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) return json({ error: "Transcription indisponible : clé OpenAI non configurée." }, 500);
@@ -33,17 +33,30 @@ Deno.serve(async (req: Request) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const { data: file, error: downloadError } = await userClient.storage.from(BUCKET).download(storage_path);
-    if (downloadError || !file) return json({ error: 'Enregistrement introuvable ou accès refusé' }, 404);
+    let file: Blob;
+    if (audio_base64) {
+      // Platform admin without a company (the newsletter composer in
+      // app/(admin)): no org bucket to upload to and no org quota to count
+      // against, so the clip comes inline. Refused for everyone else.
+      const { data: isAdmin } = await userClient.rpc('is_platform_admin');
+      if (!isAdmin) return json({ error: 'Accès refusé' }, 403);
+      const bytes = Uint8Array.from(atob(String(audio_base64)), (c) => c.charCodeAt(0));
+      if (bytes.length > 20 * 1024 * 1024) return json({ error: 'Enregistrement trop long' }, 413);
+      file = new Blob([bytes], { type: typeof mime === 'string' && mime ? mime : 'audio/webm' });
+    } else {
+      const { data, error: downloadError } = await userClient.storage.from(BUCKET).download(storage_path);
+      if (downloadError || !data) return json({ error: 'Enregistrement introuvable ou accès refusé' }, 404);
+      file = data;
 
-    // Storage paths are always `${organizationId}/...` (see uploadToOrgBucket) —
-    // reused here rather than trusting a separate client-supplied field.
-    const organizationId = String(storage_path).split('/')[0];
-    const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', {
-      p_organization_id: organizationId,
-    });
-    if (quotaError) return json({ error: 'Accès refusé' }, 403);
-    if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
+      // Storage paths are always `${organizationId}/...` (see uploadToOrgBucket) —
+      // reused here rather than trusting a separate client-supplied field.
+      const organizationId = String(storage_path).split('/')[0];
+      const { data: allowed, error: quotaError } = await userClient.rpc('check_and_log_ai_usage', {
+        p_organization_id: organizationId,
+      });
+      if (quotaError) return json({ error: 'Accès refusé' }, 403);
+      if (!allowed) return json({ error: "Quota d'utilisations IA mensuel atteint sur votre plan. Passez à un plan supérieur pour continuer." }, 403);
+    }
 
     const ext = file.type.includes('webm') ? 'webm' : file.type.includes('wav') ? 'wav' : 'm4a';
     const form = new FormData();

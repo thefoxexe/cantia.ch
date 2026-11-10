@@ -161,6 +161,8 @@ Deno.serve(async (req: Request) => {
         recipient_emails: sentEmails,
         sent_count: sent,
         skipped_count: skipped,
+        failed_count: failed,
+        error: list.length === 0 && targetIds.length > 0 ? 'Aucune adresse e-mail trouvée pour les destinataires.' : failReason,
         total_count: targetIds.length,
         variants,
         audience_label: typeof audienceLabel === 'string' ? audienceLabel.slice(0, 300) : null,

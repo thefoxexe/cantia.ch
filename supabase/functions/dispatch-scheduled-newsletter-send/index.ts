@@ -21,14 +21,22 @@ const FROM_BY_PERSONA: Record<string, string> = {
 };
 const REPLY_TO = 'info@cantia.ch';
 
-async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean }> {
+async function sendResendEmail(params: { apiKey: string; from: string; replyTo?: string; to: string[]; subject: string; html: string }): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${params.apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: params.from, to: params.to, reply_to: params.replyTo, subject: params.subject, html: params.html }),
   });
-  if (!res.ok) console.error('Resend error', res.status, await res.text());
-  return { ok: res.ok };
+  if (res.ok) return { ok: true };
+  const text = await res.text();
+  console.error('Resend error', res.status, text);
+  let message = text;
+  try {
+    message = JSON.parse(text)?.message ?? text;
+  } catch {
+    // not JSON, keep the raw text
+  }
+  return { ok: false, error: `Resend ${res.status} : ${String(message).slice(0, 200)}` };
 }
 
 Deno.serve(async (req: Request) => {
@@ -91,6 +99,8 @@ Deno.serve(async (req: Request) => {
     // rate-limits per second.
     const CHUNK = 5;
     let sent = 0;
+    let failed = 0;
+    let failReason: string | null = null;
     const sentEmails: string[] = [];
     for (let i = 0; i < list.length; i += CHUNK) {
       const chunk = list.slice(i, i + CHUNK);
@@ -104,10 +114,22 @@ Deno.serve(async (req: Request) => {
         if (res.ok) {
           sent += 1;
           sentEmails.push(chunk[idx].email);
+        } else {
+          failed += 1;
+          failReason ??= res.error ?? null;
         }
       });
       if (i + CHUNK < list.length) await new Promise((r) => setTimeout(r, 1100));
     }
+
+    // Nobody reached: the schedule is a failure with its reason, not "sent".
+    const error =
+      targetIds.length > 0 && list.length === 0
+        ? 'Aucune adresse e-mail trouvée pour les destinataires.'
+        : sent === 0 && failed > 0
+          ? failReason ?? 'Envoi refusé par le service mail.'
+          : null;
+    if (error) await admin.from('scheduled_newsletter_sends').update({ status: 'failed', error }).eq('id', schedule_id);
 
     // Same history table the immediate-send path writes to, so a scheduled
     // send shows up in the composer's "historique des envois" exactly like
@@ -121,6 +143,8 @@ Deno.serve(async (req: Request) => {
         recipient_emails: sentEmails,
         sent_count: sent,
         skipped_count: skipped,
+        failed_count: failed,
+        error: error ?? failReason,
         total_count: targetIds.length,
         variants,
         audience_label: claimed.audience_label ?? null,
@@ -129,7 +153,7 @@ Deno.serve(async (req: Request) => {
       console.error('newsletter_campaigns insert failed', err);
     }
 
-    return json({ ok: true, sent, skipped, total: targetIds.length });
+    return json({ ok: !error, sent, skipped, failed, error, total: targetIds.length });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

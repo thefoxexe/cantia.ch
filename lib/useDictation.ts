@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { RecordingPresets, requestRecordingPermissionsAsync, useAudioRecorder } from 'expo-audio';
 import { useAuth } from './auth-context';
 import { deleteFromOrgBucket, uploadToOrgBucket } from './api/storage';
-import { transcribeAudio } from './api/transcription';
+import { transcribeAudio, transcribeAudioInline } from './api/transcription';
 
 // Speech-to-text via a short recording + server-side transcription
 // (supabase/functions/transcribe-audio, backed by Whisper) rather than live
@@ -17,7 +17,7 @@ import { transcribeAudio } from './api/transcription';
 // so this is a drop-in swap of what happens *inside* start/stop, not a new
 // contract.
 export function useDictation(onTranscriptChange: (sessionTranscript: string) => void) {
-  const { organization } = useAuth();
+  const { organization, isPlatformAdmin } = useAuth();
   const [listening, setListening] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const onTranscriptChangeRef = useRef(onTranscriptChange);
@@ -35,13 +35,21 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
 
   const stop = useCallback(async () => {
     setListening(false);
-    if (!organization) return;
+    if (!organization && !isPlatformAdmin) return;
     await audioRecorder.stop();
     const uri = audioRecorder.uri;
     if (!uri) return;
 
     setTranscribing(true);
     try {
+      if (!organization) {
+        // Platform admin without a company: no org bucket, send it inline.
+        const blob = await (await fetch(uri)).blob();
+        const base64 = await blobToBase64(blob);
+        const { transcript } = await transcribeAudioInline(base64, blob.type || (Platform.OS === 'web' ? 'audio/webm' : 'audio/m4a'));
+        if (transcript) onTranscriptChangeRef.current(transcript);
+        return;
+      }
       const ext = Platform.OS === 'web' ? 'webm' : 'm4a';
       const contentType = Platform.OS === 'web' ? 'audio/webm' : 'audio/m4a';
       const scratchPath = `_dictation-tmp/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -54,7 +62,7 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
     } finally {
       setTranscribing(false);
     }
-  }, [audioRecorder, organization]);
+  }, [audioRecorder, organization, isPlatformAdmin]);
 
   return {
     supported: true, // recording + server transcription needs no device-specific capability check
@@ -63,4 +71,13 @@ export function useDictation(onTranscriptChange: (sessionTranscript: string) => 
     start,
     stop,
   };
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(String(reader.result ?? '').split(',')[1] ?? '');
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
 }

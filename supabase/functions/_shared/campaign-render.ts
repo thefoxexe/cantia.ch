@@ -39,15 +39,22 @@ function asLocale(v: unknown): Locale {
   return v === 'de' || v === 'it' ? v : 'fr';
 }
 
-// E-mail of each given user, looked up one by one like every other mailer
-// here (getUserById). Listing all accounts with listUsers failed as a whole
-// (one bad auth row is enough) and silently skipped every recipient.
+// E-mail of each given user: one query (service_user_emails, service role
+// only), then one by one with getUserById for anyone it did not return.
+// Listing all accounts with listUsers failed as a whole (one bad auth row is
+// enough) and silently skipped every recipient.
 export async function authEmailsFor(admin: SupabaseClient, userIds: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   const ids = Array.from(new Set(userIds));
-  for (let i = 0; i < ids.length; i += 10) {
+  for (let i = 0; i < ids.length; i += 500) {
+    const { data, error } = await admin.rpc('service_user_emails', { p_ids: ids.slice(i, i + 500) });
+    if (error) console.error('service_user_emails failed', error.message);
+    for (const row of (data ?? []) as { id: string; email: string }[]) if (row.email) map.set(row.id, row.email);
+  }
+  const missing = ids.filter((id) => !map.has(id));
+  for (let i = 0; i < missing.length; i += 10) {
     await Promise.all(
-      ids.slice(i, i + 10).map(async (id) => {
+      missing.slice(i, i + 10).map(async (id) => {
         const { data, error } = await admin.auth.admin.getUserById(id);
         if (error) console.error('getUserById failed', id, error.message);
         else if (data?.user?.email) map.set(id, data.user.email);
