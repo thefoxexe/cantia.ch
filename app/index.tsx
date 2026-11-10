@@ -15,10 +15,8 @@ import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 // for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
 // still carry the old logo.
 const DEVIS = require('../assets/marketing/site/devis-signe.jpg');
-const FACTURE = require('../assets/marketing/site/facture-qr.jpg');
 const QR_SLIP = require('../assets/marketing/site/facture-qr-section.jpg');
 const DEVIS_RATIO = 1221 / 1200;
-const FACTURE_RATIO = 1696 / 1200;
 const QR_RATIO = 713 / 1400;
 
 const paperShadow = Platform.OS === 'web' ? ({ boxShadow: '0 22px 48px rgba(86,58,34,0.16), 0 2px 6px rgba(86,58,34,0.08)' } as object) : {};
@@ -56,21 +54,25 @@ function LandingContent() {
         {/* Hero */}
         <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 68 }}>
           <Wrap>
-            <View style={[styles.heroTop, phone ? { flexDirection: 'column', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
+            <View style={[styles.heroTop, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
               <View style={phone ? undefined : { flex: tablet ? 0.9 : 1.22, minWidth: 0 }}>
                 <Eyebrow>{h.eyebrow}</Eyebrow>
                 <Headline level={1} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
                 <Text style={[sans, styles.lead, { fontSize: phone || tablet ? (tablet ? 13 : 14) : 15 }]}>
                   <Text style={{ color: site.ink, fontWeight: '500' }}>{h.leadStrong}</Text> {h.lead}
                 </Text>
-                <View style={[styles.actions, { gap: phone ? 23 : 25, marginTop: phone ? 24 : 26 }]}>
-                  <Btn label={h.tryCta} href={authHref('signup')} />
-                  <TextLink label={h.explore} href={`${p}/${copy.families[0].slug}`} size={phone ? 11 : 12} />
+                <View style={[styles.actions, { gap: phone ? 23 : width <= 900 ? 15 : 25, marginTop: phone ? 24 : 26 }]}>
+                  <View>
+                    <Btn label={h.tryCta} href={authHref('signup')} small={phone || width <= 900} />
+                  </View>
+                  <View>
+                    <TextLink label={h.explore} href={`${p}/${copy.families[0].slug}`} size={phone || width <= 900 ? 11 : 12} />
+                  </View>
                 </View>
                 <Micro style={{ fontSize: phone ? 9 : 9 }}>{h.micro}</Micro>
               </View>
               <View style={phone ? undefined : { flex: tablet ? 1.1 : 0.8, minWidth: 0 }}>
-                <HeroStage tag={h.stageTag} note={h.stageNote} chip={h.exportDevis} phone={phone} />
+                <HeroStage tag={h.stageTag} note={h.stageNote} phone={phone} />
               </View>
             </View>
 
@@ -78,7 +80,7 @@ function LandingContent() {
               {h.trust.map((item, i) => (
                 <View key={item} style={styles.trustItem}>
                   <Feather name={(['map-pin', 'grid', 'globe'] as const)[i]} size={phone ? 12 : 14} color={site.copper} />
-                  <Text style={[sans, styles.trustText, phone && { fontSize: 8 }]}>{item}</Text>
+                  <Text style={[sans, styles.trustText, phone && { fontSize: 11 }]}>{item}</Text>
                 </View>
               ))}
             </View>
@@ -92,7 +94,9 @@ function LandingContent() {
             <Families phone={phone} narrow={!phone && width <= 900} />
             <View style={[styles.sectionBottom, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 14 }]}>
               <Text style={[sans, styles.small]}>{h.familiesNote}</Text>
-              <TextLink label={h.allFeatures} href={`${p}/tarifs`} />
+              <View>
+                <TextLink label={h.allFeatures} href={`${p}/tarifs`} />
+              </View>
             </View>
           </Wrap>
         </View>
@@ -165,42 +169,26 @@ function LandingContent() {
   );
 }
 
-// The sand stage of the hero: the signed quote in front, the matching QR
-// invoice behind it. Both are untouched exports.
-function HeroStage({ tag, note, chip, phone }: { tag: string; note: string; chip: string; phone: boolean }) {
+// The sand stage of the hero: one signed quote, exactly as Cantia exports it.
+function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boolean }) {
   const [w, setW] = useState(0);
-  const pad = phone ? 12 : 26;
-  const devisW = w * (phone ? 0.7 : 0.66);
-  const factureW = w * (phone ? 0.58 : 0.6);
-  const top = phone ? 44 : 62;
-  const height = w ? top + 30 + devisW * DEVIS_RATIO + (phone ? 22 : 30) : phone ? 300 : 440;
+  const pad = phone ? 14 : 26;
+  const top = phone ? 46 : 64;
+  const bottom = phone ? 26 : 36;
+  const paperW = w * (phone ? 0.76 : 0.72);
+  const height = w ? top + paperW * DEVIS_RATIO + bottom : phone ? 300 : 440;
   return (
     <View style={[styles.stage, { height, borderRadius: phone ? 10 : 15 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      <View style={styles.stageRing} pointerEvents="none" />
-      <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 15 : 24 }]}>
+      <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 16 : 24 }]}>
         <Text style={[sans, styles.stageTagText, phone && { fontSize: 7, letterSpacing: 0.3 }]} numberOfLines={1}>
           {tag.toUpperCase()}
         </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Feather name="info" size={phone ? 9 : 11} color="#8c705a" />
-          <Text style={[sans, styles.stageTagText, phone && { fontSize: 7 }]}>{note.toUpperCase()}</Text>
-        </View>
+        <Text style={[sans, styles.stageTagText, phone && { fontSize: 7 }]}>{note.toUpperCase()}</Text>
       </View>
       {w ? (
-        <>
-          <View style={[styles.paper, paperShadow, { position: 'absolute', width: factureW, right: w * 0.06, top: top - 8 }]}>
-            <Image source={FACTURE} style={{ width: factureW, height: factureW * FACTURE_RATIO }} resizeMode="cover" accessibilityLabel="Facture QR générée par Cantia" />
-          </View>
-          <View style={[styles.paper, paperShadow, { position: 'absolute', width: devisW, left: w * 0.07, top: top + 30 }]}>
-            <Image source={DEVIS} style={{ width: devisW, height: devisW * DEVIS_RATIO }} resizeMode="cover" accessibilityLabel="Devis signé en ligne, généré par Cantia" />
-          </View>
-          <View style={[styles.chip, paperShadow, { right: w * 0.05, top: top + 30 + devisW * DEVIS_RATIO * 0.74 }, phone && { paddingVertical: 6, paddingHorizontal: 9 }]}>
-            <Feather name="check-circle" size={phone ? 11 : 13} color={site.copper} />
-            <Text style={[sans, styles.chipText, phone && { fontSize: 9 }]} numberOfLines={1}>
-              {chip}
-            </Text>
-          </View>
-        </>
+        <View style={[styles.paper, paperShadow, { position: 'absolute', width: paperW, left: (w - paperW) / 2, top }]}>
+          <Image source={DEVIS} style={{ width: paperW, height: paperW * DEVIS_RATIO }} resizeMode="cover" accessibilityLabel="Devis signé en ligne, généré par Cantia" />
+        </View>
       ) : null}
     </View>
   );
@@ -377,14 +365,11 @@ const styles = StyleSheet.create({
   lead: { lineHeight: 26, color: '#73776c', maxWidth: 400 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
   stage: { backgroundColor: site.stage, borderWidth: 1, borderColor: site.stageBorder, overflow: 'hidden', position: 'relative' },
-  stageRing: { position: 'absolute', width: 570, height: 570, borderRadius: 285, borderWidth: 1, borderColor: 'rgba(255,255,255,0.47)', right: -190, top: -230 },
   stageTag: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   stageTagText: { fontSize: 9, color: '#8c705a', letterSpacing: 0.7, flexShrink: 1 },
   paper: { backgroundColor: '#ffffff', borderRadius: 3, overflow: 'hidden' },
-  chip: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: site.white, borderRadius: 30, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: site.stageBorder },
-  chipText: { fontSize: 11, fontWeight: '600', color: site.ink },
   trust: { flexDirection: 'row', justifyContent: 'center', gap: 55, paddingVertical: 24 },
-  trustPhone: { justifyContent: 'space-between', gap: 12, paddingVertical: 19, flexWrap: 'wrap' },
+  trustPhone: { flexDirection: 'column', alignItems: 'flex-start', gap: 11, paddingVertical: 22 },
   trustItem: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   trustText: { fontSize: 10, color: '#7a7d72' },
   section: {},

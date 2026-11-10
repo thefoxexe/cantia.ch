@@ -102,7 +102,11 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
               </Pressable>
             </Link>
           ) : null}
-          {width > 370 ? <Btn label={c.tryCta} href={authHref('signup')} small={phone} /> : null}
+          {width > 370 ? (
+            <View>
+              <Btn label={c.tryCta} href={authHref('signup')} small={phone} />
+            </View>
+          ) : null}
           {phone ? (
             <Pressable onPress={() => setDrawerOpen(true)} accessibilityRole="button" accessibilityLabel={c.menu} style={styles.burger} hitSlop={6}>
               <Feather name="menu" size={20} color={site.ink} />
