@@ -21,10 +21,10 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Native und konforme QR-Rechnung (IBAN/QR-IBAN, strukturierte Adresse nach Norm 2.3) — kein nachträglich angeflanschtes Drittmodul',
+        'Native und konforme QR-Rechnung (IBAN/QR-IBAN, strukturierte Adresse nach Norm 2.3), kein nachträglich angeflanschtes Drittmodul',
         'Eine Offerte, die sich ohne erneute Eingabe in eine Rechnung umwandelt, mit Nachverfolgung von Anzahlungen und Saldo',
         'Ein wiederverwendbarer Preiskatalog von Offerte zu Offerte, mit den branchenüblichen Einheiten (m², lfm, Pauschale)',
-        'Eine Verknüpfung jedes Dokuments mit der betreffenden Baustelle, um die reale Rentabilität zu sehen — nicht nur den globalen Umsatz',
+        'Eine Verknüpfung jedes Dokuments mit der betreffenden Baustelle, um die reale Rentabilität zu sehen, nicht nur den globalen Umsatz',
         'Eine Applikation, die auf dem Terrain funktioniert, auch ohne Netz, und nicht nur ein Bürowerkzeug ist',
         'Die MWST von 8,1 % und die Schweizer Kategorien nativ verwaltet, nicht manuell zu korrigieren',
       ],

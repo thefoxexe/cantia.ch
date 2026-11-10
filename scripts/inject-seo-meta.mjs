@@ -200,7 +200,7 @@ function pageFile(route) {
 const routesByPath = new Map(ROUTES.map((r) => [r.path, r]));
 const homeHtml = readFileSync(distIndex, 'utf8');
 if (!homeHtml.includes('__EXPO_ROUTER_HYDRATE__')) {
-  throw new Error('inject-seo-meta: dist/index.html is not a static render — is app.json web.output still "static"?');
+  throw new Error('inject-seo-meta: dist/index.html is not a static render, is app.json web.output still "static"?');
 }
 const shell = makeShell(homeHtml);
 writeFileSync(path.join(distDir, 'app-shell.html'), shell);

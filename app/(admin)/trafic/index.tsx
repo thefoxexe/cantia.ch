@@ -94,7 +94,7 @@ export default function AdminTrafficScreen() {
           <AdminRefreshButton onPress={load} loading={loading} />
         </View>
         <Text style={styles.hint}>
-          D'où viennent les visites et les inscriptions — recherche organique, campagnes payantes (Google Ads via
+          D'où viennent les visites et les inscriptions. Recherche organique, campagnes payantes (Google Ads via
           utm_source/gclid), liens directs. Une source n'apparaît que si le lien cliqué portait des paramètres
           utm_* ou gclid ; sinon la visite compte comme « direct / organique ».
         </Text>

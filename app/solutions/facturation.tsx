@@ -7,7 +7,7 @@ export default function FacturationSolutionPage() {
       documentId="facture"
       kicker="Facturation"
       title="Des factures avec vrai bulletin QR suisse, sans logiciel à part"
-      subtitle="Chaque facture Cantia intègre automatiquement le QR-bill suisse conforme à la norme — IBAN, référence structurée et montant déjà encodés, prêt à scanner depuis n'importe quelle app bancaire."
+      subtitle="Chaque facture Cantia intègre automatiquement le QR-bill suisse conforme à la norme. IBAN, référence structurée et montant déjà encodés, prêt à scanner depuis n'importe quelle app bancaire."
       visual={<ModuleMockup kind="facturation" />}
       features={[
         {
@@ -54,7 +54,7 @@ export default function FacturationSolutionPage() {
       steps={[
         { title: 'Renseignez votre IBAN', text: 'Une seule fois, dans Compte → Profil entreprise.' },
         { title: 'Convertissez ou créez une facture', text: 'Depuis un devis accepté, ou directement.' },
-        { title: 'Envoyez le PDF', text: 'Le QR-bill est déjà intégré — votre client scanne et paie depuis son app bancaire.' },
+        { title: 'Envoyez le PDF', text: 'Le QR-bill est déjà intégré. Votre client scanne et paie depuis son app bancaire.' },
       ]}
       faq={[
         {
@@ -70,7 +70,7 @@ export default function FacturationSolutionPage() {
         {
           question: 'Comment savoir si une facture a été payée ?',
           answer:
-            "Recherchez et rapprochez un paiement directement par son numéro de référence QR — le statut passe à «payée» sans devoir vérifier votre compte bancaire manuellement.",
+            "Recherchez et rapprochez un paiement directement par son numéro de référence QR. Le statut passe à «payée» sans devoir vérifier votre compte bancaire manuellement.",
         },
         {
           question: 'Combien coûte la facturation avec QR-code via Cantia ?',

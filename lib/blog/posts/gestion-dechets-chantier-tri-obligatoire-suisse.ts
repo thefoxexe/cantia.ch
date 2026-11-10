@@ -25,7 +25,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Les matériaux inertes : béton, gravats, briques, tuiles — recyclables en grande partie dans la construction routière ou comme matériau de remblai',
+        'Les matériaux inertes : béton, gravats, briques, tuiles, recyclables en grande partie dans la construction routière ou comme matériau de remblai',
         'Le bois, qu’il soit brut ou traité, souvent séparé en plusieurs sous-catégories selon le degré de traitement',
         'Les métaux ferreux et non ferreux, dont la valeur de revente compense en général une bonne partie du coût d’évacuation',
         'Les déchets spéciaux : peintures, solvants, colles, résidus de produits chimiques, et tout matériau suspecté de contenir de l’amiante, qui suit une filière strictement encadrée',
@@ -45,7 +45,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le réflexe qui change tout',
-      text: 'Décider du schéma de tri avant le premier coup de pioche — combien de bennes, où elles sont placées, qui les surveille — évite presque tous les problèmes qui surviennent quand le tri est improvisé en cours de chantier, une fois les habitudes de l’équipe déjà prises.',
+      text: 'Décider du schéma de tri avant le premier coup de pioche (combien de bennes, où elles sont placées, qui les surveille) évite presque tous les problèmes qui surviennent quand le tri est improvisé en cours de chantier, une fois les habitudes de l’équipe déjà prises.',
     },
     { type: 'h2', text: 'Organiser le tri sur un petit chantier, concrètement' },
     {
@@ -61,7 +61,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Suivre les coûts d’évacuation sans mauvaise surprise',
-      text: 'Les factures de tri et d’évacuation font partie des coûts qui s’oublient facilement dans un devis. Avec Cantia, chaque dépense de chantier — y compris les bennes et la taxe de déchets — reste rattachée au bon chantier, pour une rentabilité réelle et non estimée.',
+      text: 'Les factures de tri et d’évacuation font partie des coûts qui s’oublient facilement dans un devis. Avec Cantia, chaque dépense de chantier (y compris les bennes et la taxe de déchets) reste rattachée au bon chantier, pour une rentabilité réelle et non estimée.',
       buttonLabel: 'Essayer 14 jours',
     },
   ],

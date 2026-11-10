@@ -41,7 +41,7 @@ export const post: BlogPost = {
       items: [
         'Un accès difficile au chantier (étage élevé sans ascenseur, immeuble ancien) augmente le temps de manutention et donc la main-d’œuvre facturée.',
         'Déplacer un point d’eau existant (WC, douche) implique de casser la chape et parfois de revoir l’évacuation : c’est souvent le poste qui fait le plus déraper un budget mal anticipé.',
-        'L’état des conduites derrière les murs, invisible avant démolition, peut réserver des surprises — d’où l’intérêt d’une provision pour imprévus dans le devis.',
+        'L’état des conduites derrière les murs, invisible avant démolition, peut réserver des surprises. D’où l’intérêt d’une provision pour imprévus dans le devis.',
         'Le choix des matériaux (carrelage standard vs pierre naturelle, robinetterie de marque) peut à lui seul doubler le budget sans changer la surface.',
       ],
     },

@@ -35,7 +35,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Comment s’en prémunir en amont' },
     {
       type: 'p',
-      text: 'Pour les matériaux critiques d’un chantier, identifier un fournisseur de secours avant d’en avoir besoin change tout : ce n’est pas une négociation à faire dans l’urgence. Sur le plan contractuel, il est également utile de formuler un délai indicatif plutôt que ferme lorsque la disponibilité du matériau est incertaine — cela protège l’entreprise d’une pénalité pour un retard qui ne dépend pas d’elle.',
+      text: 'Pour les matériaux critiques d’un chantier, identifier un fournisseur de secours avant d’en avoir besoin change tout : ce n’est pas une négociation à faire dans l’urgence. Sur le plan contractuel, il est également utile de formuler un délai indicatif plutôt que ferme lorsque la disponibilité du matériau est incertaine. Cela protège l’entreprise d’une pénalité pour un retard qui ne dépend pas d’elle.',
     },
     {
       type: 'callout',

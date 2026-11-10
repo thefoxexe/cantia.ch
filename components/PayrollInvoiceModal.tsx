@@ -110,7 +110,7 @@ export function PayrollInvoiceModal({
     const lines = includedLines.map((line) => {
       const key = line.workTypeId ?? line.label;
       const draft = drafts[key];
-      const description = draft.description.trim() ? `${line.label} — ${draft.description.trim()}` : line.label;
+      const description = draft.description.trim() ? `${line.label} : ${draft.description.trim()}` : line.label;
       return { description, amountChf: amountFor(draft, line.hours) };
     });
     if (lines.length === 0) {

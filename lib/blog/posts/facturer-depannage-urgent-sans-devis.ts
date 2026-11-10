@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Une fuite qui inonde un appartement un dimanche soir ne laisse pas le temps de préparer un devis en trois exemplaires. Pourtant, l’intervention doit être facturée correctement — et défendable si le client conteste la facture après coup.',
+      text: 'Une fuite qui inonde un appartement un dimanche soir ne laisse pas le temps de préparer un devis en trois exemplaires. Pourtant, l’intervention doit être facturée correctement, et défendable si le client conteste la facture après coup.',
     },
     { type: 'h2', text: '1. Le forfait de déplacement d’urgence' },
     {

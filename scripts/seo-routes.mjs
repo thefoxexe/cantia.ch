@@ -211,7 +211,7 @@ export const ROUTES = [
       },
       {
         q: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',
-        a: 'Non. Cantia fonctionne entièrement dans le navigateur, sur ordinateur, tablette ou téléphone — sans rien installer, y compris directement depuis le chantier.',
+        a: 'Non. Cantia fonctionne entièrement dans le navigateur, sur ordinateur, tablette ou téléphone, sans rien installer, y compris directement depuis le chantier.',
       },
       {
         q: 'Mes données sont-elles hébergées en Suisse ?',
@@ -239,7 +239,7 @@ export const ROUTES = [
       },
       {
         q: 'Peut-on transformer un devis accepté en facture automatiquement ?',
-        a: 'Oui, un devis accepté se convertit en facture — avec QR-bill suisse — en un clic, sans ressaisir les lignes.',
+        a: 'Oui, un devis accepté se convertit en facture (avec QR-bill suisse) en un clic, sans ressaisir les lignes.',
       },
       {
         q: 'Cantia est-il gratuit pour faire des devis ?',
@@ -251,7 +251,7 @@ export const ROUTES = [
     path: 'solutions/facturation',
     title: 'Facturation & QR-facture suisse | Cantia',
     description:
-      "Chaque facture Cantia intègre automatiquement le QR-bill suisse conforme — IBAN, référence structurée et montant déjà encodés, prêt à scanner.",
+      "Chaque facture Cantia intègre automatiquement le QR-bill suisse conforme. IBAN, référence structurée et montant déjà encodés, prêt à scanner.",
     faq: [
       {
         q: 'Comment créer une facture avec QR-facture suisse ?',
@@ -263,7 +263,7 @@ export const ROUTES = [
       },
       {
         q: 'Comment savoir si une facture a été payée ?',
-        a: 'Recherchez et rapprochez un paiement directement par son numéro de référence QR — le statut passe à «payée» sans devoir vérifier votre compte bancaire manuellement.',
+        a: 'Recherchez et rapprochez un paiement directement par son numéro de référence QR. Le statut passe à «payée» sans devoir vérifier votre compte bancaire manuellement.',
       },
       {
         q: 'Combien coûte la facturation avec QR-code via Cantia ?',
@@ -279,7 +279,7 @@ export const ROUTES = [
     faq: [
       {
         q: 'Comment rédiger un rapport de chantier rapidement ?',
-        a: "Prenez vos photos et dictez vos notes sur le moment — Cantia assemble tout en un rapport PDF structuré et prêt à envoyer, sans devoir tout retaper le soir.",
+        a: "Prenez vos photos et dictez vos notes sur le moment. Cantia assemble tout en un rapport PDF structuré et prêt à envoyer, sans devoir tout retaper le soir.",
       },
       {
         q: 'Les photos sont-elles géolocalisées automatiquement ?',
@@ -291,7 +291,7 @@ export const ROUTES = [
       },
       {
         q: 'Le rapport de chantier remplace-t-il un carnet de chantier papier ?',
-        a: 'Oui — notes, photos et suivi sont centralisés dans un document numérique consultable à tout moment, par chantier.',
+        a: 'Oui, notes, photos et suivi sont centralisés dans un document numérique consultable à tout moment, par chantier.',
       },
     ],
   },
@@ -303,7 +303,7 @@ export const ROUTES = [
     faq: [
       {
         q: 'La dictée vocale fonctionne-t-elle bien avec le vocabulaire du bâtiment ?',
-        a: 'Oui, la reconnaissance est adaptée au vocabulaire technique du bâtiment — matériaux, unités, métiers — pas seulement à du langage courant.',
+        a: 'Oui, la reconnaissance est adaptée au vocabulaire technique du bâtiment (matériaux, unités, métiers), pas seulement à du langage courant.',
       },
       {
         q: 'Faut-il une connexion internet pour dicter ?',
@@ -311,11 +311,11 @@ export const ROUTES = [
       },
       {
         q: 'Où peut-on utiliser la dictée vocale dans Cantia ?',
-        a: "Sur les devis, les rapports de chantier et les messages d'équipe du fil d'actualité — partout où vous écrivez.",
+        a: "Sur les devis, les rapports de chantier et les messages d'équipe du fil d'actualité : partout où vous écrivez.",
       },
       {
         q: 'La dictée vocale est-elle plus rapide que le clavier sur le terrain ?',
-        a: 'Pour la plupart des artisans sur chantier, oui — parler va plus vite que taper sur un téléphone avec les mains sales ou des gants.',
+        a: 'Pour la plupart des artisans sur chantier, oui. Parler va plus vite que taper sur un téléphone avec les mains sales ou des gants.',
       },
     ],
   },
@@ -347,11 +347,11 @@ export const ROUTES = [
     path: 'solutions/rentabilite',
     title: 'Rentabilité par chantier | Cantia',
     description:
-      "Comparez le devis accepté au coût réel — matériel et main d'œuvre — pour savoir si chaque chantier est rentable, en marge serrée ou en perte.",
+      "Comparez le devis accepté au coût réel (matériel et main d'œuvre) pour savoir si chaque chantier est rentable, en marge serrée ou en perte.",
     faq: [
       {
         q: 'Comment savoir si un chantier est rentable ?',
-        a: "Cantia compare le devis accepté (revenu) au coût réel — matériel saisi et main d'œuvre issue du planning — et affiche la marge en CHF et en % en temps réel.",
+        a: "Cantia compare le devis accepté (revenu) au coût réel (matériel saisi et main d'œuvre issue du planning) et affiche la marge en CHF et en % en temps réel.",
       },
       {
         q: "D'où vient le calcul du coût de main d'œuvre ?",
@@ -379,11 +379,11 @@ export const ROUTES = [
       },
       {
         q: 'Cantia calcule-t-il automatiquement les cotisations sociales suisses ?',
-        a: "Cantia calcule le salaire net à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source configurables par employé — les taux par défaut sont indicatifs, à ajuster selon votre caisse de compensation, votre caisse LPP et le canton.",
+        a: "Cantia calcule le salaire net à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source configurables par employé. Les taux par défaut sont indicatifs, à ajuster selon votre caisse de compensation, votre caisse LPP et le canton.",
       },
       {
         q: "Comment un employé exporte-t-il sa feuille d'heures ?",
-        a: 'Depuis le module RH & Salaires, en choisissant la granularité — journalière, hebdomadaire ou mensuelle — puis en téléchargeant un fichier CSV.',
+        a: 'Depuis le module RH & Salaires, en choisissant la granularité (journalière, hebdomadaire ou mensuelle), puis en téléchargeant un fichier CSV.',
       },
       {
         q: 'Le module RH & Salaires est-il inclus dans tous les plans Cantia ?',
@@ -395,11 +395,11 @@ export const ROUTES = [
     path: 'solutions/travaux-supplementaires',
     title: 'Travaux supplémentaires (TS) pour artisans suisses | Cantia',
     description:
-      "Chaque extra demandé en cours de chantier devient un document daté, signé en ligne par le client et transformé automatiquement en facture — fini les extras oubliés ou contestés.",
+      "Chaque extra demandé en cours de chantier devient un document daté, signé en ligne par le client et transformé automatiquement en facture. Fini les extras oubliés ou contestés.",
     faq: [
       {
         q: 'Qu’est-ce qu’un Travaux supplémentaires (TS) dans Cantia ?',
-        a: "C'est un document dédié pour tout ce qui est demandé en cours de chantier en plus du devis initial — un mur à déplacer, une prise à ajouter. Il se crée, s'envoie et se signe comme un devis, puis se transforme automatiquement en facture une fois accepté.",
+        a: "C'est un document dédié pour tout ce qui est demandé en cours de chantier en plus du devis initial. Un mur à déplacer, une prise à ajouter. Il se crée, s'envoie et se signe comme un devis, puis se transforme automatiquement en facture une fois accepté.",
       },
       {
         q: 'Un TS doit-il être rattaché à un devis existant ?',
@@ -407,7 +407,7 @@ export const ROUTES = [
       },
       {
         q: 'Comment le client valide-t-il un Travaux supplémentaires ?',
-        a: "Il reçoit un lien vers un portail sécurisé, consulte le détail chiffré et signe en ligne — l'acceptation est horodatée et déclenche automatiquement la facture correspondante.",
+        a: "Il reçoit un lien vers un portail sécurisé, consulte le détail chiffré et signe en ligne. L'acceptation est horodatée et déclenche automatiquement la facture correspondante.",
       },
       {
         q: 'Les travaux supplémentaires comptent-ils dans la Rentabilité par chantier ?',
@@ -431,15 +431,15 @@ export const ROUTES = [
     path: 'solutions/tresorerie',
     title: 'Trésorerie prévisionnelle pour le bâtiment | Cantia',
     description:
-      "Factures à encaisser, salaires, sous-traitants et charges récurrentes réunis en une projection à 90 jours — sans connexion bancaire.",
+      "Factures à encaisser, salaires, sous-traitants et charges récurrentes réunis en une projection à 90 jours, sans connexion bancaire.",
     faq: [
       {
         q: 'Cantia se connecte-t-il à mon compte bancaire ?',
-        a: 'Non. Vous saisissez votre solde manuellement quand vous le souhaitez — aucun accès bancaire n’est demandé ni nécessaire.',
+        a: 'Non. Vous saisissez votre solde manuellement quand vous le souhaitez, aucun accès bancaire n’est demandé ni nécessaire.',
       },
       {
         q: 'D’où viennent les montants de la projection ?',
-        a: "Des factures clients non soldées, d'une estimation de la masse salariale (profils RH + heures saisies), des factures sous-traitants impayées et des dépenses récurrentes que vous enregistrez — tout ce que Cantia sait déjà sur votre activité.",
+        a: "Des factures clients non soldées, d'une estimation de la masse salariale (profils RH + heures saisies), des factures sous-traitants impayées et des dépenses récurrentes que vous enregistrez. Tout ce que Cantia sait déjà sur votre activité.",
       },
       {
         q: 'Comment fonctionnent les rappels de dépenses récurrentes ?',
@@ -458,8 +458,8 @@ export const ROUTES = [
       "Cantia se connecte directement à votre comptabilité : Bexio dès aujourd'hui, clients et articles importés, factures envoyées en un clic, statuts de paiement synchronisés.",
     faq: [
       { q: 'Quelles intégrations Cantia propose-t-il aujourd’hui ?', a: 'Bexio, disponible nativement dès le plan Équipe. D’autres intégrations suivront le même principe de connexion officielle.' },
-      { q: 'L’intégration Bexio est-elle payante en plus de l’abonnement ?', a: 'Non — elle est incluse automatiquement à partir du plan Équipe, sans module ni coût supplémentaire.' },
-      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture arrive dans Bexio en brouillon uniquement — la finalisation reste toujours une action manuelle côté Bexio.' },
+      { q: 'L’intégration Bexio est-elle payante en plus de l’abonnement ?', a: 'Non, elle est incluse automatiquement à partir du plan Équipe, sans module ni coût supplémentaire.' },
+      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture arrive dans Bexio en brouillon uniquement. La finalisation reste toujours une action manuelle côté Bexio.' },
     ],
   },
   {
@@ -475,7 +475,7 @@ export const ROUTES = [
   },
   {
     path: 'plans/essentiel',
-    title: 'Plan Essentiel — devis & factures illimités | Cantia',
+    title: 'Plan Essentiel : devis & factures illimités | Cantia',
     description:
       "CHF 39/mois : devis et factures illimités, QR-facture, assistant vocal IA (150 par mois), une soumission à l’essai et 3 membres. Plan Essentiel.",
     faq: [
@@ -486,7 +486,7 @@ export const ROUTES = [
   },
   {
     path: 'plans/equipe',
-    title: 'Plan Équipe — planning, RH & trésorerie | Cantia',
+    title: 'Plan Équipe : planning, RH & trésorerie | Cantia',
     description:
       "CHF 79/mois : 3 soumissions par mois, planning de chantier proposé par l’IA, rentabilité par chantier, trésorerie, salaires et 10 membres. Plan Équipe.",
     faq: [
@@ -497,7 +497,7 @@ export const ROUTES = [
   },
   {
     path: 'plans/entreprise',
-    title: 'Plan Entreprise — pour les structures établies | Cantia',
+    title: 'Plan Entreprise : pour les structures établies | Cantia',
     description:
       "CHF 129/mois : tout Équipe avec soumissions illimitées, suivi des devis consultés, relances automatiques, 25 membres et support prioritaire.",
     faq: [
@@ -508,7 +508,7 @@ export const ROUTES = [
   },
   {
     path: 'blog',
-    title: 'Blog | Cantia — Réponses concrètes pour le bâtiment suisse',
+    title: 'Blog | Cantia : Réponses concrètes pour le bâtiment suisse',
     description:
       "Devis, facturation, RH, juridique, comparatifs : des réponses précises aux questions que se posent les artisans et entreprises du bâtiment en Suisse.",
   },
@@ -714,7 +714,7 @@ export const ROUTES = [
     path: 'blog/calculer-prix-devis-renovation-suisse',
     title: 'Comment calculer le prix d’un devis de rénovation en Suisse | Cantia',
     description:
-      "Méthode concrète pour chiffrer un devis de rénovation en Suisse : coût horaire réel, matériel, marge, TVA 8,1 % — avec un exemple chiffré complet.",
+      "Méthode concrète pour chiffrer un devis de rénovation en Suisse : coût horaire réel, matériel, marge, TVA 8,1 %, avec un exemple chiffré complet.",
     faq: [
       { q: 'Quelle marge appliquer sur un devis de rénovation en Suisse ?', a: 'En général entre 20 et 35 % au total (frais fixes + bénéfice + provision imprévus), à ajuster selon le corps de métier et le niveau d’incertitude du chantier existant.' },
       { q: 'Faut-il inclure les imprévus dans le prix du devis ou les facturer à part ?', a: 'Les deux approches existent : soit une provision intégrée au prix ferme, soit une clause explicite prévoyant une facturation complémentaire sur devis supplémentaire en cas de découverte imprévue.' },
@@ -729,7 +729,7 @@ export const ROUTES = [
     faq: [
       { q: 'La SIA 118 est-elle une loi suisse ?', a: 'Non. C’est une norme contractuelle privée éditée par la SIA, qui ne s’applique que si le contrat ou le devis y fait explicitement référence.' },
       { q: 'Que se passe-t-il si le devis ne mentionne pas la SIA 118 ?', a: 'Le contrat d’entreprise reste régi par le seul Code des obligations (art. 363 et suivants CO), avec ses propres règles de garantie et de réception.' },
-      { q: 'Un particulier peut-il refuser l’application de la SIA 118 ?', a: 'Oui, son intégration résulte d’un accord entre les parties — elle peut être négociée ou remplacée par les règles du CO seul avant signature.' },
+      { q: 'Un particulier peut-il refuser l’application de la SIA 118 ?', a: 'Oui, son intégration résulte d’un accord entre les parties. Elle peut être négociée ou remplacée par les règles du CO seul avant signature.' },
     ],
   },
   {
@@ -747,7 +747,7 @@ export const ROUTES = [
     path: 'blog/delai-paiement-facture-artisan-code-obligations',
     title: 'Délai de paiement d’une facture d’artisan en Suisse | Cantia',
     description:
-      "Le Code des obligations ne fixe pas de délai de paiement légal fixe — 30 jours est l’usage, mais tout dépend de ce qui figure sur votre facture.",
+      "Le Code des obligations ne fixe pas de délai de paiement légal fixe. 30 jours est l’usage, mais tout dépend de ce qui figure sur votre facture.",
     faq: [
       { q: 'La Suisse impose-t-elle un délai de paiement légal de 30 jours ?', a: 'Non. Le Code des obligations ne fixe pas de délai par défaut ; 30 jours est un usage courant à mentionner explicitement sur la facture.' },
       { q: 'Peut-on réclamer des intérêts de retard sans les avoir mentionnés sur la facture ?', a: 'Oui, l’intérêt moratoire de 5 % l’an (art. 104 CO) s’applique de plein droit dès que le débiteur est en demeure.' },
@@ -761,7 +761,7 @@ export const ROUTES = [
       "Cotisations AVS/AI/APG obligatoires dès 18 ans pour tout indépendant suisse, calculées sur le revenu net et dégressives sous CHF 60’500/an.",
     faq: [
       { q: 'À partir de quel âge un indépendant doit-il cotiser à l’AVS/AI ?', a: 'Dès 18 ans révolus, l’affiliation à l’AVS/AI/APG est obligatoire pour toute activité lucrative indépendante en Suisse.' },
-      { q: 'Le taux de cotisation AVS/AI est-il le même pour tous les indépendants ?', a: 'Non — il est dégressif sous un revenu annuel d’environ CHF 60’500, puis atteint un taux plein d’environ 10 % au-delà.' },
+      { q: 'Le taux de cotisation AVS/AI est-il le même pour tous les indépendants ?', a: 'Non, il est dégressif sous un revenu annuel d’environ CHF 60’500, puis atteint un taux plein d’environ 10 % au-delà.' },
       { q: 'Faut-il cotiser même sans bénéfice une année donnée ?', a: 'Oui, une cotisation minimale annuelle reste due même à revenu très faible ou nul.' },
     ],
   },
@@ -769,7 +769,7 @@ export const ROUTES = [
     path: 'blog/lpp-deuxieme-pilier-independant-batiment',
     title: 'LPP pour un indépendant du bâtiment : obligatoire ou pas ? | Cantia',
     description:
-      "Le 2e pilier (LPP) n’est pas obligatoire pour un indépendant suisse — sauf exceptions sectorielles liées à la SUVA dans certains métiers du bâtiment.",
+      "Le 2e pilier (LPP) n’est pas obligatoire pour un indépendant suisse, sauf exceptions sectorielles liées à la SUVA dans certains métiers du bâtiment.",
     faq: [
       { q: 'Un indépendant du bâtiment doit-il obligatoirement cotiser au 2e pilier ?', a: 'Non, en règle générale la LPP reste facultative pour tout indépendant en Suisse.' },
       { q: 'La SUVA peut-elle imposer une assurance à un indépendant sans employé ?', a: 'Dans certains métiers du bâtiment à risque, l’affiliation LAA/SUVA peut être obligatoire même pour l’indépendant lui-même.' },
@@ -782,8 +782,8 @@ export const ROUTES = [
     description:
       "Bexio est une comptabilité généraliste suisse. Cantia est pensée spécifiquement pour le chantier : devis dicté à la voix, rentabilité par projet, QR-facture native.",
     faq: [
-      { q: 'Cantia peut-il remplacer complètement Bexio ?', a: 'Cantia n’est pas un logiciel de comptabilité générale — pour la tenue comptable complète, la plupart des entreprises gardent un outil dédié ou une fiduciaire.' },
-      { q: 'Bexio propose-t-il un module chantier ou rentabilité par projet ?', a: 'Non — Bexio est un ERP généraliste pour PME suisses, sans fonctionnalité dédiée au suivi de chantier.' },
+      { q: 'Cantia peut-il remplacer complètement Bexio ?', a: 'Cantia n’est pas un logiciel de comptabilité générale. Pour la tenue comptable complète, la plupart des entreprises gardent un outil dédié ou une fiduciaire.' },
+      { q: 'Bexio propose-t-il un module chantier ou rentabilité par projet ?', a: 'Non, Bexio est un ERP généraliste pour PME suisses, sans fonctionnalité dédiée au suivi de chantier.' },
       { q: 'Peut-on utiliser Cantia et Bexio en parallèle ?', a: 'Oui, c’est une combinaison fréquente : Cantia pour le pilotage quotidien des chantiers, Bexio pour la comptabilité générale.' },
     ],
   },
@@ -793,8 +793,8 @@ export const ROUTES = [
     description:
       "Cantia se connecte directement à Bexio via son API officielle : clients importés, factures envoyées en un clic, statuts de paiement tenus à jour automatiquement.",
     faq: [
-      { q: 'L’intégration Bexio est-elle payante en plus de mon abonnement ?', a: 'Non — elle est incluse automatiquement à partir du plan Équipe, sans coût ni module supplémentaire à activer.' },
-      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture est envoyée vers Bexio en brouillon uniquement — la finalisation reste toujours manuelle côté Bexio.' },
+      { q: 'L’intégration Bexio est-elle payante en plus de mon abonnement ?', a: 'Non, elle est incluse automatiquement à partir du plan Équipe, sans coût ni module supplémentaire à activer.' },
+      { q: 'Cantia peut-il envoyer une facture définitive à mon client via Bexio ?', a: 'Non. Chaque facture est envoyée vers Bexio en brouillon uniquement. La finalisation reste toujours manuelle côté Bexio.' },
       { q: 'Que se passe-t-il si je déconnecte l’intégration ?', a: 'Les jetons d’accès Bexio sont immédiatement révoqués et aucune donnée n’est plus échangée entre les deux outils.' },
     ],
   },
@@ -806,7 +806,7 @@ export const ROUTES = [
     faq: [
       { q: 'Comment calculer la rentabilité réelle d’un chantier ?', a: 'En comparant le montant vendu au client (devis accepté) au coût réel : heures travaillées, matériel acheté et factures de sous-traitants.' },
       { q: 'Pourquoi un suivi Excel de chantier finit-il souvent abandonné ?', a: 'Parce qu’il repose sur une saisie manuelle a posteriori, fragile aux erreurs de formule et sans lien automatique avec le devis initial.' },
-      { q: 'À quel moment du chantier faut-il suivre la rentabilité ?', a: 'Idéalement en continu, dès le démarrage — un suivi fait seulement à la clôture arrive trop tard pour corriger un dépassement.' },
+      { q: 'À quel moment du chantier faut-il suivre la rentabilité ?', a: 'Idéalement en continu, dès le démarrage. Un suivi fait seulement à la clôture arrive trop tard pour corriger un dépassement.' },
     ],
   },
   {
@@ -835,10 +835,10 @@ export const ROUTES = [
     path: 'blog/duree-conservation-devis-factures-suisse',
     title: 'Combien de temps conserver devis et factures en Suisse | Cantia',
     description:
-      "Le Code des obligations (art. 958f) impose une conservation de 10 ans pour les pièces comptables, factures incluses — délai qui court depuis la fin de l’exercice.",
+      "Le Code des obligations (art. 958f) impose une conservation de 10 ans pour les pièces comptables, factures incluses. Délai qui court depuis la fin de l’exercice.",
     faq: [
       { q: 'Pendant combien de temps une entreprise suisse doit-elle garder ses factures ?', a: 'Dix ans, conformément à l’art. 958f du Code des obligations.' },
-      { q: 'Le délai de 10 ans court-il depuis la date de la facture ?', a: 'Non — il court depuis la fin de l’exercice comptable dans lequel la facture s’inscrit.' },
+      { q: 'Le délai de 10 ans court-il depuis la date de la facture ?', a: 'Non, il court depuis la fin de l’exercice comptable dans lequel la facture s’inscrit.' },
       { q: 'Peut-on conserver ses factures uniquement en format numérique ?', a: 'Oui, à condition que le lien avec les transactions concernées soit garanti et l’accessibilité assurée pendant toute la durée légale.' },
     ],
   },
@@ -859,8 +859,8 @@ export const ROUTES = [
     description:
       "Un acompte mal structuré protège rarement l’entreprise. Comment répartir les paiements sur un chantier pour ne jamais avancer plus que ce qui est déjà couvert.",
     faq: [
-      { q: 'Quel pourcentage d’acompte demander sur un chantier en Suisse ?', a: 'Il n’existe pas de règle légale fixe — 20 à 30 % à la signature est courant, mais l’échéancier complet doit couvrir les dépenses engagées à chaque étape.' },
-      { q: 'Un acompte est-il remboursable si le client annule le chantier ?', a: 'Cela dépend des conditions figurant sur le devis signé — une clause d’annulation explicite évite les litiges.' },
+      { q: 'Quel pourcentage d’acompte demander sur un chantier en Suisse ?', a: 'Il n’existe pas de règle légale fixe. 20 à 30 % à la signature est courant, mais l’échéancier complet doit couvrir les dépenses engagées à chaque étape.' },
+      { q: 'Un acompte est-il remboursable si le client annule le chantier ?', a: 'Cela dépend des conditions figurant sur le devis signé. Une clause d’annulation explicite évite les litiges.' },
       { q: 'Peut-on facturer plusieurs acomptes intermédiaires sur un même chantier ?', a: 'Oui, et c’est recommandé sur les chantiers de plusieurs semaines pour éviter d’avancer trop de trésorerie.' },
     ],
   },
@@ -881,7 +881,7 @@ export const ROUTES = [
     description:
       "Un devis sans date de validité engage l’entreprise sans limite dans le temps, même si le prix du matériel a doublé depuis. La clause qui manque sur la plupart des devis.",
     faq: [
-      { q: 'Un devis sans date de validité engage-t-il indéfiniment l’entreprise ?', a: 'En principe oui, tant qu’il n’a pas été retiré ou remplacé — d’où l’importance d’une durée de validité explicite.' },
+      { q: 'Un devis sans date de validité engage-t-il indéfiniment l’entreprise ?', a: 'En principe oui, tant qu’il n’a pas été retiré ou remplacé. D’où l’importance d’une durée de validité explicite.' },
       { q: 'Peut-on répercuter une hausse du prix des matériaux sur un devis déjà signé ?', a: 'Seulement si une clause de révision de prix le prévoit, ou par avenant négocié avec le client.' },
       { q: 'Quelle durée de validité choisir pour un devis de rénovation ?', a: '30 jours est courant pour des matériaux volatils, jusqu’à 90 jours pour des prestations en main-d’œuvre.' },
     ],
@@ -890,7 +890,7 @@ export const ROUTES = [
     path: 'blog/garantie-travaux-construction-2-ou-5-ans',
     title: 'Garantie travaux de construction en Suisse : 2, 5 ou 10 ans | Cantia',
     description:
-      "La garantie légale pour un ouvrage immobilier est de 5 ans, pas 2 — et un changement de droit entré en vigueur en 2026 réduit le délai pour signaler un défaut à 60 jours.",
+      "La garantie légale pour un ouvrage immobilier est de 5 ans, pas 2, et un changement de droit entré en vigueur en 2026 réduit le délai pour signaler un défaut à 60 jours.",
     faq: [
       { q: 'La garantie sur des travaux de construction est-elle de 2 ans ou 5 ans en Suisse ?', a: '5 ans pour tout ouvrage immobilier ou fixé au bâtiment (art. 371 al. 2 CO). 2 ans seulement pour les objets mobiliers non intégrés.' },
       { q: 'Depuis quand court le délai de garantie de 5 ans ?', a: 'Depuis la réception de l’ouvrage par le client, pas depuis la date de la facture.' },
@@ -912,7 +912,7 @@ export const ROUTES = [
     path: 'blog/assurance-rc-professionnelle-batiment-obligatoire',
     title: 'RC professionnelle dans le bâtiment : obligatoire en Suisse ? | Cantia',
     description:
-      "Aucune loi fédérale unique n’impose la RC professionnelle à tout artisan — mais plusieurs cantons et donneurs d’ordre l’exigent de fait pour certains métiers. Le point clair.",
+      "Aucune loi fédérale unique n’impose la RC professionnelle à tout artisan, mais plusieurs cantons et donneurs d’ordre l’exigent de fait pour certains métiers. Le point clair.",
     faq: [
       { q: 'La RC professionnelle est-elle obligatoire pour tout artisan suisse ?', a: 'Non, mais plusieurs cantons l’exigent pour certains métiers réglementés, et de nombreux donneurs d’ordre la demandent systématiquement.' },
       { q: 'La RC professionnelle remplace-t-elle la garantie décennale d’un chantier ?', a: 'Non, ce sont deux mécanismes différents : la garantie légale couvre l’ouvrage, la RC pro couvre les dommages à des tiers.' },
@@ -923,7 +923,7 @@ export const ROUTES = [
     path: 'blog/permis-construire-renovation-quand-necessaire',
     title: 'Permis de construire pour une rénovation : quand c’est nécessaire | Cantia',
     description:
-      "Refaire une cuisine ou une salle de bains ne demande en principe pas de permis. Dès que la structure ou l’aspect extérieur changent, la donne change — selon le canton.",
+      "Refaire une cuisine ou une salle de bains ne demande en principe pas de permis. Dès que la structure ou l’aspect extérieur changent, la donne change : selon le canton.",
     faq: [
       { q: 'Refaire une cuisine ou une salle de bains nécessite-t-il un permis ?', a: 'En principe non, tant que la structure porteuse et l’usage des locaux ne sont pas modifiés.' },
       { q: 'Quels travaux nécessitent presque toujours un permis ?', a: 'Tout ce qui touche à un mur porteur, à l’aspect extérieur ou à l’affectation d’un local.' },
@@ -945,9 +945,9 @@ export const ROUTES = [
     path: 'blog/salaire-minimum-cct-construction-suisse',
     title: "Salaire minimum dans la construction en Suisse : la CCT 2026 | Cantia",
     description:
-      "Le salaire minimum du gros œuvre suisse est fixé par la Convention nationale du secteur principal de la construction, pas par une loi fédérale — et la CCT 2026-2031 change plusieurs règles.",
+      "Le salaire minimum du gros œuvre suisse est fixé par la Convention nationale du secteur principal de la construction, pas par une loi fédérale, et la CCT 2026-2031 change plusieurs règles.",
     faq: [
-      { q: 'Existe-t-il un salaire minimum légal fédéral en Suisse ?', a: 'Non — dans le bâtiment, ce sont les CCT de branche qui fixent des minima contraignants.' },
+      { q: 'Existe-t-il un salaire minimum légal fédéral en Suisse ?', a: 'Non, dans le bâtiment, ce sont les CCT de branche qui fixent des minima contraignants.' },
       { q: 'Le salaire minimum du bâtiment est-il le même partout en Suisse ?', a: 'Non, il varie selon la région salariale et la qualification.' },
       { q: 'Qu’est-ce qui change avec la CCT construction 2026 ?', a: 'Les salaires restent globalement stables pour 2026 ; le vrai changement porte sur le régime des heures supplémentaires.' },
     ],
@@ -970,7 +970,7 @@ export const ROUTES = [
       "Barème kilométrique 2026 : l’AFC relève le taux forfaitaire de CHF 0,70 à CHF 0,75 par km au 1er janvier 2026, avec une nouvelle obligation de déclaration.",
     faq: [
       { q: 'Quel est le nouveau taux d’indemnité kilométrique en 2026 ?', a: 'CHF 0,75 par kilomètre depuis le 1er janvier 2026, contre CHF 0,70 auparavant.' },
-      { q: 'Une entreprise doit-elle obligatoirement appliquer ce taux ?', a: 'Non, elle reste libre de fixer un taux différent — CHF 0,75/km sert de référence par défaut.' },
+      { q: 'Une entreprise doit-elle obligatoirement appliquer ce taux ?', a: 'Non, elle reste libre de fixer un taux différent. CHF 0,75/km sert de référence par défaut.' },
       { q: 'Qu’est-ce qui doit désormais figurer sur le certificat de salaire ?', a: 'Une croix à la lettre F signalant le versement d’une indemnité forfaitaire véhicule.' },
     ],
   },
@@ -978,7 +978,7 @@ export const ROUTES = [
     path: 'blog/calculer-13e-salaire-prorata-employe',
     title: 'Calculer le 13e salaire au prorata en cours d’année | Cantia',
     description:
-      "Un employé engagé en avril n’a pas droit à un 13e salaire complet en décembre — le calcul au prorata se fait sur les mois réellement travaillés.",
+      "Un employé engagé en avril n’a pas droit à un 13e salaire complet en décembre. Le calcul au prorata se fait sur les mois réellement travaillés.",
     faq: [
       { q: 'Comment calculer un 13e salaire pour un employé arrivé en cours d’année ?', a: 'En multipliant le 13e salaire plein par le nombre de mois travaillés divisé par 12.' },
       { q: 'Un employé parti en cours d’année a-t-il droit à un 13e salaire au prorata ?', a: 'Oui, c’est une créance due au moment de son départ.' },
@@ -1011,20 +1011,20 @@ export const ROUTES = [
     path: 'blog/whatsapp-gestion-equipe-chantier-limites',
     title: 'WhatsApp pour gérer une équipe de chantier : les limites | Cantia',
     description:
-      "WhatsApp fonctionne très bien pour deux ou trois personnes. Au-delà, l’information se noie dans le défilement des messages — voici pourquoi, et ce qui prend le relais.",
+      "WhatsApp fonctionne très bien pour deux ou trois personnes. Au-delà, l’information se noie dans le défilement des messages. Voici pourquoi, et ce qui prend le relais.",
     faq: [
       { q: 'WhatsApp suffit-il pour gérer une petite équipe de chantier ?', a: 'Pour deux ou trois personnes et un chantier à la fois, oui.' },
       { q: 'Quel est le principal problème de WhatsApp pour plusieurs chantiers ?', a: 'L’absence de structure : aucun lien entre un message et le chantier concerné.' },
-      { q: 'Faut-il abandonner WhatsApp complètement ?', a: 'Pas nécessairement — il reste efficace pour l’urgence ponctuelle.' },
+      { q: 'Faut-il abandonner WhatsApp complètement ?', a: 'Pas nécessairement : il reste efficace pour l’urgence ponctuelle.' },
     ],
   },
   {
     path: 'blog/devis-oral-valeur-legale-suisse',
     title: 'Devis accepté à l’oral : ça engage, mais ça ne se prouve pas | Cantia',
     description:
-      "En droit suisse, un accord oral vaut contrat — le Code des obligations n’exige aucune forme écrite par défaut. Le problème n’est jamais la validité, c’est la preuve.",
+      "En droit suisse, un accord oral vaut contrat. Le Code des obligations n’exige aucune forme écrite par défaut. Le problème n’est jamais la validité, c’est la preuve.",
     faq: [
-      { q: 'Un accord oral pour des travaux est-il valable en droit suisse ?', a: 'Oui — l’art. 11 CO n’exige aucune forme particulière par défaut pour un contrat d’entreprise.' },
+      { q: 'Un accord oral pour des travaux est-il valable en droit suisse ?', a: 'Oui, l’art. 11 CO n’exige aucune forme particulière par défaut pour un contrat d’entreprise.' },
       { q: 'Quel est le principal risque d’un devis accepté uniquement à l’oral ?', a: 'La preuve, pas la validité : en cas de désaccord, il devient difficile de démontrer ce qui a été dit.' },
       { q: 'Un simple message écrit suffit-il à sécuriser un accord oral ?', a: 'Dans la majorité des cas pratiques, oui.' },
     ],
@@ -1044,7 +1044,7 @@ export const ROUTES = [
     path: 'blog/client-refuse-payer-solde-final-que-faire',
     title: 'Un client refuse de payer le solde final : la méthode | Cantia',
     description:
-      "Un refus de paiement sur le solde final n’est presque jamais définitif — c’est souvent un désaccord sur un point précis. Distinguer les deux change toute la stratégie.",
+      "Un refus de paiement sur le solde final n’est presque jamais définitif. C’est souvent un désaccord sur un point précis. Distinguer les deux change toute la stratégie.",
     faq: [
       { q: 'Un client peut-il retenir tout le solde pour un défaut mineur ?', a: 'Une retenue doit rester proportionnée au défaut réel.' },
       { q: 'Quelle est la première étape face à un refus de paiement du solde final ?', a: 'Demander par écrit la raison précise du refus.' },
@@ -1055,7 +1055,7 @@ export const ROUTES = [
     path: 'blog/avenant-chantier-plus-value-moins-value',
     title: 'Facturer un avenant en cours de chantier sans se faire piéger | Cantia',
     description:
-      "Un client qui demande un changement en cours de chantier ne signe presque jamais d’avenant écrit sur le moment — ce qui transforme un service rendu en travail gratuit.",
+      "Un client qui demande un changement en cours de chantier ne signe presque jamais d’avenant écrit sur le moment, ce qui transforme un service rendu en travail gratuit.",
     faq: [
       { q: 'Faut-il facturer une petite plus-value demandée en cours de chantier ?', a: 'Oui, systématiquement, pour maintenir une référence claire.' },
       { q: 'Quand faut-il faire valider le prix d’un avenant ?', a: 'Avant de démarrer le travail supplémentaire, pas après.' },
@@ -1088,7 +1088,7 @@ export const ROUTES = [
     path: 'blog/photos-chantier-preuve-juridique-litige',
     title: 'Photos de chantier : la preuve la plus solide, si bien prise | Cantia',
     description:
-      "Une photo de chantier vaut comme preuve devant un tribunal civil suisse — à condition d’être datée, contextualisée et conservée correctement.",
+      "Une photo de chantier vaut comme preuve devant un tribunal civil suisse. À condition d’être datée, contextualisée et conservée correctement.",
     faq: [
       { q: 'Une photo de chantier a-t-elle une vraie valeur de preuve devant un tribunal ?', a: 'Oui, si elle est datée de façon fiable et contextualisée.' },
       { q: 'À quels moments du chantier est-il le plus utile de prendre des photos ?', a: 'Avant travaux, avant fermeture d’éléments, et à la réception finale.' },
@@ -1154,7 +1154,7 @@ export const ROUTES = [
     path: 'blog/resiliation-contrat-entreprise-chantier-en-cours',
     title: 'Résiliation d’un contrat d’entreprise en cours de chantier (art. 377 CO) | Cantia',
     description:
-      "Un maître d’ouvrage peut résilier un contrat d’entreprise à tout moment, même en plein chantier — mais l’art. 377 CO lui impose de vous indemniser intégralement.",
+      "Un maître d’ouvrage peut résilier un contrat d’entreprise à tout moment, même en plein chantier, mais l’art. 377 CO lui impose de vous indemniser intégralement.",
     faq: [
       { q: 'Un client peut-il résilier un contrat de chantier sans raison ?', a: 'Oui, l’art. 377 CO le permet à tout moment tant que l’ouvrage n’est pas terminé.' },
       { q: 'Que doit payer le client qui résilie un chantier en cours ?', a: 'Le travail déjà exécuté, les dépenses engagées, et le gain manqué sur la part non réalisée.' },
@@ -1165,7 +1165,7 @@ export const ROUTES = [
     path: 'blog/hypotheque-legale-artisans-entrepreneurs-suisse',
     title: 'Hypothèque légale des artisans et entrepreneurs : délai de 4 mois | Cantia',
     description:
-      "L’hypothèque légale (art. 837 CC) garantit le paiement de vos travaux sur l’immeuble lui-même — mais elle doit être inscrite au registre foncier dans un délai de 4 mois.",
+      "L’hypothèque légale (art. 837 CC) garantit le paiement de vos travaux sur l’immeuble lui-même, mais elle doit être inscrite au registre foncier dans un délai de 4 mois.",
     faq: [
       { q: 'Qu’est-ce que l’hypothèque légale des artisans et entrepreneurs ?', a: 'Un droit de gage sur l’immeuble construit ou rénové, garantissant le paiement des travaux.' },
       { q: 'Quel est le délai pour l’inscrire ?', a: 'Quatre mois à compter de l’achèvement des travaux, sinon le droit s’éteint définitivement.' },
@@ -1209,9 +1209,9 @@ export const ROUTES = [
     path: 'blog/devis-gratuit-ou-payant-que-dit-la-loi',
     title: 'Devis gratuit ou payant : ce que la loi suisse impose (rien) | Cantia',
     description:
-      "Aucune loi suisse n’oblige un artisan à établir un devis gratuit — c’est un usage du marché, pas une obligation légale.",
+      "Aucune loi suisse n’oblige un artisan à établir un devis gratuit. C’est un usage du marché, pas une obligation légale.",
     faq: [
-      { q: 'La loi suisse oblige-t-elle à faire des devis gratuits ?', a: 'Non, aucune loi ne l’impose — c’est un usage du marché.' },
+      { q: 'La loi suisse oblige-t-elle à faire des devis gratuits ?', a: 'Non, aucune loi ne l’impose. C’est un usage du marché.' },
       { q: 'Peut-on déduire le prix d’un devis facturé du montant final ?', a: 'Oui, c’est une pratique courante et bien acceptée par les clients.' },
       { q: 'Faut-il prévenir le client avant de facturer un devis ?', a: 'Oui, dans les faits c’est indispensable pour éviter un litige commercial.' },
     ],
@@ -1220,7 +1220,7 @@ export const ROUTES = [
     path: 'blog/licenciement-ouvrier-batiment-delai-conge-cct',
     title: 'Licenciement dans le bâtiment : délais de congé CCT et CO | Cantia',
     description:
-      "Le délai de congé d’un ouvrier du bâtiment dépend de son ancienneté et de la CCT applicable — se tromper expose à devoir indemniser la différence.",
+      "Le délai de congé d’un ouvrier du bâtiment dépend de son ancienneté et de la CCT applicable. Se tromper expose à devoir indemniser la différence.",
     faq: [
       { q: 'Quel est le délai de congé légal pour 3 ans d’ancienneté ?', a: 'Deux mois pour la fin d’un mois selon l’art. 335c CO, sauf disposition CCT plus favorable.' },
       { q: 'Peut-on licencier un employé en arrêt maladie ?', a: 'Non, le congé donné pendant une période de protection est nul.' },
@@ -1253,7 +1253,7 @@ export const ROUTES = [
     path: 'blog/vacances-non-prises-fin-annee-batiment-cct',
     title: 'Vacances non prises en fin d’année dans le bâtiment | Cantia',
     description:
-      "Le solde de vacances non prises pose une vraie question de droit du travail — les vacances doivent être prises en nature, pas simplement payées.",
+      "Le solde de vacances non prises pose une vraie question de droit du travail. Les vacances doivent être prises en nature, pas simplement payées.",
     faq: [
       { q: 'Peut-on payer les vacances non prises au lieu de les faire poser ?', a: 'En principe non tant que les rapports de travail durent, sauf cas particuliers.' },
       { q: 'Un employé peut-il reporter ses vacances sur l’année suivante ?', a: 'Oui, dans une mesure raisonnable, mais pas indéfiniment.' },
@@ -1264,7 +1264,7 @@ export const ROUTES = [
     path: 'blog/calculer-prix-horaire-reel-ouvrier-batiment',
     title: 'Le vrai coût horaire d’un ouvrier du bâtiment | Cantia',
     description:
-      "Un devis chiffré sur le seul salaire brut sous-estime systématiquement le vrai coût horaire — charges sociales et temps non facturable doivent entrer dans le calcul.",
+      "Un devis chiffré sur le seul salaire brut sous-estime systématiquement le vrai coût horaire. Charges sociales et temps non facturable doivent entrer dans le calcul.",
     faq: [
       { q: 'Faut-il inclure les charges sociales dans le calcul du coût horaire ?', a: 'Oui, elles représentent généralement 15 à 20 % du salaire brut.' },
       { q: 'Combien d’heures un ouvrier travaille-t-il réellement par an ?', a: 'Autour de 1750 heures facturables en moyenne, une fois absences déduites.' },
@@ -1275,7 +1275,7 @@ export const ROUTES = [
     path: 'blog/pourquoi-entreprises-batiment-font-faillite-suisse',
     title: 'Pourquoi des entreprises du bâtiment en activité font faillite | Cantia',
     description:
-      "Avoir du travail ne suffit pas — les causes les plus fréquentes de faillite dans le bâtiment sont un problème de trésorerie et de marge invisible.",
+      "Avoir du travail ne suffit pas. Les causes les plus fréquentes de faillite dans le bâtiment sont un problème de trésorerie et de marge invisible.",
     faq: [
       { q: 'Un bon carnet de commandes protège-t-il de la faillite ?', a: 'Non, la cause la plus fréquente est un problème de trésorerie ou de marge non mesurée.' },
       { q: 'Pourquoi un chantier rentable peut-il créer une rupture de trésorerie ?', a: 'Parce que les charges se paient mensuellement alors que les clients règlent à 30-90 jours.' },
@@ -1286,7 +1286,7 @@ export const ROUTES = [
     path: 'blog/retard-chantier-meteo-obligations-contractuelles',
     title: 'Retard de chantier causé par la météo : qui est responsable ? | Cantia',
     description:
-      "Un délai contractuel dépassé à cause d’intempéries n’est pas automatiquement une faute de l’entrepreneur — mais encore faut-il pouvoir le prouver.",
+      "Un délai contractuel dépassé à cause d’intempéries n’est pas automatiquement une faute de l’entrepreneur, mais encore faut-il pouvoir le prouver.",
     faq: [
       { q: 'Un entrepreneur est-il responsable d’un retard causé par la météo ?', a: 'En principe non, tant que le retard reste raisonnable et a été communiqué au client.' },
       { q: 'Faut-il prévenir le client d’un retard dès qu’il devient probable ?', a: 'Oui, c’est la meilleure protection contractuelle.' },
@@ -1297,7 +1297,7 @@ export const ROUTES = [
     path: 'blog/excel-vs-logiciel-gestion-chantier-limites',
     title: 'Excel pour gérer ses chantiers : jusqu’où ça tient | Cantia',
     description:
-      "Excel fonctionne bien à petite échelle — jusqu’à ce qu’un deuxième employé le modifie en même temps, ou qu’un devis oublié coûte cher.",
+      "Excel fonctionne bien à petite échelle, jusqu’à ce qu’un deuxième employé le modifie en même temps, ou qu’un devis oublié coûte cher.",
     faq: [
       { q: 'Excel est-il suffisant pour une petite entreprise du bâtiment ?', a: 'Pour un usage ponctuel oui, mais les limites deviennent vite problématiques à l’échelle.' },
       { q: 'Quel est le principal risque d’Excel pour la gestion de chantier ?', a: 'L’absence de trace fiable des modifications et de lien automatique devis-facture-paiement.' },
@@ -1308,7 +1308,7 @@ export const ROUTES = [
     path: 'blog/combien-coute-logiciel-gestion-chantier-roi',
     title: 'Logiciel de gestion de chantier : ce qu’il coûte et rapporte | Cantia',
     description:
-      "Le prix affiché d’un abonnement n’est qu’une partie du calcul — voici comment évaluer le retour réel d’un logiciel de gestion pour une entreprise du bâtiment.",
+      "Le prix affiché d’un abonnement n’est qu’une partie du calcul. Voici comment évaluer le retour réel d’un logiciel de gestion pour une entreprise du bâtiment.",
     faq: [
       { q: 'Comment évaluer si un logiciel de gestion est rentable ?', a: 'En comparant le temps administratif perdu, valorisé au taux horaire réel, au coût de l’abonnement.' },
       { q: 'Quel est le principal gain d’un logiciel de gestion ?', a: 'Le temps administratif récupéré sur les devis, factures et rapprochements manuels.' },
@@ -1319,7 +1319,7 @@ export const ROUTES = [
     path: 'blog/assurance-chantier-tous-risques-ectr-obligatoire',
     title: 'Assurance chantier tous risques (ECTR) : obligatoire ou pas ? | Cantia',
     description:
-      "Contrairement à la RC professionnelle, l’ECTR n’est imposée par aucune loi fédérale — mais son absence peut coûter très cher en cas de sinistre.",
+      "Contrairement à la RC professionnelle, l’ECTR n’est imposée par aucune loi fédérale, mais son absence peut coûter très cher en cas de sinistre.",
     faq: [
       { q: 'L’ECTR est-elle obligatoire en Suisse ?', a: 'Non, aucune loi fédérale ne l’impose, mais son absence expose fortement les intervenants.' },
       { q: 'Qui souscrit généralement l’ECTR ?', a: 'Le plus souvent le maître d’ouvrage, au bénéfice de tous les intervenants du chantier.' },
@@ -1330,7 +1330,7 @@ export const ROUTES = [
     path: 'blog/planning-chantier-eviter-conflits-ressources',
     title: 'Conflits de planning entre chantiers : comment les éviter | Cantia',
     description:
-      "Un ouvrier ou une machine réservés deux fois le même jour sur deux chantiers différents — un classique quand le planning vit dans plusieurs têtes.",
+      "Un ouvrier ou une machine réservés deux fois le même jour sur deux chantiers différents. Un classique quand le planning vit dans plusieurs têtes.",
     faq: [
       { q: 'Pourquoi les conflits de planning arrivent-ils même en équipe organisée ?', a: 'Parce que le planning existe souvent dans plusieurs endroits séparés, sans vue partagée.' },
       { q: 'Quel est le vrai coût d’un conflit de planning ?', a: 'Un trajet perdu, un client mécontent, et une improvisation plus coûteuse que le temps gagné.' },
@@ -1341,7 +1341,7 @@ export const ROUTES = [
     path: 'blog/application-hors-ligne-chantier-pourquoi-important',
     title: 'Application de chantier sans réseau : le mode hors ligne | Cantia',
     description:
-      "Un sous-sol en béton, une vallée mal couverte, un chantier isolé — le réseau mobile n’est jamais garanti sur un chantier.",
+      "Un sous-sol en béton, une vallée mal couverte, un chantier isolé. Le réseau mobile n’est jamais garanti sur un chantier.",
     faq: [
       { q: 'Pourquoi le réseau mobile n’est-il pas fiable sur un chantier ?', a: 'Structures en béton, sous-sols, zones rurales ou saturation locale du réseau.' },
       { q: 'Que se passe-t-il sans mode hors ligne ?', a: 'Photos et rapports risquent d’être perdus, poussant l’équipe à abandonner l’outil.' },
@@ -1352,7 +1352,7 @@ export const ROUTES = [
     path: 'blog/facturation-heures-regie-batiment-comment-faire',
     title: "Facturation en régie dans le bâtiment : comment faire | Cantia",
     description:
-      "Un travail facturé au temps passé plutôt qu’à prix fixe expose davantage à la contestation client — sauf si le détail est réellement traçable.",
+      "Un travail facturé au temps passé plutôt qu’à prix fixe expose davantage à la contestation client, sauf si le détail est réellement traçable.",
     faq: [
       { q: 'Une facture en régie doit-elle détailler les heures jour par jour ?', a: 'Oui, un total global sans détail est bien plus contestable qu’un relevé précis.' },
       { q: 'Faut-il un accord écrit avant de facturer en régie ?', a: 'Pas obligatoire légalement, mais fortement recommandé pour éviter les litiges.' },
@@ -1363,7 +1363,7 @@ export const ROUTES = [
     path: 'blog/sous-effectif-chantier-recruter-ou-sous-traiter',
     title: 'Manque de main-d’œuvre : recruter ou sous-traiter ? | Cantia',
     description:
-      "Refuser des chantiers faute de personnel est un mauvais calcul, mais recruter trop vite en est un autre — voici comment trancher.",
+      "Refuser des chantiers faute de personnel est un mauvais calcul, mais recruter trop vite en est un autre : voici comment trancher.",
     faq: [
       { q: 'Comment savoir s’il faut recruter plutôt que sous-traiter ?', a: 'Si la surcharge est structurelle et concerne une compétence centrale au métier.' },
       { q: 'Quel est le principal risque d’un recrutement précipité ?', a: 'Un salaire fixe qui pèse sur la trésorerie une fois le pic d’activité retombé.' },
@@ -1376,7 +1376,7 @@ export const ROUTES = [
     description:
       "QR-facture native, catalogue de prix, suivi par chantier, hors-ligne sur le terrain : les critères concrets pour choisir un logiciel de devis et facturation adapté au bâtiment suisse.",
     faq: [
-      { q: 'Un logiciel de facturation généraliste suffit-il pour une entreprise du bâtiment ?', a: 'Rarement — la plupart n’ont pas de QR-facture native ni de lien devis/chantier.' },
+      { q: 'Un logiciel de facturation généraliste suffit-il pour une entreprise du bâtiment ?', a: 'Rarement : la plupart n’ont pas de QR-facture native ni de lien devis/chantier.' },
       { q: 'Quel est le critère le plus important pour un logiciel bâtiment en Suisse ?', a: 'La QR-facture native conforme, couplée à un suivi par chantier.' },
       { q: 'Le logiciel doit-il fonctionner hors connexion ?', a: 'Idéalement oui, le réseau n’est jamais garanti sur un chantier.' },
     ],
@@ -1385,7 +1385,7 @@ export const ROUTES = [
     path: 'blog/logiciel-facturation-qr-facture-comparatif-suisse',
     title: 'Logiciel de facturation QR-facture : comparatif Suisse | Cantia',
     description:
-      "Beaucoup d'outils affichent « QR-facture compatible » sans respecter la norme dans le détail — voici ce qui distingue un vrai support d'un module bricolé.",
+      "Beaucoup d'outils affichent « QR-facture compatible » sans respecter la norme dans le détail. Voici ce qui distingue un vrai support d'un module bricolé.",
     faq: [
       { q: 'Quelle est la différence entre IBAN et QR-IBAN ?', a: 'Le QR-IBAN est dédié aux QR-factures avec référence QR structurée (QRR).' },
       { q: 'Pourquoi une QR-facture peut-elle échouer au scan ?', a: 'Une adresse non structurée ou une zone de quiétude insuffisante peuvent bloquer le scan.' },
@@ -1396,7 +1396,7 @@ export const ROUTES = [
     path: 'blog/crm-artisan-batiment-pourquoi-utile',
     title: 'CRM pour artisan du bâtiment : utile ou superflu ? | Cantia',
     description:
-      "Un artisan qui gère 30, 50 ou 100 clients a le même problème de mémoire qu'un commercial — voici quand un CRM devient réellement utile.",
+      "Un artisan qui gère 30, 50 ou 100 clients a le même problème de mémoire qu'un commercial. Voici quand un CRM devient réellement utile.",
     faq: [
       { q: 'Un artisan indépendant a-t-il besoin d’un CRM ?', a: 'Dès qu’il devient difficile de se souvenir de l’historique de chaque client sans chercher dans ses e-mails.' },
       { q: 'Quelle est la différence entre un CRM et un carnet d’adresses ?', a: 'Un CRM relie l’historique complet (devis, factures, chantiers) à chaque client.' },
@@ -1407,7 +1407,7 @@ export const ROUTES = [
     path: 'blog/duree-validite-devis-non-signe-combien-temps',
     title: 'Combien de temps un devis reste valable en Suisse | Cantia',
     description:
-      "Sans mention explicite, un devis non signé n'a pas de durée de validité légale fixe — ce qui expose l'entreprise à devoir honorer un ancien prix.",
+      "Sans mention explicite, un devis non signé n'a pas de durée de validité légale fixe, ce qui expose l'entreprise à devoir honorer un ancien prix.",
     faq: [
       { q: 'Un devis a-t-il une durée de validité légale fixe en Suisse ?', a: 'Non, sans mention explicite le devis peut rester valable indéfiniment.' },
       { q: 'Quelle durée de validité choisir pour un devis de travaux ?', a: '30 jours est l’usage le plus courant dans le bâtiment suisse.' },
@@ -1418,7 +1418,7 @@ export const ROUTES = [
     path: 'blog/note-de-credit-facture-rectificative-suisse',
     title: 'Corriger une facture envoyée : note de crédit en Suisse | Cantia',
     description:
-      "Une erreur sur une facture déjà envoyée ne se corrige jamais en éditant le PDF original — voici la bonne méthode, conforme à la comptabilité suisse.",
+      "Une erreur sur une facture déjà envoyée ne se corrige jamais en éditant le PDF original. Voici la bonne méthode, conforme à la comptabilité suisse.",
     faq: [
       { q: 'Peut-on modifier une facture déjà envoyée à un client ?', a: 'Non, toute correction doit passer par une note de crédit suivie d’une nouvelle facture.' },
       { q: 'Qu’est-ce qu’une note de crédit exactement ?', a: 'Un document qui annule tout ou partie d’une facture déjà émise.' },
@@ -1429,7 +1429,7 @@ export const ROUTES = [
     path: 'blog/prescription-facture-impayee-delai-10-ans',
     title: 'Prescription d’une facture impayée en Suisse : le délai | Cantia',
     description:
-      "Une créance contractuelle se prescrit en principe par 10 ans en Suisse — mais des actes interruptifs existent, à ne jamais laisser filer.",
+      "Une créance contractuelle se prescrit en principe par 10 ans en Suisse, mais des actes interruptifs existent, à ne jamais laisser filer.",
     faq: [
       { q: 'Au bout de combien de temps une créance se prescrit-elle en Suisse ?', a: 'En principe 10 ans pour une créance contractuelle (art. 127 CO).' },
       { q: 'Une relance amiable interrompt-elle la prescription ?', a: 'Non, seuls une poursuite, une reconnaissance de dette ou une action en justice l’interrompent.' },
@@ -1440,7 +1440,7 @@ export const ROUTES = [
     path: 'blog/numerotation-facture-obligations-legales-suisse',
     title: 'Numérotation des factures en Suisse : la continuité | Cantia',
     description:
-      "Un numéro de facture sauté ou réutilisé attire immédiatement l'attention lors d'un contrôle fiscal — la continuité numérique est l'un des premiers points vérifiés.",
+      "Un numéro de facture sauté ou réutilisé attire immédiatement l'attention lors d'un contrôle fiscal. La continuité numérique est l'un des premiers points vérifiés.",
     faq: [
       { q: 'La numérotation continue des factures est-elle obligatoire en Suisse ?', a: 'L’AFC attend une série chronologique et traçable, vérifiée en cas de contrôle.' },
       { q: 'Peut-on réutiliser un numéro de facture annulée ?', a: 'Non, une facture annulée doit rester identifiable avec une note de crédit associée.' },
@@ -1451,7 +1451,7 @@ export const ROUTES = [
     path: 'blog/difference-sia-108-sia-118-devis-contrat',
     title: 'SIA 108 vs SIA 118 : deux normes, deux rôles différents | Cantia',
     description:
-      "La SIA 118 régit les relations avec l'entrepreneur, la SIA 108 celles avec les mandataires — les confondre expose à appliquer les mauvaises règles.",
+      "La SIA 118 régit les relations avec l'entrepreneur, la SIA 108 celles avec les mandataires. Les confondre expose à appliquer les mauvaises règles.",
     faq: [
       { q: 'Quelle norme SIA s’applique à un artisan qui exécute des travaux ?', a: 'La SIA 118, qui régit le contrat d’entreprise.' },
       { q: 'Les normes SIA s’appliquent-elles automatiquement à un chantier ?', a: 'Non, elles doivent être explicitement mentionnées dans le contrat ou le devis.' },
@@ -1473,7 +1473,7 @@ export const ROUTES = [
     path: 'blog/retenue-de-garantie-chantier-consignation',
     title: 'Retenue de garantie sur un chantier : ce qu’elle couvre | Cantia',
     description:
-      "Un maître d'ouvrage retient parfois 5 à 10 % du montant final — une pratique qui n'est pas automatique et doit être négociée, pas subie.",
+      "Un maître d'ouvrage retient parfois 5 à 10 % du montant final. Une pratique qui n'est pas automatique et doit être négociée, pas subie.",
     faq: [
       { q: 'Un maître d’ouvrage peut-il imposer une retenue sans accord préalable ?', a: 'Non, elle doit être négociée et acceptée explicitement.' },
       { q: 'Quel pourcentage est généralement retenu sur un chantier ?', a: 'Entre 5 et 10 % du montant final selon ce qui a été négocié.' },
@@ -1484,7 +1484,7 @@ export const ROUTES = [
     path: 'blog/litige-chantier-mediation-ou-tribunal',
     title: 'Litige de chantier : médiation, conciliation ou tribunal | Cantia',
     description:
-      "Le tribunal n'est presque jamais la première étape logique — une procédure de conciliation est même obligatoire avant la plupart des actions civiles.",
+      "Le tribunal n'est presque jamais la première étape logique. Une procédure de conciliation est même obligatoire avant la plupart des actions civiles.",
     faq: [
       { q: 'Faut-il obligatoirement passer par une conciliation avant un procès en Suisse ?', a: 'Oui, pour la majorité des litiges civils, c’est une condition de recevabilité.' },
       { q: 'La médiation est-elle obligatoire pour un litige de chantier ?', a: 'Non, elle est volontaire, contrairement à la conciliation.' },
@@ -1495,7 +1495,7 @@ export const ROUTES = [
     path: 'blog/certificat-de-travail-obligation-employeur-batiment',
     title: 'Certificat de travail dans le bâtiment : une obligation | Cantia',
     description:
-      "Un employé quittant l'entreprise a le droit d'exiger un certificat de travail à tout moment — le refuser expose l'employeur à un litige.",
+      "Un employé quittant l'entreprise a le droit d'exiger un certificat de travail à tout moment. Le refuser expose l'employeur à un litige.",
     faq: [
       { q: 'Un employeur peut-il refuser de délivrer un certificat de travail ?', a: 'Non, c’est un droit de l’employé prévu par l’art. 330a CO.' },
       { q: 'Quelle est la différence entre certificat complet et attestation simple ?', a: 'Le certificat complet inclut une appréciation, l’attestation non.' },
@@ -1506,7 +1506,7 @@ export const ROUTES = [
     path: 'blog/demission-employe-batiment-preavis-a-respecter',
     title: 'Démission d’un employé du bâtiment : le délai de préavis | Cantia',
     description:
-      "Le préavis de démission suit les mêmes règles que le licenciement — un employé qui part sans le respecter expose l'entreprise à un manque organisationnel.",
+      "Le préavis de démission suit les mêmes règles que le licenciement. Un employé qui part sans le respecter expose l'entreprise à un manque organisationnel.",
     faq: [
       { q: 'Le délai de préavis est-il le même pour une démission et un licenciement ?', a: 'Oui, l’art. 335c CO fixe le même régime dans les deux sens.' },
       { q: 'Que peut faire un employeur si un employé part sans préavis ?', a: 'Il peut réclamer une indemnité équivalente au salaire du délai non respecté.' },
@@ -1539,7 +1539,7 @@ export const ROUTES = [
     path: 'blog/previsionnel-tresorerie-entreprise-batiment',
     title: 'Prévisionnel de trésorerie pour une entreprise du bâtiment | Cantia',
     description:
-      "Pas besoin d'un plan financier complexe pour anticiper un creux de trésorerie — un prévisionnel à 30-60-90 jours suffit à voir venir les problèmes.",
+      "Pas besoin d'un plan financier complexe pour anticiper un creux de trésorerie. Un prévisionnel à 30-60-90 jours suffit à voir venir les problèmes.",
     faq: [
       { q: 'Un prévisionnel de trésorerie doit-il être complexe ?', a: 'Non, un prévisionnel simple à 30-60-90 jours suffit pour une PME.' },
       { q: 'À quelle fréquence mettre à jour un prévisionnel ?', a: 'Idéalement à chaque nouvelle facture ou paiement reçu.' },
@@ -1574,9 +1574,9 @@ export const ROUTES = [
     description:
       "Un devis de maçonnerie mal structuré cache souvent une perte : matériaux sous-évalués, heures d'équipe mal comptées, imprévus non provisionnés. Méthode concrète pour chiffrer juste.",
     faq: [
-      { q: 'Comment chiffrer un devis de maçonnerie qui mélange plusieurs unités ?', a: 'En détaillant chaque poste avec sa propre unité — m³ pour le béton et les fondations, m² pour les murs et finitions, heures de régie pour la manutention — plutôt qu\'un prix forfaitaire unique qui masque les écarts.' },
+      { q: 'Comment chiffrer un devis de maçonnerie qui mélange plusieurs unités ?', a: 'En détaillant chaque poste avec sa propre unité. M³ pour le béton et les fondations, m² pour les murs et finitions, heures de régie pour la manutention. Plutôt qu\'un prix forfaitaire unique qui masque les écarts.' },
       { q: 'Faut-il inclure le prix des matériaux dans le prix au m² de maçonnerie ?', a: 'Il est préférable de les séparer sur le devis : cela permet d\'ajuster facilement si le prix des matériaux change avant le début du chantier, sans devoir refaire tout le calcul.' },
-      { q: 'Comment ne pas oublier le temps de manutention dans un devis de maçonnerie ?', a: 'En prévoyant une ligne dédiée en heures de régie pour le transport des matériaux, l\'évacuation des gravats et le nettoyage — un poste qui représente souvent 15 à 20 % du temps total du chantier.' },
+      { q: 'Comment ne pas oublier le temps de manutention dans un devis de maçonnerie ?', a: 'En prévoyant une ligne dédiée en heures de régie pour le transport des matériaux, l\'évacuation des gravats et le nettoyage. Un poste qui représente souvent 15 à 20 % du temps total du chantier.' },
     ],
   },
   {
@@ -1586,8 +1586,8 @@ export const ROUTES = [
       "Entre les points électriques à chiffrer, les heures réparties sur plusieurs chantiers dans la même journée et les contrôles NIBT à ne pas oublier, la gestion administrative d'un électricien a ses pièges.",
     faq: [
       { q: 'Faut-il facturer un devis d\'électricité au point ou au forfait ?', a: 'Les deux se combinent : le prix unitaire par point électrique convient aux rénovations détaillées, le forfait convient mieux aux circuits complets standardisés où le temps varie peu.' },
-      { q: 'Comment un électricien facture-t-il ses déplacements entre plusieurs chantiers ?', a: 'Il n\'existe pas de règle unique — l\'essentiel est de le décider clairement à l\'avance et de le communiquer au client, pas de l\'absorber silencieusement dans la marge.' },
-      { q: 'Le contrôle NIBT doit-il figurer sur le devis d\'électricité ?', a: 'Oui — toute installation créée ou modifiée doit être annoncée et contrôlée. L\'intégrer au devis dès le départ évite une facturation d\'urgence, moins avantageuse.' },
+      { q: 'Comment un électricien facture-t-il ses déplacements entre plusieurs chantiers ?', a: 'Il n\'existe pas de règle unique. L\'essentiel est de le décider clairement à l\'avance et de le communiquer au client, pas de l\'absorber silencieusement dans la marge.' },
+      { q: 'Le contrôle NIBT doit-il figurer sur le devis d\'électricité ?', a: 'Oui, toute installation créée ou modifiée doit être annoncée et contrôlée. L\'intégrer au devis dès le départ évite une facturation d\'urgence, moins avantageuse.' },
     ],
   },
   {
@@ -1598,7 +1598,7 @@ export const ROUTES = [
     faq: [
       { q: 'Comment différencier le tarif d\'un devis planifié et d\'un dépannage en plomberie ?', a: 'En appliquant deux logiques distinctes : un devis détaillé poste par poste pour les chantiers planifiés, et un tarif de dépannage annoncé clairement avant intervention pour les urgences.' },
       { q: 'Peut-on facturer un dépannage plus cher le soir ou le week-end ?', a: 'Oui, c\'est une pratique courante et légitime, à condition que la majoration soit annoncée avant l\'intervention plutôt que découverte sur la facture.' },
-      { q: 'Faut-il séparer la fourniture du matériel sanitaire et la pose sur le devis ?', a: 'C\'est recommandé — cela permet au client de comprendre la répartition du prix et facilite les ajustements si le matériel choisi change en cours de projet.' },
+      { q: 'Faut-il séparer la fourniture du matériel sanitaire et la pose sur le devis ?', a: 'C\'est recommandé : cela permet au client de comprendre la répartition du prix et facilite les ajustements si le matériel choisi change en cours de projet.' },
     ],
   },
   {
@@ -1607,9 +1607,9 @@ export const ROUTES = [
     description:
       "Une surface mal calculée (déductions oubliées, nombre de couches sous-estimé, préparation du support négligée) est la première cause de perte de marge chez les peintres en bâtiment.",
     faq: [
-      { q: 'Faut-il déduire les portes et fenêtres du calcul de surface peinture ?', a: 'Oui pour la surface facturée, mais le temps de finition aux bords des ouvertures reste réel — d\'où l\'intérêt d\'un tarif qui tient compte du nombre d\'ouvertures.' },
+      { q: 'Faut-il déduire les portes et fenêtres du calcul de surface peinture ?', a: 'Oui pour la surface facturée, mais le temps de finition aux bords des ouvertures reste réel. D\'où l\'intérêt d\'un tarif qui tient compte du nombre d\'ouvertures.' },
       { q: 'Comment facturer une deuxième couche de peinture nécessaire mais non prévue ?', a: 'Le mieux est de l\'anticiper dans le devis initial selon le type de support et de changement de teinte prévu, plutôt que de la découvrir sur chantier.' },
-      { q: 'Le temps de protection du chantier doit-il être facturé séparément ?', a: 'Ce n\'est pas obligatoire, mais c\'est recommandé sur les chantiers occupés ou avec du mobilier à protéger — ce temps est réel et souvent sous-estimé.' },
+      { q: 'Le temps de protection du chantier doit-il être facturé séparément ?', a: 'Ce n\'est pas obligatoire, mais c\'est recommandé sur les chantiers occupés ou avec du mobilier à protéger. Ce temps est réel et souvent sous-estimé.' },
     ],
   },
   {
@@ -1619,7 +1619,7 @@ export const ROUTES = [
       "Format du carreau, motif de pose, découpes, plans de calepinage : autant de facteurs qui font varier fortement le temps de pose d'un carrelage, à surface égale. Comment les intégrer au devis.",
     faq: [
       { q: 'Pourquoi deux devis de carrelage à surface identique peuvent-ils avoir des prix très différents ?', a: 'Le format des carreaux, le motif de pose et le nombre de découpes autour des obstacles font varier fortement le temps de pose réel, même à surface égale.' },
-      { q: 'Quelle marge de casse prévoir sur une commande de carrelage ?', a: 'Généralement entre 8 et 12 % selon la complexité de la pose — un motif avec beaucoup de découpes consomme davantage de carreaux qu\'une pose droite simple.' },
+      { q: 'Quelle marge de casse prévoir sur une commande de carrelage ?', a: 'Généralement entre 8 et 12 % selon la complexité de la pose. Un motif avec beaucoup de découpes consomme davantage de carreaux qu\'une pose droite simple.' },
       { q: 'Faut-il prévoir le ragréage du support dans le devis initial de carrelage ?', a: 'C\'est recommandé, au moins en option chiffrée à part, car l\'état réel du support n\'est souvent visible qu\'une fois l\'ancien revêtement retiré.' },
     ],
   },
@@ -1641,19 +1641,19 @@ export const ROUTES = [
       "Un chantier de toiture dépend directement de la météo et impose des mesures de sécurité qui ont un coût réel. Comment les intégrer au devis sans les cacher dans une marge invisible.",
     faq: [
       { q: 'Comment intégrer le risque météo dans un devis de toiture ?', a: 'En prévoyant explicitement une clause de report sans pénalité en cas d\'intempérie empêchant le travail en hauteur.' },
-      { q: 'Faut-il facturer séparément les dispositifs de sécurité sur un chantier de toiture ?', a: 'C\'est recommandé — échafaudage, ligne de vie et garde-corps ont un coût réel qui doit rester visible, plutôt que d\'être dilué dans le prix au m² de couverture.' },
-      { q: 'Peut-on chiffrer une réparation de charpente sans inspection préalable ?', a: 'Non, ou seulement de manière très approximative — l\'état réel d\'une charpente n\'est souvent visible qu\'après dépose de la couverture existante.' },
+      { q: 'Faut-il facturer séparément les dispositifs de sécurité sur un chantier de toiture ?', a: 'C\'est recommandé : échafaudage, ligne de vie et garde-corps ont un coût réel qui doit rester visible, plutôt que d\'être dilué dans le prix au m² de couverture.' },
+      { q: 'Peut-on chiffrer une réparation de charpente sans inspection préalable ?', a: 'Non, ou seulement de manière très approximative. L\'état réel d\'une charpente n\'est souvent visible qu\'après dépose de la couverture existante.' },
     ],
   },
   {
     path: 'blog/devis-menuisier-sur-mesure-facturation-suisse',
     title: 'Menuisier-agenceur : chiffrer le sur-mesure | Cantia',
     description:
-      "Un agencement sur mesure passe par la prise de cotes, la conception, la fabrication en atelier et le montage sur site — quatre étapes qui méritent chacune leur propre ligne de devis.",
+      "Un agencement sur mesure passe par la prise de cotes, la conception, la fabrication en atelier et le montage sur site. Quatre étapes qui méritent chacune leur propre ligne de devis.",
     faq: [
-      { q: 'Faut-il facturer la prise de cotes et les plans d\'un agencement sur mesure ?', a: 'C\'est recommandé, au moins comme un forfait d\'étude déductible du prix final si le devis est signé — cela protège un temps de travail réel souvent invisible pour le client.' },
+      { q: 'Faut-il facturer la prise de cotes et les plans d\'un agencement sur mesure ?', a: 'C\'est recommandé, au moins comme un forfait d\'étude déductible du prix final si le devis est signé. Cela protège un temps de travail réel souvent invisible pour le client.' },
       { q: 'Comment chiffrer le temps de montage d\'un agencement sur mesure ?', a: 'En prévoyant systématiquement une marge par rapport au temps théorique d\'atelier, car les irrégularités du bâti existant allongent presque toujours la pose réelle.' },
-      { q: 'Le devis de menuiserie sur mesure doit-il inclure une clause de modification ?', a: 'Oui — un client qui change d\'avis sur une finition ou une dimension après validation des plans doit générer un avenant chiffré, pas une modification silencieuse.' },
+      { q: 'Le devis de menuiserie sur mesure doit-il inclure une clause de modification ?', a: 'Oui, un client qui change d\'avis sur une finition ou une dimension après validation des plans doit générer un avenant chiffré, pas une modification silencieuse.' },
     ],
   },
   {
@@ -1662,8 +1662,8 @@ export const ROUTES = [
     description:
       "Un devis d'isolation périphérique (CECB, Programme Bâtiments) implique souvent une demande de subvention en parallèle du chantier. Comment structurer devis et facturation sans bloquer le dossier du client.",
     faq: [
-      { q: 'Le devis d\'isolation périphérique doit-il indiquer la valeur U du matériau ?', a: 'C\'est fortement recommandé — les dossiers de subvention cantonaux exigent généralement une valeur d\'isolation précise, pas seulement une désignation commerciale du matériau.' },
-      { q: 'Faut-il attendre le versement de la subvention avant de facturer le client ?', a: 'Non — il est préférable de facturer selon l\'avancement normal du chantier, sans lier sa propre trésorerie au calendrier de versement de l\'aide cantonale.' },
+      { q: 'Le devis d\'isolation périphérique doit-il indiquer la valeur U du matériau ?', a: 'C\'est fortement recommandé : les dossiers de subvention cantonaux exigent généralement une valeur d\'isolation précise, pas seulement une désignation commerciale du matériau.' },
+      { q: 'Faut-il attendre le versement de la subvention avant de facturer le client ?', a: 'Non, il est préférable de facturer selon l\'avancement normal du chantier, sans lier sa propre trésorerie au calendrier de versement de l\'aide cantonale.' },
       { q: 'Un devis d\'isolation périphérique doit-il avoir une durée de validité plus longue que la moyenne ?', a: 'C\'est conseillé, car le montage d\'un dossier de subvention peut prendre plusieurs semaines.' },
     ],
   },
@@ -1671,9 +1671,9 @@ export const ROUTES = [
     path: 'blog/devis-facture-paysagiste-jardinier-suisse',
     title: 'Paysagiste : aménagement ponctuel et entretien récurrent | Cantia',
     description:
-      "Un chantier d'aménagement extérieur et un contrat d'entretien de jardin suivent deux logiques de facturation opposées — l'un au projet, l'autre en récurrence. Comment les structurer proprement.",
+      "Un chantier d'aménagement extérieur et un contrat d'entretien de jardin suivent deux logiques de facturation opposées. L'un au projet, l'autre en récurrence. Comment les structurer proprement.",
     faq: [
-      { q: 'Faut-il refaire un devis à chaque passage d\'entretien de jardin ?', a: 'Non — un contrat d\'entretien annuel ou saisonnier avec une fréquence de passage définie évite de reproduire un devis à chaque intervention.' },
+      { q: 'Faut-il refaire un devis à chaque passage d\'entretien de jardin ?', a: 'Non, un contrat d\'entretien annuel ou saisonnier avec une fréquence de passage définie évite de reproduire un devis à chaque intervention.' },
       { q: 'Comment chiffrer la fourniture de végétaux dans un devis d\'aménagement ?', a: 'En la séparant du temps de plantation, car le prix des végétaux varie fortement selon la saison et la disponibilité.' },
       { q: 'Comment gérer la saisonnalité de l\'activité d\'un paysagiste sur l\'année ?', a: 'En sécurisant une part de revenu récurrent via des contrats d\'entretien à l\'année, qui lissent partiellement les mois plus creux.' },
     ],
@@ -1684,7 +1684,7 @@ export const ROUTES = [
     description:
       "Remplacer un chauffage à mazout ou gaz par une pompe à chaleur implique un devis technique, un délai de livraison souvent long, et fréquemment une subvention cantonale. Comment tout intégrer.",
     faq: [
-      { q: 'Faut-il attendre l\'octroi de la subvention avant de commencer les travaux de chauffage ?', a: 'Généralement oui — la plupart des programmes cantonaux exigent que le devis soit soumis et l\'aide accordée avant le début des travaux.' },
+      { q: 'Faut-il attendre l\'octroi de la subvention avant de commencer les travaux de chauffage ?', a: 'Généralement oui : la plupart des programmes cantonaux exigent que le devis soit soumis et l\'aide accordée avant le début des travaux.' },
       { q: 'Comment communiquer un long délai de livraison de pompe à chaleur au client ?', a: 'En l\'indiquant explicitement et par écrit dès le devis, surtout en haute saison où les délais peuvent dépasser deux à trois mois.' },
       { q: 'Le devis de chauffage doit-il inclure l\'adaptation du réseau existant ?', a: 'C\'est recommandé, en particulier pour un passage à une pompe à chaleur, car les radiateurs et la régulation existants ne sont pas toujours compatibles sans ajustement.' },
     ],
@@ -1693,10 +1693,10 @@ export const ROUTES = [
     path: 'blog/devis-facture-serrurier-metallier-suisse',
     title: 'Serrurier-métallier : sur-mesure et dépannage urgent | Cantia',
     description:
-      "Un garde-corps sur mesure se conçoit tranquillement, une porte forcée se dépanne dans l'heure — le serrurier-métallier vit des deux logiques en parallèle. Comment les structurer sans les confondre.",
+      "Un garde-corps sur mesure se conçoit tranquillement, une porte forcée se dépanne dans l'heure. Le serrurier-métallier vit des deux logiques en parallèle. Comment les structurer sans les confondre.",
     faq: [
       { q: 'Comment facturer un dépannage de serrurerie en urgence sans devis préalable ?', a: 'En annonçant clairement le tarif de déplacement et d\'intervention avant de se rendre sur place, plutôt que d\'établir la facture après coup sans accord préalable.' },
-      { q: 'Peut-on majorer le tarif d\'un dépannage de serrurerie hors horaires normaux ?', a: 'Oui, c\'est une pratique courante — généralement entre 30 et 50 % de majoration — à condition que le client en soit informé avant l\'intervention.' },
+      { q: 'Peut-on majorer le tarif d\'un dépannage de serrurerie hors horaires normaux ?', a: 'Oui, c\'est une pratique courante (généralement entre 30 et 50 % de majoration) à condition que le client en soit informé avant l\'intervention.' },
       { q: 'Faut-il prévoir une clause de révision de prix sur un ouvrage métallique sur mesure ?', a: 'C\'est recommandé lorsque la fabrication s\'étale sur plusieurs semaines, car le cours des matières premières peut varier sensiblement.' },
     ],
   },
@@ -1729,8 +1729,8 @@ export const ROUTES = [
       "Un site internet n'est pas indispensable pour trouver des clients, mais il change ce qui se passe après le premier contact. Ce qu'il doit vraiment contenir pour être utile, sans budget démesuré.",
     faq: [
       { q: 'Un artisan indépendant a-t-il vraiment besoin d\'un site internet ?', a: 'Pas indispensable pour trouver des clients directement, mais utile pour rassurer un prospect qui vérifie en ligne avant de contacter un artisan recommandé.' },
-      { q: 'Combien de pages doit contenir le site d\'un artisan du bâtiment ?', a: 'Généralement moins de dix suffisent — accueil, réalisations, services proposés et contact.' },
-      { q: 'Le référencement local est-il plus important que la publicité payante pour un artisan ?', a: 'Dans la majorité des cas, oui — un site bien référencé localement et une fiche Google Business active rapportent généralement plus qu\'une campagne publicitaire générique.' },
+      { q: 'Combien de pages doit contenir le site d\'un artisan du bâtiment ?', a: 'Généralement moins de dix suffisent. Accueil, réalisations, services proposés et contact.' },
+      { q: 'Le référencement local est-il plus important que la publicité payante pour un artisan ?', a: 'Dans la majorité des cas, oui. Un site bien référencé localement et une fiche Google Business active rapportent généralement plus qu\'une campagne publicitaire générique.' },
     ],
   },
   {
@@ -1740,8 +1740,8 @@ export const ROUTES = [
       "Un client qui contacte plusieurs artisans en même temps choisit très souvent celui qui répond en premier, avant même de comparer les prix en détail. Comment s'organiser pour ne plus perdre ce client.",
     faq: [
       { q: 'Pourquoi la vitesse de réponse compte-t-elle plus que le prix sur un devis ?', a: 'Parce qu\'un client compare généralement plusieurs artisans en parallèle et retient souvent celui qui a réagi en premier.' },
-      { q: 'Faut-il envoyer un devis complet immédiatement pour convertir un client ?', a: 'Pas nécessairement — un accusé de réception rapide suivi d\'un devis réfléchi sous un délai annoncé fonctionne généralement mieux.' },
-      { q: 'Combien de temps un client attend-il en moyenne avant de relancer un artisan sans réponse ?', a: 'Très peu de temps en réalité — la plupart des clients ne relancent pas et passent directement à l\'entreprise suivante.' },
+      { q: 'Faut-il envoyer un devis complet immédiatement pour convertir un client ?', a: 'Pas nécessairement: un accusé de réception rapide suivi d\'un devis réfléchi sous un délai annoncé fonctionne généralement mieux.' },
+      { q: 'Combien de temps un client attend-il en moyenne avant de relancer un artisan sans réponse ?', a: 'Très peu de temps en réalité. La plupart des clients ne relancent pas et passent directement à l\'entreprise suivante.' },
     ],
   },
   {
@@ -1751,7 +1751,7 @@ export const ROUTES = [
       "Le bouche-à-oreille ne se décrète pas, mais il s'encourage. Comment mettre en place un système simple de recommandation sans donner l'impression de mendier des clients.",
     faq: [
       { q: 'Quand demander à un client de recommander son artisan ?', a: 'Le meilleur moment est juste après la réception des travaux, quand la satisfaction est la plus fraîche et concrète.' },
-      { q: 'Faut-il offrir une récompense financière pour une recommandation ?', a: 'Ce n\'est pas obligatoire — un geste simple de remerciement suffit souvent à entretenir la relation.' },
+      { q: 'Faut-il offrir une récompense financière pour une recommandation ?', a: 'Ce n\'est pas obligatoire : un geste simple de remerciement suffit souvent à entretenir la relation.' },
       { q: 'Pourquoi un client recommandé se convertit-il plus facilement qu\'un prospect classique ?', a: 'Parce que la confiance est déjà en partie établie par le lien avec la personne qui recommande.' },
     ],
   },
@@ -1761,8 +1761,8 @@ export const ROUTES = [
     description:
       "Baisser systématiquement ses prix pour rester compétitif finit toujours par fragiliser l'entreprise. Comment construire un prix défendable et le justifier face à un client qui compare des devis.",
     faq: [
-      { q: 'Faut-il s\'aligner sur le devis le moins cher d\'un concurrent ?', a: 'Généralement non — un prix construit sur un calcul réel de coût de revient et de marge ne peut pas s\'aligner indéfiniment sans finir par travailler à perte.' },
-      { q: 'Comment justifier un prix plus élevé qu\'un devis concurrent ?', a: 'En expliquant concrètement ce que le prix couvre — qualité des matériaux, garantie, assurance, délai — plutôt qu\'en défendant simplement le chiffre.' },
+      { q: 'Faut-il s\'aligner sur le devis le moins cher d\'un concurrent ?', a: 'Généralement non : un prix construit sur un calcul réel de coût de revient et de marge ne peut pas s\'aligner indéfiniment sans finir par travailler à perte.' },
+      { q: 'Comment justifier un prix plus élevé qu\'un devis concurrent ?', a: 'En expliquant concrètement ce que le prix couvre (qualité des matériaux, garantie, assurance, délai) plutôt qu\'en défendant simplement le chiffre.' },
       { q: 'Quelle marge bénéficiaire une entreprise du bâtiment doit-elle viser ?', a: 'Généralement entre 10 et 15 % nets après couverture de tous les coûts réels.' },
     ],
   },
@@ -1772,7 +1772,7 @@ export const ROUTES = [
     description:
       "La plupart des artisans prennent des photos de chantier pour le suivi, sans jamais les réutiliser commercialement. Comment en faire un vrai portfolio qui aide à convertir de nouveaux devis.",
     faq: [
-      { q: 'Faut-il l\'accord du client pour publier des photos de son chantier ?', a: 'Oui, en particulier pour un intérieur privé — il est recommandé de demander explicitement l\'accord avant toute publication.' },
+      { q: 'Faut-il l\'accord du client pour publier des photos de son chantier ?', a: 'Oui, en particulier pour un intérieur privé. Il est recommandé de demander explicitement l\'accord avant toute publication.' },
       { q: 'Combien de photos avant/après faut-il pour un portfolio efficace ?', a: 'Un petit nombre bien choisi (3 à 5 par type de prestation) est généralement plus efficace qu\'une grande quantité de photos peu organisées.' },
       { q: 'Comment prendre une bonne photo avant/après de chantier ?', a: 'En conservant le même angle exact entre l\'avant et l\'après, avec une lumière naturelle si possible, et un chantier propre au moment de la photo finale.' },
     ],
@@ -1781,11 +1781,11 @@ export const ROUTES = [
     path: 'blog/fideliser-ouvriers-qualifies-penurie-batiment-suisse',
     title: 'Fidéliser ses ouvriers qualifiés face à la pénurie | Cantia',
     description:
-      "Recruter un ouvrier qualifié coûte cher et prend du temps — en garder un déjà formé coûte presque toujours moins cher. Les leviers concrets de fidélisation dans un secteur en tension.",
+      "Recruter un ouvrier qualifié coûte cher et prend du temps. En garder un déjà formé coûte presque toujours moins cher. Les leviers concrets de fidélisation dans un secteur en tension.",
     faq: [
       { q: 'Pourquoi la fidélisation des ouvriers est-elle devenue un enjeu stratégique dans le bâtiment ?', a: 'Parce que la pénurie de main-d\'œuvre qualifiée rend le remplacement d\'un bon élément long et coûteux.' },
-      { q: 'Le salaire est-il le principal facteur de fidélisation d\'un ouvrier qualifié ?', a: 'C\'est un facteur important, mais rarement le seul — l\'organisation des chantiers et la reconnaissance du travail jouent souvent un rôle tout aussi déterminant.' },
-      { q: 'Former un apprenti est-il rentable pour une petite entreprise du bâtiment ?', a: 'Généralement oui sur la durée — un apprenti formé en interne présente souvent un taux de départ plus faible qu\'un profil recruté en externe.' },
+      { q: 'Le salaire est-il le principal facteur de fidélisation d\'un ouvrier qualifié ?', a: 'C\'est un facteur important, mais rarement le seul. L\'organisation des chantiers et la reconnaissance du travail jouent souvent un rôle tout aussi déterminant.' },
+      { q: 'Former un apprenti est-il rentable pour une petite entreprise du bâtiment ?', a: 'Généralement oui sur la durée. Un apprenti formé en interne présente souvent un taux de départ plus faible qu\'un profil recruté en externe.' },
     ],
   },
   {
@@ -1794,7 +1794,7 @@ export const ROUTES = [
     description:
       "Un plan gratuit existe presque toujours, mais rarement sans limite. Ce qu'un indépendant suisse doit vérifier avant de miser sur un logiciel de facturation \"gratuit\".",
     faq: [
-      { q: 'Un logiciel de facturation gratuit inclut-il la QR-facture suisse ?', a: 'Pas systématiquement — certains plans gratuits la réservent au niveau payant, un point à vérifier avant de choisir.' },
+      { q: 'Un logiciel de facturation gratuit inclut-il la QR-facture suisse ?', a: 'Pas systématiquement: certains plans gratuits la réservent au niveau payant, un point à vérifier avant de choisir.' },
       { q: 'Quelle est la limite la plus courante des logiciels de facturation gratuits ?', a: 'Un plafond de documents émis par mois (souvent 5 à 10), au-delà duquel il faut passer à un plan payant.' },
       { q: 'Vaut-il mieux un outil gratuit limité ou un essai gratuit complet ?', a: 'Un essai gratuit complet donne une idée plus fiable de ce que l\'outil vaut vraiment, plutôt qu\'une version tronquée.' },
     ],
@@ -1816,9 +1816,9 @@ export const ROUTES = [
     description:
       "Le terme \"tout-en-un\" est utilisé par presque tous les éditeurs. Ce qu'il recouvre réellement, et comment vérifier qu'un outil l'est vraiment.",
     faq: [
-      { q: 'Comment vérifier qu\'un logiciel "tout-en-un" l\'est vraiment ?', a: 'En testant le parcours complet — un devis accepté doit se transformer en facture sans ressaisie.' },
-      { q: 'Un logiciel tout-en-un est-il plus cher qu\'un outil de facturation seul ?', a: 'Pas nécessairement — le coût réel d\'outils séparés inclut souvent le temps perdu à les faire communiquer.' },
-      { q: 'Un tout-en-un est-il adapté à une toute petite entreprise sans employé ?', a: 'Oui — les modules RH ou planning restent utiles même inutilisés au départ.' },
+      { q: 'Comment vérifier qu\'un logiciel "tout-en-un" l\'est vraiment ?', a: 'En testant le parcours complet. Un devis accepté doit se transformer en facture sans ressaisie.' },
+      { q: 'Un logiciel tout-en-un est-il plus cher qu\'un outil de facturation seul ?', a: 'Pas nécessairement : le coût réel d\'outils séparés inclut souvent le temps perdu à les faire communiquer.' },
+      { q: 'Un tout-en-un est-il adapté à une toute petite entreprise sans employé ?', a: 'Oui, les modules RH ou planning restent utiles même inutilisés au départ.' },
     ],
   },
   {
@@ -1829,14 +1829,14 @@ export const ROUTES = [
     faq: [
       { q: 'Quel budget prévoir pour un logiciel de facturation en tant que petite entreprise du bâtiment ?', a: 'Généralement entre CHF 30 et 90 par mois pour un outil complet.' },
       { q: 'Pourquoi un logiciel "pas cher" peut-il coûter plus cher au final ?', a: 'Si le prix affiché ne couvre pas la facturation illimitée ou les modules nécessaires, des coûts supplémentaires s\'ajoutent après coup.' },
-      { q: 'Faut-il comparer les logiciels uniquement sur leur prix mensuel ?', a: 'Non — le temps administratif réellement économisé compte au moins autant que le prix affiché.' },
+      { q: 'Faut-il comparer les logiciels uniquement sur leur prix mensuel ?', a: 'Non, le temps administratif réellement économisé compte au moins autant que le prix affiché.' },
     ],
   },
   {
     path: 'blog/devis-gratuit-en-ligne-suisse-outil',
     title: 'Faire un devis gratuit en ligne : options et limites | Cantia',
     description:
-      "Générateurs de devis gratuits, modèles Word, outils en ligne — un tour d'horizon de ce que chaque option permet vraiment, et où elle bloque.",
+      "Générateurs de devis gratuits, modèles Word, outils en ligne. Un tour d'horizon de ce que chaque option permet vraiment, et où elle bloque.",
     faq: [
       { q: 'Un modèle Word gratuit suffit-il pour faire des devis en tant qu\'artisan ?', a: 'Pour un premier document ponctuel oui, mais sans calcul de TVA ni suivi de statut la charge augmente vite.' },
       { q: 'Quel est l\'avantage d\'un catalogue de prix dans un outil de devis ?', a: 'Il évite de retaper les mêmes prestations à chaque nouveau devis.' },
@@ -1862,14 +1862,14 @@ export const ROUTES = [
     faq: [
       { q: 'Une raison individuelle a-t-elle vraiment besoin d\'un logiciel de facturation ?', a: 'Oui, souvent plus qu\'une société avec équipe administrative, faute de personne pour relancer les impayés.' },
       { q: 'Les mentions obligatoires sur une facture changent-elles selon le statut juridique ?', a: 'Non, les mentions légales de base s\'appliquent quel que soit le statut.' },
-      { q: 'Un logiciel de comptabilité complète est-il nécessaire pour une raison individuelle ?', a: 'Pas systématiquement — un outil simple couvrant devis, factures et trésorerie suffit souvent.' },
+      { q: 'Un logiciel de comptabilité complète est-il nécessaire pour une raison individuelle ?', a: 'Pas systématiquement : un outil simple couvrant devis, factures et trésorerie suffit souvent.' },
     ],
   },
   {
     path: 'blog/application-gestion-freelance-batiment',
     title: 'Application de gestion pour freelance du bâtiment | Cantia',
     description:
-      "Un freelance du bâtiment passe le plus clair de son temps sur chantier — une application de gestion doit être pensée pour ça en priorité.",
+      "Un freelance du bâtiment passe le plus clair de son temps sur chantier. Une application de gestion doit être pensée pour ça en priorité.",
     faq: [
       { q: 'Une application de gestion pour freelance du bâtiment doit-elle fonctionner hors-ligne ?', a: 'C\'est fortement recommandé, de nombreux chantiers ayant un réseau faible ou absent.' },
       { q: 'Peut-on créer un devis complet directement depuis un téléphone ?', a: 'Avec une application bien pensée pour le mobile, oui.' },
@@ -1882,7 +1882,7 @@ export const ROUTES = [
     description:
       "Pour un artisan qui travaille seul, \"pas cher\" ne doit jamais vouloir dire \"sans les fonctions essentielles\".",
     faq: [
-      { q: 'Un plan "solo" pas cher est-il forcément incomplet ?', a: 'Pas nécessairement — un bon plan solo reste complet sur les fonctions essentielles.' },
+      { q: 'Un plan "solo" pas cher est-il forcément incomplet ?', a: 'Pas nécessairement : un bon plan solo reste complet sur les fonctions essentielles.' },
       { q: 'Peut-on faire évoluer un plan solo le jour d\'une première embauche ?', a: 'Avec un outil bien conçu, oui, sans perdre l\'historique.' },
       { q: 'Comment comparer réellement le prix de deux logiciels pour artisan solo ?', a: 'En comparant ce que chaque prix inclut concrètement, pas seulement le chiffre affiché.' },
     ],
@@ -1902,10 +1902,10 @@ export const ROUTES = [
     path: 'blog/logiciel-tout-en-un-devis-facture-chantier-rh',
     title: 'Devis, facture, chantier, RH dans un seul logiciel | Cantia',
     description:
-      "Quatre domaines très différents dans un seul outil, ça semble ambitieux — voici ce qui rend ça possible en pratique.",
+      "Quatre domaines très différents dans un seul outil, ça semble ambitieux. Voici ce qui rend ça possible en pratique.",
     faq: [
-      { q: 'Un logiciel tout-en-un traite-t-il vraiment les modules de façon connectée ?', a: 'Ça dépend de l\'outil — le vrai test est de vérifier si les heures d\'un chantier alimentent automatiquement sa rentabilité et la paie.' },
-      { q: 'Faut-il activer tous les modules dès le départ ?', a: 'Non — une petite entreprise peut commencer avec devis et factures seuls.' },
+      { q: 'Un logiciel tout-en-un traite-t-il vraiment les modules de façon connectée ?', a: 'Ça dépend de l\'outil : le vrai test est de vérifier si les heures d\'un chantier alimentent automatiquement sa rentabilité et la paie.' },
+      { q: 'Faut-il activer tous les modules dès le départ ?', a: 'Non, une petite entreprise peut commencer avec devis et factures seuls.' },
       { q: 'Quel est l\'avantage de connecter chantier et RH dans le même outil ?', a: 'Les heures travaillées servent à la fois au calcul de la paie et de la rentabilité, sans double saisie.' },
     ],
   },
@@ -1927,7 +1927,7 @@ export const ROUTES = [
       "La simplicité d'un outil ne se juge pas sur sa page d'accueil, mais sur le temps qu'il faut pour émettre un premier devis.",
     faq: [
       { q: 'Comment savoir si un logiciel de gestion est vraiment simple avant de s\'engager ?', a: 'Le meilleur test est de créer un compte et d\'essayer d\'envoyer un premier devis sans lire de mode d\'emploi.' },
-      { q: 'Un outil simple peut-il quand même avoir des fonctions avancées ?', a: 'Oui — la simplicité concerne surtout la prise en main des tâches de base.' },
+      { q: 'Un outil simple peut-il quand même avoir des fonctions avancées ?', a: 'Oui, la simplicité concerne surtout la prise en main des tâches de base.' },
       { q: 'Faut-il une formation pour utiliser un logiciel de gestion en tant qu\'indépendant débutant ?', a: 'Avec un outil bien conçu, non.' },
     ],
   },
@@ -1935,7 +1935,7 @@ export const ROUTES = [
     path: 'blog/gestion-entreprise-sur-mobile-artisan',
     title: 'Gérer son entreprise depuis son téléphone | Cantia',
     description:
-      "Devis, factures, photos de chantier, heures d'équipe — ce qui se fait réellement bien sur mobile aujourd'hui, et ce qui reste plus confortable sur ordinateur.",
+      "Devis, factures, photos de chantier, heures d'équipe, ce qui se fait réellement bien sur mobile aujourd'hui, et ce qui reste plus confortable sur ordinateur.",
     faq: [
       { q: 'Peut-on vraiment créer un devis complet depuis son téléphone ?', a: 'Oui, avec un outil bien conçu pour mobile, catalogue de prix inclus.' },
       { q: 'Quelles tâches restent plus faciles sur ordinateur que sur mobile ?', a: 'La construction initiale d\'un catalogue de prix détaillé ou l\'analyse de plusieurs chantiers.' },
@@ -1960,8 +1960,8 @@ export const ROUTES = [
       "Bexio reste une référence en Suisse, mais son positionnement comptable complet n'est pas toujours nécessaire pour une entreprise du bâtiment qui démarre.",
     faq: [
       { q: 'Bexio est-il adapté à une entreprise du bâtiment qui démarre ?', a: 'Il couvre très bien la comptabilité complète, mais une entreprise qui démarre a souvent besoin d\'un outil spécialisé bâtiment plus léger.' },
-      { q: 'Peut-on utiliser un outil spécialisé bâtiment en plus de Bexio ?', a: 'Oui — certains outils comme Cantia se synchronisent directement avec Bexio.' },
-      { q: 'Faut-il choisir entre un outil bâtiment spécialisé et un outil comptable complet ?', a: 'Pas nécessairement — les deux peuvent se compléter.' },
+      { q: 'Peut-on utiliser un outil spécialisé bâtiment en plus de Bexio ?', a: 'Oui, certains outils comme Cantia se synchronisent directement avec Bexio.' },
+      { q: 'Faut-il choisir entre un outil bâtiment spécialisé et un outil comptable complet ?', a: 'Pas nécessairement : les deux peuvent se compléter.' },
     ],
   },
   {
@@ -1970,7 +1970,7 @@ export const ROUTES = [
     description:
       "Le suivi de chantier a longtemps été réservé aux grandes entreprises avec des outils coûteux. Ce qui a changé.",
     faq: [
-      { q: 'Le suivi de chantier numérique est-il réservé aux grandes entreprises ?', a: 'Non — il est aujourd\'hui accessible aux petites structures, souvent inclus dans un abonnement abordable.' },
+      { q: 'Le suivi de chantier numérique est-il réservé aux grandes entreprises ?', a: 'Non, il est aujourd\'hui accessible aux petites structures, souvent inclus dans un abonnement abordable.' },
       { q: 'Quel est le coût typique d\'un suivi de chantier pour une petite entreprise ?', a: 'Généralement entre CHF 30 et 60 par mois, intégré à un outil plus large.' },
       { q: 'Que doit couvrir un suivi de chantier même dans une offre abordable ?', a: 'Au minimum des photos géolocalisées et horodatées, et un accès simple depuis un téléphone.' },
     ],
@@ -1983,18 +1983,18 @@ export const ROUTES = [
     faq: [
       { q: 'Quelles mentions ne doivent jamais manquer sur une première facture ?', a: 'Un numéro séquentiel, le taux de TVA, des coordonnées bancaires exactes et un délai de paiement clair.' },
       { q: 'Combien de temps après la fin du chantier faut-il envoyer la facture ?', a: 'Le plus rapidement possible, tant que le client se souvient encore clairement du travail.' },
-      { q: 'Un logiciel de facturation aide-t-il à éviter les erreurs de débutant ?', a: 'Oui — il applique automatiquement la numérotation, la TVA et les mentions obligatoires.' },
+      { q: 'Un logiciel de facturation aide-t-il à éviter les erreurs de débutant ?', a: 'Oui, il applique automatiquement la numérotation, la TVA et les mentions obligatoires.' },
     ],
   },
   {
     path: 'blog/outil-devis-factures-sans-double-saisie',
     title: 'En finir avec la double saisie devis-facture | Cantia',
     description:
-      "Retaper un devis accepté pour en faire une facture est une perte de temps évitable — et une source d'erreurs.",
+      "Retaper un devis accepté pour en faire une facture est une perte de temps évitable, et une source d'erreurs.",
     faq: [
       { q: 'Pourquoi la double saisie entre devis et facture est-elle risquée ?', a: 'Elle introduit un risque de recopier une erreur de prix ou de quantité qui n\'existait pas dans l\'original.' },
       { q: 'Combien de temps fait gagner un outil qui automatise le passage devis-facture ?', a: 'Généralement 10 à 20 minutes par document.' },
-      { q: 'Comment vérifier qu\'un logiciel évite vraiment la double saisie ?', a: 'En testant le passage d\'un devis accepté à une facture — les lignes doivent se reporter automatiquement.' },
+      { q: 'Comment vérifier qu\'un logiciel évite vraiment la double saisie ?', a: 'En testant le passage d\'un devis accepté à une facture. Les lignes doivent se reporter automatiquement.' },
     ],
   },
   {
@@ -2005,7 +2005,7 @@ export const ROUTES = [
     faq: [
       { q: 'Quelles sont les priorités spécifiques d\'une société individuelle dans le choix d\'un logiciel ?', a: 'La rapidité d\'utilisation, un prix adapté à un seul utilisateur, et un accès mobile complet.' },
       { q: 'Un outil pour société individuelle peut-il évoluer si l\'entreprise grandit ?', a: 'Avec un bon outil, oui, sans perdre l\'historique.' },
-      { q: 'Faut-il un logiciel différent selon qu\'on est en société individuelle ou en Sàrl ?', a: 'Pas fondamentalement — les besoins de base restent les mêmes.' },
+      { q: 'Faut-il un logiciel différent selon qu\'on est en société individuelle ou en Sàrl ?', a: 'Pas fondamentalement : les besoins de base restent les mêmes.' },
     ],
   },
   {
@@ -2016,7 +2016,7 @@ export const ROUTES = [
     faq: [
       { q: 'Quels outils numériques sont vraiment indispensables pour démarrer une entreprise du bâtiment ?', a: 'Principalement un outil de devis/factures conforme et un moyen de documenter les chantiers en photos.' },
       { q: 'Faut-il un module RH dès la création de l\'entreprise ?', a: 'Non, un module RH n\'est utile qu\'à partir de la première embauche.' },
-      { q: 'Est-il préférable de s\'équiper progressivement plutôt que tout d\'un coup ?', a: 'Généralement oui — un outil simple bien maîtrisé est plus efficace qu\'une suite complète sous-exploitée.' },
+      { q: 'Est-il préférable de s\'équiper progressivement plutôt que tout d\'un coup ?', a: 'Généralement oui : un outil simple bien maîtrisé est plus efficace qu\'une suite complète sous-exploitée.' },
     ],
   },
   {
@@ -2026,7 +2026,7 @@ export const ROUTES = [
       "Une liste concrète et ordonnée des outils numériques à mettre en place au moment de créer sa société de construction.",
     faq: [
       { q: 'Quelle est la première étape logicielle à l\'ouverture d\'une société de construction ?', a: 'Configurer un outil de devis/factures avec les bonnes coordonnées et le bon taux de TVA.' },
-      { q: 'Faut-il un catalogue de prix complet dès l\'ouverture de la société ?', a: 'Non — il peut se construire progressivement au fil des premiers devis.' },
+      { q: 'Faut-il un catalogue de prix complet dès l\'ouverture de la société ?', a: 'Non, il peut se construire progressivement au fil des premiers devis.' },
       { q: 'Est-il utile de tester l\'outil avant le premier vrai client ?', a: 'Oui, pour repérer les ajustements nécessaires sans impact sur un vrai client.' },
     ],
   },
@@ -2034,9 +2034,9 @@ export const ROUTES = [
     path: 'blog/logiciel-facturation-conforme-tva-suisse-pas-cher',
     title: 'Facturation conforme TVA suisse à petit prix | Cantia',
     description:
-      "La conformité TVA n'est pas réservée aux logiciels chers — voici ce qui doit être présent, même sur un plan économique.",
+      "La conformité TVA n'est pas réservée aux logiciels chers. Voici ce qui doit être présent, même sur un plan économique.",
     faq: [
-      { q: 'Un logiciel de facturation pas cher est-il forcément moins conforme sur la TVA ?', a: 'Non — la conformité TVA de base est généralement incluse même sur les plans économiques des outils sérieux.' },
+      { q: 'Un logiciel de facturation pas cher est-il forcément moins conforme sur la TVA ?', a: 'Non, la conformité TVA de base est généralement incluse même sur les plans économiques des outils sérieux.' },
       { q: 'Qu\'est-ce qui différencie un plan premium d\'un plan économique ?', a: 'Généralement des fonctions avancées, pas la conformité TVA de base.' },
       { q: 'Comment vérifier qu\'un logiciel est vraiment conforme avant de s\'engager ?', a: 'En générant une facture test et en vérifiant le taux de TVA, le numéro IDE et la numérotation.' },
     ],
@@ -2060,7 +2060,7 @@ export const ROUTES = [
     faq: [
       { q: 'Que faut-il tester en priorité pendant un essai gratuit de logiciel de facturation ?', a: 'Créer un vrai devis, le transformer en facture, et vérifier la conformité du PDF généré.' },
       { q: 'Faut-il utiliser l\'essai gratuit régulièrement ou attendre la fin de la période ?', a: 'Il vaut mieux l\'utiliser dès les premiers jours sur de vrais documents.' },
-      { q: 'Un essai gratuit doit-il demander une carte bancaire ?', a: 'Pas nécessairement — de nombreux outils sérieux proposent un essai sans carte bancaire.' },
+      { q: 'Un essai gratuit doit-il demander une carte bancaire ?', a: 'Pas nécessairement: de nombreux outils sérieux proposent un essai sans carte bancaire.' },
     ],
   },
   {
@@ -2070,7 +2070,7 @@ export const ROUTES = [
       "Certains indépendants préfèrent rester seuls le plus longtemps possible plutôt que d'embaucher trop tôt. Les outils qui rendent ça vraiment tenable.",
     faq: [
       { q: 'Est-il possible de faire grandir son chiffre d\'affaires sans embaucher ?', a: 'Oui, en s\'appuyant sur l\'automatisation administrative et le recours ponctuel à des sous-traitants.' },
-      { q: 'Quel est le principal levier pour gérer son entreprise seul efficacement ?', a: 'Automatiser tout ce qui peut l\'être — TVA, numérotation, relances de paiement.' },
+      { q: 'Quel est le principal levier pour gérer son entreprise seul efficacement ?', a: 'Automatiser tout ce qui peut l\'être. TVA, numérotation, relances de paiement.' },
       { q: 'Le sous-traitant est-il une bonne alternative à l\'embauche pour un indépendant ?', a: 'Souvent oui, pour absorber un pic d\'activité ponctuel.' },
     ],
   },
@@ -2078,10 +2078,10 @@ export const ROUTES = [
     path: 'blog/erreurs-choisir-premier-logiciel-gestion',
     title: 'Les erreurs courantes en choisissant son premier logiciel | Cantia',
     description:
-      "Certaines erreurs de choix reviennent sans cesse chez les entreprises qui démarrent — les repérer à l'avance évite une migration forcée.",
+      "Certaines erreurs de choix reviennent sans cesse chez les entreprises qui démarrent. Les repérer à l'avance évite une migration forcée.",
     faq: [
       { q: 'Quelle est l\'erreur la plus fréquente en choisissant un premier logiciel de gestion ?', a: 'Choisir uniquement sur le prix affiché, sans jamais tester l\'outil sur des documents réels.' },
-      { q: 'Faut-il choisir un outil complexe "au cas où" ?', a: 'Non — un outil trop complexe sous-exploité est souvent moins efficace qu\'un outil simple et évolutif.' },
+      { q: 'Faut-il choisir un outil complexe "au cas où" ?', a: 'Non, un outil trop complexe sous-exploité est souvent moins efficace qu\'un outil simple et évolutif.' },
       { q: 'Combien de temps avant qu\'un mauvais choix de logiciel ne pousse à migrer ?', a: 'Généralement entre 6 et 12 mois.' },
     ],
   },
@@ -2092,7 +2092,7 @@ export const ROUTES = [
       "Certains outils tiennent la route sur la durée, d'autres montrent leurs limites dès la première embauche. Les signes à repérer.",
     faq: [
       { q: 'Comment savoir si un logiciel de gestion pourra suivre la croissance de l\'entreprise ?', a: 'En vérifiant l\'existence de plans supérieurs, de modules RH/planning et d\'une gestion des rôles.' },
-      { q: 'Faut-il payer un plan plus cher dès le départ pour anticiper la croissance ?', a: 'Non — il suffit de choisir un éditeur dont les plans supérieurs restent accessibles sans migration.' },
+      { q: 'Faut-il payer un plan plus cher dès le départ pour anticiper la croissance ?', a: 'Non, il suffit de choisir un éditeur dont les plans supérieurs restent accessibles sans migration.' },
       { q: 'Quelle question poser à un éditeur pour évaluer l\'évolutivité de son outil ?', a: 'Ce qui se passe en cas de première embauche ou de plusieurs chantiers en parallèle.' },
     ],
   },
@@ -2102,7 +2102,7 @@ export const ROUTES = [
     description:
       "Beaucoup d'indépendants repoussent l'achat d'un logiciel de gestion \"jusqu'à avoir plus de clients\". Pourquoi c'est souvent l'inverse qui devrait se passer.",
     faq: [
-      { q: 'Faut-il attendre d\'avoir plusieurs clients pour investir dans un logiciel de gestion ?', a: 'Non — les habitudes prises dès le début sont difficiles à corriger plus tard.' },
+      { q: 'Faut-il attendre d\'avoir plusieurs clients pour investir dans un logiciel de gestion ?', a: 'Non, les habitudes prises dès le début sont difficiles à corriger plus tard.' },
       { q: 'Un bon logiciel est-il plus facile à apprendre au début ou une fois débordé ?', a: 'Au début, avec peu de clients à gérer.' },
       { q: 'Le coût d\'un logiciel de gestion se justifie-t-il dès le premier client ?', a: 'Généralement oui, son coût mensuel restant minime comparé au chiffre d\'affaires d\'un premier chantier.' },
     ],
@@ -2114,7 +2114,7 @@ export const ROUTES = [
       "Entre le statut juridique, les assurances et les premiers outils, un ordre logique pour ne rien manquer au moment de se lancer.",
     faq: [
       { q: 'Quelle est la première étape pour lancer une entreprise du bâtiment en Suisse ?', a: 'Choisir un statut juridique adapté, puis s\'inscrire au registre du commerce si nécessaire.' },
-      { q: 'Faut-il tout avoir en place avant d\'accepter son premier client ?', a: 'Non — le strict nécessaire suffit pour démarrer.' },
+      { q: 'Faut-il tout avoir en place avant d\'accepter son premier client ?', a: 'Non, le strict nécessaire suffit pour démarrer.' },
       { q: 'À quel moment mettre en place son outil de gestion en lançant son entreprise ?', a: 'Idéalement avant le tout premier client.' },
     ],
   },
@@ -2124,8 +2124,8 @@ export const ROUTES = [
     description:
       "Certains métiers du bâtiment ont des besoins que les outils standards ne couvrent jamais tout à fait. Comment une fonctionnalité sur mesure peut combler cet écart.",
     faq: [
-      { q: 'Cantia peut-il développer une fonctionnalité pour un métier très spécifique du bâtiment ?', a: 'Oui — en plus du socle standard, Cantia peut développer des modules sur mesure.' },
-      { q: 'Faut-il changer complètement d\'outil pour un besoin métier non standard ?', a: 'Pas nécessairement — une fonctionnalité sur mesure s\'ajoute généralement au socle déjà utilisé.' },
+      { q: 'Cantia peut-il développer une fonctionnalité pour un métier très spécifique du bâtiment ?', a: 'Oui, en plus du socle standard, Cantia peut développer des modules sur mesure.' },
+      { q: 'Faut-il changer complètement d\'outil pour un besoin métier non standard ?', a: 'Pas nécessairement : une fonctionnalité sur mesure s\'ajoute généralement au socle déjà utilisé.' },
       { q: 'Comment savoir si son besoin spécifique peut être couvert sur mesure ?', a: 'Le plus simple est d\'en discuter directement avec l\'équipe.' },
     ],
   },
@@ -2135,7 +2135,7 @@ export const ROUTES = [
     description:
       "L'automatisation n'est plus réservée aux entreprises avec un service informatique. Ce qui peut aujourd'hui être automatisé sans écrire une ligne de code.",
     faq: [
-      { q: 'Faut-il des compétences techniques pour automatiser des tâches ?', a: 'Non — de nombreuses automatisations existent déjà de façon standard dans un bon outil de gestion.' },
+      { q: 'Faut-il des compétences techniques pour automatiser des tâches ?', a: 'Non, de nombreuses automatisations existent déjà de façon standard dans un bon outil de gestion.' },
       { q: 'Quelles tâches peuvent être automatisées en priorité ?', a: 'Les relances de factures impayées, les notifications de devis, et le calcul de rentabilité d\'un chantier.' },
       { q: 'Une automatisation retire-t-elle le contrôle sur les décisions de l\'entreprise ?', a: 'Non, une bonne automatisation reste toujours visible et modifiable manuellement.' },
     ],
@@ -2148,7 +2148,7 @@ export const ROUTES = [
     faq: [
       { q: 'Peut-on ajouter un champ personnalisé à un devis ou une facture dans Cantia ?', a: 'C\'est possible via le développement de fonctionnalités sur mesure.' },
       { q: 'Comment démarre concrètement une demande de champ sur mesure ?', a: 'En général par une discussion directe sur le problème concret rencontré au quotidien.' },
-      { q: 'Un champ sur mesure reste-t-il intégré au reste de l\'outil ?', a: 'Oui — il s\'intègre directement aux données existantes, sans ressaisie.' },
+      { q: 'Un champ sur mesure reste-t-il intégré au reste de l\'outil ?', a: 'Oui, il s\'intègre directement aux données existantes, sans ressaisie.' },
     ],
   },
   {
@@ -2169,7 +2169,7 @@ export const ROUTES = [
       "Relancer un client pour une facture impayée ou un devis en attente est souvent la première tâche administrative oubliée. Comment l'automatiser.",
     faq: [
       { q: 'Pourquoi les relances de factures impayées sont-elles souvent oubliées ?', a: 'Parce qu\'elles n\'ont pas de date fixe dans l\'agenda, contrairement à un rendez-vous de chantier.' },
-      { q: 'Une relance automatique remplace-t-elle totalement le suivi manuel ?', a: 'Non — une bonne relance automatisée reste modifiable au cas par cas.' },
+      { q: 'Une relance automatique remplace-t-elle totalement le suivi manuel ?', a: 'Non, une bonne relance automatisée reste modifiable au cas par cas.' },
       { q: 'Quel est l\'impact concret d\'une relance automatique bien calibrée ?', a: 'Généralement 15 à 20 % des factures en retard sont réglées dans les jours suivants.' },
     ],
   },
@@ -2180,7 +2180,7 @@ export const ROUTES = [
       "Un outil de gestion ne devrait jamais être un frein à la croissance. Comment anticiper ses évolutions plutôt que de les subir.",
     faq: [
       { q: 'Quel est le signal le plus clair qu\'un outil de gestion doit évoluer ?', a: 'L\'apparition d\'un tableur "de secours" à côté de l\'outil principal.' },
-      { q: 'Vaut-il mieux anticiper l\'évolution de son outil ou attendre un besoin urgent ?', a: 'Anticiper — cela évite une migration complète, toujours plus coûteuse.' },
+      { q: 'Vaut-il mieux anticiper l\'évolution de son outil ou attendre un besoin urgent ?', a: 'Anticiper : cela évite une migration complète, toujours plus coûteuse.' },
       { q: 'À quelle fréquence faire le point sur ses outils de gestion ?', a: 'Une fois par an est une bonne pratique courante.' },
     ],
   },
@@ -2191,7 +2191,7 @@ export const ROUTES = [
       "Le bâtiment regroupe des métiers très différents entre eux. Pourquoi un même modèle rigide ne peut logiquement pas convenir à tous en même temps.",
     faq: [
       { q: 'Pourquoi un logiciel générique "bâtiment" ne convient-il pas parfaitement à tous les métiers ?', a: 'Parce que le bâtiment regroupe plus de 15 corps de métier différents, chacun avec ses propres besoins.' },
-      { q: 'Qu\'est-ce qui reste commun entre tous les métiers du bâtiment ?', a: 'La grande majorité des besoins de base — devis, factures, conformité TVA, suivi de chantier.' },
+      { q: 'Qu\'est-ce qui reste commun entre tous les métiers du bâtiment ?', a: 'La grande majorité des besoins de base. Devis, factures, conformité TVA, suivi de chantier.' },
       { q: 'Un logiciel doit-il s\'adapter au métier ou l\'inverse ?', a: 'Idéalement l\'outil s\'adapte au métier.' },
     ],
   },
@@ -2201,7 +2201,7 @@ export const ROUTES = [
     description:
       "Beaucoup d'entreprises n'osent jamais demander une fonctionnalité sur mesure. La réalité, et la bonne façon de formuler la demande.",
     faq: [
-      { q: 'Une fonctionnalité sur mesure est-elle réservée aux grandes entreprises ?', a: 'Pas nécessairement — cela dépend surtout de la clarté du besoin exprimé.' },
+      { q: 'Une fonctionnalité sur mesure est-elle réservée aux grandes entreprises ?', a: 'Pas nécessairement : cela dépend surtout de la clarté du besoin exprimé.' },
       { q: 'Comment bien formuler une demande de fonctionnalité sur mesure ?', a: 'En décrivant le problème concret rencontré, avec un exemple réel.' },
       { q: 'Que se passe-t-il après avoir formulé une demande sur mesure ?', a: 'Généralement un échange pour cerner précisément le besoin, suivi d\'une proposition concrète.' },
     ],
@@ -2212,9 +2212,9 @@ export const ROUTES = [
     description:
       "L'automatisation se limite souvent, dans l'esprit, à l'envoi de factures. Ce qui peut aussi être automatisé dans le suivi administratif plus large.",
     faq: [
-      { q: 'L\'automatisation dans le bâtiment se limite-t-elle à la facturation ?', a: 'Non — le suivi administratif plus large peut aussi être largement automatisé.' },
+      { q: 'L\'automatisation dans le bâtiment se limite-t-elle à la facturation ?', a: 'Non, le suivi administratif plus large peut aussi être largement automatisé.' },
       { q: 'Quel type d\'automatisation fait généralement le plus gagner de temps ?', a: 'Les automatisations discrètes, en arrière-plan.' },
-      { q: 'L\'automatisation du suivi administratif profite-t-elle aussi aux clients ?', a: 'Oui — un rapport de chantier généré rapidement renforce l\'image professionnelle perçue.' },
+      { q: 'L\'automatisation du suivi administratif profite-t-elle aussi aux clients ?', a: 'Oui, un rapport de chantier généré rapidement renforce l\'image professionnelle perçue.' },
     ],
   },
   {
@@ -2224,7 +2224,7 @@ export const ROUTES = [
       "La différence entre un éditeur qui vend un produit figé et un éditeur qui construit avec ses clients.",
     faq: [
       { q: 'Qu\'est-ce qui différencie un logiciel "construit avec ses clients" d\'un logiciel classique ?', a: 'Les nouvelles fonctionnalités naissent souvent de besoins réels signalés directement par des clients.' },
-      { q: 'Un logiciel construit avec ses clients développe-t-il une version différente pour chacun ?', a: 'Non — le socle standard reste commun à tous.' },
+      { q: 'Un logiciel construit avec ses clients développe-t-il une version différente pour chacun ?', a: 'Non, le socle standard reste commun à tous.' },
       { q: 'Comment un retour client peut-il concrètement influencer l\'évolution de l\'outil ?', a: 'Un problème remonté peut donner naissance à une fonctionnalité qui profite ensuite à tous les utilisateurs.' },
     ],
   },
@@ -2236,7 +2236,7 @@ export const ROUTES = [
     faq: [
       { q: 'Peut-on démarrer en raison individuelle et passer en Sàrl plus tard ?', a: 'Oui, c\'est même la trajectoire la plus fréquente dans le bâtiment : démarrer en raison individuelle pour limiter les frais de création, puis basculer vers une Sàrl une fois l\'activité stabilisée et le risque financier devenu significatif.' },
       { q: 'Faut-il un capital minimum pour créer une raison individuelle ?', a: 'Non, aucun capital minimum n\'est exigé pour une raison individuelle, contrairement à la Sàrl (CHF 20’000) ou à la SA (CHF 100’000).' },
-      { q: 'La responsabilité illimitée d\'une raison individuelle concerne-t-elle uniquement les biens professionnels ?', a: 'Non, elle engage l\'ensemble du patrimoine personnel de l\'entrepreneur, pas seulement les actifs affectés à l\'activité professionnelle — c\'est la différence essentielle avec une structure à responsabilité limitée.' },
+      { q: 'La responsabilité illimitée d\'une raison individuelle concerne-t-elle uniquement les biens professionnels ?', a: 'Non, elle engage l\'ensemble du patrimoine personnel de l\'entrepreneur, pas seulement les actifs affectés à l\'activité professionnelle. C\'est la différence essentielle avec une structure à responsabilité limitée.' },
     ],
   },
   {
@@ -2265,7 +2265,7 @@ export const ROUTES = [
     path: 'blog/dix-erreurs-premiere-annee-entreprise-batiment',
     title: 'Les 10 erreurs à éviter la première année d\'une entreprise du bâtiment | Cantia',
     description:
-      '10 erreurs qui reviennent le plus souvent chez les jeunes entreprises du bâtiment en Suisse — et comment les éviter, avant qu\'elles ne coûtent une marge entière.',
+      '10 erreurs qui reviennent le plus souvent chez les jeunes entreprises du bâtiment en Suisse, et comment les éviter, avant qu\'elles ne coûtent une marge entière.',
     faq: [
       { q: 'Quelle est l\'erreur la plus coûteuse la première année d\'une entreprise du bâtiment ?', a: 'Ne pas savoir, chantier par chantier, lequel a réellement fait gagner de l\'argent et lequel a fait perdre : sans ce suivi, une entreprise très occupée peut rester peu rentable sans que personne ne s\'en aperçoive avant la fin de l\'année.' },
       { q: 'Un carnet de commandes plein garantit-il une entreprise rentable ?', a: 'Non, une activité intense peut coexister avec une rentabilité médiocre si certains chantiers sont sous-évalués ou si le suivi financier par chantier n\'existe pas.' },
@@ -2478,7 +2478,7 @@ export const ROUTES = [
     faq: [
       { q: 'Le ramonage est-il obligatoire partout en Suisse selon les mêmes règles ?', a: 'Le principe d’un contrôle périodique existe largement, mais la fréquence et l’organisation par secteur varient selon le canton. Il est important de vérifier les règles exactes applicables à sa propre zone d’activité.' },
       { q: 'Pourquoi facturer le ramonage par cycle plutôt qu’à l’intervention ?', a: 'Parce que l’activité repose sur des contrôles périodiques récurrents plutôt que sur des chantiers ponctuels, un suivi par cycle facilite à la fois la planification des tournées et la prévisibilité du chiffre d’affaires.' },
-      { q: 'Que doit contenir le rapport remis après un contrôle ?', a: 'Un état clair de la conformité de l’installation, daté et signé, remis rapidement au client — ce document peut lui être demandé par son assurance ou lors d’une transaction immobilière.' },
+      { q: 'Que doit contenir le rapport remis après un contrôle ?', a: 'Un état clair de la conformité de l’installation, daté et signé, remis rapidement au client. Ce document peut lui être demandé par son assurance ou lors d’une transaction immobilière.' },
     ],
   },
   {
@@ -2839,7 +2839,7 @@ export const ROUTES = [
     description:
       'Un modèle de devis gratuit à télécharger, conforme aux usages suisses (TVA, mentions obligatoires), pour tous les corps de métier du bâtiment.',
     faq: [
-      { q: 'Ce modèle de devis convient-il à tous les corps de métier du bâtiment ?', a: 'Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s\'adapte à n\'importe quel corps de métier du bâtiment — seul le détail des prestations change d\'un métier à l\'autre.' },
+      { q: 'Ce modèle de devis convient-il à tous les corps de métier du bâtiment ?', a: 'Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s\'adapte à n\'importe quel corps de métier du bâtiment. Seul le détail des prestations change d\'un métier à l\'autre.' },
       { q: 'Le modèle de devis inclut-il le calcul de la TVA suisse ?', a: 'Le modèle prévoit les lignes nécessaires (sous-total HT, TVA, total TTC) mais le calcul reste manuel, contrairement à un outil qui le calcule automatiquement à chaque ligne.' },
       { q: 'Quelles mentions sont obligatoires sur un devis en Suisse ?', a: 'Coordonnées de l\'entreprise (idéalement avec numéro IDE), coordonnées du client, description précise des prestations, prix et TVA, ainsi qu\'une durée de validité de l\'offre.' },
     ],
@@ -3348,7 +3348,7 @@ export const ROUTES = [
     path: 'telechargement',
     title: "Ajouter Cantia à l'écran d'accueil | App web mobile",
     description:
-      "Cantia est une application 100% web, accessible depuis n'importe quel navigateur — sur ordinateur comme sur téléphone. Aucun fichier à télécharger. Applications natives iOS et Android bientôt disponibles.",
+      "Cantia est une application 100% web, accessible depuis n'importe quel navigateur. Sur ordinateur comme sur téléphone. Aucun fichier à télécharger. Applications natives iOS et Android bientôt disponibles.",
   },
   {
     path: 'mentions-legales',
@@ -3375,13 +3375,13 @@ export const ROUTES = [
   {
     path: 'contact',
     title: 'Contact | Cantia',
-    description: 'Une question, un problème, une suggestion ? Contactez l’équipe Cantia — réponse sous 24h ouvrées.',
+    description: 'Une question, un problème, une suggestion ? Contactez l’équipe Cantia : réponse sous 24h ouvrées.',
   },
   {
     path: 'aide/videos',
     title: "Tutoriels vidéo | Centre d'aide Cantia",
     description:
-      'Voir chaque module Cantia en action : devis, factures, chantiers, planning, RH — démonstrations vidéo module par module.',
+      'Voir chaque module Cantia en action : devis, factures, chantiers, planning, RH, démonstrations vidéo module par module.',
   },
   {
     path: 'aide/ressources',
@@ -3405,7 +3405,7 @@ export const ROUTES = [
     faq: [
       { q: 'Wie erstellt man als Handwerker schnell eine Offerte?', a: 'Diktieren Sie Ihre Positionen auf der Baustelle oder im Auto. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, und das PDF ist fertig, bevor Sie den Kunden verlassen haben.' },
       { q: 'Ist die Offerte konform mit den Schweizer Gepflogenheiten (MWST, Layout)?', a: 'Ja: Jede Offerte übernimmt Ihren MWST-Satz, Ihre Firmendaten und lässt sich mit Ihrer Markenfarbe und Ihrem Logo personalisieren.' },
-      { q: 'Kann eine akzeptierte Offerte automatisch in eine Rechnung umgewandelt werden?', a: 'Ja, eine unterzeichnete Offerte wird mit einem Klick zur Rechnung — inklusive Schweizer QR-Rechnung — ohne die Positionen neu zu erfassen.' },
+      { q: 'Kann eine akzeptierte Offerte automatisch in eine Rechnung umgewandelt werden?', a: 'Ja, eine unterzeichnete Offerte wird mit einem Klick zur Rechnung (inklusive Schweizer QR-Rechnung), ohne die Positionen neu zu erfassen.' },
       { q: 'Ist Cantia für Offerten kostenlos?', a: 'Cantia bietet auf allen Plänen eine 14-tägige kostenlose Testphase (Kreditkarte erforderlich, keine Abbuchung vor Ende der Testphase). Nach dem Abo sind Offerten und Rechnungen auf jedem Plan unbegrenzt, ohne monatliches Kontingent.' },
     ],
   },
@@ -3413,11 +3413,11 @@ export const ROUTES = [
     path: 'de/solutions/facturation',
     title: 'Rechnungsstellung & QR-Rechnung Schweiz | Cantia',
     description:
-      'Jede Cantia-Rechnung integriert automatisch die konforme Schweizer QR-Rechnung — IBAN, strukturierte Referenz und Betrag bereits codiert, scanbereit.',
+      'Jede Cantia-Rechnung integriert automatisch die konforme Schweizer QR-Rechnung. IBAN, strukturierte Referenz und Betrag bereits codiert, scanbereit.',
     faq: [
       { q: 'Wie erstellt man eine Rechnung mit Schweizer QR-Rechnung?', a: 'Hinterlegen Sie Ihren IBAN einmalig in den Einstellungen: Jede Rechnung generiert danach automatisch den SIX-konformen QR-Einzahlungsschein, IBAN und strukturierte Referenz bereits codiert.' },
       { q: 'Kann man vor Baustellenende eine Anzahlung in Rechnung stellen?', a: 'Ja, Cantia erlaubt die Ausstellung einer Anzahlungsrechnung für einen Prozentsatz der Offerte, die dann automatisch von der Schlussrechnung abgezogen wird.' },
-      { q: 'Wie erkennt man, ob eine Rechnung bezahlt wurde?', a: 'Suchen und gleichen Sie eine Zahlung direkt über ihre QR-Referenznummer ab — der Status wechselt auf «bezahlt», ohne Ihr Bankkonto manuell prüfen zu müssen.' },
+      { q: 'Wie erkennt man, ob eine Rechnung bezahlt wurde?', a: 'Suchen und gleichen Sie eine Zahlung direkt über ihre QR-Referenznummer ab. Der Status wechselt auf «bezahlt», ohne Ihr Bankkonto manuell prüfen zu müssen.' },
       { q: 'Was kostet die Rechnungsstellung mit QR-Code über Cantia?', a: 'Die Rechnungsstellung mit Schweizer QR-Rechnung ist in allen Cantia-Plänen enthalten, ausnahmslos, bereits ab dem Essentiel-Plan.' },
     ],
   },
@@ -3427,10 +3427,10 @@ export const ROUTES = [
     description:
       'Sprachnotizen, geolokalisierte Fotos und Team-Nachrichten: Cantia erstellt daraus einen verfassten, strukturierten Bericht, versandbereit.',
     faq: [
-      { q: 'Wie verfasst man schnell einen Baustellenbericht?', a: 'Machen Sie Ihre Fotos und diktieren Sie Ihre Notizen vor Ort — Cantia fügt alles zu einem strukturierten PDF-Bericht zusammen, versandbereit, ohne abends alles neu tippen zu müssen.' },
+      { q: 'Wie verfasst man schnell einen Baustellenbericht?', a: 'Machen Sie Ihre Fotos und diktieren Sie Ihre Notizen vor Ort. Cantia fügt alles zu einem strukturierten PDF-Bericht zusammen, versandbereit, ohne abends alles neu tippen zu müssen.' },
       { q: 'Werden die Fotos automatisch geolokalisiert?', a: 'Ja, jedes Foto wird ohne zusätzlichen Aufwand automatisch mit Zeitstempel und Standort versehen.' },
       { q: 'Kann man den Bericht mit Logo und Unterschrift personalisieren?', a: 'Ja, jeder PDF-Bericht übernimmt Ihr Logo, Ihre Markenfarbe und die Unterschrift des Verfassers.' },
-      { q: 'Ersetzt der Baustellenbericht ein Papier-Bautagebuch?', a: 'Ja — Notizen, Fotos und Verlauf sind in einem jederzeit einsehbaren digitalen Dokument pro Baustelle zentralisiert.' },
+      { q: 'Ersetzt der Baustellenbericht ein Papier-Bautagebuch?', a: 'Ja, Notizen, Fotos und Verlauf sind in einem jederzeit einsehbaren digitalen Dokument pro Baustelle zentralisiert.' },
     ],
   },
   {
@@ -3438,10 +3438,10 @@ export const ROUTES = [
     title: 'Diktierfunktion für das Bauwesen | Cantia',
     description: 'Offerten, Berichte, Team-Nachrichten: ein Diktier-Button ersetzt die Tastatureingabe, überall in Cantia.',
     faq: [
-      { q: 'Funktioniert die Spracherkennung gut mit dem Baugewerbe-Vokabular?', a: 'Ja, die Erkennung ist auf das technische Vokabular des Bauwesens abgestimmt — Materialien, Einheiten, Berufe — nicht nur auf Alltagssprache.' },
+      { q: 'Funktioniert die Spracherkennung gut mit dem Baugewerbe-Vokabular?', a: 'Ja, die Erkennung ist auf das technische Vokabular des Bauwesens abgestimmt (Materialien, Einheiten, Berufe), nicht nur auf Alltagssprache.' },
       { q: 'Braucht es eine Internetverbindung zum Diktieren?', a: 'Ja, das Diktieren benötigt eine Verbindung zur Transkription, aber die erstellten Offerten und Berichte bleiben nach der Erstellung abrufbar.' },
-      { q: 'Wo kann man die Diktierfunktion in Cantia nutzen?', a: 'Bei Offerten, Baustellenberichten und Team-Nachrichten im Aktivitätsstream — überall, wo Sie in Cantia schreiben.' },
-      { q: 'Ist Diktieren auf der Baustelle schneller als Tippen?', a: 'Für die meisten Handwerker auf der Baustelle, ja — Sprechen geht schneller als auf einem Telefon mit schmutzigen Händen oder Handschuhen zu tippen.' },
+      { q: 'Wo kann man die Diktierfunktion in Cantia nutzen?', a: 'Bei Offerten, Baustellenberichten und Team-Nachrichten im Aktivitätsstream. Überall, wo Sie in Cantia schreiben.' },
+      { q: 'Ist Diktieren auf der Baustelle schneller als Tippen?', a: 'Für die meisten Handwerker auf der Baustelle, ja. Sprechen geht schneller als auf einem Telefon mit schmutzigen Händen oder Handschuhen zu tippen.' },
     ],
   },
   {
@@ -3459,9 +3459,9 @@ export const ROUTES = [
     path: 'de/solutions/rentabilite',
     title: 'Rentabilität pro Baustelle | Cantia',
     description:
-      'Vergleichen Sie die akzeptierte Offerte mit den tatsächlichen Kosten — Material und Arbeitszeit —, um zu wissen, ob jede Baustelle rentabel ist, knapp kalkuliert oder defizitär.',
+      'Vergleichen Sie die akzeptierte Offerte mit den tatsächlichen Kosten (Material und Arbeitszeit), um zu wissen, ob jede Baustelle rentabel ist, knapp kalkuliert oder defizitär.',
     faq: [
-      { q: 'Wie erkennt man, ob eine Baustelle rentabel ist?', a: 'Cantia vergleicht die akzeptierte Offerte (Ertrag) mit den tatsächlichen Kosten — erfasstes Material und Arbeitszeit aus der Planung — und zeigt die Marge in CHF und % in Echtzeit an.' },
+      { q: 'Wie erkennt man, ob eine Baustelle rentabel ist?', a: 'Cantia vergleicht die akzeptierte Offerte (Ertrag) mit den tatsächlichen Kosten (erfasstes Material und Arbeitszeit aus der Planung) und zeigt die Marge in CHF und % in Echtzeit an.' },
       { q: 'Woher stammt die Berechnung der Arbeitskosten?', a: 'Aus der Team-Planung: die einer Baustelle zugeteilten Tage werden mit dem Stundensatz Ihres Unternehmens multipliziert, ohne separate Zeiterfassung.' },
       { q: 'Kann man mehrere Baustellen miteinander vergleichen?', a: 'Ja, jede Baustelle zeigt ihre eigene Marge, was es erlaubt, defizitäre Baustellen rasch zu erkennen.' },
       { q: 'Ist die Rentabilität pro Baustelle in allen Cantia-Plänen enthalten?', a: 'Sie ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
@@ -3474,8 +3474,8 @@ export const ROUTES = [
       'Jeder Mitarbeitende erfasst seine Stunden pro Baustelle und seine Spesen; die Sekretärin oder der Administrator verwaltet die Lohnabrechnung des ganzen Teams, vom Brutto- zum Nettolohn.',
     faq: [
       { q: 'Wer kann die Löhne in Cantia einsehen?', a: 'Nur die Personalverantwortliche und die Administratoren, je nach den über Team vergebenen Berechtigungen. Ein Standard-Mitarbeitender sieht nur seine eigenen Stunden und Spesen.' },
-      { q: 'Berechnet Cantia automatisch die Schweizer Sozialabgaben?', a: 'Cantia berechnet den Nettolohn anhand von konfigurierbaren AHV-/ALV-/BVG-/UVG-Sätzen und einem Quellensteuersatz pro Mitarbeitendem — die Standardsätze sind indikativ und je nach Ausgleichskasse, BVG-Kasse und Kanton anzupassen.' },
-      { q: 'Wie exportiert ein Mitarbeitender seine Stundenerfassung?', a: 'Über das Modul Personal & Löhne, mit Wahl der Granularität — täglich, wöchentlich oder monatlich — und anschliessendem Download als CSV-Datei.' },
+      { q: 'Berechnet Cantia automatisch die Schweizer Sozialabgaben?', a: 'Cantia berechnet den Nettolohn anhand von konfigurierbaren AHV-/ALV-/BVG-/UVG-Sätzen und einem Quellensteuersatz pro Mitarbeitendem. Die Standardsätze sind indikativ und je nach Ausgleichskasse, BVG-Kasse und Kanton anzupassen.' },
+      { q: 'Wie exportiert ein Mitarbeitender seine Stundenerfassung?', a: 'Über das Modul Personal & Löhne, mit Wahl der Granularität (täglich, wöchentlich oder monatlich) und anschliessendem Download als CSV-Datei.' },
       { q: 'Ist das Modul Personal & Löhne in allen Cantia-Plänen enthalten?', a: 'Es ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
     ],
   },
@@ -3494,21 +3494,21 @@ export const ROUTES = [
     path: 'de/solutions/travaux-supplementaires',
     title: 'Zusatzarbeiten für Schweizer Handwerker | Cantia',
     description:
-      'Jeder während der Baustelle angeforderte Extra-Auftrag wird zu einem datierten Dokument, online vom Kunden unterzeichnet und automatisch in eine Rechnung umgewandelt — Schluss mit vergessenen oder bestrittenen Extras.',
+      'Jeder während der Baustelle angeforderte Extra-Auftrag wird zu einem datierten Dokument, online vom Kunden unterzeichnet und automatisch in eine Rechnung umgewandelt. Schluss mit vergessenen oder bestrittenen Extras.',
     faq: [
-      { q: 'Was ist eine Zusatzarbeit in Cantia?', a: 'Es ist ein eigenes Dokument für alles, was während der Baustelle zusätzlich zur ursprünglichen Offerte gewünscht wird — eine zu versetzende Wand, eine zusätzliche Steckdose. Es wird wie eine Offerte erstellt, versandt und unterzeichnet und verwandelt sich nach Annahme automatisch in eine Rechnung.' },
+      { q: 'Was ist eine Zusatzarbeit in Cantia?', a: 'Es ist ein eigenes Dokument für alles, was während der Baustelle zusätzlich zur ursprünglichen Offerte gewünscht wird. Eine zu versetzende Wand, eine zusätzliche Steckdose. Es wird wie eine Offerte erstellt, versandt und unterzeichnet und verwandelt sich nach Annahme automatisch in eine Rechnung.' },
       { q: 'Muss eine Zusatzarbeit an eine bestehende Offerte gekoppelt sein?', a: 'Nein, das ist optional. Sie können sie mit der ursprünglichen Offerte verknüpfen, um den Kontext zu behalten, oder sie eigenständig erstellen, falls die Baustelle keine Offerte in Cantia hat.' },
-      { q: 'Wie validiert der Kunde eine Zusatzarbeit?', a: 'Er erhält einen Link zu einem sicheren Portal, prüft die bezifferten Details und unterzeichnet online — die Annahme wird zeitgestempelt und löst automatisch die entsprechende Rechnung aus.' },
+      { q: 'Wie validiert der Kunde eine Zusatzarbeit?', a: 'Er erhält einen Link zu einem sicheren Portal, prüft die bezifferten Details und unterzeichnet online. Die Annahme wird zeitgestempelt und löst automatisch die entsprechende Rechnung aus.' },
       { q: 'Zählen Zusatzarbeiten in die Rentabilität pro Baustelle?', a: 'Ja: sobald eine Zusatzarbeit akzeptiert ist, wird ihr Betrag automatisch zum offerierten Gesamtbetrag der Baustelle im Modul Rentabilität hinzugefügt.' },
     ],
   },
   {
     path: 'de/solutions/tresorerie',
     title: 'Liquiditätsplanung für das Bauwesen | Cantia',
-    description: 'Ausstehende Rechnungen, Löhne, Subunternehmer und wiederkehrende Kosten vereint in einer 90-Tage-Projektion — ohne Bankanbindung.',
+    description: 'Ausstehende Rechnungen, Löhne, Subunternehmer und wiederkehrende Kosten vereint in einer 90-Tage-Projektion, ohne Bankanbindung.',
     faq: [
-      { q: 'Verbindet sich Cantia mit meinem Bankkonto?', a: 'Nein. Sie erfassen Ihren Kontostand manuell, wann Sie möchten — es wird kein Bankzugriff verlangt oder benötigt.' },
-      { q: 'Woher stammen die Beträge der Projektion?', a: 'Aus unbezahlten Kundenrechnungen, einer Schätzung der Lohnsumme (Personalprofile + erfasste Stunden), offenen Subunternehmer-Rechnungen und den von Ihnen erfassten wiederkehrenden Ausgaben — alles, was Cantia bereits über Ihre Tätigkeit weiss.' },
+      { q: 'Verbindet sich Cantia mit meinem Bankkonto?', a: 'Nein. Sie erfassen Ihren Kontostand manuell, wann Sie möchten. Es wird kein Bankzugriff verlangt oder benötigt.' },
+      { q: 'Woher stammen die Beträge der Projektion?', a: 'Aus unbezahlten Kundenrechnungen, einer Schätzung der Lohnsumme (Personalprofile + erfasste Stunden), offenen Subunternehmer-Rechnungen und den von Ihnen erfassten wiederkehrenden Ausgaben. Alles, was Cantia bereits über Ihre Tätigkeit weiss.' },
       { q: 'Wie funktionieren die Erinnerungen an wiederkehrende Ausgaben?', a: 'Ein Banner auf der Startseite und der Seite Liquidität weist Sie auf aktive wiederkehrende Ausgaben hin, die in den nächsten 7 Tagen fällig werden, bevor sie abgebucht werden.' },
       { q: 'Ist die Liquiditätsplanung in allen Cantia-Plänen enthalten?', a: 'Sie ist ab dem Team-Plan verfügbar, aktivierbar in den Einstellungen Ihrer Organisation.' },
     ],
@@ -3520,8 +3520,8 @@ export const ROUTES = [
       'Cantia verbindet sich direkt mit Ihrer Buchhaltung: Bexio schon heute, Kunden und Artikel importiert, Rechnungen mit einem Klick versendet, Zahlungsstatus synchronisiert.',
     faq: [
       { q: 'Welche Integrationen bietet Cantia heute an?', a: 'Bexio, nativ verfügbar ab dem Team-Plan. Weitere Integrationen folgen demselben Prinzip der offiziellen Anbindung.' },
-      { q: 'Ist die Bexio-Integration zusätzlich zum Abonnement kostenpflichtig?', a: 'Nein — sie ist automatisch ab dem Team-Plan enthalten, ohne zusätzliches Modul oder zusätzliche Kosten.' },
-      { q: 'Kann Cantia eine definitive Rechnung an meinen Kunden über Bexio senden?', a: 'Nein. Jede Rechnung kommt nur als Entwurf in Bexio an — die Finalisierung bleibt immer eine manuelle Aktion in Bexio.' },
+      { q: 'Ist die Bexio-Integration zusätzlich zum Abonnement kostenpflichtig?', a: 'Nein, sie ist automatisch ab dem Team-Plan enthalten, ohne zusätzliches Modul oder zusätzliche Kosten.' },
+      { q: 'Kann Cantia eine definitive Rechnung an meinen Kunden über Bexio senden?', a: 'Nein. Jede Rechnung kommt nur als Entwurf in Bexio an. Die Finalisierung bleibt immer eine manuelle Aktion in Bexio.' },
     ],
   },
   {
@@ -3537,7 +3537,7 @@ export const ROUTES = [
   },
   {
     path: 'de/plans/essentiel',
-    title: 'Plan Essentiel — unbegrenzte Offerten & Rechnungen | Cantia',
+    title: 'Plan Essentiel: unbegrenzte Offerten & Rechnungen | Cantia',
     description:
       'CHF 39/Monat: unbegrenzte Offerten und Rechnungen, QR-Rechnung, KI-Sprachassistent (150 pro Monat), ein Leistungsverzeichnis zum Testen, 3 Mitglieder.',
     faq: [
@@ -3548,7 +3548,7 @@ export const ROUTES = [
   },
   {
     path: 'de/plans/equipe',
-    title: 'Plan Team — Planung, Personal & Liquidität | Cantia',
+    title: 'Plan Team: Planung, Personal & Liquidität | Cantia',
     description:
       'CHF 79/Monat: 3 Leistungsverzeichnisse pro Monat, Bauprogramm mit KI-Vorschlag, Rentabilität pro Baustelle, Liquidität, Löhne und 10 Mitglieder.',
     faq: [
@@ -3559,7 +3559,7 @@ export const ROUTES = [
   },
   {
     path: 'de/plans/entreprise',
-    title: 'Plan Business — für etablierte Unternehmen | Cantia',
+    title: 'Plan Business: für etablierte Unternehmen | Cantia',
     description:
       'CHF 129/Monat: alles aus Team mit unbegrenzten Leistungsverzeichnissen, Verfolgung geöffneter Offerten, automatischen Erinnerungen und 25 Mitgliedern.',
     faq: [
@@ -3570,7 +3570,7 @@ export const ROUTES = [
   },
   {
     path: 'de/blog',
-    title: 'Blog | Cantia — Konkrete Antworten für das Schweizer Bauwesen',
+    title: 'Blog | Cantia: Konkrete Antworten für das Schweizer Bauwesen',
     description:
       'Offerten, Rechnungsstellung, Personal, Recht, Vergleiche: präzise Antworten auf die Fragen, die sich Handwerker und Bauunternehmen in der Schweiz stellen.',
   },
@@ -3636,7 +3636,7 @@ export const ROUTES = [
   {
     path: 'de/telechargement',
     title: 'Cantia-Verknüpfung zum Startbildschirm hinzufügen | Web-App',
-    description: 'Cantia ist eine 100 % webbasierte Anwendung, zugänglich über jeden Browser — auf dem Computer wie auf dem Telefon. Keine Datei zum Herunterladen. Native iOS- und Android-Apps demnächst verfügbar.',
+    description: 'Cantia ist eine 100 % webbasierte Anwendung, zugänglich über jeden Browser. Auf dem Computer wie auf dem Telefon. Keine Datei zum Herunterladen. Native iOS- und Android-Apps demnächst verfügbar.',
   },
   {
     path: 'de/mentions-legales',
@@ -3709,12 +3709,12 @@ export const ROUTES = [
   {
     path: 'de/contact',
     title: 'Kontakt | Cantia',
-    description: 'Eine Frage, ein Problem, ein Vorschlag? Kontaktieren Sie das Cantia-Team — Antwort innert 24 Werkstunden.',
+    description: 'Eine Frage, ein Problem, ein Vorschlag? Kontaktieren Sie das Cantia-Team: Antwort innert 24 Werkstunden.',
   },
   {
     path: 'de/aide/videos',
     title: 'Video-Tutorials | Cantia Hilfe-Center',
-    description: 'Sehen Sie jedes Cantia-Modul in Aktion: Offerten, Rechnungen, Baustellen, Planung, Personal — Video-Demonstrationen Modul für Modul.',
+    description: 'Sehen Sie jedes Cantia-Modul in Aktion: Offerten, Rechnungen, Baustellen, Planung, Personal: Video-Demonstrationen Modul für Modul.',
   },
   {
     path: 'de/aide/ressources',
@@ -3739,7 +3739,7 @@ export const ROUTES = [
     faq: [
       { q: 'Come si fa un preventivo velocemente da artigiano?', a: "Detti le Sue righe a voce alta in cantiere o in auto. Cantia le trasforma in posizioni con prezzo usando i Suoi prezzi abituali, e il PDF è pronto ancora prima di aver lasciato il cliente." },
       { q: 'Il preventivo è conforme agli usi svizzeri (IVA, impaginazione)?', a: "Sì: ogni preventivo riprende la Sua aliquota IVA, i Suoi dati aziendali e può essere personalizzato con il colore del Suo marchio e il Suo logo." },
-      { q: 'Si può trasformare automaticamente un preventivo accettato in fattura?', a: "Sì, un preventivo accettato si converte in fattura — con fattura QR svizzera — con un clic, senza reinserire le righe." },
+      { q: 'Si può trasformare automaticamente un preventivo accettato in fattura?', a: "Sì, un preventivo accettato si converte in fattura (con fattura QR svizzera), con un clic, senza reinserire le righe." },
       { q: 'Cantia è gratuito per fare i preventivi?', a: "Cantia offre una prova gratuita di 14 giorni su tutti i piani (carta di credito richiesta, nessun addebito prima della fine della prova). Una volta abbonati, preventivi e fatture sono illimitati su ogni piano, senza quota mensile." },
     ],
   },
@@ -3747,11 +3747,11 @@ export const ROUTES = [
     path: 'it/solutions/facturation',
     title: 'Fatturazione & fattura QR svizzera | Cantia',
     description:
-      "Ogni fattura Cantia integra automaticamente la fattura QR svizzera conforme — IBAN, riferimento strutturato e importo già codificati, pronta per essere scansionata.",
+      "Ogni fattura Cantia integra automaticamente la fattura QR svizzera conforme. IBAN, riferimento strutturato e importo già codificati, pronta per essere scansionata.",
     faq: [
       { q: 'Come si crea una fattura con fattura QR svizzera?', a: "Inserisca il Suo IBAN una sola volta nelle impostazioni: ogni fattura genera poi automaticamente la polizza QR conforme alla norma SIX, con IBAN e riferimento strutturato già codificati." },
       { q: 'Si può fatturare un acconto prima della fine del cantiere?', a: "Sì, Cantia consente di emettere una fattura d'acconto per una percentuale del preventivo, poi deduce automaticamente questo importo dalla fattura finale." },
-      { q: 'Come si sa se una fattura è stata pagata?', a: "Cerchi e riconcili un pagamento direttamente dal suo numero di riferimento QR — lo stato passa a «pagata» senza dover verificare manualmente il Suo conto bancario." },
+      { q: 'Come si sa se una fattura è stata pagata?', a: "Cerchi e riconcili un pagamento direttamente dal suo numero di riferimento QR. Lo stato passa a «pagata» senza dover verificare manualmente il Suo conto bancario." },
       { q: 'Quanto costa la fatturazione con QR-code tramite Cantia?', a: "La fatturazione con fattura QR svizzera è inclusa in tutti i piani Cantia, senza eccezioni, già a partire dal piano Essentiel." },
     ],
   },
@@ -3761,10 +3761,10 @@ export const ROUTES = [
     description:
       "Note vocali, foto geolocalizzate e messaggi di squadra: Cantia ne ricava un rapporto redatto e strutturato, pronto per l'invio.",
     faq: [
-      { q: 'Come si redige rapidamente un rapporto di cantiere?', a: "Scatti le Sue foto e detti le Sue note sul momento — Cantia assembla tutto in un rapporto PDF strutturato e pronto per l'invio, senza dover riscrivere tutto la sera." },
+      { q: 'Come si redige rapidamente un rapporto di cantiere?', a: "Scatti le Sue foto e detti le Sue note sul momento. Cantia assembla tutto in un rapporto PDF strutturato e pronto per l'invio, senza dover riscrivere tutto la sera." },
       { q: 'Le foto vengono geolocalizzate automaticamente?', a: "Sì, ogni foto viene marcata temporalmente e geolocalizzata senza alcuna azione aggiuntiva da parte Sua." },
       { q: 'Si può personalizzare il rapporto con logo e firma?', a: "Sì, ogni rapporto PDF riprende il Suo logo, il colore del Suo marchio e la firma di chi lo ha redatto." },
-      { q: 'Il rapporto di cantiere sostituisce un diario di cantiere cartaceo?', a: "Sì — note, foto e monitoraggio sono centralizzati in un documento digitale consultabile in qualsiasi momento, per cantiere." },
+      { q: 'Il rapporto di cantiere sostituisce un diario di cantiere cartaceo?', a: "Sì, note, foto e monitoraggio sono centralizzati in un documento digitale consultabile in qualsiasi momento, per cantiere." },
     ],
   },
   {
@@ -3772,10 +3772,10 @@ export const ROUTES = [
     title: "Dettatura vocale per l'edilizia | Cantia",
     description: "Preventivi, rapporti, messaggi di squadra: un pulsante per dettare sostituisce la digitazione, ovunque in Cantia.",
     faq: [
-      { q: 'La dettatura vocale funziona bene con il vocabolario edile?', a: "Sì, il riconoscimento è adattato al vocabolario tecnico dell'edilizia — materiali, unità, mestieri — non solo al linguaggio comune." },
+      { q: 'La dettatura vocale funziona bene con il vocabolario edile?', a: "Sì, il riconoscimento è adattato al vocabolario tecnico dell'edilizia (materiali, unità, mestieri), non solo al linguaggio comune." },
       { q: 'Serve una connessione internet per dettare?', a: "Sì, la dettatura richiede una connessione per la trascrizione, ma i preventivi e i rapporti generati restano consultabili una volta creati." },
-      { q: 'Dove si può usare la dettatura vocale in Cantia?', a: "Sui preventivi, sui rapporti di cantiere e sui messaggi di squadra del feed — ovunque Lei scriva." },
-      { q: 'La dettatura vocale è più veloce della tastiera sul campo?', a: "Per la maggior parte degli artigiani in cantiere, sì — parlare è più veloce che digitare su un telefono con le mani sporche o i guanti." },
+      { q: 'Dove si può usare la dettatura vocale in Cantia?', a: "Sui preventivi, sui rapporti di cantiere e sui messaggi di squadra del feed: ovunque Lei scriva." },
+      { q: 'La dettatura vocale è più veloce della tastiera sul campo?', a: "Per la maggior parte degli artigiani in cantiere, sì. Parlare è più veloce che digitare su un telefono con le mani sporche o i guanti." },
     ],
   },
   {
@@ -3793,9 +3793,9 @@ export const ROUTES = [
     path: 'it/solutions/rentabilite',
     title: 'Redditività per cantiere | Cantia',
     description:
-      "Confronti il preventivo accettato con il costo reale — materiale e manodopera — per sapere se ogni cantiere è redditizio, in margine ristretto o in perdita.",
+      "Confronti il preventivo accettato con il costo reale (materiale e manodopera) per sapere se ogni cantiere è redditizio, in margine ristretto o in perdita.",
     faq: [
-      { q: 'Come si sa se un cantiere è redditizio?', a: "Cantia confronta il preventivo accettato (ricavo) con il costo reale — materiale registrato e manodopera derivata dalle ore inserite — e mostra il margine in CHF e in % in tempo reale." },
+      { q: 'Come si sa se un cantiere è redditizio?', a: "Cantia confronta il preventivo accettato (ricavo) con il costo reale (materiale registrato e manodopera derivata dalle ore inserite) e mostra il margine in CHF e in % in tempo reale." },
       { q: 'Da dove viene il calcolo del costo della manodopera?', a: "Dalla pianificazione di squadra: i giorni assegnati a un cantiere vengono moltiplicati per il costo orario della Sua azienda, senza registrazione separata." },
       { q: 'Si possono confrontare più cantieri tra loro?', a: "Sì, ogni cantiere mostra il proprio margine, il che permette di individuare rapidamente i cantieri in perdita." },
       { q: 'La redditività per cantiere è inclusa in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
@@ -3808,8 +3808,8 @@ export const ROUTES = [
       "Ogni dipendente registra le proprie ore per cantiere e le proprie spese professionali; la segretaria o l'amministratore gestisce la busta paga di tutta la squadra, dal lordo al netto.",
     faq: [
       { q: 'Chi può vedere i salari in Cantia?', a: "Solo la segretaria HR e gli amministratori, secondo i permessi assegnati da Squadra. Un dipendente standard vede solo le proprie ore e spese." },
-      { q: 'Cantia calcola automaticamente i contributi sociali svizzeri?', a: "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF configurabili e da un'aliquota d'imposta alla fonte per dipendente — le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone." },
-      { q: 'Come esporta un dipendente il proprio foglio ore?', a: "Dal modulo HR & Salari, scegliendo la granularità — giornaliera, settimanale o mensile — poi scaricando un file CSV." },
+      { q: 'Cantia calcola automaticamente i contributi sociali svizzeri?', a: "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF configurabili e da un'aliquota d'imposta alla fonte per dipendente. Le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone." },
+      { q: 'Come esporta un dipendente il proprio foglio ore?', a: "Dal modulo HR & Salari, scegliendo la granularità (giornaliera, settimanale o mensile) poi scaricando un file CSV." },
       { q: 'Il modulo HR & Salari è incluso in tutti i piani Cantia?', a: "È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione." },
     ],
   },
@@ -3828,11 +3828,11 @@ export const ROUTES = [
     path: 'it/solutions/travaux-supplementaires',
     title: 'Lavori supplementari (LS) per artigiani svizzeri | Cantia',
     description:
-      "Ogni extra richiesto durante il cantiere diventa un documento datato, firmato online dal cliente e trasformato automaticamente in fattura — basta con gli extra dimenticati o contestati.",
+      "Ogni extra richiesto durante il cantiere diventa un documento datato, firmato online dal cliente e trasformato automaticamente in fattura. Basta con gli extra dimenticati o contestati.",
     faq: [
-      { q: "Che cos'è un Lavoro supplementare (LS) in Cantia?", a: "È un documento dedicato per tutto ciò che viene richiesto durante il cantiere in aggiunta al preventivo iniziale — un muro da spostare, una presa da aggiungere. Si crea, si invia e si firma come un preventivo, poi si trasforma automaticamente in fattura una volta accettato." },
+      { q: "Che cos'è un Lavoro supplementare (LS) in Cantia?", a: "È un documento dedicato per tutto ciò che viene richiesto durante il cantiere in aggiunta al preventivo iniziale. Un muro da spostare, una presa da aggiungere. Si crea, si invia e si firma come un preventivo, poi si trasforma automaticamente in fattura una volta accettato." },
       { q: 'Un LS deve essere collegato a un preventivo esistente?', a: "No, è facoltativo. Può collegarlo al preventivo d'origine per mantenere il contesto, oppure crearlo da solo se il cantiere non ha un preventivo iniziale in Cantia." },
-      { q: 'Come approva il cliente un Lavoro supplementare?', a: "Riceve un link a un portale sicuro, consulta il dettaglio con i prezzi e firma online — l'accettazione è marcata temporalmente e attiva automaticamente la fattura corrispondente." },
+      { q: 'Come approva il cliente un Lavoro supplementare?', a: "Riceve un link a un portale sicuro, consulta il dettaglio con i prezzi e firma online. L'accettazione è marcata temporalmente e attiva automaticamente la fattura corrispondente." },
       { q: 'I lavori supplementari contano nella Redditività per cantiere?', a: "Sì: non appena un LS viene accettato, il suo importo si aggiunge automaticamente al totale preventivato del cantiere nel modulo Redditività." },
     ],
   },
@@ -3840,10 +3840,10 @@ export const ROUTES = [
     path: 'it/solutions/tresorerie',
     title: "Liquidità previsionale per l'edilizia | Cantia",
     description:
-      "Fatture da incassare, salari, subappaltatori e spese ricorrenti riuniti in una proiezione a 90 giorni — senza connessione bancaria.",
+      "Fatture da incassare, salari, subappaltatori e spese ricorrenti riuniti in una proiezione a 90 giorni, senza connessione bancaria.",
     faq: [
-      { q: 'Cantia si collega al mio conto bancario?', a: 'No. Inserisce il Suo saldo manualmente quando lo desidera — non viene richiesto né è necessario alcun accesso bancario.' },
-      { q: 'Da dove provengono gli importi della proiezione?', a: "Dalle fatture clienti non saldate, da una stima della massa salariale (profili HR + ore inserite), dalle fatture subappaltatori non pagate e dalle spese ricorrenti che Lei registra — tutto ciò che Cantia sa già sulla Sua attività." },
+      { q: 'Cantia si collega al mio conto bancario?', a: 'No. Inserisce il Suo saldo manualmente quando lo desidera, non viene richiesto né è necessario alcun accesso bancario.' },
+      { q: 'Da dove provengono gli importi della proiezione?', a: "Dalle fatture clienti non saldate, da una stima della massa salariale (profili HR + ore inserite), dalle fatture subappaltatori non pagate e dalle spese ricorrenti che Lei registra. Tutto ciò che Cantia sa già sulla Sua attività." },
       { q: 'Come funzionano i promemoria delle spese ricorrenti?', a: "Un banner sulla home e sulla pagina Liquidità Le segnala le spese ricorrenti attive in scadenza nei prossimi 7 giorni, prima che vengano addebitate." },
       { q: 'La Liquidità previsionale è inclusa in tutti i piani Cantia?', a: 'È disponibile a partire dal piano Team, attivabile dalle impostazioni della Sua organizzazione.' },
     ],
@@ -3855,8 +3855,8 @@ export const ROUTES = [
       "Cantia si collega direttamente alla Sua contabilità: Bexio già da oggi, clienti e articoli importati, fatture inviate con un clic, stati di pagamento sincronizzati.",
     faq: [
       { q: 'Quali integrazioni offre Cantia oggi?', a: 'Bexio, disponibile nativamente a partire dal piano Team. Altre integrazioni seguiranno lo stesso principio di connessione ufficiale.' },
-      { q: "L'integrazione Bexio è a pagamento oltre all'abbonamento?", a: 'No — è inclusa automaticamente a partire dal piano Team, senza modulo né costo aggiuntivo.' },
-      { q: 'Cantia può inviare una fattura definitiva al mio cliente tramite Bexio?', a: 'No. Ogni fattura arriva in Bexio solo come bozza — la finalizzazione resta sempre un’azione manuale lato Bexio.' },
+      { q: "L'integrazione Bexio è a pagamento oltre all'abbonamento?", a: 'No, è inclusa automaticamente a partire dal piano Team, senza modulo né costo aggiuntivo.' },
+      { q: 'Cantia può inviare una fattura definitiva al mio cliente tramite Bexio?', a: 'No. Ogni fattura arriva in Bexio solo come bozza. La finalizzazione resta sempre un’azione manuale lato Bexio.' },
     ],
   },
   {
@@ -3872,7 +3872,7 @@ export const ROUTES = [
   },
   {
     path: 'it/plans/essentiel',
-    title: 'Piano Essenziale — preventivi e fatture illimitati | Cantia',
+    title: 'Piano Essenziale: preventivi e fatture illimitati | Cantia',
     description:
       'CHF 39/mese: preventivi e fatture illimitati, QR-fattura, assistente vocale IA (150 al mese), un capitolato di prova e 3 membri. Piano Essenziale.',
     faq: [
@@ -3883,7 +3883,7 @@ export const ROUTES = [
   },
   {
     path: 'it/plans/equipe',
-    title: 'Piano Team — pianificazione, personale e liquidità | Cantia',
+    title: 'Piano Team: pianificazione, personale e liquidità | Cantia',
     description:
       'CHF 79/mese: 3 capitolati al mese, programma lavori proposto dall’IA, redditività per cantiere, liquidità, salari e 10 membri. Scopra il piano Team.',
     faq: [
@@ -3894,7 +3894,7 @@ export const ROUTES = [
   },
   {
     path: 'it/plans/entreprise',
-    title: 'Piano Azienda — per le strutture consolidate | Cantia',
+    title: 'Piano Azienda: per le strutture consolidate | Cantia',
     description:
       'CHF 129/mese: tutto Team con capitolati illimitati, monitoraggio dei preventivi aperti, solleciti automatici, 25 membri e supporto prioritario.',
     faq: [
@@ -3905,7 +3905,7 @@ export const ROUTES = [
   },
   {
     path: 'it/blog',
-    title: "Blog | Cantia — Risposte concrete per l'edilizia svizzera",
+    title: "Blog | Cantia: Risposte concrete per l'edilizia svizzera",
     description:
       "Preventivi, fatturazione, HR, aspetti legali, confronti: risposte precise alle domande che si pongono gli artigiani e le imprese edili in Svizzera.",
   },
@@ -3971,7 +3971,7 @@ export const ROUTES = [
   {
     path: 'it/telechargement',
     title: 'Aggiungere Cantia alla schermata Home | App web mobile',
-    description: "Cantia è un'applicazione 100% web, accessibile da qualsiasi browser — su computer come su telefono. Nessun file da scaricare. App native iOS e Android disponibili a breve.",
+    description: "Cantia è un'applicazione 100% web, accessibile da qualsiasi browser. Su computer come su telefono. Nessun file da scaricare. App native iOS e Android disponibili a breve.",
   },
   {
     path: 'it/mentions-legales',
@@ -4022,13 +4022,13 @@ export const ROUTES = [
   {
     path: 'it/contact',
     title: 'Contatto | Cantia',
-    description: 'Una domanda, un problema, un suggerimento? Contatti il team Cantia — risposta entro 24 ore lavorative.',
+    description: 'Una domanda, un problema, un suggerimento? Contatti il team Cantia: risposta entro 24 ore lavorative.',
   },
   {
     path: 'it/aide/videos',
     title: 'Tutorial video | Centro assistenza Cantia',
     description:
-      'Veda ogni modulo Cantia in azione: preventivi, fatture, cantieri, pianificazione, HR — dimostrazioni video modulo per modulo.',
+      'Veda ogni modulo Cantia in azione: preventivi, fatture, cantieri, pianificazione, HR, dimostrazioni video modulo per modulo.',
   },
   {
     path: 'it/aide/ressources',
@@ -4042,9 +4042,9 @@ export const ROUTES = [
     description:
       'Comment fonctionne l’action en garantie entre un sous-traitant et un entrepreneur général en cas de défaut, et pourquoi une assurance RC pro propre est essentielle.',
     faq: [
-      { q: 'Le maître d’ouvrage peut-il agir directement contre un sous-traitant ?', a: 'En général non, faute de lien contractuel direct entre eux — le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire.' },
+      { q: 'Le maître d’ouvrage peut-il agir directement contre un sous-traitant ?', a: 'En général non, faute de lien contractuel direct entre eux. Le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire.' },
       { q: 'Dans quel délai une action en garantie peut-elle être engagée ?', a: 'Cela dépend des délais de garantie prévus au contrat et des règles de prescription applicables, qui varient selon les cas. Consultez un avocat pour évaluer les délais précis de votre situation.' },
-      { q: 'Une clause contractuelle peut-elle limiter la responsabilité d’un sous-traitant ?', a: 'Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances — à vérifier avec un avocat lors de la rédaction du contrat.' },
+      { q: 'Une clause contractuelle peut-elle limiter la responsabilité d’un sous-traitant ?', a: 'Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances. À vérifier avec un avocat lors de la rédaction du contrat.' },
     ],
   },
   {
@@ -4339,7 +4339,7 @@ export const ROUTES = [
     description:
       'Comment se déroule une expertise judiciaire en cas de désaccord sur une malfaçon de construction, et pourquoi bien documenter le chantier facilite tout.',
     faq: [
-      { q: 'Qui paie les frais de l’expertise judiciaire ?', a: 'Généralement la partie qui la demande en fait l’avance, puis les frais sont répartis selon l’issue de la procédure. Les règles précises varient selon les cas — consultez un avocat pour votre situation.' },
+      { q: 'Qui paie les frais de l’expertise judiciaire ?', a: 'Généralement la partie qui la demande en fait l’avance, puis les frais sont répartis selon l’issue de la procédure. Les règles précises varient selon les cas. Consultez un avocat pour votre situation.' },
       { q: 'Peut-on contester les conclusions d’un expert judiciaire ?', a: 'Oui, généralement en demandant un complément d’expertise ou une contre-expertise si les conclusions semblent erronées ou incomplètes, mais cela allonge la procédure. À évaluer avec votre avocat selon le cas.' },
       { q: 'Une expertise amiable, hors tribunal, a-t-elle la même valeur ?', a: 'Une expertise amiable, réalisée d’un commun accord entre les parties, peut suffire à résoudre un désaccord sans procédure judiciaire, mais elle a généralement moins de poids qu’une expertise judiciaire si le litige finit tout de même devant un tribunal.' },
     ],
@@ -4351,8 +4351,8 @@ export const ROUTES = [
       'Ce que devient une créance impayée lorsqu’un client fait faillite : comment produire sa créance et pourquoi la situation diffère d’un simple impayé.',
     faq: [
       { q: 'Que faire si mon client refuse de payer mais n’est pas en faillite ?', a: 'C’est une situation différente, à traiter par la voie de la poursuite ordinaire pour facture impayée plutôt que par une production de créance. Consultez notre article sur la procédure de poursuite en Suisse pour la marche à suivre.' },
-      { q: 'Dans quel délai faut-il produire sa créance lors d’une faillite ?', a: 'Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines — vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer.' },
-      { q: 'Peut-on récupérer sa créance plus vite en agissant tôt, avant la faillite ?', a: 'Dans certains cas, oui — une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible.' },
+      { q: 'Dans quel délai faut-il produire sa créance lors d’une faillite ?', a: 'Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines. Vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer.' },
+      { q: 'Peut-on récupérer sa créance plus vite en agissant tôt, avant la faillite ?', a: 'Dans certains cas, oui : une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible.' },
     ],
   },
   {
@@ -4374,7 +4374,7 @@ export const ROUTES = [
     faq: [
       { q: 'Faut-il intervenir immédiatement dès qu’une tension apparaît entre deux ouvriers ?', a: 'Pas nécessairement dès la première friction, mais dès qu’une tension se répète sur plusieurs jours ou commence à affecter le travail, une intervention rapide reste préférable à l’attente d’une résolution spontanée, qui survient rarement.' },
       { q: 'Comment mener la discussion sans prendre parti ?', a: 'Écouter chaque personne séparément d’abord, puis recentrer l’échange commun sur des faits concrets liés au travail plutôt que sur les personnalités, aide à garder une posture neutre et à éviter d’envenimer la situation.' },
-      { q: 'Quand faut-il faire appel à une aide extérieure pour un conflit d’équipe ?', a: 'Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe — RH, association professionnelle ou conseil juridique — devient nécessaire.' },
+      { q: 'Quand faut-il faire appel à une aide extérieure pour un conflit d’équipe ?', a: 'Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe (RH, association professionnelle ou conseil juridique) devient nécessaire.' },
     ],
   },
   {
@@ -4484,7 +4484,7 @@ export const ROUTES = [
     faq: [
       { q: 'Un employeur est-il obligé de verser une prime de fin d’année ?', a: 'Non, contrairement au 13e salaire quand il est prévu par le contrat ou la CCT, une prime de fin d’année reste en principe discrétionnaire, sauf si l’entreprise l’a explicitement transformée en engagement contractuel.' },
       { q: 'Une prime versée plusieurs années de suite devient-elle obligatoire ?', a: 'Elle peut le devenir dans certaines situations si elle est versée de façon répétée et sans réserve explicite, ce qui peut créer une attente légitime chez l’employé. C’est pour cette raison qu’il vaut mieux formuler clairement son caractère discrétionnaire chaque année.' },
-      { q: 'Comment calculer le 13e salaire d’un employé qui a travaillé une partie de l’année seulement ?', a: 'Le calcul suit en général un prorata basé sur la durée effective d’emploi durant l’année, selon les règles précises fixées par le contrat ou la convention collective applicable — un point traité en détail dans un article dédié au calcul du 13e salaire.' },
+      { q: 'Comment calculer le 13e salaire d’un employé qui a travaillé une partie de l’année seulement ?', a: 'Le calcul suit en général un prorata basé sur la durée effective d’emploi durant l’année, selon les règles précises fixées par le contrat ou la convention collective applicable. Un point traité en détail dans un article dédié au calcul du 13e salaire.' },
     ],
   },
   {
@@ -4493,7 +4493,7 @@ export const ROUTES = [
     description:
       'Les points essentiels à vérifier avant de racheter une entreprise du bâtiment existante en Suisse : finances, carnet de commandes, matériel et clientèle.',
     faq: [
-      { q: 'Vaut-il mieux racheter les parts d’une société ou son fonds de commerce ?', a: 'Cela dépend du passif de l’entreprise. Racheter le fonds de commerce évite généralement d’hériter des dettes ou litiges de l’ancienne structure, mais peut être fiscalement moins avantageux selon les cas — à valider avec une fiduciaire.' },
+      { q: 'Vaut-il mieux racheter les parts d’une société ou son fonds de commerce ?', a: 'Cela dépend du passif de l’entreprise. Racheter le fonds de commerce évite généralement d’hériter des dettes ou litiges de l’ancienne structure, mais peut être fiscalement moins avantageux selon les cas. À valider avec une fiduciaire.' },
       { q: 'Comment vérifier que le chiffre d’affaires annoncé est réel ?', a: 'En demandant les comptes des trois derniers exercices, idéalement révisés, et en les croisant avec les décomptes TVA et les relevés bancaires plutôt que de se fier au seul bilan présenté.' },
       { q: 'La clientèle reste-t-elle automatiquement après un rachat ?', a: 'Non, rien ne le garantit. Une partie de la clientèle peut être fidèle au patron sortant plus qu’à l’entreprise. C’est un risque à intégrer dans la valorisation du rachat.' },
     ],

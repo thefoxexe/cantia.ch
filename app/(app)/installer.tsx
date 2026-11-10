@@ -26,7 +26,7 @@ const ICONS: Record<GuideKey, IconName> = { ios: 'share', android: 'more-vertica
 const COPY: Record<AppLocale, { header: string; lead: string; other: string; guides: Record<GuideKey, { title: string; steps: string[] }> }> = {
   fr: {
     header: "Installer l'app",
-    lead: "Cantia n'est pas encore sur l'App Store ni le Play Store — en attendant, ajoutez-la à votre écran d'accueil pour l'ouvrir en un geste, comme une vraie application.",
+    lead: "Cantia n'est pas encore sur l'App Store ni le Play Store. En attendant, ajoutez-la à votre écran d'accueil pour l'ouvrir en un geste, comme une vraie application.",
     other: 'Autre appareil ?',
     guides: {
       ios: { title: 'Sur iPhone / iPad (Safari)', steps: ['Ouvrez cantia.ch dans Safari', 'Appuyez sur le bouton Partager (le carré avec la flèche vers le haut)', "Faites défiler et appuyez sur « Sur l'écran d'accueil »", 'Confirmez avec « Ajouter »'] },

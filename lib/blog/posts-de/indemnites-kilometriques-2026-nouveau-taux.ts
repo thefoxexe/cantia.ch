@@ -38,7 +38,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'Für ein Team, das sich häufig von Baustelle zu Baustelle bewegt, ist der Unterschied zwischen CHF 0.70 und CHF 0.75 pro Kilometer übers Jahr gerechnet nicht kosmetisch: Bei 15’000 gefahrenen Kilometern sind das CHF 750 mehr auszuzahlen — oder ohne Anpassung CHF 750 unter dem Referenzansatz.',
+      text: 'Für ein Team, das sich häufig von Baustelle zu Baustelle bewegt, ist der Unterschied zwischen CHF 0.70 und CHF 0.75 pro Kilometer übers Jahr gerechnet nicht kosmetisch: Bei 15’000 gefahrenen Kilometern sind das CHF 750 mehr auszuzahlen, oder ohne Anpassung CHF 750 unter dem Referenzansatz.',
     },
     {
       type: 'cta',

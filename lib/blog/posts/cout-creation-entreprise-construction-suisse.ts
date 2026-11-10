@@ -58,7 +58,7 @@ export const post: BlogPost = {
     { type: 'h2', text: '3. Outillage, véhicule et équipement de base' },
     {
       type: 'p',
-      text: 'Le montant varie énormément selon le corps de métier : un plâtrier-peintre démarre avec un budget outillage sans commune mesure avec celui d’un charpentier ou d’un installateur sanitaire. Le vrai piège n’est pas le montant en lui-même, mais la tentation de tout acheter neuf et d’un coup avant même le premier chantier signé — plutôt que d’équiper progressivement, au rythme des besoins réels.',
+      text: 'Le montant varie énormément selon le corps de métier : un plâtrier-peintre démarre avec un budget outillage sans commune mesure avec celui d’un charpentier ou d’un installateur sanitaire. Le vrai piège n’est pas le montant en lui-même, mais la tentation de tout acheter neuf et d’un coup avant même le premier chantier signé. Plutôt que d’équiper progressivement, au rythme des besoins réels.',
     },
     { type: 'h2', text: '4. Les cotisations sociales, dès le premier mois' },
     {
@@ -68,7 +68,7 @@ export const post: BlogPost = {
     { type: 'h2', text: '5. Le vrai poste oublié : la trésorerie de démarrage' },
     {
       type: 'p',
-      text: 'Le délai entre le premier chantier signé et le premier encaissement réel — devis, exécution, facturation, délai de paiement du client — dépasse souvent 60 à 90 jours. Pendant ce temps, les charges fixes (cotisations, assurances, véhicule, éventuel loyer d’atelier) continuent de tomber. Une entreprise du bâtiment qui démarre sans au moins deux à trois mois de charges fixes en réserve prend un risque de trésorerie bien plus dangereux que n’importe quel poste de la liste ci-dessus.',
+      text: 'Le délai entre le premier chantier signé et le premier encaissement réel (devis, exécution, facturation, délai de paiement du client) dépasse souvent 60 à 90 jours. Pendant ce temps, les charges fixes (cotisations, assurances, véhicule, éventuel loyer d’atelier) continuent de tomber. Une entreprise du bâtiment qui démarre sans au moins deux à trois mois de charges fixes en réserve prend un risque de trésorerie bien plus dangereux que n’importe quel poste de la liste ci-dessus.',
     },
     {
       type: 'stat',

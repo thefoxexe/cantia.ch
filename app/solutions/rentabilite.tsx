@@ -12,17 +12,17 @@ export default function RentabiliteSolutionPage() {
         {
           icon: 'trending-up',
           title: 'Devisé vs coût réel',
-          text: "Le montant du devis accepté comparé au coût réel du chantier — matériel et main d'œuvre — avec une marge affichée en CHF et en %.",
+          text: "Le montant du devis accepté comparé au coût réel du chantier (matériel et main d'œuvre), avec une marge affichée en CHF et en %.",
         },
         {
           icon: 'camera',
           title: 'Un ticket photographié, une dépense enregistrée',
-          text: "Prenez en photo un ticket de caisse ou une facture fournisseur : le fournisseur et le montant sont lus automatiquement. Ou dites-le simplement à voix haute — l'assistant vocal, accessible depuis toute l'application, comprend le chantier et le montant et vous fait confirmer avant d'enregistrer.",
+          text: "Prenez en photo un ticket de caisse ou une facture fournisseur : le fournisseur et le montant sont lus automatiquement. Ou dites-le simplement à voix haute. L'assistant vocal, accessible depuis toute l'application, comprend le chantier et le montant et vous fait confirmer avant d'enregistrer.",
         },
         {
           icon: 'calendar',
           title: "Main d'œuvre sans double saisie",
-          text: "Le coût de la main d'œuvre est calculé depuis les heures réellement pointées dans RH & Salaires (ou une estimation depuis le planning tant qu'aucune heure n'est encore saisie) — aucun pointage séparé à faire.",
+          text: "Le coût de la main d'œuvre est calculé depuis les heures réellement pointées dans RH & Salaires (ou une estimation depuis le planning tant qu'aucune heure n'est encore saisie), aucun pointage séparé à faire.",
         },
         {
           icon: 'alert-triangle',
@@ -37,14 +37,14 @@ export default function RentabiliteSolutionPage() {
         {
           icon: 'shopping-bag',
           title: 'Toutes les dépenses au même endroit',
-          text: "La section Dépenses regroupe en une liste filtrable les achats de tous vos chantiers et vos dépenses générales — créez, modifiez ou supprimez ces dernières directement ici, avec un lien direct vers le chantier concerné pour les autres.",
+          text: "La section Dépenses regroupe en une liste filtrable les achats de tous vos chantiers et vos dépenses générales. Créez, modifiez ou supprimez ces dernières directement ici, avec un lien direct vers le chantier concerné pour les autres.",
         },
       ]}
       faq={[
         {
           question: 'Comment savoir si un chantier est rentable ?',
           answer:
-            "Cantia compare le devis accepté (revenu) au coût réel — matériel saisi et main d'œuvre issue des heures pointées — et affiche la marge en CHF et en % en temps réel.",
+            "Cantia compare le devis accepté (revenu) au coût réel (matériel saisi et main d'œuvre issue des heures pointées) et affiche la marge en CHF et en % en temps réel.",
         },
         {
           question: "D'où vient le calcul du coût de main d'œuvre ?",

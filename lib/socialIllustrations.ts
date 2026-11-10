@@ -722,7 +722,7 @@ export function marginContent(ctx: CanvasRenderingContext2D, x: number, y: numbe
   const pad = 24;
   ctx.fillStyle = MUTED;
   ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText('MARGE — CHANTIER', x + pad, y + 40);
+  ctx.fillText('MARGE · CHANTIER', x + pad, y + 40);
   ctx.fillStyle = SUCCESS;
   ctx.font = '900 42px "Helvetica Neue", Arial, sans-serif';
   ctx.fillText('+18%', x + pad, y + 84);
@@ -794,7 +794,7 @@ export function calendarContent(ctx: CanvasRenderingContext2D, x: number, y: num
   const pad = 22;
   ctx.fillStyle = MUTED;
   ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText('PLANNING — CETTE SEMAINE', x + pad, y + 34);
+  ctx.fillText('PLANNING · CETTE SEMAINE', x + pad, y + 34);
   const days = ['L', 'M', 'M', 'J', 'V'];
   const colW = (w - pad * 2) / days.length;
   const rowTop = y + 54;
@@ -823,7 +823,7 @@ export function cashflowContent(ctx: CanvasRenderingContext2D, x: number, y: num
   const pad = 24;
   ctx.fillStyle = MUTED;
   ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText('TRÉSORERIE — 90 JOURS', x + pad, y + 36);
+  ctx.fillText('TRÉSORERIE · 90 JOURS', x + pad, y + 36);
   ctx.fillStyle = INK;
   ctx.font = '800 26px "Helvetica Neue", Arial, sans-serif';
   ctx.fillText('CHF 48’900', x + pad, y + 70);
@@ -984,7 +984,7 @@ export function weatherContent(ctx: CanvasRenderingContext2D, x: number, y: numb
   const pad = 20;
   ctx.fillStyle = MUTED;
   ctx.font = '700 12px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillText('MÉTÉO CHANTIER — 5 JOURS', x + pad, y + 32);
+  ctx.fillText('MÉTÉO CHANTIER · 5 JOURS', x + pad, y + 32);
   const days = [
     { d: 'Lun', t: '14°', sun: true },
     { d: 'Mar', t: '16°', sun: true },

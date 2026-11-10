@@ -1478,7 +1478,7 @@ export const BLOG_SEO_IT = [
       },
       {
         "q": "Bisogna reinserire a mano ogni scontrino?",
-        "a": "No: una foto dello scontrino o della fattura fornitore basta, il fornitore e l’importo vengono letti automaticamente e precompilano la spesa — resta solo da verificare prima di registrare."
+        "a": "No: una foto dello scontrino o della fattura fornitore basta, il fornitore e l’importo vengono letti automaticamente e precompilano la spesa, resta solo da verificare prima di registrare."
       }
     ],
     "publishedAt": "2026-09-10"
@@ -2644,8 +2644,8 @@ export const HELP_SEO_IT = [
   },
   {
     "path": "it/aide/rh-heures-guide",
-    "title": "Registrare le proprie ore e rifatturarle per cantiere — la guida passo passo | Centro assistenza Cantia",
-    "description": "Concretamente, a cosa assomiglia usare Cantia per le ore — dal telefono di un dipendente sul cantiere fino all'ufficio che rifattura ed esporta i numeri."
+    "title": "Registrare le proprie ore e rifatturarle per cantiere: la guida passo passo | Centro assistenza Cantia",
+    "description": "Concretamente, a cosa assomiglia usare Cantia per le ore. Dal telefono di un dipendente sul cantiere fino all'ufficio che rifattura ed esporta i numeri."
   },
   {
     "path": "it/aide/tresorerie",
@@ -2685,6 +2685,6 @@ export const HELP_SEO_IT = [
   {
     "path": "it/aide/portail-client",
     "title": "Cosa vede il cliente sul suo portale | Centro assistenza Cantia",
-    "description": "Il link inviato a un cliente apre un portale sicuro, senza che debba creare un account né una password — solo il suo indirizzo e-mail, già noto a Cantia."
+    "description": "Il link inviato a un cliente apre un portale sicuro, senza che debba creare un account né una password, solo il suo indirizzo e-mail, già noto a Cantia."
   }
 ];

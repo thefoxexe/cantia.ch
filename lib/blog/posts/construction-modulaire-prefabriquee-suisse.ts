@@ -20,7 +20,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le principe : déplacer le travail de l’extérieur vers l’atelier' },
     {
       type: 'p',
-      text: 'Murs, planchers, salles de bains prééquipées ou modules entiers sont produits en atelier, puis transportés et assemblés sur le terrain. Le gros œuvre traditionnel — fondations, raccordements — reste généralement réalisé sur place, mais une part croissante du second œuvre est intégrée directement dans les éléments préfabriqués avant leur livraison.',
+      text: 'Murs, planchers, salles de bains prééquipées ou modules entiers sont produits en atelier, puis transportés et assemblés sur le terrain. Le gros œuvre traditionnel (fondations, raccordements) reste généralement réalisé sur place, mais une part croissante du second œuvre est intégrée directement dans les éléments préfabriqués avant leur livraison.',
     },
     { type: 'h2', text: 'Des avantages réels, mais pas universels' },
     {

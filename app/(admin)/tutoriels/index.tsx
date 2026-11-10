@@ -314,7 +314,7 @@ function ChapterEditor({
         style={[styles.input, styles.textarea]}
         multiline
         numberOfLines={5}
-        placeholder="Une ligne par point — sert de script pour le tournage"
+        placeholder="Une ligne par point : sert de script pour le tournage"
         placeholderTextColor={colors.textMuted}
       />
 
@@ -359,7 +359,7 @@ function ChapterEditor({
         style={[styles.input, styles.textareaSmall]}
         multiline
         numberOfLines={2}
-        placeholder="Ce que le visiteur lit sous le titre — pas le script de tournage"
+        placeholder="Ce que le visiteur lit sous le titre, pas le script de tournage"
         placeholderTextColor={colors.textMuted}
       />
 

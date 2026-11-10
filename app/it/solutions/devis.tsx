@@ -21,17 +21,17 @@ export default function DevisSolutionPageIt() {
         {
           icon: 'database',
           title: 'Il Suo catalogo, i Suoi prezzi',
-          text: "Ogni descrizione riconosciuta riprende il prezzo e l'unità già in uso — un tubo in PVC viene proposto al metro lineare senza doverlo precisare.",
+          text: "Ogni descrizione riconosciuta riprende il prezzo e l'unità già in uso. Un tubo in PVC viene proposto al metro lineare senza doverlo precisare.",
         },
         {
           icon: 'layout',
           title: 'Modelli di preventivo riutilizzabili',
-          text: "Salvi le Sue posizioni tipo (posa di piastrelle, isolamento, ecc.) una volta come modello, poi inizi ogni nuovo preventivo con tutte le righe già presenti — resta solo da adattare le quantità.",
+          text: "Salvi le Sue posizioni tipo (posa di piastrelle, isolamento, ecc.) una volta come modello, poi inizi ogni nuovo preventivo con tutte le righe già presenti. Resta solo da adattare le quantità.",
         },
         {
           icon: 'alert-triangle',
           title: 'Avviso in caso di scostamento',
-          text: "Se un prezzo inserito differisce da quello già a catalogo, Cantia Glielo segnala prima dell'invio — mai una correzione silenziosa.",
+          text: "Se un prezzo inserito differisce da quello già a catalogo, Cantia Glielo segnala prima dell'invio, mai una correzione silenziosa.",
         },
         {
           icon: 'edit-3',
@@ -52,7 +52,7 @@ export default function DevisSolutionPageIt() {
       steps={[
         { title: 'Crei il preventivo', text: 'Inserisca il cliente, poi detti o digiti le Sue righe.' },
         { title: "L'IA struttura le posizioni", text: 'Quantità, unità e prezzi di catalogo vengono proposti automaticamente.' },
-        { title: 'Verifichi e invii', text: 'Corregga se necessario, poi generi il PDF — impaginazione sobria, nei colori del Suo marchio.' },
+        { title: 'Verifichi e invii', text: 'Corregga se necessario, poi generi il PDF. Impaginazione sobria, nei colori del Suo marchio.' },
       ]}
       faq={[
         {
@@ -67,7 +67,7 @@ export default function DevisSolutionPageIt() {
         },
         {
           question: 'Si può trasformare automaticamente un preventivo accettato in fattura?',
-          answer: "Sì, un preventivo accettato si converte in fattura — con fattura QR svizzera — con un clic, senza reinserire le righe.",
+          answer: "Sì, un preventivo accettato si converte in fattura (con fattura QR svizzera), con un clic, senza reinserire le righe.",
         },
         {
           question: 'Cantia è gratuito per fare i preventivi?',
@@ -81,7 +81,7 @@ export default function DevisSolutionPageIt() {
         { href: '/it/solutions/travaux-supplementaires', label: 'Lavori supplementari' },
       ]}
       closingTitle="Meno tempo sui preventivi, non meno tempo in cantiere"
-      closingText="14 giorni di prova gratuita su tutti i piani, preventivi e fatture illimitati in seguito — senza impegno."
+      closingText="14 giorni di prova gratuita su tutti i piani, preventivi e fatture illimitati in seguito, senza impegno."
     />
   );
 }

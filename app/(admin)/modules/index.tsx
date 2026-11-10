@@ -49,7 +49,7 @@ export default function AdminModulesList() {
         </View>
         <Text style={styles.hint}>
           Le registre des modules sur mesure développés pour des entreprises précises. Pour en créer un, demande-le
-          directement dans la conversation — le module et son entrée ici sont livrés ensemble.
+          directement dans la conversation : le module et son entrée ici sont livrés ensemble.
         </Text>
 
         <AdminBuiltInModules />

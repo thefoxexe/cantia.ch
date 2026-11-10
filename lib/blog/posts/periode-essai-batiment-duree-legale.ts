@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Durée légale de la période d’essai selon le Code des obligations, possibilité de la prolonger contractuellement, délai de congé raccourci, et spécificités CCT bâtiment.',
   excerpt:
-    'La période d’essai protège les deux parties, mais seulement si elle est formalisée par écrit — un oubli fréquent qui coûte cher en cas de désaccord.',
+    'La période d’essai protège les deux parties, mais seulement si elle est formalisée par écrit. Un oubli fréquent qui coûte cher en cas de désaccord.',
   category: 'RH & salaires',
   keywords: ['période d’essai', 'contrat de travail', 'bâtiment', 'code des obligations', 'délai de congé'],
   publishedAt: '2026-09-22',
@@ -40,7 +40,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Des contrats de travail chantier prêts à signer, sans clause oubliée',
-      text: 'Cantia vous aide à centraliser les dossiers RH de vos employés — contrats, dates clés, périodes d’essai — pour ne plus jamais partir d’une feuille blanche à chaque embauche.',
+      text: 'Cantia vous aide à centraliser les dossiers RH de vos employés (contrats, dates clés, périodes d’essai) pour ne plus jamais partir d’une feuille blanche à chaque embauche.',
       buttonLabel: 'Essayer 14 jours',
     },
   ],

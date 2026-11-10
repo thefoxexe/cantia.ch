@@ -386,7 +386,7 @@ export default function AccountingScreen() {
       return;
     }
     setPayrollResult(t('accounting.payrollPostedSummary', { posted: res.posted, skipped: res.skipped }));
-    if (res.errors.length) setPayrollResult((s) => `${s} — ${res.errors.join('; ')}`);
+    if (res.errors.length) setPayrollResult((s) => `${s} : ${res.errors.join('; ')}`);
     load();
   }
 
@@ -516,7 +516,7 @@ export default function AccountingScreen() {
                 <Card key={e.id} style={styles.entryCard}>
                   <View style={styles.entryHeader}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.entryLabel}>{e.entry_number != null ? `N°${e.entry_number} — ` : ''}{e.label}</Text>
+                      <Text style={styles.entryLabel}>{e.entry_number != null ? `N°${e.entry_number} : ` : ''}{e.label}</Text>
                       <Text style={styles.entryMeta}>{new Date(e.entry_date).toLocaleDateString(`${getAppLocale()}-CH`)} · {e.journal_label}</Text>
                     </View>
                     {isReversal ? (
@@ -597,7 +597,7 @@ export default function AccountingScreen() {
                     {ledgerRows.map((r, idx) => (
                       <View key={idx} style={styles.ledgerRow2}>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.ledgerLabel}>{r.entryNumber != null ? `N°${r.entryNumber} — ` : ''}{r.label}</Text>
+                          <Text style={styles.ledgerLabel}>{r.entryNumber != null ? `N°${r.entryNumber} : ` : ''}{r.label}</Text>
                           <Text style={styles.ledgerMeta}>{new Date(r.entryDate).toLocaleDateString(`${getAppLocale()}-CH`)} · D {r.debit.toFixed(2)} / C {r.credit.toFixed(2)}</Text>
                         </View>
                         <Text style={styles.ledgerBalance}>{chf(r.runningBalance)}</Text>
@@ -811,7 +811,7 @@ export default function AccountingScreen() {
                         ) : (
                           vatDrilldown.map((d) => (
                             <View key={d.entryId} style={styles.vatDrilldownRow}>
-                              <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} — ` : ''}{d.label}</Text>
+                              <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} : ` : ''}{d.label}</Text>
                               <Text style={styles.ledgerMeta}>{chf(d.amount)}</Text>
                             </View>
                           ))
@@ -837,7 +837,7 @@ export default function AccountingScreen() {
                       <View style={styles.vatDrilldownBox}>
                         {vatDrilldown.map((d) => (
                           <View key={d.entryId} style={styles.vatDrilldownRow}>
-                            <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} — ` : ''}{d.label}</Text>
+                            <Text style={styles.ledgerLabel} numberOfLines={1}>{d.entryNumber != null ? `N°${d.entryNumber} : ` : ''}{d.label}</Text>
                             <Text style={styles.ledgerMeta}>{chf(d.amount)}</Text>
                           </View>
                         ))}

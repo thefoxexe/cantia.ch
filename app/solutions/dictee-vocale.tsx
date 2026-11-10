@@ -17,7 +17,7 @@ export default function DicteeVocaleSolutionPage() {
         {
           icon: 'cpu',
           title: 'Transcription côté serveur',
-          text: "La reconnaissance vocale se fait sur des serveurs sécurisés, pas sur votre téléphone — un résultat fiable même dans le bruit d'un chantier.",
+          text: "La reconnaissance vocale se fait sur des serveurs sécurisés, pas sur votre téléphone. Un résultat fiable même dans le bruit d'un chantier.",
         },
         {
           icon: 'zap',
@@ -32,7 +32,7 @@ export default function DicteeVocaleSolutionPage() {
         {
           icon: 'users',
           title: "Aussi pour toute l'équipe",
-          text: "Chaque membre peut dicter ses messages dans le fil de chantier — pratique pour signaler un imprévu sans s'arrêter de travailler.",
+          text: "Chaque membre peut dicter ses messages dans le fil de chantier. Pratique pour signaler un imprévu sans s'arrêter de travailler.",
         },
         {
           icon: 'tool',
@@ -42,19 +42,19 @@ export default function DicteeVocaleSolutionPage() {
         {
           icon: 'message-circle',
           title: 'Un assistant vocal global, pas juste un champ dicté',
-          text: "Depuis le bouton micro flottant, dites « crée un devis pour Marc Dupont, 20m² de carrelage à 85 francs » : l'assistant comprend, prépare le devis avec le client et les lignes déjà remplis, et vous laisse le confirmer. Marche aussi pour créer une facture directement, ou pour poser une question — « quelles factures sont en retard ? », « résume mes tâches » — avec une vraie réponse basée sur les données de votre entreprise.",
+          text: "Depuis le bouton micro flottant, dites « crée un devis pour Marc Dupont, 20m² de carrelage à 85 francs » : l'assistant comprend, prépare le devis avec le client et les lignes déjà remplis, et vous laisse le confirmer. Marche aussi pour créer une facture directement, ou pour poser une question. « Quelles factures sont en retard ? », « résume mes tâches », avec une vraie réponse basée sur les données de votre entreprise.",
         },
       ]}
       faq={[
         {
           question: 'La dictée vocale fonctionne-t-elle bien avec le vocabulaire du bâtiment ?',
           answer:
-            "Oui, la reconnaissance est adaptée au vocabulaire technique du bâtiment — matériaux, unités, métiers — pas seulement à du langage courant.",
+            "Oui, la reconnaissance est adaptée au vocabulaire technique du bâtiment (matériaux, unités, métiers), pas seulement à du langage courant.",
         },
         {
           question: "L'assistant vocal peut-il créer un devis ou une facture tout seul ?",
           answer:
-            "Il prépare le document — client et prestations dictées déjà remplis — et vous emmène sur l'écran de création pour vérifier et enregistrer vous-même. Rien n'est jamais créé sans cette validation.",
+            "Il prépare le document (client et prestations dictées déjà remplis) et vous emmène sur l'écran de création pour vérifier et enregistrer vous-même. Rien n'est jamais créé sans cette validation.",
         },
         {
           question: 'Faut-il une connexion internet pour dicter ?',
@@ -63,12 +63,12 @@ export default function DicteeVocaleSolutionPage() {
         },
         {
           question: 'Où peut-on utiliser la dictée vocale dans Cantia ?',
-          answer: "Sur les devis, les rapports de chantier et les messages d'équipe du fil d'actualité — partout où vous écrivez.",
+          answer: "Sur les devis, les rapports de chantier et les messages d'équipe du fil d'actualité : partout où vous écrivez.",
         },
         {
           question: 'La dictée vocale est-elle plus rapide que le clavier sur le terrain ?',
           answer:
-            "Pour la plupart des artisans sur chantier, oui — parler va plus vite que taper sur un téléphone avec les mains sales ou des gants.",
+            "Pour la plupart des artisans sur chantier, oui. Parler va plus vite que taper sur un téléphone avec les mains sales ou des gants.",
         },
       ]}
       related={[

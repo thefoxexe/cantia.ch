@@ -38,7 +38,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le contrôle final ne pardonne pas l’approximation',
-      text: 'Un bâtiment visant le label Minergie fait généralement l’objet d’un contrôle ou d’une certification par un professionnel agréé avant validation. Une malfaçon découverte à ce stade — souvent invisible à l’œil nu, comme une fuite d’air derrière un doublage — peut obliger à rouvrir des finitions déjà posées.',
+      text: 'Un bâtiment visant le label Minergie fait généralement l’objet d’un contrôle ou d’une certification par un professionnel agréé avant validation. Une malfaçon découverte à ce stade (souvent invisible à l’œil nu, comme une fuite d’air derrière un doublage) peut obliger à rouvrir des finitions déjà posées.',
     },
     { type: 'h2', text: 'Ce qu’il faut retenir en tant qu’entreprise' },
     {

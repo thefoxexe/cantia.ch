@@ -270,7 +270,7 @@ export function parseCatalogCsv(text: string): ParsedCsv {
     const cells = parseCsvLine(line, delimiter);
     const title = (cells[titleIdx] ?? '').trim();
     const detail = detailIdx >= 0 ? (cells[detailIdx] ?? '').trim() : '';
-    const description = detail && detail !== title ? `${title} — ${detail}` : title;
+    const description = detail && detail !== title ? `${title} : ${detail}` : title;
     if (!description) {
       skipped += 1;
       continue;
@@ -341,7 +341,7 @@ export function metreItemsFromTable(headerCellsRaw: string[], dataRows: string[]
   for (const cells of dataRows) {
     const title = (cells[titleIdx] ?? '').trim();
     const detail = detailIdx >= 0 ? (cells[detailIdx] ?? '').trim() : '';
-    const description = detail && detail !== title ? `${title} — ${detail}` : title;
+    const description = detail && detail !== title ? `${title} : ${detail}` : title;
     if (!description) {
       skipped += 1;
       continue;

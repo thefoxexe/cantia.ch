@@ -20,13 +20,13 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le mécanisme général' },
     {
       type: 'p',
-      text: 'Lorsqu’un client fait faillite, l’ensemble de ses créanciers doit produire sa créance auprès de l’office des poursuites ou de l’administration de la faillite, dans le délai fixé par la publication officielle. Les créances sont ensuite classées par rang — certaines créances (salariales notamment) sont généralement prioritaires, les créances commerciales ordinaires arrivent souvent dans un rang inférieur. En pratique, les créanciers de rang inférieur récupèrent souvent peu, voire rien, une fois les créanciers prioritaires et les frais de la procédure payés.',
+      text: 'Lorsqu’un client fait faillite, l’ensemble de ses créanciers doit produire sa créance auprès de l’office des poursuites ou de l’administration de la faillite, dans le délai fixé par la publication officielle. Les créances sont ensuite classées par rang. Certaines créances (salariales notamment) sont généralement prioritaires, les créances commerciales ordinaires arrivent souvent dans un rang inférieur. En pratique, les créanciers de rang inférieur récupèrent souvent peu, voire rien, une fois les créanciers prioritaires et les frais de la procédure payés.',
     },
     { type: 'h2', text: 'Pourquoi agir vite et bien documenter compte' },
     {
       type: 'list',
       items: [
-        'Produire sa créance dans les délais est indispensable — une créance produite trop tard risque d’être écartée de la procédure',
+        'Produire sa créance dans les délais est indispensable. Une créance produite trop tard risque d’être écartée de la procédure',
         'Documenter la créance avec précision (factures, contrats, échanges) facilite son admission dans le classement',
         'Surveiller les premiers signes de difficulté d’un client (retards de paiement répétés, changements soudains dans les commandes) permet parfois d’agir avant l’ouverture de la faillite',
       ],
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'En quoi c’est différent d’une poursuite ordinaire' },
     {
       type: 'p',
-      text: 'Une poursuite classique pour une facture impayée suppose que le débiteur est solvable mais ne paie pas. La faillite change fondamentalement la donne : ce n’est plus une question de volonté de payer, mais de capacité. La procédure devient collective — tous les créanciers sont traités ensemble selon un ordre légal — plutôt qu’individuelle comme dans une poursuite classique.',
+      text: 'Une poursuite classique pour une facture impayée suppose que le débiteur est solvable mais ne paie pas. La faillite change fondamentalement la donne : ce n’est plus une question de volonté de payer, mais de capacité. La procédure devient collective (tous les créanciers sont traités ensemble selon un ordre légal) plutôt qu’individuelle comme dans une poursuite classique.',
     },
     {
       type: 'callout',
@@ -57,12 +57,12 @@ export const post: BlogPost = {
     {
       question: 'Dans quel délai faut-il produire sa créance lors d’une faillite ?',
       answer:
-        'Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines — vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer.',
+        'Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines. Vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer.',
     },
     {
       question: 'Peut-on récupérer sa créance plus vite en agissant tôt, avant la faillite ?',
       answer:
-        'Dans certains cas, oui — une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible.',
+        'Dans certains cas, oui : une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible.',
     },
   ],
   relatedSlugs: [

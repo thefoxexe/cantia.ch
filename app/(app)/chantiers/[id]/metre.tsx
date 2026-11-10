@@ -303,7 +303,7 @@ function ImportProgressSheet({ progress }: { progress: ImportProgress }) {
         <Text style={kit.eyebrow}>{fill(c.importStepOf, { n: Math.min(5, idx + 1) })}</Text>
         <Text style={styles.upsellTitle}>
           {c.importSteps[progress.step]}
-          {progress.page && progress.pages ? ` — ${fill(c.importPage, { page: progress.page, pages: progress.pages })}` : ''}
+          {progress.page && progress.pages ? ` : ${fill(c.importPage, { page: progress.page, pages: progress.pages })}` : ''}
         </Text>
         <View style={styles.bar}>
           <View style={[styles.barFill, { width: `${((idx + (progress.page && progress.pages ? progress.page / progress.pages : 0.5)) / 5) * 100}%` }]} />

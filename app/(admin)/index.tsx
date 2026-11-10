@@ -211,7 +211,7 @@ export default function AdminDashboard() {
 
         {overview ? (
           <>
-            <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés — filtrable par période." />
+            <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés : filtrable par période." />
             <GrowthChart points={overview.timeseries} />
 
             <SectionHeading title="Cash encaissé par mois" subtitle="Factures Stripe effectivement payées, frais Stripe déjà déduits, regroupées par mois." />

@@ -3,7 +3,7 @@ import { BlogPost } from '../types';
 export const post: BlogPost = {
   slug: 'hypotheque-legale-artisans-entrepreneurs-suisse',
   question: 'Was ist das Bauhandwerkerpfandrecht, und wie verliert man es nicht?',
-  title: 'Bauhandwerkerpfandrecht: Ihre Zahlungssicherheit — mit strikter Frist',
+  title: 'Bauhandwerkerpfandrecht: Ihre Zahlungssicherheit, mit strikter Frist',
   description:
     'Das Bauhandwerkerpfandrecht (Art. 837 ZGB) sichert die Bezahlung Ihrer Arbeiten direkt auf der Liegenschaft ab. Es muss jedoch innert 4 Monaten im Grundbuch eingetragen werden. Nach Ablauf dieser Frist erlischt es.',
   excerpt:

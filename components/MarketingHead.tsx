@@ -1,6 +1,6 @@
 import Head from 'expo-router/head';
 
-const DEFAULT_DESCRIPTION = 'Cantia — logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie en un seul endroit.';
+const DEFAULT_DESCRIPTION = 'Cantia : logiciel suisse de gestion pour entreprises du bâtiment : devis, factures, chantiers, RH et trésorerie en un seul endroit.';
 const OG_IMAGE = 'https://cantia.ch/og-image.jpg';
 
 // Every marketing page renders this once — the single injection point for

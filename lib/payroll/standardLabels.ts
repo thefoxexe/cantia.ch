@@ -34,9 +34,9 @@ const EXACT: Record<string, { de: string; it: string }> = {
   'Heures supplémentaires': { de: 'Überstunden', it: 'Ore straordinarie' },
   '13e salaire': { de: '13. Monatslohn', it: '13a mensilità' },
   '13e salaire (prorata mensuel)': { de: '13. Monatslohn (monatlich anteilig)', it: '13a mensilità (pro rata mensile)' },
-  '13e salaire (versement annuel — estimation si salaire horaire)': {
+  '13e salaire (versement annuel : estimation si salaire horaire)': {
     de: '13. Monatslohn (jährliche Auszahlung – Schätzung bei Stundenlohn)',
-    it: '13a mensilità (versamento annuale — stima se salario orario)',
+    it: '13a mensilità (versamento annuale: stima se salario orario)',
   },
   'Régularisation rétroactive': { de: 'Rückwirkende Korrektur', it: 'Regolarizzazione retroattiva' },
   'Indemnité vacances (salaire horaire)': { de: 'Ferienentschädigung (Stundenlohn)', it: 'Indennità per vacanze (salario orario)' },

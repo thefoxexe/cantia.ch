@@ -17,7 +17,7 @@ export default function PlanningSolutionPage() {
         {
           icon: 'layers',
           title: 'Lié à vos chantiers',
-          text: "Chaque affectation pointe vers un chantier réel — depuis le planning, retrouvez directement rapports, photos et devis associés.",
+          text: "Chaque affectation pointe vers un chantier réel. Depuis le planning, retrouvez directement rapports, photos et devis associés.",
         },
         {
           icon: 'users',
@@ -32,7 +32,7 @@ export default function PlanningSolutionPage() {
         {
           icon: 'trending-up',
           title: 'Alimente la rentabilité par chantier',
-          text: "Les jours planifiés servent aussi à calculer le coût de main d'œuvre réel de chaque chantier — aucune double saisie.",
+          text: "Les jours planifiés servent aussi à calculer le coût de main d'œuvre réel de chaque chantier, aucune double saisie.",
         },
       ]}
       faq={[

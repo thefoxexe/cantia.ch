@@ -40,7 +40,7 @@ function describePaymentMethod(b: AdminOrgBillingStatus): string {
   const wallet = b.payment_method_wallet ? ` via ${WALLET_LABEL[b.payment_method_wallet] ?? b.payment_method_wallet}` : '';
   const more = b.payment_methods_count > 1 ? ` · ${b.payment_methods_count} moyens enregistrés` : '';
   if (b.card_brand && b.card_last4) {
-    return `${CARD_BRAND_LABEL[b.card_brand] ?? b.card_brand} •••• ${b.card_last4} — exp. ${b.card_exp_month}/${b.card_exp_year}${wallet}${more}`;
+    return `${CARD_BRAND_LABEL[b.card_brand] ?? b.card_brand} •••• ${b.card_last4} : exp. ${b.card_exp_month}/${b.card_exp_year}${wallet}${more}`;
   }
   if (type === 'link') return `Stripe Link (carte liée au compte Link, détails non exposés par Stripe)${more}`;
   return `${PAYMENT_METHOD_LABEL[type] ?? type}${wallet}${more}`;
@@ -55,7 +55,7 @@ function describePaymentMethodSource(b: AdminOrgBillingStatus): string {
 function describeChargeOutlook(b: AdminOrgBillingStatus): string {
   if (b.cancel_at_period_end || b.cancel_at) {
     const when = b.cancel_at ?? b.next_invoice_date;
-    return `Résiliation programmée${when ? ` le ${formatDate(when)}` : ''} — ne sera plus débité`;
+    return `Résiliation programmée${when ? ` le ${formatDate(when)}` : ''} : ne sera plus débité`;
   }
   if (b.will_be_charged) {
     return b.next_invoice_amount_chf != null
@@ -213,7 +213,7 @@ export default function AdminOrganizationDetailScreen() {
     if (err || !trialEnd) {
       setFeedback(`Erreur : ${err ?? 'échec inconnu'}`);
     } else {
-      setFeedback(`✓ Essai de 30 jours accordé — prochain débit le ${formatDate(trialEnd)}`);
+      setFeedback(`✓ Essai de 30 jours accordé : prochain débit le ${formatDate(trialEnd)}`);
       await load();
     }
     setTimeout(() => setFeedback(null), 4000);
@@ -365,7 +365,7 @@ export default function AdminOrganizationDetailScreen() {
                       {grantingTrial
                         ? 'Application…'
                         : confirmingTrial
-                          ? 'Confirmer — décale le prochain débit à dans 30 jours'
+                          ? 'Confirmer : décale le prochain débit à dans 30 jours'
                           : 'Accorder un essai de 30 jours'}
                     </Text>
                   </Pressable>

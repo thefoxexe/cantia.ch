@@ -11,8 +11,8 @@ export interface Ech0217Messages {
 
 const FR_MESSAGES: Ech0217Messages = {
   echEffectiveOnly: "L'export eCH-0217 n'est disponible que pour la méthode effective.",
-  echInvoicedOnly: 'L’export eCH-0217 requiert le mode "contre-prestations convenues" — le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".',
-  echUid: 'Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789) — impossible de générer le fichier eCH-0217.',
+  echInvoicedOnly: 'L’export eCH-0217 requiert le mode "contre-prestations convenues". Le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".',
+  echUid: 'Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789), impossible de générer le fichier eCH-0217.',
 };
 
 function round2(n: number): number {
@@ -140,7 +140,7 @@ export function buildEch0217Xml(
     .filter((r) => r.turnover !== 0);
   for (const r of suppliesPerTaxRate) {
     if (!KNOWN_VAT_RATES.has(r.rate)) {
-      warnings.push(`Taux TVA ${r.rate}% inhabituel détecté sur la période — vérifiez qu'il correspond à un taux publié par l'AFC (estv.admin.ch) avant l'envoi.`);
+      warnings.push(`Taux TVA ${r.rate}% inhabituel détecté sur la période. Vérifiez qu'il correspond à un taux publié par l'AFC (estv.admin.ch) avant l'envoi.`);
     }
   }
 
@@ -150,7 +150,7 @@ export function buildEch0217Xml(
   const unclassifiedCorrections = [...report.salesRows, ...report.deductibleRows].filter((r) => r.category === 'correction');
   if (unclassifiedCorrections.some((r) => r.amount !== 0)) {
     const total = round2(sumAmount(unclassifiedCorrections));
-    warnings.push(`Des montants (CHF ${total.toFixed(2)}) sont enregistrés sous le code "CORR" (corrections/réductions de TVA préalable) : Cantia ne peut pas déterminer automatiquement s'ils relèvent de l'art. 30/31 LTVA (inputTaxCorrections) ou de l'art. 33 al. 2 LTVA (inputTaxReductions) — à ajouter manuellement dans le décompte après contrôle.`);
+    warnings.push(`Des montants (CHF ${total.toFixed(2)}) sont enregistrés sous le code "CORR" (corrections/réductions de TVA préalable) : Cantia ne peut pas déterminer automatiquement s'ils relèvent de l'art. 30/31 LTVA (inputTaxCorrections) ou de l'art. 33 al. 2 LTVA (inputTaxReductions) : à ajouter manuellement dans le décompte après contrôle.`);
   }
 
   const totalTaxDueOnSupplies = suppliesPerTaxRate.reduce((s, r) => s + (r.rate / 100) * r.turnover, 0);
@@ -163,7 +163,7 @@ export function buildEch0217Xml(
   const gesamtumsatz = round2(totalConsideration - exportedSales - abroadSales - exemptSales);
   const sumSuppliesPerTaxRate = round2(suppliesPerTaxRate.reduce((s, r) => s + r.turnover, 0));
   if (Math.abs(gesamtumsatz - sumSuppliesPerTaxRate) > 0.01) {
-    warnings.push(`Écart de réconciliation détecté entre le chiffre d'affaires imposable (${gesamtumsatz.toFixed(2)}) et la somme des Leistungen par taux (${sumSuppliesPerTaxRate.toFixed(2)}) — ne pas envoyer ce fichier sans vérification.`);
+    warnings.push(`Écart de réconciliation détecté entre le chiffre d'affaires imposable (${gesamtumsatz.toFixed(2)}) et la somme des Leistungen par taux (${sumSuppliesPerTaxRate.toFixed(2)}) : ne pas envoyer ce fichier sans vérification.`);
   }
 
   const periodTill = new Date(`${periodEndExclusive}T00:00:00Z`);

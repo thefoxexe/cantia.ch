@@ -61,7 +61,7 @@ export const post: BlogPost = {
     { type: 'h2', text: '3. S’équiper des premiers outils, sans se disperser' },
     {
       type: 'p',
-      text: 'Très peu d’outils sont vraiment indispensables dès le premier jour : un moyen de chiffrer et facturer conforme aux règles suisses (TVA, QR-facture), et un moyen simple de documenter les chantiers. Le reste — planning multi-équipe, module RH, rentabilité fine — peut s’activer progressivement, au rythme réel de la croissance.',
+      text: 'Très peu d’outils sont vraiment indispensables dès le premier jour : un moyen de chiffrer et facturer conforme aux règles suisses (TVA, QR-facture) et un moyen simple de documenter les chantiers. Le reste (planning multi-équipe, module RH, rentabilité fine) peut s’activer progressivement, au rythme réel de la croissance.',
     },
     {
       type: 'linklist',

@@ -8,7 +8,7 @@ export default function RapportsChantierSolutionPage() {
       documentId="rapport"
       kicker="Rapports de chantier"
       title="Le rapport se rédige pendant que vous êtes encore sur le chantier"
-      subtitle="Notes vocales, photos géolocalisées et messages du fil d'actualité : Cantia rassemble tout et en tire un rapport rédigé, structuré et prêt à envoyer — vous n'avez plus qu'à relire."
+      subtitle="Notes vocales, photos géolocalisées et messages du fil d'actualité : Cantia rassemble tout et en tire un rapport rédigé, structuré et prêt à envoyer, vous n'avez plus qu'à relire."
       visual={<ModuleMockup kind="rapports-chantier" />}
       afterFeatures={
         <ProblemBand
@@ -23,7 +23,7 @@ export default function RapportsChantierSolutionPage() {
             {
               icon: 'edit-3',
               problem: 'Un rapport rédigé de mémoire, le soir.',
-              consequence: "Des détails oubliés, un avancement mal décrit — le rapport ne protège plus personne.",
+              consequence: "Des détails oubliés, un avancement mal décrit. Le rapport ne protège plus personne.",
             },
             {
               icon: 'alert-triangle',
@@ -33,14 +33,14 @@ export default function RapportsChantierSolutionPage() {
             {
               icon: 'clock',
               problem: "Un rapport qui n'arrive jamais au client.",
-              consequence: "Sans envoi automatique, le client découvre l'avancement seulement à la fin — ou jamais.",
+              consequence: "Sans envoi automatique, le client découvre l'avancement seulement à la fin, ou jamais.",
             },
           ]}
           reliefLabel="Avec Cantia"
           reliefItems={[
             'Photos géolocalisées et horodatées automatiquement',
             'Rapport rédigé par l’IA à partir de vos notes vocales, en quelques minutes',
-            'Rapport daté et signé — preuve en cas de litige',
+            'Rapport daté et signé : preuve en cas de litige',
             'Envoi automatique au client selon la fréquence de votre choix',
           ]}
         />
@@ -49,7 +49,7 @@ export default function RapportsChantierSolutionPage() {
         {
           icon: 'mic',
           title: 'Dicté à la voix',
-          text: "Racontez ce qui s'est passé normalement — Cantia transcrit et le rédacteur IA en tire un texte professionnel, sans fautes ni tournures orales.",
+          text: "Racontez ce qui s'est passé normalement. Cantia transcrit et le rédacteur IA en tire un texte professionnel, sans fautes ni tournures orales.",
         },
         {
           icon: 'message-square',
@@ -86,7 +86,7 @@ export default function RapportsChantierSolutionPage() {
         {
           question: 'Comment rédiger un rapport de chantier rapidement ?',
           answer:
-            "Prenez vos photos et dictez vos notes sur le moment — Cantia assemble tout en un rapport PDF structuré et prêt à envoyer, sans devoir tout retaper le soir.",
+            "Prenez vos photos et dictez vos notes sur le moment. Cantia assemble tout en un rapport PDF structuré et prêt à envoyer, sans devoir tout retaper le soir.",
         },
         {
           question: 'Les photos sont-elles géolocalisées automatiquement ?',
@@ -99,7 +99,7 @@ export default function RapportsChantierSolutionPage() {
         {
           question: 'Le rapport de chantier remplace-t-il un carnet de chantier papier ?',
           answer:
-            "Oui — notes, photos et suivi sont centralisés dans un document numérique consultable à tout moment, par chantier.",
+            "Oui, notes, photos et suivi sont centralisés dans un document numérique consultable à tout moment, par chantier.",
         },
       ]}
       related={[

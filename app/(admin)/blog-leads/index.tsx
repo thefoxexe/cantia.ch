@@ -47,7 +47,7 @@ export default function AdminBlogLeadsScreen() {
         </View>
         <Text style={styles.hint}>
           Emails captés via le modèle de devis gratuit, clics sur les CTA et pages vues, par article, sur les 30
-          derniers jours — pour voir quels contenus amènent vraiment des inscriptions, pas seulement du trafic.
+          derniers jours : pour voir quels contenus amènent vraiment des inscriptions, pas seulement du trafic.
         </Text>
 
         {error ? <AdminErrorBanner message={error} /> : null}

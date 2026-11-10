@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Recevoir plusieurs devis fournisseurs pour un même matériau semble simple à comparer : il suffirait de prendre le moins cher. Dans la pratique, c’est souvent là que se cache une mauvaise décision — parce que les devis ne portent presque jamais exactement sur la même chose.',
+      text: 'Recevoir plusieurs devis fournisseurs pour un même matériau semble simple à comparer : il suffirait de prendre le moins cher. Dans la pratique, c’est souvent là que se cache une mauvaise décision. Parce que les devis ne portent presque jamais exactement sur la même chose.',
     },
     { type: 'h2', text: 'Le piège classique' },
     {

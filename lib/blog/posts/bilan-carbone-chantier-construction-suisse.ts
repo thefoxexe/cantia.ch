@@ -25,7 +25,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'La production des matériaux — le béton et l’acier pèsent en général le plus lourd, bien avant le bois ou les matériaux biosourcés',
+        'La production des matériaux : le béton et l’acier pèsent en général le plus lourd, bien avant le bois ou les matériaux biosourcés',
         'Le transport, à la fois des matériaux jusqu’au chantier et des déchets évacués',
         'L’énergie consommée sur le chantier lui-même : engins, outillage électrique, chauffage temporaire',
         'Le traitement des déchets de construction, dont l’impact varie beaucoup selon qu’ils sont triés et valorisés ou simplement incinérés',
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Bâtiment ou chantier : deux périmètres différents' },
     {
       type: 'p',
-      text: 'Il est utile de distinguer deux notions souvent confondues. Le bilan carbone d’un bâtiment couvre toute sa durée de vie : construction, mais aussi chauffage, entretien et éventuellement démolition sur plusieurs décennies. Le bilan carbone d’un chantier, lui, se limite à la phase de construction ou de rénovation elle-même — c’est un périmètre plus restreint, plus facile à mesurer, et c’est celui qui concerne directement une entreprise du bâtiment au moment d’exécuter les travaux.',
+      text: 'Il est utile de distinguer deux notions souvent confondues. Le bilan carbone d’un bâtiment couvre toute sa durée de vie : construction, mais aussi chauffage, entretien et éventuellement démolition sur plusieurs décennies. Le bilan carbone d’un chantier, lui, se limite à la phase de construction ou de rénovation elle-même. C’est un périmètre plus restreint, plus facile à mesurer, et c’est celui qui concerne directement une entreprise du bâtiment au moment d’exécuter les travaux.',
     },
     {
       type: 'callout',

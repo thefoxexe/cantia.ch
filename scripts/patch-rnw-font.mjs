@@ -27,7 +27,7 @@ for (const rel of files) {
   const source = readFileSync(file, 'utf8');
   if (source.includes(PATCHED)) continue;
   if (!source.includes(ORIGINAL)) {
-    console.warn(`patch-rnw-font: ${rel} changed upstream — default font left as is.`);
+    console.warn(`patch-rnw-font: ${rel} changed upstream : default font left as is.`);
     continue;
   }
   writeFileSync(file, source.replace(ORIGINAL, PATCHED));

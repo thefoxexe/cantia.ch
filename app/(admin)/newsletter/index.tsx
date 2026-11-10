@@ -316,7 +316,7 @@ export default function AdminNewsletterScreen() {
         setError(err);
         return;
       }
-      setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} — ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}.`);
+      setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} : ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}.`);
       setScheduledAt('');
       if (showScheduled) loadScheduled();
       return;
@@ -481,7 +481,7 @@ export default function AdminNewsletterScreen() {
               {confirmUnsubscribed ? <Feather name="check" size={12} color="#fff" /> : null}
             </View>
             <Text style={styles.confirmText}>
-              La sélection inclut des personnes désabonnées de la newsletter — je confirme vouloir quand même leur envoyer cet e-mail (cas
+              La sélection inclut des personnes désabonnées de la newsletter. Je confirme vouloir quand même leur envoyer cet e-mail (cas
               exceptionnel, ex. fermeture de la plateforme).
             </Text>
           </Pressable>
@@ -489,7 +489,7 @@ export default function AdminNewsletterScreen() {
           <View style={styles.infoUnsubNote}>
             <Feather name="info" size={13} color={colors.textMuted} />
             <Text style={styles.infoUnsubNoteText}>
-              La sélection inclut des personnes désabonnées de la newsletter — ça n'a pas d'importance pour un envoi Info, elles le recevront quand
+              La sélection inclut des personnes désabonnées de la newsletter. Ça n'a pas d'importance pour un envoi Info, elles le recevront quand
               même.
             </Text>
           </View>
@@ -593,7 +593,7 @@ export default function AdminNewsletterScreen() {
                 style={{ flex: 1 }}
               />
             )}
-            <Text style={styles.hint}>Heure de votre navigateur — l'envoi part pile à ce moment-là.</Text>
+            <Text style={styles.hint}>Heure de votre navigateur : l'envoi part pile à ce moment-là.</Text>
           </View>
         ) : null}
 

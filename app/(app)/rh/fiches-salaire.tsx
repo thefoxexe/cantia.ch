@@ -299,7 +299,7 @@ export default function PayrollSlipsScreen() {
       month,
       wageTypeId: newWageTypeId,
       amountChf: amountNum,
-      note: isOvertimeLine ? [t('payrollSlips.lineHoursNote', { hours: newHours }), newNote].filter(Boolean).join(' — ') : newNote,
+      note: isOvertimeLine ? [t('payrollSlips.lineHoursNote', { hours: newHours }), newNote].filter(Boolean).join(' : ') : newNote,
       createdBy: user?.id,
     });
     setLineSaving(false);

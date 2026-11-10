@@ -10,7 +10,7 @@ export default function RhSalairesSolutionPageIt() {
       documentId="salaire"
       kicker="HR & Salari"
       title="Ore, spese e salari di tutta la squadra, in un unico posto"
-      subtitle="Ogni dipendente registra le proprie ore cantiere per cantiere e le proprie spese professionali. La segretaria o l'amministratore gestisce la busta paga di ciascuno — tariffa, contributi e salario netto — senza fogli di calcolo separati."
+      subtitle="Ogni dipendente registra le proprie ore cantiere per cantiere e le proprie spese professionali. La segretaria o l'amministratore gestisce la busta paga di ciascuno (tariffa, contributi e salario netto), senza fogli di calcolo separati."
       visual={<ModuleMockup kind="rh-salaires" />}
       features={[
         {
@@ -41,7 +41,7 @@ export default function RhSalairesSolutionPageIt() {
         {
           icon: 'lock',
           title: 'Riservatezza tramite permessi',
-          text: "Un dipendente vede solo le proprie ore e spese — le buste paga restano riservate alla segretaria HR e agli amministratori.",
+          text: "Un dipendente vede solo le proprie ore e spese. Le buste paga restano riservate alla segretaria HR e agli amministratori.",
         },
       ]}
       faq={[
@@ -53,12 +53,12 @@ export default function RhSalairesSolutionPageIt() {
         {
           question: 'Cantia calcola automaticamente i contributi sociali svizzeri?',
           answer:
-            "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF e da un'aliquota d'imposta alla fonte che Lei configura per dipendente — le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone.",
+            "Cantia calcola il salario netto a partire da aliquote AVS/AD/LPP/LAINF e da un'aliquota d'imposta alla fonte che Lei configura per dipendente. Le aliquote predefinite sono indicative, da adattare secondo la Sua cassa di compensazione, la Sua cassa LPP e il cantone.",
         },
         {
           question: "Come esporta un dipendente il proprio foglio ore?",
           answer:
-            "Dal modulo HR & Salari, scegliendo la granularità — giornaliera, settimanale o mensile — poi scaricando un file CSV.",
+            "Dal modulo HR & Salari, scegliendo la granularità (giornaliera, settimanale o mensile) poi scaricando un file CSV.",
         },
         {
           question: "Il modulo HR & Salari è incluso in tutti i piani Cantia?",

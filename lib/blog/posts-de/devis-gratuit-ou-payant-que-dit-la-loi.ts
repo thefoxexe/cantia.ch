@@ -30,7 +30,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Die verrechnete Offerte wird häufig vom Endpreis abgezogen',
-      text: 'Eine gängige und gut akzeptierte Praxis: einen symbolischen Betrag für die Studie in Rechnung stellen, der vom Gesamtpreis abgezogen wird, falls die Baustelle schliesslich vergeben wird — das sichert die investierte Zeit ab, ohne einen ernsthaften Kunden zu verschrecken.',
+      text: 'Eine gängige und gut akzeptierte Praxis: einen symbolischen Betrag für die Studie in Rechnung stellen, der vom Gesamtpreis abgezogen wird, falls die Baustelle schliesslich vergeben wird, das sichert die investierte Zeit ab, ohne einen ernsthaften Kunden zu verschrecken.',
     },
     { type: 'h2', text: 'Der eigentliche Punkt: vorher informieren, nicht nachher' },
     {

@@ -17,7 +17,7 @@ const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn('inject-static-content: EXPO_PUBLIC_SUPABASE_URL/EXPO_PUBLIC_SUPABASE_ANON_KEY not set — skipping (no noscript pricing fallback this build).');
+  console.warn('inject-static-content: EXPO_PUBLIC_SUPABASE_URL/EXPO_PUBLIC_SUPABASE_ANON_KEY not set : skipping (no noscript pricing fallback this build).');
   process.exit(0);
 }
 
@@ -62,19 +62,19 @@ function buildNoscriptBlock(plans) {
       const storage = p.storage_quota_mb >= 1024 ? `${Math.round(p.storage_quota_mb / 1024)} Go de stockage` : `${p.storage_quota_mb} Mo de stockage`;
       const features = planFeatures(p);
       const featuresLine = features.length ? ` Inclut ${features.join(', ')}.` : '';
-      return `      <li><strong>${escapeHtml(p.name)}</strong> — ${monthly}/mois${yearly}, ${users}, ${storage}.${featuresLine}</li>`;
+      return `      <li><strong>${escapeHtml(p.name)}</strong> : ${monthly}/mois${yearly}, ${users}, ${storage}.${featuresLine}</li>`;
     })
     .join('\n');
 
   return `
   <noscript data-cantia-fallback="tarifs">
     <section>
-      <h1>Tarifs Cantia — logiciel de gestion de chantier</h1>
+      <h1>Tarifs Cantia : logiciel de gestion de chantier</h1>
       <p>Cantia est un logiciel suisse de gestion pour entreprises du bâtiment (devis, factures, chantiers, équipes). Voici les tarifs actuels, sans engagement, avec 14 jours d’essai gratuit :</p>
       <ul>
 ${items}
       </ul>
-      <p>Cette page fonctionne pleinement avec JavaScript activé — ce texte est une version de secours pour les outils qui ne l’exécutent pas.</p>
+      <p>Cette page fonctionne pleinement avec JavaScript activé. Ce texte est une version de secours pour les outils qui ne l’exécutent pas.</p>
     </section>
   </noscript>`;
 }
@@ -82,7 +82,7 @@ ${items}
 async function main() {
   const plans = await fetchPlans();
   if (!plans.length) {
-    console.warn('inject-static-content: no plans returned — skipping.');
+    console.warn('inject-static-content: no plans returned : skipping.');
     return;
   }
   const block = buildNoscriptBlock(plans);
@@ -90,7 +90,7 @@ async function main() {
   const tarifsPath = path.join(distDir, 'tarifs.html');
   const html = readFileSync(tarifsPath, 'utf8');
   if (html.includes('data-cantia-fallback="tarifs"')) {
-    console.warn('inject-static-content: dist/tarifs.html already has our fallback block — skipping to avoid double-injecting.');
+    console.warn('inject-static-content: dist/tarifs.html already has our fallback block : skipping to avoid double-injecting.');
     return;
   }
   // Expo's own template already ships a generic "enable JavaScript" <noscript>
@@ -98,7 +98,7 @@ async function main() {
   // right after <body>, so there's exactly one clear place all the no-JS
   // fallback content lives together.
   if (!html.includes('<div id="root">')) {
-    throw new Error('inject-static-content: expected <div id="root"> in dist/tarifs.html — Expo\'s web template may have changed, update this script\'s insertion point.');
+    throw new Error('inject-static-content: expected <div id="root"> in dist/tarifs.html, Expo\'s web template may have changed, update this script\'s insertion point.');
   }
   writeFileSync(tarifsPath, html.replace('<div id="root">', `${block}\n    <div id="root">`));
   console.log(`Static pricing fallback injected: dist/tarifs.html (${plans.length} plans).`);

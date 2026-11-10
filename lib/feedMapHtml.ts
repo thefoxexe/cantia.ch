@@ -24,7 +24,7 @@ export function buildFeedMapHtml(points: FeedMapPoint[]): string {
       new Date(p.takenAt).toLocaleString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
     ]
       .filter(Boolean)
-      .join(' — '),
+      .join(' : '),
   }));
 
   const center = points.length > 0 ? [points[0].lat, points[0].lon] : [46.8182, 8.2275];

@@ -20,7 +20,7 @@ export default function DicteeVocaleSolutionPageIt() {
         {
           icon: 'cpu',
           title: 'Trascrizione lato server',
-          text: "Il riconoscimento vocale avviene su server sicuri, non sul Suo telefono — un risultato affidabile anche nel rumore di un cantiere.",
+          text: "Il riconoscimento vocale avviene su server sicuri, non sul Suo telefono. Un risultato affidabile anche nel rumore di un cantiere.",
         },
         {
           icon: 'zap',
@@ -35,7 +35,7 @@ export default function DicteeVocaleSolutionPageIt() {
         {
           icon: 'users',
           title: "Anche per tutta la squadra",
-          text: "Ogni membro può dettare i propri messaggi nel feed di cantiere — pratico per segnalare un imprevisto senza smettere di lavorare.",
+          text: "Ogni membro può dettare i propri messaggi nel feed di cantiere. Pratico per segnalare un imprevisto senza smettere di lavorare.",
         },
         {
           icon: 'tool',
@@ -45,19 +45,19 @@ export default function DicteeVocaleSolutionPageIt() {
         {
           icon: 'message-circle',
           title: 'Un assistente vocale globale, non solo un campo dettato',
-          text: "Dal pulsante microfono flottante, dica «crea un preventivo per Marc Dupont, 20m² di piastrelle a 85 franchi»: l'assistente capisce, prepara il preventivo con cliente e righe già compilati, e Le lascia confermare. Funziona anche per creare direttamente una fattura, o per porre una domanda — «quali fatture sono in ritardo?», «riassumi i miei compiti» — con una vera risposta basata sui dati della Sua azienda.",
+          text: "Dal pulsante microfono flottante, dica «crea un preventivo per Marc Dupont, 20m² di piastrelle a 85 franchi»: l'assistente capisce, prepara il preventivo con cliente e righe già compilati, e Le lascia confermare. Funziona anche per creare direttamente una fattura, o per porre una domanda. «Quali fatture sono in ritardo?», «riassumi i miei compiti», con una vera risposta basata sui dati della Sua azienda.",
         },
       ]}
       faq={[
         {
           question: 'La dettatura vocale funziona bene con il vocabolario edile?',
           answer:
-            "Sì, il riconoscimento è adattato al vocabolario tecnico dell'edilizia — materiali, unità, mestieri — non solo al linguaggio comune.",
+            "Sì, il riconoscimento è adattato al vocabolario tecnico dell'edilizia (materiali, unità, mestieri), non solo al linguaggio comune.",
         },
         {
           question: "L'assistente vocale può creare un preventivo o una fattura da solo?",
           answer:
-            "Prepara il documento — cliente e prestazioni dettate già compilati — e La porta alla schermata di creazione per verificare e salvare Lei stesso. Nulla viene mai creato senza questa conferma.",
+            "Prepara il documento (cliente e prestazioni dettate già compilati) e La porta alla schermata di creazione per verificare e salvare Lei stesso. Nulla viene mai creato senza questa conferma.",
         },
         {
           question: 'Serve una connessione internet per dettare?',
@@ -66,12 +66,12 @@ export default function DicteeVocaleSolutionPageIt() {
         },
         {
           question: 'Dove si può usare la dettatura vocale in Cantia?',
-          answer: "Sui preventivi, sui rapporti di cantiere e sui messaggi di squadra del feed — ovunque Lei scriva.",
+          answer: "Sui preventivi, sui rapporti di cantiere e sui messaggi di squadra del feed: ovunque Lei scriva.",
         },
         {
           question: 'La dettatura vocale è più veloce della tastiera sul campo?',
           answer:
-            "Per la maggior parte degli artigiani in cantiere, sì — parlare è più veloce che digitare su un telefono con le mani sporche o i guanti.",
+            "Per la maggior parte degli artigiani in cantiere, sì. Parlare è più veloce che digitare su un telefono con le mani sporche o i guanti.",
         },
       ]}
       related={[

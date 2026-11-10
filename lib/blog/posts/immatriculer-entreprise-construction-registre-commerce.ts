@@ -27,7 +27,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Sàrl et SA : inscription toujours obligatoire, dès la constitution — l’entreprise n’existe juridiquement qu’une fois inscrite',
+        'Sàrl et SA : inscription toujours obligatoire, dès la constitution, l’entreprise n’existe juridiquement qu’une fois inscrite',
         'Raison individuelle : inscription obligatoire uniquement à partir de CHF 100’000 de chiffre d’affaires annuel',
         'Raison individuelle sous ce seuil : inscription facultative, mais souvent utile pour la crédibilité commerciale, l’ouverture d’un compte bancaire professionnel ou l’accès à certains marchés publics',
       ],
@@ -63,7 +63,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Combien de temps ça prend réellement' },
     {
       type: 'p',
-      text: 'Pour une Sàrl, entre le rendez-vous notarial et l’inscription effective, comptez généralement une à trois semaines selon le canton et la charge de l’office du registre du commerce — certains cantons sont nettement plus rapides que d’autres. Pour une raison individuelle qui choisit de s’inscrire volontairement, le délai est souvent plus court, la procédure étant plus simple.',
+      text: 'Pour une Sàrl, entre le rendez-vous notarial et l’inscription effective, comptez généralement une à trois semaines selon le canton et la charge de l’office du registre du commerce. Certains cantons sont nettement plus rapides que d’autres. Pour une raison individuelle qui choisit de s’inscrire volontairement, le délai est souvent plus court, la procédure étant plus simple.',
     },
     {
       type: 'stat',

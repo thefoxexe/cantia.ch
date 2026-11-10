@@ -9,7 +9,7 @@ export default function TresorerieSolutionPageDe() {
     <SolutionPage
       kicker="Liquidität"
       title="Können Sie in drei Wochen die Löhne bezahlen?"
-      subtitle="Noch nicht eingegangene Rechnungen, fällige Löhne, zu bezahlende Subunternehmer, automatisch abgebuchte Abonnements — Cantia bündelt alles, was sich auf Ihrem Konto bewegt, in einer einzigen 90-Tage-Prognose."
+      subtitle="Noch nicht eingegangene Rechnungen, fällige Löhne, zu bezahlende Subunternehmer, automatisch abgebuchte Abonnements. Cantia bündelt alles, was sich auf Ihrem Konto bewegt, in einer einzigen 90-Tage-Prognose."
       visual={<ModuleMockup kind="tresorerie" />}
       visualBelow
       features={[
@@ -26,7 +26,7 @@ export default function TresorerieSolutionPageDe() {
         {
           icon: 'users',
           title: 'Geschätzte Lohnsumme',
-          text: 'Berechnet aus Ihren HR-Profilen — Monatslöhne und diesen Monat bereits erfasste Stunden — und zum von Ihnen konfigurierten Zahltag platziert.',
+          text: 'Berechnet aus Ihren HR-Profilen (Monatslöhne und diesen Monat bereits erfasste Stunden) und zum von Ihnen konfigurierten Zahltag platziert.',
         },
         {
           icon: 'briefcase',
@@ -36,33 +36,33 @@ export default function TresorerieSolutionPageDe() {
         {
           icon: 'repeat',
           title: 'Abonnements und wiederkehrende Kosten',
-          text: 'Versicherungen, Software, Mieten … einmal erfassen, monatlich oder jährlich — Cantia projiziert sie automatisch, Monat für Monat.',
+          text: 'Versicherungen, Software, Mieten … einmal erfassen, monatlich oder jährlich. Cantia projiziert sie automatisch, Monat für Monat.',
         },
         {
           icon: 'bell',
           title: 'Erinnerung vor jeder Abbuchung',
-          text: 'Ein Banner zeigt Ihnen die wiederkehrenden Ausgaben der nächsten 7 Tage an — keine bösen Überraschungen mehr auf dem Kontoauszug.',
+          text: 'Ein Banner zeigt Ihnen die wiederkehrenden Ausgaben der nächsten 7 Tage an, keine bösen Überraschungen mehr auf dem Kontoauszug.',
         },
         {
           icon: 'shield',
           title: 'Keine Bankverbindung erforderlich',
-          text: 'Sie erfassen Ihren Kontostand manuell, wann immer Sie möchten — kein Zugriff auf Ihr Bankkonto notwendig.',
+          text: 'Sie erfassen Ihren Kontostand manuell, wann immer Sie möchten, kein Zugriff auf Ihr Bankkonto notwendig.',
         },
       ]}
       steps={[
-        { title: 'Erfassen Sie Ihren Kontostand', text: 'Eine Zahl, aktualisiert, wann Sie möchten — ohne Bankverbindung.' },
-        { title: 'Fügen Sie Ihre wiederkehrenden Kosten hinzu', text: 'Abonnements, Versicherungen, Mieten — einmalig, mit Häufigkeit und nächster Fälligkeit.' },
+        { title: 'Erfassen Sie Ihren Kontostand', text: 'Eine Zahl, aktualisiert, wann Sie möchten, ohne Bankverbindung.' },
+        { title: 'Fügen Sie Ihre wiederkehrenden Kosten hinzu', text: 'Abonnements, Versicherungen, Mieten: einmalig, mit Häufigkeit und nächster Fälligkeit.' },
         { title: 'Sehen Sie die Prognose ein', text: 'Rechnungen, Löhne, Subunternehmer und wiederkehrende Kosten fügen sich automatisch zu einer 90-Tage-Timeline zusammen.' },
       ]}
       faq={[
         {
           question: 'Verbindet sich Cantia mit meinem Bankkonto?',
-          answer: 'Nein. Sie erfassen Ihren Kontostand manuell, wann Sie möchten — kein Bankzugriff wird verlangt oder benötigt.',
+          answer: 'Nein. Sie erfassen Ihren Kontostand manuell, wann Sie möchten, kein Bankzugriff wird verlangt oder benötigt.',
         },
         {
           question: 'Woher stammen die Beträge der Prognose?',
           answer:
-            'Aus noch offenen Kundenrechnungen, einer Schätzung der Lohnsumme (HR-Profile + erfasste Stunden), unbezahlten Subunternehmer-Rechnungen und den von Ihnen erfassten wiederkehrenden Ausgaben — allem, was Cantia bereits über Ihre Tätigkeit weiss.',
+            'Aus noch offenen Kundenrechnungen, einer Schätzung der Lohnsumme (HR-Profile + erfasste Stunden), unbezahlten Subunternehmer-Rechnungen und den von Ihnen erfassten wiederkehrenden Ausgaben. Allem, was Cantia bereits über Ihre Tätigkeit weiss.',
         },
         {
           question: 'Wie funktionieren die Erinnerungen an wiederkehrende Ausgaben?',
@@ -80,7 +80,7 @@ export default function TresorerieSolutionPageDe() {
         { href: '/de/solutions/rentabilite', label: 'Rentabilität pro Baustelle' },
       ]}
       closingTitle="Entdecken Sie einen Liquiditätsengpass nicht mehr im Nachhinein"
-      closingText="Die Liquiditätsplanung ist ab dem Plan Team verfügbar — ohne Bankverbindung, ohne komplizierte Einrichtung."
+      closingText="Die Liquiditätsplanung ist ab dem Plan Team verfügbar, ohne Bankverbindung, ohne komplizierte Einrichtung."
     />
   );
 }

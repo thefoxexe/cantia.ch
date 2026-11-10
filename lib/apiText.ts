@@ -20,9 +20,9 @@ const TEXT: Record<string, { de: string; it: string }> = {
   'Aucune écriture exploitable trouvée dans ce relevé.': { de: 'In diesem Auszug wurde keine verwertbare Buchung gefunden.', it: 'Nessuna registrazione utilizzabile trovata in questo estratto.' },
   'Import impossible': { de: 'Import nicht möglich', it: 'Importazione impossibile' },
   'Dépense non créée': { de: 'Ausgabe nicht erstellt', it: 'Spesa non creata' },
-  'Dépense créée pour "{{label}}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant) — à vérifier manuellement dans Comptabilité.': {
+  'Dépense créée pour "{{label}}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant), à vérifier manuellement dans Comptabilité.': {
     de: 'Ausgabe für «{{label}}» erstellt, aber nicht automatisch verbucht (Buchhaltung unvollständig eingerichtet: offenes Geschäftsjahr oder Kontozuordnung fehlt) – bitte in der Buchhaltung manuell prüfen.',
-    it: 'Spesa creata per «{{label}}» ma non contabilizzata automaticamente (configurazione contabile incompleta: esercizio aperto o abbinamento del conto mancante) — da verificare manualmente in Contabilità.',
+    it: 'Spesa creata per «{{label}}» ma non contabilizzata automaticamente (configurazione contabile incompleta: esercizio aperto o abbinamento del conto mancante), da verificare manualmente in Contabilità.',
   },
   // Métrés, plans, imports
   'Métré introuvable': { de: 'Ausmass nicht gefunden', it: 'Computo non trovato' },

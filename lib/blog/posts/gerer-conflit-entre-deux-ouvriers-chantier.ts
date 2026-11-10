@@ -67,7 +67,7 @@ export const post: BlogPost = {
     {
       question: 'Quand faut-il faire appel à une aide extérieure pour un conflit d’équipe ?',
       answer:
-        'Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe — RH, association professionnelle ou conseil juridique — devient nécessaire.',
+        'Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe (RH, association professionnelle ou conseil juridique) devient nécessaire.',
     },
   ],
   relatedSlugs: [

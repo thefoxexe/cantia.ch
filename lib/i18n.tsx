@@ -530,7 +530,7 @@ const fr: Dict = {
       { label: 'Téléphone', text: 'Photos, heures et informations terrain' },
     ],
     installCta: 'Accéder à Cantia',
-    installNote: 'Application 100% web, sans rien à télécharger — ajoutable à l’écran d’accueil comme raccourci.\nVersions App Store et Google Play en développement.',
+    installNote: 'Application 100% web, sans rien à télécharger. Ajoutable à l’écran d’accueil comme raccourci.\nVersions App Store et Google Play en développement.',
   },
   tailored: {
     eyebrow: 'Quand votre entreprise a un besoin bien à elle',
@@ -568,10 +568,10 @@ const fr: Dict = {
   docCustomization: {
     eyebrow: 'Vos documents, à votre image',
     title: 'Des devis et des factures à vos couleurs, avec le QR suisse',
-    text: 'Chaque devis et chaque facture généré par Cantia reprend la couleur et le logo de votre entreprise — et chaque facture inclut le bulletin de versement QR suisse, prêt à être scanné.',
+    text: 'Chaque devis et chaque facture généré par Cantia reprend la couleur et le logo de votre entreprise, et chaque facture inclut le bulletin de versement QR suisse, prêt à être scanné.',
     points: [
       { title: 'Couleur de marque', text: 'Choisissez votre couleur dans Compte > Apparence : elle habille automatiquement l’en-tête, le tableau et les totaux.' },
-      { title: 'Votre logo', text: 'Ajoutez votre logo et choisissez sa position — à gauche, au centre ou à droite de l’en-tête.' },
+      { title: 'Votre logo', text: 'Ajoutez votre logo et choisissez sa position. À gauche, au centre ou à droite de l’en-tête.' },
       { title: 'QR-facture suisse', text: 'Chaque facture inclut le bulletin de versement QR, directement sur le document, prêt à être scanné.' },
     ],
     link: 'Découvrir la facturation',
@@ -1018,7 +1018,7 @@ const de: Dict = {
       { label: 'Telefon', text: 'Fotos, Stunden und Informationen vor Ort' },
     ],
     installCta: 'Cantia öffnen',
-    installNote: '100 % webbasierte Anwendung, nichts herunterzuladen — als Verknüpfung zum Startbildschirm hinzufügbar.\nApp-Store- und Google-Play-Versionen in Entwicklung.',
+    installNote: '100 % webbasierte Anwendung, nichts herunterzuladen. Als Verknüpfung zum Startbildschirm hinzufügbar.\nApp-Store- und Google-Play-Versionen in Entwicklung.',
   },
   tailored: {
     eyebrow: 'Wenn Ihr Unternehmen ein ganz eigenes Bedürfnis hat',
@@ -1056,10 +1056,10 @@ const de: Dict = {
   docCustomization: {
     eyebrow: 'Ihre Dokumente, in Ihrem Look',
     title: 'Offerten und Rechnungen in Ihren Farben, mit Schweizer QR',
-    text: 'Jedes von Cantia erstellte Angebot und jede Rechnung übernimmt die Farbe und das Logo Ihres Unternehmens — und jede Rechnung enthält den Schweizer QR-Einzahlungsschein, bereit zum Scannen.',
+    text: 'Jedes von Cantia erstellte Angebot und jede Rechnung übernimmt die Farbe und das Logo Ihres Unternehmens, und jede Rechnung enthält den Schweizer QR-Einzahlungsschein, bereit zum Scannen.',
     points: [
       { title: 'Markenfarbe', text: 'Wählen Sie Ihre Farbe unter Konto > Erscheinungsbild: Sie färbt automatisch Kopfzeile, Tabelle und Summen ein.' },
-      { title: 'Ihr Logo', text: 'Fügen Sie Ihr Logo hinzu und wählen Sie seine Position — links, mittig oder rechts in der Kopfzeile.' },
+      { title: 'Ihr Logo', text: 'Fügen Sie Ihr Logo hinzu und wählen Sie seine Position. Links, mittig oder rechts in der Kopfzeile.' },
       { title: 'Schweizer QR-Rechnung', text: 'Jede Rechnung enthält den QR-Einzahlungsschein direkt auf dem Dokument, bereit zum Scannen.' },
     ],
     link: 'Die Rechnungsstellung entdecken',
@@ -1506,7 +1506,7 @@ const it: Dict = {
       { label: 'Telefono', text: 'Foto, ore e informazioni dal campo' },
     ],
     installCta: 'Accedi a Cantia',
-    installNote: 'Applicazione 100% web, senza nulla da scaricare — aggiungibile alla schermata principale come collegamento.\nVersioni App Store e Google Play in sviluppo.',
+    installNote: 'Applicazione 100% web, senza nulla da scaricare. Aggiungibile alla schermata principale come collegamento.\nVersioni App Store e Google Play in sviluppo.',
   },
   tailored: {
     eyebrow: 'Quando la sua impresa ha un’esigenza tutta sua',
@@ -1544,10 +1544,10 @@ const it: Dict = {
   docCustomization: {
     eyebrow: 'I suoi documenti, a sua immagine',
     title: 'Preventivi e fatture nei suoi colori, con il QR svizzero',
-    text: 'Ogni preventivo e ogni fattura generati da Cantia riprendono il colore e il logo della sua impresa — e ogni fattura include la polizza di versamento QR svizzera, pronta per la scansione.',
+    text: 'Ogni preventivo e ogni fattura generati da Cantia riprendono il colore e il logo della sua impresa, e ogni fattura include la polizza di versamento QR svizzera, pronta per la scansione.',
     points: [
       { title: 'Colore del marchio', text: 'Scelga il suo colore in Account > Aspetto: colora automaticamente intestazione, tabella e totali.' },
-      { title: 'Il suo logo', text: 'Aggiunga il suo logo e scelga la sua posizione — a sinistra, al centro o a destra dell’intestazione.' },
+      { title: 'Il suo logo', text: 'Aggiunga il suo logo e scelga la sua posizione. A sinistra, al centro o a destra dell’intestazione.' },
       { title: 'Fattura QR svizzera', text: 'Ogni fattura include la polizza di versamento QR direttamente sul documento, pronta per essere scansionata.' },
     ],
     link: 'Scopra la fatturazione',

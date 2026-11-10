@@ -10,7 +10,7 @@ export default function FacturationSolutionPageDe() {
       documentId="facture"
       kicker="Rechnungsstellung"
       title="Rechnungen mit echtem Schweizer QR-Einzahlungsschein, ohne separate Software"
-      subtitle="Jede Cantia-Rechnung enthält automatisch die normkonforme Schweizer QR-Rechnung — IBAN, strukturierte Referenz und Betrag bereits codiert, bereit zum Scannen mit jeder Banking-App."
+      subtitle="Jede Cantia-Rechnung enthält automatisch die normkonforme Schweizer QR-Rechnung. IBAN, strukturierte Referenz und Betrag bereits codiert, bereit zum Scannen mit jeder Banking-App."
       visual={<ModuleMockup kind="facturation" />}
       features={[
         {
@@ -41,7 +41,7 @@ export default function FacturationSolutionPageDe() {
         {
           icon: 'percent',
           title: 'Anzahlung in Rechnung stellen',
-          text: 'Stellen Sie eine Anzahlungsrechnung über einen Prozentsatz der Offerte, bevor Sie beginnen — die Schlussrechnung zieht automatisch das bereits Erhaltene ab.',
+          text: 'Stellen Sie eine Anzahlungsrechnung über einen Prozentsatz der Offerte, bevor Sie beginnen. Die Schlussrechnung zieht automatisch das bereits Erhaltene ab.',
         },
         {
           icon: 'layers',
@@ -57,7 +57,7 @@ export default function FacturationSolutionPageDe() {
       steps={[
         { title: 'Geben Sie Ihren IBAN ein', text: 'Nur einmal, unter Konto → Unternehmensprofil.' },
         { title: 'Wandeln Sie um oder erstellen Sie eine Rechnung', text: 'Aus einer akzeptierten Offerte oder direkt.' },
-        { title: 'Versenden Sie das PDF', text: 'Die QR-Rechnung ist bereits integriert — Ihr Kunde scannt und bezahlt über seine Banking-App.' },
+        { title: 'Versenden Sie das PDF', text: 'Die QR-Rechnung ist bereits integriert. Ihr Kunde scannt und bezahlt über seine Banking-App.' },
       ]}
       faq={[
         {
@@ -73,7 +73,7 @@ export default function FacturationSolutionPageDe() {
         {
           question: 'Wie erfährt man, ob eine Rechnung bezahlt wurde?',
           answer:
-            'Suchen und gleichen Sie eine Zahlung direkt über ihre QR-Referenznummer ab — der Status wechselt zu «bezahlt», ohne das Bankkonto manuell prüfen zu müssen.',
+            'Suchen und gleichen Sie eine Zahlung direkt über ihre QR-Referenznummer ab. Der Status wechselt zu «bezahlt», ohne das Bankkonto manuell prüfen zu müssen.',
         },
         {
           question: 'Was kostet die Rechnungsstellung mit QR-Code über Cantia?',

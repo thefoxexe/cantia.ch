@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Die SIA-Norm 118 gilt nie automatisch: Sie kommt nur zur Anwendung, wenn der Vertrag oder die Offerte sie ausdrücklich erwähnt. Erklärungen und bewährte Praxis.',
   excerpt:
-    'Ein Architekt hat die SIA 118 in einer Sitzung erwähnt, und Sie glauben, sie gelte automatisch für Ihre Baustelle. Das ist falsch — und im Streitfall teuer.',
+    'Ein Architekt hat die SIA 118 in einer Sitzung erwähnt, und Sie glauben, sie gelte automatisch für Ihre Baustelle. Das ist falsch, und im Streitfall teuer.',
   category: 'Juridique & normes',
   keywords: ['SIA 118', 'Norm', 'Vertrag', 'Offerte', 'Pflicht', 'Bauwesen'],
   publishedAt: '2026-09-03',
@@ -15,17 +15,17 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Ein Architekt hat die SIA 118 in einer Baustellensitzung erwähnt, und seither glauben Sie, sie gelte automatisch für alles, was Sie in der Schweiz unterschreiben. Das ist falsch. Es handelt sich sogar um eine der verbreitetsten Rechtsverwechslungen im Westschweizer Baugewerbe — jene, die Unternehmer trotz eigentlich guter Rechtslage Garantieansprüche kostet.',
+      text: 'Ein Architekt hat die SIA 118 in einer Baustellensitzung erwähnt, und seither glauben Sie, sie gelte automatisch für alles, was Sie in der Schweiz unterschreiben. Das ist falsch. Es handelt sich sogar um eine der verbreitetsten Rechtsverwechslungen im Westschweizer Baugewerbe. Jene, die Unternehmer trotz eigentlich guter Rechtslage Garantieansprüche kostet.',
     },
     { type: 'h2', text: 'Was die SIA 118 wirklich ist' },
     {
       type: 'p',
-      text: 'Die SIA 118 («Allgemeine Bedingungen für Bauarbeiten») ist ein privater Mustervertrag, herausgegeben vom Schweizerischen Ingenieur- und Architektenverein — und kein Gesetz. Sie ergänzt und präzisiert das Obligationenrecht in Punkten wie Garantiefristen, Werkabnahme oder Mängelmanagement, aber nur dort, wo sich beide Parteien dafür entschieden haben.',
+      text: 'Die SIA 118 («Allgemeine Bedingungen für Bauarbeiten») ist ein privater Mustervertrag, herausgegeben vom Schweizerischen Ingenieur- und Architektenverein, und kein Gesetz. Sie ergänzt und präzisiert das Obligationenrecht in Punkten wie Garantiefristen, Werkabnahme oder Mängelmanagement, aber nur dort, wo sich beide Parteien dafür entschieden haben.',
     },
     {
       type: 'callout',
       title: 'Was sich ändert, wenn es schiefgeht',
-      text: 'Ohne den genauen Satz «Für diese Bedingungen gilt die SIA-Norm 118» irgendwo auf dem unterschriebenen Dokument wendet ein Richter allein das Obligationenrecht an — selbst wenn alle auf der Baustelle glaubten, unter SIA 118 zu stehen. Der Unterschied macht sich in Garantiejahren und im Abnahmeverfahren bemerkbar, nicht in einem kosmetischen Detail.',
+      text: 'Ohne den genauen Satz «Für diese Bedingungen gilt die SIA-Norm 118» irgendwo auf dem unterschriebenen Dokument wendet ein Richter allein das Obligationenrecht an, selbst wenn alle auf der Baustelle glaubten, unter SIA 118 zu stehen. Der Unterschied macht sich in Garantiejahren und im Abnahmeverfahren bemerkbar, nicht in einem kosmetischen Detail.',
     },
     { type: 'h2', text: 'Was sich konkret ändert' },
     {
@@ -49,7 +49,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Ihre Bedingungen, nie mehr vergessen',
-      text: 'Ihre Vertragsvermerke (SIA 118 oder nicht) werden einmal in Cantia hinterlegt und erscheinen automatisch auf jeder Offerte-PDF — es wird unmöglich, sie bei einem hastig versendeten Dokument zu vergessen.',
+      text: 'Ihre Vertragsvermerke (SIA 118 oder nicht) werden einmal in Cantia hinterlegt und erscheinen automatisch auf jeder Offerte-PDF. Es wird unmöglich, sie bei einem hastig versendeten Dokument zu vergessen.',
       buttonLabel: 'Modul Offerten entdecken',
     },
   ],

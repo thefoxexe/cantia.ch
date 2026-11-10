@@ -20,7 +20,7 @@ export default function PlanningSolutionPageDe() {
         {
           icon: 'layers',
           title: 'Verknüpft mit Ihren Baustellen',
-          text: 'Jede Zuteilung verweist auf eine reale Baustelle — von der Planung aus finden Sie direkt zugehörige Rapporte, Fotos und Offerten.',
+          text: 'Jede Zuteilung verweist auf eine reale Baustelle. Von der Planung aus finden Sie direkt zugehörige Rapporte, Fotos und Offerten.',
         },
         {
           icon: 'users',
@@ -35,7 +35,7 @@ export default function PlanningSolutionPageDe() {
         {
           icon: 'trending-up',
           title: 'Fliesst in die Rentabilität ein',
-          text: 'Die geplanten Tage dienen auch zur Berechnung der tatsächlichen Arbeitskosten jeder Baustelle — keine Doppelerfassung.',
+          text: 'Die geplanten Tage dienen auch zur Berechnung der tatsächlichen Arbeitskosten jeder Baustelle, keine Doppelerfassung.',
         },
       ]}
       faq={[

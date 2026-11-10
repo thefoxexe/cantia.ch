@@ -10,13 +10,13 @@ export default function RapportsChantierSolutionPageIt() {
       documentId="rapport"
       kicker="Rapporti di cantiere"
       title="Il rapporto si redige mentre è ancora in cantiere"
-      subtitle="Note vocali, foto geolocalizzate e messaggi del feed: Cantia raccoglie tutto e ne ricava un rapporto redatto, strutturato e pronto per l'invio — non resta che rileggerlo."
+      subtitle="Note vocali, foto geolocalizzate e messaggi del feed: Cantia raccoglie tutto e ne ricava un rapporto redatto, strutturato e pronto per l'invio, non resta che rileggerlo."
       visual={<ModuleMockup kind="rapports-chantier" />}
       features={[
         {
           icon: 'mic',
           title: 'Dettato a voce',
-          text: "Racconti quello che è successo normalmente — Cantia trascrive e il redattore IA ne ricava un testo professionale, senza errori né espressioni colloquiali.",
+          text: "Racconti quello che è successo normalmente. Cantia trascrive e il redattore IA ne ricava un testo professionale, senza errori né espressioni colloquiali.",
         },
         {
           icon: 'message-square',
@@ -53,7 +53,7 @@ export default function RapportsChantierSolutionPageIt() {
         {
           question: 'Come si redige rapidamente un rapporto di cantiere?',
           answer:
-            "Scatti le Sue foto e detti le Sue note sul momento — Cantia assembla tutto in un rapporto PDF strutturato e pronto per l'invio, senza dover riscrivere tutto la sera.",
+            "Scatti le Sue foto e detti le Sue note sul momento. Cantia assembla tutto in un rapporto PDF strutturato e pronto per l'invio, senza dover riscrivere tutto la sera.",
         },
         {
           question: 'Le foto vengono geolocalizzate automaticamente?',
@@ -66,7 +66,7 @@ export default function RapportsChantierSolutionPageIt() {
         {
           question: 'Il rapporto di cantiere sostituisce un diario di cantiere cartaceo?',
           answer:
-            "Sì — note, foto e monitoraggio sono centralizzati in un documento digitale consultabile in qualsiasi momento, per cantiere.",
+            "Sì, note, foto e monitoraggio sono centralizzati in un documento digitale consultabile in qualsiasi momento, per cantiere.",
         },
       ]}
       related={[

@@ -58,8 +58,8 @@ export default function AdminLogsList() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.rowTitle}>
                     {ACTION_LABEL[log.action] ?? log.action}
-                    {log.module_name ? ` — ${log.module_name}` : ''}
-                    {log.organization_name ? ` — ${log.organization_name}` : ''}
+                    {log.module_name ? `: ${log.module_name}` : ''}
+                    {log.organization_name ? `: ${log.organization_name}` : ''}
                   </Text>
                   <Text style={styles.rowSubtitle}>{log.admin_email ?? 'Système'}</Text>
                 </View>

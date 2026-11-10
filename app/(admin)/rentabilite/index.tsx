@@ -215,20 +215,20 @@ export default function AdminRentabiliteScreen() {
         {error ? <AdminErrorBanner message={error} /> : null}
 
         <View style={styles.statGrid}>
-          <StatTile label="Cash encaissé (brut) — ce mois" value={formatChf(cashThisMonth)} icon="dollar-sign" accent={colors.success} />
-          <StatTile label="Dépenses — ce mois" value={formatChf(depensesThisMonth)} icon="trending-down" accent={colors.danger} />
+          <StatTile label="Cash encaissé (brut) : ce mois" value={formatChf(cashThisMonth)} icon="dollar-sign" accent={colors.success} />
+          <StatTile label="Dépenses : ce mois" value={formatChf(depensesThisMonth)} icon="trending-down" accent={colors.danger} />
           <StatTile
-            label="Rentabilité nette — ce mois"
+            label="Rentabilité nette : ce mois"
             value={formatChf(netThisMonth)}
             icon={netThisMonth >= 0 ? 'trending-up' : 'alert-triangle'}
             accent={netThisMonth >= 0 ? colors.success : colors.danger}
           />
         </View>
         <View style={styles.statGrid}>
-          <StatTile label="Cash encaissé (brut) — à vie" value={formatChf(cashTotal)} icon="dollar-sign" />
-          <StatTile label="Dépenses — à vie" value={formatChf(depensesTotal)} icon="trending-down" />
+          <StatTile label="Cash encaissé (brut) : à vie" value={formatChf(cashTotal)} icon="dollar-sign" />
+          <StatTile label="Dépenses : à vie" value={formatChf(depensesTotal)} icon="trending-down" />
           <StatTile
-            label="Rentabilité nette — à vie"
+            label="Rentabilité nette : à vie"
             value={formatChf(netTotal)}
             icon={netTotal >= 0 ? 'trending-up' : 'alert-triangle'}
             accent={netTotal >= 0 ? colors.success : colors.danger}
@@ -378,7 +378,7 @@ function ExpenseEditor({
             value={draft.label}
             onChangeText={(v) => setDraft({ ...draft, label: v })}
             style={styles.input}
-            placeholder="Ex. Supabase — plan Pro"
+            placeholder="Ex. Supabase : plan Pro"
             placeholderTextColor={colors.textMuted}
           />
         </View>

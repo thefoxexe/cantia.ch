@@ -518,7 +518,7 @@ export default function ImportReleveScreen() {
                             candidates.map((c) => (
                               <Pressable key={c.entryLineId} style={styles.candidateRow} onPress={() => handleLinkCandidate(entry.transactionId, c.entryLineId)}>
                                 <Text style={styles.matchMeta} numberOfLines={1}>
-                                  {c.entryNumber != null ? `N°${c.entryNumber} — ` : ''}{c.label}
+                                  {c.entryNumber != null ? `N°${c.entryNumber} : ` : ''}{c.label}
                                 </Text>
                                 <Feather name="link" size={14} color={colors.primary} />
                               </Pressable>

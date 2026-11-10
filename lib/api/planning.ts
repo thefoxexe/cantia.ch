@@ -86,7 +86,7 @@ function row(p: PlanningEventInput) {
 // Before migration 20261001110000 the new columns don't exist: save the
 // title in the note so nothing is lost.
 function legacy(p: PlanningEventInput) {
-  const note = [p.title.trim(), p.note.trim()].filter(Boolean).join(' — ');
+  const note = [p.title.trim(), p.note.trim()].filter(Boolean).join(' : ');
   return { project_id: p.projectId, member_user_id: p.memberUserId, starts_on: p.startsOn, ends_on: p.endsOn, note: note || null };
 }
 

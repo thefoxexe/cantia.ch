@@ -175,7 +175,7 @@ export async function buildForecast(organization: Organization, days = 90): Prom
       if (remaining <= 0) continue;
       items.push({
         kind: 'facture',
-        label: `${f.number ?? apiText('Facture')} — ${f.client_name}`,
+        label: `${f.number ?? apiText('Facture')} : ${f.client_name}`,
         amount: remaining,
         date: f.due_date,
         overdue: f.due_date < today,

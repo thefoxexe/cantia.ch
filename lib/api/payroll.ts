@@ -313,19 +313,19 @@ function catalogHint(key: CatalogHintKey, rates: SwissSocialInsuranceRates | nul
   const coord = rates ? n(rates.lpp_coordination_deduction_chf) : '';
   const cap = rates ? n(rates.ac_cap_chf) : '';
   const fr: Record<CatalogHintKey, string> = {
-    indemnite_vacances: "Pour un salaire horaire sans jours de vacances fixes : 8.33% pour 4 semaines de vacances (minimum légal adulte, art. 329a CO), 10.64% pour 5 semaines (minimum légal < 20 ans, ou accordé contractuellement). Doit figurer séparément sur le décompte de salaire — jamais inclus silencieusement dans le taux horaire.",
+    indemnite_vacances: "Pour un salaire horaire sans jours de vacances fixes : 8.33% pour 4 semaines de vacances (minimum légal adulte, art. 329a CO), 10.64% pour 5 semaines (minimum légal < 20 ans, ou accordé contractuellement). Doit figurer séparément sur le décompte de salaire, jamais inclus silencieusement dans le taux horaire.",
     lpp: rates
-      ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans — dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${year} : CHF ${coord}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations). La part employeur (au moins égale à la part salarié, souvent plus) dépend du règlement de votre caisse — à définir ci-dessous.`
-      : "Dépend de l'âge de l'employé et de votre caisse de pension — ajustez le taux par employé (fiche de l'employé → Cotisations).",
-    impot_source: "Dépend du barème cantonal de l'employé — reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations). Aucune part employeur : il ne s'agit que d'une retenue reversée au fisc.",
+      ? `Minimum légal (part salarié, moitié du taux ci-dessous) : 3.5% à 25-34 ans, 5% à 35-44, 7.5% à 45-54, 9% à 55-65 ans, dépend de l'âge, et votre caisse peut prévoir plus. Déduction de coordination ${year} : CHF ${coord}/an. Ajustez le taux par employé (fiche de l'employé → Cotisations). La part employeur (au moins égale à la part salarié, souvent plus) dépend du règlement de votre caisse : à définir ci-dessous.`
+      : "Dépend de l'âge de l'employé et de votre caisse de pension. Ajustez le taux par employé (fiche de l'employé → Cotisations).",
+    impot_source: "Dépend du barème cantonal de l'employé. Reportez le taux depuis le décompte de votre administration fiscale cantonale, ou utilisez un montant fixe par employé (Compte de l'employé → Cotisations). Aucune part employeur : il ne s'agit que d'une retenue reversée au fisc.",
     ac_solidarite: rates
-      ? `Uniquement sur la part du salaire annuel dépassant CHF ${cap} — rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil. Part employeur égale à la part salarié (paritaire, comme l'AC de base).`
-      : 'Uniquement sur la part du salaire annuel dépassant le plafond AC — rarissime en PME.',
-    aap: "100% à la charge de l'employeur par la loi (LAA) — aucune retenue sur le salaire. Le taux dépend de votre assureur-accidents et de la classe de risque de votre branche : reportez-le depuis votre police d'assurance.",
-    caf_employeur: "100% à la charge de l'employeur par la loi (LAFam) — aucune retenue sur le salaire. Le taux dépend de votre caisse de compensation cantonale : reportez-le depuis votre décompte de cotisations.",
-    repas: "Indemnité forfaitaire de représentation (repas d'affaires, invitations) — case 13.2.1.",
-    deplacement_justificatif: 'Remboursement de frais réels sur présentation de justificatifs (billets, hôtel) — case 13.1.1.',
-    formation: "Contribution de l'employeur au perfectionnement professionnel de l'employé — case 13.3.",
+      ? `Uniquement sur la part du salaire annuel dépassant CHF ${cap} : rarissime en PME. N'ajoutez ceci que pour un employé dont le salaire dépasse ce seuil. Part employeur égale à la part salarié (paritaire, comme l'AC de base).`
+      : 'Uniquement sur la part du salaire annuel dépassant le plafond AC : rarissime en PME.',
+    aap: "100% à la charge de l'employeur par la loi (LAA), aucune retenue sur le salaire. Le taux dépend de votre assureur-accidents et de la classe de risque de votre branche : reportez-le depuis votre police d'assurance.",
+    caf_employeur: "100% à la charge de l'employeur par la loi (LAFam), aucune retenue sur le salaire. Le taux dépend de votre caisse de compensation cantonale : reportez-le depuis votre décompte de cotisations.",
+    repas: "Indemnité forfaitaire de représentation (repas d'affaires, invitations) : case 13.2.1.",
+    deplacement_justificatif: 'Remboursement de frais réels sur présentation de justificatifs (billets, hôtel) : case 13.1.1.',
+    formation: "Contribution de l'employeur au perfectionnement professionnel de l'employé: case 13.3.",
   };
   const de: Record<CatalogHintKey, string> = {
     indemnite_vacances: 'Für einen Stundenlohn ohne feste Ferientage: 8.33% für 4 Wochen Ferien (gesetzliches Minimum für Erwachsene, Art. 329a OR), 10.64% für 5 Wochen (gesetzliches Minimum unter 20 Jahren oder vertraglich vereinbart). Muss auf der Lohnabrechnung separat ausgewiesen werden – nie stillschweigend im Stundenlohn enthalten.',
@@ -343,19 +343,19 @@ function catalogHint(key: CatalogHintKey, rates: SwissSocialInsuranceRates | nul
     formation: 'Beitrag des Arbeitgebers an die berufliche Weiterbildung der Mitarbeitenden – Ziffer 13.3.',
   };
   const it: Record<CatalogHintKey, string> = {
-    indemnite_vacances: "Per un salario orario senza giorni di vacanza fissi: 8.33% per 4 settimane di vacanza (minimo legale per adulti, art. 329a CO), 10.64% per 5 settimane (minimo legale sotto i 20 anni, o concordato per contratto). Deve figurare separatamente sul conteggio salariale — mai incluso tacitamente nella tariffa oraria.",
+    indemnite_vacances: "Per un salario orario senza giorni di vacanza fissi: 8.33% per 4 settimane di vacanza (minimo legale per adulti, art. 329a CO), 10.64% per 5 settimane (minimo legale sotto i 20 anni, o concordato per contratto). Deve figurare separatamente sul conteggio salariale, mai incluso tacitamente nella tariffa oraria.",
     lpp: rates
-      ? `Minimo legale (quota dipendente, metà dell'aliquota qui sotto): 3.5% a 25-34 anni, 5% a 35-44, 7.5% a 45-54, 9% a 55-65 — dipende dall'età e la vostra cassa può prevedere di più. Deduzione di coordinamento ${year}: CHF ${coord}/anno. Adattate l'aliquota per dipendente (scheda del dipendente → Contributi). La quota del datore di lavoro (almeno pari a quella del dipendente, spesso di più) dipende dal regolamento della vostra cassa — da definire qui sotto.`
-      : "Dipende dall'età del dipendente e dalla vostra cassa pensione — adattate l'aliquota per dipendente (scheda del dipendente → Contributi).",
-    impot_source: "Dipende dalla tariffa cantonale del dipendente — riportate l'aliquota dal conteggio della vostra amministrazione fiscale cantonale, oppure usate un importo fisso per dipendente (Conto del dipendente → Contributi). Nessuna quota del datore di lavoro: si tratta solo di una trattenuta versata al fisco.",
+      ? `Minimo legale (quota dipendente, metà dell'aliquota qui sotto): 3.5% a 25-34 anni, 5% a 35-44, 7.5% a 45-54, 9% a 55-65: dipende dall'età e la vostra cassa può prevedere di più. Deduzione di coordinamento ${year}: CHF ${coord}/anno. Adattate l'aliquota per dipendente (scheda del dipendente → Contributi). La quota del datore di lavoro (almeno pari a quella del dipendente, spesso di più) dipende dal regolamento della vostra cassa: da definire qui sotto.`
+      : "Dipende dall'età del dipendente e dalla vostra cassa pensione. Adattate l'aliquota per dipendente (scheda del dipendente → Contributi).",
+    impot_source: "Dipende dalla tariffa cantonale del dipendente. Riportate l'aliquota dal conteggio della vostra amministrazione fiscale cantonale, oppure usate un importo fisso per dipendente (Conto del dipendente → Contributi). Nessuna quota del datore di lavoro: si tratta solo di una trattenuta versata al fisco.",
     ac_solidarite: rates
-      ? `Solo sulla parte del salario annuo che supera CHF ${cap} — rarissimo nelle PMI. Aggiungetelo solo per un dipendente il cui salario supera questa soglia. Quota del datore di lavoro pari a quella del dipendente (paritetica, come l'AD di base).`
-      : "Solo sulla parte del salario annuo che supera il massimale AD — rarissimo nelle PMI.",
-    aap: "Per legge al 100% a carico del datore di lavoro (LAINF) — nessuna trattenuta sul salario. L'aliquota dipende dal vostro assicuratore infortuni e dalla classe di rischio del vostro settore: riportatela dalla vostra polizza.",
-    caf_employeur: "Per legge al 100% a carico del datore di lavoro (LAFam) — nessuna trattenuta sul salario. L'aliquota dipende dalla vostra cassa di compensazione cantonale: riportatela dal vostro conteggio dei contributi.",
-    repas: "Indennità forfettaria di rappresentanza (pranzi d'affari, inviti) — cifra 13.2.1.",
-    deplacement_justificatif: 'Rimborso delle spese effettive su presentazione dei giustificativi (biglietti, albergo) — cifra 13.1.1.',
-    formation: "Contributo del datore di lavoro al perfezionamento professionale del dipendente — cifra 13.3.",
+      ? `Solo sulla parte del salario annuo che supera CHF ${cap}: rarissimo nelle PMI. Aggiungetelo solo per un dipendente il cui salario supera questa soglia. Quota del datore di lavoro pari a quella del dipendente (paritetica, come l'AD di base).`
+      : "Solo sulla parte del salario annuo che supera il massimale AD: rarissimo nelle PMI.",
+    aap: "Per legge al 100% a carico del datore di lavoro (LAINF), nessuna trattenuta sul salario. L'aliquota dipende dal vostro assicuratore infortuni e dalla classe di rischio del vostro settore: riportatela dalla vostra polizza.",
+    caf_employeur: "Per legge al 100% a carico del datore di lavoro (LAFam), nessuna trattenuta sul salario. L'aliquota dipende dalla vostra cassa di compensazione cantonale: riportatela dal vostro conteggio dei contributi.",
+    repas: "Indennità forfettaria di rappresentanza (pranzi d'affari, inviti): cifra 13.2.1.",
+    deplacement_justificatif: 'Rimborso delle spese effettive su presentazione dei giustificativi (biglietti, albergo): cifra 13.1.1.',
+    formation: "Contributo del datore di lavoro al perfezionamento professionale del dipendente: cifra 13.3.",
   };
   return (lang === 'de' ? de : lang === 'it' ? it : fr)[key];
 }
@@ -1022,7 +1022,7 @@ function computeTreiziemeAddition(
   }
   if (profile.treizieme_mode === 'lump_sum_month' && profile.treizieme_mois === month) {
     const amount = profile.salary_type === 'monthly' ? Number(profile.monthly_salary_chf ?? 0) : grossBeforeRecurring;
-    return { label: '13e salaire (versement annuel — estimation si salaire horaire)', amount: round2(amount) };
+    return { label: '13e salaire (versement annuel: estimation si salaire horaire)', amount: round2(amount) };
   }
   return null;
 }

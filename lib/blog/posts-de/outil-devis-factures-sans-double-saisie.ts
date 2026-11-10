@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Wie vermeidet man, dieselben Informationen zwischen Offerte und Rechnung zweimal einzugeben?',
   title: 'Schluss mit der Doppelerfassung zwischen Offerte und Rechnung',
   description:
-    'Eine akzeptierte Offerte für eine Rechnung erneut abzutippen, ist eine vermeidbare Zeitverschwendung — und vor allem eine Fehlerquelle. So eliminiert ein gut konzipiertes Werkzeug diesen Schritt.',
+    'Eine akzeptierte Offerte für eine Rechnung erneut abzutippen, ist eine vermeidbare Zeitverschwendung, und vor allem eine Fehlerquelle. So eliminiert ein gut konzipiertes Werkzeug diesen Schritt.',
   excerpt:
     'Eine akzeptierte Offerte für eine Rechnung erneut zu erfassen, ist nicht nur Zeitverschwendung: Es ist auch die Gelegenheit, einen Preis- oder Mengenfehler zu übernehmen, der im Original gar nicht existierte.',
   category: 'Comparatifs & outils',
@@ -34,7 +34,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Was ein echter Prozess ohne Doppelerfassung ermöglichen muss' },
     {
       type: 'p',
-      text: 'Eine akzeptierte Offerte muss sich mit einem einzigen Klick in eine Rechnung verwandeln lassen, mit denselben Zeilen, denselben Preisen und denselben Mengen — mit nur der Möglichkeit, bei Bedarf anzupassen (Anzahlung, Schlussrabatt). Das Risiko eines Abschreibfehlers verschwindet durch die Konstruktion, nicht durch Wachsamkeit.',
+      text: 'Eine akzeptierte Offerte muss sich mit einem einzigen Klick in eine Rechnung verwandeln lassen, mit denselben Zeilen, denselben Preisen und denselben Mengen, mit nur der Möglichkeit, bei Bedarf anzupassen (Anzahlung, Schlussrabatt). Das Risiko eines Abschreibfehlers verschwindet durch die Konstruktion, nicht durch Wachsamkeit.',
     },
     {
       type: 'callout',
@@ -57,7 +57,7 @@ export const post: BlogPost = {
     {
       question: 'Wie viel Zeit spart ein Werkzeug, das den Übergang von Offerte zu Rechnung automatisiert?',
       answer:
-        'In der Regel 10 bis 20 Minuten pro Dokument — eine Zeit, die sich mit steigender Anzahl monatlicher Offerten schnell summiert.',
+        'In der Regel 10 bis 20 Minuten pro Dokument. Eine Zeit, die sich mit steigender Anzahl monatlicher Offerten schnell summiert.',
     },
     {
       question: 'Wie überprüft man, ob eine Software die Doppelerfassung wirklich vermeidet?',

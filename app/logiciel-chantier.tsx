@@ -48,17 +48,17 @@ const PROBLEM_CARDS: { icon: IconName; problem: string; consequence: string }[] 
   {
     icon: 'file-minus',
     problem: 'Un imprévu réglé à l’oral, sur le chantier.',
-    consequence: 'Sans signature ni trace écrite, il est fait gratuitement — répété sur l’année, ça représente vite plusieurs journées de travail non payées.',
+    consequence: 'Sans signature ni trace écrite, il est fait gratuitement. Répété sur l’année, ça représente vite plusieurs journées de travail non payées.',
   },
   {
     icon: 'trending-down',
     problem: 'Un chantier qui a fini par coûter plus qu’il n’a rapporté.',
-    consequence: 'Vous ne le découvrez qu’en comptant les heures à la fin, des semaines plus tard — quand il est trop tard pour corriger quoi que ce soit.',
+    consequence: 'Vous ne le découvrez qu’en comptant les heures à la fin, des semaines plus tard. Quand il est trop tard pour corriger quoi que ce soit.',
   },
   {
     icon: 'alert-triangle',
     problem: 'Un client qui conteste un délai ou une prestation.',
-    consequence: 'Sans photos datées ni rapport écrit, c’est votre parole contre la sienne — et c’est rarement vous qui gagnez ce genre de discussion.',
+    consequence: 'Sans photos datées ni rapport écrit, c’est votre parole contre la sienne, et c’est rarement vous qui gagnez ce genre de discussion.',
   },
 ];
 
@@ -72,7 +72,7 @@ const RELIEF_ITEMS = [
 const FEATURES: { icon: IconName; title: string; text: string; href: string }[] = [
   { icon: 'file-text', title: 'Devis & factures', text: 'Dictés à la voix, chiffrés avec votre catalogue de prix, PDF prêt à envoyer.', href: '/solutions/devis' },
   { icon: 'camera', title: 'Rapports de chantier', text: 'Notes vocales et photos géolocalisées assemblées en rapport rédigé par l’IA.', href: '/solutions/rapports-chantier' },
-  { icon: 'mic', title: 'Dictée vocale', text: 'Décrivez le travail normalement — Cantia transcrit et structure.', href: '/solutions/dictee-vocale' },
+  { icon: 'mic', title: 'Dictée vocale', text: 'Décrivez le travail normalement : Cantia transcrit et structure.', href: '/solutions/dictee-vocale' },
   { icon: 'calendar', title: 'Planning d’équipe', text: 'Qui est où, sur quel chantier, visible par toute l’équipe.', href: '/solutions/planning' },
   { icon: 'trending-up', title: 'Rentabilité par chantier', text: 'Coûts réels vs devis, marge visible chantier par chantier.', href: '/solutions/rentabilite' },
   { icon: 'users', title: 'RH & salaires', text: 'Heures, absences et fiches de salaire suisses générées automatiquement.', href: '/solutions/rh-salaires' },
@@ -100,7 +100,7 @@ const FAQ: { question: string; answer: string }[] = [
   {
     question: 'Cantia fonctionne-t-il directement dans le navigateur ?',
     answer:
-      'Oui. Cantia est une application 100% web, accessible depuis un ordinateur, une tablette ou un téléphone avec n’importe quel navigateur — aucun programme à télécharger, y compris directement depuis le chantier.',
+      'Oui. Cantia est une application 100% web, accessible depuis un ordinateur, une tablette ou un téléphone avec n’importe quel navigateur, aucun programme à télécharger, y compris directement depuis le chantier.',
   },
   {
     question: 'Puis-je récupérer mes devis, factures et clients existants ?',

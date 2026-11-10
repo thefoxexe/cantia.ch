@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Die Stundenberechnung, ohne zwischen zwei Tabellen zu jonglieren',
-      text: 'Das Modul Personal & Löhne von Cantia erfasst die Stunden pro Baustelle und pro Mitarbeitendem laufend — die zuverlässigste Grundlage, um eine Überschreitung zu erkennen, bevor sie sich über Monate anhäuft.',
+      text: 'Das Modul Personal & Löhne von Cantia erfasst die Stunden pro Baustelle und pro Mitarbeitendem laufend. Die zuverlässigste Grundlage, um eine Überschreitung zu erkennen, bevor sie sich über Monate anhäuft.',
       buttonLabel: 'Personal & Löhne entdecken',
     },
   ],

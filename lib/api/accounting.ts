@@ -485,7 +485,7 @@ function nextDay(iso: string): string {
 const EXPORT_COPY = {
   fr: {
     journalHeader: ['N°', 'Date', 'Journal', 'Libellé', 'Compte', 'Débit', 'Crédit'],
-    vatTitle: 'Feuille de travail TVA (à reporter manuellement dans le portail AFC — Décompte TVA pro) — {p}',
+    vatTitle: 'Feuille de travail TVA (à reporter manuellement dans le portail AFC · Décompte TVA pro) : {p}',
     method: 'Méthode', mode: 'Mode',
     tdfn: 'Taux de la dette fiscale nette', effective: 'Méthode effective',
     collected: 'Contre-prestations reçues', invoiced: 'Contre-prestations convenues',
@@ -495,8 +495,8 @@ const EXPORT_COPY = {
     net: 'Montant TVA net dû (ou crédit si négatif)', rounded: 'Arrondi aux 5 centimes',
     payrollFailed: 'Échec de la comptabilisation des salaires',
     echEffectiveOnly: "L'export eCH-0217 n'est disponible que pour la méthode effective.",
-    echInvoicedOnly: 'L’export eCH-0217 requiert le mode "contre-prestations convenues" — le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".',
-    echUid: 'Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789) — impossible de générer le fichier eCH-0217.',
+    echInvoicedOnly: 'L’export eCH-0217 requiert le mode "contre-prestations convenues". Le registre TVA de Cantia n’est pas encore calculé sur une base "reçues".',
+    echUid: 'Numéro IDE manquant ou invalide (format attendu : CHE-123.456.789), impossible de générer le fichier eCH-0217.',
   },
   de: {
     journalHeader: ['Nr.', 'Datum', 'Journal', 'Buchungstext', 'Konto', 'Soll', 'Haben'],
@@ -515,7 +515,7 @@ const EXPORT_COPY = {
   },
   it: {
     journalHeader: ['N.', 'Data', 'Giornale', 'Descrizione', 'Conto', 'Dare', 'Avere'],
-    vatTitle: "Foglio di lavoro IVA (da riportare manualmente nel portale AFC — Rendiconto IVA) — {p}",
+    vatTitle: "Foglio di lavoro IVA (da riportare manualmente nel portale AFC · Rendiconto IVA): {p}",
     method: 'Metodo', mode: 'Modalità',
     tdfn: 'Aliquota saldo', effective: 'Metodo effettivo',
     collected: 'Controprestazioni ricevute', invoiced: 'Controprestazioni convenute',
@@ -525,8 +525,8 @@ const EXPORT_COPY = {
     net: 'Importo IVA netto dovuto (o credito se negativo)', rounded: 'Arrotondato ai 5 centesimi',
     payrollFailed: 'Contabilizzazione dei salari non riuscita',
     echEffectiveOnly: "L'esportazione eCH-0217 è disponibile solo per il metodo effettivo.",
-    echInvoicedOnly: "L'esportazione eCH-0217 richiede la modalità «controprestazioni convenute» — il registro IVA di Cantia non è ancora calcolato sulla base «ricevute».",
-    echUid: 'Numero IDI mancante o non valido (formato atteso: CHE-123.456.789) — impossibile generare il file eCH-0217.',
+    echInvoicedOnly: "L'esportazione eCH-0217 richiede la modalità «controprestazioni convenute». Il registro IVA di Cantia non è ancora calcolato sulla base «ricevute».",
+    echUid: 'Numero IDI mancante o non valido (formato atteso: CHE-123.456.789), impossibile generare il file eCH-0217.',
   },
 };
 

@@ -562,7 +562,7 @@ export const BLOG_SEO_DE = [
   {
     "path": "de/blog/duree-conservation-devis-factures-suisse",
     "title": "Wie lange müssen Offerten und Rechnungen in der Schweiz aufbewahrt werden? | Cantia",
-    "description": "Das Obligationenrecht (Art. 958f) schreibt eine Aufbewahrungsfrist von 10 Jahren für Buchhaltungsunterlagen vor, Rechnungen eingeschlossen — eine Frist, die ab dem Ende des Geschäftsjahres läuft, nicht ab dem Datum des Dokuments.",
+    "description": "Das Obligationenrecht (Art. 958f) schreibt eine Aufbewahrungsfrist von 10 Jahren für Buchhaltungsunterlagen vor, Rechnungen eingeschlossen. Eine Frist, die ab dem Ende des Geschäftsjahres läuft, nicht ab dem Datum des Dokuments.",
     "faq": [
       {
         "q": "Wie lange muss ein Schweizer Unternehmen seine Rechnungen aufbewahren?",
@@ -761,7 +761,7 @@ export const BLOG_SEO_DE = [
   },
   {
     "path": "de/blog/hypotheque-legale-artisans-entrepreneurs-suisse",
-    "title": "Bauhandwerkerpfandrecht: Ihre Zahlungssicherheit — mit strikter Frist | Cantia",
+    "title": "Bauhandwerkerpfandrecht: Ihre Zahlungssicherheit, mit strikter Frist | Cantia",
     "description": "Das Bauhandwerkerpfandrecht (Art. 837 ZGB) sichert die Bezahlung Ihrer Arbeiten direkt auf der Liegenschaft ab. Es muss jedoch innert 4 Monaten im Grundbuch eingetragen werden. Nach Ablauf dieser Frist erlischt es.",
     "faq": [
       {
@@ -986,7 +986,7 @@ export const BLOG_SEO_DE = [
     "faq": [
       {
         "q": "Kann man eine bereits an einen Kunden versendete Rechnung einfach ändern?",
-        "a": "Nein, eine ausgestellte Rechnung bleibt ein endgültiger Buchhaltungsbeleg. Jede Korrektur muss über eine Gutschrift, gefolgt von einer neuen Rechnung erfolgen — nie durch Änderung des ursprünglichen Dokuments."
+        "a": "Nein, eine ausgestellte Rechnung bleibt ein endgültiger Buchhaltungsbeleg. Jede Korrektur muss über eine Gutschrift, gefolgt von einer neuen Rechnung erfolgen. Nie durch Änderung des ursprünglichen Dokuments."
       },
       {
         "q": "Was genau ist eine Gutschrift?",
@@ -1002,7 +1002,7 @@ export const BLOG_SEO_DE = [
   {
     "path": "de/blog/outil-devis-factures-sans-double-saisie",
     "title": "Schluss mit der Doppelerfassung zwischen Offerte und Rechnung | Cantia",
-    "description": "Eine akzeptierte Offerte für eine Rechnung erneut abzutippen, ist eine vermeidbare Zeitverschwendung — und vor allem eine Fehlerquelle. So eliminiert ein gut konzipiertes Werkzeug diesen Schritt.",
+    "description": "Eine akzeptierte Offerte für eine Rechnung erneut abzutippen, ist eine vermeidbare Zeitverschwendung, und vor allem eine Fehlerquelle. So eliminiert ein gut konzipiertes Werkzeug diesen Schritt.",
     "faq": [
       {
         "q": "Warum ist die Doppelerfassung zwischen Offerte und Rechnung riskant?",
@@ -1010,7 +1010,7 @@ export const BLOG_SEO_DE = [
       },
       {
         "q": "Wie viel Zeit spart ein Werkzeug, das den Übergang von Offerte zu Rechnung automatisiert?",
-        "a": "In der Regel 10 bis 20 Minuten pro Dokument — eine Zeit, die sich mit steigender Anzahl monatlicher Offerten schnell summiert."
+        "a": "In der Regel 10 bis 20 Minuten pro Dokument. Eine Zeit, die sich mit steigender Anzahl monatlicher Offerten schnell summiert."
       },
       {
         "q": "Wie überprüft man, ob eine Software die Doppelerfassung wirklich vermeidet?",
@@ -1478,7 +1478,7 @@ export const BLOG_SEO_DE = [
       },
       {
         "q": "Muss jeder Kassenbon von Hand neu erfasst werden?",
-        "a": "Nein: Ein Foto des Kassenbons oder der Lieferantenrechnung genügt, Lieferant und Betrag werden automatisch gelesen und füllen die Ausgabe vorab aus — es bleibt nur noch, vor dem Speichern zu prüfen."
+        "a": "Nein: Ein Foto des Kassenbons oder der Lieferantenrechnung genügt, Lieferant und Betrag werden automatisch gelesen und füllen die Ausgabe vorab aus, es bleibt nur noch, vor dem Speichern zu prüfen."
       }
     ],
     "publishedAt": "2026-09-03"
@@ -2732,7 +2732,7 @@ export const BLOG_FAQ_FR = {
   "action-garantie-sous-traitant-entrepreneur-general": [
     {
       "q": "Le maître d’ouvrage peut-il agir directement contre un sous-traitant ?",
-      "a": "En général non, faute de lien contractuel direct entre eux — le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire."
+      "a": "En général non, faute de lien contractuel direct entre eux. Le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire."
     },
     {
       "q": "Dans quel délai une action en garantie peut-elle être engagée ?",
@@ -2740,7 +2740,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Une clause contractuelle peut-elle limiter la responsabilité d’un sous-traitant ?",
-      "a": "Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances — à vérifier avec un avocat lors de la rédaction du contrat."
+      "a": "Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances. À vérifier avec un avocat lors de la rédaction du contrat."
     }
   ],
   "affacturage-factoring-entreprise-batiment-suisse": [
@@ -3682,11 +3682,11 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Dans quel délai faut-il produire sa créance lors d’une faillite ?",
-      "a": "Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines — vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer."
+      "a": "Le délai est fixé par la publication officielle de la faillite et varie selon les cas. Il est généralement de l’ordre de quelques semaines. Vérifiez la publication précise ou consultez votre fiduciaire ou un avocat pour ne pas le manquer."
     },
     {
       "q": "Peut-on récupérer sa créance plus vite en agissant tôt, avant la faillite ?",
-      "a": "Dans certains cas, oui — une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible."
+      "a": "Dans certains cas, oui : une poursuite engagée avant l’ouverture de la faillite peut aboutir à une saisie de biens si le débiteur a encore des actifs. Une fois la faillite ouverte, la procédure devient collective et une démarche individuelle n’est plus possible."
     }
   ],
   "fixer-prix-artisan-sans-brader-concurrence-suisse": [
@@ -3770,7 +3770,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Quand faut-il faire appel à une aide extérieure pour un conflit d’équipe ?",
-      "a": "Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe — RH, association professionnelle ou conseil juridique — devient nécessaire."
+      "a": "Dès que le conflit touche à du harcèlement, des propos discriminatoires ou dépasse clairement une simple mésentente professionnelle, un accompagnement externe (RH, association professionnelle ou conseil juridique) devient nécessaire."
     }
   ],
   "gerer-plusieurs-chantiers-en-parallele-methode": [
@@ -4028,7 +4028,7 @@ export const BLOG_FAQ_FR = {
   "modele-devis-gratuit-artisan-batiment-suisse": [
     {
       "q": "Ce modèle de devis convient-il à tous les corps de métier du bâtiment ?",
-      "a": "Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s’adapte à n’importe quel corps de métier du bâtiment — seul le détail des prestations change d’un métier à l’autre."
+      "a": "Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s’adapte à n’importe quel corps de métier du bâtiment. Seul le détail des prestations change d’un métier à l’autre."
     },
     {
       "q": "Le modèle de devis inclut-il le calcul de la TVA suisse ?",
@@ -4378,7 +4378,7 @@ export const BLOG_FAQ_FR = {
   "racheter-entreprise-batiment-existante-suisse": [
     {
       "q": "Vaut-il mieux racheter les parts d’une société ou son fonds de commerce ?",
-      "a": "Cela dépend du passif de l’entreprise. Racheter le fonds de commerce évite généralement d’hériter des dettes ou litiges de l’ancienne structure, mais peut être fiscalement moins avantageux selon les cas — à valider avec une fiduciaire."
+      "a": "Cela dépend du passif de l’entreprise. Racheter le fonds de commerce évite généralement d’hériter des dettes ou litiges de l’ancienne structure, mais peut être fiscalement moins avantageux selon les cas. À valider avec une fiduciaire."
     },
     {
       "q": "Comment vérifier que le chiffre d’affaires annoncé est réel ?",
@@ -4400,7 +4400,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "La responsabilité illimitée d’une raison individuelle concerne-t-elle uniquement les biens professionnels ?",
-      "a": "Non, elle engage l’ensemble du patrimoine personnel de l’entrepreneur, pas seulement les actifs affectés à l’activité professionnelle — c’est la différence essentielle avec une structure à responsabilité limitée."
+      "a": "Non, elle engage l’ensemble du patrimoine personnel de l’entrepreneur, pas seulement les actifs affectés à l’activité professionnelle. C’est la différence essentielle avec une structure à responsabilité limitée."
     }
   ],
   "reception-travaux-proces-verbal-chantier": [
@@ -4656,7 +4656,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Faut-il ressaisir chaque ticket de caisse à la main ?",
-      "a": "Non : une photo du ticket ou de la facture fournisseur suffit, le fournisseur et le montant sont lus automatiquement et pré-remplissent la dépense — il ne reste qu’à vérifier avant d’enregistrer."
+      "a": "Non : une photo du ticket ou de la facture fournisseur suffit, le fournisseur et le montant sont lus automatiquement et pré-remplissent la dépense, il ne reste qu’à vérifier avant d’enregistrer."
     }
   ],
   "transmettre-entreprise-batiment-retraite": [
@@ -4927,8 +4927,8 @@ export const HELP_SEO_FR = [
   },
   {
     "path": "aide/rh-heures-guide",
-    "title": "Saisir ses heures et les refacturer par chantier — le guide pas à pas | Centre d'aide Cantia",
-    "description": "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures — du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les…"
+    "title": "Saisir ses heures et les refacturer par chantier : le guide pas à pas | Centre d'aide Cantia",
+    "description": "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures. Du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les…"
   },
   {
     "path": "aide/tresorerie",
@@ -5070,8 +5070,8 @@ export const HELP_SEO_DE = [
   },
   {
     "path": "de/aide/rh-heures-guide",
-    "title": "Arbeitszeit erfassen und pro Baustelle verrechnen — Schritt für Schritt | Cantia Hilfe-Center",
-    "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt — vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…"
+    "title": "Arbeitszeit erfassen und pro Baustelle verrechnen: Schritt für Schritt | Cantia Hilfe-Center",
+    "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt. Vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…"
   },
   {
     "path": "de/aide/tresorerie",

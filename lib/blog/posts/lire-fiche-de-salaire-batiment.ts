@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Structure d’une fiche de salaire suisse (brut, déductions AVS/AI/APG, AC, LPP, LAANP, net) et comment l’expliquer simplement à un employé du bâtiment.',
   excerpt:
-    'L’écart entre le salaire brut annoncé à l’embauche et le montant qui arrive sur le compte est la question RH la plus fréquente — et la plus mal expliquée.',
+    'L’écart entre le salaire brut annoncé à l’embauche et le montant qui arrive sur le compte est la question RH la plus fréquente, et la plus mal expliquée.',
   category: 'RH & salaires',
   keywords: ['fiche de salaire', 'salaire brut', 'salaire net', 'déductions', 'AVS', 'LPP'],
   publishedAt: '2026-09-22',

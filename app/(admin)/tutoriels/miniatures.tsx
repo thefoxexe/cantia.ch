@@ -83,7 +83,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
         <View style={styles.thumbInfo}>
           <Text style={styles.eyebrow}>{chapter.feature_area}</Text>
           <Text style={styles.chapterTitle}>{chapter.title}</Text>
-          <Text style={styles.thumbHint}>Format YouTube 1280×720 — logo, nom Cantia et titre appliqués automatiquement.</Text>
+          <Text style={styles.thumbHint}>Format YouTube 1280×720 : logo, nom Cantia et titre appliqués automatiquement.</Text>
           <Pressable style={[styles.downloadButton, !thumb && styles.downloadButtonDisabled]} onPress={handleDownload} disabled={!thumb}>
             <Feather name="download" size={14} color="#fff" />
             <Text style={styles.downloadButtonText}>Télécharger la miniature</Text>
@@ -115,7 +115,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
         {chapter.public_description ? (
           <Text style={styles.descText}>{chapter.public_description}</Text>
         ) : (
-          <Text style={styles.descEmpty}>Pas encore renseignée — à ajouter depuis la fiche du chapitre sur la page Tutoriels.</Text>
+          <Text style={styles.descEmpty}>Pas encore renseignée : à ajouter depuis la fiche du chapitre sur la page Tutoriels.</Text>
         )}
       </View>
     </View>

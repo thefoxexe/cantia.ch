@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Bruit, poussière, accès bloqués : un chantier mal géré crée des tensions durables avec le voisinage. Voici les réflexes concrets pour limiter les nuisances et préserver la réputation de l’entreprise.',
   excerpt:
-    'Un voisin excédé par la poussière ou le bruit ne se plaint pas toujours à l’entreprise directement. Il en parle autour de lui — et ça, ça se voit sur les avis Google.',
+    'Un voisin excédé par la poussière ou le bruit ne se plaint pas toujours à l’entreprise directement. Il en parle autour de lui, et ça, ça se voit sur les avis Google.',
   category: 'Juridique & normes',
   keywords: ['chantier propre voisinage', 'réduire nuisances chantier', 'nuisances chantier construction'],
   publishedAt: '2026-09-22',
@@ -50,7 +50,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Un chantier propre, un argument commercial' },
     {
       type: 'p',
-      text: 'Un chantier bien tenu, avec des accès dégagés et des abords propres, se remarque — y compris par des voisins qui deviennent parfois eux-mêmes de futurs clients. À l’inverse, un chantier laissé sale ou bruyant sans considération pour le voisinage se retrouve vite mentionné, nommément, dans un avis en ligne négatif que l’entreprise devra ensuite gérer.',
+      text: 'Un chantier bien tenu, avec des accès dégagés et des abords propres, se remarque, y compris par des voisins qui deviennent parfois eux-mêmes de futurs clients. À l’inverse, un chantier laissé sale ou bruyant sans considération pour le voisinage se retrouve vite mentionné, nommément, dans un avis en ligne négatif que l’entreprise devra ensuite gérer.',
     },
     {
       type: 'cta',

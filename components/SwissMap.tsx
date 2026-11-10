@@ -34,7 +34,7 @@ function buildHtml(points: MapPoint[]): string {
     lat: p.lat,
     lon: p.lon,
     label: p.code,
-    popup: [p.code, p.pointClass, p.description].filter(Boolean).join(' — '),
+    popup: [p.code, p.pointClass, p.description].filter(Boolean).join(' : '),
     color: colorForClass(p.pointClass),
   }));
 

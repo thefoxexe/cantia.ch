@@ -161,7 +161,7 @@ export function buildYoutubeDescription(chapter: Pick<AdminTutorialChapter, 'tit
   const areaTag = hashtagForArea(chapter.feature_area);
   const youtubeTitle = buildYoutubeTitle(chapter);
 
-  return `${youtubeTitle} — Tutoriel Cantia 🇨🇭, le logiciel de gestion de chantier suisse
+  return `${youtubeTitle} : Tutoriel Cantia 🇨🇭, le logiciel de gestion de chantier suisse
 
 Cantia est le logiciel de gestion de chantier pensé et développé pour les artisans et entreprises du bâtiment en Suisse. Dans cette vidéo, on vous montre comment ${lowerFirst(chapter.title)}.
 

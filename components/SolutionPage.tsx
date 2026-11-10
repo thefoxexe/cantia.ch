@@ -45,7 +45,7 @@ const T = {
 // "Saurez-vous payer les salaires dans trois semaines ?" -> plain + accent:
 // the last sentence (or the part after a dash) becomes the serif accent.
 function splitTitle(title: string): [string, string | undefined] {
-  const dash = title.lastIndexOf(' — ');
+  const dash = title.lastIndexOf(' : ');
   if (dash > 0) return [title.slice(0, dash), title.slice(dash + 3)];
   const m = title.match(/^(.+?[.?!:])\s+(\S.+)$/);
   if (m) return [m[1], m[2]];

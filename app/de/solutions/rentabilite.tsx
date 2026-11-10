@@ -15,17 +15,17 @@ export default function RentabiliteSolutionPageDe() {
         {
           icon: 'trending-up',
           title: 'Offeriert vs. tatsächliche Kosten',
-          text: 'Der Betrag der akzeptierten Offerte verglichen mit den tatsächlichen Kosten der Baustelle — Material und Arbeit — mit einer Marge in CHF und %.',
+          text: 'Der Betrag der akzeptierten Offerte verglichen mit den tatsächlichen Kosten der Baustelle (Material und Arbeit), mit einer Marge in CHF und %.',
         },
         {
           icon: 'camera',
           title: 'Ein fotografierter Beleg, eine erfasste Ausgabe',
-          text: 'Fotografieren Sie einen Kassenbon oder eine Lieferantenrechnung: Lieferant und Betrag werden automatisch gelesen. Oder sagen Sie es einfach laut — der Sprachassistent, von überall in der App erreichbar, versteht die Baustelle und den Betrag und lässt Sie vor dem Speichern bestätigen.',
+          text: 'Fotografieren Sie einen Kassenbon oder eine Lieferantenrechnung: Lieferant und Betrag werden automatisch gelesen. Oder sagen Sie es einfach laut. Der Sprachassistent, von überall in der App erreichbar, versteht die Baustelle und den Betrag und lässt Sie vor dem Speichern bestätigen.',
         },
         {
           icon: 'calendar',
           title: 'Arbeitszeit ohne Doppelerfassung',
-          text: 'Die Arbeitskosten werden aus den tatsächlich in Personal & Löhne erfassten Stunden berechnet (oder einer Schätzung aus der Planung, solange noch keine Stunden erfasst wurden) — keine separate Zeiterfassung nötig.',
+          text: 'Die Arbeitskosten werden aus den tatsächlich in Personal & Löhne erfassten Stunden berechnet (oder einer Schätzung aus der Planung, solange noch keine Stunden erfasst wurden), keine separate Zeiterfassung nötig.',
         },
         {
           icon: 'alert-triangle',
@@ -40,14 +40,14 @@ export default function RentabiliteSolutionPageDe() {
         {
           icon: 'shopping-bag',
           title: 'Alle Ausgaben an einem Ort',
-          text: 'Der Bereich Ausgaben fasst die Einkäufe aller Baustellen und Ihre allgemeinen Ausgaben in einer filterbaren Liste zusammen — Letztere erfassen, bearbeiten oder löschen Sie direkt hier, mit direktem Link zur betroffenen Baustelle für die anderen.',
+          text: 'Der Bereich Ausgaben fasst die Einkäufe aller Baustellen und Ihre allgemeinen Ausgaben in einer filterbaren Liste zusammen. Letztere erfassen, bearbeiten oder löschen Sie direkt hier, mit direktem Link zur betroffenen Baustelle für die anderen.',
         },
       ]}
       faq={[
         {
           question: 'Wie erfährt man, ob eine Baustelle rentabel ist?',
           answer:
-            'Cantia vergleicht die akzeptierte Offerte (Einnahme) mit den tatsächlichen Kosten — erfasstes Material und Arbeit aus den erfassten Stunden — und zeigt die Marge in CHF und % in Echtzeit.',
+            'Cantia vergleicht die akzeptierte Offerte (Einnahme) mit den tatsächlichen Kosten (erfasstes Material und Arbeit aus den erfassten Stunden) und zeigt die Marge in CHF und % in Echtzeit.',
         },
         {
           question: 'Woher stammt die Berechnung der Arbeitskosten?',

@@ -21,7 +21,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'Die Rechnungsnummerierung muss durchgehend und chronologisch bleiben, denn die Wiederverwendung oder Änderung einer bereits ausgestellten Nummer bricht diese Kontinuität — ein Punkt, der bei einer Steuerkontrolle geprüft wird',
+        'Die Rechnungsnummerierung muss durchgehend und chronologisch bleiben, denn die Wiederverwendung oder Änderung einer bereits ausgestellten Nummer bricht diese Kontinuität. Ein Punkt, der bei einer Steuerkontrolle geprüft wird',
         'Der Kunde hat die ursprüngliche Rechnung möglicherweise bereits in seiner eigenen Buchhaltung erfasst, und ein stilles Duplikat erzeugt dann eine später nur schwer nachvollziehbare Verwirrung',
         'Eine einmal versendete Rechnung ist ein endgültiger Buchhaltungsbeleg: Nur eine Gegenbuchung kann ihre Wirkung rechtmässig aufheben',
       ],
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Kann man eine bereits an einen Kunden versendete Rechnung einfach ändern?',
       answer:
-        'Nein, eine ausgestellte Rechnung bleibt ein endgültiger Buchhaltungsbeleg. Jede Korrektur muss über eine Gutschrift, gefolgt von einer neuen Rechnung erfolgen — nie durch Änderung des ursprünglichen Dokuments.',
+        'Nein, eine ausgestellte Rechnung bleibt ein endgültiger Buchhaltungsbeleg. Jede Korrektur muss über eine Gutschrift, gefolgt von einer neuen Rechnung erfolgen. Nie durch Änderung des ursprünglichen Dokuments.',
     },
     {
       question: 'Was genau ist eine Gutschrift?',

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Sécurité SUVA, travail en hauteur, conduite d’engins : plusieurs habilitations du bâtiment doivent être recyclées périodiquement. Voici pourquoi les négliger expose l’entreprise en cas d’accident.',
   excerpt:
-    'Une habilitation périmée ne se voit pas au quotidien — jusqu’au jour où un accident survient, et où l’assurance ou l’inspection du travail la réclame.',
+    'Une habilitation périmée ne se voit pas au quotidien, jusqu’au jour où un accident survient, et où l’assurance ou l’inspection du travail la réclame.',
   category: 'RH & salaires',
   keywords: ['formation continue bâtiment suisse', 'recyclage sécurité chantier', 'habilitations obligatoires construction'],
   publishedAt: '2026-09-22',
@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Certaines formations dans le bâtiment ne s’acquièrent pas une fois pour toutes. Un certain nombre d’habilitations liées à la sécurité doivent être recyclées à intervalles réguliers, faute de quoi elles perdent leur validité — souvent sans que l’entreprise s’en rende compte avant qu’un contrôle ou un accident ne le révèle.',
+      text: 'Certaines formations dans le bâtiment ne s’acquièrent pas une fois pour toutes. Un certain nombre d’habilitations liées à la sécurité doivent être recyclées à intervalles réguliers, faute de quoi elles perdent leur validité, souvent sans que l’entreprise s’en rende compte avant qu’un contrôle ou un accident ne le révèle.',
     },
     { type: 'h2', text: 'Des exemples fréquents dans le secteur' },
     {
@@ -43,7 +43,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le vrai coût se révèle après un accident, pas avant',
-      text: 'Une habilitation expirée passe souvent inaperçue au quotidien, sans conséquence visible tant que rien ne se passe. C’est en cas d’accident que son absence pèse réellement — vis-à-vis de l’assurance, de l’inspection du travail, et de la responsabilité de l’entreprise elle-même.',
+      text: 'Une habilitation expirée passe souvent inaperçue au quotidien, sans conséquence visible tant que rien ne se passe. C’est en cas d’accident que son absence pèse réellement. Vis-à-vis de l’assurance, de l’inspection du travail, et de la responsabilité de l’entreprise elle-même.',
     },
     {
       type: 'cta',

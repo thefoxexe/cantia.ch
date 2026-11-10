@@ -42,7 +42,7 @@ export const post: BlogPost = {
       type: 'list',
       items: [
         'Ogni preventivo accettato diventa il riferimento «budget» del cantiere (ore e materiale previsti, prezzo di vendita)',
-        'Ogni ora lavorata e ogni acquisto materiale si registra direttamente sul cantiere, man mano (non ricostruito a fine mese) — una foto dello scontrino basta, il fornitore e l’importo si compilano da soli',
+        'Ogni ora lavorata e ogni acquisto materiale si registra direttamente sul cantiere, man mano (non ricostruito a fine mese). Una foto dello scontrino basta, il fornitore e l’importo si compilano da soli',
         'Le fatture dei subappaltatori legate al cantiere si sommano automaticamente al costo reale',
         'Il saldo (venduto meno costo reale) resta visibile in continuo, non solo alla chiusura',
       ],
@@ -77,7 +77,7 @@ export const post: BlogPost = {
     {
       question: 'Bisogna reinserire a mano ogni scontrino?',
       answer:
-        'No: una foto dello scontrino o della fattura fornitore basta, il fornitore e l’importo vengono letti automaticamente e precompilano la spesa — resta solo da verificare prima di registrare.',
+        'No: una foto dello scontrino o della fattura fornitore basta, il fornitore e l’importo vengono letti automaticamente e precompilano la spesa, resta solo da verificare prima di registrare.',
     },
   ],
   relatedSlugs: [

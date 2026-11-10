@@ -20,7 +20,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'La chaîne de responsabilité' },
     {
       type: 'p',
-      text: 'Dans une relation classique de sous-traitance, le maître d’ouvrage n’a de lien contractuel qu’avec l’entrepreneur général, pas avec les sous-traitants. Si un défaut est découvert, c’est donc l’entrepreneur général qui répond d’abord envers le maître d’ouvrage — même si le défaut provient du travail d’un sous-traitant. L’entrepreneur général peut ensuite se retourner contre ce sous-traitant par une action en garantie, pour lui faire porter la responsabilité de sa propre exécution.',
+      text: 'Dans une relation classique de sous-traitance, le maître d’ouvrage n’a de lien contractuel qu’avec l’entrepreneur général, pas avec les sous-traitants. Si un défaut est découvert, c’est donc l’entrepreneur général qui répond d’abord envers le maître d’ouvrage, même si le défaut provient du travail d’un sous-traitant. L’entrepreneur général peut ensuite se retourner contre ce sous-traitant par une action en garantie, pour lui faire porter la responsabilité de sa propre exécution.',
     },
     { type: 'h2', text: 'Pourquoi documenter qui a fait quoi devient essentiel' },
     {
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Sachez précisément qui a fait quoi sur chaque chantier',
-      text: 'Cantia trace l’avancement du chantier par intervenant, avec dates et documents associés — une base utile en cas de désaccord sur une responsabilité à établir.',
+      text: 'Cantia trace l’avancement du chantier par intervenant, avec dates et documents associés. Une base utile en cas de désaccord sur une responsabilité à établir.',
       buttonLabel: 'Essayer 14 jours',
     },
   ],
@@ -52,7 +52,7 @@ export const post: BlogPost = {
     {
       question: 'Le maître d’ouvrage peut-il agir directement contre un sous-traitant ?',
       answer:
-        'En général non, faute de lien contractuel direct entre eux — le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire.',
+        'En général non, faute de lien contractuel direct entre eux. Le maître d’ouvrage agit contre l’entrepreneur général, qui se retourne ensuite lui-même contre le sous-traitant concerné si nécessaire.',
     },
     {
       question: 'Dans quel délai une action en garantie peut-elle être engagée ?',
@@ -62,7 +62,7 @@ export const post: BlogPost = {
     {
       question: 'Une clause contractuelle peut-elle limiter la responsabilité d’un sous-traitant ?',
       answer:
-        'Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances — à vérifier avec un avocat lors de la rédaction du contrat.',
+        'Dans une certaine mesure, oui, selon ce que prévoit le contrat de sous-traitance. Mais certaines limitations peuvent être contestées selon les circonstances. À vérifier avec un avocat lors de la rédaction du contrat.',
     },
   ],
   relatedSlugs: [

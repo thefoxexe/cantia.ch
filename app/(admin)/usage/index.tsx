@@ -120,7 +120,7 @@ export default function AdminUsageScreen() {
           <AdminRefreshButton onPress={load} loading={loading} />
         </View>
         <Text style={styles.hint}>
-          Adoption réelle par fonctionnalité — comptée depuis les vraies données créées (un devis enregistré, une
+          Adoption réelle par fonctionnalité : comptée depuis les vraies données créées (un devis enregistré, une
           heure pointée, un compte bancaire connecté…), jamais depuis des clics. Entreprises internes/test exclues.
         </Text>
 

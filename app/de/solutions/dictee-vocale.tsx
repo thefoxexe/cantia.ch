@@ -20,7 +20,7 @@ export default function DicteeVocaleSolutionPageDe() {
         {
           icon: 'cpu',
           title: 'Transkription serverseitig',
-          text: 'Die Spracherkennung läuft auf sicheren Servern, nicht auf Ihrem Telefon — ein zuverlässiges Ergebnis auch im Baustellenlärm.',
+          text: 'Die Spracherkennung läuft auf sicheren Servern, nicht auf Ihrem Telefon. Ein zuverlässiges Ergebnis auch im Baustellenlärm.',
         },
         {
           icon: 'zap',
@@ -35,7 +35,7 @@ export default function DicteeVocaleSolutionPageDe() {
         {
           icon: 'users',
           title: 'Auch für das ganze Team',
-          text: 'Jedes Mitglied kann seine Nachrichten im Baustellen-Feed diktieren — praktisch, um Unvorhergesehenes zu melden, ohne die Arbeit zu unterbrechen.',
+          text: 'Jedes Mitglied kann seine Nachrichten im Baustellen-Feed diktieren. Praktisch, um Unvorhergesehenes zu melden, ohne die Arbeit zu unterbrechen.',
         },
         {
           icon: 'tool',
@@ -45,19 +45,19 @@ export default function DicteeVocaleSolutionPageDe() {
         {
           icon: 'message-circle',
           title: 'Ein globaler Sprachassistent, nicht nur ein diktiertes Feld',
-          text: 'Über die schwebende Mikrofon-Taste sagen Sie: «Erstelle eine Offerte für Marc Dupont, 20m² Plättli à 85 Franken» — der Assistent versteht, bereitet die Offerte mit Kunde und Positionen bereits ausgefüllt vor und lässt Sie bestätigen. Funktioniert auch für direkte Rechnungen oder für Fragen — «Welche Rechnungen sind überfällig?», «Fasse meine Aufgaben zusammen» — mit einer echten Antwort basierend auf den Daten Ihres Unternehmens.',
+          text: 'Über die schwebende Mikrofon-Taste sagen Sie: «Erstelle eine Offerte für Marc Dupont, 20m² Plättli à 85 Franken», der Assistent versteht, bereitet die Offerte mit Kunde und Positionen bereits ausgefüllt vor und lässt Sie bestätigen. Funktioniert auch für direkte Rechnungen oder für Fragen. «Welche Rechnungen sind überfällig?», «Fasse meine Aufgaben zusammen», mit einer echten Antwort basierend auf den Daten Ihres Unternehmens.',
         },
       ]}
       faq={[
         {
           question: 'Funktioniert das Sprachdiktat gut mit dem Fachvokabular des Baugewerbes?',
           answer:
-            'Ja, die Erkennung ist auf das technische Vokabular des Baugewerbes abgestimmt — Materialien, Einheiten, Berufe — nicht nur auf Umgangssprache.',
+            'Ja, die Erkennung ist auf das technische Vokabular des Baugewerbes abgestimmt (Materialien, Einheiten, Berufe), nicht nur auf Umgangssprache.',
         },
         {
           question: 'Kann der Sprachassistent eine Offerte oder Rechnung ganz allein erstellen?',
           answer:
-            'Er bereitet das Dokument vor — Kunde und diktierte Leistungen bereits ausgefüllt — und bringt Sie zum Erstellungsbildschirm, wo Sie selbst prüfen und speichern. Ohne diese Bestätigung wird nie etwas erstellt.',
+            'Er bereitet das Dokument vor (Kunde und diktierte Leistungen bereits ausgefüllt) und bringt Sie zum Erstellungsbildschirm, wo Sie selbst prüfen und speichern. Ohne diese Bestätigung wird nie etwas erstellt.',
         },
         {
           question: 'Braucht man eine Internetverbindung zum Diktieren?',
@@ -66,12 +66,12 @@ export default function DicteeVocaleSolutionPageDe() {
         },
         {
           question: 'Wo kann man das Sprachdiktat in Cantia nutzen?',
-          answer: 'Bei Offerten, Baustellenrapporten und Team-Nachrichten im Feed — überall, wo Sie schreiben.',
+          answer: 'Bei Offerten, Baustellenrapporten und Team-Nachrichten im Feed: überall, wo Sie schreiben.',
         },
         {
           question: 'Ist das Sprachdiktat auf der Baustelle schneller als die Tastatur?',
           answer:
-            'Für die meisten Handwerker auf der Baustelle ja — Sprechen geht schneller als Tippen auf einem Telefon mit schmutzigen Händen oder Handschuhen.',
+            'Für die meisten Handwerker auf der Baustelle ja. Sprechen geht schneller als Tippen auf einem Telefon mit schmutzigen Händen oder Handschuhen.',
         },
       ]}
       related={[

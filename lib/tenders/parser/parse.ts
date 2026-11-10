@@ -439,7 +439,7 @@ export function parseTender(doc: ExtractedDocument): ParseResult {
   if (meta.cfcCode || chapterOfPage.size) {
     const contractNo = [...chapterOfPage.values()][0]?.contract;
     if (contractNo || meta.cfcCode) {
-      const title = meta.cfcCode ? `CFC ${meta.cfcCode}${meta.cfcLabel ? ` — ${meta.cfcLabel}` : ''}` : `Contrat ${contractNo}`;
+      const title = meta.cfcCode ? `CFC ${meta.cfcCode}${meta.cfcLabel ? ` : ${meta.cfcLabel}` : ''}` : `Contrat ${contractNo}`;
       ctx.contract = newNode(ctx, { nodeType: 'contract', parent: null, rawNumber: contractNo ?? null, title, description: title });
       ctx.contract.cfcCode = meta.cfcCode;
     }
@@ -664,7 +664,7 @@ function genericFallback(ctx: Ctx, body: Line[], columns: Columns) {
       const title = continued
         ? sentence.length <= 90 || !own.length ? sentence : joinItems(own[0].items)
         : variant
-          ? productName ? (GENERIC_LABEL.test(label) || !clean ? productName : `${productName} — ${clean}`) : clean
+          ? productName ? (GENERIC_LABEL.test(label) || !clean ? productName : `${productName} : ${clean}`) : clean
           : label;
       if (!variant && !continued) productName = label;
       if (continued && own.length) productName = joinItems(own[0].items);

@@ -42,7 +42,7 @@ function replaceBetween(toml, begin, end, content) {
   const start = toml.indexOf(begin);
   const stop = toml.indexOf(end);
   if (start < 0 || stop < 0 || stop < start) {
-    console.error(`netlify.toml: markers "${begin}" / "${end}" not found — nothing written.`);
+    console.error(`netlify.toml: markers "${begin}" / "${end}" not found : nothing written.`);
     process.exit(1);
   }
   const beginLineEnd = toml.indexOf('\n', start) + 1;

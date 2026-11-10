@@ -101,7 +101,7 @@ export async function buildSchedulePdf(
   for (let p = 0; p < pages; p++) {
     const page = doc.addPage([W, H]);
     // title block
-    text(page, `${c.pdfTitle} — ${opts.project}`, M, H - M - 16, 16, bold);
+    text(page, `${c.pdfTitle} : ${opts.project}`, M, H - M - 16, 16, bold);
     text(page, `${c.pdfPeriod} : ${shortDate(from)} → ${shortDate(to)}`, M, H - M - 34, 9.5, font, muted);
     const gen = fill(c.pdfGenerated, { date: opts.generatedAt });
     text(page, `${gen}   ·   ${p + 1} / ${pages}`, W - M - font.widthOfTextAtSize(safe(font, `${gen}   ·   ${p + 1} / ${pages}`), 9) , H - M - 34, 9, font, muted);

@@ -5,7 +5,7 @@ export const post: BlogPost = {
   question: 'Wie lange müssen Offerten und Rechnungen in der Schweiz aufbewahrt werden?',
   title: 'Wie lange müssen Offerten und Rechnungen in der Schweiz aufbewahrt werden?',
   description:
-    'Das Obligationenrecht (Art. 958f) schreibt eine Aufbewahrungsfrist von 10 Jahren für Buchhaltungsunterlagen vor, Rechnungen eingeschlossen — eine Frist, die ab dem Ende des Geschäftsjahres läuft, nicht ab dem Datum des Dokuments.',
+    'Das Obligationenrecht (Art. 958f) schreibt eine Aufbewahrungsfrist von 10 Jahren für Buchhaltungsunterlagen vor, Rechnungen eingeschlossen. Eine Frist, die ab dem Ende des Geschäftsjahres läuft, nicht ab dem Datum des Dokuments.',
   excerpt:
     'Eine Rechnung vom März 2026 muss bis Ende 2036 zugänglich bleiben, nicht bis März 2036. Ein Berechnungsdetail bei der Frist, das die meisten Unternehmen übersehen.',
   category: 'Juridique & normes',

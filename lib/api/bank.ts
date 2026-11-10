@@ -496,7 +496,7 @@ export async function applyAutoPostRule(
   // unmatched so a human notices instead of assuming the rule handled it.
   const lineId = await findAutoPostedEntryLine(organizationId, 'facture_fournisseur', expenseRow.id, bankAccountingAccountId);
   if (!lineId) {
-    return { error: apiText('Dépense créée pour "{{label}}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant) — à vérifier manuellement dans Comptabilité.', { label }) };
+    return { error: apiText('Dépense créée pour "{{label}}" mais non comptabilisée automatiquement (configuration comptable incomplète : exercice ouvert ou mapping de compte manquant), à vérifier manuellement dans Comptabilité.', { label }) };
   }
   await linkBankTransactionToEntryLine(transaction.id, lineId);
   await supabase.rpc('record_bank_rule_application', { p_transaction_id: transaction.id, p_rule_id: rule.id, p_expense_id: expenseRow.id });

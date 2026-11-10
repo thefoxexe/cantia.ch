@@ -111,7 +111,7 @@ export default function PresentationScreen() {
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead
-        title="Cantia en 37 secondes — devis, factures, chantiers et équipe"
+        title="Cantia en 37 secondes: devis, factures, chantiers et équipe"
         description="La présentation de Cantia en 37 secondes : le logiciel suisse qui gère vos devis, factures, chantiers, planning et salaires."
       />
       <Head>

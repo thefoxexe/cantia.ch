@@ -20,7 +20,7 @@ export default function PlanningSolutionPageIt() {
         {
           icon: 'layers',
           title: 'Collegata ai Suoi cantieri',
-          text: "Ogni assegnazione rimanda a un cantiere reale — dalla pianificazione ritrova direttamente rapporti, foto e preventivi associati.",
+          text: "Ogni assegnazione rimanda a un cantiere reale. Dalla pianificazione ritrova direttamente rapporti, foto e preventivi associati.",
         },
         {
           icon: 'users',
@@ -35,7 +35,7 @@ export default function PlanningSolutionPageIt() {
         {
           icon: 'trending-up',
           title: 'Alimenta la redditività per cantiere',
-          text: "I giorni pianificati servono anche a calcolare il costo di manodopera reale di ogni cantiere — nessuna doppia registrazione.",
+          text: "I giorni pianificati servono anche a calcolare il costo di manodopera reale di ogni cantiere, nessuna doppia registrazione.",
         },
       ]}
       faq={[

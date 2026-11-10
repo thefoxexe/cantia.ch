@@ -43,7 +43,7 @@ export const post: BlogPost = {
     { type: 'h2', text: 'Le modèle à télécharger' },
     {
       type: 'p',
-      text: 'Ce modèle est neutre et s’adapte à n’importe quel corps de métier — peintre, électricien, plombier-sanitaire, menuisier, carreleur, plâtrier, ou tout autre artisan du bâtiment. Un fichier PDF prêt à imprimer ou à compléter, avec la structure attendue par un client suisse.',
+      text: 'Ce modèle est neutre et s’adapte à n’importe quel corps de métier. Peintre, électricien, plombier-sanitaire, menuisier, carreleur, plâtrier, ou tout autre artisan du bâtiment. Un fichier PDF prêt à imprimer ou à compléter, avec la structure attendue par un client suisse.',
     },
     {
       type: 'leadmagnet',
@@ -74,7 +74,7 @@ export const post: BlogPost = {
     {
       question: 'Ce modèle de devis convient-il à tous les corps de métier du bâtiment ?',
       answer:
-        'Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s’adapte à n’importe quel corps de métier du bâtiment — seul le détail des prestations change d’un métier à l’autre.',
+        'Oui, la structure (coordonnées, positions, TVA, conditions) est neutre et s’adapte à n’importe quel corps de métier du bâtiment. Seul le détail des prestations change d’un métier à l’autre.',
     },
     {
       question: 'Le modèle de devis inclut-il le calcul de la TVA suisse ?',

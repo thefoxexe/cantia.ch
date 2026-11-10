@@ -15,7 +15,7 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'La transmission d’une entreprise du bâtiment au moment de la retraite se prépare rarement assez tôt. Beaucoup de patrons y pensent sérieusement seulement quelques mois avant de vouloir arrêter — alors que la valeur d’une entreprise artisanale tient en grande partie à des éléments qui ne se transmettent pas du jour au lendemain.',
+      text: 'La transmission d’une entreprise du bâtiment au moment de la retraite se prépare rarement assez tôt. Beaucoup de patrons y pensent sérieusement seulement quelques mois avant de vouloir arrêter. Alors que la valeur d’une entreprise artisanale tient en grande partie à des éléments qui ne se transmettent pas du jour au lendemain.',
     },
     { type: 'h2', text: 'Les options possibles' },
     {
@@ -44,7 +44,7 @@ export const post: BlogPost = {
     {
       type: 'cta',
       title: 'Gardez une trace claire de votre activité pour préparer une transmission',
-      text: 'Cantia conserve l’historique complet de vos chantiers, devis et clients — une base précieuse pour valoriser votre entreprise le jour où vous préparez sa transmission.',
+      text: 'Cantia conserve l’historique complet de vos chantiers, devis et clients. Une base précieuse pour valoriser votre entreprise le jour où vous préparez sa transmission.',
       buttonLabel: 'Essayer 14 jours',
     },
   ],

@@ -15,14 +15,14 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: 'Le déplacement fait partie des postes les plus mal compris par les clients — non pas parce que le principe est injuste, mais parce qu’il est rarement expliqué clairement dans le devis.',
+      text: 'Le déplacement fait partie des postes les plus mal compris par les clients, non pas parce que le principe est injuste, mais parce qu’il est rarement expliqué clairement dans le devis.',
     },
     { type: 'h2', text: '1. Trois pratiques courantes' },
     {
       type: 'list',
       items: [
         'Un forfait kilométrique ou un montant fixe par déplacement, souvent utilisé pour les chantiers éloignés du siège de l’entreprise.',
-        'Le déplacement inclus dans le tarif horaire général, sans ligne séparée sur le devis — pratique fréquente pour les entreprises qui travaillent surtout dans un rayon proche.',
+        'Le déplacement inclus dans le tarif horaire général, sans ligne séparée sur le devis. Pratique fréquente pour les entreprises qui travaillent surtout dans un rayon proche.',
         'Une gratuité du déplacement dans un rayon défini (par exemple à l’intérieur d’une ville ou d’une région), avec facturation au-delà.',
       ],
     },

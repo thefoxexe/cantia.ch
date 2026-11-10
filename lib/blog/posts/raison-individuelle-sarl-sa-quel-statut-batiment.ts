@@ -40,7 +40,7 @@ export const post: BlogPost = {
     },
     {
       type: 'p',
-      text: 'C’est le statut qui devient pertinent dès que l’activité engage des montants importants par chantier, qu’un ou plusieurs employés sont embauchés, ou que l’entreprise travaille avec des maîtres d’ouvrage qui exigent une structure sociétaire plutôt qu’un indépendant en nom propre — de plus en plus fréquent sur les chantiers de taille moyenne.',
+      text: 'C’est le statut qui devient pertinent dès que l’activité engage des montants importants par chantier, qu’un ou plusieurs employés sont embauchés, ou que l’entreprise travaille avec des maîtres d’ouvrage qui exigent une structure sociétaire plutôt qu’un indépendant en nom propre. De plus en plus fréquent sur les chantiers de taille moyenne.',
     },
     { type: 'h2', text: 'SA : rarement le bon point de départ dans le bâtiment' },
     {
@@ -98,7 +98,7 @@ export const post: BlogPost = {
     {
       question: 'La responsabilité illimitée d’une raison individuelle concerne-t-elle uniquement les biens professionnels ?',
       answer:
-        'Non, elle engage l’ensemble du patrimoine personnel de l’entrepreneur, pas seulement les actifs affectés à l’activité professionnelle — c’est la différence essentielle avec une structure à responsabilité limitée.',
+        'Non, elle engage l’ensemble du patrimoine personnel de l’entrepreneur, pas seulement les actifs affectés à l’activité professionnelle. C’est la différence essentielle avec une structure à responsabilité limitée.',
     },
   ],
   relatedSlugs: [

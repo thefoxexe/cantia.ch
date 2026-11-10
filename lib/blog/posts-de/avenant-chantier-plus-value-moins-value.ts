@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     "Nachtrag zur Offerte während der Bauzeit: Mehr- und Minderleistungen schriftlich festhalten und fakturieren, bevor sie zur Gratisarbeit werden.",
   excerpt:
-    '«Wenn Sie schon dabei sind, machen Sie doch gleich noch das»: der lukrativste Satz, den man auf einer Baustelle hören kann — und der gefährlichste, wenn man ihn nicht richtig fakturiert.',
+    '«Wenn Sie schon dabei sind, machen Sie doch gleich noch das»: der lukrativste Satz, den man auf einer Baustelle hören kann, und der gefährlichste, wenn man ihn nicht richtig fakturiert.',
   category: 'Devis & facturation',
   keywords: ['nachtrag baustelle', 'mehrleistung minderleistung', 'zusatzarbeiten fakturieren', 'offerte änderung bau', 'nachtrag offerte schweiz'],
   publishedAt: '2026-09-02',
@@ -15,12 +15,12 @@ export const post: BlogPost = {
   blocks: [
     {
       type: 'p',
-      text: '«Wenn Sie schon da sind, könnten Sie auch noch …». Das ist der Satz, mit dem die Hälfte aller Baustellen-Nachträge beginnt — fast immer mündlich, fast immer ohne dass ein neuer Preis klar vereinbart wird, bevor die Arbeit beginnt.',
+      text: '«Wenn Sie schon da sind, könnten Sie auch noch …». Das ist der Satz, mit dem die Hälfte aller Baustellen-Nachträge beginnt. Fast immer mündlich, fast immer ohne dass ein neuer Preis klar vereinbart wird, bevor die Arbeit beginnt.',
     },
     { type: 'h2', text: 'Die Mehrleistung: vorher fakturieren, nicht nachher' },
     {
       type: 'p',
-      text: 'Eine Zusatzarbeit, die ohne vorherige Preisabsprache ausgeführt wird, bringt das Unternehmen bei der Rechnungsstellung in eine schwache Position: Der Kunde erfährt den Betrag erst im Nachhinein, ohne ihn vorher einschätzen zu können, und fast immer entsteht in diesem Moment eine ungünstige Verhandlung. Die einfache Regel: Ein Nachtrag, auch kurz und informell, wird beziffert und bestätigt, bevor die Zusatzarbeit beginnt. Eine schriftliche Nachricht mit dem Preis genügt — kein aufwendiges mehrseitiges Dokument nötig.',
+      text: 'Eine Zusatzarbeit, die ohne vorherige Preisabsprache ausgeführt wird, bringt das Unternehmen bei der Rechnungsstellung in eine schwache Position: Der Kunde erfährt den Betrag erst im Nachhinein, ohne ihn vorher einschätzen zu können, und fast immer entsteht in diesem Moment eine ungünstige Verhandlung. Die einfache Regel: Ein Nachtrag, auch kurz und informell, wird beziffert und bestätigt, bevor die Zusatzarbeit beginnt. Eine schriftliche Nachricht mit dem Preis genügt, kein aufwendiges mehrseitiges Dokument nötig.',
     },
     {
       type: 'callout',

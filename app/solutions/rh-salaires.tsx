@@ -7,7 +7,7 @@ export default function RhSalairesSolutionPage() {
       documentId="salaire"
       kicker="RH & Salaires"
       title="Les heures, les frais et les salaires de toute l'équipe, au même endroit"
-      subtitle="Chaque employé pointe ses heures chantier par chantier et ses frais professionnels. La secrétaire ou l'administrateur gère la fiche de salaire de chacun — taux, cotisations et salaire net — sans tableur séparé."
+      subtitle="Chaque employé pointe ses heures chantier par chantier et ses frais professionnels. La secrétaire ou l'administrateur gère la fiche de salaire de chacun (taux, cotisations et salaire net), sans tableur séparé."
       visual={<ModuleMockup kind="rh-salaires" />}
       features={[
         {
@@ -38,7 +38,7 @@ export default function RhSalairesSolutionPage() {
         {
           icon: 'lock',
           title: 'Confidentialité par permission',
-          text: "Un employé ne voit que ses propres heures et frais — les fiches de salaire restent réservées à la secrétaire RH et aux administrateurs.",
+          text: "Un employé ne voit que ses propres heures et frais. Les fiches de salaire restent réservées à la secrétaire RH et aux administrateurs.",
         },
       ]}
       faq={[
@@ -50,12 +50,12 @@ export default function RhSalairesSolutionPage() {
         {
           question: 'Cantia calcule-t-il automatiquement les cotisations sociales suisses ?',
           answer:
-            "Cantia calcule le salaire net à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source que vous configurez par employé — les taux par défaut sont indicatifs, à ajuster selon votre caisse de compensation, votre caisse LPP et le canton.",
+            "Cantia calcule le salaire net à partir de taux AVS/AC/LPP/LAA et d'un taux d'impôt à la source que vous configurez par employé. Les taux par défaut sont indicatifs, à ajuster selon votre caisse de compensation, votre caisse LPP et le canton.",
         },
         {
           question: 'Comment un employé exporte-t-il sa feuille d\'heures ?',
           answer:
-            "Depuis le module RH & Salaires, en choisissant la granularité — journalière, hebdomadaire ou mensuelle — puis en téléchargeant un fichier CSV.",
+            "Depuis le module RH & Salaires, en choisissant la granularité (journalière, hebdomadaire ou mensuelle), puis en téléchargeant un fichier CSV.",
         },
         {
           question: 'Le module RH & Salaires est-il inclus dans tous les plans Cantia ?',

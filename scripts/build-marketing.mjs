@@ -82,7 +82,7 @@ let patchedCount = 0;
 for (const route of ROUTES) {
   const file = findRouteFile(route.path);
   if (!file) {
-    console.warn(`  ! no prerendered file found for route "${route.path || '/'}" — skipping meta patch`);
+    console.warn(`  ! no prerendered file found for route "${route.path || '/'}" : skipping meta patch`);
     continue;
   }
   writeFileSync(file, patchHead(readFileSync(file, 'utf8'), route));
@@ -94,7 +94,7 @@ if (existsSync(notFoundFile)) {
   writeFileSync(path.join(outputDir, '404.html'), readFileSync(notFoundFile, 'utf8'));
   console.log('404.html written from +not-found.html for Netlify\'s zero-config 404 fallback.');
 } else {
-  console.warn('  ! no +not-found.html found — Netlify has no custom 404 page for this build.');
+  console.warn('  ! no +not-found.html found : Netlify has no custom 404 page for this build.');
 }
 
 console.log(`Marketing export ready: dist-marketing/ (${patchedCount}/${ROUTES.length} route(s) patched with SEO meta).`);

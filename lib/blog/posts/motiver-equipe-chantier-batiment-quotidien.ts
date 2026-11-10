@@ -21,7 +21,7 @@ export const post: BlogPost = {
     {
       type: 'list',
       items: [
-        'La reconnaissance visible du travail bien fait — un mot direct sur un travail soigné pèse souvent plus qu’on ne le pense',
+        'La reconnaissance visible du travail bien fait. Un mot direct sur un travail soigné pèse souvent plus qu’on ne le pense',
         'La clarté sur ce qui est attendu chaque jour, plutôt qu’un flou permanent sur les priorités du chantier',
         'Une certaine autonomie laissée sur les décisions techniques du quotidien, dans les limites du raisonnable',
         'La régularité des horaires et du planning, qui évite l’impression de subir une organisation imprévisible',
@@ -35,7 +35,7 @@ export const post: BlogPost = {
     {
       type: 'callout',
       title: 'Le désordre matériel mine le moral, en silence',
-      text: 'Une équipe qui doit chercher un outil, attendre une livraison ou improviser faute de matériel disponible s’use plus vite qu’une équipe face à un chantier difficile mais bien préparé. La difficulté du travail motive parfois davantage que son absence — c’est le désordre autour qui démoralise.',
+      text: 'Une équipe qui doit chercher un outil, attendre une livraison ou improviser faute de matériel disponible s’use plus vite qu’une équipe face à un chantier difficile mais bien préparé. La difficulté du travail motive parfois davantage que son absence. C’est le désordre autour qui démoralise.',
     },
     { type: 'h2', text: 'Un chantier bien organisé se ressent dans le moral' },
     {

@@ -21,17 +21,17 @@ export default function DevisSolutionPageDe() {
         {
           icon: 'database',
           title: 'Ihr Katalog, Ihre Preise',
-          text: 'Jede erkannte Beschreibung übernimmt den Preis und die Einheit, die Sie bereits verwenden — ein PVC-Rohr wird automatisch pro Laufmeter vorgeschlagen, ohne dass Sie es angeben müssen.',
+          text: 'Jede erkannte Beschreibung übernimmt den Preis und die Einheit, die Sie bereits verwenden. Ein PVC-Rohr wird automatisch pro Laufmeter vorgeschlagen, ohne dass Sie es angeben müssen.',
         },
         {
           icon: 'layout',
           title: 'Wiederverwendbare Offertvorlagen',
-          text: 'Speichern Sie Ihre Standardpositionen (Plattenverlegung, Isolation usw.) einmal als Vorlage und starten Sie jede neue Offerte mit allen Zeilen bereits vorhanden — es bleibt nur, die Mengen anzupassen.',
+          text: 'Speichern Sie Ihre Standardpositionen (Plattenverlegung, Isolation usw.) einmal als Vorlage und starten Sie jede neue Offerte mit allen Zeilen bereits vorhanden. Es bleibt nur, die Mengen anzupassen.',
         },
         {
           icon: 'alert-triangle',
           title: 'Warnung bei Abweichung',
-          text: 'Weicht ein eingegebener Preis vom bereits im Katalog hinterlegten ab, meldet Cantia dies vor dem Versand — nie eine stille Korrektur.',
+          text: 'Weicht ein eingegebener Preis vom bereits im Katalog hinterlegten ab, meldet Cantia dies vor dem Versand: nie eine stille Korrektur.',
         },
         {
           icon: 'edit-3',
@@ -52,7 +52,7 @@ export default function DevisSolutionPageDe() {
       steps={[
         { title: 'Offerte erstellen', text: 'Erfassen Sie den Kunden und diktieren oder tippen Sie dann Ihre Positionen.' },
         { title: 'Die KI strukturiert die Positionen', text: 'Mengen, Einheiten und Katalogpreise werden automatisch vorgeschlagen.' },
-        { title: 'Prüfen und versenden', text: 'Passen Sie bei Bedarf an und erstellen Sie das PDF — schlichtes Layout, in Ihrer Markenfarbe.' },
+        { title: 'Prüfen und versenden', text: 'Passen Sie bei Bedarf an und erstellen Sie das PDF. Schlichtes Layout, in Ihrer Markenfarbe.' },
       ]}
       faq={[
         {
@@ -67,7 +67,7 @@ export default function DevisSolutionPageDe() {
         },
         {
           question: 'Lässt sich eine angenommene Offerte automatisch in eine Rechnung umwandeln?',
-          answer: 'Ja, eine angenommene Offerte wird mit einem Klick zur Rechnung — inklusive Schweizer QR-Rechnung — ohne die Positionen erneut zu erfassen.',
+          answer: 'Ja, eine angenommene Offerte wird mit einem Klick zur Rechnung (inklusive Schweizer QR-Rechnung), ohne die Positionen erneut zu erfassen.',
         },
         {
           question: 'Ist Cantia für Offerten kostenlos?',
@@ -81,7 +81,7 @@ export default function DevisSolutionPageDe() {
         { href: '/de/solutions/travaux-supplementaires', label: 'Zusatzarbeiten' },
       ]}
       closingTitle="Weniger Zeit für Offerten, nicht weniger Zeit auf der Baustelle"
-      closingText="14 Tage kostenlose Testphase auf allen Plänen, danach unbegrenzt Offerten und Rechnungen — ohne Verpflichtung."
+      closingText="14 Tage kostenlose Testphase auf allen Plänen, danach unbegrenzt Offerten und Rechnungen, ohne Verpflichtung."
     />
   );
 }

@@ -7,7 +7,7 @@ export const post: BlogPost = {
   description:
     'Fourchettes CHF/m² réalistes pour une isolation de façade en Suisse selon le type de système (crépi isolant, bardage ventilé), avec le lien vers les subventions cantonales.',
   excerpt:
-    'Le prix au m² d’une isolation de façade varie du simple au double selon le système choisi — et l’écart initial se rattrape souvent sur la facture de chauffage.',
+    'Le prix au m² d’une isolation de façade varie du simple au double selon le système choisi, et l’écart initial se rattrape souvent sur la facture de chauffage.',
   category: 'Devis & facturation',
   keywords: ['isolation', 'façade', 'prix', 'm2', 'rénovation énergétique', 'subventions'],
   publishedAt: '2026-09-22',

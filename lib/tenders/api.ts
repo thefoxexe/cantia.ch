@@ -327,7 +327,7 @@ export async function createOfferDevis(tenderId: string, opts: { clientName: str
       const n = nodes.find((x) => x.id === p.node_id)!;
       const ref = n.display_reference ?? n.position_path ?? n.raw_number;
       const text = (n.description || n.title || '').replace(/\s*\n\s*/g, ' ');
-      return { description: ref ? `${n.is_reserved && !ref.startsWith('R') ? 'R ' : ''}${ref} — ${text}` : text, quantity: p.quantity_selected!, unit: unitLabelOf(p.unit), unit_price: priceByPos.get(p.id)?.unit_price ?? 0 };
+      return { description: ref ? `${n.is_reserved && !ref.startsWith('R') ? 'R ' : ''}${ref} : ${text}` : text, quantity: p.quantity_selected!, unit: unitLabelOf(p.unit), unit_price: priceByPos.get(p.id)?.unit_price ?? 0 };
     });
   const brut = items.reduce((s, it) => s + Math.round(it.quantity * it.unit_price * 100) / 100, 0);
   if (tender.discount_percent > 0) items.push({ description: `Rabais ${tender.discount_percent} %`, quantity: 1, unit: 'forfait', unit_price: -Math.round(brut * tender.discount_percent) / 100 });

@@ -151,7 +151,7 @@ export default function BankRulesScreen() {
 
                 <Text style={styles.fieldLabel}>{t('bankRules.proposedAccount')}</Text>
                 <Pressable style={styles.selectTrigger} onPress={() => setAccountPickerOpen(true)}>
-                  <Text style={styles.selectTriggerText}>{selectedAccount ? `${selectedAccount.code} — ${selectedAccount.label}` : t('bankRules.pickAccountHint')}</Text>
+                  <Text style={styles.selectTriggerText}>{selectedAccount ? `${selectedAccount.code} : ${selectedAccount.label}` : t('bankRules.pickAccountHint')}</Text>
                   <Feather name="chevron-right" size={16} color={colors.textMuted} />
                 </Pressable>
 

@@ -39,7 +39,7 @@ function descriptionFrom(paragraphs) {
   const first = paragraphs[0] ?? '';
   if (first.length <= 155) return first;
   const cut = first.slice(0, 155);
-  const lastSentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(' — '));
+  const lastSentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(' : '));
   return lastSentenceEnd > 80 ? `${cut.slice(0, lastSentenceEnd + 1)}` : `${cut.slice(0, cut.lastIndexOf(' '))}…`;
 }
 

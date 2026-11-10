@@ -10,13 +10,13 @@ export default function RapportsChantierSolutionPageDe() {
       documentId="rapport"
       kicker="Baustellenrapporte"
       title="Der Rapport entsteht, während Sie noch auf der Baustelle sind"
-      subtitle="Sprachnotizen, georeferenzierte Fotos und Nachrichten aus dem Feed: Cantia sammelt alles und erstellt daraus einen verfassten, strukturierten und versandbereiten Rapport — Sie müssen nur noch gegenlesen."
+      subtitle="Sprachnotizen, georeferenzierte Fotos und Nachrichten aus dem Feed: Cantia sammelt alles und erstellt daraus einen verfassten, strukturierten und versandbereiten Rapport, Sie müssen nur noch gegenlesen."
       visual={<ModuleMockup kind="rapports-chantier" />}
       features={[
         {
           icon: 'mic',
           title: 'Per Sprache diktiert',
-          text: 'Erzählen Sie einfach, was passiert ist — Cantia transkribiert und der KI-Textassistent erstellt daraus einen professionellen Text, ohne Fehler oder Umgangssprache.',
+          text: 'Erzählen Sie einfach, was passiert ist. Cantia transkribiert und der KI-Textassistent erstellt daraus einen professionellen Text, ohne Fehler oder Umgangssprache.',
         },
         {
           icon: 'message-square',
@@ -41,7 +41,7 @@ export default function RapportsChantierSolutionPageDe() {
         {
           icon: 'droplet',
           title: 'Eine Darstellung für alle Berufe',
-          text: 'Ob Maurer, Maler, Elektriker oder Geometer — dieselbe schlichte Vorlage passt sich Ihrer Markenfarbe an.',
+          text: 'Ob Maurer, Maler, Elektriker oder Geometer. Dieselbe schlichte Vorlage passt sich Ihrer Markenfarbe an.',
         },
       ]}
       steps={[
@@ -53,7 +53,7 @@ export default function RapportsChantierSolutionPageDe() {
         {
           question: 'Wie erstellt man schnell einen Baustellenrapport?',
           answer:
-            'Machen Sie Ihre Fotos und diktieren Sie Ihre Notizen vor Ort — Cantia fügt alles zu einem strukturierten, versandbereiten PDF-Rapport zusammen, ohne dass Sie abends alles neu tippen müssen.',
+            'Machen Sie Ihre Fotos und diktieren Sie Ihre Notizen vor Ort. Cantia fügt alles zu einem strukturierten, versandbereiten PDF-Rapport zusammen, ohne dass Sie abends alles neu tippen müssen.',
         },
         {
           question: 'Werden Fotos automatisch georeferenziert?',
@@ -65,7 +65,7 @@ export default function RapportsChantierSolutionPageDe() {
         },
         {
           question: 'Ersetzt der Baustellenrapport ein Papier-Bautagebuch?',
-          answer: 'Ja — Notizen, Fotos und Verlauf sind in einem digitalen Dokument gebündelt, jederzeit pro Baustelle einsehbar.',
+          answer: 'Ja, Notizen, Fotos und Verlauf sind in einem digitalen Dokument gebündelt, jederzeit pro Baustelle einsehbar.',
         },
       ]}
       related={[

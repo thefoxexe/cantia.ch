@@ -53,7 +53,7 @@ export default function ImportReviewScreen() {
       if (!j) return;
       if (j.tender_id) return router.replace(`/(app)/chantiers/${projectId}/metres/${j.tender_id}` as any);
       const m = j.draft?.meta;
-      setName(m?.cfcCode ? `CFC ${m.cfcCode}${m.cfcLabel ? ` — ${m.cfcLabel}` : ''}` : (j.file_name ?? '').replace(/\.pdf$/i, ''));
+      setName(m?.cfcCode ? `CFC ${m.cfcCode}${m.cfcLabel ? ` : ${m.cfcLabel}` : ''}` : (j.file_name ?? '').replace(/\.pdf$/i, ''));
       if (j.file_id) setPdfUrl(await fileSignedUrl(j.file_id));
     });
   }, [jobId, projectId, router]);
@@ -154,7 +154,7 @@ export default function ImportReviewScreen() {
           <Tile value={toCheck.length} label={c.rvToCheck} tone={toCheck.length ? 'warn' : 'ok'} />
         </View>
         <Text style={kit.hint}>
-          {[draft.classification === 'CAN' ? 'CAN' : null, chapters ? fill(c.rvChapters, { n: chapters }) : null, meta.cfcCode ? `CFC ${meta.cfcCode}${meta.cfcLabel ? ` — ${meta.cfcLabel}` : ''}` : null, job.page_count ? fill(c.rvPages, { n: job.page_count }) : null]
+          {[draft.classification === 'CAN' ? 'CAN' : null, chapters ? fill(c.rvChapters, { n: chapters }) : null, meta.cfcCode ? `CFC ${meta.cfcCode}${meta.cfcLabel ? ` : ${meta.cfcLabel}` : ''}` : null, job.page_count ? fill(c.rvPages, { n: job.page_count }) : null]
             .filter(Boolean)
             .join('  ·  ')}
         </Text>
@@ -424,7 +424,7 @@ function BlockingQuestions({ c, questions, answers, nodes, onAnswer }: { c: Tend
         return (
           <View key={q.id} style={{ gap: 6 }}>
             <Text style={kit.body}>{q.kind === 'unit' ? (q.id.slice(5) && q.id.slice(5) !== 'none' ? fill(c.unitQuestion, { raw: q.id.slice(5) }) : c.unitQuestionNoRaw) : q.prompt}</Text>
-            {sample ? <Text style={kit.hint}>{`${sample.displayReference ?? ''} — ${sample.title}`}</Text> : null}
+            {sample ? <Text style={kit.hint}>{`${sample.displayReference ?? ''} : ${sample.title}`}</Text> : null}
             <View style={kit.row}>
               {(q.choices ?? UNIT_CHOICES).map((u) => (
                 <Chip key={u} small label={unitLabel(u)} active={answers[q.id] === u} onPress={() => onAnswer(q.id, u)} />

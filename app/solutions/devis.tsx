@@ -18,12 +18,12 @@ export default function DevisSolutionPage() {
             {
               icon: 'clock',
               problem: 'Un devis fait le soir, de mémoire.',
-              consequence: "Une ligne oubliée, et c'est vous qui l'absorbez — ou le client qui ne rappelle plus.",
+              consequence: "Une ligne oubliée, et c'est vous qui l'absorbez, ou le client qui ne rappelle plus.",
             },
             {
               icon: 'file-minus',
               problem: "Un prix qui varie d'un devis à l'autre.",
-              consequence: 'Sans catalogue à jour, deux clients voisins comparent leurs devis — et le moins cher gagne.',
+              consequence: 'Sans catalogue à jour, deux clients voisins comparent leurs devis, et le moins cher gagne.',
             },
             {
               icon: 'alert-triangle',
@@ -33,14 +33,14 @@ export default function DevisSolutionPage() {
             {
               icon: 'trending-down',
               problem: 'Un devis envoyé, puis jamais relancé.',
-              consequence: 'Le client oublie, part voir ailleurs — un devis sans suivi est un devis perdu.',
+              consequence: 'Le client oublie, part voir ailleurs. Un devis sans suivi est un devis perdu.',
             },
           ]}
           reliefLabel="Avec Cantia"
           reliefItems={[
             'Devis chiffré et envoyé en quelques minutes, depuis le chantier',
             'Prix toujours cohérents, tirés de votre catalogue',
-            'Signature du client intégrée — devis accepté, preuve écrite',
+            'Signature du client intégrée : devis accepté, preuve écrite',
             'Statut de chaque devis visible en un coup d’œil, relance facile',
           ]}
         />
@@ -54,17 +54,17 @@ export default function DevisSolutionPage() {
         {
           icon: 'database',
           title: 'Votre catalogue, vos prix',
-          text: "Chaque description reconnue reprend le prix et l'unité que vous utilisez déjà — un tuyau PVC est proposé au mètre linéaire sans que vous ayez à le préciser.",
+          text: "Chaque description reconnue reprend le prix et l'unité que vous utilisez déjà. Un tuyau PVC est proposé au mètre linéaire sans que vous ayez à le préciser.",
         },
         {
           icon: 'layout',
           title: 'Modèles de devis réutilisables',
-          text: "Enregistrez vos positions types (pose de carrelage, isolation, etc.) une fois sous forme de trame, puis démarrez chaque nouveau devis avec toutes les lignes déjà là — il ne reste qu'à ajuster les quantités.",
+          text: "Enregistrez vos positions types (pose de carrelage, isolation, etc.) une fois sous forme de trame, puis démarrez chaque nouveau devis avec toutes les lignes déjà là. Il ne reste qu'à ajuster les quantités.",
         },
         {
           icon: 'alert-triangle',
           title: "Alerte en cas d'écart",
-          text: "Si un prix saisi diffère de celui déjà en catalogue, Cantia vous le signale avant l'envoi — jamais de correction silencieuse.",
+          text: "Si un prix saisi diffère de celui déjà en catalogue, Cantia vous le signale avant l'envoi, jamais de correction silencieuse.",
         },
         {
           icon: 'edit-3',
@@ -85,7 +85,7 @@ export default function DevisSolutionPage() {
       steps={[
         { title: 'Créez le devis', text: 'Renseignez le client, puis dictez ou tapez vos lignes.' },
         { title: "L'IA structure les positions", text: 'Quantités, unités et prix catalogue sont proposés automatiquement.' },
-        { title: 'Vérifiez et envoyez', text: 'Ajustez si besoin, puis générez le PDF — mise en page sobre, à votre couleur de marque.' },
+        { title: 'Vérifiez et envoyez', text: 'Ajustez si besoin, puis générez le PDF. Mise en page sobre, à votre couleur de marque.' },
       ]}
       faq={[
         {
@@ -100,7 +100,7 @@ export default function DevisSolutionPage() {
         },
         {
           question: 'Peut-on transformer un devis accepté en facture automatiquement ?',
-          answer: "Oui, un devis accepté se convertit en facture — avec QR-bill suisse — en un clic, sans ressaisir les lignes.",
+          answer: "Oui, un devis accepté se convertit en facture (avec QR-bill suisse) en un clic, sans ressaisir les lignes.",
         },
         {
           question: 'Cantia est-il gratuit pour faire des devis ?',
@@ -114,7 +114,7 @@ export default function DevisSolutionPage() {
         { href: '/solutions/travaux-supplementaires', label: 'Travaux supplémentaires' },
       ]}
       closingTitle="Passez moins de temps sur vos devis, pas moins de temps sur le chantier"
-      closingText="14 jours d'essai gratuit sur tous les plans, devis et factures illimités ensuite — sans engagement."
+      closingText="14 jours d'essai gratuit sur tous les plans, devis et factures illimités ensuite, sans engagement."
     />
   );
 }

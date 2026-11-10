@@ -10,7 +10,7 @@ export default function RhSalairesSolutionPageDe() {
       documentId="salaire"
       kicker="HR & Löhne"
       title="Stunden, Spesen und Löhne des ganzen Teams an einem Ort"
-      subtitle="Jeder Mitarbeiter erfasst seine Stunden Baustelle für Baustelle sowie seine beruflichen Spesen. Die Sekretärin oder der Administrator verwaltet die Lohnabrechnung jedes Einzelnen — Satz, Abzüge und Nettolohn — ohne separate Tabelle."
+      subtitle="Jeder Mitarbeiter erfasst seine Stunden Baustelle für Baustelle sowie seine beruflichen Spesen. Die Sekretärin oder der Administrator verwaltet die Lohnabrechnung jedes Einzelnen (Satz, Abzüge und Nettolohn), ohne separate Tabelle."
       visual={<ModuleMockup kind="rh-salaires" />}
       features={[
         {
@@ -41,7 +41,7 @@ export default function RhSalairesSolutionPageDe() {
         {
           icon: 'lock',
           title: 'Vertraulichkeit nach Berechtigung',
-          text: 'Ein Mitarbeiter sieht nur seine eigenen Stunden und Spesen — die Lohnabrechnungen bleiben der HR-Sekretärin und den Administratoren vorbehalten.',
+          text: 'Ein Mitarbeiter sieht nur seine eigenen Stunden und Spesen. Die Lohnabrechnungen bleiben der HR-Sekretärin und den Administratoren vorbehalten.',
         },
       ]}
       faq={[
@@ -53,12 +53,12 @@ export default function RhSalairesSolutionPageDe() {
         {
           question: 'Berechnet Cantia automatisch die Schweizer Sozialabgaben?',
           answer:
-            'Cantia berechnet den Nettolohn anhand von AHV/ALV/BVG/UVG-Sätzen und einem Quellensteuersatz, den Sie pro Mitarbeiter konfigurieren — die Standardsätze sind indikativ und je nach Ausgleichskasse, Pensionskasse und Kanton anzupassen.',
+            'Cantia berechnet den Nettolohn anhand von AHV/ALV/BVG/UVG-Sätzen und einem Quellensteuersatz, den Sie pro Mitarbeiter konfigurieren. Die Standardsätze sind indikativ und je nach Ausgleichskasse, Pensionskasse und Kanton anzupassen.',
         },
         {
           question: 'Wie exportiert ein Mitarbeiter sein Stundenblatt?',
           answer:
-            'Über das Modul HR & Löhne, durch Wahl der Granularität — täglich, wöchentlich oder monatlich — und anschliessendem Download einer CSV-Datei.',
+            'Über das Modul HR & Löhne, durch Wahl der Granularität (täglich, wöchentlich oder monatlich) und anschliessendem Download einer CSV-Datei.',
         },
         {
           question: 'Ist das Modul HR & Löhne in allen Cantia-Plänen enthalten?',

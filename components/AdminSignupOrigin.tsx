@@ -132,7 +132,7 @@ export function AdminSignupOrigin({ origin }: { origin: AdminOrgOrigin }) {
         <Row
           icon="user"
           label="Compte du propriétaire"
-          value={`${owner.email} — via ${PROVIDER_LABEL[owner.provider ?? ''] ?? owner.provider ?? 'inconnu'}`}
+          value={`${owner.email} : via ${PROVIDER_LABEL[owner.provider ?? ''] ?? owner.provider ?? 'inconnu'}`}
           sub={[
             `Compte créé le ${formatDateTime(owner.account_created_at)}`,
             owner.signup_source ? `inscrit depuis ${SIGNUP_SOURCE_LABEL[owner.signup_source] ?? owner.signup_source}` : null,
