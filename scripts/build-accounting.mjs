@@ -23,7 +23,7 @@ execFileSync('npx', ['expo', 'export', '-p', 'web', '-c', '--output-dir', path.r
 
 // public/ is shared with the main site: drop what only cantia.ch uses.
 for (const entry of [
-  'aide', 'downloads', 'showcase', 'videos', '_sitemap.html', 'contact-form.html', 'sur-mesure-form.html', 'llms.txt', 'sw.js',
+  'aide', 'help-shots', 'downloads', 'showcase', 'videos', '_sitemap.html', 'contact-form.html', 'sur-mesure-form.html', 'llms.txt', 'sw.js',
   'manifest.json', 'cantia-demo.mp4', 'cantia-demo.webm', 'cantia-demo-de.mp4', 'cantia-demo-de.webm',
   'cantia-dossier-b2b-fr.pdf', 'cantia-dossier-b2b-de.pdf',
 ]) {
