@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { robotsTxt } from './ai-robots.mjs';
@@ -23,11 +23,16 @@ execFileSync('npx', ['expo', 'export', '-p', 'web', '-c', '--output-dir', path.r
 
 // public/ is shared with the main site: drop what only cantia.ch uses.
 for (const entry of [
-  'aide', 'help-shots', 'downloads', 'showcase', 'videos', '_sitemap.html', 'contact-form.html', 'sur-mesure-form.html', 'llms.txt', 'sw.js',
+  'aide', 'help-shots', 'downloads', 'showcase', '_sitemap.html', 'contact-form.html', 'sur-mesure-form.html', 'llms.txt', 'sw.js',
   'manifest.json', 'cantia-demo.mp4', 'cantia-demo.webm', 'cantia-demo-de.mp4', 'cantia-demo-de.webm',
   'cantia-dossier-b2b-fr.pdf', 'cantia-dossier-b2b-de.pdf',
 ]) {
   rmSync(path.join(outputDir, entry), { recursive: true, force: true });
+}
+// Of the videos, only the recordings of the accounting workspace (acc-*,
+// hero of this site) stay.
+for (const file of readdirSync(path.join(outputDir, 'videos'))) {
+  if (!file.startsWith('acc-')) rmSync(path.join(outputDir, 'videos', file), { force: true });
 }
 
 // Every route has its own prerendered HTML; anything else goes home.

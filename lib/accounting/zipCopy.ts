@@ -26,7 +26,7 @@ const fr: AccZipCopy = {
     more: 'Découvrir les fonctions',
     micro: 'Gratuit pour les fiduciaires · Sans carte bancaire',
     shotAlt: 'Vue d’ensemble de l’espace fiduciaire Cantia Accounting',
-    shotNote: 'Votre espace Accounting · données d’exemple',
+    shotNote: 'L’espace fiduciaire tel quel · données d’exemple',
   },
   trust: ['Mandants et collaborateurs illimités', 'Hébergé à Zurich', 'FR · DE · IT'],
   uses: {
@@ -86,7 +86,7 @@ const de: AccZipCopy = {
     more: 'Funktionen entdecken',
     micro: 'Kostenlos für Treuhänder · Ohne Kreditkarte',
     shotAlt: 'Übersicht des Treuhandbereichs von Cantia Accounting',
-    shotNote: 'Ihr Accounting-Bereich · Beispieldaten',
+    shotNote: 'Der Treuhandbereich, wie er ist · Beispieldaten',
   },
   trust: ['Unbegrenzt Mandanten und Mitarbeitende', 'Gehostet in Zürich', 'FR · DE · IT'],
   uses: {
@@ -146,7 +146,7 @@ const it: AccZipCopy = {
     more: 'Scoprire le funzioni',
     micro: 'Gratuito per le fiduciarie · Senza carta di credito',
     shotAlt: 'Panoramica dello spazio fiduciario Cantia Accounting',
-    shotNote: 'Il vostro spazio Accounting · dati di esempio',
+    shotNote: 'Lo spazio fiduciario così com’è · dati di esempio',
   },
   trust: ['Mandanti e collaboratori illimitati', 'Ospitato a Zurigo', 'FR · DE · IT'],
   uses: {

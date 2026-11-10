@@ -1,3 +1,4 @@
+import { useMarkHydrated } from '../lib/site/markHydrated';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -7,6 +8,7 @@ import { AccountingLocaleProvider } from '../lib/accounting/locale';
 // and scripts/build-accounting.mjs). Same Supabase project and accounts as
 // the app and Partners, none of the app's organization logic.
 export default function AccountingRootLayout() {
+  useMarkHydrated();
   return (
     <SafeAreaProvider>
       <AccountingLocaleProvider>

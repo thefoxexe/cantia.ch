@@ -107,11 +107,11 @@ function LandingContent() {
           <Wrap>
             <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} />
             <View style={[styles.exportsRow, phone && { flexDirection: 'column' }]}>
-              <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} flex={1}>
-                <SignatureDetail />
+              <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} pdf={EXPORTS[locale].devisFull.pdf}>
+                <PaperImage source={EXPORTS[locale].devisFull.source} ratio={EXPORTS[locale].devisFull.ratio} alt={SITE_PAGES[locale].labels.docAlt.signer} />
               </ExportCard>
-              <ExportCard title={h.exportFacture} meta={h.exportFactureMeta} phone={phone} flex={1.25}>
-                <PaperImage source={EXPORTS[locale].slip.source} ratio={EXPORTS[locale].slip.ratio} />
+              <ExportCard title={h.exportFacture} meta={h.exportFactureMeta} phone={phone} pdf={EXPORTS[locale].facture.pdf}>
+                <PaperImage source={EXPORTS[locale].facture.source} ratio={EXPORTS[locale].facture.ratio} alt={h.exportFacture} />
               </ExportCard>
             </View>
           </Wrap>
@@ -214,35 +214,35 @@ function Families({ phone, narrow }: { phone: boolean; narrow: boolean }) {
   );
 }
 
-function ExportCard({ title, meta, phone, flex, children }: { title: string; meta: string; phone: boolean; flex: number; children: React.ReactNode }) {
+// One whole document (full A4 page, as the client receives it). The page
+// opens the real PDF.
+function ExportCard({ title, meta, phone, pdf, children }: { title: string; meta: string; phone: boolean; pdf: string; children: React.ReactNode }) {
+  const open = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(pdf, '_blank', 'noopener');
+  };
   return (
-    <View style={[styles.exportCard, phone ? undefined : { flex }]}>
-      <View style={[styles.exportStage, phone && { padding: 16 }]}>{children}</View>
-      <View style={styles.exportMeta}>
-        <Text style={[sans, styles.exportTitle]}>{title}</Text>
-        <Text style={[sans, styles.small]}>{meta}</Text>
-      </View>
-    </View>
+    <Hover onPress={open} accessibilityRole="link" base={[styles.exportCard, phone ? undefined : { flex: 1 }]} hover={{ borderColor: site.copper }}>
+      {(hovered) => (
+        <>
+          <View style={[styles.exportStage, phone && { padding: 16 }]}>{children}</View>
+          <View style={[styles.exportMeta, { flexDirection: 'row', alignItems: 'center', gap: 14 }]}>
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={[sans, styles.exportTitle]}>{title}</Text>
+              <Text style={[sans, styles.small]}>{meta}</Text>
+            </View>
+            <Feather name="download" size={16} color={hovered ? site.copper : site.ink} />
+          </View>
+        </>
+      )}
+    </Hover>
   );
 }
 
-function PaperImage({ source, ratio }: { source: ImageSourcePropType; ratio: number }) {
+function PaperImage({ source, ratio, alt }: { source: ImageSourcePropType; ratio: number; alt: string }) {
   const [w, setW] = useState(0);
   return (
     <View style={[styles.paper, paperShadow, { width: '100%' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 200 }} resizeMode="cover" />
-    </View>
-  );
-}
-
-// Close-up of the signature block of the signed quote (lower right of the
-// same export), framed like a detail shot.
-function SignatureDetail() {
-  const locale = useSiteLocale();
-  const shot = EXPORTS[locale].signature;
-  return (
-    <View style={[styles.paper, paperShadow, { width: '100%', aspectRatio: 1 / shot.ratio, overflow: 'hidden' }]}>
-      <Image source={shot.source} style={{ width: '100%', height: '100%' }} resizeMode="contain" accessibilityLabel={SITE_PAGES[locale].labels.docAlt.signer} />
+      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 400 }} resizeMode="cover" accessibilityLabel={alt} />
     </View>
   );
 }

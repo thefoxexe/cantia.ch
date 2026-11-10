@@ -1,6 +1,7 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 import { FontHead } from '../components/site/FontHead';
+import { Splash } from '../components/site/Splash';
 
 // Root HTML document of accounting.cantia.ch. Same brand fonts as cantia.ch
 // (lib/marketingTheme.ts); no ad tag here.
@@ -21,7 +22,10 @@ export default function Root({ children }: PropsWithChildren) {
         <style>{'html, body { background-color: #f6f4ef; font-family: "DM Sans", "DM Sans Fallback", Arial, sans-serif; }'}</style>
         <ScrollViewStyleReset />
       </head>
-      <body>{children}</body>
+      <body>
+        <Splash />
+        {children}
+      </body>
     </html>
   );
 }

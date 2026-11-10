@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Image, Platform, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Head from 'expo-router/head';
 import { Feather } from '@expo/vector-icons';
 import { AccNav, AccPage } from './AccountingChrome';
@@ -8,7 +7,7 @@ import { ACC_ZIP, type ZipLocale } from '../../lib/accounting/zipCopy';
 import { RealFiles } from './landing/RealFiles';
 import { Btn, Eyebrow, Headline, Hover, Micro } from '../site/Primitives';
 import { FaqItem } from '../site/FamilyPage';
-import { PhoneShot } from '../site/Sections';
+import { HeroDevices } from '../site/HeroDevices';
 import { sans, serif, site } from '../../lib/siteTheme';
 
 // accounting.cantia.ch home (FR at /, DE at /de, IT at /it), laid out as the
@@ -19,19 +18,6 @@ import { sans, serif, site } from '../../lib/siteTheme';
 
 const ORIGIN = 'https://accounting.cantia.ch';
 const MAX = 1212;
-
-// The real workspace (app-accounting/espace.tsx) rendered with sample data.
-const SHOTS: Record<ZipLocale, any> = {
-  fr: require('../../assets/marketing/accounting/espace.jpg'),
-  de: require('../../assets/marketing/accounting/espace-de.jpg'),
-  it: require('../../assets/marketing/accounting/espace-it.jpg'),
-};
-const SHOT_RATIO = 1075 / 1600;
-const MOBILE: Record<ZipLocale, any> = {
-  fr: require('../../assets/marketing/accounting/espace-mobile.jpg'),
-  de: require('../../assets/marketing/accounting/espace-mobile-de.jpg'),
-  it: require('../../assets/marketing/accounting/espace-mobile-it.jpg'),
-};
 
 // Search engines: the product, its publisher and the FAQ, in the page's language.
 function structuredData(locale: string, meta: { title: string; description: string }, faq: { q: string; a: string }[], url: string) {
@@ -175,7 +161,7 @@ function Hero({ z, locale }: { z: Z; locale: ZipLocale }) {
             <Micro style={{ fontSize: 9 }}>{z.hero.micro}</Micro>
           </View>
           <View style={wide ? { flex: 1.1, minWidth: 0 } : undefined}>
-            <Workspace locale={locale} alt={z.hero.shotAlt} note={z.hero.shotNote} />
+            <HeroDevices locale={locale} phoneOnly={phone} media="/videos/acc" labels={{ desktop: z.hero.shotAlt, phone: z.hero.shotAlt, note: z.hero.shotNote }} />
           </View>
         </View>
       </View>
@@ -186,34 +172,6 @@ function Hero({ z, locale }: { z: Z; locale: ZipLocale }) {
           </Text>
         ))}
       </View>
-    </View>
-  );
-}
-
-// The sage frame of the hand-off, holding the real workspace screen.
-function Workspace({ locale, alt, note }: { locale: ZipLocale; alt: string; note: string }) {
-  const [w, setW] = useState(0);
-  const { phone } = useLayout();
-  if (phone) {
-    return (
-      <View style={[styles.sage, { alignItems: 'center', paddingVertical: 26 }]}>
-        <PhoneShot source={MOBILE[locale] ?? MOBILE.fr} ratio={1350 / 624} width={250} maxHeight={470} alt={alt} />
-        <Text style={[sans, styles.shotNote]}>{note}</Text>
-      </View>
-    );
-  }
-  return (
-    <View style={styles.sage}>
-      <View style={styles.window} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-        <View style={styles.windowBar}>
-          {[0, 1, 2].map((i) => (
-            <View key={i} style={styles.dot} />
-          ))}
-          <Text style={[sans, styles.url]}>accounting.cantia.ch/espace</Text>
-        </View>
-        <Image source={SHOTS[locale] ?? SHOTS.fr} style={{ width: '100%', height: w ? w * SHOT_RATIO : 320 }} resizeMode="cover" accessibilityLabel={alt} />
-      </View>
-      <Text style={[sans, styles.shotNote]}>{note}</Text>
     </View>
   );
 }
@@ -324,12 +282,6 @@ const styles = StyleSheet.create({
   ctaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 24, marginTop: 30 },
   more: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
   moreText: { fontSize: 12, color: site.ink, fontWeight: '600' },
-  sage: { backgroundColor: '#dfe3d3', borderRadius: 14, padding: 18, borderWidth: 1, borderColor: '#d2d8c3' },
-  window: { backgroundColor: site.white, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#d6d9cb', boxShadow: '0 18px 40px rgba(41,49,40,0.12)' } as object,
-  windowBar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 30, borderBottomWidth: 1, borderBottomColor: '#ebece3', backgroundColor: '#fbfbf7' },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#dcdcd0' },
-  url: { flex: 1, textAlign: 'center', fontSize: 9, color: '#9a9e8c', marginRight: 40 },
-  shotNote: { fontSize: 8, color: '#7c8470', letterSpacing: 0.6, marginTop: 12, textAlign: 'center' },
   trust: { flexDirection: 'row', justifyContent: 'center', gap: 64, paddingVertical: 26, borderTopWidth: 1, borderTopColor: site.line },
   trustText: { fontSize: 10, color: site.muted },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60 },

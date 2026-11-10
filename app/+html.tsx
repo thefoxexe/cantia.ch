@@ -1,6 +1,7 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 import { FontHead } from '../components/site/FontHead';
+import { Splash } from '../components/site/Splash';
 
 // The root HTML document of every page pre-rendered at build time
 // (app.json web.output "static"; native ignores this file). Loads the brand
@@ -55,7 +56,10 @@ if (cantiaConsent === 'granted') gtag('config', 'G-1K03L5TNDX');`,
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Splash />
+        {children}
+      </body>
     </html>
   );
 }

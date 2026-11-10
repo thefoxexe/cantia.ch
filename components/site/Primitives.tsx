@@ -3,6 +3,7 @@ import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type 
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { gutter, sans, serif, site } from '../../lib/siteTheme';
+import { releaseHydrationViewport } from '../../lib/hydrationViewport';
 
 // Building blocks of the public sites (cantia.ch, accounting, partners):
 // the 1320 px column, the small copper surtitle, headlines with their
@@ -162,9 +163,13 @@ const styles = StyleSheet.create({
 });
 
 // Marks the document as a site page while mounted (see SITE_SCOPE_CSS in
-// lib/site/fontFaces.ts): default text takes the site typeface.
+// lib/site/fontFaces.ts): default text takes the site typeface. Every site
+// page calls it, so it also ends the hydration viewport
+// (lib/hydrationViewport): the page has mounted, the real width applies now
+// instead of after the 1.5 s fallback.
 export function useSiteFontScope() {
   useEffect(() => {
+    releaseHydrationViewport();
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
     const html = document.documentElement;
     html.setAttribute('data-site', '');

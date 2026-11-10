@@ -1,3 +1,4 @@
+import { useMarkHydrated } from '../lib/site/markHydrated';
 import { useEffect, useState } from 'react';
 import { Dimensions, Platform } from 'react-native';
 import { Stack, useRouter, usePathname, useSegments } from 'expo-router';
@@ -202,20 +203,7 @@ function MarketingLocaleFromPath() {
 // It waits for the brand fonts (at most 0.8 s) so the page appears once,
 // already in DM Sans, instead of switching from the fallback in view.
 function MarkHydrated() {
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    const reveal = () => document.documentElement.classList.add('hydrated');
-    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
-    if (!fonts?.load) return reveal();
-    const timer = setTimeout(reveal, 800);
-    Promise.all([fonts.load('400 16px "DM Sans"'), fonts.load('italic 400 16px "DM Serif Display"')])
-      .catch(() => undefined)
-      .then(() => {
-        clearTimeout(timer);
-        reveal();
-      });
-    return () => clearTimeout(timer);
-  }, []);
+  useMarkHydrated();
   return null;
 }
 
