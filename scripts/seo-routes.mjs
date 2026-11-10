@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
+import { CRUMB_NAMES } from './crumb-names.mjs';
 
 const TRADE_SLUGS = new Set([
   'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
@@ -4972,13 +4973,22 @@ export function jsonLdFor(url, route) {
     });
   } else {
     const { bare } = localeAndBareOf(routePath);
-    const segments = bare.split('/').filter(Boolean);
+    // A trade page sits under « Votre métier › Bâtiment & artisanat », as on the page.
+    const segments = TRADE_SLUGS.has(bare) ? ['metiers', 'batiment-artisanat', bare] : bare.split('/').filter(Boolean);
     const homeUrl = routeLocale === 'fr' ? `${SITE}/` : `${SITE}/${LOCALE_PREFIXES[routeLocale]}`;
     const items = [{ '@type': 'ListItem', position: 1, name: homeLabel, item: homeUrl }];
     let acc = homeUrl.endsWith('/') ? homeUrl.slice(0, -1) : homeUrl;
     segments.forEach((seg, i) => {
-      acc += `/${seg}`;
-      items.push({ '@type': 'ListItem', position: i + 2, name: humanizeSegment(seg), item: acc });
+      const key = TRADE_SLUGS.has(bare) && i === 2 ? bare : segments.slice(0, i + 1).join('/');
+      // Sections without a page of their own point where the page's own
+      // breadcrumb does: the features overview and the pricing page.
+      const target = { solutions: 'fonctionnalites', plans: 'tarifs' }[key] ?? key;
+      acc = `${homeUrl.endsWith('/') ? homeUrl.slice(0, -1) : homeUrl}/${target}`;
+      const last = i === segments.length - 1;
+      // Real names (with accents), else the page's own title for the last
+      // crumb, else the slug made readable.
+      const name = CRUMB_NAMES[routeLocale]?.[key] ?? (last ? title.split(' | ')[0] : humanizeSegment(seg));
+      items.push({ '@type': 'ListItem', position: i + 2, name, item: acc });
     });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: items });
   }
