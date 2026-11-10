@@ -66,6 +66,7 @@ export function ProductNav({
   login,
   primary,
   right,
+  links,
 }: {
   product: ProductKey;
   locale: Loc;
@@ -74,6 +75,8 @@ export function ProductNav({
   login?: FooterLink;
   primary?: FooterLink;
   right?: ReactNode;
+  // In-page links in the middle of the bar (landing pages, wide screens).
+  links?: { label: string; onPress: () => void }[];
 }) {
   // November 2026 identity: the cantia.ch header, with the product's name
   // beside the logo. The language sits in the nav.
@@ -86,6 +89,15 @@ export function ProductNav({
             <Text style={[sans, styles.productTag, !wide && { fontSize: 8, paddingLeft: 8 }]}>{PRODUCT_NAME[product].toUpperCase()}</Text>
           </Pressable>
         </Link>
+        {links && wide ? (
+          <View style={styles.navLinks}>
+            {links.map((l) => (
+              <Pressable key={l.label} onPress={l.onPress} accessibilityRole="link">
+                {({ hovered }: any) => <Text style={[sans, styles.navLink, hovered && { color: site.copper }]}>{l.label}</Text>}
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
         <View style={[styles.navRight, { gap: wide ? 22 : 14 }]}>
           {localeSwitch}
           {login ? (
@@ -266,6 +278,7 @@ const styles = StyleSheet.create({
   navWrap: { borderBottomWidth: 1, borderBottomColor: site.line, backgroundColor: site.bg },
   nav: { width: '100%', maxWidth: site.maxWidth, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16 },
   navRight: { flexDirection: 'row', alignItems: 'center', flexShrink: 0 },
+  navLinks: { flexDirection: 'row', alignItems: 'center', gap: 30 },
   navLink: { fontSize: 11, fontWeight: '500', color: site.ink },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 22, backgroundColor: site.copper, paddingVertical: 13, paddingHorizontal: 20, borderRadius: 5 },
   ctaText: { fontSize: 12, fontWeight: '600', color: '#FFFFFF' },

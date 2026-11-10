@@ -878,8 +878,8 @@ export function NotesPanel({ orgId, extId }: { orgId?: string; extId?: string })
 const s = StyleSheet.create({
   stack: { gap: spacing.lg },
   columns: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg, alignItems: 'flex-start' },
-  colMain: { flexGrow: 3, flexBasis: 460, minWidth: 0, gap: spacing.lg },
-  colSide: { flexGrow: 2, flexBasis: 300, minWidth: 0, gap: spacing.lg },
+  colMain: { flexGrow: 3, flexShrink: 1, flexBasis: 460, minWidth: 0, maxWidth: '100%', gap: spacing.lg },
+  colSide: { flexGrow: 2, flexShrink: 1, flexBasis: 300, minWidth: 0, maxWidth: '100%', gap: spacing.lg },
   panel: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md },
   panelAccent: { borderColor: colors.primary },
   panelSuccess: { borderLeftWidth: 3, borderLeftColor: colors.success },

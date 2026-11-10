@@ -21,7 +21,7 @@ export function AccLocaleSwitch({ landing = false, inverse = false }: { landing?
   return <LocaleTabs locales={ACC_LOCALES} value={locale} onChange={choose} inverse={inverse} />;
 }
 
-export function AccNav({ right, landing = false, cta = false }: { right?: ReactNode; landing?: boolean; cta?: boolean }) {
+export function AccNav({ right, landing = false, cta = false, links }: { right?: ReactNode; landing?: boolean; cta?: boolean; links?: { label: string; onPress: () => void }[] }) {
   const { copy, locale } = useAccCopy();
   const wide = useIsWide(760);
   return (
@@ -33,6 +33,7 @@ export function AccNav({ right, landing = false, cta = false }: { right?: ReactN
       login={cta ? { label: copy.nav.login, href: '/connexion' } : undefined}
       primary={cta ? { label: copy.nav.signup, href: '/connexion?mode=signup' } : undefined}
       right={right}
+      links={links}
     />
   );
 }

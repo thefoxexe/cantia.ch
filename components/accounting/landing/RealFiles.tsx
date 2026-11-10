@@ -345,7 +345,7 @@ function FormView({ lines, labels, t }: { lines: { figure: string; amount: numbe
 }
 
 const styles = StyleSheet.create({
-  band: { backgroundColor: colors.bg, paddingVertical: 80 },
+  band: { backgroundColor: '#f6f4ef', paddingTop: 24, paddingBottom: 92 },
   inner: { width: '100%', maxWidth: 1212, alignSelf: 'center', gap: 40 },
   innerWide: { flexDirection: 'row', alignItems: 'flex-start', gap: 56 },
   left: { gap: 16 },

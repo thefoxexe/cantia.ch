@@ -1,35 +1,36 @@
-import { useState, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type DimensionValue, type ViewStyle } from 'react-native';
-import { Link } from 'expo-router';
+import { useState } from 'react';
+import { Image, Platform, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Head from 'expo-router/head';
 import { Feather } from '@expo/vector-icons';
-import { AccNav, AccPage, NavButton, PAGE_MAX, useIsWide } from './AccountingChrome';
-import { ClosingMock, EntryMock, FirmMock, OverviewMock, PortalMock, ReportsMock, VatMock } from './landing/Mockups';
-import { useSiteCopy, type ChapterKey } from '../../lib/accounting/siteCopy';
-import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { AccNav, AccPage } from './AccountingChrome';
+import { useSiteCopy } from '../../lib/accounting/siteCopy';
+import { ACC_ZIP, type ZipLocale } from '../../lib/accounting/zipCopy';
 import { RealFiles } from './landing/RealFiles';
 import { Btn, Eyebrow, Headline, Hover, Micro } from '../site/Primitives';
-import { sans, site } from '../../lib/siteTheme';
+import { FaqItem } from '../site/FamilyPage';
+import { PhoneShot } from '../site/Sections';
+import { sans, serif, site } from '../../lib/siteTheme';
 
-// accounting.cantia.ch home (FR at /, DE at /de, IT at /it): what the firm
-// workspace does, chapter by chapter, each with a mockup of the real screen.
-// Strings and example data: lib/accounting/siteCopy.ts.
+// accounting.cantia.ch home (FR at /, DE at /de, IT at /it), laid out as the
+// November 2026 design hand-off (accounting.html): hero with the real firm
+// workspace, six uses, with or without Cantia, formats, free space, FAQ, CTA.
+// Texts: lib/accounting/zipCopy.ts; SEO meta and the long FAQ:
+// lib/accounting/siteCopy.ts.
 
 const ORIGIN = 'https://accounting.cantia.ch';
-const INK = '#293128';
-const INK_TEXT = '#EFE4D6';
-const INK_MUTED = '#B9A994';
-const INK_LINE = 'rgba(255,255,255,0.12)';
-const COPPER = '#d9aa85';
-const WIDTH = 1320 - 108;
+const MAX = 1212;
 
-const MOCKS: Record<ChapterKey, () => ReactNode> = {
-  entry: () => <EntryMock />,
-  reports: () => <ReportsMock />,
-  vat: () => <VatMock />,
-  closing: () => <ClosingMock />,
-  portal: () => <PortalMock />,
-  firm: () => <FirmMock />,
+// The real workspace (app-accounting/espace.tsx) rendered with sample data.
+const SHOTS: Record<ZipLocale, any> = {
+  fr: require('../../assets/marketing/accounting/espace.jpg'),
+  de: require('../../assets/marketing/accounting/espace-de.jpg'),
+  it: require('../../assets/marketing/accounting/espace-it.jpg'),
+};
+const SHOT_RATIO = 1075 / 1600;
+const MOBILE: Record<ZipLocale, any> = {
+  fr: require('../../assets/marketing/accounting/espace-mobile.jpg'),
+  de: require('../../assets/marketing/accounting/espace-mobile-de.jpg'),
+  it: require('../../assets/marketing/accounting/espace-mobile-it.jpg'),
 };
 
 // Search engines: the product, its publisher and the FAQ, in the page's language.
@@ -65,20 +66,52 @@ function structuredData(locale: string, meta: { title: string; description: stri
   };
 }
 
-function scrollToFeatures() {
+function scrollTo(id: string) {
   if (Platform.OS === 'web' && typeof document !== 'undefined') {
-    document.getElementById('fonctions')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+}
+
+function useLayout() {
+  const { width } = useWindowDimensions();
+  const phone = width <= 760;
+  return { width, phone, wide: width > 1000, gutter: width > 760 ? 54 : 22 };
+}
+
+function Band({ children, white, id, style }: { children: React.ReactNode; white?: boolean; id?: string; style?: object }) {
+  const { phone, gutter } = useLayout();
+  return (
+    <View nativeID={id} style={[{ paddingVertical: phone ? 56 : 92, paddingHorizontal: gutter, backgroundColor: white ? site.white : site.bg }, style]}>
+      <View style={styles.inner}>{children}</View>
+    </View>
+  );
 }
 
 export function AccountingLanding() {
   const { s, locale } = useSiteCopy();
-  const wide = useIsWide();
+  const layout = useLayout();
+  const z = ACC_ZIP[(locale as ZipLocale) ?? 'fr'] ?? ACC_ZIP.fr;
   const prefix = locale === 'fr' ? '' : `/${locale}`;
   const url = `${ORIGIN}${prefix || '/'}`;
+  // The hand-off's three questions first, then the longer list (search engines read them all).
+  // (skipping the long list's versions of the same three questions).
+  const dup = /utiliser cantia|cantia nutzen|usare cantia|afc|estv|compte cantia|cantia-konto|conto cantia/i;
+  const faq = [...z.faq.items, ...s.faq.items.filter((f) => !dup.test(f.q))];
 
   return (
-    <AccPage nav={<AccNav landing cta />}>
+    <AccPage
+      nav={
+        <AccNav
+          landing
+          cta
+          links={[
+            { label: z.nav.features, onPress: () => scrollTo('fonctions') },
+            { label: z.nav.clients, onPress: () => scrollTo('mandants') },
+            { label: z.nav.questions, onPress: () => scrollTo('questions') },
+          ]}
+        />
+      }
+    >
       <Head>
         <title>{s.meta.title}</title>
         <meta name="description" content={s.meta.description} />
@@ -93,825 +126,231 @@ export function AccountingLanding() {
         <meta property="og:image" content={`${ORIGIN}/og-image.jpg`} />
         <meta property="og:locale" content={`${locale}_CH`} />
         <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">{JSON.stringify(structuredData(locale, s.meta, s.faq.items, url))}</script>
+        <script type="application/ld+json">{JSON.stringify(structuredData(locale, s.meta, faq, url))}</script>
       </Head>
 
-      <Hero wide={wide} />
-      <RealFiles wide={wide} />
-      <Chapters wide={wide} />
-      <Kinds wide={wide} />
-      <Calendar wide={wide} />
-      <Included wide={wide} />
-      <Security wide={wide} />
-      <Pricing wide={wide} />
-      <Partner wide={wide} />
-      <Faq wide={wide} />
-      <Final wide={wide} />
+      <Hero z={z} locale={locale as ZipLocale} />
+      <Uses z={z} />
+      <Clients z={z} />
+      <RealFiles wide={layout.wide} />
+      <Free z={z} />
+      <Band id="questions">
+        <View style={styles.faq}>
+          <Eyebrow>{z.faq.eyebrow}</Eyebrow>
+          <Headline plain={z.faq.title} size={layout.phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 30 }} />
+          {faq.map((f, i) => (
+            <FaqItem key={f.q} q={f.q} a={f.a} last={i === faq.length - 1} />
+          ))}
+        </View>
+      </Band>
+      <Final z={z} />
     </AccPage>
   );
 }
 
-// ------------------------------------------------------------ building blocks
+// ------------------------------------------------------------ sections
 
-// Same side gutter as the header, so every section lines up with the logo.
-function useGutter() {
-  const { width } = useWindowDimensions();
-  return width > 760 ? 54 : 22;
-}
+type Z = (typeof ACC_ZIP)['fr'];
 
-function Band({ children, tone = 'page', style }: { children: ReactNode; tone?: 'page' | 'surface' | 'ink'; style?: object }) {
-  const gutter = useGutter();
+function Hero({ z, locale }: { z: Z; locale: ZipLocale }) {
+  const { phone, wide, width, gutter } = useLayout();
+  const size = phone ? 44 : wide ? Math.min(62, Math.max(50, width * 0.045)) : 50;
   return (
-    <View style={[styles.band, { paddingHorizontal: gutter }, tone === 'surface' && styles.bandSurface, tone === 'ink' && styles.bandInk, style]}>
-      <View style={styles.inner}>{children}</View>
-    </View>
-  );
-}
-
-function Heading({ eyebrow, title, text, inverse = false, center = false }: { eyebrow: string; title: string; text?: string; inverse?: boolean; center?: boolean }) {
-  return (
-    <View style={[styles.heading, center && { alignItems: 'center' }]}>
-      <Text style={[styles.eyebrow, inverse && { color: COPPER }]}>{eyebrow}</Text>
-      <Text style={[styles.h2, inverse && { color: '#FFFFFF' }, center && { textAlign: 'center' }]} role="heading" aria-level={2}>
-        {title}
-      </Text>
-      {text ? <Text style={[styles.lead, inverse && { color: INK_TEXT }, center && { textAlign: 'center' }]}>{text}</Text> : null}
-    </View>
-  );
-}
-
-// ------------------------------------------------------------ hero
-
-function Hero({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const gutter = useGutter();
-  // "Vos mandants.\nLe même fil." style titles: the last line is the serif accent.
-  // Without a line break, the last sentence is the accent.
-  const title = s.hero.title.trim();
-  const nl = title.lastIndexOf('\n');
-  const dot = title.slice(0, -1).lastIndexOf('. ');
-  const cut = nl > 0 ? nl : dot > 0 ? dot + 1 : -1;
-  const plain = cut > 0 ? title.slice(0, cut).trim() : title;
-  const accent = cut > 0 ? title.slice(cut).trim() : undefined;
-  return (
-    <View style={[styles.heroWrap, { paddingTop: wide ? 64 : 40, paddingHorizontal: gutter }]}>
-      <View style={[styles.inner, wide ? styles.heroRow : { gap: 30 }]}>
-        <View style={wide ? { flex: 1, minWidth: 0 } : undefined}>
-          <Eyebrow>{s.hero.eyebrow}</Eyebrow>
-          <Headline level={1} plain={plain} accent={accent} size={wide ? 58 : 43} style={{ marginTop: 20, marginBottom: 22, fontWeight: '400', letterSpacing: wide ? -2.6 : -1.9 }} />
-          <Text style={[sans, styles.heroLead, !wide && { fontSize: 13, lineHeight: 24 }]}>{s.hero.text}</Text>
-          <View style={styles.ctaRow}>
-            <View>
-              <Btn label={s.hero.cta} href="/connexion?mode=signup" small={!wide} />
+    <View style={{ backgroundColor: site.bg }}>
+      <View style={{ paddingHorizontal: gutter, paddingTop: phone ? 40 : 76, paddingBottom: phone ? 40 : 70 }}>
+        <View style={[styles.inner, wide ? styles.heroRow : { gap: 34 }]}>
+          <View style={wide ? { flex: 0.9, minWidth: 0 } : undefined}>
+            <Eyebrow>{z.hero.eyebrow}</Eyebrow>
+            <Headline level={1} plain={z.hero.plain} accent={z.hero.accent} size={size} style={{ marginTop: 22, marginBottom: 24 }} />
+            <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{z.hero.text}</Text>
+            <View style={styles.ctaRow}>
+              <View>
+                <Btn label={z.hero.cta} href="/connexion?mode=signup" small={phone} />
+              </View>
+              <Hover onPress={() => scrollTo('fonctions')} accessibilityRole="button" base={styles.more} hover={{ opacity: 0.7 }}>
+                <Text style={[sans, styles.moreText]}>{z.hero.more}</Text>
+                <Feather name="arrow-down" size={13} color={site.ink} />
+              </Hover>
             </View>
-            <Hover onPress={scrollToFeatures} accessibilityRole="button" base={styles.ghostLarge} hover={{ opacity: 0.75 }}>
-              <Text style={[sans, styles.ghostLargeText]}>{s.hero.secondary}</Text>
-              <Feather name="arrow-down" size={14} color={site.ink} />
-            </Hover>
+            <Micro style={{ fontSize: 9 }}>{z.hero.micro}</Micro>
           </View>
-          <View style={styles.points}>
-            {s.hero.points.map((p) => (
-              <View key={p} style={styles.point}>
-                <Feather name="check" size={13} color={site.copper} />
-                <Text style={[sans, styles.pointText]}>{p}</Text>
-              </View>
-            ))}
+          <View style={wide ? { flex: 1.1, minWidth: 0 } : undefined}>
+            <Workspace locale={locale} alt={z.hero.shotAlt} note={z.hero.shotNote} />
           </View>
         </View>
-        <View style={wide ? { flex: 1.08, minWidth: 0 } : undefined}>
-          <OverviewMock wide={wide} />
-        </View>
       </View>
-    </View>
-  );
-}
-
-// ------------------------------------------------------------ chapters
-
-function Chapters({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  return (
-    <View nativeID="fonctions">
-      <Band>
-        <Heading eyebrow={s.chaptersIntro.eyebrow} title={s.chaptersIntro.title} text={s.chaptersIntro.text} />
-        <View style={styles.chapterIndex}>
-          {s.chapters.map((c, i) => (
-            <View key={c.key} style={[styles.indexItem, { flexBasis: wide ? '15%' : '46%' }]}>
-              <Text style={styles.indexNum}>{String(i + 1).padStart(2, '0')}</Text>
-              <Text style={styles.indexLabel}>{c.eyebrow}</Text>
-            </View>
-          ))}
-        </View>
-      </Band>
-      {s.chapters.map((c, i) => {
-        const flip = wide && i % 2 === 1;
-        return (
-          <Band key={c.key} tone={i % 2 === 0 ? 'surface' : 'page'} style={styles.chapterBand}>
-            <View style={[styles.chapter, wide && styles.chapterWide, flip && { flexDirection: 'row-reverse' }]}>
-              <View style={[styles.chapterText, wide && { flex: 0.9 }]}>
-                <View style={styles.chapterEyebrowRow}>
-                  <Text style={styles.chapterNum}>{String(i + 1).padStart(2, '0')}</Text>
-                  <View style={styles.chapterRule} />
-                  <Text style={styles.eyebrow}>{c.eyebrow}</Text>
-                </View>
-                <Text style={[styles.h3, wide && { fontSize: 30, lineHeight: 37 }]} role="heading" aria-level={3}>
-                  {c.title}
-                </Text>
-                <Text style={styles.body}>{c.text}</Text>
-                <View style={styles.bullets}>
-                  {c.bullets.map((b) => (
-                    <View key={b} style={styles.bullet}>
-                      <View style={styles.bulletIcon}>
-                        <Feather name="check" size={12} color={site.copper} />
-                      </View>
-                      <Text style={styles.bulletText}>{b}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-              <View style={[wide ? { flex: 1.1 } : { width: '100%' }]}>{MOCKS[c.key]()}</View>
-            </View>
-          </Band>
-        );
-      })}
-    </View>
-  );
-}
-
-// ------------------------------------------------------------ kinds of clients
-
-function Kinds({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const k = s.kinds;
-  const card = (item: typeof k.cantia, dark: boolean, icon: keyof typeof Feather.glyphMap) => (
-    <View style={[styles.kind, dark && styles.kindDark, wide && { flex: 1 }]}>
-      <View style={styles.kindHead}>
-        <View style={[styles.kindIcon, dark && { backgroundColor: 'rgba(217,137,90,0.16)' }]}>
-          <Feather name={icon} size={18} color={dark ? COPPER : site.copper} />
-        </View>
-        <Text style={[styles.kindLabel, dark && { color: COPPER }]}>{item.label}</Text>
-      </View>
-      <Text style={[styles.h3, dark && { color: '#FFFFFF' }]}>{item.title}</Text>
-      <View style={{ gap: spacing.md }}>
-        {item.items.map((line) => (
-          <View key={line} style={styles.kindRow}>
-            <Feather name="check" size={16} color={dark ? COPPER : site.copper} style={{ marginTop: 3 }} />
-            <Text style={[styles.body, { flex: 1 }, dark && { color: INK_TEXT }]}>{line}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-  return (
-    <Band>
-      <Heading eyebrow={k.eyebrow} title={k.title} />
-      <View style={[{ gap: spacing.lg }, wide && { flexDirection: 'row' }]}>
-        {card(k.cantia, false, 'link')}
-        {card(k.external, true, 'book')}
-      </View>
-    </Band>
-  );
-}
-
-// ------------------------------------------------------------ deadlines calendar
-
-function Calendar({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const c = s.calendar;
-  return (
-    <Band tone="surface">
-      <View style={[{ gap: spacing.xl }, wide && { flexDirection: 'row', gap: 64, alignItems: 'flex-end' }]}>
-        <View style={wide ? { flex: 1 } : undefined}>
-          <Heading eyebrow={c.eyebrow} title={c.title} />
-        </View>
-        <Text style={[styles.body, wide && { flex: 1 }]}>{c.text}</Text>
-      </View>
-      {wide ? (
-        <View style={styles.calendar} aria-hidden>
-          <View style={styles.calMonths}>
-            {c.months.map((m, i) => (
-              <View key={m} style={[styles.calMonth, i > 0 && styles.calMonthDivider]}>
-                <Text style={styles.calMonthText}>{m}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.calTrack}>
-            {c.events.map(([month, label], i) => {
-              // Late in the year the label runs leftwards so it stays inside the frame.
-              const end = month >= 9;
-              const place: ViewStyle = end ? { right: `${((11 - month) / 12) * 100 + 0.6}%` as DimensionValue, flexDirection: 'row-reverse' } : { left: `${(month / 12) * 100 + 0.6}%` as DimensionValue };
-              return (
-                <View key={label} style={[styles.calEvent, place, { top: (i % 3) * 46 + 12 }]}>
-                  <View style={[styles.calDot, month === 11 && { backgroundColor: INK }]} />
-                  <Text style={[styles.calLabel, end && { textAlign: 'right' }]} numberOfLines={2}>
-                    {label}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      ) : null}
-      <View style={wide ? styles.srOnly : styles.calList}>
-        {c.events.map(([month, label]) => (
-          <View key={label} style={styles.calListRow}>
-            <Text style={styles.calListMonth}>{c.months[month]}</Text>
-            <Text style={[styles.body, { flex: 1 }]}>{label}</Text>
-          </View>
-        ))}
-      </View>
-      <Text style={styles.note}>{c.note}</Text>
-    </Band>
-  );
-}
-
-// ------------------------------------------------------------ everything included
-
-function Included({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const mid = useIsWide(640);
-  return (
-    <Band>
-      <Heading eyebrow={s.included.eyebrow} title={s.included.title} />
-      <View style={styles.includedGrid}>
-        {s.included.groups.map((g) => (
-          <View key={g.title} style={[styles.group, { flexBasis: wide ? '22%' : mid ? '46%' : '100%' }]}>
-            <Text style={styles.groupTitle}>{g.title}</Text>
-            {g.items.map((item) => (
-              <View key={item} style={styles.groupRow}>
-                <Feather name="check" size={13} color={colors.success} style={{ marginTop: 3 }} />
-                <Text style={styles.groupText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-    </Band>
-  );
-}
-
-// ------------------------------------------------------------ security
-
-function Security({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const mid = useIsWide(640);
-  return (
-    <Band tone="ink">
-      <Heading eyebrow={s.security.eyebrow} title={s.security.title} inverse />
-      <View style={styles.secGrid}>
-        {s.security.items.map((item) => (
-          <View key={item.title} style={[styles.secItem, { flexBasis: wide ? '30%' : mid ? '46%' : '100%' }]}>
-            <Feather name={item.icon as keyof typeof Feather.glyphMap} size={20} color={COPPER} />
-            <Text style={styles.secTitle}>{item.title}</Text>
-            <Text style={styles.secText}>{item.text}</Text>
-          </View>
-        ))}
-      </View>
-    </Band>
-  );
-}
-
-// ------------------------------------------------------------ pricing and steps
-
-function Pricing({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const p = s.pricing;
-  return (
-    <Band>
-      <View style={[{ gap: 48 }, wide && { flexDirection: 'row', alignItems: 'stretch' }]}>
-        <View style={[styles.priceCard, wide && { flex: 1 }]}>
-          <Text style={styles.eyebrow}>{p.eyebrow}</Text>
-          <Text style={styles.h3}>{p.title}</Text>
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>{p.price}</Text>
-            <Text style={styles.per}>{p.per}</Text>
-          </View>
-          <Text style={styles.body}>{p.text}</Text>
-          <View style={{ gap: spacing.sm }}>
-            {p.items.map((item) => (
-              <View key={item} style={styles.kindRow}>
-                <Feather name="check" size={16} color={colors.success} style={{ marginTop: 3 }} />
-                <Text style={[styles.body, { flex: 1, fontWeight: '600', color: colors.text }]}>{item}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={{ marginTop: spacing.sm, alignSelf: 'flex-start' }}>
-            <NavButton href="/connexion?mode=signup" label={p.cta} primary large />
-          </View>
-        </View>
-        <View style={[{ gap: spacing.xl, justifyContent: 'center' }, wide && { flex: 1 }]}>
-          <Text style={styles.h3} role="heading" aria-level={2}>
-            {s.steps.title}
+      <View style={[styles.trust, { paddingHorizontal: gutter }, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 10 }]}>
+        {z.trust.map((t) => (
+          <Text key={t} style={[sans, styles.trustText]}>
+            {t}
           </Text>
-          {s.steps.items.map((step, i) => (
-            <View key={step.title} style={styles.step}>
-              <View style={styles.stepRail}>
-                <View style={styles.stepDot}>
-                  <Text style={styles.stepDotText}>{i + 1}</Text>
-                </View>
-                {i < s.steps.items.length - 1 ? <View style={styles.stepLine} /> : null}
-              </View>
-              <View style={{ flex: 1, gap: 4, paddingBottom: spacing.lg }}>
-                <Text style={styles.cardTitle}>{step.title}</Text>
-                <Text style={styles.body}>{step.text}</Text>
-              </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// The sage frame of the hand-off, holding the real workspace screen.
+function Workspace({ locale, alt, note }: { locale: ZipLocale; alt: string; note: string }) {
+  const [w, setW] = useState(0);
+  const { phone } = useLayout();
+  if (phone) {
+    return (
+      <View style={[styles.sage, { alignItems: 'center', paddingVertical: 26 }]}>
+        <PhoneShot source={MOBILE[locale] ?? MOBILE.fr} ratio={1350 / 624} width={250} maxHeight={470} alt={alt} />
+        <Text style={[sans, styles.shotNote]}>{note}</Text>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.sage}>
+      <View style={styles.window} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+        <View style={styles.windowBar}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={styles.dot} />
+          ))}
+          <Text style={[sans, styles.url]}>accounting.cantia.ch/espace</Text>
+        </View>
+        <Image source={SHOTS[locale] ?? SHOTS.fr} style={{ width: '100%', height: w ? w * SHOT_RATIO : 320 }} resizeMode="cover" accessibilityLabel={alt} />
+      </View>
+      <Text style={[sans, styles.shotNote]}>{note}</Text>
+    </View>
+  );
+}
+
+function Uses({ z }: { z: Z }) {
+  const { phone, wide, width } = useLayout();
+  const cols = phone ? 1 : width <= 1000 ? 2 : 3;
+  return (
+    <Band white id="fonctions">
+      <View style={[styles.headRow, !wide && { flexDirection: 'column', alignItems: 'flex-start', gap: 18 }]}>
+        <View>
+          <Eyebrow>{z.uses.eyebrow}</Eyebrow>
+          <Headline plain={z.uses.plain} accent={z.uses.accent} size={phone ? 34 : 44} style={{ marginTop: 16 }} />
+        </View>
+        <Text style={[sans, styles.side]}>{z.uses.text}</Text>
+      </View>
+      <View style={[styles.grid, { marginTop: phone ? 34 : 50 }]}>
+        {z.uses.items.map(([title, text], i) => (
+          <View key={title} style={[styles.use, { width: cols === 1 ? '100%' : cols === 2 ? '47.5%' : '31%' }]}>
+            <Text style={[sans, styles.useNum]}>{String(i + 1).padStart(2, '0')}</Text>
+            <Text style={[sans, styles.useTitle]}>{title}</Text>
+            <Text style={[sans, styles.useText]}>{text}</Text>
+          </View>
+        ))}
+      </View>
+    </Band>
+  );
+}
+
+const FORMATS = ['Banana', 'Abacus', 'Winbiz', 'Excel / CSV', 'AFC'];
+
+function Clients({ z }: { z: Z }) {
+  const { phone, wide } = useLayout();
+  return (
+    <Band id="mandants">
+      <View style={[styles.split, !wide && { flexDirection: 'column', gap: 34 }]}>
+        <View style={wide ? { flex: 1 } : undefined}>
+          <Eyebrow>{z.clients.eyebrow}</Eyebrow>
+          <Headline plain={z.clients.plain} accent={z.clients.accent} size={phone ? 32 : 42} style={{ marginTop: 16, marginBottom: 22 }} />
+          <Text style={[sans, styles.copy]}>{z.clients.text}</Text>
+        </View>
+        <View style={wide ? { flex: 1 } : undefined}>
+          {z.clients.items.map((it) => (
+            <View key={it.label} style={styles.kind}>
+              <Text style={[sans, styles.kindLabel]}>{it.label.toUpperCase()}</Text>
+              <Text style={[sans, styles.kindTitle]}>{it.title}</Text>
+              <Text style={[sans, styles.kindText]}>{it.text}</Text>
             </View>
           ))}
         </View>
       </View>
-    </Band>
-  );
-}
-
-function Partner({ wide }: { wide: boolean }) {
-  const { s, locale } = useSiteCopy();
-  const prefix = locale === 'fr' ? '' : `/${locale}`;
-  return (
-    <Band style={{ paddingTop: 0 }}>
-      <View style={[styles.partner, wide && styles.partnerWide]}>
-        <View style={[{ gap: spacing.sm }, wide && { flex: 1 }]}>
-          <Text style={styles.eyebrow}>{s.partner.eyebrow}</Text>
-          <Text style={styles.cardTitle}>{s.partner.title}</Text>
-          <Text style={styles.body}>{s.partner.text}</Text>
-        </View>
-        <Link href={`https://partners.cantia.ch${prefix}` as any} style={styles.partnerLink}>
-          {s.partner.cta} →
-        </Link>
+      <View style={[styles.formats, phone && { flexWrap: 'wrap', rowGap: 14, columnGap: 26 }]}>
+        <Text style={[sans, styles.formatsLabel, phone && { width: '100%' }]}>{z.clients.formatsLabel}</Text>
+        {FORMATS.map((f) => (
+          <Text key={f} style={[sans, styles.format]}>
+            {f}
+          </Text>
+        ))}
       </View>
     </Band>
   );
 }
 
-// ------------------------------------------------------------ FAQ and final call
-
-function Faq({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
-  const [open, setOpen] = useState<number | null>(0);
+function Free({ z }: { z: Z }) {
+  const { phone, wide } = useLayout();
   return (
-    <Band tone="surface">
-      <View style={[{ gap: spacing.xl }, wide && { flexDirection: 'row', gap: 64 }]}>
-        <Text style={[styles.h2, wide && { flex: 0.7 }]} role="heading" aria-level={2}>
-          {s.faq.title}
-        </Text>
-        <View style={[styles.faq, wide && { flex: 1.5 }]}>
-          {s.faq.items.map((item, i) => (
-            <Pressable key={item.q} onPress={() => setOpen(open === i ? null : i)} style={styles.faqItem} accessibilityRole="button" aria-expanded={open === i}>
-              <View style={styles.faqHead}>
-                <Text style={styles.faqQ}>{item.q}</Text>
-                <Feather name={open === i ? 'minus' : 'plus'} size={18} color={colors.textMuted} />
-              </View>
-              {/* Every answer stays in the page (search engines, find-in-page); closed ones are hidden. */}
-              <Text style={[styles.body, open !== i && styles.srOnly]}>{item.a}</Text>
-            </Pressable>
-          ))}
+    <Band white>
+      <View style={[styles.split, { alignItems: 'center' }, !wide && { flexDirection: 'column', alignItems: 'flex-start', gap: 30 }]}>
+        <View style={wide ? { flex: 1.3 } : undefined}>
+          <Eyebrow>{z.free.eyebrow}</Eyebrow>
+          <Headline plain={z.free.plain} accent={z.free.accent} size={phone ? 34 : 44} style={{ marginTop: 16, marginBottom: 20 }} />
+          <Text style={[sans, styles.copy]}>{z.free.text}</Text>
+          <View style={{ marginTop: 26, alignSelf: 'flex-start' }}>
+            <Btn label={z.free.cta} href="/connexion?mode=signup" small={phone} />
+          </View>
+        </View>
+        <View style={[styles.zero, wide ? { flex: 0.7 } : { alignSelf: 'center' }]}>
+          <Text style={[sans, styles.zeroCur]}>{z.free.currency}</Text>
+          <Text style={[serif, styles.zeroNum, phone && { fontSize: 110, lineHeight: 120 }]}>0</Text>
+          <Text style={[sans, styles.zeroNote]}>{z.free.note}</Text>
         </View>
       </View>
     </Band>
   );
 }
 
-function Final({ wide }: { wide: boolean }) {
-  const { s } = useSiteCopy();
+function Final({ z }: { z: Z }) {
+  const { phone, wide, gutter } = useLayout();
   return (
-    <Band tone="ink" style={{ paddingBottom: 96 }}>
-      <View style={[styles.final, wide && { alignItems: 'center' }]}>
-        <Text style={[styles.finalTitle, wide && { fontSize: 44, lineHeight: 52, textAlign: 'center' }]}>{s.final.title}</Text>
-        <Text style={[styles.lead, { color: INK_TEXT }, wide && { textAlign: 'center' }]}>{s.final.text}</Text>
-        <View style={[styles.ctaRow, wide && { justifyContent: 'center' }]}>
-          <NavButton href="/connexion?mode=signup" label={s.final.cta} primary large />
-          <Link href="/connexion" style={styles.inkGhost}>
-            {s.final.secondary}
-          </Link>
+    <View style={{ backgroundColor: '#293128', paddingVertical: phone ? 44 : 64, paddingHorizontal: gutter }}>
+      <View style={[styles.inner, wide ? { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 } : { gap: 24 }]}>
+        <View>
+          <Headline plain={z.final.plain} accent={z.final.accent} size={phone ? 32 : 40} color="#f4f3e9" accentColor="#d9aa85" />
+          <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 16 }]}>{z.final.text}</Text>
+        </View>
+        <View style={{ alignSelf: wide ? 'center' : 'flex-start' }}>
+          <Btn label={z.final.cta} href="/connexion?mode=signup" tone="sand" />
         </View>
       </View>
-    </Band>
+    </View>
   );
 }
-
-// ------------------------------------------------------------ styles
-
-const heading = {
-  fontFamily: "'DM Sans', 'DM Sans Fallback', Arial, sans-serif",
-  color: site.ink,
-};
 
 const styles = StyleSheet.create({
-  band: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 88,
-    backgroundColor: site.bg,
-  },
-  bandSurface: {
-    backgroundColor: site.white,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: site.line,
-  },
-  bandInk: { backgroundColor: INK },
-  inner: { width: '100%', maxWidth: WIDTH, alignSelf: 'center', gap: 40 },
-  heading: { gap: spacing.md, maxWidth: 760 },
-  eyebrow: {
-    ...sans,
-    fontSize: 10,
-    fontWeight: '600',
-    color: site.copper,
-    textTransform: 'uppercase',
-    letterSpacing: 1.65,
-  },
-  h1: {
-    ...heading,
-    fontWeight: '400',
-    fontSize: 38,
-    lineHeight: 44,
-    letterSpacing: -1,
-  },
-  h1Wide: {
-    fontSize: 66,
-    lineHeight: 70,
-    letterSpacing: -2.2,
-    textAlign: 'center',
-  },
-  h2: {
-    ...heading,
-    fontWeight: '400',
-    fontSize: 34,
-    lineHeight: 40,
-    letterSpacing: -0.9,
-  },
-  h3: {
-    ...heading,
-    fontWeight: '400',
-    fontSize: 25,
-    lineHeight: 31,
-    letterSpacing: -0.5,
-  },
-  lead: { ...sans, fontSize: 14, lineHeight: 26, color: site.muted, maxWidth: 680 },
-  body: { ...sans, fontSize: 13, lineHeight: 23, color: site.muted },
-  cardTitle: {
-    ...sans,
-    fontSize: 18,
-    lineHeight: 25,
-    fontWeight: '500',
-    color: site.ink,
-  },
-  note: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },
-  srOnly: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
-    opacity: 0,
-  },
-
-  heroWrap: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: 56,
-    paddingBottom: 72,
-    backgroundColor: site.bg,
-    overflow: 'hidden',
-  },
-  heroGrid: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: 640,
-    opacity: 0.55,
-    ...(Platform.OS === 'web'
-      ? ({
-          backgroundImage: 'linear-gradient(#E9DDCA 1px, transparent 1px), linear-gradient(90deg, #E9DDCA 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0))',
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0))',
-        } as object)
-      : {}),
-  },
-  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 60 },
-  heroText: {
-    gap: 22,
-    maxWidth: 900,
-    alignSelf: 'center',
-    alignItems: 'flex-start',
-  },
-  heroBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-  },
-  heroBadgeDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: site.copper,
-  },
-  heroBadgeText: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: colors.text,
-    letterSpacing: 0.3,
-  },
-  heroLead: { fontSize: 15, lineHeight: 28, color: site.muted, maxWidth: 560 },
-  ctaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 25,
-    marginTop: 26,
-  },
-  ghostLarge: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  ghostLargeText: { fontSize: 12, fontWeight: '600', color: site.ink },
-  points: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 18 },
-  point: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  pointText: { fontSize: 10, color: '#7a7d72' },
-
-  formatsWrap: {
-    paddingHorizontal: spacing.lg,
-    backgroundColor: site.white,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: site.line,
-  },
-  formats: { paddingVertical: 22, gap: 14 },
-  formatsWide: { flexDirection: 'row', alignItems: 'center', gap: 32 },
-  formatsLabel: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-  },
-  formatsList: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: 26,
-    rowGap: 10,
-  },
-  formatItem: {
-    ...sans,
-    fontSize: 12.5,
-    color: colors.text,
-    letterSpacing: 0.2,
-  },
-
-  chapterIndex: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  indexItem: {
-    flexGrow: 1,
-    borderTopWidth: 2,
-    borderTopColor: colors.text,
-    paddingTop: 10,
-    gap: 4,
-  },
-  indexNum: { fontFamily: "'DM Serif Display', 'DM Serif Fallback', Georgia, serif", fontStyle: 'italic', fontSize: 22, color: site.copper },
-  indexLabel: { fontSize: 14, fontWeight: '700', color: colors.text },
-  chapterBand: { paddingVertical: 96 },
-  chapter: { gap: 40 },
-  chapterWide: { flexDirection: 'row', alignItems: 'center', gap: 72 },
-  chapterText: { gap: 18 },
-  chapterEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  chapterNum: { fontFamily: "'DM Serif Display', 'DM Serif Fallback', Georgia, serif", fontStyle: 'italic', fontSize: 20, color: site.copper },
-  chapterRule: { width: 28, height: 1, backgroundColor: site.copper },
-  bullets: { gap: 12, marginTop: 4 },
-  bullet: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
-  bulletIcon: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: site.clay,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  bulletText: {
-    flex: 1,
-    fontSize: fontSize.md,
-    lineHeight: 24,
-    color: colors.text,
-  },
-
-  kind: {
-    gap: spacing.lg,
-    padding: 36,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  kindDark: { backgroundColor: INK, borderColor: INK },
-  kindHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  kindIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 8,
-    backgroundColor: site.clay,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  kindLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: site.copper,
-  },
-  kindRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-
-  calendar: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
-  },
-  calMonths: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: '#FBF7F0',
-  },
-  calMonth: { flex: 1, paddingVertical: 10, alignItems: 'center' },
-  calMonthDivider: { borderLeftWidth: 1, borderLeftColor: colors.border },
-  calMonthText: {
-    ...sans,
-    fontSize: 11.5,
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-  },
-  calTrack: { height: 158 },
-  calEvent: {
-    position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    width: '19%',
-  },
-  calDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: site.copper,
-    marginTop: 4,
-  },
-  calLabel: {
-    flex: 1,
-    fontSize: 12.5,
-    lineHeight: 17,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  calList: { borderTopWidth: 1, borderTopColor: colors.border },
-  calListRow: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  calListMonth: {
-    ...sans,
-    width: 44,
-    fontSize: 12,
-    color: site.copper,
-    marginTop: 4,
-    textTransform: 'uppercase',
-  },
-
-  includedGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 28,
-    justifyContent: 'space-between',
-  },
-  group: {
-    flexGrow: 1,
-    gap: 10,
-    borderTopWidth: 2,
-    borderTopColor: colors.text,
-    paddingTop: 16,
-  },
-  groupTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  groupRow: { flexDirection: 'row', gap: 9, alignItems: 'flex-start' },
-  groupText: { flex: 1, fontSize: 14, lineHeight: 21, color: '#4A3F35' },
-
-  secGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 1,
-    backgroundColor: INK_LINE,
-    borderWidth: 1,
-    borderColor: INK_LINE,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  secItem: { flexGrow: 1, backgroundColor: INK, padding: 28, gap: 10 },
-  secTitle: { fontSize: 17, fontWeight: '800', color: '#FFFFFF' },
-  secText: { fontSize: 14.5, lineHeight: 22, color: INK_MUTED },
-
-  priceCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 36,
-    gap: 18,
-    shadowColor: '#2B211A',
-    shadowOpacity: 0.06,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 12 },
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-    flexWrap: 'wrap',
-  },
-  price: {
-    ...heading,
-    fontWeight: '800',
-    fontSize: 56,
-    lineHeight: 60,
-    letterSpacing: -2,
-  },
-  per: { fontSize: fontSize.md, color: colors.textMuted, fontWeight: '600' },
-  step: { flexDirection: 'row', gap: spacing.lg },
-  stepRail: { alignItems: 'center', width: 34 },
-  stepDot: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: site.copper,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-  },
-  stepDotText: { fontSize: 14, fontWeight: '800', color: site.copper },
-  stepLine: { flex: 1, width: 1, backgroundColor: colors.border, marginTop: 4 },
-
-  partner: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    padding: 28,
-    gap: spacing.lg,
-  },
-  partnerWide: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 36,
-    gap: 48,
-  },
-  partnerLink: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: site.copper,
-  },
-
-  faq: { borderTopWidth: 1, borderTopColor: colors.border },
-  faqItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingVertical: 18,
-    gap: spacing.sm,
-  },
-  faqHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  faqQ: { flex: 1, fontSize: 17, fontWeight: '700', color: colors.text },
-
-  final: { gap: 20 },
-  finalTitle: {
-    ...heading,
-    fontWeight: '800',
-    fontSize: 32,
-    lineHeight: 38,
-    letterSpacing: -1,
-    color: '#FFFFFF',
-  },
-  inkGhost: {
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
+  inner: { width: '100%', maxWidth: MAX, alignSelf: 'center' },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 64 },
+  lead: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 470 },
+  ctaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 24, marginTop: 30 },
+  more: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10 },
+  moreText: { fontSize: 12, color: site.ink, fontWeight: '600' },
+  sage: { backgroundColor: '#dfe3d3', borderRadius: 14, padding: 18, borderWidth: 1, borderColor: '#d2d8c3' },
+  window: { backgroundColor: site.white, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#d6d9cb', boxShadow: '0 18px 40px rgba(41,49,40,0.12)' } as object,
+  windowBar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 30, borderBottomWidth: 1, borderBottomColor: '#ebece3', backgroundColor: '#fbfbf7' },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#dcdcd0' },
+  url: { flex: 1, textAlign: 'center', fontSize: 9, color: '#9a9e8c', marginRight: 40 },
+  shotNote: { fontSize: 8, color: '#7c8470', letterSpacing: 0.6, marginTop: 12, textAlign: 'center' },
+  trust: { flexDirection: 'row', justifyContent: 'center', gap: 64, paddingVertical: 26, borderTopWidth: 1, borderTopColor: site.line },
+  trustText: { fontSize: 10, color: site.muted },
+  headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60 },
+  side: { fontSize: 13, color: site.muted, lineHeight: 23, maxWidth: 330 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 34 },
+  use: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 20 },
+  useNum: { fontSize: 10, color: site.muted },
+  useTitle: { fontSize: 20, color: site.ink, letterSpacing: -0.4, marginTop: 22, marginBottom: 10 },
+  useText: { fontSize: 12, color: site.muted, lineHeight: 21, maxWidth: 360 },
+  split: { flexDirection: 'row', gap: 80, alignItems: 'flex-start' },
+  copy: { fontSize: 14, color: site.muted, lineHeight: 26, maxWidth: 430 },
+  kind: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 20, paddingBottom: 30 },
+  kindLabel: { fontSize: 9, letterSpacing: 1.3, color: site.copper, fontWeight: '600' },
+  kindTitle: { fontSize: 24, color: site.ink, letterSpacing: -0.6, marginTop: 14, marginBottom: 10 },
+  kindText: { fontSize: 12, color: site.muted, lineHeight: 21 },
+  formats: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 56, paddingTop: 26, borderTopWidth: 1, borderTopColor: site.line },
+  formatsLabel: { fontSize: 11, color: site.muted },
+  format: { fontSize: 15, color: site.ink, letterSpacing: -0.2 },
+  zero: { alignItems: 'center' },
+  zeroCur: { fontSize: 12, color: site.muted, letterSpacing: 1 },
+  zeroNum: { fontSize: 150, lineHeight: 160, color: site.copper },
+  zeroNote: { fontSize: 12, color: site.muted },
+  faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
 });
