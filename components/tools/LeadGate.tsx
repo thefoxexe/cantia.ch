@@ -4,7 +4,9 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import type { AppLocale } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { marketingFonts } from '../../lib/marketingTheme';
+import { site } from '../../lib/siteTheme';
+
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // Email gate in front of a free tool's PDF (lead magnet). The address goes
 // to public.blog_leads (anonymous insert-only, read in the admin under
@@ -161,16 +163,16 @@ export function LeadGate({ source, locale, onUnlock, label }: { source: string; 
 }
 
 const styles = StyleSheet.create({
-  button: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, alignSelf: 'flex-start', paddingVertical: 13, paddingHorizontal: 18, borderRadius: 3, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
-  buttonText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: colors.primary },
-  card: { gap: spacing.sm, padding: spacing.lg, borderRadius: radius.md, backgroundColor: colors.primarySoft },
-  title: { fontFamily: marketingFonts.body, fontSize: fontSize.md, fontWeight: '800', color: colors.primaryDark },
-  text: { fontFamily: marketingFonts.body, fontSize: fontSize.sm, color: colors.primaryDark },
+  button: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, alignSelf: 'flex-start', paddingVertical: 13, paddingHorizontal: 18, borderRadius: 5, borderWidth: 1.5, borderColor: site.copper, backgroundColor: colors.surface },
+  buttonText: { fontFamily: DM, fontSize: 15, fontWeight: '600', color: site.copper },
+  card: { gap: spacing.sm, padding: spacing.lg, borderRadius: radius.md, backgroundColor: '#f3e6da' },
+  title: { fontFamily: DM, fontSize: fontSize.md, fontWeight: '600', color: site.ink },
+  text: { fontFamily: DM, fontSize: fontSize.sm, color: site.ink },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  input: { flex: 1, minWidth: 200, borderWidth: 1, borderColor: colors.border, borderRadius: 3, backgroundColor: colors.surface, paddingHorizontal: spacing.md, paddingVertical: 11, fontSize: 16, color: colors.text, outlineStyle: 'none' } as any,
-  submit: { paddingHorizontal: 18, paddingVertical: 12, borderRadius: 3, backgroundColor: colors.primary, justifyContent: 'center' },
-  submitText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: '#FBF6EE' },
+  input: { flex: 1, minWidth: 200, borderWidth: 1, borderColor: colors.border, borderRadius: 5, backgroundColor: colors.surface, paddingHorizontal: spacing.md, paddingVertical: 11, fontSize: 16, color: colors.text, outlineStyle: 'none' } as any,
+  submit: { paddingHorizontal: 18, paddingVertical: 12, borderRadius: 5, backgroundColor: site.copper, justifyContent: 'center' },
+  submitText: { fontFamily: DM, fontSize: 15, fontWeight: '600', color: '#FBF6EE' },
   honeypot: { position: 'absolute', width: 1, height: 1, opacity: 0, left: -9999 },
   error: { fontSize: fontSize.xs, color: colors.danger },
-  consent: { fontFamily: marketingFonts.body, fontSize: 11.5, color: colors.primaryDark, opacity: 0.85, lineHeight: 16 },
+  consent: { fontFamily: DM, fontSize: 11.5, color: site.ink, opacity: 0.85, lineHeight: 16 },
 });

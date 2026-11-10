@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
-import { Screen } from '../components/ui';
-import { MarketingHead } from '../components/MarketingHead';
-import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
-import { PageHero, pageWrap } from '../components/landing/PageHero';
-import { CtaButton } from '../components/landing/CtaButton';
-import { bodyInk, ink, rule } from '../components/landing/brand';
-import { Heading } from '../components/Heading';
+import { Btn, Eyebrow, Headline, Wrap } from '../components/site/Primitives';
+import { Breadcrumbs, SitePage, useSiteLayout } from '../components/site/Sections';
+import { site } from '../lib/siteTheme';
 import { authHref } from '../lib/appHost';
 import { computeSwissPayroll, type PayLine, type SwissOverrides, type SwissPayroll, type SwissSituation } from '../lib/payroll/swissEngine.ts';
 import { CANTONS, DEFAULT_LAA, socialRatesFor, whtCode, type Canton, type Permit, type WhtSteps } from '../lib/payroll/swissReferences.ts';
@@ -18,7 +14,12 @@ import { LeadGate } from '../components/tools/LeadGate';
 import { getAppLocale, type AppLocale } from '../lib/translations';
 import { supabase } from '../lib/supabase';
 import { breakpoints, colors, spacing } from '../lib/theme';
-import { displayType, marketingFonts, monoType } from '../lib/marketingTheme';
+
+// Site identity (November 2026): DM Sans everywhere, site palette.
+const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
+const ink = site.ink;
+const bodyInk = site.muted;
+const rule = site.line;
 
 // Free public salary calculator (cantia.ch/calculateur-salaire, plus the
 // /de and /it twins): gross → net and employer cost for one employee, with
@@ -68,6 +69,7 @@ function whtSubject(permit: Permit, couple: boolean, spouseSwiss: boolean, resid
 }
 
 export default function SalaryCalculatorPage() {
+  const { phone } = useSiteLayout();
   const locale = getAppLocale();
   const c = CALCULATOR_COPY[locale] ?? CALCULATOR_COPY.fr;
   const { width } = useWindowDimensions();
@@ -300,12 +302,16 @@ export default function SalaryCalculatorPage() {
   );
 
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead title={c.metaTitle} description={c.metaDescription} />
-      <MarketingNav />
-      <ScrollView>
-        <PageHero kicker={fill(c.kicker, { year: YEAR })} title={c.title} lede={c.lede} />
-        <View style={[pageWrap, styles.body]}>
+    <SitePage title={c.metaTitle} description={c.metaDescription} cta={false}>
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 30 : 44 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: locale === 'de' ? 'Startseite' : locale === 'it' ? 'Home' : 'Accueil', href: locale === 'fr' ? '/' : `/${locale}` }, { label: fill(c.kicker, { year: YEAR }) }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{fill(c.kicker, { year: YEAR })}</Eyebrow>
+          <Headline level={1} plain={c.title} size={phone ? 38 : 52} style={{ marginTop: 16, marginBottom: 20, maxWidth: 900, letterSpacing: phone ? -1.6 : -2.4 }} />
+          <Text style={[styles.p, phone && { fontSize: 13, lineHeight: 24 }]}>{c.lede}</Text>
+        </Wrap>
+      </View>
+        <Wrap style={styles.body}>
           <View style={[styles.columns, wide && styles.columnsWide]}>
             <View style={wide ? { flex: 1 } : null}>{form}</View>
             <View style={wide ? { flex: 1 } : null}>{result}</View>
@@ -314,9 +320,7 @@ export default function SalaryCalculatorPage() {
           <Cta c={c} />
 
           <View style={styles.section}>
-            <Heading level={2} style={styles.h2}>
-              {c.sitTitle}
-            </Heading>
+            <Headline plain={c.sitTitle} size={phone ? 30 : 38} />
             <Text style={styles.p}>{c.sitText}</Text>
             <ScrollView horizontal contentContainerStyle={{ minWidth: '100%' }}>
               <View style={styles.sitTable}>
@@ -344,10 +348,8 @@ export default function SalaryCalculatorPage() {
           <View style={styles.sources}>
             <Text style={styles.sourcesText}>{fill(c.sources, { avs: pct(RATES.avsAiApgPercent, locale), ac: pct(RATES.acPercent, locale), year: YEAR })}</Text>
           </View>
-        </View>
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+        </Wrap>
+    </SitePage>
   );
 }
 
@@ -512,9 +514,7 @@ function Cta({ c }: { c: CalculatorCopy }) {
   return (
     <View style={styles.cta}>
       <Text style={styles.ctaKicker}>{c.ctaKicker}</Text>
-      <Heading level={2} style={styles.ctaTitle}>
-        {c.ctaTitle}
-      </Heading>
+      <Headline plain={c.ctaTitle} size={36} color="#f4f3e9" />
       <View style={styles.ctaList}>
         {c.ctaPoints.map((p) => (
           <View key={p} style={styles.ctaItem}>
@@ -524,9 +524,9 @@ function Cta({ c }: { c: CalculatorCopy }) {
         ))}
       </View>
       <View style={styles.ctaButtons}>
-        <Link href={authHref('signup') as any} asChild>
-          <CtaButton title={c.ctaButton} tone="light" />
-        </Link>
+        <View>
+          <Btn label={c.ctaButton} href={authHref('signup')} tone="sand" />
+        </View>
         <Text style={styles.ctaNote}>{c.ctaNote}</Text>
       </View>
     </View>
@@ -651,76 +651,76 @@ const styles = StyleSheet.create({
   columns: { gap: spacing.xl },
   columnsWide: { flexDirection: 'row', alignItems: 'flex-start' },
   form: { gap: spacing.lg },
-  group: { gap: spacing.sm, padding: spacing.lg, borderWidth: 1, borderColor: rule, backgroundColor: colors.surface, borderRadius: 4 },
-  groupTitle: { ...monoType, fontSize: 11, letterSpacing: 1.2, color: colors.primary, marginBottom: spacing.xs },
-  label: { fontFamily: marketingFonts.body, fontSize: 13, fontWeight: '600', color: ink, marginTop: spacing.xs },
-  hint: { fontFamily: marketingFonts.body, fontSize: 12, color: bodyInk, lineHeight: 17 },
+  group: { gap: spacing.sm, padding: spacing.lg, borderWidth: 1, borderColor: rule, backgroundColor: site.white, borderRadius: 8 },
+  groupTitle: { fontFamily: DM, fontSize: 11, letterSpacing: 1.2, color: site.copper, marginBottom: spacing.xs },
+  label: { fontFamily: DM, fontSize: 13, fontWeight: '600', color: ink, marginTop: spacing.xs },
+  hint: { fontFamily: DM, fontSize: 12, color: bodyInk, lineHeight: 17 },
   inline: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
-  ageText: { ...monoType, fontSize: 12, color: bodyInk },
-  inputWrap: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 3, backgroundColor: colors.bg, paddingHorizontal: spacing.md, minHeight: 44 },
-  input: { flex: 1, minWidth: 60, fontFamily: marketingFonts.body, fontSize: 16, fontWeight: '600', color: ink, paddingVertical: 10, outlineStyle: 'none' } as any,
-  suffix: { fontFamily: marketingFonts.body, fontSize: 13, color: bodyInk, marginLeft: spacing.xs },
+  ageText: { fontFamily: DM, fontSize: 12, color: bodyInk },
+  inputWrap: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#d7dacf', borderRadius: 5, backgroundColor: site.white, paddingHorizontal: spacing.md, minHeight: 44 },
+  input: { flex: 1, minWidth: 60, fontFamily: DM, fontSize: 16, fontWeight: '600', color: ink, paddingVertical: 10, outlineStyle: 'none' } as any,
+  suffix: { fontFamily: DM, fontSize: 13, color: bodyInk, marginLeft: spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { paddingHorizontal: spacing.md, paddingVertical: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 3, backgroundColor: colors.surface },
-  chipOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  chipText: { fontFamily: marketingFonts.body, fontSize: 13, fontWeight: '600', color: ink },
-  chipTextOn: { color: colors.primaryDark },
+  chip: { paddingHorizontal: spacing.md, paddingVertical: 8, borderWidth: 1, borderColor: '#d7dacf', borderRadius: 5, backgroundColor: site.white },
+  chipOn: { borderColor: site.copper, backgroundColor: '#f6ebe1' },
+  chipText: { fontFamily: DM, fontSize: 13, fontWeight: '600', color: ink },
+  chipTextOn: { color: site.copper },
   cantons: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
-  canton: { width: 40, paddingVertical: 7, alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 3, backgroundColor: colors.surface },
-  cantonText: { ...monoType, fontSize: 11, color: ink },
+  canton: { width: 40, paddingVertical: 7, alignItems: 'center', borderWidth: 1, borderColor: '#d7dacf', borderRadius: 5, backgroundColor: site.white },
+  cantonText: { fontFamily: DM, fontSize: 11, color: ink },
   counters: { gap: spacing.sm, marginTop: spacing.xs },
   counter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-  counterLabel: { flex: 1, fontFamily: marketingFonts.body, fontSize: 13, color: ink },
+  counterLabel: { flex: 1, fontFamily: DM, fontSize: 13, color: ink },
   counterCtl: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  counterBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 3, backgroundColor: colors.surface },
+  counterBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d7dacf', borderRadius: 5, backgroundColor: site.white },
   counterBtnText: { fontSize: 18, fontWeight: '600', color: ink },
-  counterValue: { ...monoType, width: 20, textAlign: 'center', fontSize: 14, color: ink },
+  counterValue: { fontFamily: DM, width: 20, textAlign: 'center', fontSize: 14, color: ink },
   fundBox: { gap: spacing.sm },
   fundRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   fundCell: { flex: 1, minWidth: 130, gap: 2 },
 
   result: { gap: spacing.lg },
-  netCard: { padding: spacing.xl, backgroundColor: ink, borderRadius: 4, gap: 6 },
-  netLabel: { ...monoType, fontSize: 11, letterSpacing: 1.2, color: '#E8C9A8' },
-  netValue: { ...displayType, fontSize: 52, lineHeight: 54, fontWeight: '800', color: '#FBF6EE', fontVariant: ['tabular-nums'] },
-  netSub: { fontFamily: marketingFonts.body, fontSize: 13, color: '#D9CBB8' },
-  costRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing.sm, marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: '#4A3D31' },
-  costLabel: { fontFamily: marketingFonts.body, fontSize: 14, color: '#D9CBB8' },
-  costValue: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: '#FBF6EE', fontVariant: ['tabular-nums'] },
-  table: { borderWidth: 1, borderColor: rule, backgroundColor: colors.surface, borderRadius: 4, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  tableTitle: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: ink, paddingVertical: spacing.sm },
-  line: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border },
+  netCard: { padding: spacing.xl, backgroundColor: ink, borderRadius: 8, gap: 6 },
+  netLabel: { fontFamily: DM, fontSize: 11, letterSpacing: 1.2, color: '#d9aa85' },
+  netValue: { fontFamily: DM, fontSize: 52, lineHeight: 54, fontWeight: '500', color: '#f4f3e9', fontVariant: ['tabular-nums'] },
+  netSub: { fontFamily: DM, fontSize: 13, color: '#b2b9a7' },
+  costRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing.sm, marginTop: spacing.sm, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: '#47503f' },
+  costLabel: { fontFamily: DM, fontSize: 14, color: '#b2b9a7' },
+  costValue: { fontFamily: DM, fontSize: 15, fontWeight: '700', color: '#f4f3e9', fontVariant: ['tabular-nums'] },
+  table: { borderWidth: 1, borderColor: rule, backgroundColor: site.white, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  tableTitle: { fontFamily: DM, fontSize: 15, fontWeight: '700', color: ink, paddingVertical: spacing.sm },
+  line: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#d7dacf' },
   lineTotal: { borderTopColor: ink },
-  lineLabel: { fontFamily: marketingFonts.body, fontSize: 14, color: ink },
-  lineMeta: { ...monoType, fontSize: 10.5, color: bodyInk, marginTop: 2 },
-  lineAmount: { fontFamily: marketingFonts.body, fontSize: 14, fontWeight: '600', color: ink, fontVariant: ['tabular-nums'] },
-  allowRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, backgroundColor: colors.successSoft, borderRadius: 4 },
-  explain: { padding: spacing.lg, borderRadius: 4, gap: 4 },
-  explainTitle: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700' },
-  explainText: { fontFamily: marketingFonts.body, fontSize: 14, lineHeight: 21, color: ink },
+  lineLabel: { fontFamily: DM, fontSize: 14, color: ink },
+  lineMeta: { fontFamily: DM, fontSize: 10.5, color: bodyInk, marginTop: 2 },
+  lineAmount: { fontFamily: DM, fontSize: 14, fontWeight: '600', color: ink, fontVariant: ['tabular-nums'] },
+  allowRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, backgroundColor: '#e9efe2', borderRadius: 8 },
+  explain: { padding: spacing.lg, borderRadius: 8, gap: 4 },
+  explainTitle: { fontFamily: DM, fontSize: 15, fontWeight: '700' },
+  explainText: { fontFamily: DM, fontSize: 14, lineHeight: 21, color: ink },
   pdfRow: { gap: spacing.xs },
-  pdfButton: { alignSelf: 'flex-start', paddingVertical: 13, paddingHorizontal: 18, borderRadius: 3, borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
-  pdfButtonText: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '700', color: colors.primary },
+  pdfButton: { alignSelf: 'flex-start', paddingVertical: 13, paddingHorizontal: 18, borderRadius: 5, borderWidth: 1.5, borderColor: site.copper, backgroundColor: site.white },
+  pdfButtonText: { fontFamily: DM, fontSize: 15, fontWeight: '700', color: site.copper },
 
-  cta: { padding: spacing.xxl, backgroundColor: colors.primaryDark, borderRadius: 4, gap: spacing.md },
-  ctaKicker: { ...monoType, fontSize: 11, letterSpacing: 1.4, color: '#F5DECB' },
-  ctaTitle: { ...displayType, fontSize: 40, lineHeight: 40, fontWeight: '800', color: '#FBF6EE' },
+  cta: { padding: spacing.xxl, backgroundColor: '#293128', borderRadius: 8, gap: spacing.md },
+  ctaKicker: { fontFamily: DM, fontSize: 11, letterSpacing: 1.4, color: '#d9aa85' },
+  ctaTitle: { fontFamily: DM, fontSize: 40, lineHeight: 40, fontWeight: '500', color: '#f4f3e9' },
   ctaList: { gap: spacing.sm, marginVertical: spacing.sm },
   ctaItem: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
-  ctaCheck: { fontSize: 15, fontWeight: '800', color: '#F5DECB', lineHeight: 22 },
-  ctaText: { flex: 1, fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 22, color: '#FBF6EE' },
+  ctaCheck: { fontSize: 15, fontWeight: '500', color: '#d9aa85', lineHeight: 22 },
+  ctaText: { flex: 1, fontFamily: DM, fontSize: 16, lineHeight: 22, color: '#f4f3e9' },
   ctaButtons: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.lg },
-  ctaNote: { fontFamily: marketingFonts.body, fontSize: 13, color: '#F5DECB' },
+  ctaNote: { fontFamily: DM, fontSize: 13, color: '#d9aa85' },
 
   section: { gap: spacing.md },
-  h2: { ...displayType, fontSize: 36, lineHeight: 38, fontWeight: '800', color: ink },
-  p: { fontFamily: marketingFonts.body, fontSize: 16, lineHeight: 25, color: bodyInk, maxWidth: 720 },
-  sitTable: { flex: 1, minWidth: 560, borderWidth: 1, borderColor: rule, backgroundColor: colors.surface },
-  sitRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border },
-  sitHead: { borderTopWidth: 0, backgroundColor: colors.surfaceAlt },
+  h2: { fontFamily: DM, fontSize: 36, lineHeight: 38, fontWeight: '500', color: ink },
+  p: { fontFamily: DM, fontSize: 16, lineHeight: 25, color: bodyInk, maxWidth: 720 },
+  sitTable: { flex: 1, minWidth: 560, borderWidth: 1, borderColor: rule, backgroundColor: site.white },
+  sitRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#d7dacf' },
+  sitHead: { borderTopWidth: 0, backgroundColor: '#efede5' },
   sitHeadText: { fontWeight: '700' },
-  sitCell: { padding: spacing.md, fontFamily: marketingFonts.body, fontSize: 14, color: ink },
-  link: { fontFamily: marketingFonts.body, fontSize: 15, fontWeight: '600', color: colors.primary, textDecorationLine: 'underline' },
+  sitCell: { padding: spacing.md, fontFamily: DM, fontSize: 14, color: ink },
+  link: { fontFamily: DM, fontSize: 15, fontWeight: '600', color: site.copper, textDecorationLine: 'underline' },
   sources: { borderTopWidth: 1, borderTopColor: rule, paddingTop: spacing.lg },
-  sourcesText: { fontFamily: marketingFonts.body, fontSize: 12, lineHeight: 18, color: bodyInk, maxWidth: 900 },
+  sourcesText: { fontFamily: DM, fontSize: 12, lineHeight: 18, color: bodyInk, maxWidth: 900 },
 });
