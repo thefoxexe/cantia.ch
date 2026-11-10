@@ -69,17 +69,22 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
                 ))}
               </View>
             </View>
-            {family === 'organiser' ? null : (
             <View style={phone ? undefined : { flex: 0.8, minWidth: 0 }}>
               <HeroVisual family={family} labels={L} />
-              {family === 'signer' || family === 'collaborer' ? (
-                <View style={{ marginTop: 16, alignItems: 'center' }}>
-                  <OpenPdfLink label={L.openPdf} href={PDFS[family]!} />
-                </View>
-              ) : null}
             </View>
-            )}
           </View>
+          {family === 'signer' || family === 'collaborer' ? (
+            <View style={{ marginTop: phone ? 30 : 44 }}>
+              {family === 'signer' ? (
+                <DocVisual source={X.devisFull.source} ratio={X.devisFull.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 460 : 640} />
+              ) : (
+                <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 460 : 640} />
+              )}
+              <View style={{ marginTop: 16, alignItems: 'center' }}>
+                <OpenPdfLink label={L.openPdf} href={PDFS[family]!} />
+              </View>
+            </View>
+          ) : null}
           {family === 'piloter' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
               <LaptopShot source={APP_SCREENS[locale].rentabilite} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} maxWidth={900} />
