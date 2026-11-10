@@ -68,6 +68,6 @@ export function AccPage({ children, nav, footer = true }: { children: ReactNode;
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.bg },
+  page: { flex: 1, backgroundColor: '#f6f4ef' },
   pageContent: { flexGrow: 1 },
 });

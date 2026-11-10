@@ -89,7 +89,7 @@ export function NavButton({ href, label, primary = false, inverse = false, large
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.bg },
+  page: { flex: 1, backgroundColor: '#f6f4ef' },
   pageContent: { flexGrow: 1 },
   navButton: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   navButtonLarge: { paddingVertical: 14, paddingHorizontal: 22 },
