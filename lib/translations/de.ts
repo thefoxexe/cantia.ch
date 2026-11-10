@@ -2791,8 +2791,7 @@ export const de: TranslationDict = {
     billingMonthly: 'Monatliche Abrechnung',
     recommended: 'Empfohlen',
     yourChoice: 'Ihre Wahl',
-    intentHint: 'Sie hatten auf der Website {{name}} gewählt. Nichts ist fix: Nehmen Sie das passende Abo, wechseln können Sie auch später.',
-    trialStepsTitle: 'So läuft die Testphase',
+    trialStepsTitle: 'Wie läuft mein Abo ab?',
     trialSteps: [
       { title: 'Heute: CHF 0', text: 'Ihre Karte wird für später hinterlegt, jetzt wird nichts abgebucht.' },
       { title: '14 Tage alles testen', text: 'Alle Funktionen Ihres Abos sind offen, mit Ihren echten Kunden und Dokumenten.' },

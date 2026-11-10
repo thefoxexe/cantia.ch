@@ -25,10 +25,11 @@ export default function ChoosePlanScreen() {
   // Read once and applied silently; nothing on screen reveals it's there.
   const { promo, code: codeParam } = useLocalSearchParams<{ promo?: string; code?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
-  // What the visitor picked on cantia.ch before signing up (lib/planIntent).
+  // A personal code typed on the sign-up link (lib/planIntent) opens the bespoke plan below.
   const [intent] = useState(readPlanIntent);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>(intent.billing ?? 'year');
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
+  const [trialOpen, setTrialOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -133,11 +134,6 @@ export default function ChoosePlanScreen() {
           <Text style={styles.subtitle}>
             {customPlan ? t('authChoosePlan.customPlanSubtitle') : t('authChoosePlan.subtitle', { name: organization?.name ?? '' })}
           </Text>
-          {/* The plan picked on the site is only preselected: every plan
-              below stays choosable, and this says so plainly. */}
-          {!customPlan && intent.plan && plans.some((p) => p.id === intent.plan) ? (
-            <Text style={styles.intentHint}>{t('authChoosePlan.intentHint', { name: plans.find((p) => p.id === intent.plan)!.name })}</Text>
-          ) : null}
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -148,25 +144,6 @@ export default function ChoosePlanScreen() {
             <Text style={styles.adminShortcutText}>{t('authChoosePlan.adminAccess')}</Text>
           </Pressable>
         ) : null}
-
-        {/* Card requested, nothing charged before day 14, cancel online
-            before then and nothing is paid: said once, plainly. */}
-        <View style={styles.trialBox}>
-          <Text style={styles.trialTitle}>{t('authChoosePlan.trialStepsTitle')}</Text>
-          <View style={styles.trialSteps}>
-            {(t('authChoosePlan.trialSteps', { returnObjects: true }) as { title: string; text: string }[]).map((step, i) => (
-              <View key={step.title} style={styles.trialStep}>
-                <View style={styles.trialNum}>
-                  <Text style={styles.trialNumText}>{i + 1}</Text>
-                </View>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={styles.trialStepTitle}>{step.title}</Text>
-                  <Text style={styles.trialStepText}>{step.text}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
 
         <Pressable
           onPress={() => setBillingInterval((v) => (v === 'year' ? 'month' : 'year'))}
@@ -206,8 +183,7 @@ export default function ChoosePlanScreen() {
                   key={p.id}
                   plan={p}
                   billingInterval={billingInterval}
-                  highlight={p.id === (intent.plan ?? 'equipe')}
-                  badgeLabel={intent.plan === p.id ? t('authChoosePlan.yourChoice') : undefined}
+                  highlight={p.id === 'equipe'}
                   loading={busyPlan === p.id}
                   disabled={!!busyPlan}
                   onChoose={() => choosePlan(p.id)}
@@ -265,6 +241,31 @@ export default function ChoosePlanScreen() {
             )}
           </>
         )}
+
+        {/* How the trial and the subscription go: folded by default, one
+            tap opens it, so the plans stay the first thing on screen. */}
+        <View style={styles.trialBox}>
+          <Pressable onPress={() => setTrialOpen((v) => !v)} style={styles.trialHead} accessibilityRole="button" aria-expanded={trialOpen} hitSlop={6}>
+            <Feather name="info" size={16} color={colors.primary} />
+            <Text style={styles.trialTitle}>{t('authChoosePlan.trialStepsTitle')}</Text>
+            <Feather name={trialOpen ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+          </Pressable>
+          {trialOpen ? (
+            <View style={styles.trialSteps}>
+              {(t('authChoosePlan.trialSteps', { returnObjects: true }) as { title: string; text: string }[]).map((step, i) => (
+                <View key={step.title} style={styles.trialStep}>
+                  <View style={styles.trialNum}>
+                    <Text style={styles.trialNumText}>{i + 1}</Text>
+                  </View>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={styles.trialStepTitle}>{step.title}</Text>
+                    <Text style={styles.trialStepText}>{step.text}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </View>
       </OnboardingShell>
   );
 }
@@ -413,21 +414,6 @@ const styles = StyleSheet.create({
     maxWidth: 460,
     lineHeight: 23,
   },
-  intentHint: {
-    ...sans,
-    fontSize: 13,
-    lineHeight: 20,
-    color: site.ink,
-    textAlign: 'center',
-    marginTop: spacing.md,
-    maxWidth: 520,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   error: {
     color: colors.danger,
     fontSize: fontSize.sm,
@@ -452,8 +438,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  trialBox: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md, width: '100%', maxWidth: 1040, alignSelf: 'center', marginBottom: spacing.lg },
-  trialTitle: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  trialBox: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, gap: spacing.md, width: '100%', maxWidth: 720, alignSelf: 'center', marginTop: spacing.xl },
+  trialHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  trialTitle: { flex: 1, fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
   trialSteps: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
   trialStep: { flexDirection: 'row', gap: spacing.sm, flexGrow: 1, flexBasis: 240, alignItems: 'flex-start' },
   trialNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 1 },

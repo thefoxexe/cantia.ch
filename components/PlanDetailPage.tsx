@@ -83,7 +83,7 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
               <Text style={[sans, styles.leadText, phone && { fontSize: 13, lineHeight: 24 }]}>{heroText}</Text>
               <View style={styles.actions}>
                 <View>
-                  <Btn label={t('planPage.ctaTrial')} href={authHref('signup', { plan: planId, billing: billingInterval })} small={phone} />
+                  <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} small={phone} />
                 </View>
                 <View>
                   <TextLink label={t('planPage.ctaAllPlans')} href={`${pre}/tarifs`} size={phone ? 11 : 12} />
@@ -195,7 +195,7 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
             <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{t('planPage.closingText')}</Text>
           </View>
           <View style={phone ? { marginTop: 22 } : undefined}>
-            <Btn label={t('planPage.ctaTrial')} href={authHref('signup', { plan: planId, billing: billingInterval })} tone="sand" />
+            <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} tone="sand" />
           </View>
         </Wrap>
       </View>

@@ -2777,8 +2777,7 @@ export const fr = {
     billingMonthly: 'Facturation mensuelle',
     recommended: 'Recommandé',
     yourChoice: 'Votre choix',
-    intentHint: 'Vous aviez choisi {{name}} sur le site. Rien n’est figé : prenez la formule qui vous convient, vous pourrez en changer ensuite.',
-    trialStepsTitle: 'Comment se passe l’essai',
+    trialStepsTitle: 'Comment se passe mon abonnement ?',
     trialSteps: [
       { title: 'Aujourd’hui : 0 CHF', text: 'Votre carte est demandée pour la suite, rien n’est débité maintenant.' },
       { title: '14 jours pour tout essayer', text: 'Toutes les fonctions de votre formule sont ouvertes, avec vos vrais clients et vos vrais documents.' },

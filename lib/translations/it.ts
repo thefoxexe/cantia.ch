@@ -2799,8 +2799,7 @@ export const it: TranslationDict = {
     billingMonthly: 'Fatturazione mensile',
     recommended: 'Consigliato',
     yourChoice: 'La sua scelta',
-    intentHint: 'Sul sito aveva scelto {{name}}. Nulla è definitivo: prenda la formula che preferisce, potrà cambiarla anche dopo.',
-    trialStepsTitle: 'Come funziona la prova',
+    trialStepsTitle: 'Come funziona il mio abbonamento?',
     trialSteps: [
       { title: 'Oggi: CHF 0', text: 'La carta viene registrata per dopo, ora non viene addebitato nulla.' },
       { title: '14 giorni per provare tutto', text: 'Tutte le funzioni del suo piano sono aperte, con i suoi veri clienti e documenti.' },
