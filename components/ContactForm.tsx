@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button, Card, Field } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { sans, site } from '../lib/siteTheme';
 import { trackConversion } from '../lib/siteAnalytics';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
@@ -110,19 +110,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: spacing.xl,
     gap: spacing.md,
-    borderRadius: 3,
-    borderColor: '#D8C8B0',
+    borderRadius: 10,
+    borderColor: site.line,
+    backgroundColor: site.white,
     shadowOpacity: 0,
   },
   formTitle: {
-    ...displayType,
-    fontSize: 30,
+    ...sans,
+    fontSize: 24,
     lineHeight: 30,
-    fontWeight: '800',
+    fontWeight: '500',
+    letterSpacing: -0.8,
     color: colors.text,
   },
   formSubtitle: {
-    fontFamily: marketingFonts.body,
+    ...sans,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     lineHeight: 20,
@@ -163,13 +165,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   successTitle: {
-    ...displayType,
+    ...sans,
     fontSize: fontSize.lg,
     fontWeight: '700',
     color: colors.text,
   },
   successText: {
-    fontFamily: marketingFonts.body,
+    ...sans,
     fontSize: fontSize.sm,
     color: colors.textMuted,
     textAlign: 'center',

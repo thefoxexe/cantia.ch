@@ -1628,6 +1628,36 @@
   from = "/it/fonctionnalites"
   to = "/it/fonctionnalites/index.html"
   status = 200
+
+[[redirects]]
+  from = "/ecosysteme"
+  to = "/ecosysteme/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/ressources"
+  to = "/ressources/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/ecosysteme"
+  to = "/de/ecosysteme/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/ressources"
+  to = "/de/ressources/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/ecosysteme"
+  to = "/it/ecosysteme/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/ressources"
+  to = "/it/ressources/index.html"
+  status = 200
 # END generated routes
 
 # Static screenshots under public/aide/*.png share the "/aide/" prefix with

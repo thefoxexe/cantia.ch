@@ -7,7 +7,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/tarifs</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
@@ -1242,12 +1242,12 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/tarifs</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/tarifs</loc>
-    <lastmod>2026-11-03</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
@@ -2522,86 +2522,131 @@
   </url>
   <url>
     <loc>https://cantia.ch/signer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/organiser</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/collaborer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/facturer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/piloter</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/assistant</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/fonctionnalites</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/signer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/organiser</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/collaborer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/facturer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/piloter</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/assistant</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/fonctionnalites</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/signer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/organiser</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/collaborer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/facturer</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/piloter</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/assistant</loc>
+    <lastmod>2026-11-10</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/fonctionnalites</loc>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/ecosysteme</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/ressources</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/ecosysteme</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/ressources</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/ecosysteme</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/ressources</loc>
     <priority>0.4</priority>
   </url>
 </urlset>

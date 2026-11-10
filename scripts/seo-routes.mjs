@@ -462,14 +462,14 @@ export const ROUTES = [
     ],
   },
   {
-    path: 'sur-mesure',
-    title: 'Développement sur mesure | Cantia',
+    path: "sur-mesure",
+    title: "Développement sur mesure : un module privé dans Cantia | Cantia",
     description:
-      "Au-delà des modules standards, Cantia peut développer un workflow, une automatisation ou une intégration spécialement pour votre entreprise — sans changer l'expérience des autres clients.",
+      "Un calcul métier, un circuit de validation, une connexion à un outil existant : Cantia étudie un développement privé, intégré à votre espace et réservé à votre entreprise.",
     faq: [
-      { q: 'Un module sur mesure est-il visible par les autres entreprises ?', a: 'Non. Un module développé pour vous est activé uniquement pour votre organisation — les autres clients Cantia ne le voient jamais.' },
-      { q: 'Est-ce que je dois changer de logiciel ou installer autre chose ?', a: 'Non — le module vit dans le même Cantia que vous utilisez déjà, avec les mêmes accès et les mêmes mises à jour.' },
-      { q: 'Combien coûte un développement sur mesure ?', a: 'Cela dépend entièrement du besoin. On en discute d’abord ensemble, et vous recevez un devis clair avant tout engagement.' },
+      { q: "Le module est-il visible par les autres entreprises ?", a: "Non. Le développement privé est réservé à votre organisation et aux collaborateurs autorisés." },
+      { q: "Combien coûte un développement ?", a: "Le coût dépend du périmètre. Un échange permet de cadrer la demande, puis un devis est proposé avant tout engagement." },
+      { q: "Est-ce qu’une intégration est toujours possible ?", a: "Cela dépend notamment des accès et moyens proposés par le logiciel concerné. La faisabilité est étudiée avant de confirmer le développement." },
     ],
   },
   {
@@ -3472,14 +3472,14 @@ export const ROUTES = [
     ],
   },
   {
-    path: 'de/sur-mesure',
-    title: 'Massgeschneiderte Entwicklung | Cantia',
+    path: "de/sur-mesure",
+    title: "Massgeschneiderte Entwicklung: ein privates Modul in Cantia | Cantia",
     description:
-      'Über die Standardmodule hinaus kann Cantia einen Workflow, eine Automatisierung oder eine Integration speziell für Ihr Unternehmen entwickeln — ohne die Erfahrung anderer Kunden zu verändern.',
+      "Eine Branchenberechnung, ein Freigabeprozess, eine Verbindung zu einem bestehenden Tool: Cantia prüft eine private Entwicklung, integriert in Ihren Bereich und nur für Ihr Unternehmen.",
     faq: [
-      { q: 'Ist ein massgeschneidertes Modul für andere Unternehmen sichtbar?', a: 'Nein. Ein für Sie entwickeltes Modul wird nur für Ihre Organisation aktiviert — andere Cantia-Kunden sehen es nie.' },
-      { q: 'Muss ich die Software wechseln oder etwas anderes installieren?', a: 'Nein — das Modul lebt im selben Cantia, das Sie bereits nutzen, mit denselben Zugängen und denselben Updates.' },
-      { q: 'Was kostet eine massgeschneiderte Entwicklung?', a: 'Das hängt vollständig vom Bedarf ab. Wir besprechen es zunächst gemeinsam, und Sie erhalten eine klare Offerte vor jeder Verpflichtung.' },
+      { q: "Ist das Modul für andere Unternehmen sichtbar?", a: "Nein. Die private Entwicklung ist Ihrer Organisation und den berechtigten Mitarbeitenden vorbehalten." },
+      { q: "Was kostet eine Entwicklung?", a: "Die Kosten hängen vom Umfang ab. Ein Gespräch klärt die Anfrage, danach erhalten Sie eine Offerte vor jeder Verpflichtung." },
+      { q: "Ist eine Integration immer möglich?", a: "Das hängt insbesondere von den Zugängen und Möglichkeiten der betroffenen Software ab. Die Machbarkeit wird vor der Bestätigung geprüft." },
     ],
   },
   {
@@ -3755,14 +3755,14 @@ export const ROUTES = [
     ],
   },
   {
-    path: 'it/sur-mesure',
-    title: 'Sviluppo su misura | Cantia',
+    path: "it/sur-mesure",
+    title: "Sviluppo su misura: un modulo privato in Cantia | Cantia",
     description:
-      "Oltre ai moduli standard, Cantia può sviluppare un flusso di lavoro, un'automazione o un'integrazione appositamente per la Sua azienda — senza cambiare l'esperienza degli altri clienti.",
+      "Un calcolo di mestiere, un circuito di convalida, un collegamento a uno strumento esistente: Cantia studia uno sviluppo privato, integrato nel vostro spazio e riservato alla vostra azienda.",
     faq: [
-      { q: 'Un modulo su misura è visibile ad altre aziende?', a: 'No. Un modulo sviluppato per Lei viene attivato solo per la Sua organizzazione — gli altri clienti Cantia non lo vedono mai.' },
-      { q: 'Devo cambiare software o installare qualcos’altro?', a: 'No — il modulo vive nello stesso Cantia che già usa, con gli stessi accessi e gli stessi aggiornamenti.' },
-      { q: 'Quanto costa uno sviluppo su misura?', a: 'Dipende interamente dalla necessità. Ne discutiamo prima insieme, e riceve un preventivo chiaro prima di ogni impegno.' },
+      { q: "Il modulo è visibile alle altre aziende?", a: "No. Lo sviluppo privato è riservato alla vostra organizzazione e ai collaboratori autorizzati." },
+      { q: "Quanto costa uno sviluppo?", a: "Il costo dipende dal perimetro. Uno scambio permette di inquadrare la richiesta, poi viene proposto un preventivo prima di ogni impegno." },
+      { q: "Un’integrazione è sempre possibile?", a: "Dipende in particolare dagli accessi e dai mezzi offerti dal software in questione. La fattibilità è studiata prima di confermare lo sviluppo." },
     ],
   },
   {
@@ -4610,6 +4610,36 @@ export const ROUTES = [
     path: "it/fonctionnalites",
     title: "Tutte le funzionalità di Cantia | Cantia",
     description: "Preventivi, firma, progetti, pianificazione, rapporti, ore, fatture QR, spese e tesoreria: tutte le funzionalità di Cantia, raggruppate in cinque usi.",
+  },
+  {
+    path: "ecosysteme",
+    title: "Fiduciaires & partenaires : l’écosystème Cantia | Cantia",
+    description: "Cantia pour les entreprises, Cantia Accounting pour les fiduciaires, Cantia Partners pour recommander Cantia : trouvez l’espace qui correspond à votre rôle.",
+  },
+  {
+    path: "ressources",
+    title: "Découvrir Cantia : aide, guides et ressources | Cantia",
+    description: "Centre d’aide, accès mobile, espaces Cantia, blog, outils gratuits et contact direct : toutes les ressources pour prendre Cantia en main.",
+  },
+  {
+    path: "de/ecosysteme",
+    title: "Treuhänder & Partner: das Cantia-Ökosystem | Cantia",
+    description: "Cantia für Unternehmen, Cantia Accounting für Treuhänder, Cantia Partners für Empfehlungen: finden Sie den Bereich, der zu Ihrer Rolle passt.",
+  },
+  {
+    path: "de/ressources",
+    title: "Cantia entdecken: Hilfe, Anleitungen und Ressourcen | Cantia",
+    description: "Hilfecenter, mobiler Zugang, Cantia-Bereiche, Blog, kostenlose Rechner und direkter Kontakt: alle Ressourcen für den Einstieg in Cantia.",
+  },
+  {
+    path: "it/ecosysteme",
+    title: "Fiduciarie e partner: l’ecosistema Cantia | Cantia",
+    description: "Cantia per le aziende, Cantia Accounting per le fiduciarie, Cantia Partners per raccomandare Cantia: trovate lo spazio adatto al vostro ruolo.",
+  },
+  {
+    path: "it/ressources",
+    title: "Scoprire Cantia: aiuto, guide e risorse | Cantia",
+    description: "Centro assistenza, accesso mobile, spazi Cantia, blog, calcolatori gratuiti e contatto diretto: tutte le risorse per iniziare con Cantia.",
   },
 ];
 

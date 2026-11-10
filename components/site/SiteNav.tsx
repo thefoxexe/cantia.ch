@@ -56,7 +56,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
     { label: c.trade, href: `${p}/metiers` },
     { label: c.pricing, href: `${p}/tarifs` },
     { label: c.custom, href: `${p}/sur-mesure` },
-    ...(width > 900 ? [{ label: c.discover, href: `${p}/aide` }] : []),
+    ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }] : []),
   ];
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
@@ -144,7 +144,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                     <Text style={[sans, styles.megaBottomLink]}>{c.devices}</Text>
                   </Pressable>
                 </Link>
-                <Link href={'https://accounting.cantia.ch' as any} asChild>
+                <Link href={`${p}/ecosysteme` as any} asChild>
                   <Pressable onPress={() => setMegaOpen(false)}>
                     <Text style={[sans, styles.megaBottomLink]}>{c.ecosystem}</Text>
                   </Pressable>
@@ -175,7 +175,8 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             ))}
             <DrawerGroup title={c.discover}>
               <DrawerSubLink icon="monitor" label={c.devices} href={`${p}/telechargement`} onNavigate={() => setDrawerOpen(false)} />
-              <DrawerSubLink icon="briefcase" label={c.ecosystem} href="https://accounting.cantia.ch" onNavigate={() => setDrawerOpen(false)} />
+              <DrawerSubLink icon="briefcase" label={c.ecosystem} href={`${p}/ecosysteme`} onNavigate={() => setDrawerOpen(false)} />
+              <DrawerSubLink icon="compass" label={c.discover} href={`${p}/ressources`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="help-circle" label={c.help} href={`${p}/aide`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="mail" label={c.contact} href={`${p}/contact`} onNavigate={() => setDrawerOpen(false)} />
             </DrawerGroup>
