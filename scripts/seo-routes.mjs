@@ -4426,6 +4426,173 @@ export const ROUTES = [
   },
   ...HELP_SEO_IT,
   ...BLOG_SEO_IT,
+  // Software pages of the November 2026 identity (components/site/FamilyPage.tsx,
+  // components/site/SoftwarePages.tsx). Texts mirror lib/site/pages.ts.
+  {
+    path: "signer",
+    title: "Signer : clients, devis et signature en ligne | Cantia",
+    description: "Clients, catalogue de prestations, devis à votre image et signature en ligne du client : Cantia relie la première demande au devis signé.",
+    faq: [
+      { q: "Puis-je utiliser mes propres prestations ?", a: "Oui. Votre catalogue contient vos prix, unités et descriptions. Les modèles de devis permettent de réutiliser vos trames." },
+      { q: "Les soumissions sont-elles disponibles ?", a: "Oui, en bêta. Les quotas varient selon la formule ; ils sont indiqués dans le comparatif des tarifs." },
+    ],
+  },
+  {
+    path: "organiser",
+    title: "Organiser : projets, planning et documents | Cantia",
+    description: "Projets, planning partagé de l’équipe, plans et documents : Cantia regroupe les informations de chaque projet, au bureau comme en déplacement.",
+    faq: [
+      { q: "Puis-je remplacer le mot chantier ?", a: "Oui. À l’inscription, choisissez entre chantier, projet, mandat ou dossier. Le vocabulaire de l’application et des rapports PDF s’adapte." },
+      { q: "Le planning est-il accessible sur téléphone ?", a: "Oui. Chaque membre consulte son planning depuis le navigateur de son téléphone, selon les accès accordés." },
+    ],
+  },
+  {
+    path: "collaborer",
+    title: "Collaborer : rapports, heures et équipe | Cantia",
+    description: "Fil d’équipe, rapports PDF avec photos, heures par projet, frais et salaires : Cantia relie ceux qui réalisent et ceux qui organisent.",
+    faq: [
+      { q: "Qui peut consulter les salaires ?", a: "Les personnes autorisées selon leurs permissions, notamment les administrateurs et la fonction RH. Les employés standards voient leurs propres heures et frais." },
+      { q: "Les taux de cotisation sont-ils automatiques ?", a: "Les taux sont paramétrables par employé. Les valeurs indicatives doivent être ajustées selon vos caisses et votre canton ; Cantia calcule le net à partir des taux configurés." },
+    ],
+  },
+  {
+    path: "facturer",
+    title: "Facturer : factures QR, acomptes et paiements | Cantia",
+    description: "Convertissez un devis accepté en facture QR suisse, demandez un acompte et suivez les versements reçus jusqu’au solde.",
+    faq: [
+      { q: "Cantia encaisse-t-il les paiements à ma place ?", a: "Non. Le client utilise les informations de la QR-facture pour payer. Vous enregistrez et rapprochez les versements reçus dans Cantia." },
+      { q: "Puis-je consulter un exemple de facture ?", a: "Oui. Cette page présente un véritable PDF généré par Cantia avec des données d’exemple." },
+    ],
+  },
+  {
+    path: "piloter",
+    title: "Piloter : dépenses, rentabilité et trésorerie | Cantia",
+    description: "Dépenses, rentabilité par projet et trésorerie prévisionnelle à 90 jours, à partir des informations déjà renseignées dans Cantia.",
+    faq: [
+      { q: "La trésorerie est-elle connectée à mon compte bancaire ?", a: "Non. Vous renseignez le solde manuellement. La projection utilise les informations enregistrées dans Cantia, sans connexion bancaire." },
+      { q: "La projection garantit-elle mon solde futur ?", a: "Non. C’est une prévision fondée sur vos échéances et données renseignées, dont la qualité dépend de leur mise à jour." },
+    ],
+  },
+  {
+    path: "assistant",
+    title: "L’assistant Cantia : dictez, relisez, validez | Cantia",
+    description: "Dictez ou écrivez : l’assistant Cantia prépare un premier brouillon de devis, de rapport ou de facture. Vous relisez, ajustez et validez.",
+  },
+  {
+    path: "fonctionnalites",
+    title: "Toutes les fonctionnalités de Cantia | Cantia",
+    description: "Devis, signature, projets, planning, rapports, heures, factures QR, dépenses et trésorerie : toutes les fonctionnalités de Cantia, regroupées en cinq usages.",
+  },
+  {
+    path: "de/signer",
+    title: "Unterzeichnen: Kunden, Offerten und Online-Signatur | Cantia",
+    description: "Kunden, Leistungskatalog, Offerten in Ihrem Design und Online-Unterschrift des Kunden: Cantia verbindet die erste Anfrage mit der unterschriebenen Offerte.",
+    faq: [
+      { q: "Kann ich meine eigenen Leistungen verwenden?", a: "Ja. Ihr Katalog enthält Ihre Preise, Einheiten und Beschreibungen. Mit Offertvorlagen verwenden Sie Ihre Muster wieder." },
+      { q: "Sind Ausschreibungen verfügbar?", a: "Ja, als Beta. Die Kontingente unterscheiden sich je nach Abo und stehen im Preisvergleich." },
+    ],
+  },
+  {
+    path: "de/organiser",
+    title: "Organisieren: Projekte, Planung und Dokumente | Cantia",
+    description: "Projekte, geteilte Teamplanung, Pläne und Dokumente: Cantia bündelt die Informationen jedes Projekts, im Büro wie unterwegs.",
+    faq: [
+      { q: "Kann ich das Wort «Baustelle» ersetzen?", a: "Ja. Bei der Registrierung wählen Sie zwischen Baustelle, Projekt, Mandat oder Dossier. Die App und die PDF-Rapporte passen sich an." },
+      { q: "Ist die Planung auf dem Smartphone verfügbar?", a: "Ja. Jedes Mitglied sieht seine Planung im Browser seines Smartphones, je nach gewährtem Zugriff." },
+    ],
+  },
+  {
+    path: "de/collaborer",
+    title: "Zusammenarbeiten: Rapporte, Stunden und Team | Cantia",
+    description: "Team-Chat, PDF-Rapporte mit Fotos, Stunden pro Projekt, Spesen und Löhne: Cantia verbindet die Ausführung mit dem Büro.",
+    faq: [
+      { q: "Wer kann die Löhne sehen?", a: "Berechtigte Personen gemäss ihren Rechten, insbesondere Administratoren und die HR-Funktion. Normale Mitarbeitende sehen ihre eigenen Stunden und Spesen." },
+      { q: "Werden die Beitragssätze automatisch gesetzt?", a: "Die Sätze sind pro Mitarbeitendem einstellbar. Die Richtwerte passen Sie an Ihre Kassen und Ihren Kanton an; Cantia berechnet den Nettolohn aus den eingestellten Sätzen." },
+    ],
+  },
+  {
+    path: "de/facturer",
+    title: "Fakturieren: QR-Rechnungen, Anzahlungen und Zahlungen | Cantia",
+    description: "Machen Sie aus einer angenommenen Offerte eine Schweizer QR-Rechnung, verlangen Sie eine Anzahlung und verfolgen Sie die Zahlungen bis zum Saldo.",
+    faq: [
+      { q: "Zieht Cantia die Zahlungen für mich ein?", a: "Nein. Der Kunde bezahlt mit den Angaben der QR-Rechnung. Sie erfassen und gleichen die eingegangenen Zahlungen in Cantia ab." },
+      { q: "Kann ich ein Rechnungsbeispiel ansehen?", a: "Ja. Diese Seite zeigt ein echtes, von Cantia erstelltes PDF mit Beispieldaten." },
+    ],
+  },
+  {
+    path: "de/piloter",
+    title: "Steuern: Ausgaben, Rentabilität und Liquidität | Cantia",
+    description: "Ausgaben, Rentabilität pro Projekt und Liquiditätsplanung über 90 Tage, aus den Angaben, die bereits in Cantia erfasst sind.",
+    faq: [
+      { q: "Ist die Liquidität mit meinem Bankkonto verbunden?", a: "Nein. Sie erfassen den Saldo manuell. Die Planung nutzt die in Cantia gespeicherten Angaben, ohne Bankverbindung." },
+      { q: "Garantiert die Planung meinen künftigen Saldo?", a: "Nein. Es ist eine Prognose aus Ihren Fälligkeiten und erfassten Daten; ihre Qualität hängt davon ab, wie aktuell diese sind." },
+    ],
+  },
+  {
+    path: "de/assistant",
+    title: "Der Cantia-Assistent: diktieren, prüfen, freigeben | Cantia",
+    description: "Diktieren oder schreiben: Der Cantia-Assistent erstellt einen ersten Entwurf für Offerte, Rapport oder Rechnung. Sie prüfen, passen an und geben frei.",
+  },
+  {
+    path: "de/fonctionnalites",
+    title: "Alle Funktionen von Cantia | Cantia",
+    description: "Offerten, Unterschrift, Projekte, Planung, Rapporte, Stunden, QR-Rechnungen, Ausgaben und Liquidität: alle Funktionen von Cantia, in fünf Bereichen.",
+  },
+  {
+    path: "it/signer",
+    title: "Firmare: clienti, preventivi e firma online | Cantia",
+    description: "Clienti, catalogo delle prestazioni, preventivi con la vostra immagine e firma online del cliente: Cantia collega la prima richiesta al preventivo firmato.",
+    faq: [
+      { q: "Posso usare le mie prestazioni?", a: "Sì. Il catalogo contiene prezzi, unità e descrizioni. I modelli di preventivo permettono di riutilizzare le vostre basi." },
+      { q: "I capitolati sono disponibili?", a: "Sì, in beta. Le quote variano secondo il piano e sono indicate nel confronto delle tariffe." },
+    ],
+  },
+  {
+    path: "it/organiser",
+    title: "Organizzare: progetti, pianificazione e documenti | Cantia",
+    description: "Progetti, pianificazione condivisa del team, piani e documenti: Cantia raccoglie le informazioni di ogni progetto, in ufficio come in trasferta.",
+    faq: [
+      { q: "Posso sostituire la parola cantiere?", a: "Sì. All’iscrizione scegliete fra cantiere, progetto, mandato o dossier. Il vocabolario dell’app e dei rapporti PDF si adatta." },
+      { q: "La pianificazione è accessibile dal telefono?", a: "Sì. Ogni membro consulta la propria pianificazione dal browser del telefono, secondo gli accessi concessi." },
+    ],
+  },
+  {
+    path: "it/collaborer",
+    title: "Collaborare: rapporti, ore e team | Cantia",
+    description: "Chat del team, rapporti PDF con foto, ore per progetto, spese e salari: Cantia collega chi realizza e chi organizza.",
+    faq: [
+      { q: "Chi può consultare i salari?", a: "Le persone autorizzate secondo i loro permessi, in particolare gli amministratori e la funzione RU. I collaboratori standard vedono le proprie ore e spese." },
+      { q: "I tassi contributivi sono automatici?", a: "I tassi sono configurabili per collaboratore. I valori indicativi vanno adattati alle vostre casse e al vostro cantone; Cantia calcola il netto dai tassi configurati." },
+    ],
+  },
+  {
+    path: "it/facturer",
+    title: "Fatturare: fatture QR, acconti e pagamenti | Cantia",
+    description: "Trasformate un preventivo accettato in fattura QR svizzera, chiedete un acconto e seguite i versamenti ricevuti fino al saldo.",
+    faq: [
+      { q: "Cantia incassa i pagamenti al posto mio?", a: "No. Il cliente paga con i dati della fattura QR. Voi registrate e riconciliate in Cantia i versamenti ricevuti." },
+      { q: "Posso vedere un esempio di fattura?", a: "Sì. Questa pagina mostra un vero PDF generato da Cantia con dati di esempio." },
+    ],
+  },
+  {
+    path: "it/piloter",
+    title: "Gestire: spese, redditività e tesoreria | Cantia",
+    description: "Spese, redditività per progetto e tesoreria previsionale a 90 giorni, dalle informazioni già inserite in Cantia.",
+    faq: [
+      { q: "La tesoreria è collegata al mio conto bancario?", a: "No. Inserite il saldo a mano. La previsione usa le informazioni registrate in Cantia, senza collegamento bancario." },
+      { q: "La previsione garantisce il mio saldo futuro?", a: "No. È una stima basata sulle scadenze e sui dati inseriti; la sua qualità dipende dal loro aggiornamento." },
+    ],
+  },
+  {
+    path: "it/assistant",
+    title: "L’assistente Cantia: dettate, rileggete, convalidate | Cantia",
+    description: "Dettate o scrivete: l’assistente Cantia prepara una prima bozza di preventivo, rapporto o fattura. Voi rileggete, adattate e convalidate.",
+  },
+  {
+    path: "it/fonctionnalites",
+    title: "Tutte le funzionalità di Cantia | Cantia",
+    description: "Preventivi, firma, progetti, pianificazione, rapporti, ore, fatture QR, spese e tesoreria: tutte le funzionalità di Cantia, raggruppate in cinque usi.",
+  },
 ];
 
 // Content triage (lib/blog/triage.json, docs/seo-tri-contenu.md): merged

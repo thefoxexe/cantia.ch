@@ -1523,6 +1523,111 @@
   from = "/it/aide/portail-client"
   to = "/it/aide/portail-client/index.html"
   status = 200
+
+[[redirects]]
+  from = "/signer"
+  to = "/signer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/organiser"
+  to = "/organiser/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/collaborer"
+  to = "/collaborer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/facturer"
+  to = "/facturer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/piloter"
+  to = "/piloter/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/assistant"
+  to = "/assistant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/fonctionnalites"
+  to = "/fonctionnalites/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/signer"
+  to = "/de/signer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/organiser"
+  to = "/de/organiser/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/collaborer"
+  to = "/de/collaborer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/facturer"
+  to = "/de/facturer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/piloter"
+  to = "/de/piloter/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/assistant"
+  to = "/de/assistant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/fonctionnalites"
+  to = "/de/fonctionnalites/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/signer"
+  to = "/it/signer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/organiser"
+  to = "/it/organiser/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/collaborer"
+  to = "/it/collaborer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/facturer"
+  to = "/it/facturer/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/piloter"
+  to = "/it/piloter/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/assistant"
+  to = "/it/assistant/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/fonctionnalites"
+  to = "/it/fonctionnalites/index.html"
+  status = 200
 # END generated routes
 
 # Static screenshots under public/aide/*.png share the "/aide/" prefix with

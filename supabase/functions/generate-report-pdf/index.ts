@@ -254,7 +254,7 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
   // bullet/marker rather than the disconnected-looking vertical tick this
   // used to be (a 3×10 bar floating a few points off the text baseline).
   const sectionLabel = (label: string) => {
-    page.drawEllipse({ x: MARGIN + 2.5, y: y - 3, xScale: 2.5, yScale: 2.5, color: brand });
+    page.drawEllipse({ x: MARGIN + 2.5, y: y + 3.4, xScale: 2.5, yScale: 2.5, color: brand });
     drawText(page, label, MARGIN + 13, y, fontBold, 9.5, MUTED);
   };
 

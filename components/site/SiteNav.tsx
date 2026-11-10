@@ -60,7 +60,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
   ];
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
-    { key: 'assistant', name: c.assistant.name, text: c.assistant.text, href: `${p}/solutions/dictee-vocale` },
+    { key: 'assistant', name: c.assistant.name, text: c.assistant.text, href: `${p}/assistant` },
   ];
 
   return (
@@ -132,7 +132,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
               ))}
             </View>
             <View style={styles.megaBottom}>
-              <Link href={`${p}/tarifs` as any} asChild>
+              <Link href={`${p}/fonctionnalites` as any} asChild>
                 <Pressable onPress={() => setMegaOpen(false)} style={styles.inlineRow}>
                   <Text style={[sans, styles.megaBottomStrong]}>{c.allFeatures}</Text>
                   <Feather name="arrow-right" size={14} color={site.ink} />

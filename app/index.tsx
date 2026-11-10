@@ -6,6 +6,7 @@ import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
 import { Btn, Eyebrow, Hover, Headline, Micro, TextLink, Wrap } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
+import { SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
 import { SITE_COPY } from '../lib/site/copy';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { sans, site } from '../lib/siteTheme';
@@ -66,7 +67,7 @@ function LandingContent() {
                     <Btn label={h.tryCta} href={authHref('signup')} small={phone || width <= 900} />
                   </View>
                   <View>
-                    <TextLink label={h.explore} href={`${p}/${copy.families[0].slug}`} size={phone || width <= 900 ? 11 : 12} />
+                    <TextLink label={h.explore} href={`${p}/fonctionnalites`} size={phone || width <= 900 ? 11 : 12} />
                   </View>
                 </View>
                 <Micro style={{ fontSize: phone ? 9 : 9 }}>{h.micro}</Micro>
@@ -90,12 +91,12 @@ function LandingContent() {
         {/* Five families */}
         <View style={[styles.section, { backgroundColor: site.white, paddingVertical: phone ? 53 : 86 }]}>
           <Wrap>
-            <SectionHead eyebrow={h.familiesEyebrow} plain={h.familiesTitlePlain} accent={h.familiesTitleAccent} text={h.familiesText} size={h2Size} phone={phone} />
+            <SectionHead eyebrow={h.familiesEyebrow} plain={h.familiesTitlePlain} accent={h.familiesTitleAccent} text={h.familiesText} />
             <Families phone={phone} narrow={!phone && width <= 900} />
             <View style={[styles.sectionBottom, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 14 }]}>
               <Text style={[sans, styles.small]}>{h.familiesNote}</Text>
               <View>
-                <TextLink label={h.allFeatures} href={`${p}/tarifs`} />
+                <TextLink label={h.allFeatures} href={`${p}/fonctionnalites`} />
               </View>
             </View>
           </Wrap>
@@ -104,7 +105,7 @@ function LandingContent() {
         {/* Real exports */}
         <View style={[styles.section, { paddingVertical: phone ? 53 : 86 }]}>
           <Wrap>
-            <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} size={h2Size} phone={phone} />
+            <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} />
             <View style={[styles.exportsRow, phone && { flexDirection: 'column' }]}>
               <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} flex={1}>
                 <SignatureDetail />
@@ -125,11 +126,11 @@ function LandingContent() {
                 <Headline plain={h.assistantTitlePlain} accent={h.assistantTitleAccent} size={h2Size} style={{ marginTop: 15 }} />
                 <Text style={[sans, styles.copy, phone && { fontSize: 13, maxWidth: '100%' }]}>{h.assistantText}</Text>
                 <View style={{ marginTop: 20 }}>
-                  <TextLink label={h.assistantLink} href={`${p}/solutions/dictee-vocale`} />
+                  <TextLink label={h.assistantLink} href={`${p}/assistant`} />
                 </View>
               </View>
               <View style={phone ? undefined : { flex: 1 }}>
-                <VoiceBox h={h} compact={phone || width <= 900} />
+                <VoiceBox />
               </View>
             </View>
 
@@ -149,19 +150,7 @@ function LandingContent() {
           </Wrap>
         </View>
 
-        {/* Closing call to action */}
-        <View style={[styles.cta, { paddingVertical: phone ? 38 : 54 }]}>
-          <Wrap style={phone ? undefined : styles.ctaRow}>
-            <View style={phone ? undefined : { flex: 1 }}>
-              <Headline plain={h.ctaTitlePlain} accent={h.ctaTitleAccent} size={phone ? 32 : 36} color="#f4f3e9" accentColor="#d9aa85" />
-              <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{h.ctaText}</Text>
-            </View>
-            <View style={phone ? { marginTop: 20 } : undefined}>
-              <Btn label={h.ctaButton} href={authHref('signup')} tone="sand" />
-              <Micro color="#a4ae97" style={{ fontSize: 9 }}>{h.ctaMicro}</Micro>
-            </View>
-          </Wrap>
-        </View>
+        <SiteCta />
 
         <MarketingFooter />
       </ScrollView>
@@ -190,18 +179,6 @@ function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boo
           <Image source={DEVIS} style={{ width: paperW, height: paperW * DEVIS_RATIO }} resizeMode="cover" accessibilityLabel="Devis signé en ligne, généré par Cantia" />
         </View>
       ) : null}
-    </View>
-  );
-}
-
-function SectionHead({ eyebrow, plain, accent, text, size, phone }: { eyebrow: string; plain: string; accent: string; text: string; size: number; phone: boolean }) {
-  return (
-    <View style={[styles.sectionHead, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 17, marginBottom: 27 }]}>
-      <View style={{ flexShrink: 1 }}>
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <Headline plain={plain} accent={accent} size={size} style={{ marginTop: 15 }} />
-      </View>
-      <Text style={[sans, styles.sectionText, phone && { fontSize: 12, maxWidth: '100%' }]}>{text}</Text>
     </View>
   );
 }
@@ -295,60 +272,6 @@ function SignatureDetail() {
   );
 }
 
-const BARS = [11, 20, 29, 16, 34, 24, 14, 28, 35, 18, 9, 25, 33, 20, 12, 29, 23, 14, 31, 18, 27, 10, 20, 31, 15, 24];
-
-function VoiceBox({ h, compact }: { h: (typeof SITE_COPY)['fr']['home']; compact: boolean }) {
-  const [state, setState] = useState<'idle' | 'running' | 'done'>('idle');
-  const [tick, setTick] = useState(0);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-  useEffect(() => {
-    if (state !== 'running') return;
-    const id = setInterval(() => setTick((t) => t + 1), 90);
-    return () => clearInterval(id);
-  }, [state]);
-
-  const play = () => {
-    if (state === 'running') return;
-    setState('running');
-    timers.current.push(setTimeout(() => setState('done'), 2400));
-  };
-
-  return (
-    <View style={[styles.voiceBox, { padding: compact ? 25 : 35 }]}>
-      <View style={styles.voiceTop}>
-        <Text style={[sans, styles.voiceTag]}>{h.voiceTag.toUpperCase()}</Text>
-        <Feather name="mic" size={14} color="#8a8f7c" />
-      </View>
-      <Text style={[sans, styles.quote, { fontSize: compact ? 20 : 22 }]}>{h.voiceQuote}</Text>
-      <View style={styles.voicePlay}>
-        <Pressable onPress={play} accessibilityRole="button" accessibilityLabel={h.voicePlay} style={styles.playButton}>
-          <Feather name={state === 'done' ? 'rotate-ccw' : 'play'} size={16} color="#ffffff" />
-        </Pressable>
-        <View style={styles.wave} aria-hidden>
-          {BARS.map((b, i) => {
-            const k = state === 'running' ? 0.35 + 0.65 * Math.abs(Math.sin(tick * 0.55 + i * 0.7)) : 1;
-            return <View key={i} style={[styles.bar, { height: Math.max(4, b * k) }, state !== 'idle' && { backgroundColor: state === 'running' ? site.copper : '#a1a88f' }]} />;
-          })}
-        </View>
-        <Text style={[sans, { fontSize: 9, color: '#929982' }]}>0:06</Text>
-      </View>
-      {state === 'done' ? (
-        <View style={styles.voiceResult} aria-live="polite">
-          <Text style={[sans, { color: site.copper, fontWeight: '600', fontSize: 12, marginBottom: 8 }]}>{h.voiceResultTitle}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-            <Text style={[sans, { fontSize: 12, color: site.ink }]}>{h.voiceResultLine}</Text>
-            <Text style={[sans, { fontSize: 12, color: site.ink, fontWeight: '700' }]}>{h.voiceResultQty}</Text>
-          </View>
-          <Text style={[sans, { fontSize: 11, color: '#858d77', marginTop: 10, lineHeight: 17 }]}>{h.voiceResultText}</Text>
-        </View>
-      ) : null}
-      <Text style={[sans, styles.demoCaption]}>{h.voiceCaption}</Text>
-    </View>
-  );
-}
-
 function Pill({ label, href, small }: { label: string; href: string; small: boolean }) {
   return (
     <Link href={href as any} asChild>
@@ -373,8 +296,6 @@ const styles = StyleSheet.create({
   trustItem: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   trustText: { fontSize: 10, color: '#7a7d72' },
   section: {},
-  sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60, marginBottom: 35 },
-  sectionText: { fontSize: 13, maxWidth: 320, color: site.muted, lineHeight: 23 },
   families: { borderWidth: 1, borderColor: site.line, borderRadius: 9, overflow: 'hidden' },
   family: { paddingVertical: 25, borderColor: site.line, alignItems: 'flex-start' },
   familyPhone: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 20, borderColor: site.line },
@@ -391,19 +312,7 @@ const styles = StyleSheet.create({
   exportTitle: { fontSize: 14, fontWeight: '600', color: site.ink, letterSpacing: -0.3 },
   split: { flexDirection: 'row', alignItems: 'center' },
   copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390, marginTop: 20 },
-  voiceBox: { backgroundColor: '#ebe9e0', borderWidth: 1, borderColor: '#deded2', borderRadius: 12 },
-  voiceTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  voiceTag: { fontSize: 9, letterSpacing: 1, color: '#8a8f7c' },
-  quote: { lineHeight: 33, letterSpacing: -0.6, color: site.ink, marginVertical: 29, maxWidth: 390 },
-  voicePlay: { flexDirection: 'row', alignItems: 'center', gap: 15 },
-  playButton: { width: 43, height: 43, borderRadius: 22, backgroundColor: site.ink, alignItems: 'center', justifyContent: 'center' },
-  wave: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, height: 35, overflow: 'hidden' },
-  bar: { width: 3, borderRadius: 5, backgroundColor: '#a1a88f' },
-  voiceResult: { marginTop: 23, borderTopWidth: 1, borderTopColor: '#d6d8c9', paddingTop: 20 },
-  demoCaption: { fontSize: 9, color: '#969b87', marginTop: 18 },
   sectorStrip: { flexDirection: 'row', gap: 40, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 34, marginTop: 65 },
   pills: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 9 },
   pill: { paddingVertical: 8, paddingHorizontal: 13, borderWidth: 1, borderColor: site.line, borderRadius: 30 },
-  cta: { backgroundColor: site.dark },
-  ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 },
 });

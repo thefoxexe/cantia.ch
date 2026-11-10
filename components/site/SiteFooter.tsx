@@ -27,7 +27,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
       title: f.software,
       links: [
         ...c.families.map((fam) => ({ label: fam.name, href: `${p}/${fam.slug}` })),
-        { label: c.nav.assistant.name, href: `${p}/solutions/dictee-vocale` },
+        { label: c.nav.assistant.name, href: `${p}/assistant` },
       ],
     },
     {
