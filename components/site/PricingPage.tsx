@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
 import { Breadcrumbs, Callout, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
@@ -68,19 +68,6 @@ export function PricingPage() {
   const h1Size = phone ? 43 : tablet ? 52 : 62;
   const stackCards = width <= 900;
 
-  const cell = (planIdx: number, value: string | boolean) => {
-    if (value === true) return <Text style={[sans, styles.tdText, { color: site.green }]}>{c.table.included}</Text>;
-    if (value === false) return <Text style={[sans, styles.tdText, { color: '#b5b8ad' }]}>—</Text>;
-    return <Text style={[sans, styles.tdText]}>{value}</Text>;
-  };
-  const dynamicCells = (kind: 'members' | 'storage' | 'assistant') =>
-    PLAN_IDS.map((id) => {
-      const f = figures[id];
-      if (kind === 'members') return String(f.members);
-      if (kind === 'storage') return `${Math.round(f.storageMb / 1024)} ${locale === 'fr' ? 'Go' : 'GB'}`;
-      return f.aiUses != null ? chf(f.aiUses) : '∞';
-    });
-
   return (
     <SitePage title={c.seoTitle} description={c.seoDescription}>
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 35 : 52 }}>
@@ -122,7 +109,7 @@ export function PricingPage() {
                     <Text style={[sans, styles.priceSmall, { color: site.muted }]}>{c.perMonth}</Text>
                   </View>
                   <Text style={[sans, styles.billed]}>{yearly && f.yearly != null ? c.billedYearly(chf(f.yearly)) : c.billedMonthly}</Text>
-                  <Btn label={plan.cta} href={authHref('signup')} tone={featured ? 'copper' : 'light'} block />
+                  <Btn label={plan.cta} href={authHref('signup', { plan: id, billing: yearly ? 'year' : 'month' })} tone={featured ? 'copper' : 'light'} block />
                   <View style={styles.lines}>
                     {lines.map((l) => (
                       <View key={l} style={styles.lineRow}>
@@ -142,17 +129,54 @@ export function PricingPage() {
           <View style={{ marginTop: 26 }}>
             <Callout strong={c.calloutStrong} text="" link={<TextLink label={c.calloutLink} href={`${p}/sur-mesure`} />} />
           </View>
+          <PersonalCode />
         </Wrap>
       </View>
 
       <Section white>
         <SectionHead eyebrow={c.compareEyebrow} plain={c.compareTitle} text={c.compareNote} />
-        <ScrollView horizontal style={styles.tableWrap} contentContainerStyle={{ minWidth: '100%' }}>
+        <ComparisonTable />
+      </Section>
+
+      <Section>
+        <View style={styles.faq}>
+          <Eyebrow>{c.faqEyebrow}</Eyebrow>
+          <Headline plain={c.faqTitle} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 30 }} />
+          {c.faq.map((q, i) => (
+            <FaqItem key={q.q} q={q.q} a={q.a} last={i === c.faq.length - 1} />
+          ))}
+        </View>
+      </Section>
+    </SitePage>
+  );
+}
+
+// The plan comparison, the same on /tarifs and on each plan's own page
+// (components/PlanDetailPage), with that plan's column marked.
+export function ComparisonTable({ current }: { current?: PlanId }) {
+  const locale = useSiteLocale();
+  const c = PRICING_COPY[locale];
+  const figures = usePlanFigures();
+  const cell = (planIdx: number, value: string | boolean) => {
+    if (value === true) return <Text style={[sans, styles.tdText, { color: site.green }]}>{c.table.included}</Text>;
+    if (value === false) return <Text style={[sans, styles.tdText, { color: '#b5b8ad' }]}>—</Text>;
+    return <Text style={[sans, styles.tdText, current === PLAN_IDS[planIdx] && { fontWeight: '600' }]}>{value}</Text>;
+  };
+  const dynamicCells = (kind: 'members' | 'storage' | 'assistant') =>
+    PLAN_IDS.map((id) => {
+      const f = figures[id];
+      if (kind === 'members') return String(f.members);
+      if (kind === 'storage') return `${Math.round(f.storageMb / 1024)} ${locale === 'fr' ? 'Go' : 'GB'}`;
+      return f.aiUses != null ? chf(f.aiUses) : '∞';
+    });
+
+  return (
+    <ScrollView horizontal style={styles.tableWrap} contentContainerStyle={{ minWidth: '100%' }}>
           <View style={styles.table}>
             <View style={[styles.tr, styles.thead]}>
               <Text style={[sans, styles.th, styles.firstCol]}>{c.table.feature}</Text>
               {PLAN_IDS.map((id) => (
-                <Text key={id} style={[sans, styles.th, styles.col]}>
+                <Text key={id} style={[sans, styles.th, styles.col, id === current && { color: site.copper }]}>
                   {c.plans[id].name}
                 </Text>
               ))}
@@ -168,7 +192,7 @@ export function PricingPage() {
                     <View key={r.label} style={styles.tr}>
                       <Text style={[sans, styles.tdText, styles.firstCol, { textAlign: 'left' }]}>{r.label}</Text>
                       {values.map((v, i) => (
-                        <View key={i} style={styles.col}>
+                        <View key={i} style={[styles.col, PLAN_IDS[i] === current && styles.colOn]}>
                           {cell(i, v)}
                         </View>
                       ))}
@@ -179,18 +203,41 @@ export function PricingPage() {
             ))}
           </View>
         </ScrollView>
-      </Section>
+  );
+}
 
-      <Section>
-        <View style={styles.faq}>
-          <Eyebrow>{c.faqEyebrow}</Eyebrow>
-          <Headline plain={c.faqTitle} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 30 }} />
-          {c.faq.map((q, i) => (
-            <FaqItem key={q.q} q={q.q} a={q.a} last={i === c.faq.length - 1} />
-          ))}
-        </View>
-      </Section>
-    </SitePage>
+const CODE_COPY = {
+  fr: { title: 'Vous avez un code personnel ?', text: 'Une offre ou des modules préparés pour votre entreprise : entrez le code reçu, il vous suit jusqu’au choix de la formule.', placeholder: 'Votre code', cta: 'Continuer' },
+  de: { title: 'Sie haben einen persönlichen Code?', text: 'Ein Angebot oder Module, die für Ihr Unternehmen vorbereitet wurden: Geben Sie den erhaltenen Code ein, er begleitet Sie bis zur Wahl des Abos.', placeholder: 'Ihr Code', cta: 'Weiter' },
+  it: { title: 'Ha un codice personale?', text: 'Un’offerta o dei moduli preparati per la sua azienda: inserisca il codice ricevuto, la accompagna fino alla scelta del piano.', placeholder: 'Il suo codice', cta: 'Continua' },
+} as const;
+
+// A code handed to one client (a bespoke plan or modules) goes with the
+// sign-up to the plan screen, which redeems it (app/(auth)/choose-plan.tsx).
+function PersonalCode() {
+  const locale = useSiteLocale();
+  const k = CODE_COPY[locale];
+  const { phone } = useSiteLayout();
+  const [code, setCode] = useState('');
+  const go = () => {
+    const v = code.trim();
+    if (!v || typeof window === 'undefined') return;
+    window.location.href = authHref('signup', { code: v });
+  };
+  return (
+    <View style={[styles.codeBox, phone && { flexDirection: 'column', alignItems: 'stretch' }]}>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Text style={[sans, styles.codeTitle]}>{k.title}</Text>
+        <Text style={[sans, styles.codeText]}>{k.text}</Text>
+      </View>
+      <View style={styles.codeRow}>
+        <TextInput value={code} onChangeText={setCode} onSubmitEditing={go} placeholder={k.placeholder} placeholderTextColor="#a1a697" autoCapitalize="characters" autoCorrect={false} style={[sans, styles.codeInput]} accessibilityLabel={k.placeholder} />
+        <Hover onPress={go} accessibilityRole="button" base={[styles.codeBtn, !code.trim() && { opacity: 0.5 }]} hover={{ opacity: 0.85 }}>
+          <Text style={[sans, styles.codeBtnText]}>{k.cta}</Text>
+          <Feather name="arrow-right" size={13} color="#fff" />
+        </Hover>
+      </View>
+    </View>
   );
 }
 
@@ -226,7 +273,7 @@ const styles = StyleSheet.create({
   lines: { marginTop: 24, paddingTop: 18, borderTopWidth: 1, borderTopColor: site.line, gap: 8 },
   lineRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   lineText: { fontSize: 11, color: site.ink, lineHeight: 19, flex: 1 },
-  proof: { fontSize: 9, color: '#8b9380', marginTop: 18 },
+  proof: { fontSize: 11, color: '#6f7566', marginTop: 18, lineHeight: 18, maxWidth: 760 },
   tableWrap: { borderWidth: 1, borderColor: site.line, borderRadius: 8 },
   table: { minWidth: 680, width: '100%', backgroundColor: site.white },
   tr: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: site.line },
@@ -234,8 +281,16 @@ const styles = StyleSheet.create({
   th: { fontSize: 12, fontWeight: '600', color: site.ink, paddingVertical: 17, paddingHorizontal: 22, textAlign: 'center' },
   firstCol: { flex: 1.6, textAlign: 'left', paddingVertical: 17, paddingHorizontal: 22 },
   col: { flex: 1, alignItems: 'center', paddingVertical: 17, paddingHorizontal: 12 },
+  colOn: { backgroundColor: '#f8f1e8' },
   group: { backgroundColor: '#f2f0ea', paddingVertical: 12, paddingHorizontal: 22 },
   groupText: { fontSize: 9, letterSpacing: 0.9, fontWeight: '600', color: '#818775' },
   tdText: { fontSize: 12, color: site.ink, textAlign: 'center' },
+  codeBox: { marginTop: 18, flexDirection: 'row', alignItems: 'center', gap: 24, padding: 22, borderWidth: 1, borderStyle: 'dashed', borderColor: '#d2d4c7', borderRadius: 8 },
+  codeTitle: { fontSize: 14, fontWeight: '500', color: site.ink },
+  codeText: { fontSize: 11, color: site.muted, lineHeight: 18, maxWidth: 560 },
+  codeRow: { flexDirection: 'row', gap: 8 },
+  codeInput: { flex: 1, minWidth: 160, height: 42, borderWidth: 1, borderColor: '#d7dacf', borderRadius: 6, paddingHorizontal: 14, fontSize: 13, color: site.ink, backgroundColor: site.white, outlineStyle: 'none' } as object,
+  codeBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, height: 42, paddingHorizontal: 16, borderRadius: 6, backgroundColor: site.ink },
+  codeBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
   faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
 });

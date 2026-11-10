@@ -2798,6 +2798,13 @@ export const it: TranslationDict = {
     billingYearly: 'Fatturazione annuale',
     billingMonthly: 'Fatturazione mensile',
     recommended: 'Consigliato',
+    yourChoice: 'La sua scelta',
+    trialStepsTitle: 'Come funziona la prova',
+    trialSteps: [
+      { title: 'Oggi: CHF 0', text: 'La carta viene registrata per dopo, ora non viene addebitato nulla.' },
+      { title: '14 giorni per provare tutto', text: 'Tutte le funzioni del suo piano sono aperte, con i suoi veri clienti e documenti.' },
+      { title: 'Non convinto? Non paga nulla', text: 'Disdica online prima del 14° giorno, in due clic e senza giustificazioni. Altrimenti l’abbonamento inizia.' },
+    ],
     perMonth: '/mese',
     billedYearly: 'Fatturato CHF {{amount}}/anno',
     storageFeature: '{{gb}} GB di archiviazione',

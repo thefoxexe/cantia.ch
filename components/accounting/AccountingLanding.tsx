@@ -161,7 +161,7 @@ function Hero({ z, locale }: { z: Z; locale: ZipLocale }) {
             <Micro style={{ fontSize: 9 }}>{z.hero.micro}</Micro>
           </View>
           <View style={wide ? { flex: 1.1, minWidth: 0 } : undefined}>
-            <HeroDevices locale={locale} phoneOnly={phone} media="/videos/acc" labels={{ desktop: z.hero.shotAlt, phone: z.hero.shotAlt, note: z.hero.shotNote }} />
+            <HeroDevices locale={locale} phoneOnly={phone} media="/videos/acc" labels={{ desktop: z.hero.shotAlt, phone: z.hero.shotAlt }} />
           </View>
         </View>
       </View>

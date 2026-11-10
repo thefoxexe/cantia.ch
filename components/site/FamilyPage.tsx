@@ -76,9 +76,9 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
           {family === 'signer' || family === 'collaborer' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
               {family === 'signer' ? (
-                <DocVisual source={X.devisFull.source} ratio={X.devisFull.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 460 : 640} />
+                <DocVisual source={X.devisFull.source} ratio={X.devisFull.ratio} alt={L.docAlt.signer} maxHeight={phone ? 460 : 640} />
               ) : (
-                <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 460 : 640} />
+                <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} maxHeight={phone ? 460 : 640} />
               )}
               <View style={{ marginTop: 16, alignItems: 'center' }}>
                 <OpenPdfLink label={L.openPdf} href={PDFS[family]!} />
@@ -87,12 +87,12 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
           ) : null}
           {family === 'piloter' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
-              <LaptopShot source={APP_SCREENS[locale].rentabilite} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} maxWidth={900} />
+              <LaptopShot source={APP_SCREENS[locale].rentabilite} alt={L.appScreen} maxWidth={900} />
             </View>
           ) : null}
           {family === 'organiser' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
-              <DocVisual source={X.planning.source} ratio={X.planning.ratio} alt={L.docAlt.organiser} caption={`${L.realExport} · ${L.sample}`} maxHeight={2000} />
+              <DocVisual source={X.planning.source} ratio={X.planning.ratio} alt={L.docAlt.organiser} maxHeight={2000} />
               <View style={{ marginTop: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                 <Text style={[sans, styles.proofNote, { marginTop: 0, maxWidth: 640, fontSize: 11, lineHeight: 18 }]}>{L.planningShowcase.text}</Text>
                 <OpenPdfLink label={L.openPdf} href={PDFS.organiser!} />
@@ -165,7 +165,6 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
               <Eyebrow>{L.showcaseEyebrow}</Eyebrow>
               <Headline plain={L.showcasePlain} accent={L.showcaseAccent} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 22 }} />
               <Text style={[sans, styles.copy]}>{L.showcaseText}</Text>
-              <Text style={[sans, styles.proofNote]}>{L.showcaseNote}</Text>
             </View>
           </View>
         </Section>
@@ -238,7 +237,7 @@ const FAMILY_SCREEN: Record<FamilyKey, ScreenKind> = { signer: 'devis', organise
 
 function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabels }) {
   const locale = useSiteLocale();
-  return <LaptopShot source={APP_SCREENS[locale][FAMILY_SCREEN[family]]} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} />;
+  return <LaptopShot source={APP_SCREENS[locale][FAMILY_SCREEN[family]]} alt={L.appScreen} />;
 }
 
 // The sand ground with a real phone screen of the app, cropped at the bottom.

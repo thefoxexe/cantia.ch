@@ -21,7 +21,6 @@ export type ModuleKind =
 export function ModuleMockup({ kind }: { kind: ModuleKind }) {
   const locale = useSiteLocale();
   const L = SITE_PAGES[locale].labels;
-  const caption = `${L.appScreen} · ${L.sample}`;
-  if (kind === 'dictee-vocale') return <LaptopShot video={VOICE_RECORDING[locale]} alt={L.appScreen} caption={caption} />;
-  return <LaptopShot source={APP_SCREENS[locale][kind]} alt={L.appScreen} caption={caption} />;
+  if (kind === 'dictee-vocale') return <LaptopShot video={VOICE_RECORDING[locale]} alt={L.appScreen} />;
+  return <LaptopShot source={APP_SCREENS[locale][kind]} alt={L.appScreen} />;
 }

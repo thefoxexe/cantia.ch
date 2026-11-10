@@ -58,7 +58,7 @@ function Clip({ base, kind, locale, label, width, height, onReady }: { base: str
 
 // The hero stage: a laptop showing the desktop app and, in front of it, a
 // phone showing the phone app. On a phone screen only the phone is shown.
-export function HeroDevices({ locale, phoneOnly, labels, media = '/videos/hero' }: { locale: Locale; phoneOnly?: boolean; labels: { desktop: string; phone: string; note: string }; media?: string }) {
+export function HeroDevices({ locale, phoneOnly, labels, media = '/videos/hero' }: { locale: Locale; phoneOnly?: boolean; labels: { desktop: string; phone: string; note?: string }; media?: string }) {
   const [w, setW] = useState(0);
   // Every clip on screen reports once it can play; then the loader may go.
   const pending = useRef(0);
@@ -108,7 +108,7 @@ export function HeroDevices({ locale, phoneOnly, labels, media = '/videos/hero' 
       ) : (
         <View style={{ height: phoneOnly ? 520 : 480 }} />
       )}
-      <Text style={[sans, styles.note]}>{labels.note.toUpperCase()}</Text>
+      {labels.note ? <Text style={[sans, styles.note]}>{labels.note.toUpperCase()}</Text> : null}
     </View>
   );
 }

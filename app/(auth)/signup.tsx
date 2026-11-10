@@ -13,6 +13,7 @@ import { getStoredFiduciaryInvite } from '../../lib/siteAnalytics';
 import { supabase } from '../../lib/supabase';
 import { AUTH_COPY } from '../../lib/site/auth';
 import { sans, site } from '../../lib/siteTheme';
+import { savePlanIntent } from '../../lib/planIntent';
 
 export default function SignupScreen() {
   const { t } = useTranslation();
@@ -26,7 +27,12 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   // Cantia Accounting: arrived through a fiduciary's invitation link.
-  const params = useLocalSearchParams<{ fiduciary_invite?: string }>();
+  const params = useLocalSearchParams<{ fiduciary_invite?: string; plan?: string; billing?: string; code?: string }>();
+  // The plan picked on cantia.ch ("Essayer Équipe") waits for the plan screen.
+  useEffect(() => {
+    savePlanIntent(params);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.plan, params.billing, params.code]);
   const [invitedBy, setInvitedBy] = useState<string | null>(null);
 
   useEffect(() => {

@@ -60,10 +60,16 @@ export function excludeAppHostFromIndexing(): void {
 // onboarding flow (create/join-organization, choose-plan) until an org
 // finally loads. An explicit ?locale=fr closes that gap the same way
 // ?locale=de already did.
-export function authHref(kind: 'login' | 'signup'): string {
+// `extra` carries what the visitor already chose on the site (plan, billing
+// interval, personal code) to the sign-up: see lib/planIntent.ts.
+export function authHref(kind: 'login' | 'signup', extra?: Record<string, string | undefined>): string {
   const locale = getAppLocale();
-  if (isMarketingHost()) return `https://${APP_HOST}/${kind}?locale=${locale}`;
-  return `/(auth)/${kind}?locale=${locale}`;
+  const qs = Object.entries(extra ?? {})
+    .filter(([, v]) => v)
+    .map(([k, v]) => `&${k}=${encodeURIComponent(v!)}`)
+    .join('');
+  if (isMarketingHost()) return `https://${APP_HOST}/${kind}?locale=${locale}${qs}`;
+  return `/(auth)/${kind}?locale=${locale}${qs}`;
 }
 
 // Maps the current marketing pathname onto its other-language equivalent —

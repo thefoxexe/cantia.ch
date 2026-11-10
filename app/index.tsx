@@ -74,7 +74,7 @@ function LandingContent() {
                 </View>
               </View>
               <View style={phone ? undefined : { flex: tablet ? 1.1 : 1.05, minWidth: 0 }}>
-                <HeroStage tag={h.stageTag} note={h.stageNote} phone={phone} />
+                <HeroStage phone={phone} />
               </View>
             </View>
 
@@ -161,10 +161,10 @@ function LandingContent() {
 
 // The hero stage: the real app recorded on a computer and on a phone
 // (components/site/HeroDevices). A phone screen shows the phone only.
-function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boolean }) {
+function HeroStage({ phone }: { phone: boolean }) {
   const locale = useSiteLocale();
   const L = SITE_PAGES[locale].labels;
-  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt, note: `${tag} · ${note}` }} />;
+  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt }} />;
 }
 
 function Families({ phone, narrow }: { phone: boolean; narrow: boolean }) {

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
+import { OnboardingShell } from '../../components/site/OnboardingShell';
+import { sans, site } from '../../lib/siteTheme';
 import { Button, Field, Screen } from '../../components/ui';
 import { useTranslation } from '../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
@@ -63,10 +65,8 @@ export default function VerifyEmailScreen() {
   }
 
   return (
-    <Screen background="mountain">
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
+    <OnboardingShell contentContainerStyle={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <Text style={styles.subtitle}>{t('authVerifyEmail.subtitle')}</Text>
           <Text style={styles.hint}>
             {email ? t('authVerifyEmail.hintWithEmail', { email }) : t('authVerifyEmail.hintNoEmail')}
@@ -97,9 +97,8 @@ export default function VerifyEmailScreen() {
               {resending ? t('authVerifyEmail.resending') : t('authVerifyEmail.resend')}
             </Text>
           </View>
-        </ScrollView>
       </KeyboardAvoidingView>
-    </Screen>
+    </OnboardingShell>
   );
 }
 
@@ -127,9 +126,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.text,
-    fontWeight: '700',
+    ...sans,
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -1,
+    color: site.ink,
     textAlign: 'center',
     marginTop: spacing.xs,
   },

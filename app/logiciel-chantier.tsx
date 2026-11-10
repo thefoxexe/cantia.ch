@@ -391,7 +391,7 @@ export default function LogicielChantierPage() {
               ) : null}
             </View>
             <View style={!isTablet ? { flex: 0.9, minWidth: 0 } : undefined}>
-              <LaptopShot source={APP_SCREENS.fr.chantier} alt={L.appScreen} caption={`${L.appScreen} · ${L.sample}`} />
+              <LaptopShot source={APP_SCREENS.fr.chantier} alt={L.appScreen} />
             </View>
           </View>
           <View style={[styles.proof, isTablet && { flexWrap: 'wrap', rowGap: 22 }]}>

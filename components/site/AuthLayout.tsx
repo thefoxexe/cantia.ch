@@ -29,7 +29,7 @@ export function AuthLayout({ product = 'cantia', backHref, children, visual, loc
 
   return (
     <View style={[styles.root, wide && { flexDirection: 'row' }]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.panel, wide && { flex: 1 }]}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={[styles.panel, { flex: 1 }]}>
         <ScrollView contentContainerStyle={[styles.panelInner, { paddingHorizontal: width <= 370 ? 18 : width <= 760 ? 22 : 45 }]} keyboardShouldPersistTaps="handled">
           <View style={styles.top}>
             <Link href={backHref as any} asChild>

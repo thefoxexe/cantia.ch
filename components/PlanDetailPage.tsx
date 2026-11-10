@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { TFunction } from 'i18next';
-import { Link } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, TextLink, Wrap } from './site/Primitives';
 import { Breadcrumbs, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
 import { FaqItem } from './site/FamilyPage';
 import { SITE_PAGES } from '../lib/site/pages';
 import { PRICING_COPY } from '../lib/site/pricing';
-import { FALLBACK } from './site/PricingPage';
+import { ComparisonTable, FALLBACK } from './site/PricingPage';
 import { sans, site } from '../lib/siteTheme';
 import { supabase } from '../lib/supabase';
 import { authHref, planHref } from '../lib/appHost';
@@ -20,100 +18,7 @@ type IconName = keyof typeof Feather.glyphMap;
 
 const PLAN_ORDER: PlanId[] = ['solo', 'equipe', 'pro'];
 const NEXT_PLAN: Record<PlanId, PlanId | null> = { solo: 'equipe', equipe: 'pro', pro: null };
-// Not backed by a `plans` column — priority support is a support-process
-// promise, not a feature flag, so it's kept here rather than invented in
-// the database. Matches the existing "Support prioritaire" claim in
-// authChoosePlan.planHighlights.pro.
-const PRIORITY_SUPPORT: Record<PlanId, boolean> = { solo: false, equipe: false, pro: true };
 
-type CompareCell = { text: string } | { bool: boolean };
-
-interface CompareRow {
-  label: string;
-  cells: Record<PlanId, CompareCell>;
-}
-
-function formatStorage(mb: number): string {
-  return `${(mb / 1024).toFixed(mb < 1024 ? 1 : 0)} Go`;
-}
-
-// Builds the full side-by-side comparison table from the live `plans` rows
-// — every number here comes straight from Supabase, never retyped, so a
-// price or quota can only ever be wrong in one place (the `plans` table
-// itself, same principle as PricingSection.tsx).
-function buildCompareRows(t: TFunction, plansById: Record<string, Plan>): CompareRow[] {
-  const cellFor = <T,>(get: (p: Plan) => T, format: (v: T) => CompareCell): Record<PlanId, CompareCell> => {
-    const out = {} as Record<PlanId, CompareCell>;
-    for (const id of PLAN_ORDER) {
-      const p = plansById[id];
-      out[id] = p ? format(get(p)) : { text: '—' };
-    }
-    return out;
-  };
-
-  return [
-    {
-      label: t('planPage.comparePrice'),
-      cells: cellFor(
-        // numeric column, arrives as a string ("39.00") from PostgREST —
-        // Number(...) it before ever calling .toFixed, or a string with no
-        // .toFixed method crashes this row on every /plans/* page load.
-        (p) => (p.price_chf_monthly != null ? Number(p.price_chf_monthly) : null),
-        (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: `CHF ${Number.isInteger(v) ? v : v.toFixed(2)}` }) : '—' }),
-      ),
-    },
-    { label: t('planPage.compareDevisFactures'), cells: cellFor(() => true, () => ({ text: t('planPage.compareUnlimited') })) },
-    { label: t('planPage.compareStorage'), cells: cellFor((p) => p.storage_quota_mb, (v) => ({ text: formatStorage(v) })) },
-    { label: t('planPage.compareMembers'), cells: cellFor((p) => p.max_members, (v) => ({ text: t('planPage.compareUpTo', { count: v }) })) },
-    {
-      label: t('planPage.compareAi'),
-      cells: cellFor(
-        (p) => p.max_ai_uses_per_month,
-        (v) => ({ text: v != null ? t('planPage.comparePerMonth', { count: v }) : t('planPage.compareUnlimited') }),
-      ),
-    },
-    {
-      label: t('planPage.compareTrames'),
-      cells: cellFor((p) => p.max_trames, (v) => ({ text: v != null ? String(v) : t('planPage.compareUnlimited') })),
-    },
-    {
-      label: t('planPage.compareRoles'),
-      cells: cellFor((p) => p.max_org_roles ?? null, (v) => ({ text: v != null ? String(v) : t('planPage.compareUnlimited') })),
-    },
-    { label: t('planPage.comparePlanning'), cells: cellFor((p) => p.has_planning, (v) => ({ bool: v })) },
-    { label: t('planPage.comparePayroll'), cells: cellFor((p) => p.has_payroll, (v) => ({ bool: v })) },
-    { label: t('planPage.compareTreasury'), cells: cellFor((p) => p.has_treasury, (v) => ({ bool: v })) },
-    { label: t('planPage.compareProfitability'), cells: cellFor((p) => p.has_profitability, (v) => ({ bool: v })) },
-    { label: t('planPage.compareSiteSchedule'), cells: cellFor((p) => !!p.has_site_schedule, (v) => ({ bool: v })) },
-    {
-      // Beta: Essentiel 1 to try (max_tenders_total), Équipe 3 a month,
-      // Entreprise unlimited.
-      label: t('planPage.compareTenders'),
-      cells: cellFor(
-        (p) => (p.has_tenders ? { total: p.max_tenders_total ?? null, month: p.max_tenders_per_month ?? null } : null),
-        (v) =>
-          v == null
-            ? { bool: false }
-            : v.total
-              ? { text: t('planPage.compareTendersTrial', { count: v.total }) }
-              : v.month
-                ? { text: t('planPage.compareTendersPerMonth', { count: v.month }) }
-                : { text: t('planPage.compareUnlimited') },
-      ),
-    },
-    { label: t('planPage.compareSalesTracking'), cells: cellFor((p) => !!p.has_sales_tracking, (v) => ({ bool: v })) },
-    { label: t('planPage.compareBexio'), cells: cellFor((p) => p.has_bexio_integration, (v) => ({ bool: v })) },
-    { label: t('planPage.compareDocLocale'), cells: cellFor((p) => p.has_document_locale_override, (v) => ({ bool: v })) },
-    {
-      label: t('planPage.comparePrioritySupport'),
-      cells: (() => {
-        const out = {} as Record<PlanId, CompareCell>;
-        for (const id of PLAN_ORDER) out[id] = { bool: PRIORITY_SUPPORT[id] };
-        return out;
-      })(),
-    },
-  ];
-}
 
 // The dedicated, highly-converting per-plan page opened from "En savoir
 // plus" on both the marketing pricing cards (PricingSection) and the
@@ -178,7 +83,7 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
               <Text style={[sans, styles.leadText, phone && { fontSize: 13, lineHeight: 24 }]}>{heroText}</Text>
               <View style={styles.actions}>
                 <View>
-                  <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} small={phone} />
+                  <Btn label={t('planPage.ctaTrial')} href={authHref('signup', { plan: planId, billing: billingInterval })} small={phone} />
                 </View>
                 <View>
                   <TextLink label={t('planPage.ctaAllPlans')} href={`${pre}/tarifs`} size={phone ? 11 : 12} />
@@ -258,41 +163,11 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
         </View>
       </Section>
 
-      {/* Comparison */}
-      {Object.keys(plans).length === PLAN_ORDER.length ? (
-        <Section white>
-          <SectionHead eyebrow={P.eyebrow} plain={t('planPage.compareTitle')} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.table}>
-              <View style={[styles.tRow, styles.tHead]}>
-                <View style={styles.tLabel} />
-                {PLAN_ORDER.map((id) => (
-                  <View key={id} style={[styles.tCol, id === planId && styles.tColOn]}>
-                    <Link href={planHref(id) as any}>
-                      <Text style={[sans, styles.tPlan, id === planId && { color: site.copper }]}>{nameOf(id)}</Text>
-                    </Link>
-                  </View>
-                ))}
-              </View>
-              {buildCompareRows(t, plans).map((row) => (
-                <View key={row.label} style={styles.tRow}>
-                  <View style={styles.tLabel}>
-                    <Text style={[sans, styles.tLabelText]}>{row.label}</Text>
-                  </View>
-                  {PLAN_ORDER.map((id) => {
-                    const cell = row.cells[id];
-                    return (
-                      <View key={id} style={[styles.tCol, id === planId && styles.tColOn]}>
-                        {'bool' in cell ? <Feather name={cell.bool ? 'check' : 'minus'} size={15} color={cell.bool ? site.copper : '#b5b8ab'} /> : <Text style={[sans, styles.tCell]}>{cell.text}</Text>}
-                      </View>
-                    );
-                  })}
-                </View>
-              ))}
-            </View>
-          </ScrollView>
-        </Section>
-      ) : null}
+      {/* Comparison: the same table as /tarifs, this plan's column marked */}
+      <Section white>
+        <SectionHead eyebrow={P.eyebrow} plain={P.compareTitle} text={P.compareNote} />
+        <ComparisonTable current={planId} />
+      </Section>
 
       {/* FAQ */}
       <Section>
@@ -320,7 +195,7 @@ export function PlanDetailPage({ planId }: { planId: PlanId }) {
             <Text style={[sans, { fontSize: 12, color: '#b2b9a7', marginTop: 15 }]}>{t('planPage.closingText')}</Text>
           </View>
           <View style={phone ? { marginTop: 22 } : undefined}>
-            <Btn label={t('planPage.ctaTrial')} href={authHref('signup')} tone="sand" />
+            <Btn label={t('planPage.ctaTrial')} href={authHref('signup', { plan: planId, billing: billingInterval })} tone="sand" />
           </View>
         </Wrap>
       </View>

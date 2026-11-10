@@ -443,7 +443,7 @@ function DevicesStage() {
   const locale = useSiteLocale();
   const L = SITE_PAGES[locale].labels;
   const { phone } = useSiteLayout();
-  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.treasuryAlt, note: `${L.appScreen} · ${L.sample}` }} />;
+  return <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.treasuryAlt }} />;
 }
 
 // ─── Découvrir ──────────────────────────────────────────────────────────────

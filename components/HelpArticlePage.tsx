@@ -63,7 +63,6 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
   const pre = locale === 'fr' ? '' : `/${locale}`;
   const aide = `${pre}/aide`;
   const L = SITE_PAGES[locale].labels;
-  const sample = `${L.appScreen} · ${L.sample}`.toUpperCase();
 
   return (
     <SitePage title={`${article.title} | Cantia`} description={article.body[0]} cta={false}>
@@ -78,7 +77,6 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
               {article.screenshot ? (
                 <View style={{ marginBottom: 30 }}>
                   <AppCapture name={article.screenshot} alt={article.title} />
-                  <Text style={[sans, styles.caption]}>{sample}</Text>
                 </View>
               ) : null}
 

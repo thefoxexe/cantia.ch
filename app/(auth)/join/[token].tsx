@@ -6,6 +6,8 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { acceptInvite, getInvitePreview } from '../../../lib/api/invites';
 import { setPendingInvite, clearPendingInvite } from '../../../lib/pendingInvite';
+import { OnboardingShell } from '../../../components/site/OnboardingShell';
+import { sans, site } from '../../../lib/siteTheme';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../lib/theme';
@@ -75,16 +77,15 @@ export default function JoinScreen() {
 
   if (valid === null) {
     return (
-      <Screen background="mountain">
+      <OnboardingShell>
         <LoadingScreen />
-      </Screen>
+      </OnboardingShell>
     );
   }
 
   if (!valid) {
     return (
-      <Screen background="mountain">
-        <ScrollView contentContainerStyle={styles.scroll}>
+      <OnboardingShell contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
             <Text style={styles.title}>{t('authJoinToken.invalidTitle')}</Text>
@@ -93,15 +94,13 @@ export default function JoinScreen() {
             </Text>
             <Button title={t('authJoinToken.goToLogin')} onPress={() => router.replace('/(auth)/login')} style={{ marginTop: spacing.xl }} />
           </View>
-        </ScrollView>
-      </Screen>
+        </OnboardingShell>
     );
   }
 
   if (!session) {
     return (
-      <Screen background="mountain">
-        <ScrollView contentContainerStyle={styles.scroll}>
+      <OnboardingShell contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
             <Text style={styles.title}>{t('authJoinToken.invitedTitle')}</Text>
@@ -115,24 +114,22 @@ export default function JoinScreen() {
               style={{ marginTop: spacing.md }}
             />
           </View>
-        </ScrollView>
-      </Screen>
+        </OnboardingShell>
     );
   }
 
   if (organization) {
     if (currentMemberCount === null) {
       return (
-        <Screen background="mountain">
+        <OnboardingShell>
           <LoadingScreen />
-        </Screen>
+        </OnboardingShell>
       );
     }
 
     if (currentMemberCount > 1) {
       return (
-        <Screen background="mountain">
-          <ScrollView contentContainerStyle={styles.scroll}>
+        <OnboardingShell contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
               <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
               <Text style={styles.subtitle}>
@@ -140,8 +137,7 @@ export default function JoinScreen() {
               </Text>
               <Button title={t('authJoinToken.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.xl }} />
             </View>
-          </ScrollView>
-        </Screen>
+          </OnboardingShell>
       );
     }
 
@@ -150,8 +146,7 @@ export default function JoinScreen() {
     // separate confirmation step before calling acceptInvite(token, true).
     if (!confirmSwitch) {
       return (
-        <Screen background="mountain">
-          <ScrollView contentContainerStyle={styles.scroll}>
+        <OnboardingShell contentContainerStyle={styles.scroll}>
             <View style={styles.container}>
               <Text style={styles.title}>{t('authJoinToken.alreadyInOrgTitle')}</Text>
               <Text style={styles.subtitle}>
@@ -165,14 +160,12 @@ export default function JoinScreen() {
               />
               <Button title={t('authJoinToken.backToApp')} onPress={() => router.replace('/(app)')} style={{ marginTop: spacing.md }} />
             </View>
-          </ScrollView>
-        </Screen>
+          </OnboardingShell>
       );
     }
 
     return (
-      <Screen background="mountain">
-        <ScrollView contentContainerStyle={styles.scroll}>
+      <OnboardingShell contentContainerStyle={styles.scroll}>
           <View style={styles.container}>
             <Feather name="alert-triangle" size={32} color={colors.danger} style={{ alignSelf: 'center', marginBottom: spacing.md }} />
             <Text style={[styles.title, { color: colors.danger }]}>{t('authJoinToken.irreversibleTitle')}</Text>
@@ -189,14 +182,12 @@ export default function JoinScreen() {
             />
             <Button title={t('authJoinToken.cancel')} variant="secondary" onPress={() => setConfirmSwitch(false)} style={{ marginTop: spacing.md }} />
           </View>
-        </ScrollView>
-      </Screen>
+        </OnboardingShell>
     );
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <OnboardingShell contentContainerStyle={styles.scroll}>
         <View style={styles.container}>
           <BrandLogo height={36} style={{ alignSelf: 'center', marginBottom: 20 }} />
           <Text style={styles.title}>{t('authJoinToken.joinTitle')}</Text>
@@ -211,8 +202,7 @@ export default function JoinScreen() {
             style={{ marginTop: spacing.md }}
           />
         </View>
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -248,8 +238,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     textAlign: 'center',
     marginTop: spacing.md,
     lineHeight: 21,

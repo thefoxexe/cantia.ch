@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
+import { OnboardingShell } from '../../../components/site/OnboardingShell';
+import { sans, site } from '../../../lib/siteTheme';
 import { Button, Field, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -53,8 +55,7 @@ export default function CreateOrganizationScreen() {
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView contentContainerStyle={styles.container}>
+    <OnboardingShell step={1} contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />
           <Text style={styles.backLinkText}>{t('authOnboardingCreate.backLink')}</Text>
@@ -105,8 +106,7 @@ export default function CreateOrganizationScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Button title={t('authOnboardingCreate.submit')} onPress={handleCreate} loading={loading} style={{ marginTop: spacing.xl }} />
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -131,14 +131,17 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    ...sans,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    letterSpacing: -1.2,
+    color: site.ink,
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
   },

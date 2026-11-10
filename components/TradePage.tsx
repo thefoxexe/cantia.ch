@@ -72,7 +72,7 @@ export function TradePage({ slug }: { slug: string }) {
                   <PhoneShot source={X.app.dashMobile.source} ratio={X.app.dashMobile.ratio} width={250} maxHeight={480} alt={L.appAlt} />
                 </View>
               ) : (
-                <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} />
+                <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} />
               )}
             </View>
           </View>

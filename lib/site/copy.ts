@@ -119,7 +119,7 @@ const fr: SiteCopy = {
     help: 'Aide & ressources',
     contact: 'Contact',
     tryLong: 'Essayer pendant 14 jours',
-    priceNote: 'Dès CHF 39.– / mois · Carte bancaire requise pour l’essai',
+    priceNote: 'Dès CHF 39.– / mois · 14 jours d’essai',
   },
   families: [
     { key: 'signer', name: 'Signer', text: 'Clients, devis et signatures', slug: 'signer' },
@@ -218,7 +218,7 @@ const de: SiteCopy = {
     help: 'Hilfe & Ressourcen',
     contact: 'Kontakt',
     tryLong: '14 Tage testen',
-    priceNote: 'Ab CHF 39.– / Monat · Kreditkarte für die Testphase erforderlich',
+    priceNote: 'Ab CHF 39.– / Monat · 14 Tage testen',
   },
   families: [
     { key: 'signer', name: 'Unterzeichnen', text: 'Kunden, Offerten und Unterschriften', slug: 'signer' },
@@ -317,7 +317,7 @@ const it: SiteCopy = {
     help: 'Aiuto & risorse',
     contact: 'Contatto',
     tryLong: 'Provare per 14 giorni',
-    priceNote: 'Da CHF 39.– / mese · Carta di credito richiesta per la prova',
+    priceNote: 'Da CHF 39.– / mese · 14 giorni di prova',
   },
   families: [
     { key: 'signer', name: 'Firmare', text: 'Clienti, preventivi e firme', slug: 'signer' },

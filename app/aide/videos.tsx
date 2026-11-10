@@ -103,7 +103,7 @@ export default function TutorialVideosScreen() {
                 </View>
               </View>
               <View style={{ marginTop: 40, maxWidth: 980, width: '100%', alignSelf: 'center' }}>
-                <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt, note: `${L.appScreen} · ${L.sample}` }} />
+                <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt }} />
               </View>
             </View>
           ) : (

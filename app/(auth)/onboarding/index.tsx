@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { getMyPendingRequest, cancelJoinRequest, type MyJoinRequest } from '../../../lib/api/invites';
+import { OnboardingShell } from '../../../components/site/OnboardingShell';
+import { sans, site } from '../../../lib/siteTheme';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -30,16 +32,15 @@ export default function OnboardingHubScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen background="mountain">
+      <OnboardingShell step={1}>
         <LoadingScreen />
-      </Screen>
+      </OnboardingShell>
     );
   }
 
   if (pending) {
     return (
-      <Screen background="mountain">
-        <ScrollView contentContainerStyle={styles.container}>
+      <OnboardingShell step={1} contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
           <Text style={styles.title}>{t('authOnboardingHub.requestSentTitle')}</Text>
           <Text style={styles.subtitle}>
@@ -47,14 +48,12 @@ export default function OnboardingHubScreen() {
           </Text>
           <Button title={t('authOnboardingHub.cancelRequest')} variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
           <Button title={t('authOnboardingHub.signOut')} variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
-        </ScrollView>
-      </Screen>
+        </OnboardingShell>
     );
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView contentContainerStyle={styles.container}>
+    <OnboardingShell step={1} contentContainerStyle={styles.container}>
         <Text style={styles.title}>{t('authOnboardingHub.welcomeTitle')}</Text>
         <Text style={styles.subtitle}>{t('authOnboardingHub.welcomeSubtitle')}</Text>
 
@@ -80,9 +79,7 @@ export default function OnboardingHubScreen() {
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </Pressable>
 
-        <Button title={t('authOnboardingHub.signOut')} onPress={signOut} variant="secondary" style={{ marginTop: spacing.xl }} />
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -100,19 +97,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    ...sans,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    letterSpacing: -1.2,
+    color: site.ink,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     textAlign: 'center',
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
-    lineHeight: 21,
+    lineHeight: 23,
   },
   bold: {
     fontWeight: '700',

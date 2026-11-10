@@ -2776,6 +2776,13 @@ export const fr = {
     billingYearly: 'Facturation annuelle',
     billingMonthly: 'Facturation mensuelle',
     recommended: 'Recommandé',
+    yourChoice: 'Votre choix',
+    trialStepsTitle: 'Comment se passe l’essai',
+    trialSteps: [
+      { title: 'Aujourd’hui : 0 CHF', text: 'Votre carte est demandée pour la suite, rien n’est débité maintenant.' },
+      { title: '14 jours pour tout essayer', text: 'Toutes les fonctions de votre formule sont ouvertes, avec vos vrais clients et vos vrais documents.' },
+      { title: 'Pas convaincu ? Vous ne payez rien', text: 'Résiliez en ligne avant le 14e jour, en deux clics, sans justification. Sinon, l’abonnement démarre.' },
+    ],
     perMonth: '/mois',
     billedYearly: 'Facturé CHF {{amount}}/an',
     storageFeature: '{{gb}} Go de stockage',

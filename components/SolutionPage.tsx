@@ -147,7 +147,7 @@ export function SolutionPage({
           <View style={[styles.docRow, (phone || tablet) && { flexDirection: 'column', gap: 34 }]}>
             {pdf ? (
               <View style={phone || tablet ? undefined : { flex: 1, minWidth: 0 }}>
-                <DocVisual source={pdf.source} ratio={pdf.ratio} alt={doc.points[0]?.title ?? kicker} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 420 : 620} />
+                <DocVisual source={pdf.source} ratio={pdf.ratio} alt={doc.points[0]?.title ?? kicker} maxHeight={phone ? 420 : 620} />
               </View>
             ) : null}
           <View style={[styles.points, (phone || pdf) && { flexDirection: 'column', gap: pdf ? 0 : 30 }, pdf && !phone && !tablet && { flex: 1 }]}>

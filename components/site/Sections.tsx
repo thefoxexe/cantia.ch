@@ -81,7 +81,6 @@ export function SiteCta() {
           <View>
             <Btn label={h.ctaButton} href={authHref('signup')} tone="sand" />
           </View>
-          <Micro color="#a4ae97" style={{ fontSize: 9 }}>{h.ctaMicro}</Micro>
         </View>
       </Wrap>
     </View>

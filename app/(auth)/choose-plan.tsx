@@ -6,9 +6,12 @@ import { useAuth } from '../../lib/auth-context';
 import { supabase } from '../../lib/supabase';
 import { startCheckout } from '../../lib/api/billing';
 import { openCheckoutUrl } from '../../lib/openUrl';
+import { OnboardingShell } from '../../components/site/OnboardingShell';
+import { sans, site } from '../../lib/siteTheme';
 import { Button, Card, Screen, Switch } from '../../components/ui';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 import { planHref } from '../../lib/appHost';
+import { clearPlanIntent, readPlanIntent } from '../../lib/planIntent';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { Plan } from '../../lib/types';
 import { displayType } from '../../lib/marketingTheme';
@@ -22,7 +25,9 @@ export default function ChoosePlanScreen() {
   // Read once and applied silently; nothing on screen reveals it's there.
   const { promo, code: codeParam } = useLocalSearchParams<{ promo?: string; code?: string }>();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
+  // What the visitor picked on cantia.ch before signing up (lib/planIntent).
+  const [intent] = useState(readPlanIntent);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>(intent.billing ?? 'year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,7 +58,7 @@ export default function ChoosePlanScreen() {
   // A link like /choose-plan?code=MORINA2026 (sent to one client) opens
   // straight on their personal plan, as if they had typed the code.
   useEffect(() => {
-    const fromLink = typeof codeParam === 'string' ? codeParam.trim() : '';
+    const fromLink = typeof codeParam === 'string' && codeParam.trim() ? codeParam.trim() : intent.code ?? '';
     if (!fromLink) return;
     setCustomPlanOpen(true);
     setCustomPlanCode(fromLink);
@@ -97,6 +102,7 @@ export default function ChoosePlanScreen() {
     // rejected it as "not configured for online payment" since it looked up
     // a yearly price id that was never set.
     const { url, error: err } = await startCheckout(planId, intervalOverride ?? billingInterval, promo);
+    if (url) clearPlanIntent();
     if (err || !url) {
       setBusyPlan(null);
       setError(err ?? t('authChoosePlan.checkoutStartError'));
@@ -121,8 +127,7 @@ export default function ChoosePlanScreen() {
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <OnboardingShell step={2} contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
           <Text style={styles.title}>{customPlan ? t('authChoosePlan.customPlanTitle', { name: customPlan.name }) : t('authChoosePlan.title')}</Text>
           <Text style={styles.subtitle}>
@@ -139,11 +144,23 @@ export default function ChoosePlanScreen() {
           </Pressable>
         ) : null}
 
-        <View style={styles.promoBanner}>
-          <Feather name="gift" size={16} color={colors.primary} />
-          <Text style={styles.promoBannerText}>
-            {t('authChoosePlan.trialBanner')}
-          </Text>
+        {/* Card requested, nothing charged before day 14, cancel online
+            before then and nothing is paid: said once, plainly. */}
+        <View style={styles.trialBox}>
+          <Text style={styles.trialTitle}>{t('authChoosePlan.trialStepsTitle')}</Text>
+          <View style={styles.trialSteps}>
+            {(t('authChoosePlan.trialSteps', { returnObjects: true }) as { title: string; text: string }[]).map((step, i) => (
+              <View key={step.title} style={styles.trialStep}>
+                <View style={styles.trialNum}>
+                  <Text style={styles.trialNumText}>{i + 1}</Text>
+                </View>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={styles.trialStepTitle}>{step.title}</Text>
+                  <Text style={styles.trialStepText}>{step.text}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
 
         <Pressable
@@ -184,7 +201,8 @@ export default function ChoosePlanScreen() {
                   key={p.id}
                   plan={p}
                   billingInterval={billingInterval}
-                  highlight={p.id === 'equipe'}
+                  highlight={p.id === (intent.plan ?? 'equipe')}
+                  badgeLabel={intent.plan === p.id ? t('authChoosePlan.yourChoice') : undefined}
                   loading={busyPlan === p.id}
                   disabled={!!busyPlan}
                   onChoose={() => choosePlan(p.id)}
@@ -242,8 +260,7 @@ export default function ChoosePlanScreen() {
             )}
           </>
         )}
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -374,19 +391,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   title: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    ...sans,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    letterSpacing: -1.2,
+    color: site.ink,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     textAlign: 'center',
     marginTop: spacing.sm,
     maxWidth: 460,
-    lineHeight: 21,
+    lineHeight: 23,
   },
   error: {
     color: colors.danger,
@@ -412,6 +432,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
+  trialBox: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md, width: '100%', maxWidth: 1040, alignSelf: 'center', marginBottom: spacing.lg },
+  trialTitle: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  trialSteps: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
+  trialStep: { flexDirection: 'row', gap: spacing.sm, flexGrow: 1, flexBasis: 240, alignItems: 'flex-start' },
+  trialNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  trialNumText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  trialStepTitle: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
+  trialStepText: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 19 },
   promoBanner: {
     flexDirection: 'row',
     alignItems: 'center',

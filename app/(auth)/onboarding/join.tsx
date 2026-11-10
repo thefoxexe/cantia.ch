@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { cancelJoinRequest, getMyPendingRequest, requestToJoin, searchOrganizations, type MyJoinRequest } from '../../../lib/api/invites';
+import { OnboardingShell } from '../../../components/site/OnboardingShell';
+import { sans, site } from '../../../lib/siteTheme';
 import { Button, LoadingScreen, Screen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -63,16 +65,15 @@ export default function JoinOrganizationScreen() {
 
   if (pending === undefined) {
     return (
-      <Screen background="mountain">
+      <OnboardingShell step={1}>
         <LoadingScreen />
-      </Screen>
+      </OnboardingShell>
     );
   }
 
   if (pending) {
     return (
-      <Screen background="mountain">
-        <ScrollView contentContainerStyle={styles.container}>
+      <OnboardingShell step={1} contentContainerStyle={styles.container}>
           <Feather name="clock" size={32} color={colors.primary} style={styles.centerIcon} />
           <Text style={styles.title}>{t('authOnboardingJoin.requestSentTitle')}</Text>
           <Text style={styles.subtitle}>
@@ -80,14 +81,12 @@ export default function JoinOrganizationScreen() {
           </Text>
           <Button title={t('authOnboardingJoin.cancelRequest')} variant="secondary" onPress={handleCancel} loading={cancelling} style={{ marginTop: spacing.xl }} />
           <Button title={t('authOnboardingJoin.signOut')} variant="secondary" onPress={signOut} style={{ marginTop: spacing.md }} />
-        </ScrollView>
-      </Screen>
+        </OnboardingShell>
     );
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView contentContainerStyle={styles.container}>
+    <OnboardingShell step={1} contentContainerStyle={styles.container}>
         <Pressable onPress={() => router.replace('/(auth)/onboarding')} style={styles.backLink} hitSlop={8}>
           <Feather name="arrow-left" size={16} color={colors.textMuted} />
           <Text style={styles.backLinkText}>{t('authOnboardingJoin.backLink')}</Text>
@@ -131,8 +130,7 @@ export default function JoinOrganizationScreen() {
         <Text style={styles.altText}>
           {t('authOnboardingJoin.altText')}
         </Text>
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -161,19 +159,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    ...sans,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    letterSpacing: -1.2,
+    color: site.ink,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
     textAlign: 'center',
-    lineHeight: 21,
+    lineHeight: 23,
   },
   bold: {
     fontWeight: '700',

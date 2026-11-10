@@ -12,6 +12,8 @@ import { BrandColorPicker } from '../../../components/BrandColorPicker';
 import { IbanField, ibanMessage } from '../../../components/IbanField';
 import { VatQuestion } from '../../../components/VatQuestion';
 import { hasValidIde } from '../../../lib/vat/vatStatus';
+import { OnboardingShell } from '../../../components/site/OnboardingShell';
+import { sans, site } from '../../../lib/siteTheme';
 import { Button, Field, Screen } from '../../../components/ui';
 import { HEX_COLOR_RE } from '../../../components/PdfTemplatePicker';
 import { useTranslation } from '../../../lib/translations';
@@ -245,11 +247,7 @@ export default function OnboardingSetupScreen() {
   }
 
   return (
-    <Screen background="mountain">
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.container}>
-        <View style={styles.stepIconWrap}>
-          <Feather name={STEP_ICONS[step - 1]} size={22} color={colors.primary} />
-        </View>
+    <OnboardingShell ref={scrollRef} step={3} contentContainerStyle={styles.container}>
         <View style={styles.progressRow}>
           {Array.from({ length: STEP_COUNT }, (_, i) => i + 1).map((n) => (
             <View key={n} style={styles.progressSegment}>
@@ -342,8 +340,7 @@ export default function OnboardingSetupScreen() {
           loading={finishing}
           style={{ marginTop: spacing.lg }}
         />
-      </ScrollView>
-    </Screen>
+      </OnboardingShell>
   );
 }
 
@@ -659,18 +656,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   title: {
-    ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
-    color: colors.text,
+    ...sans,
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    letterSpacing: -1.2,
+    color: site.ink,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textMuted,
+    ...sans,
+    fontSize: 14,
+    color: site.muted,
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
-    lineHeight: 21,
+    lineHeight: 23,
     textAlign: 'center',
   },
   fieldLabel: {

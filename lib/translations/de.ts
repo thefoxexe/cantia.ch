@@ -2790,6 +2790,13 @@ export const de: TranslationDict = {
     billingYearly: 'Jährliche Abrechnung',
     billingMonthly: 'Monatliche Abrechnung',
     recommended: 'Empfohlen',
+    yourChoice: 'Ihre Wahl',
+    trialStepsTitle: 'So läuft die Testphase',
+    trialSteps: [
+      { title: 'Heute: CHF 0', text: 'Ihre Karte wird für später hinterlegt, jetzt wird nichts abgebucht.' },
+      { title: '14 Tage alles testen', text: 'Alle Funktionen Ihres Abos sind offen, mit Ihren echten Kunden und Dokumenten.' },
+      { title: 'Nicht überzeugt? Sie zahlen nichts', text: 'Kündigen Sie vor dem 14. Tag online, mit zwei Klicks und ohne Begründung. Sonst beginnt das Abo.' },
+    ],
     perMonth: '/Monat',
     billedYearly: 'CHF {{amount}}/Jahr verrechnet',
     storageFeature: '{{gb}} GB Speicher',
