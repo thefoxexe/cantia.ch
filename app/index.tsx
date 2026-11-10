@@ -4,7 +4,7 @@ import { Link, Redirect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
-import { Btn, Eyebrow, Hover, Headline, TextLink, Wrap } from '../components/site/Primitives';
+import { Btn, Eyebrow, Hover, Headline, TextLink, Wrap, useSiteFontScope } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
 import { PhoneShot, SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
 import { EXPORTS } from '../components/site/exports';
@@ -22,6 +22,7 @@ import { HeroDevices } from '../components/site/HeroDevices';
 const paperShadow = Platform.OS === 'web' ? ({ boxShadow: '0 22px 48px rgba(86,58,34,0.16), 0 2px 6px rgba(86,58,34,0.08)' } as object) : {};
 
 export default function LandingScreen() {
+  useSiteFontScope();
   if (Platform.OS !== 'web') return <Redirect href="/(auth)/login" />;
   return <LandingContent />;
 }

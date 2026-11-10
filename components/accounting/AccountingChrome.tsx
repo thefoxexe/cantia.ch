@@ -6,6 +6,7 @@ import { useAccCopy } from '../../lib/accounting/locale';
 import { ACC_LOCALES, type AccLocale } from '../../lib/accounting/copy';
 import { colors } from '../../lib/theme';
 import { LocaleTabs, ProductFooter, ProductNav } from '../brand/ProductChrome';
+import { useSiteFontScope } from '../site/Primitives';
 
 // Frame of accounting.cantia.ch: the shared product chrome
 // (components/brand/ProductChrome.tsx), same as partners.cantia.ch.
@@ -59,6 +60,7 @@ export function AccFooter() {
 }
 
 export function AccPage({ children, nav, footer = true }: { children: ReactNode; nav: ReactNode; footer?: boolean }) {
+  useSiteFontScope();
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.pageContent}>
       {nav}

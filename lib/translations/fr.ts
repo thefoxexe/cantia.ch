@@ -4164,7 +4164,7 @@ export const fr = {
     title: 'Tutoriels & démos',
     lead: "De courtes vidéos pour voir chaque module en action — prise en main, formation d'une nouvelle recrue, ou juste un aperçu avant de s'inscrire.",
     noticeTitle: 'Vidéos en préparation',
-    noticeText: 'Une vidéo de présentation par module est en cours de tournage. Elles seront disponibles ici courant septembre.',
+    noticeText: 'Une vidéo par module est en préparation. En attendant, voici Cantia en action sur un ordinateur et un téléphone, avec des données d’exemple.',
     channelLink: 'Voir tous nos tutoriels sur notre chaîne YouTube',
     searchPlaceholder: 'Rechercher une vidéo…',
     noResults: 'Aucune vidéo ne correspond à « {{query}} ».',

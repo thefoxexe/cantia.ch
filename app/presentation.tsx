@@ -14,6 +14,7 @@ import { displayType, landingFonts, monoType } from '../lib/landingTheme';
 import { authHref } from '../lib/appHost';
 import { trackLandingEvent } from '../lib/siteAnalytics';
 import { site } from '../lib/siteTheme';
+import { useSiteFontScope } from '../components/site/Primitives';
 
 const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
@@ -96,6 +97,7 @@ function Video() {
 }
 
 export default function PresentationScreen() {
+  useSiteFontScope();
   const { width } = useWindowDimensions();
   const wide = width >= breakpoints.desktop;
   // The page is pre-rendered at desktop width. On a phone, hydration keeps
@@ -182,22 +184,22 @@ const styles = StyleSheet.create({
   ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 20 },
   ctaCol: { flexDirection: 'column', gap: 12 },
   ctaBlock: { gap: 12, alignItems: 'flex-start' },
-  mailText: { fontFamily: landingFonts.body, fontSize: 14.5, color: bodyInk },
+  mailText: { fontFamily: DM, fontSize: 14.5, color: bodyInk },
   mailStrong: { fontWeight: '700', textDecorationLine: 'underline' },
   video: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12, shadowColor: '#2A1C10', shadowOpacity: 0.18, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, overflow: 'hidden', backgroundColor: '#E9DFD0', borderWidth: 1, borderColor: rule, cursor: 'pointer' } as any,
   proof: { flexDirection: 'row', flexWrap: 'wrap', borderTopWidth: 1, borderBottomWidth: 1, borderColor: rule, marginBottom: 64 },
   proofItem: { paddingVertical: 20, paddingHorizontal: 16, gap: 4 },
   proofRule: { borderLeftWidth: 1, borderLeftColor: rule },
   proofValue: { fontFamily: DM, fontSize: 22, fontWeight: '500', color: ink } as any,
-  proofLabel: { fontFamily: landingFonts.body, fontSize: 13.5, color: bodyInk },
+  proofLabel: { fontFamily: DM, fontSize: 13.5, color: bodyInk },
   sectionKicker: { fontFamily: DM, fontSize: 12, letterSpacing: 1.4, color: site.copper, marginBottom: 10 },
   sectionTitle: { fontFamily: DM, color: ink, fontWeight: '500', letterSpacing: -0.5, maxWidth: 720, marginBottom: 28 } as any,
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -12 },
   feature: { padding: 12, paddingBottom: 28, gap: 8 },
-  featureTitle: { fontFamily: landingFonts.body, fontSize: 17, fontWeight: '700', color: ink },
-  featureText: { fontFamily: landingFonts.body, fontSize: 15, lineHeight: 23, color: bodyInk },
+  featureTitle: { fontFamily: DM, fontSize: 17, fontWeight: '700', color: ink },
+  featureText: { fontFamily: DM, fontSize: 15, lineHeight: 23, color: bodyInk },
   closing: { backgroundColor: '#16120E', paddingVertical: 64 },
   closingInner: { width: '100%', maxWidth: 1200, alignSelf: 'center', gap: 18 },
   closingTitle: { fontFamily: DM, color: '#f4f3e9', fontWeight: '500', letterSpacing: -0.5 } as any,
-  closingText: { fontFamily: landingFonts.body, fontSize: 16, lineHeight: 24, color: '#D9CDBD', maxWidth: 560 },
+  closingText: { fontFamily: DM, fontSize: 16, lineHeight: 24, color: '#D9CDBD', maxWidth: 560 },
 });

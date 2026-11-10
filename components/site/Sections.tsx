@@ -9,6 +9,7 @@ import { localePrefix, useSiteLocale } from './SiteNav';
 import { SITE_COPY } from '../../lib/site/copy';
 import { sans, site } from '../../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../../lib/appHost';
+import { useSiteFontScope } from './Primitives';
 
 // Sections shared by the public pages of cantia.ch: the page frame, the
 // section heading, the closing call to action, the dictation demo and the
@@ -25,6 +26,7 @@ export function useSiteLayout() {
 }
 
 export function SitePage({ title, description, children, scrollRef, cta = true }: { title: string; description?: string; children: React.ReactNode; scrollRef?: React.RefObject<ScrollView | null>; cta?: boolean }) {
+  useSiteFontScope();
   useSyncMarketingLocaleFromPath();
   return (
     <View style={styles.page}>

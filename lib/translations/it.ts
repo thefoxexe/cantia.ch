@@ -4183,7 +4183,7 @@ export const it: TranslationDict = {
     title: 'Tutorial e demo',
     lead: "Brevi video per vedere ogni modulo in azione — presa in mano, formazione di un nuovo assunto, o solo un'anteprima prima di iscriversi.",
     noticeTitle: 'Video in preparazione',
-    noticeText: 'Un video di presentazione per modulo è in fase di registrazione. Saranno disponibili qui nel corso di settembre.',
+    noticeText: 'È in preparazione un video per modulo. Nel frattempo, ecco Cantia in azione su computer e telefono, con dati di esempio.',
     channelLink: 'Guarda tutti i nostri tutorial sul nostro canale YouTube',
     searchPlaceholder: 'Cerca un video…',
     noResults: 'Nessun video corrisponde a « {{query}} ».',

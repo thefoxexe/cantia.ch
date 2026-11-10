@@ -7,6 +7,7 @@ import { MarketingHead } from '../components/MarketingHead';
 import { authHref } from '../lib/appHost';
 import { marketingFonts } from '../lib/marketingTheme';
 import { site } from '../lib/siteTheme';
+import { useSiteFontScope } from '../components/site/Primitives';
 
 const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
@@ -44,6 +45,7 @@ function Tile({ item }: { item: Item }) {
 }
 
 export default function LinksPage() {
+  useSiteFontScope();
   return (
     <Screen style={{ padding: 0 }}>
       <MarketingHead

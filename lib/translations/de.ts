@@ -4175,7 +4175,7 @@ export const de: TranslationDict = {
     title: 'Tutorials & Demos',
     lead: 'Kurze Videos, um jedes Modul in Aktion zu sehen — Einarbeitung, Schulung einer neuen Fachkraft, oder einfach ein Vorgeschmack vor der Anmeldung.',
     noticeTitle: 'Videos in Vorbereitung',
-    noticeText: 'Pro Modul wird derzeit ein Präsentationsvideo gedreht. Sie werden im Laufe des Septembers hier verfügbar sein.',
+    noticeText: 'Pro Modul ist ein Video in Vorbereitung. Bis dahin sehen Sie hier Cantia im Einsatz auf Computer und Telefon, mit Beispieldaten.',
     channelLink: 'Alle unsere Tutorials auf unserem YouTube-Kanal ansehen',
     searchPlaceholder: 'Video suchen…',
     noResults: 'Kein Video passt zu „{{query}}“.',

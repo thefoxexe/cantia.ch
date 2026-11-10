@@ -5,6 +5,7 @@ import { usePartnersCopy } from '../../lib/partners/locale';
 import { PARTNERS_LOCALES, type PartnersLocale } from '../../lib/partners/copy';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { LocaleTabs, ProductFooter, ProductNav } from '../brand/ProductChrome';
+import { useSiteFontScope } from '../site/Primitives';
 
 export const PAGE_MAX = 1120;
 
@@ -68,6 +69,7 @@ export function PartnersFooter() {
 }
 
 export function PartnersPage({ children, nav }: { children: ReactNode; nav: ReactNode }) {
+  useSiteFontScope();
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.pageContent}>
       {nav}

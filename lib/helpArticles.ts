@@ -2,7 +2,7 @@
 // the app rather than stored per-organization in the DB, since it explains
 // how Cantia itself works and doesn't vary between organizations.
 export interface HelpArticleStep {
-  // Base filename (no extension) of a screenshot under public/aide/<screenshot>.png.
+  // Base filename (no extension) of a screenshot under public/help-shots/<screenshot>[-de|-it].jpg.
   screenshot: string;
   // Short label under the screenshot — what this exact step shows, not a
   // restatement of the article's own intro paragraphs above it.
@@ -15,7 +15,7 @@ export interface HelpArticle {
   title: string;
   keywords: string[];
   body: string[]; // one string per paragraph
-  // Base filename (no extension) of a screenshot under public/aide/<screenshot>.png,
+  // Base filename (no extension) of a screenshot under public/help-shots/<screenshot>[-de|-it].jpg,
   // rendered near the top of the article's dedicated page. Real Cantia UI
   // captured against a "Cantia Démo SA" demo organization seeded with
   // placeholder data — never a real customer's account.

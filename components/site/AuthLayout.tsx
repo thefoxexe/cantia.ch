@@ -8,6 +8,7 @@ import { EXPORTS } from './exports';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { getAppLocale } from '../../lib/translations';
 import { AUTH_COPY, type AuthProduct } from '../../lib/site/auth';
+import { useSiteFontScope } from './Primitives';
 
 const LOGO = require('../../assets/brand/logo.png');
 
@@ -16,6 +17,7 @@ const LOGO = require('../../assets/brand/logo.png');
 // the right; on a phone, the logo and the form only. Each product has its
 // own screens, there is no product switcher.
 export function AuthLayout({ product = 'cantia', backHref, children, visual, locale: forced }: { product?: AuthProduct; backHref: string; children: React.ReactNode; visual?: React.ReactNode; locale?: 'fr' | 'de' | 'it' }) {
+  useSiteFontScope();
   const { width } = useWindowDimensions();
   const wide = width > 900;
   const locale = forced ?? getAppLocale();

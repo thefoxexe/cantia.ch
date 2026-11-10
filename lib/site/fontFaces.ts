@@ -34,6 +34,14 @@ export const FONT_CSS = [
   "@font-face{font-family:'DM Serif Fallback';font-style:normal;src:local('Times New Roman'),local('TimesNewRomanPSMT'),local('Liberation Serif'),local('Times-Roman');size-adjust:104.3%;ascent-override:99.7%;descent-override:32.6%;line-gap-override:0%}",
 ].join('');
 
+// Site pages (marketing, logins, Accounting/Partners) mark <html data-site>
+// (useSiteFontScope): there, any text or field that sets no font of its own
+// (cookie banner, shared form fields, sign-in buttons…) uses DM Sans instead
+// of the app's default. Text with an explicit font keeps it. The signed-in
+// app never sets the attribute and keeps its own typography.
+export const SITE_SCOPE_CSS =
+  "html[data-site] [dir=auto]:not([class*='r-fontFamily']),html[data-site] input:not([class*='r-fontFamily']),html[data-site] textarea:not([class*='r-fontFamily']){font-family:'DM Sans','DM Sans Fallback',Arial,sans-serif}";
+
 export const SECONDARY_FONTS_HREF =
   'https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&family=Michroma&display=swap';
 

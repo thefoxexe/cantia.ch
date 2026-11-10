@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type PressableProps, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -160,3 +160,14 @@ const styles = StyleSheet.create({
   btnTextLarge: { fontSize: 14 },
   textLink: { flexDirection: 'row', alignItems: 'center', gap: 14, alignSelf: 'flex-start' },
 });
+
+// Marks the document as a site page while mounted (see SITE_SCOPE_CSS in
+// lib/site/fontFaces.ts): default text takes the site typeface.
+export function useSiteFontScope() {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const html = document.documentElement;
+    html.setAttribute('data-site', '');
+    return () => html.removeAttribute('data-site');
+  }, []);
+}
