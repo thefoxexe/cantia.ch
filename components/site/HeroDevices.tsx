@@ -52,19 +52,20 @@ function Clip({ kind, locale, label, width, height }: { kind: 'desktop' | 'phone
 export function HeroDevices({ locale, phoneOnly, labels }: { locale: Locale; phoneOnly?: boolean; labels: { desktop: string; phone: string; note: string } }) {
   const [w, setW] = useState(0);
   const laptopW = phoneOnly ? 0 : Math.min(w * 0.9, 760);
-  const screenW = laptopW * 0.9;
+  const screenW = laptopW * 0.94;
   const screenH = screenW * (900 / 1440);
   const phoneW = phoneOnly ? Math.min(w * 0.62, 250) : Math.max(120, Math.min(laptopW * 0.27, 205));
   const phoneInner = phoneW - phoneW * 0.07;
   const phoneH = phoneInner * (1168 / 540);
-  const stageH = phoneOnly ? phoneH + phoneW * 0.07 + 10 : screenH + laptopW * 0.05 + 26 + phoneH * 0.32;
+  const stageH = phoneOnly ? phoneH + phoneW * 0.07 + 10 : screenH + (laptopW - screenW) + 26 + phoneH * 0.32;
   return (
     <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ width: '100%' }}>
       {w ? (
         <View style={{ height: stageH, width: '100%' }}>
           {!phoneOnly ? (
             <View style={{ position: 'absolute', left: 0, top: 0, width: laptopW, alignItems: 'center' }}>
-              <View style={[styles.lid, { width: laptopW, padding: laptopW * 0.05 * 0.5, paddingBottom: laptopW * 0.025, borderRadius: laptopW * 0.025 }]}>
+              {/* Same bezel on both sides: the lid is exactly the screen plus one bezel each side. */}
+              <View style={[styles.lid, { width: laptopW, paddingHorizontal: (laptopW - screenW) / 2, paddingTop: (laptopW - screenW) / 2, paddingBottom: (laptopW - screenW) / 2 + 2, borderRadius: laptopW * 0.025, alignItems: 'center' }]}>
                 <View style={[styles.camera, { top: laptopW * 0.009 }]} />
                 <View style={{ width: screenW, height: screenH, overflow: 'hidden', borderRadius: 3, backgroundColor: '#f7f1e6' }}>
                   <Clip kind="desktop" locale={locale} label={labels.desktop} width={screenW} height={screenH} />

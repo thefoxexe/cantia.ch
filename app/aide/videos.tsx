@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container, Screen } from '../../components/ui';
-import { Heading } from '../../components/Heading';
-import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
+import { Eyebrow, Headline, Hover, Wrap } from '../../components/site/Primitives';
+import { Breadcrumbs, SitePage, useSiteLayout } from '../../components/site/Sections';
+import { HeroDevices } from '../../components/site/HeroDevices';
+import { SITE_PAGES } from '../../lib/site/pages';
 import { supabase } from '../../lib/supabase';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
-import { site } from '../../lib/siteTheme';
+import { sans, site } from '../../lib/siteTheme';
 
 const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
@@ -75,72 +76,64 @@ export default function TutorialVideosScreen() {
     else Linking.openURL(`https://www.youtube.com/watch?v=${video.youtubeId}`);
   }
 
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const { phone, width } = useSiteLayout();
+  const L = SITE_PAGES[locale].labels;
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav />
-
-        <Container style={styles.container}>
-          <Link href={aideHref as any} style={styles.backLink}>
-            <Feather name="arrow-left" size={14} color={site.muted} />
-            <Text style={styles.backLinkText}>{t('aideVideosPage.backLink')}</Text>
-          </Link>
-          <Heading level={1} style={styles.title}>{t('aideVideosPage.title')}</Heading>
-          <Text style={styles.lead}>{t('aideVideosPage.lead')}</Text>
-
-          <Pressable
-            onPress={() => Linking.openURL('https://www.youtube.com/@Cantiach')}
-            style={styles.channelLink}
-          >
+    <SitePage title={`${t('aideVideosPage.title')} | Cantia`} description={t('aideVideosPage.lead')}>
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 50 : 80 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: L.home, href: locale === 'fr' ? '/' : `/${locale}` }, { label: t('aideVideosPage.backLink'), href: aideHref }, { label: t('aideVideosPage.title') }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{t('aideVideosPage.backLink')}</Eyebrow>
+          <Headline level={1} plain={t('aideVideosPage.title')} size={phone ? 42 : 56} style={{ marginTop: 16, marginBottom: 18 }} />
+          <Text style={[sans, styles.lead]}>{t('aideVideosPage.lead')}</Text>
+          <Hover onPress={() => Linking.openURL('https://www.youtube.com/@Cantiach')} accessibilityRole="link" base={styles.channel} hover={{ opacity: 0.7 }}>
             <Feather name="youtube" size={16} color={site.copper} />
-            <Text style={styles.channelLinkText}>{t('aideVideosPage.channelLink')}</Text>
+            <Text style={[sans, styles.channelText]}>{t('aideVideosPage.channelLink')}</Text>
             <Feather name="external-link" size={13} color={site.copper} />
-          </Pressable>
+          </Hover>
 
           {loading ? null : available.length === 0 ? (
-            <View style={styles.notice}>
-              <Feather name="film" size={22} color={site.copper} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.noticeTitle}>{t('aideVideosPage.noticeTitle')}</Text>
-                <Text style={styles.noticeText}>{t('aideVideosPage.noticeText')}</Text>
+            <View style={{ marginTop: 44 }}>
+              <View style={styles.notice}>
+                <Feather name="film" size={20} color={site.copper} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[sans, styles.noticeTitle]}>{t('aideVideosPage.noticeTitle')}</Text>
+                  <Text style={[sans, styles.noticeText]}>{t('aideVideosPage.noticeText')}</Text>
+                </View>
+              </View>
+              <View style={{ marginTop: 40, maxWidth: 980, width: '100%', alignSelf: 'center' }}>
+                <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: L.appAlt, phone: L.appAlt, note: `${L.appScreen} · ${L.sample}` }} />
               </View>
             </View>
           ) : (
-            <>
-              <View style={styles.searchBar}>
+            <View style={{ marginTop: 40 }}>
+              <View style={styles.search}>
                 <Feather name="search" size={16} color={site.muted} />
-                <TextInput
-                  value={search}
-                  onChangeText={setSearch}
-                  placeholder={t('aideVideosPage.searchPlaceholder')}
-                  placeholderTextColor={site.muted}
-                  style={styles.searchInput}
-                />
+                <TextInput value={search} onChangeText={setSearch} placeholder={t('aideVideosPage.searchPlaceholder')} placeholderTextColor="#a1a697" style={[sans, styles.searchInput]} />
                 {search ? (
                   <Pressable onPress={() => setSearch('')} hitSlop={8}>
                     <Feather name="x" size={16} color={site.muted} />
                   </Pressable>
                 ) : null}
               </View>
-
               {filtered.length === 0 ? (
-                <Text style={styles.noResults}>{t('aideVideosPage.noResults', { query: search })}</Text>
+                <Text style={[sans, styles.noResults]}>{t('aideVideosPage.noResults', { query: search })}</Text>
               ) : (
                 <View style={styles.grid}>
                   {filtered.map((video) => (
-                    <VideoCard key={video.id} video={video} onPress={() => openVideo(video)} />
+                    <View key={video.id} style={{ width: phone ? '100%' : width <= 900 ? '48%' : '31.5%' }}>
+                      <VideoCard video={video} onPress={() => openVideo(video)} />
+                    </View>
                   ))}
                 </View>
               )}
-            </>
+            </View>
           )}
-        </Container>
-
-        <MarketingFooter />
-      </ScrollView>
-
+        </Wrap>
+      </View>
       <VideoPlayerModal video={playing} onClose={() => setPlaying(null)} />
-    </Screen>
+    </SitePage>
   );
 }
 
@@ -198,184 +191,26 @@ function VideoPlayerModal({ video, onClose }: { video: Video | null; onClose: ()
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    paddingBottom: spacing.xxl,
-  },
-  container: {
-    maxWidth: 960,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-  },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: spacing.lg,
-  },
-  backLinkText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: site.muted,
-  },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '600',
-    color: site.ink,
-  },
-  lead: {
-    fontSize: fontSize.md,
-    color: site.muted,
-    marginTop: spacing.xs,
-    marginBottom: spacing.lg,
-    maxWidth: 560,
-    lineHeight: 22,
-  },
-  channelLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    alignSelf: 'flex-start',
-    marginBottom: spacing.xl,
-  },
-  channelLinkText: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: site.copper,
-  },
-  notice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: '#f3e6da',
-    borderRadius: 3,
-    padding: spacing.lg,
-    maxWidth: 560,
-  },
-  noticeTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: site.ink,
-  },
-  noticeText: {
-    fontSize: fontSize.sm,
-    color: site.muted,
-    marginTop: 2,
-    lineHeight: 19,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    maxWidth: 360,
-    borderWidth: 1,
-    borderColor: site.line,
-    backgroundColor: site.white,
-    borderRadius: 3,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    color: site.ink,
-  },
-  noResults: {
-    fontSize: fontSize.sm,
-    color: site.muted,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.lg,
-  },
-  card: {
-    width: 280,
-    borderWidth: 1,
-    borderColor: site.line,
-    backgroundColor: site.white,
-    borderRadius: 3,
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  thumb: {
-    height: 140,
-    borderRadius: 3,
-    backgroundColor: '#efede5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginBottom: spacing.sm,
-  },
-  thumbImage: {
-    width: '100%',
-    height: '100%',
-  },
-  playBadge: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    right: spacing.sm,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: site.copper,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: site.ink,
-  },
-  cardText: {
-    fontSize: fontSize.sm,
-    color: site.muted,
-    lineHeight: 19,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(20, 14, 8, 0.75)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 900,
-    backgroundColor: site.white,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: site.line,
-  },
-  modalTitle: {
-    flex: 1,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: site.ink,
-  },
-  modalCloseButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#efede5',
-  },
-  modalPlayer: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: '#000',
-  },
+  lead: { fontSize: 15, color: site.muted, lineHeight: 26, maxWidth: 620 },
+  channel: { flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 22, alignSelf: 'flex-start' },
+  channelText: { fontSize: 12, color: site.copper, fontWeight: '600' },
+  notice: { flexDirection: 'row', gap: 16, padding: 22, borderRadius: 8, backgroundColor: '#e7d8c5', maxWidth: 760 },
+  noticeTitle: { fontSize: 16, color: site.ink, fontWeight: '500' },
+  noticeText: { fontSize: 13, color: '#6e6352', lineHeight: 21, marginTop: 4 },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 12, maxWidth: 560, height: 50, paddingHorizontal: 16, borderWidth: 1, borderColor: '#d7dacf', borderRadius: 8, backgroundColor: site.white },
+  searchInput: { flex: 1, fontSize: 14, color: site.ink, outlineStyle: 'none' } as object,
+  noResults: { fontSize: 13, color: site.muted, marginTop: 24 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 26, marginTop: 30 },
+  card: { borderWidth: 1, borderColor: site.line, borderRadius: 8, overflow: 'hidden', backgroundColor: site.white },
+  thumb: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#e7e4d8' },
+  thumbImage: { width: '100%', height: '100%' },
+  playBadge: { position: 'absolute', left: 14, bottom: 14, width: 36, height: 36, borderRadius: 18, backgroundColor: site.copper, alignItems: 'center', justifyContent: 'center' },
+  cardTitle: { fontSize: 15, color: site.ink, fontWeight: '500', paddingHorizontal: 16, paddingTop: 14 },
+  cardText: { fontSize: 12, color: site.muted, lineHeight: 19, paddingHorizontal: 16, paddingTop: 6, paddingBottom: 16 },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(31,36,28,0.72)', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  modalCard: { width: '100%', maxWidth: 960, backgroundColor: site.white, borderRadius: 10, overflow: 'hidden' },
+  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingHorizontal: 18, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: site.line },
+  modalTitle: { flex: 1, fontSize: 14, color: site.ink, fontWeight: '500', fontFamily: DM },
+  modalCloseButton: { padding: 4 },
+  modalPlayer: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000' },
 });

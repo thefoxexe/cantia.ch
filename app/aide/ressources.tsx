@@ -1,158 +1,58 @@
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Container, Screen } from '../../components/ui';
-import { Heading } from '../../components/Heading';
-import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
-import { colors, fontSize, radius, spacing } from '../../lib/theme';
+import { Btn, Eyebrow, Headline, Wrap } from '../../components/site/Primitives';
+import { Breadcrumbs, SitePage, useSiteLayout } from '../../components/site/Sections';
+import { SITE_PAGES } from '../../lib/site/pages';
 import { getAppLocale, useTranslation } from '../../lib/translations';
-import { site } from '../../lib/siteTheme';
+import { sans, site } from '../../lib/siteTheme';
 
-const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
-
-// Downloadable resources library, reachable from the Centre d'aide — starts
-// with the one B2B product dossier (FR + DE PDFs in public/), both always
-// offered side by side regardless of the visitor's own locale since the
-// point of a downloadable dossier is often to forward it to someone else
-// (a business partner, a decision-maker) who may need the other language.
+// Downloadable resources of the help center: the B2B product dossier, French
+// and German always side by side (it is often forwarded to a partner or a
+// decision-maker who reads the other language).
 export default function AideRessourcesScreen() {
   const { t } = useTranslation();
-  const aideHref = getAppLocale() === 'de' ? '/de/aide' : getAppLocale() === 'it' ? '/it/aide' : '/aide';
-
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const { phone } = useSiteLayout();
+  const pre = locale === 'fr' ? '' : `/${locale}`;
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav />
+    <SitePage title={`${t('aideRessourcesPage.title')} | Cantia`} description={t('aideRessourcesPage.lead')}>
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 56 : 96 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: SITE_PAGES[locale].labels.home, href: pre || '/' }, { label: t('aideRessourcesPage.backLink'), href: `${pre}/aide` }, { label: t('aideRessourcesPage.title') }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{t('aideRessourcesPage.backLink')}</Eyebrow>
+          <Headline level={1} plain={t('aideRessourcesPage.title')} size={phone ? 40 : 56} style={{ marginTop: 16, marginBottom: 18 }} />
+          <Text style={[sans, styles.lead]}>{t('aideRessourcesPage.lead')}</Text>
 
-        <Container style={styles.container}>
-          <Link href={aideHref as any} style={styles.backLink}>
-            <Feather name="arrow-left" size={14} color={site.muted} />
-            <Text style={styles.backLinkText}>{t('aideRessourcesPage.backLink')}</Text>
-          </Link>
-          <Heading level={1} style={styles.title}>{t('aideRessourcesPage.title')}</Heading>
-          <Text style={styles.lead}>{t('aideRessourcesPage.lead')}</Text>
-
-          <View style={styles.card}>
-            <View style={styles.cardIcon}>
-              <Feather name="file-text" size={20} color={site.copper} />
+          <View style={[styles.card, phone && { flexDirection: 'column', alignItems: 'flex-start' }]}>
+            <View style={styles.icon}>
+              <Feather name="file-text" size={22} color={site.copper} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{t('aideRessourcesPage.dossierTitle')}</Text>
-              <Text style={styles.cardText}>{t('aideRessourcesPage.dossierText')}</Text>
-              <View style={styles.downloadRow}>
-                <Pressable style={styles.downloadButton} onPress={() => Linking.openURL('/cantia-dossier-b2b-fr.pdf')}>
-                  <Feather name="download" size={14} color="#fff" />
-                  <Text style={styles.downloadButtonText}>{t('aideRessourcesPage.downloadFr')}</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.downloadButton, styles.downloadButtonSecondary]}
-                  onPress={() => Linking.openURL('/cantia-dossier-b2b-de.pdf')}
-                >
-                  <Feather name="download" size={14} color={site.copper} />
-                  <Text style={[styles.downloadButtonText, styles.downloadButtonTextSecondary]}>
-                    {t('aideRessourcesPage.downloadDe')}
-                  </Text>
-                </Pressable>
+              <Text style={[sans, styles.meta]}>PDF · 20 PAGES</Text>
+              <Text style={[sans, styles.title]}>{t('aideRessourcesPage.dossierTitle')}</Text>
+              <Text style={[sans, styles.text]}>{t('aideRessourcesPage.dossierText')}</Text>
+              <View style={styles.buttons}>
+                <View>
+                  <Btn label={t('aideRessourcesPage.downloadFr')} href="/cantia-dossier-b2b-fr.pdf" small={phone} external />
+                </View>
+                <View>
+                  <Btn label={t('aideRessourcesPage.downloadDe')} href="/cantia-dossier-b2b-de.pdf" tone="sand" small={phone} external />
+                </View>
               </View>
             </View>
           </View>
-        </Container>
-
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    paddingBottom: spacing.xxl,
-  },
-  container: {
-    maxWidth: 720,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-  },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: spacing.lg,
-  },
-  backLinkText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: site.muted,
-  },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '600',
-    color: site.ink,
-  },
-  lead: {
-    fontSize: fontSize.md,
-    color: site.muted,
-    marginTop: spacing.xs,
-    marginBottom: spacing.xl,
-    maxWidth: 560,
-    lineHeight: 22,
-  },
-  card: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: site.line,
-    backgroundColor: site.white,
-    borderRadius: 3,
-    padding: spacing.lg,
-    maxWidth: 560,
-  },
-  cardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 3,
-    backgroundColor: '#f3e6da',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: site.ink,
-  },
-  cardText: {
-    fontSize: fontSize.sm,
-    color: site.muted,
-    marginTop: 2,
-    lineHeight: 19,
-  },
-  downloadRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  downloadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: site.copper,
-    borderRadius: 3,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  downloadButtonSecondary: {
-    backgroundColor: '#f3e6da',
-  },
-  downloadButtonText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  downloadButtonTextSecondary: {
-    color: site.copper,
-  },
+  lead: { fontSize: 15, color: site.muted, lineHeight: 26, maxWidth: 620 },
+  card: { flexDirection: 'row', gap: 24, marginTop: 44, padding: 30, borderWidth: 1, borderColor: site.line, borderRadius: 10, backgroundColor: site.white, maxWidth: 860 },
+  icon: { width: 54, height: 54, borderRadius: 8, backgroundColor: '#f3e6da', alignItems: 'center', justifyContent: 'center' },
+  meta: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },
+  title: { fontSize: 22, color: site.ink, letterSpacing: -0.5, marginTop: 8 },
+  text: { fontSize: 13, color: site.muted, lineHeight: 22, marginTop: 8, maxWidth: 560 },
+  buttons: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 22 },
 });

@@ -1,10 +1,10 @@
 import { Text, View } from 'react-native';
-import { Link, useLocalSearchParams } from 'expo-router';
-import { Screen } from '../../components/ui';
+import { useLocalSearchParams } from 'expo-router';
+import { SitePage } from '../../components/site/Sections';
+import { Btn, Headline, Wrap } from '../../components/site/Primitives';
+import { sans, site } from '../../lib/siteTheme';
 import { BlogArticle } from '../../components/BlogArticle';
-import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { blogStaticParams, getPostBySlug } from '../../lib/blog';
-import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
 export function generateStaticParams() {
@@ -19,19 +19,17 @@ export default function BlogPostScreen() {
 
   if (!post) {
     return (
-      <Screen>
-        <MarketingNav />
-        <View style={{ maxWidth: 480, alignSelf: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxxl, alignItems: 'center', gap: spacing.md }}>
-          <Text style={{ fontSize: fontSize.xxl, fontWeight: '800', color: colors.text }}>{t('blogArticlePage.notFoundTitle')}</Text>
-          <Text style={{ fontSize: fontSize.md, color: colors.textMuted, textAlign: 'center' }}>
-            {t('blogArticlePage.notFoundText')}
-          </Text>
-          <Link href={(locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog') as any}>
-            <Text style={{ fontSize: fontSize.md, color: colors.primary, fontWeight: '700' }}>{t('blogArticlePage.backToBlog')}</Text>
-          </Link>
+      <SitePage title={`${t('blogArticlePage.notFoundTitle')} | Cantia`} cta={false}>
+        <View style={{ paddingVertical: 110 }}>
+          <Wrap>
+            <Headline level={1} plain={t('blogArticlePage.notFoundTitle')} size={44} />
+            <Text style={[sans, { fontSize: 14, color: site.muted, marginTop: 14 }]}>{t('blogArticlePage.notFoundText')}</Text>
+            <View style={{ marginTop: 24, alignSelf: 'flex-start' }}>
+              <Btn label={t('blogArticlePage.backToBlog')} href={locale === 'de' ? '/de/blog' : locale === 'it' ? '/it/blog' : '/blog'} />
+            </View>
+          </Wrap>
         </View>
-        <MarketingFooter />
-      </Screen>
+      </SitePage>
     );
   }
 

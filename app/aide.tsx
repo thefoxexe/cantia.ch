@@ -1,143 +1,140 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Screen } from '../components/ui';
-import { PageHero, pageWrap } from '../components/landing/PageHero';
-import { bodyInk, ink, rule } from '../components/landing/brand';
-import { useMarketingDict } from '../lib/i18n';
-import { marketingFonts, monoType } from '../lib/marketingTheme';
-import { MarketingHead } from '../components/MarketingHead';
-import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
+import { Eyebrow, Headline, Hover, Wrap } from '../components/site/Primitives';
+import { Breadcrumbs, Section, SitePage, useSiteLayout } from '../components/site/Sections';
+import { SITE_PAGES } from '../lib/site/pages';
 import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpArticles';
-import { breakpoints, colors, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
-import { site } from '../lib/siteTheme';
+import { sans, site } from '../lib/siteTheme';
 
-const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
+const EYEBROW = { fr: 'Aide & ressources', de: 'Hilfe & Ressourcen', it: 'Aiuto & risorse' } as const;
+const ARTICLES = { fr: 'articles', de: 'Artikel', it: 'articoli' } as const;
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
 }
 
+// cantia.ch/aide: search, shortcuts (videos, downloads, contact), then every
+// help article grouped by topic. Articles: lib/helpArticles.ts.
 export default function PublicAideScreen() {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
-  const dict = useMarketingDict();
-  const { width } = useWindowDimensions();
-  const isTablet = width < breakpoints.desktop;
-  const locale = getAppLocale();
-  const aideHrefPrefix = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const { phone, tablet, width } = useSiteLayout();
+  const pre = locale === 'fr' ? '' : `/${locale}`;
+  const aide = `${pre}/aide`;
   const articles = locale === 'de' ? HELP_ARTICLES_DE : locale === 'it' && HELP_ARTICLES_IT.length ? HELP_ARTICLES_IT : HELP_ARTICLES;
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
     if (!q) return articles;
-    return articles.filter((a) => {
-      const haystack = normalize([a.title, a.category, ...a.keywords, ...a.body].join(' '));
-      return haystack.includes(q);
-    });
+    return articles.filter((a) => normalize([a.title, a.category, ...a.keywords, ...a.body].join(' ')).includes(q));
   }, [query, articles]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof HELP_ARTICLES>();
-    for (const article of filtered) {
-      const list = map.get(article.category) ?? [];
-      list.push(article);
-      map.set(article.category, list);
-    }
+    for (const a of filtered) map.set(a.category, [...(map.get(a.category) ?? []), a]);
     return Array.from(map.entries());
   }, [filtered]);
 
+  const shortcuts = [
+    { icon: 'film' as const, title: t('aidePage.videosCardTitle'), text: t('aidePage.videosCardText'), href: `${aide}/videos` },
+    { icon: 'download' as const, title: t('aidePage.resourcesCardTitle'), text: t('aidePage.resourcesCardText'), href: `${aide}/ressources` },
+    { icon: 'mail' as const, title: t('aidePage.contactTitle'), text: t('aidePage.contactText'), href: `${pre}/contact` },
+  ];
+  const h1 = phone ? 42 : tablet ? 50 : 60;
+  const twoCols = width > 900;
+
   return (
-    <Screen style={{ padding: 0 }}>
-      <MarketingHead title={marketingPageTitle('aide', locale)} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <MarketingNav />
-
-        <PageHero kicker={dict.landingNav.help} title={t('aidePage.title')} lede={t('aidePage.lead')}>
-          <View style={styles.searchRow}>
-            <Feather name="search" size={18} color={ink} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('aidePage.searchPlaceholder')}
-              placeholderTextColor={site.muted}
-              style={styles.searchInput}
-            />
+    <SitePage title={marketingPageTitle('aide', locale)} description={t('aidePage.lead')}>
+      {/* Hero with search */}
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 40 : 64 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: SITE_PAGES[locale].labels.home, href: pre || '/' }, { label: t('aidePage.title') }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{EYEBROW[locale]}</Eyebrow>
+          <Headline level={1} plain={t('aidePage.title')} size={h1} style={{ marginTop: 16, marginBottom: 18 }} />
+          <Text style={[sans, styles.lead, phone && { fontSize: 13 }]}>{t('aidePage.lead')}</Text>
+          <View style={[styles.search, phone && { height: 50 }]}>
+            <Feather name="search" size={17} color={site.muted} />
+            <TextInput value={query} onChangeText={setQuery} placeholder={t('aidePage.searchPlaceholder')} placeholderTextColor="#a1a697" style={[sans, styles.searchInput]} accessibilityLabel={t('aidePage.searchPlaceholder')} />
+            {query ? (
+              <Hover onPress={() => setQuery('')} accessibilityRole="button" hover={{ opacity: 0.6 }}>
+                <Feather name="x" size={16} color={site.muted} />
+              </Hover>
+            ) : null}
           </View>
-        </PageHero>
+          <View style={[styles.shortcuts, phone && { flexDirection: 'column' }]}>
+            {shortcuts.map((s) => (
+              <Link key={s.href} href={s.href as any} asChild>
+                <Hover accessibilityRole="link" base={[styles.shortcut, !phone && { flex: 1 }]} hover={{ borderColor: site.copper }}>
+                  <View style={styles.shortIcon}>
+                    <Feather name={s.icon} size={17} color={site.copper} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[sans, styles.shortTitle]}>{s.title}</Text>
+                    <Text style={[sans, styles.shortText]}>{s.text}</Text>
+                  </View>
+                  <Feather name="arrow-right" size={16} color={site.ink} />
+                </Hover>
+              </Link>
+            ))}
+          </View>
+        </Wrap>
+      </View>
 
-        <View style={[pageWrap, styles.layout, isTablet && styles.layoutCompact]}>
-          <View style={[styles.side, !isTablet && { width: '28%' }]}>
-            <Link href={(`${aideHrefPrefix}/videos`) as any} asChild>
-              <Pressable style={styles.sideRow}>
-                <Feather name="film" size={18} color={site.copper} />
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={styles.sideTitle}>{t('aidePage.videosCardTitle')}</Text>
-                  <Text style={styles.sideText}>{t('aidePage.videosCardText')}</Text>
+      {/* Articles by topic */}
+      <Section white>
+        {grouped.length === 0 ? (
+          <Text style={[sans, styles.empty]}>{t('aidePage.emptyText')}</Text>
+        ) : (
+          <View style={[styles.grid, !twoCols && { flexDirection: 'column' }]}>
+            {grouped.map(([category, list]) => (
+              <View key={category} style={[styles.topic, twoCols && { width: '48%' }]}>
+                <View style={styles.topicHead}>
+                  <Text style={[sans, styles.topicName]}>{category.toUpperCase()}</Text>
+                  <Text style={[sans, styles.topicCount]}>
+                    {list.length} {ARTICLES[locale]}
+                  </Text>
                 </View>
-              </Pressable>
-            </Link>
-            <Link href={(`${aideHrefPrefix}/ressources`) as any} asChild>
-              <Pressable style={styles.sideRow}>
-                <Feather name="download" size={18} color={site.copper} />
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={styles.sideTitle}>{t('aidePage.resourcesCardTitle')}</Text>
-                  <Text style={styles.sideText}>{t('aidePage.resourcesCardText')}</Text>
-                </View>
-              </Pressable>
-            </Link>
-            <View style={styles.sideRow}>
-              <Feather name="life-buoy" size={18} color={site.copper} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={styles.sideTitle}>{t('aidePage.contactTitle')}</Text>
-                <Text style={styles.sideText}>{t('aidePage.contactText')}</Text>
+                {list.map((a) => (
+                  <Link key={a.id} href={`${aide}/${a.id}` as any} asChild>
+                    <Hover accessibilityRole="link" base={styles.row} hover={{ backgroundColor: '#f3efe6' }}>
+                      {(hovered) => (
+                        <>
+                          <Text style={[sans, styles.rowText, hovered && { color: site.copper }]}>{a.title}</Text>
+                          <Feather name="arrow-right" size={15} color={hovered ? site.copper : '#a1a697'} />
+                        </>
+                      )}
+                    </Hover>
+                  </Link>
+                ))}
               </View>
-            </View>
+            ))}
           </View>
-
-          <View style={{ flex: 1 }}>
-            {grouped.length === 0 ? (
-              <Text style={styles.empty}>{t('aidePage.emptyText')}</Text>
-            ) : (
-              grouped.map(([category, articles]) => (
-                <View key={category} style={styles.category}>
-                  <Text style={styles.categoryTitle}>{category}</Text>
-                  {articles.map((article) => (
-                    <Link key={article.id} href={`${aideHrefPrefix}/${article.id}` as any} asChild>
-                      <Pressable style={styles.articleRow}>
-                        <Text style={styles.articleTitle}>{article.title}</Text>
-                        <Text style={styles.arrow}>→</Text>
-                      </Pressable>
-                    </Link>
-                  ))}
-                </View>
-              ))
-            )}
-          </View>
-        </View>
-
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+        )}
+      </Section>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl, borderBottomWidth: 1.5, borderBottomColor: ink, paddingVertical: spacing.sm, maxWidth: 620 },
-  searchInput: { flex: 1, fontFamily: DM, fontSize: 19, color: ink, paddingVertical: 6, outlineStyle: 'none' } as any,
-  layout: { flexDirection: 'row', gap: 64, alignItems: 'flex-start', paddingTop: spacing.xl, paddingBottom: 96 },
-  layoutCompact: { flexDirection: 'column', alignItems: 'stretch', gap: spacing.xxl },
-  side: { borderTopWidth: 1.5, borderTopColor: ink },
-  sideRow: { flexDirection: 'row', gap: spacing.md, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: rule },
-  sideTitle: { fontFamily: DM, fontSize: 16, fontWeight: '700', color: ink },
-  sideText: { fontFamily: DM, fontSize: 14, lineHeight: 21, color: bodyInk },
-  category: { marginBottom: spacing.xxl, borderTopWidth: 1.5, borderTopColor: ink },
-  categoryTitle: { fontFamily: DM, fontSize: 11, letterSpacing: 0.4, textTransform: 'uppercase', color: site.copper, paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: rule },
-  articleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.lg, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: rule },
-  articleTitle: { flex: 1, fontFamily: DM, fontSize: 17, fontWeight: '600', color: ink },
-  arrow: { fontSize: 16, color: site.copper },
-  empty: { fontFamily: DM, fontSize: 16, color: bodyInk },
+  lead: { fontSize: 15, color: site.muted, lineHeight: 26, maxWidth: 560 },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 30, maxWidth: 640, height: 56, paddingHorizontal: 18, borderWidth: 1, borderColor: '#d7dacf', borderRadius: 8, backgroundColor: site.white },
+  searchInput: { flex: 1, fontSize: 15, color: site.ink, outlineStyle: 'none' } as object,
+  shortcuts: { flexDirection: 'row', gap: 14, marginTop: 34 },
+  shortcut: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderWidth: 1, borderColor: site.line, borderRadius: 8, backgroundColor: site.white },
+  shortIcon: { width: 38, height: 38, borderRadius: 6, backgroundColor: '#f3e6da', alignItems: 'center', justifyContent: 'center' },
+  shortTitle: { fontSize: 14, color: site.ink, fontWeight: '500' },
+  shortText: { fontSize: 11, color: site.muted, marginTop: 3, lineHeight: 17 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 44 },
+  topic: { borderTopWidth: 1, borderTopColor: site.ink },
+  topicHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
+  topicName: { fontSize: 10, letterSpacing: 1.4, color: site.copper, fontWeight: '600' },
+  topicCount: { fontSize: 10, color: site.muted },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 14, paddingHorizontal: 4, borderTopWidth: 1, borderTopColor: site.line },
+  rowText: { flex: 1, fontSize: 14, color: site.ink, lineHeight: 20 },
+  empty: { fontSize: 14, color: site.muted },
 });

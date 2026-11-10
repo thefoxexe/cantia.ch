@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -40,6 +40,13 @@ export default function ClientsListScreen() {
   const [filter, setFilter] = useState<FilterKey>(() =>
     FILTER_KEYS.includes(params.type as FilterKey) ? (params.type as FilterKey) : showClients ? 'all' : 'sous-traitant',
   );
+  // Permissions can arrive after the first render: the default chosen then
+  // ("sous-traitant" for someone who can't see clients) must follow once the
+  // real permissions are known, unless the URL asked for a type.
+  useEffect(() => {
+    if (FILTER_KEYS.includes(params.type as FilterKey)) return;
+    setFilter((f) => (showClients && f === 'sous-traitant' ? 'all' : !showClients && f !== 'sous-traitant' ? 'sous-traitant' : f));
+  }, [showClients, params.type]);
 
   const load = useCallback(async () => {
     if (!organization) return;

@@ -20,10 +20,11 @@ const FONT = { fontFamily: DM };
 const MARK = require('../assets/brand/mark.png');
 const MARK_WHITE = require('../assets/brand/mark-white.png');
 
-const INK = '#17130F';
-const PAPER = '#F4EFE7';
-const CLAY = '#A95C30';
-const MUTED = '#776B5E';
+// Site palette (lib/siteTheme.ts).
+const INK = site.ink;
+const PAPER = site.bg;
+const CLAY = site.copper;
+const MUTED = site.muted;
 
 type Item = { href: string; title: string; text: string; tile: 'mark' | 'ink' | 'clay' | 'icon'; icon?: string; badge?: string; external?: boolean };
 
@@ -117,39 +118,38 @@ export default function LinksPage() {
 const styles = StyleSheet.create({
   page: { flexGrow: 1, backgroundColor: PAPER, alignItems: 'center', paddingVertical: 28, paddingHorizontal: 14 },
   card: {
-    width: '100%', maxWidth: 460, backgroundColor: '#FFFDF9', borderRadius: 26, overflow: 'hidden',
-    borderWidth: 1, borderColor: '#E9E0D2',
+    width: '100%', maxWidth: 460, backgroundColor: site.white, borderRadius: 12, overflow: 'hidden',
+    borderWidth: 1, borderColor: site.line,
     // soft, layered shadow (web passes boxShadow through)
     boxShadow: '0 1px 2px rgba(23,19,15,.05), 0 18px 50px rgba(23,19,15,.08)',
   } as any,
   cover: {
-    height: 132, backgroundColor: INK, overflow: 'hidden',
-    backgroundImage: 'radial-gradient(120% 140% at 85% 0%, #B4643A 0%, rgba(180,100,58,.55) 32%, rgba(23,19,15,0) 62%), linear-gradient(160deg, #241C16 0%, #17130F 100%)',
+    height: 120, backgroundColor: '#e7d8c5', overflow: 'hidden', borderBottomWidth: 1, borderBottomColor: '#d8c8b3',
   } as any,
 
   identity: { alignItems: 'center', paddingHorizontal: 26, marginTop: -48 },
   avatar: {
     width: 96, height: 96, borderRadius: 48, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 4, borderColor: '#FFFDF9', boxShadow: '0 6px 18px rgba(23,19,15,.12)',
+    borderWidth: 4, borderColor: site.white, boxShadow: '0 6px 18px rgba(23,19,15,.12)',
   } as any,
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 14 },
-  name: { ...FONT, fontSize: 26, fontWeight: '600', color: INK, letterSpacing: -0.7 },
+  name: { ...FONT, fontSize: 28, fontWeight: '500', color: INK, letterSpacing: -1 },
   handle: { ...FONT, fontSize: 14, color: MUTED, marginTop: 2 },
-  bio: { ...FONT, fontSize: 15, lineHeight: 22, color: '#3E352C', textAlign: 'center', marginTop: 14, maxWidth: 360 },
+  bio: { ...FONT, fontSize: 15, lineHeight: 22, color: '#4b5045', textAlign: 'center', marginTop: 14, maxWidth: 360 },
   meta: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 14 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   metaText: { ...FONT, fontSize: 13, color: MUTED },
   actions: { flexDirection: 'row', gap: 10, marginTop: 22, width: '100%' },
-  primary: { flex: 1, height: 48, backgroundColor: INK, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  primaryText: { ...FONT, width: '100%', textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: -0.1 },
-  secondary: { flex: 1, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#D9CDBC', backgroundColor: '#fff' },
+  primary: { flex: 1, height: 48, backgroundColor: CLAY, borderRadius: 5, alignItems: 'center', justifyContent: 'center' },
+  primaryText: { ...FONT, width: '100%', textAlign: 'center', color: '#fff', fontSize: 14, fontWeight: '600', letterSpacing: -0.1 },
+  secondary: { flex: 1, height: 48, borderRadius: 5, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#d7dacf', backgroundColor: '#fff' },
   secondaryText: { ...FONT, width: '100%', textAlign: 'center', color: INK, fontSize: 15, fontWeight: '600' },
   trial: { ...FONT, fontSize: 12, color: MUTED, marginTop: 10 },
 
   list: { marginTop: 26, paddingHorizontal: 14, gap: 8 },
   item: {
     flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, paddingHorizontal: 14,
-    borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: '#EEE6DA',
+    borderRadius: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: site.line,
   },
   tile: { width: 46, height: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   tileImg: { width: 30, height: 30 },

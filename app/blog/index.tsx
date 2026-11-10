@@ -1,28 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Container } from '../../components/ui';
-import { SitePage } from '../../components/site/Sections';
-import { Headline } from '../../components/site/Primitives';
-import { site } from '../../lib/siteTheme';
+import { Breadcrumbs, Section, SitePage, useSiteLayout } from '../../components/site/Sections';
+import { Eyebrow, Headline, Hover, Wrap } from '../../components/site/Primitives';
+import { SITE_PAGES } from '../../lib/site/pages';
+import { sans, site } from '../../lib/siteTheme';
 import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
-import { BlogCategory } from '../../lib/blog/types';
-import { colors, fontSize, radius, spacing } from '../../lib/theme';
-const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 import { getAppLocale, useTranslation } from '../../lib/translations';
 
-const CATEGORY_STYLE: Record<BlogCategory, { icon: keyof typeof Feather.glyphMap; color: string; soft: string }> = {
-  'Devis & facturation': { icon: 'file-text', color: site.copper, soft: '#f3e6da' },
-  'Juridique & normes': { icon: 'shield', color: colors.danger, soft: colors.dangerSoft },
-  'RH & salaires': { icon: 'users', color: colors.warning, soft: colors.warningSoft },
-  'Chantier & rentabilité': { icon: 'trending-up', color: colors.success, soft: colors.successSoft },
-  'Comparatifs & outils': { icon: 'layers', color: colors.accent, soft: colors.accentSoft },
-  'Métiers du bâtiment': { icon: 'tool', color: colors.slate, soft: colors.slateSoft },
-  'Croissance & acquisition': { icon: 'target', color: colors.plum, soft: colors.plumSoft },
-  'Sur-mesure & automatisations': { icon: 'sliders', color: colors.moss, soft: colors.mossSoft },
-  'Services & autres métiers': { icon: 'briefcase', color: colors.slate, soft: colors.slateSoft },
-};
+// cantia.ch/blog (and /de/blog, /it/blog): search, topics, the latest
+// article, then every article.
 
 function normalize(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/\p{Mn}/gu, '');
@@ -51,184 +39,123 @@ export default function BlogIndexScreen() {
   }, [query, category, posts]);
 
   const [featured, ...rest] = filtered;
+  const { phone, tablet, width } = useSiteLayout();
+  const home = locale === 'de' ? '/de' : locale === 'it' ? '/it' : '/';
+  const homeLabel = SITE_PAGES[(locale as 'fr' | 'de' | 'it')]?.labels.home ?? 'Accueil';
+  const cardW = phone ? '100%' : width <= 1000 ? '48%' : '31.5%';
 
   return (
     <SitePage title={`${t('blogIndexPage.title')} | Cantia`} description={t('blogIndexPage.subtitle')}>
-
-        <Container style={styles.heroOuter}>
-          <View style={styles.kickerPill}>
-            <Text style={styles.kickerText}>{t('blogIndexPage.kicker')}</Text>
-          </View>
-          <Headline level={1} plain={t('blogIndexPage.title')} size={52} style={{ letterSpacing: -2.2 }} />
-          <Text style={styles.subtitle}>{t('blogIndexPage.subtitle')}</Text>
-
-          <View style={styles.searchRow}>
-            <Feather name="search" size={16} color={site.muted} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('blogIndexPage.searchPlaceholder')}
-              placeholderTextColor={site.muted}
-              style={styles.searchInput}
-            />
+      {/* Hero, search and topics */}
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 36 : 52 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: homeLabel, href: home }, { label: t('blogIndexPage.title') }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{t('blogIndexPage.kicker')}</Eyebrow>
+          <Headline level={1} plain={t('blogIndexPage.title')} size={phone ? 40 : tablet ? 48 : 58} style={{ marginTop: 16, marginBottom: 18, maxWidth: 900 }} />
+          <Text style={[sans, styles.lead, phone && { fontSize: 13 }]}>{t('blogIndexPage.subtitle')}</Text>
+          <View style={styles.search}>
+            <Feather name="search" size={17} color={site.muted} />
+            <TextInput value={query} onChangeText={setQuery} placeholder={t('blogIndexPage.searchPlaceholder')} placeholderTextColor="#a1a697" style={[sans, styles.searchInput]} accessibilityLabel={t('blogIndexPage.searchPlaceholder')} />
             {query ? (
-              <Pressable onPress={() => setQuery('')} hitSlop={8}>
+              <Hover onPress={() => setQuery('')} accessibilityRole="button" hover={{ opacity: 0.6 }}>
                 <Feather name="x" size={16} color={site.muted} />
-              </Pressable>
+              </Hover>
             ) : null}
           </View>
-
-          <View style={styles.chipRow}>
-            <Pressable onPress={() => setCategory(null)} style={[styles.chip, !category && styles.chipActive]}>
-              <Text style={[styles.chipText, !category && styles.chipTextActive]}>{t('blogIndexPage.allArticles')}</Text>
-            </Pressable>
-            {BLOG_CATEGORIES.map((c) => (
-              <Pressable key={c} onPress={() => setCategory(category === c ? null : c)} style={[styles.chip, category === c && styles.chipActive]}>
-                <View style={[styles.chipDot, { backgroundColor: category === c ? '#fff' : CATEGORY_STYLE[c].color }]} />
-                <Text style={[styles.chipText, category === c && styles.chipTextActive]}>{t(`blogCategories.${c}`)}</Text>
-              </Pressable>
-            ))}
+          <View style={styles.chips}>
+            {[null, ...BLOG_CATEGORIES].map((c) => {
+              const on = c === category || (c === null && !category);
+              return (
+                <Hover key={c ?? 'all'} onPress={() => setCategory(c === category ? null : c)} accessibilityRole="button" base={[styles.chip, on && styles.chipOn]} hover={{ borderColor: site.copper }}>
+                  <Text style={[sans, styles.chipText, on && { color: '#ffffff' }]}>{c ? t(`blogCategories.${c}`) : t('blogIndexPage.allArticles')}</Text>
+                </Hover>
+              );
+            })}
           </View>
-        </Container>
+        </Wrap>
+      </View>
 
-        <Container style={styles.section}>
-          {filtered.length === 0 ? (
-            <Text style={styles.empty}>{t('blogIndexPage.empty')}</Text>
-          ) : (
-            <>
-              {featured ? (
-                <Link href={`${blogHrefPrefix}/${featured.slug}` as any} asChild>
-                  <Pressable style={styles.featuredCard}>
-                    <View style={styles.featuredTop}>
-                      <View style={[styles.categoryBadge, { backgroundColor: CATEGORY_STYLE[featured.category].soft }]}>
-                        <Feather name={CATEGORY_STYLE[featured.category].icon} size={13} color={CATEGORY_STYLE[featured.category].color} />
-                        <Text style={[styles.categoryBadgeText, { color: CATEGORY_STYLE[featured.category].color }]}>{t(`blogCategories.${featured.category}`)}</Text>
-                      </View>
-                      <View style={styles.featuredBadge}>
-                        <Text style={styles.featuredBadgeText}>{t('blogIndexPage.latestArticle')}</Text>
-                      </View>
+      <Section white>
+        {filtered.length === 0 ? (
+          <Text style={[sans, styles.empty]}>{t('blogIndexPage.empty')}</Text>
+        ) : (
+          <>
+            {featured ? (
+              <Link href={`${blogHrefPrefix}/${featured.slug}` as any} asChild>
+                <Hover accessibilityRole="link" base={[styles.featured, phone && { padding: 26 }]} hover={{ backgroundColor: '#e2d0b9' }}>
+                  <View style={styles.featuredTop}>
+                    <Text style={[sans, styles.cat]}>{t(`blogCategories.${featured.category}`).toUpperCase()}</Text>
+                    <Text style={[sans, styles.latest]}>{t('blogIndexPage.latestArticle').toUpperCase()}</Text>
+                  </View>
+                  <Text role="heading" aria-level={2} style={[sans, styles.featuredTitle, phone && { fontSize: 26, lineHeight: 32 }]}>
+                    {featured.title}
+                  </Text>
+                  <Text style={[sans, styles.featuredExcerpt]}>{featured.excerpt}</Text>
+                  <View style={styles.meta}>
+                    <Text style={[sans, styles.metaText]}>
+                      {formatDate(featured.publishedAt)} · {t('blogIndexPage.minRead', { count: featured.readMinutes })}
+                    </Text>
+                    <View style={styles.read}>
+                      <Text style={[sans, styles.readText]}>{t('blogIndexPage.readArticle')}</Text>
+                      <Feather name="arrow-right" size={14} color={site.copper} />
                     </View>
-                    <Text style={styles.featuredTitle}>{featured.title}</Text>
-                    <Text style={styles.featuredExcerpt}>{featured.excerpt}</Text>
-                    <View style={styles.cardMetaRow}>
-                      <Text style={styles.cardMetaText}>{formatDate(featured.publishedAt)}</Text>
-                      <View style={styles.cardMetaDot} />
-                      <Text style={styles.cardMetaText}>{t('blogIndexPage.minRead', { count: featured.readMinutes })}</Text>
-                      <View style={{ flex: 1 }} />
-                      <View style={styles.readMore}>
-                        <Text style={styles.readMoreText}>{t('blogIndexPage.readArticle')}</Text>
-                        <Feather name="arrow-right" size={13} color={site.copper} />
-                      </View>
-                    </View>
-                  </Pressable>
+                  </View>
+                </Hover>
+              </Link>
+            ) : null}
+
+            <Text style={[sans, styles.count]}>{t('blogIndexPage.otherArticles', { count: rest.length })}</Text>
+            <View style={styles.grid}>
+              {rest.map((p) => (
+                <Link key={p.slug} href={`${blogHrefPrefix}/${p.slug}` as any} asChild>
+                  <Hover accessibilityRole="link" base={[styles.card, { width: cardW }]} hover={{ opacity: 0.8 }}>
+                    {(hovered) => (
+                      <>
+                        <Text style={[sans, styles.cat]}>{t(`blogCategories.${p.category}`).toUpperCase()}</Text>
+                        <Text style={[sans, styles.cardTitle, hovered && { color: site.copper }]} numberOfLines={3}>
+                          {p.title}
+                        </Text>
+                        <Text style={[sans, styles.cardExcerpt]} numberOfLines={3}>
+                          {p.excerpt}
+                        </Text>
+                        <Text style={[sans, styles.metaText, { marginTop: 'auto', paddingTop: 14 }]}>
+                          {formatDate(p.publishedAt)} · {t('blogIndexPage.minRead', { count: p.readMinutes })}
+                        </Text>
+                      </>
+                    )}
+                  </Hover>
                 </Link>
-              ) : null}
-
-              <Text style={styles.gridCount}>{t('blogIndexPage.otherArticles', { count: rest.length })}</Text>
-
-              <View style={styles.grid}>
-                {rest.map((p) => (
-                  <Link key={p.slug} href={`${blogHrefPrefix}/${p.slug}` as any} asChild>
-                    <Pressable style={styles.card}>
-                      <Text style={[styles.cardCategory, { color: CATEGORY_STYLE[p.category].color }]}>{t(`blogCategories.${p.category}`)}</Text>
-                      <Text style={styles.cardTitle} numberOfLines={3}>
-                        {p.title}
-                      </Text>
-                      <Text style={styles.cardExcerpt} numberOfLines={2}>
-                        {p.excerpt}
-                      </Text>
-                      <View style={styles.cardFooter}>
-                        <View style={styles.cardMetaRow}>
-                          <Text style={styles.cardMetaText}>{formatDate(p.publishedAt)}</Text>
-                          <View style={styles.cardMetaDot} />
-                          <Text style={styles.cardMetaText}>{t('blogIndexPage.minRead', { count: p.readMinutes })}</Text>
-                        </View>
-                        <Feather name="arrow-right" size={14} color={site.muted} />
-                      </View>
-                    </Pressable>
-                  </Link>
-                ))}
-              </View>
-            </>
-          )}
-        </Container>
-
+              ))}
+            </View>
+          </>
+        )}
+      </Section>
     </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-  },
-  heroOuter: { maxWidth: 1240, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxxl, paddingBottom: spacing.lg },
-  kickerPill: { alignSelf: 'flex-start', marginBottom: spacing.xl },
-  kickerText: {
-    fontFamily: DM,
-    fontSize: fontSize.xs,
-    color: site.ink,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  title: { fontFamily: DM, fontSize: 80, fontWeight: '500', color: site.ink, lineHeight: 76, maxWidth: 900 } as unknown as ViewStyle,
-  subtitle: { fontFamily: DM, fontSize: 19, lineHeight: 29, color: site.muted, marginTop: spacing.xl, maxWidth: 640 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xxl, borderBottomWidth: 1.5, borderBottomColor: site.ink, paddingVertical: spacing.sm, maxWidth: 620 },
-  searchInput: { flex: 1, fontFamily: DM, fontSize: 18, color: site.ink, paddingVertical: 6, outlineStyle: 'none' } as any,
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.xl },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#D8C8B0', borderRadius: 3, paddingVertical: 7, paddingHorizontal: 12 },
-  chipActive: { backgroundColor: site.ink, borderColor: site.ink },
-  chipDot: { width: 6, height: 6 },
-  chipText: { fontFamily: DM, fontSize: 14, fontWeight: '600', color: site.ink },
-  chipTextActive: {
-    color: '#fff',
-  },
-  section: { maxWidth: 1240, width: '100%', alignSelf: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxl, paddingBottom: 96 },
-  empty: {
-    fontFamily: DM,
-    fontSize: fontSize.md,
-    color: site.muted,
-  },
-  featuredCard: { borderTopWidth: 1.5, borderTopColor: site.ink, borderBottomWidth: 1, borderBottomColor: '#D8C8B0', paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.md },
-  featuredTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  featuredBadge: {},
-  featuredBadgeText: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: site.copper },
-  categoryBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'transparent' },
-  categoryBadgeText: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
-  featuredTitle: { fontFamily: DM, fontSize: 48, lineHeight: 48, fontWeight: '500', color: site.ink, maxWidth: 900 },
-  featuredExcerpt: { fontFamily: DM, fontSize: 18, lineHeight: 28, color: site.muted, maxWidth: 720 },
-  gridCount: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase', color: site.muted, marginTop: 64, marginBottom: spacing.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: spacing.xxl, borderTopWidth: 1.5, borderTopColor: site.ink },
-  card: { flexGrow: 1, flexBasis: 320, maxWidth: '100%', gap: spacing.sm, paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: '#D8C8B0' } as any,
-  cardCategory: { fontFamily: DM, fontSize: 10.5, letterSpacing: 0.4, textTransform: 'uppercase' },
-  cardTitle: { fontFamily: DM, fontSize: 18, fontWeight: '700', lineHeight: 24, color: site.ink },
-  cardExcerpt: { fontFamily: DM, fontSize: 15, lineHeight: 22, color: site.muted },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' as any },
-  cardMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  cardMetaText: { fontFamily: DM, fontSize: 10.5, color: site.muted },
-  cardMetaDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: site.line,
-  },
-  readMore: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  readMoreText: {
-    fontFamily: DM,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: site.copper,
-  },
+  lead: { fontSize: 15, color: site.muted, lineHeight: 26, maxWidth: 640 },
+  search: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 28, maxWidth: 620, height: 54, paddingHorizontal: 18, borderWidth: 1, borderColor: '#d7dacf', borderRadius: 8, backgroundColor: site.white },
+  searchInput: { flex: 1, fontSize: 15, color: site.ink, outlineStyle: 'none' } as object,
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 22 },
+  chip: { borderWidth: 1, borderColor: site.line, borderRadius: 5, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: site.white },
+  chipOn: { backgroundColor: site.copper, borderColor: site.copper },
+  chipText: { fontSize: 11, color: site.ink },
+  empty: { fontSize: 14, color: site.muted },
+  featured: { backgroundColor: '#e7d8c5', borderRadius: 10, padding: 40, marginBottom: 50 },
+  featuredTop: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  cat: { fontSize: 9, letterSpacing: 1.4, color: site.copper, fontWeight: '600' },
+  latest: { fontSize: 9, letterSpacing: 1.4, color: '#8d755c', fontWeight: '600' },
+  featuredTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -1.2, color: site.ink, marginTop: 18, maxWidth: 860 },
+  featuredExcerpt: { fontSize: 14, lineHeight: 25, color: '#6e6352', marginTop: 14, maxWidth: 760 },
+  meta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginTop: 26, flexWrap: 'wrap' },
+  metaText: { fontSize: 11, color: site.muted },
+  read: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  readText: { fontSize: 12, color: site.copper, fontWeight: '600' },
+  count: { fontSize: 11, color: site.muted, marginBottom: 20 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 34 },
+  card: { borderTopWidth: 1, borderTopColor: site.line, paddingTop: 20, minHeight: 210 },
+  cardTitle: { fontSize: 18, lineHeight: 25, letterSpacing: -0.4, color: site.ink, marginTop: 12 },
+  cardExcerpt: { fontSize: 12, lineHeight: 21, color: site.muted, marginTop: 10 },
 });

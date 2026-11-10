@@ -5,9 +5,11 @@ import { Feather } from '@expo/vector-icons';
 import { Container } from './ui';
 import { Heading } from './Heading';
 import { CtaButton } from './landing/CtaButton';
-import { SitePage } from './site/Sections';
-import { Headline } from './site/Primitives';
-import { site } from '../lib/siteTheme';
+import { Breadcrumbs, Section, SitePage, useSiteLayout } from './site/Sections';
+import { Eyebrow, Headline, Hover, Wrap } from './site/Primitives';
+import { FaqItem } from './site/FamilyPage';
+import { SITE_PAGES } from '../lib/site/pages';
+import { sans, site } from '../lib/siteTheme';
 import { BlogLeadMagnet } from './BlogLeadMagnet';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
@@ -108,112 +110,117 @@ export function BlogArticle({ post }: { post: BlogPost }) {
     cta: categoryClosing?.cta ?? t('blogArticlePage.closingCta'),
   };
 
+  const L = SITE_PAGES[(locale as 'fr' | 'de' | 'it')] ?? SITE_PAGES.fr;
   return (
     <SitePage title={`${post.title} | Cantia`} description={post.question} cta={false}>
-        <Container style={styles.heroOuter}>
-          <Animated.View
-            style={{
-              opacity: heroAnim,
-              transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }],
-            }}
-          >
-            <Link href={blogHrefPrefix as any} asChild>
-              <Pressable style={styles.backLink}>
-                <Feather name="arrow-left" size={13} color={site.copper} />
-                <Text style={styles.backLinkText}>{t('blogArticlePage.allArticles')}</Text>
-              </Pressable>
-            </Link>
-
-            <View style={styles.kickerPill}>
-              <Feather name={CATEGORY_ICON[post.category] ?? 'file-text'} size={12} color={site.ink} />
-              <Text style={styles.kickerText}>{t(`blogCategories.${post.category}`)}</Text>
-            </View>
-
-            <Headline level={1} plain={post.title} size={46} style={{ letterSpacing: -1.8, lineHeight: 50 }} />
-            <Text style={styles.question}>{post.question}</Text>
-
-            <View style={styles.metaRow}>
-              <Text style={styles.metaText}>{t('blogArticlePage.byAuthor', { name: BLOG_AUTHOR })}</Text>
-              <View style={styles.metaDot} />
-              <Text style={styles.metaText}>{formatDate(post.publishedAt)}</Text>
-              <View style={styles.metaDot} />
-              <Text style={styles.metaText}>{t('blogArticlePage.minRead', { count: post.readMinutes })}</Text>
-            </View>
-          </Animated.View>
-        </Container>
-
-        <Container style={styles.body}>
-          {post.blocks.map((block, i) => (
-            <BlockRenderer key={i} block={block} sourceSlug={post.slug} category={post.category} />
-          ))}
-        </Container>
+      <ArticleBody
+        post={post}
+        crumbs={[{ label: L.labels.home, href: tradeHrefPrefix === '/' ? '/' : tradeHrefPrefix.slice(0, -1) }, { label: 'Blog', href: blogHrefPrefix }, { label: t(`blogCategories.${post.category}`) }]}
+        category={t(`blogCategories.${post.category}`)}
+        meta={`${t('blogArticlePage.byAuthor', { name: BLOG_AUTHOR })} · ${formatDate(post.publishedAt)} · ${t('blogArticlePage.minRead', { count: post.readMinutes })}`}
+      >
+        {post.blocks.map((block, i) => (
+          <BlockRenderer key={i} block={block} sourceSlug={post.slug} category={post.category} />
+        ))}
 
         {post.faq?.length ? (
-          <Container style={styles.section}>
-            <Text style={styles.sectionEyebrow}>{t('blogArticlePage.faqEyebrow')}</Text>
-            <View style={styles.faqList}>
+          <View style={{ marginTop: 40 }}>
+            <Eyebrow>{t('blogArticlePage.faqEyebrow')}</Eyebrow>
+            <View style={{ marginTop: 18 }}>
               {post.faq.map((f, i) => (
-                <View key={f.question} style={[styles.faqRow, i === post.faq!.length - 1 && styles.faqRowLast]}>
-                  <Text style={styles.faqQuestion}>{f.question}</Text>
-                  <Text style={styles.faqAnswer}>{f.answer}</Text>
-                </View>
+                <FaqItem key={f.question} q={f.question} a={f.answer} last={i === post.faq!.length - 1} />
               ))}
             </View>
-          </Container>
+          </View>
         ) : null}
 
         {post.relatedTradeSlug ? (
-          <Container style={styles.section}>
-            <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
-              <Pressable style={styles.tradeLinkCard}>
-                <Feather name="tool" size={16} color={site.copper} />
-                <Text style={styles.tradeLinkText}>
-                  {t('blogArticlePage.tradeLinkText')} <Text style={styles.tradeLinkTextAccent}>→</Text>
-                </Text>
-              </Pressable>
-            </Link>
-          </Container>
+          <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
+            <Hover accessibilityRole="link" base={styles2.trade} hover={{ borderColor: site.copper }}>
+              <Feather name="tool" size={16} color={site.copper} />
+              <Text style={[sans, styles2.tradeText]}>{t('blogArticlePage.tradeLinkText')}</Text>
+              <Feather name="arrow-right" size={15} color={site.ink} />
+            </Hover>
+          </Link>
         ) : null}
+      </ArticleBody>
 
-        {related.length ? (
-          <Container style={styles.section}>
-            <Text style={styles.sectionEyebrow}>{t('blogArticlePage.seeAlsoEyebrow')}</Text>
-            <View style={styles.relatedGrid}>
-              {related.map((r) => (
-                <Link key={r.slug} href={`${blogHrefPrefix}/${r.slug}` as any} asChild>
-                  <Pressable style={styles.relatedCard}>
-                    <Text style={styles.relatedCategory}>{t(`blogCategories.${r.category}`)}</Text>
-                    <Text style={styles.relatedTitle}>{r.title}</Text>
-                    <View style={styles.relatedMore}>
-                      <Text style={styles.relatedMoreText}>{t('blogArticlePage.readArticle')}</Text>
-                      <Feather name="arrow-right" size={12} color={site.copper} />
-                    </View>
-                  </Pressable>
-                </Link>
-              ))}
-            </View>
-          </Container>
-        ) : null}
-
-        <Container style={styles.closingOuter}>
-          <View style={styles.closing}>
-            <Text style={styles.closingTitle}>{closing.title}</Text>
-            <Text style={styles.closingText}>{closing.text}</Text>
-            <View style={{ width: '100%', maxWidth: 1192 }}>
-              <Link href={authHref('signup')} asChild>
-                <CtaButton
-                  title={closing.cta}
-                  onPress={() => trackBlogCtaClick(post.slug, post.category, 'closing')}
-                  style={styles.closingCta}
-                />
+      {related.length ? (
+        <Section white>
+          <Eyebrow>{t('blogArticlePage.seeAlsoEyebrow')}</Eyebrow>
+          <View style={[styles2.related, { marginTop: 24 }]}>
+            {related.map((r) => (
+              <Link key={r.slug} href={`${blogHrefPrefix}/${r.slug}` as any} asChild>
+                <Hover accessibilityRole="link" base={styles2.relCard} hover={{ opacity: 0.8 }}>
+                  <Text style={[sans, styles2.relCat]}>{t(`blogCategories.${r.category}`).toUpperCase()}</Text>
+                  <Text style={[sans, styles2.relTitle]}>{r.title}</Text>
+                  <View style={styles2.relMore}>
+                    <Text style={[sans, styles2.relMoreText]}>{t('blogArticlePage.readArticle')}</Text>
+                    <Feather name="arrow-right" size={13} color={site.copper} />
+                  </View>
+                </Hover>
               </Link>
-            </View>
+            ))}
           </View>
-        </Container>
+        </Section>
+      ) : null}
 
+      <View style={styles2.cta}>
+        <Wrap style={styles2.ctaRow}>
+          <View style={{ flex: 1, minWidth: 260, maxWidth: 720 }}>
+            <Headline plain={closing.title} size={34} color="#f4f3e9" />
+            <Text style={[sans, styles2.ctaText]}>{closing.text}</Text>
+          </View>
+          <Link href={authHref('signup')} asChild onPress={() => trackBlogCtaClick(post.slug, post.category, 'closing')}>
+            <Hover accessibilityRole="link" base={styles2.ctaBtn} hover={{ backgroundColor: '#e2d0b9' }}>
+              <Text style={[sans, styles2.ctaBtnText]}>{closing.cta}</Text>
+              <Feather name="arrow-right" size={15} color={site.ink} />
+            </Hover>
+          </Link>
+        </Wrap>
+      </View>
     </SitePage>
   );
 }
+
+// Article column: breadcrumbs, title, question, author line, then the body.
+function ArticleBody({ post, crumbs, category, meta, children }: { post: BlogPost; crumbs: { label: string; href?: string }[]; category: string; meta: string; children: ReactNode }) {
+  const { phone, tablet } = useSiteLayout();
+  return (
+    <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 50 : 80 }}>
+      <Wrap>
+        <Breadcrumbs items={crumbs} />
+        <View style={styles2.column}>
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{category}</Eyebrow>
+          <Headline level={1} plain={post.title} size={phone ? 34 : tablet ? 42 : 50} style={{ marginTop: 16 }} />
+          <Text style={[sans, styles2.question, phone && { fontSize: 16, lineHeight: 26 }]}>{post.question}</Text>
+          <Text style={[sans, styles2.meta]}>{meta}</Text>
+          <View style={styles2.body}>{children}</View>
+        </View>
+      </Wrap>
+    </View>
+  );
+}
+
+const styles2 = StyleSheet.create({
+  column: { width: '100%', maxWidth: 780 },
+  question: { fontSize: 18, lineHeight: 29, color: site.muted, marginTop: 18 },
+  meta: { fontSize: 11, color: '#8b9380', marginTop: 22, paddingTop: 16, borderTopWidth: 1, borderTopColor: site.line },
+  body: { marginTop: 30, gap: 22 },
+  trade: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18, borderWidth: 1, borderColor: site.line, borderRadius: 8, backgroundColor: site.white, marginTop: 30 },
+  tradeText: { flex: 1, fontSize: 13, color: site.ink },
+  related: { flexDirection: 'row', flexWrap: 'wrap', gap: 20 },
+  relCard: { flex: 1, minWidth: 240, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 18 },
+  relCat: { fontSize: 9, letterSpacing: 1.4, color: site.copper, fontWeight: '600' },
+  relTitle: { fontSize: 17, lineHeight: 24, color: site.ink, letterSpacing: -0.3, marginTop: 10 },
+  relMore: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14 },
+  relMoreText: { fontSize: 12, color: site.copper, fontWeight: '600' },
+  cta: { backgroundColor: '#293128', paddingVertical: 56 },
+  ctaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 28 },
+  ctaText: { fontSize: 12, color: '#b2b9a7', marginTop: 14, lineHeight: 21 },
+  ctaBtn: { flexDirection: 'row', alignItems: 'center', gap: 22, backgroundColor: '#e7d8c5', borderRadius: 5, paddingVertical: 14, paddingHorizontal: 20 },
+  ctaBtnText: { fontSize: 13, fontWeight: '600', color: site.ink },
+});
 
 function BlockRenderer({
   block,

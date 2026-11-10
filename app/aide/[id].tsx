@@ -1,14 +1,12 @@
 import { Text, View } from 'react-native';
-import { Link, useLocalSearchParams } from 'expo-router';
-import { Screen } from '../../components/ui';
+import { useLocalSearchParams } from 'expo-router';
+import { SitePage } from '../../components/site/Sections';
+import { Btn, Headline, Wrap } from '../../components/site/Primitives';
 import { HelpArticlePage } from '../../components/HelpArticlePage';
-import { MarketingFooter, MarketingNav } from '../../components/MarketingChrome';
 import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../../lib/helpArticles';
-import { colors, fontSize, spacing } from '../../lib/theme';
 import { getAppLocale, useTranslation } from '../../lib/translations';
-import { site } from '../../lib/siteTheme';
+import { sans, site } from '../../lib/siteTheme';
 
-const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 
 // Needed for the `app-marketing/` static export (web.output: "static") to
 // know which /aide/<id> pages to prerender — see app-marketing/aide/[id].tsx,
@@ -28,17 +26,17 @@ export default function HelpArticleScreen() {
 
   if (!article) {
     return (
-      <Screen>
-        <MarketingNav />
-        <View style={{ maxWidth: 480, alignSelf: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xxxl, alignItems: 'center', gap: spacing.md }}>
-          <Text style={{ fontSize: fontSize.xxl, fontWeight: '600', color: site.ink }}>{t('helpArticlePage.notFoundTitle')}</Text>
-          <Text style={{ fontSize: fontSize.md, color: site.muted, textAlign: 'center' }}>{t('helpArticlePage.notFoundText')}</Text>
-          <Link href={(locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide') as any}>
-            <Text style={{ fontSize: fontSize.md, color: site.copper, fontWeight: '700' }}>{t('helpArticlePage.backToAide')}</Text>
-          </Link>
+      <SitePage title={`${t('helpArticlePage.notFoundTitle')} | Cantia`} cta={false}>
+        <View style={{ paddingVertical: 110 }}>
+          <Wrap>
+            <Headline level={1} plain={t('helpArticlePage.notFoundTitle')} size={44} />
+            <Text style={[sans, { fontSize: 14, color: site.muted, marginTop: 14 }]}>{t('helpArticlePage.notFoundText')}</Text>
+            <View style={{ marginTop: 24, alignSelf: 'flex-start' }}>
+              <Btn label={t('helpArticlePage.backToAide')} href={locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide'} />
+            </View>
+          </Wrap>
         </View>
-        <MarketingFooter />
-      </Screen>
+      </SitePage>
     );
   }
 

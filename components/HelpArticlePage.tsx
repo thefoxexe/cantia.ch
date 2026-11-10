@@ -1,342 +1,175 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button, Container, Screen } from './ui';
-import { Heading } from './Heading';
-import { MarketingHead } from './MarketingHead';
-import { MarketingFooter, MarketingNav } from './MarketingChrome';
-import { colors, fontSize, radius, spacing } from './../lib/theme';
-import { displayType, marketingFonts } from '../lib/marketingTheme';
+import { Btn, Eyebrow, Headline, Hover, Wrap } from './site/Primitives';
+import { Breadcrumbs, SitePage, useSiteLayout } from './site/Sections';
+import { SITE_PAGES } from '../lib/site/pages';
+import { sans, serif, site } from '../lib/siteTheme';
 import { authHref } from '../lib/appHost';
 import { HelpArticle } from '../lib/helpArticles';
 import { getAppLocale, useTranslation } from '../lib/translations';
 
-// Real pixel dimensions of each step screenshot captured so far — falls
-// back to a generic desktop ratio (1280/900) for any not listed here, but
-// an exact real ratio avoids the letterboxing "contain" would otherwise
-// add for a shot that isn't actually that shape.
-const STEP_ASPECT_RATIOS: Record<string, number> = {
-  'heures-mobile-saisie': 390 / 844,
-  'heures-desktop-saisie': 1440 / 807,
-  'heures-admin-facturation': 1440 / 613,
+// Real size of each capture of the app (public/help-shots/<name>[-de|-it].jpg,
+// rendered from the app with sample data).
+const RATIO: Record<string, number> = {
+  'heures-mobile-saisie': 844 / 390,
+  'heures-desktop-saisie': 807 / 1440,
+  'heures-admin-facturation': 613 / 1440,
 };
+const DEFAULT_RATIO = 900 / 1280;
+const WRITE = { fr: 'Nous écrire', de: 'Schreiben Sie uns', it: 'Scriveteci' } as const;
 
-// Full standalone page for one help article — reachable at /aide/<id> (and
-// /de/aide/<id>), one URL per feature instead of only an accordion row
-// buried inside /aide. Same content (lib/helpArticles.ts), rendered as a
-// real page so each feature gets its own indexable, linkable, shareable
-// address rather than being invisible to anyone who isn't already on /aide
-// with that row expanded.
+function shotUri(name: string, locale: string) {
+  return `/help-shots/${name}${locale === 'fr' ? '' : `-${locale}`}.jpg`;
+}
+
+// A screen of the app in a window frame (or a phone outline for a phone capture).
+function AppCapture({ name, alt }: { name: string; alt: string }) {
+  const locale = getAppLocale();
+  const ratio = RATIO[name] ?? DEFAULT_RATIO;
+  const mobile = ratio > 1;
+  const [w, setW] = useState(0);
+  if (mobile) {
+    const width = 280;
+    return (
+      <View style={{ alignItems: 'center' }}>
+        <View style={[styles.phone, { width: width + 16, borderRadius: 40 }]}>
+          <Image source={{ uri: shotUri(name, locale) }} style={{ width, height: width * ratio, borderRadius: 30 }} resizeMode="cover" accessibilityLabel={alt} />
+        </View>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.window} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <View style={styles.bar}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={styles.dot} />
+        ))}
+        <Text style={[sans, styles.url]}>app.cantia.ch</Text>
+      </View>
+      <Image source={{ uri: shotUri(name, locale) }} style={{ width: '100%', height: w ? w * ratio : 300 }} resizeMode="cover" accessibilityLabel={alt} />
+    </View>
+  );
+}
+
+// One help article (/aide/<id>, /de/aide/<id>, /it/aide/<id>): its own
+// indexable page with the real screen of the feature, the explanation, the
+// steps, related articles and a way to reach us.
 export function HelpArticlePage({ article, related }: { article: HelpArticle; related: HelpArticle[] }) {
   const { t } = useTranslation();
-  const locale = getAppLocale();
-  const aideHref = locale === 'de' ? '/de/aide' : locale === 'it' ? '/it/aide' : '/aide';
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 500, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [fadeAnim, article.id]);
+  const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
+  const { phone, tablet } = useSiteLayout();
+  const pre = locale === 'fr' ? '' : `/${locale}`;
+  const aide = `${pre}/aide`;
+  const L = SITE_PAGES[locale].labels;
+  const sample = `${L.appScreen} · ${L.sample}`.toUpperCase();
 
   return (
-    <Screen>
-      <MarketingHead title={`${article.title} | Cantia`} />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MarketingNav />
+    <SitePage title={`${article.title} | Cantia`} description={article.body[0]} cta={false}>
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 50 : 80 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: L.home, href: pre || '/' }, { label: t('aidePage.title'), href: aide }, { label: article.category }]} />
+          <View style={[styles.cols, tablet && { flexDirection: 'column', gap: 40 }]}>
+            <View style={styles.main}>
+              <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{article.category}</Eyebrow>
+              <Headline level={1} plain={article.title} size={phone ? 34 : 46} style={{ marginTop: 16, marginBottom: 26 }} />
 
-        <Container style={styles.container}>
-          <View style={styles.breadcrumb}>
-            <Link href={aideHref as any}><Text style={styles.breadcrumbLink}>{t('aidePage.title')}</Text></Link>
-            <Text style={styles.breadcrumbSep}>›</Text>
-            <Text style={styles.breadcrumbCurrent}>{article.category}</Text>
-          </View>
+              {article.screenshot ? (
+                <View style={{ marginBottom: 30 }}>
+                  <AppCapture name={article.screenshot} alt={article.title} />
+                  <Text style={[sans, styles.caption]}>{sample}</Text>
+                </View>
+              ) : null}
 
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={styles.categoryPill}>
-              <Text style={styles.categoryPillText}>{article.category}</Text>
-            </View>
-            <Heading level={1} style={styles.title}>{article.title}</Heading>
-
-            {article.screenshot ? (
-              <View style={styles.screenshotFrame}>
-                <Image
-                  source={{ uri: `/aide/${article.screenshot}.png` }}
-                  style={styles.screenshot}
-                  resizeMode="cover"
-                  accessibilityLabel={`${article.title} — capture d'écran de Cantia`}
-                />
-              </View>
-            ) : null}
-
-            <View style={styles.body}>
-              {article.body.map((paragraph, i) => (
-                <Text key={i} style={styles.paragraph}>
-                  {paragraph}
-                </Text>
-              ))}
-            </View>
-
-            {article.steps?.length ? (
-              <View style={styles.steps}>
-                {article.steps.map((step, i) => {
-                  // Each step's screenshot keeps its own real aspect ratio
-                  // (a phone capture, a full desktop view, a cropped-tight
-                  // card) — resizeMode="contain" so nothing gets cropped
-                  // when it doesn't match the others' shape.
-                  const ratio = STEP_ASPECT_RATIOS[step.screenshot] ?? 1280 / 900;
-                  const isMobileShot = ratio < 1;
-                  return (
-                    <View key={step.screenshot} style={styles.step}>
-                      <View style={styles.stepNumber}>
-                        <Text style={styles.stepNumberText}>{i + 1}</Text>
-                      </View>
-                      <View style={[styles.screenshotFrame, isMobileShot && styles.screenshotFrameMobile]}>
-                        <Image
-                          source={{ uri: `/aide/${step.screenshot}.png` }}
-                          style={[styles.screenshot, { aspectRatio: ratio }]}
-                          resizeMode="contain"
-                          accessibilityLabel={`${article.title} — étape ${i + 1}`}
-                        />
-                      </View>
-                      <Text style={styles.stepCaption}>{step.caption}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-            ) : null}
-          </Animated.View>
-
-          {related.length ? (
-            <View style={styles.relatedSection}>
-              <Text style={styles.relatedEyebrow}>{t('helpArticlePage.relatedEyebrow')}</Text>
-              <View style={styles.relatedGrid}>
-                {related.map((r) => (
-                  <Link key={r.id} href={`${aideHref}/${r.id}` as any} asChild>
-                    <Pressable style={styles.relatedCard}>
-                      <Text style={styles.relatedTitle}>{r.title}</Text>
-                      <View style={styles.relatedMore}>
-                        <Text style={styles.relatedMoreText}>{t('helpArticlePage.readArticle')}</Text>
-                        <Feather name="arrow-right" size={12} color={colors.primary} />
-                      </View>
-                    </Pressable>
-                  </Link>
+              <View style={{ gap: 16 }}>
+                {article.body.map((p, i) => (
+                  <Text key={i} style={[sans, styles.p]}>
+                    {p}
+                  </Text>
                 ))}
               </View>
-            </View>
-          ) : null}
 
-          <View style={styles.contactCard}>
-            <Feather name="life-buoy" size={18} color={colors.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.contactTitle}>{t('helpArticlePage.contactTitle')}</Text>
-              <Text style={styles.contactText}>{t('helpArticlePage.contactText')}</Text>
+              {article.steps?.length ? (
+                <View style={{ marginTop: 40, gap: 40 }}>
+                  {article.steps.map((step, i) => (
+                    <View key={step.screenshot} style={styles.step}>
+                      <View style={styles.stepHead}>
+                        <Text style={[serif, styles.stepNum]}>{String(i + 1).padStart(2, '0')}</Text>
+                        <Text style={[sans, styles.stepText]}>{step.caption}</Text>
+                      </View>
+                      <AppCapture name={step.screenshot} alt={`${article.title} · ${i + 1}`} />
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+
+            {/* Side: same topic, and a way to reach us */}
+            <View style={[styles.side, !tablet && { width: 300, marginTop: phone ? 0 : 118 }]}>
+              {related.length ? (
+                <View>
+                  <Text style={[sans, styles.sideLabel]}>{t('helpArticlePage.relatedEyebrow').toUpperCase()}</Text>
+                  {related.map((r) => (
+                    <Link key={r.id} href={`${aide}/${r.id}` as any} asChild>
+                      <Hover accessibilityRole="link" base={styles.sideRow} hover={{ opacity: 0.75 }}>
+                        <Text style={[sans, styles.sideText]}>{r.title}</Text>
+                        <Feather name="arrow-right" size={14} color={site.copper} />
+                      </Hover>
+                    </Link>
+                  ))}
+                </View>
+              ) : null}
+              <View style={styles.contact}>
+                <Feather name="life-buoy" size={18} color={site.copper} />
+                <Text style={[sans, styles.contactTitle]}>{t('helpArticlePage.contactTitle')}</Text>
+                <Text style={[sans, styles.contactText]}>{t('helpArticlePage.contactText')}</Text>
+                <Link href={`${pre}/contact` as any}>
+                  <Text style={[sans, styles.contactLink]}>{WRITE[locale]} →</Text>
+                </Link>
+              </View>
+              <Link href={aide as any}>
+                <Text style={[sans, styles.back]}>← {t('helpArticlePage.backToAide')}</Text>
+              </Link>
             </View>
           </View>
+        </Wrap>
+      </View>
 
-          <View style={styles.closing}>
-            <Text style={styles.closingTitle}>{t('helpArticlePage.closingTitle')}</Text>
-            <Link href={authHref('signup')} asChild>
-              <Button title={t('helpArticlePage.closingCta')} variant="secondary" onPress={() => {}} style={styles.closingBtn} />
-            </Link>
+      <View style={[styles.cta, { paddingVertical: phone ? 40 : 56 }]}>
+        <Wrap style={phone ? { gap: 20 } : { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 }}>
+          <Headline plain={t('helpArticlePage.closingTitle')} size={phone ? 30 : 36} color="#f4f3e9" />
+          <View style={{ alignSelf: phone ? 'flex-start' : 'center' }}>
+            <Btn label={t('helpArticlePage.closingCta')} href={authHref('signup')} tone="sand" />
           </View>
-        </Container>
-
-        <MarketingFooter />
-      </ScrollView>
-    </Screen>
+        </Wrap>
+      </View>
+    </SitePage>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    paddingBottom: spacing.xxl,
-  },
-  container: {
-    maxWidth: 720,
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-  },
-  breadcrumb: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    flexWrap: 'wrap',
-    marginBottom: spacing.xl,
-  },
-  breadcrumbLink: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    textDecorationLine: 'underline',
-  },
-  breadcrumbSep: { fontSize: fontSize.xs, color: colors.textMuted },
-  breadcrumbCurrent: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.xs,
-    color: colors.text,
-    fontWeight: '700',
-  },
-  categoryPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginBottom: spacing.md,
-  },
-  categoryPillText: {
-    fontFamily: marketingFonts.mono,
-    fontSize: fontSize.xs,
-    color: colors.primaryDark,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  title: {
-    ...displayType,
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -0.4,
-    lineHeight: 40,
-    marginBottom: spacing.xl,
-  } as any,
-  screenshotFrame: {
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-    marginBottom: spacing.xl,
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOpacity: 0,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-  },
-  screenshot: {
-    width: '100%',
-    aspectRatio: 1280 / 900,
-  },
-  screenshotFrameMobile: {
-    width: '100%',
-    maxWidth: 320,
-    alignSelf: 'center',
-  },
-  body: {
-    gap: spacing.lg,
-  },
-  steps: {
-    gap: spacing.xxl,
-    marginTop: spacing.xl,
-  },
-  step: {
-    gap: spacing.md,
-  },
-  stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepNumberText: {
-    fontSize: fontSize.sm,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  stepCaption: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    lineHeight: 24,
-  },
-  paragraph: {
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.md,
-    color: colors.textMuted,
-    lineHeight: 26,
-  },
-  relatedSection: {
-    marginTop: spacing.xxl,
-  },
-  relatedEyebrow: {
-    fontFamily: marketingFonts.mono,
-    fontSize: fontSize.xs,
-    color: colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: spacing.md,
-  },
-  relatedGrid: {
-    gap: spacing.sm,
-  },
-  relatedCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    borderRadius: 3,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
-  },
-  relatedTitle: {
-    flex: 1,
-    fontFamily: marketingFonts.body,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  relatedMore: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  relatedMoreText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  contactCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.primarySoft,
-    borderRadius: 3,
-    padding: spacing.lg,
-    marginTop: spacing.xxl,
-  },
-  contactTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  contactText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  closing: {
-    alignItems: 'center',
-    marginTop: spacing.xxl,
-    paddingTop: spacing.xl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  closingTitle: {
-    ...displayType,
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  closingBtn: {
-    minWidth: 200,
-  },
+  cols: { flexDirection: 'row', gap: 70, alignItems: 'flex-start' },
+  main: { flex: 1, minWidth: 0, maxWidth: 820 },
+  window: { backgroundColor: site.white, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: site.line, boxShadow: '0 16px 36px rgba(37,41,33,0.10)' } as object,
+  bar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 30, borderBottomWidth: 1, borderBottomColor: '#ebece3', backgroundColor: '#fbfbf7' },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#dcdcd0' },
+  url: { flex: 1, textAlign: 'center', fontSize: 9, color: '#9a9e8c', marginRight: 40 },
+  phone: { padding: 8, backgroundColor: '#1f241c', boxShadow: '0 16px 36px rgba(37,41,33,0.18)' } as object,
+  caption: { fontSize: 8, letterSpacing: 0.6, color: '#8f927f', textAlign: 'center', marginTop: 12 },
+  p: { fontSize: 15, lineHeight: 27, color: '#4b5045' },
+  step: { gap: 18 },
+  stepHead: { flexDirection: 'row', gap: 16, alignItems: 'baseline' },
+  stepNum: { fontSize: 30, color: site.copper, lineHeight: 34 },
+  stepText: { flex: 1, fontSize: 15, lineHeight: 24, color: site.ink },
+  side: { gap: 26 },
+  sideLabel: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600', marginBottom: 6 },
+  sideRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 13, borderTopWidth: 1, borderTopColor: site.line },
+  sideText: { flex: 1, fontSize: 13, color: site.ink, lineHeight: 19 },
+  contact: { padding: 22, borderRadius: 8, backgroundColor: '#e7d8c5', gap: 8 },
+  contactTitle: { fontSize: 16, color: site.ink, fontWeight: '500', marginTop: 4 },
+  contactText: { fontSize: 12, color: '#6e6352', lineHeight: 19 },
+  contactLink: { fontSize: 12, color: site.copper, fontWeight: '600', marginTop: 4 },
+  back: { fontSize: 12, color: site.muted },
+  cta: { backgroundColor: '#293128' },
 });

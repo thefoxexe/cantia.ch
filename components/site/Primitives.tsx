@@ -1,5 +1,5 @@
 import { forwardRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, useWindowDimensions, type PressableProps, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions, type PressableProps, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { gutter, sans, serif, site } from '../../lib/siteTheme';
@@ -98,22 +98,29 @@ const TONES: Record<BtnTone, { bg: string; fg: string; hover: string; border?: s
   light: { bg: '#ffffff', fg: site.ink, hover: '#ffffff', border: site.line, hoverFg: site.copper },
 };
 
-export function Btn({ label, href, tone = 'copper', large = false, small = false, block = false }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean; block?: boolean }) {
+// `external`: a file or another site (PDF download…), opened in a new tab
+// instead of being routed inside the app.
+export function Btn({ label, href, tone = 'copper', large = false, small = false, block = false, external = false }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean; block?: boolean; external?: boolean }) {
   const t = TONES[tone];
+  const button = (
+    <Hover
+      accessibilityRole="link"
+      onPress={external ? () => { if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(href, '_blank', 'noopener'); } : undefined}
+      base={[styles.btn, large && styles.btnLarge, small && styles.btnSmall, block && { alignSelf: 'stretch' }, { backgroundColor: t.bg, borderColor: t.border ?? t.bg }]}
+      hover={{ backgroundColor: t.hover, borderColor: t.hoverFg ?? t.hover }}
+    >
+      {(hovered) => (
+        <>
+          <Text style={[sans, styles.btnText, large && styles.btnTextLarge, small && { fontSize: 11 }, { color: hovered && t.hoverFg ? t.hoverFg : t.fg }]}>{label}</Text>
+          <Feather name={external ? 'download' : 'arrow-right'} size={large ? 16 : 14} color={hovered && t.hoverFg ? t.hoverFg : t.fg} />
+        </>
+      )}
+    </Hover>
+  );
+  if (external) return button;
   return (
     <Link href={href as any} asChild>
-      <Hover
-        accessibilityRole="link"
-        base={[styles.btn, large && styles.btnLarge, small && styles.btnSmall, block && { alignSelf: 'stretch' }, { backgroundColor: t.bg, borderColor: t.border ?? t.bg }]}
-        hover={{ backgroundColor: t.hover, borderColor: t.hoverFg ?? t.hover }}
-      >
-        {(hovered) => (
-          <>
-            <Text style={[sans, styles.btnText, large && styles.btnTextLarge, small && { fontSize: 11 }, { color: hovered && t.hoverFg ? t.hoverFg : t.fg }]}>{label}</Text>
-            <Feather name="arrow-right" size={large ? 16 : 14} color={hovered && t.hoverFg ? t.hoverFg : t.fg} />
-          </>
-        )}
-      </Hover>
+      {button}
     </Link>
   );
 }
