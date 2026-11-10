@@ -3,7 +3,7 @@ import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
-import { Breadcrumbs, Callout, DocVisual, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
+import { Breadcrumbs, Callout, PhoneShot, ScreenShot, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { FaqItem } from './FamilyPage';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
@@ -382,7 +382,7 @@ export function AppPage() {
         plain={c.h1Plain}
         accent={c.h1Accent}
         lead={c.lead}
-        visual={<DocVisual source={EXPORTS[locale].rapport.source} ratio={EXPORTS[locale].rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />}
+        visual={<DevicesStage />}
       >
         <Actions>
           <View>
@@ -432,6 +432,31 @@ export function AppPage() {
         </Grid>
       </Section>
     </SitePage>
+  );
+}
+
+// The real dashboard on a computer with the treasury on a phone in front:
+// both rendered from the app itself with sample data.
+function DevicesStage() {
+  const locale = useSiteLocale();
+  const L = SITE_PAGES[locale].labels;
+  const app = EXPORTS[locale].app;
+  const [w, setW] = useState(0);
+  const phoneW = Math.min(w * 0.3, 150);
+  return (
+    <View>
+      <View style={[styles.visual, { padding: 22, paddingBottom: 60, alignItems: 'stretch', minHeight: 0 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+        <View style={{ width: '86%' }}>
+          <ScreenShot source={app.dash.source} ratio={app.dash.ratio} alt={L.appAlt} />
+        </View>
+        {w ? (
+          <View style={{ position: 'absolute', right: 18, bottom: 18 }}>
+            <PhoneShot source={app.tresMobile.source} ratio={app.tresMobile.ratio} width={phoneW} maxHeight={phoneW * 1.9} alt={L.treasuryAlt} />
+          </View>
+        ) : null}
+      </View>
+      <Text style={[sans, styles.proof, { textAlign: 'center', marginTop: 12 }]}>{`${L.appScreen} · ${L.sample}`.toUpperCase()}</Text>
+    </View>
   );
 }
 

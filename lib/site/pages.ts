@@ -57,6 +57,9 @@ export interface PageLabels {
   planning: { tag: string; week: string; title: string; sub: string; team: string; days: string[]; legend: string };
   treasury: { tag: string; horizon: string; amount: string; sub: string; lines: [string, string][]; total: [string, string]; caption: string };
   docAlt: { signer: string; organiser: string; collaborer: string; facturer: string };
+  appAlt: string;
+  treasuryAlt: string;
+  appScreen: string;
 }
 
 export interface AssistantContent {
@@ -143,6 +146,9 @@ const fr: Bundle = {
       total: ['Solde dans 90 jours', 'CHF 24’300.–'],
       caption: 'SOLDE SAISI MANUELLEMENT · AUCUNE CONNEXION BANCAIRE',
     },
+    appAlt: 'Tableau de bord de Cantia sur téléphone : planning du jour, tâches et chantiers en cours',
+    treasuryAlt: 'Écran Trésorerie de Cantia : solde, projection à 90 jours, entrées et sorties prévues',
+    appScreen: 'Le vrai écran de Cantia',
     docAlt: {
       signer: 'Devis signé en ligne par le client, exporté depuis Cantia',
       organiser: 'Planning de chantier PDF exporté depuis Cantia',
@@ -393,6 +399,9 @@ const de: Bundle = {
       total: ['Saldo in 90 Tagen', 'CHF 24’300.–'],
       caption: 'SALDO MANUELL ERFASST · KEINE BANKVERBINDUNG',
     },
+    appAlt: 'Cantia-Startseite auf dem Smartphone: Tagesplanung, Aufgaben und laufende Baustellen',
+    treasuryAlt: 'Liquiditätsansicht von Cantia: Saldo, 90-Tage-Planung, erwartete Ein- und Ausgänge',
+    appScreen: 'Die echte Ansicht von Cantia',
     docAlt: {
       signer: 'Vom Kunden online unterschriebene Offerte, aus Cantia exportiert',
       organiser: 'Bauprogramm als PDF, aus Cantia exportiert',
@@ -643,6 +652,9 @@ const it: Bundle = {
       total: ['Saldo fra 90 giorni', 'CHF 24’300.–'],
       caption: 'SALDO INSERITO A MANO · NESSUN COLLEGAMENTO BANCARIO',
     },
+    appAlt: 'Home di Cantia sul telefono: programma del giorno, attività e cantieri in corso',
+    treasuryAlt: 'Schermata Liquidità di Cantia: saldo, previsione a 90 giorni, entrate e uscite previste',
+    appScreen: 'La vera schermata di Cantia',
     docAlt: {
       signer: 'Preventivo firmato online dal cliente, esportato da Cantia',
       organiser: 'Programma di cantiere PDF esportato da Cantia',

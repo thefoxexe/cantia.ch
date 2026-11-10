@@ -6,7 +6,7 @@ import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
 import { Btn, Eyebrow, Hover, Headline, Micro, TextLink, Wrap } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
-import { SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
+import { PhoneShot, SectionHead, SiteCta, VoiceBox } from '../components/site/Sections';
 import { EXPORTS } from '../components/site/exports';
 import { SITE_PAGES } from '../lib/site/pages';
 import { SITE_COPY } from '../lib/site/copy';
@@ -156,15 +156,15 @@ function LandingContent() {
   );
 }
 
-// The sand stage of the hero: one signed quote, exactly as Cantia exports it.
+// The sand stage of the hero: the real Cantia dashboard on a phone, rendered
+// from the app itself with sample data (components/site/exports.ts).
 function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boolean }) {
   const [w, setW] = useState(0);
-  const devis = EXPORTS[useSiteLocale()].devis;
+  const locale = useSiteLocale();
+  const shot = EXPORTS[locale].app.dashMobile;
   const pad = phone ? 14 : 26;
-  const top = phone ? 46 : 64;
-  const bottom = phone ? 26 : 36;
-  const paperW = w * (phone ? 0.76 : 0.72);
-  const height = w ? top + paperW * devis.ratio + bottom : phone ? 300 : 440;
+  const height = phone ? 400 : 470;
+  const phoneW = Math.min(phone ? w * 0.66 : w * 0.56, 270);
   return (
     <View style={[styles.stage, { height, borderRadius: phone ? 10 : 15 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       <View style={[styles.stageTag, { paddingHorizontal: pad, paddingTop: phone ? 16 : 24 }]}>
@@ -174,8 +174,8 @@ function HeroStage({ tag, note, phone }: { tag: string; note: string; phone: boo
         <Text style={[sans, styles.stageTagText, phone && { fontSize: 7 }]}>{note.toUpperCase()}</Text>
       </View>
       {w ? (
-        <View style={[styles.paper, paperShadow, { position: 'absolute', width: paperW, left: (w - paperW) / 2, top }]}>
-          <Image source={devis.source} style={{ width: paperW, height: paperW * devis.ratio }} resizeMode="cover" accessibilityLabel={SITE_PAGES[useSiteLocale()].labels.docAlt.signer} />
+        <View style={{ position: 'absolute', top: phone ? 48 : 66, left: (w - phoneW) / 2 }}>
+          <PhoneShot source={shot.source} ratio={shot.ratio} width={phoneW} alt={SITE_PAGES[locale].labels.appAlt} />
         </View>
       ) : null}
     </View>

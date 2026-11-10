@@ -127,6 +127,38 @@ export function DocVisual({ source, ratio, alt, caption, maxHeight = 420 }: { so
   );
 }
 
+// A real phone screen of the app, in a plain device outline. The screen is
+// cropped by the frame height when `maxHeight` is shorter than the capture.
+export function PhoneShot({ source, ratio, width, maxHeight, alt }: { source: ImageSourcePropType; ratio: number; width: number; maxHeight?: number; alt: string }) {
+  const bezel = Math.round(width * 0.035);
+  const inner = width - bezel * 2;
+  const full = inner * ratio;
+  const h = maxHeight ? Math.min(full, maxHeight - bezel * 2) : full;
+  return (
+    <View style={[styles.phone, paperShadow, { width, padding: bezel, borderRadius: width * 0.14 }]}>
+      <View style={{ width: inner, height: h, overflow: 'hidden', borderRadius: width * 0.105, backgroundColor: '#f7f1e6' }}>
+        <Image source={source} style={{ width: inner, height: full }} resizeMode="cover" accessibilityLabel={alt} />
+      </View>
+    </View>
+  );
+}
+
+// A real desktop screen of the app, framed like a window.
+export function ScreenShot({ source, ratio, alt }: { source: ImageSourcePropType; ratio: number; alt: string }) {
+  const [w, setW] = useState(0);
+  return (
+    <View style={[styles.screen, paperShadow]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <View style={styles.screenBar}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={styles.screenDot} />
+        ))}
+        <Text style={[sans, styles.screenUrl]}>app.cantia.ch</Text>
+      </View>
+      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 300 }} resizeMode="cover" accessibilityLabel={alt} />
+    </View>
+  );
+}
+
 const BARS = [11, 20, 29, 16, 34, 24, 14, 28, 35, 18, 9, 25, 33, 20, 12, 29, 23, 14, 31, 18, 27, 10, 20, 31, 15, 24];
 
 // Illustrative dictation: pressing play animates the wave, then shows the
@@ -214,6 +246,11 @@ const styles = StyleSheet.create({
   docStage: { backgroundColor: '#e7e4d8', borderRadius: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   docCaption: { fontSize: 8, color: '#8f927f', letterSpacing: 0.4, marginTop: 18, textAlign: 'center' },
   paper: { backgroundColor: '#ffffff', borderRadius: 3, overflow: 'hidden' },
+  phone: { backgroundColor: '#1f231d' },
+  screen: { backgroundColor: '#ffffff', borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: site.stageBorder },
+  screenBar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 30, backgroundColor: '#efe9df', borderBottomWidth: 1, borderBottomColor: '#e2d8ca' },
+  screenDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#d9cbb8' },
+  screenUrl: { fontSize: 10, color: '#9a8c7a', marginLeft: 10 },
   voiceBox: { backgroundColor: '#ebe9e0', borderWidth: 1, borderColor: '#deded2', borderRadius: 12 },
   voiceTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   voiceTag: { fontSize: 9, letterSpacing: 1, color: '#8a8f7c' },

@@ -3,7 +3,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-n
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
-import { Breadcrumbs, DocVisual, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
+import { Breadcrumbs, DocVisual, PhoneShot, ScreenShot, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
 import { SITE_COPY } from '../../lib/site/copy';
@@ -78,6 +78,11 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
             </View>
             )}
           </View>
+          {family === 'piloter' && !phone ? (
+            <View style={{ marginTop: 44 }}>
+              <ScreenShot source={X.app.tres.source} ratio={X.app.tres.ratio} alt={L.treasuryAlt} />
+            </View>
+          ) : null}
           {family === 'organiser' ? (
             <View style={{ marginTop: phone ? 30 : 44 }}>
               <DocVisual source={X.planning.source} ratio={X.planning.ratio} alt={L.docAlt.organiser} caption={`${L.realExport} · ${L.sample}`} maxHeight={2000} />
@@ -227,40 +232,26 @@ function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabe
   if (family === 'signer') return <DocVisual source={X.devis.source} ratio={X.devis.ratio} alt={L.docAlt.signer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
   if (family === 'collaborer') return <DocVisual source={X.rapport.source} ratio={X.rapport.ratio} alt={L.docAlt.collaborer} caption={`${L.realExport} · ${L.sample}`} maxHeight={phone ? 330 : 380} />;
   if (family === 'facturer') return <DocVisual source={X.slip.source} ratio={X.slip.ratio} alt={L.docAlt.facturer} caption={`${L.realExport} · ${L.sample}`} maxHeight={300} />;
-  return <TreasuryPaper labels={L} />;
+  return <PhoneStage shot={X.app.tresMobile} alt={L.treasuryAlt} caption={`${L.appScreen} · ${L.sample}`} />;
 }
 
-function PaperFrame({ children }: { children: React.ReactNode }) {
+// The sand ground with a real phone screen of the app, cropped at the bottom.
+export function PhoneStage({ shot, alt, caption }: { shot: { source: any; ratio: number }; alt: string; caption: string }) {
+  const [w, setW] = useState(0);
   const { phone } = useSiteLayout();
+  const h = phone ? 380 : 420;
+  const phoneW = Math.min(w * 0.6, 250);
   return (
-    <View style={[styles.visual, { padding: phone ? 22 : 30 }]}>
-      <View style={[styles.paperCard, paperShadow, phone && { padding: 20 }]}>{children}</View>
+    <View>
+      <View style={[styles.visual, { height: h, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+        {w ? (
+          <View style={{ position: 'absolute', top: 34, left: (w - phoneW) / 2 }}>
+            <PhoneShot source={shot.source} ratio={shot.ratio} width={phoneW} alt={alt} />
+          </View>
+        ) : null}
+      </View>
+      <Text style={[sans, styles.stageCaption]}>{caption.toUpperCase()}</Text>
     </View>
-  );
-}
-
-function TreasuryPaper({ labels: L }: { labels: PageLabels }) {
-  const t = L.treasury;
-  return (
-    <PaperFrame>
-      <View style={styles.paperTop}>
-        <Text style={[sans, styles.paperTopText]}>{t.tag}</Text>
-        <Text style={[sans, styles.paperTopText]}>{t.horizon}</Text>
-      </View>
-      <Text style={[sans, styles.paperTitle, { fontVariant: ['tabular-nums'] }]}>{t.amount}</Text>
-      <Text style={[sans, styles.paperSub]}>{t.sub}</Text>
-      {t.lines.map(([label, value]) => (
-        <View key={label} style={styles.paperLine}>
-          <Text style={[sans, styles.paperLineText]}>{label}</Text>
-          <Text style={[sans, styles.paperLineText, { fontVariant: ['tabular-nums'] }]}>{value}</Text>
-        </View>
-      ))}
-      <View style={styles.paperLine}>
-        <Text style={[sans, styles.paperLineText, styles.paperTotal]}>{t.total[0]}</Text>
-        <Text style={[sans, styles.paperLineText, styles.paperTotal, { fontVariant: ['tabular-nums'] }]}>{t.total[1]}</Text>
-      </View>
-      <Text style={[sans, styles.paperCaption]}>{t.caption}</Text>
-    </PaperFrame>
   );
 }
 
@@ -302,6 +293,7 @@ const styles = StyleSheet.create({
   relatedName: { fontSize: 17, color: site.ink },
   relatedText: { fontSize: 11, color: site.muted, marginTop: 7 },
   visual: { backgroundColor: '#e7e4d8', borderRadius: 10, minHeight: 330, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  stageCaption: { fontSize: 8, color: '#8f927f', letterSpacing: 0.4, marginTop: 12, textAlign: 'center' },
   paperCard: { backgroundColor: '#ffffff', width: '100%', padding: 24, borderWidth: 1, borderColor: '#deded3', borderRadius: 5 },
   paperTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   paperTopText: { fontSize: 8, color: site.copper, fontWeight: '600', letterSpacing: 1 },
