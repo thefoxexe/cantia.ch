@@ -1,0 +1,104 @@
+{
+  "fr": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Ce qu’on nous demande avant de commencer",
+    "items": [
+      {
+        "q": "Cantia convient à quels métiers ?",
+        "a": "Cantia est pensé d’abord pour les artisans et les PME du bâtiment. Il sert aussi aux entreprises de service et d’entretien, aux bureaux d’études et aux agences ou entreprises d’événementiel : partout où l’on travaille par chantier, par mandat ou par projet, avec des devis, des factures et des heures à suivre."
+      },
+      {
+        "q": "Faut-il installer un logiciel ?",
+        "a": "Non. Cantia fonctionne dans le navigateur, sur ordinateur, tablette et téléphone. Vous pouvez l’ajouter à l’écran d’accueil de votre téléphone pour l’ouvrir comme une application. Les versions App Store et Google Play sont en préparation."
+      },
+      {
+        "q": "Où sont stockées mes données ?",
+        "a": "En Suisse. La base de données et les fichiers (photos, PDF, documents) sont hébergés dans le centre de données de Supabase à Zurich."
+      },
+      {
+        "q": "Les factures QR suisses sont-elles incluses ?",
+        "a": "Oui, dans toutes les formules. Chaque facture part avec sa partie QR, et les paiements reçus peuvent être rapprochés automatiquement grâce à la référence."
+      },
+      {
+        "q": "Comment se passe l’essai ?",
+        "a": "Vous avez 14 jours pour tout essayer avec vos vrais clients et vos vrais documents. Rien n’est débité pendant l’essai, et vous pouvez résilier en ligne avant la fin sans rien payer. Les formules commencent à CHF 39.– par mois."
+      },
+      {
+        "q": "Puis-je reprendre mes clients existants ?",
+        "a": "Oui. Vous importez vos clients et l’historique de vos chantiers depuis un fichier Excel ou CSV. Si vous travaillez avec Bexio, Cantia s’y connecte directement dès la formule Équipe."
+      },
+      {
+        "q": "Mes clients parlent allemand ou italien, est-ce un problème ?",
+        "a": "Non. L’application existe en français, en allemand et en italien, et dès la formule Équipe chaque devis et chaque facture peut partir dans la langue du client."
+      }
+    ]
+  },
+  "de": {
+    "eyebrow": "Häufige Fragen",
+    "title": "Was man uns vor dem Start fragt",
+    "items": [
+      {
+        "q": "Für welche Branchen eignet sich Cantia?",
+        "a": "Cantia ist in erster Linie für Handwerksbetriebe und KMU im Bau gemacht. Es passt auch für Dienstleistungs- und Unterhaltsfirmen, Ingenieurbüros sowie Agenturen und Eventfirmen: überall dort, wo pro Baustelle, Mandat oder Projekt gearbeitet wird, mit Offerten, Rechnungen und Stunden."
+      },
+      {
+        "q": "Muss ich eine Software installieren?",
+        "a": "Nein. Cantia läuft im Browser, auf Computer, Tablet und Telefon. Sie können es auf dem Startbildschirm Ihres Telefons ablegen und wie eine App öffnen. Die Versionen für App Store und Google Play sind in Vorbereitung."
+      },
+      {
+        "q": "Wo werden meine Daten gespeichert?",
+        "a": "In der Schweiz. Datenbank und Dateien (Fotos, PDF, Dokumente) liegen im Rechenzentrum von Supabase in Zürich."
+      },
+      {
+        "q": "Sind Schweizer QR-Rechnungen inbegriffen?",
+        "a": "Ja, in allen Abos. Jede Rechnung geht mit ihrem QR-Teil hinaus, und eingehende Zahlungen lassen sich dank der Referenz automatisch zuordnen."
+      },
+      {
+        "q": "Wie läuft die Testphase?",
+        "a": "Sie haben 14 Tage, um alles mit Ihren echten Kunden und Dokumenten auszuprobieren. Während der Testphase wird nichts belastet, und Sie können vor dem Ende online kündigen, ohne etwas zu bezahlen. Die Abos beginnen bei CHF 39.– pro Monat."
+      },
+      {
+        "q": "Kann ich meine bestehenden Kunden übernehmen?",
+        "a": "Ja. Sie importieren Ihre Kunden und die Geschichte Ihrer Baustellen aus einer Excel- oder CSV-Datei. Wenn Sie mit Bexio arbeiten, verbindet sich Cantia ab dem Abo Team direkt damit."
+      },
+      {
+        "q": "Meine Kunden sprechen Französisch oder Italienisch. Ist das ein Problem?",
+        "a": "Nein. Die App gibt es auf Deutsch, Französisch und Italienisch, und ab dem Abo Team kann jede Offerte und jede Rechnung in der Sprache des Kunden verschickt werden."
+      }
+    ]
+  },
+  "it": {
+    "eyebrow": "Domande frequenti",
+    "title": "Cosa ci chiedono prima di iniziare",
+    "items": [
+      {
+        "q": "Per quali mestieri è adatto Cantia?",
+        "a": "Cantia è pensato prima di tutto per gli artigiani e le PMI dell’edilizia. Serve anche alle imprese di servizi e manutenzione, agli studi d’ingegneria e alle agenzie o imprese di eventi: ovunque si lavori per cantiere, mandato o progetto, con preventivi, fatture e ore da seguire."
+      },
+      {
+        "q": "Bisogna installare un programma?",
+        "a": "No. Cantia funziona nel browser, su computer, tablet e telefono. Può aggiungerlo alla schermata principale del telefono e aprirlo come un’app. Le versioni per App Store e Google Play sono in preparazione."
+      },
+      {
+        "q": "Dove sono conservati i miei dati?",
+        "a": "In Svizzera. Il database e i file (foto, PDF, documenti) sono ospitati nel centro dati di Supabase a Zurigo."
+      },
+      {
+        "q": "Le fatture QR svizzere sono incluse?",
+        "a": "Sì, in tutti i piani. Ogni fattura parte con la sua sezione QR e i pagamenti ricevuti si possono abbinare automaticamente grazie al riferimento."
+      },
+      {
+        "q": "Come funziona la prova?",
+        "a": "Ha 14 giorni per provare tutto con i suoi veri clienti e i suoi veri documenti. Durante la prova non viene addebitato nulla e può disdire online prima della fine senza pagare niente. I piani partono da CHF 39.– al mese."
+      },
+      {
+        "q": "Posso riprendere i miei clienti attuali?",
+        "a": "Sì. Importa i clienti e lo storico dei cantieri da un file Excel o CSV. Se lavora con Bexio, Cantia si collega direttamente dal piano Team."
+      },
+      {
+        "q": "I miei clienti parlano francese o tedesco: è un problema?",
+        "a": "No. L’app esiste in italiano, francese e tedesco, e dal piano Team ogni preventivo e ogni fattura può partire nella lingua del cliente."
+      }
+    ]
+  }
+}

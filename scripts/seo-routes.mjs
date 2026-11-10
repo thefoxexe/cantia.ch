@@ -4,6 +4,9 @@ import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
 import { CRUMB_NAMES } from './crumb-names.mjs';
 
+// Home page FAQ, shared with app/index.tsx (shown there, FAQPage here).
+const HOME_FAQ = JSON.parse(readFileSync(new URL('../lib/site/homeFaq.json', import.meta.url), 'utf8'));
+
 const TRADE_SLUGS = new Set([
   'charpentier', 'macon', 'electricien', 'plombier', 'peintre', 'menuisier', 'entreprise-generale',
   'paysagiste', 'couvreur', 'chauffagiste', 'carreleur', 'platrier', 'genie-civil', 'terrassier',
@@ -22,6 +25,7 @@ const HOME = {
   title: 'Logiciel de gestion de chantier en Suisse | Cantia',
   description:
     'Cantia centralise devis, factures, planning, rapports, heures et rentabilité pour les artisans et PME du bâtiment en Suisse.',
+  faq: HOME_FAQ.fr.items,
 };
 
 export const ROUTES = [
@@ -3396,6 +3400,7 @@ export const ROUTES = [
     title: 'Software für Baustellenverwaltung in der Schweiz | Cantia',
     description:
       'Cantia zentralisiert Offerten, Rechnungen, Planung, Berichte, Stunden und Rentabilität für Handwerksbetriebe und KMU im Schweizer Bauwesen.',
+    faq: HOME_FAQ.de.items,
   },
   {
     path: 'de/solutions/devis',
@@ -3730,6 +3735,7 @@ export const ROUTES = [
     title: 'Software di gestione cantieri in Svizzera | Cantia',
     description:
       'Cantia centralizza preventivi, fatture, pianificazione, rapporti, ore e redditività per artigiani e PMI edili in Svizzera.',
+    faq: HOME_FAQ.it.items,
   },
   {
     path: 'it/solutions/devis',

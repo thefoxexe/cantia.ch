@@ -15,6 +15,12 @@ import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { sans, site } from '../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { HeroDevices } from '../components/site/HeroDevices';
+import { FaqItem } from '../components/site/FamilyPage';
+import { sectorHref } from '../components/site/SectorPages';
+import { SECTOR_KEYS, SECTORS_COPY, type SectorKey } from '../lib/site/sectors';
+import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
+
+const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; title: string; items: { q: string; a: string }[] }>;
 
 // Real PDFs produced by Cantia's own renderer (sample data: Atelier Martin SA
 // for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
@@ -135,18 +141,33 @@ function LandingContent() {
               </View>
             </View>
 
-            <View style={[styles.sectorStrip, phone && { flexDirection: 'column', gap: 22, marginTop: 40, paddingTop: 28 }]}>
-              <View style={phone ? undefined : { flex: 1 }}>
-                <Headline level={3} plain={h.sectorTitlePlain} accent={h.sectorTitleAccent} inline size={phone ? 23 : 22} style={{ lineHeight: (phone ? 23 : 22) * 1.4, maxWidth: phone ? 290 : undefined }} />
-              </View>
-              <View style={[styles.pills, phone ? undefined : { flex: 2 }]}>
-                {h.sectors.map((s) => (
-                  <Pill key={s} label={s} href={`${p}/metiers`} small={phone} />
-                ))}
-                <View style={{ marginLeft: 6 }}>
-                  <TextLink label={h.sectorLink} href={`${p}/metiers`} size={phone ? 11 : 12} />
-                </View>
-              </View>
+          </Wrap>
+        </View>
+
+        {/* For your trade: the four sectors, each to its own page */}
+        <View style={[styles.section, { paddingVertical: phone ? 53 : 86 }]}>
+          <Wrap>
+            <SectionHead eyebrow={HOME_SECTORS[locale].eyebrow} plain={h.sectorTitlePlain.replace('\n', ' ')} accent={h.sectorTitleAccent} text={HOME_SECTORS[locale].text} />
+            <View style={[styles.sectorGrid, phone && { flexDirection: 'column' }]}>
+              {SECTOR_KEYS.map((key) => (
+                <SectorCard key={key} sector={key} href={sectorHref(p, key)} phone={phone} />
+              ))}
+            </View>
+            <View style={{ marginTop: 23 }}>
+              <TextLink label={h.sectorLink} href={`${p}/metiers`} />
+            </View>
+          </Wrap>
+        </View>
+
+        {/* Questions asked before starting (FAQPage JSON-LD from scripts/seo-routes.mjs) */}
+        <View style={[styles.section, { backgroundColor: site.white, paddingVertical: phone ? 53 : 86 }]}>
+          <Wrap>
+            <View style={styles.faq}>
+              <Eyebrow>{HOME_FAQ[locale].eyebrow}</Eyebrow>
+              <Headline plain={HOME_FAQ[locale].title} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+              {HOME_FAQ[locale].items.map((q, i, all) => (
+                <FaqItem key={q.q} q={q.q} a={q.a} last={i === all.length - 1} />
+              ))}
             </View>
           </Wrap>
         </View>
@@ -248,15 +269,44 @@ function PaperImage({ source, ratio, alt }: { source: ImageSourcePropType; ratio
   );
 }
 
-function Pill({ label, href, small }: { label: string; href: string; small: boolean }) {
+const HOME_SECTORS = {
+  fr: { eyebrow: 'Par secteur', text: 'Le même outil, avec les mots de votre métier : chantiers, interventions, mandats ou projets.', more: 'Voir la page' },
+  de: { eyebrow: 'Nach Branche', text: 'Dasselbe Werkzeug, mit den Wörtern Ihrer Branche: Baustellen, Einsätze, Mandate oder Projekte.', more: 'Zur Seite' },
+  it: { eyebrow: 'Per settore', text: 'Lo stesso strumento, con le parole del suo mestiere: cantieri, interventi, mandati o progetti.', more: 'Vedi la pagina' },
+} as const;
+
+function SectorCard({ sector, href, phone }: { sector: SectorKey; href: string; phone: boolean }) {
+  const locale = useSiteLocale();
+  const c = SECTORS_COPY[locale][sector];
+  // Building trades live on their own pages (not in c.trades): a few names here.
+  const trades = sector === 'batiment' ? BUILDING_NAMES[locale] : c.trades.slice(0, 4).map((t) => t.name).join(' · ');
   return (
     <Link href={href as any} asChild>
-      <Hover accessibilityRole="link" base={[styles.pill, small && { paddingVertical: 7, paddingHorizontal: 11 }]} hover={{ borderColor: site.copper }}>
-        {(hovered) => <Text style={[sans, { fontSize: small ? 9 : 10, color: hovered ? site.copper : site.ink }]}>{label}</Text>}
+      <Hover accessibilityRole="link" base={[styles.sectorCard, !phone && { flex: 1 }]} hover={{ borderColor: site.copper }}>
+        {(hovered) => (
+          <>
+            <Feather name={SECTOR_ICON[sector]} size={18} color={site.copper} />
+            <Text style={[sans, styles.sectorName, hovered && { color: site.copper }]}>{c.label}</Text>
+            <Text style={[sans, styles.sectorTrades]}>{trades}</Text>
+            <View style={styles.sectorMore}>
+              <Text style={[sans, styles.sectorMoreText]}>{HOME_SECTORS[locale].more}</Text>
+              <Feather name="arrow-right" size={12} color={site.copper} />
+            </View>
+          </>
+        )}
       </Hover>
     </Link>
   );
 }
+
+const BUILDING_NAMES = {
+  fr: 'Maçons · Charpentiers · Électriciens · Plâtriers-peintres · Entreprises générales',
+  de: 'Maurer · Zimmerleute · Elektriker · Gipser und Maler · Generalunternehmen',
+  it: 'Muratori · Carpentieri · Elettricisti · Gessatori e pittori · Imprese generali',
+} as const;
+
+const SECTOR_ICON: Record<SectorKey, keyof typeof Feather.glyphMap> = { batiment: 'home', services: 'droplet', etudes: 'compass', creatifs: 'aperture' };
+
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: site.bg },
@@ -288,7 +338,13 @@ const styles = StyleSheet.create({
   exportTitle: { fontSize: 14, fontWeight: '600', color: site.ink, letterSpacing: -0.3 },
   split: { flexDirection: 'row', alignItems: 'center' },
   copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390, marginTop: 20 },
-  sectorStrip: { flexDirection: 'row', gap: 40, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 34, marginTop: 65 },
+  sectorGrid: { flexDirection: 'row', gap: 16, alignItems: 'stretch' },
+  sectorCard: { borderWidth: 1, borderColor: site.line, borderRadius: 10, backgroundColor: site.white, padding: 22, gap: 10 },
+  sectorName: { fontSize: 16, fontWeight: '600', letterSpacing: -0.4, color: site.ink, marginTop: 6 },
+  sectorTrades: { fontSize: 11, lineHeight: 19, color: site.muted, flexGrow: 1 },
+  sectorMore: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
+  sectorMoreText: { fontSize: 11, color: site.copper, fontWeight: '500' },
+  faq: { maxWidth: 760, alignSelf: 'center', width: '100%' },
   pills: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 9 },
   pill: { paddingVertical: 8, paddingHorizontal: 13, borderWidth: 1, borderColor: site.line, borderRadius: 30 },
 });
