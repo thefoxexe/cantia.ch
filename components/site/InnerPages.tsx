@@ -11,6 +11,8 @@ import { INNER_COPY } from '../../lib/site/inner';
 import { COMPARE_COPY, COMPARE_GUIDE_SLUG } from '../../lib/site/compare';
 import { blogHref, isListed } from '../../lib/blog/triage';
 import { SITE_PAGES } from '../../lib/site/pages';
+import { SITE_COPY } from '../../lib/site/copy';
+import { SECTOR_KEYS, SECTOR_SLUGS, SECTORS_COPY } from '../../lib/site/sectors';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
 import { useTranslation } from '../../lib/translations';
@@ -217,31 +219,49 @@ export function SurMesurePage() {
 export function AboutPage() {
   const locale = useSiteLocale();
   const c = INNER_COPY[locale].about;
+  const families = SITE_COPY[locale].families;
   const href = useHref();
   const { phone } = useSiteLayout();
   return (
     <SitePage title={c.seoTitle} description={c.seoDescription}>
       <PageHero crumb={c.crumb} eyebrow={c.eyebrow} plain={c.h1Plain} accent={c.h1Accent} lead={c.lead} />
       <Section white>
-        <SectionHead eyebrow={c.factsEyebrow} plain={c.factsTitle} />
-        <View style={[styles.aboutFacts, phone && { flexDirection: 'column' }]}>
-          {c.facts.map((f) => (
-            <View key={f.k} style={[styles.aboutFact, !phone && { flex: 1 }]}>
-              <Text style={[sans, styles.cardLabel]}>{f.k.toUpperCase()}</Text>
-              <Text style={[sans, styles.aboutFactV]}>{f.v}</Text>
-            </View>
+        <SectionHead eyebrow={c.forEyebrow} plain={c.forTitle} text={c.forText} />
+        <Grid cols={2}>
+          {SECTOR_KEYS.map((k) => (
+            <Card key={k} title={SECTORS_COPY[locale][k].label} text={c.sectors[k]} link={<TextLink label={c.sectorLink} href={href(`metiers/${SECTOR_SLUGS[k]}`)} />} />
+          ))}
+        </Grid>
+      </Section>
+      <Section>
+        <SectionHead eyebrow={c.howEyebrow} plain={c.howTitle} />
+        <View style={[styles.aboutSteps, phone && { flexDirection: 'column', gap: 22 }]}>
+          {families.map((f, i) => (
+            <Link key={f.key} href={href(f.slug) as any} asChild>
+              <Hover accessibilityRole="link" base={[styles.aboutStep, !phone && { flex: 1 }]} hover={{ borderTopColor: site.copper }}>
+                <Text style={[serif, styles.aboutStepNum]}>{String(i + 1).padStart(2, '0')}</Text>
+                <Text style={[sans, styles.cardTitle, { fontSize: 18, marginTop: 0, marginBottom: 0 }]}>{f.name}</Text>
+                <Text style={[sans, styles.cardText]}>{c.how[i]}</Text>
+              </Hover>
+            </Link>
           ))}
         </View>
       </Section>
-      <Section>
-        <SectionHead eyebrow={c.spacesEyebrow} plain={c.spacesTitle} text={c.spacesText} />
-        <Grid>
-          {c.spaces.map((s, i) => (
-            <Card key={s.label} icon={(['grid', 'book', 'users'] as IconName[])[i]} label={s.label} title={s.title} text={s.text} link={<TextLink label={s.link} href={href(s.href)} />} />
+      <Section white>
+        <SectionHead eyebrow={c.storyEyebrow} plain={c.storyTitle} text={c.storyText} />
+        <View style={styles.aboutStory}>
+          {c.story.map((st) => (
+            <View key={st.when} style={[styles.aboutStoryRow, phone && { flexDirection: 'column', gap: 6 }]}>
+              <Text style={[sans, styles.aboutWhen, !phone && { width: 170 }]}>{st.when.toUpperCase()}</Text>
+              <View style={{ flex: 1, gap: 6 }}>
+                <Text style={[sans, styles.cardTitle, { fontSize: 18, marginTop: 0, marginBottom: 0 }]}>{st.title}</Text>
+                <Text style={[sans, styles.cardText]}>{st.text}</Text>
+              </View>
+            </View>
           ))}
-        </Grid>
+        </View>
         <View style={{ marginTop: 40 }}>
-          <Callout strong={c.contactStrong} text={c.contact} link={<TextLink label={c.contactLink} href={href('contact')} />} />
+          <Callout strong={c.trustorStrong} text={c.trustor} link={<TextLink label={c.trustorLink} href={`https://accounting.cantia.ch${locale === 'fr' ? '' : `/${locale}`}`} />} />
         </View>
       </Section>
     </SitePage>
@@ -467,9 +487,12 @@ export function ContactPage() {
 }
 
 const styles = StyleSheet.create({
-  aboutFacts: { flexDirection: 'row', gap: 24, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 24 },
-  aboutFact: { gap: 8 },
-  aboutFactV: { fontSize: 15, color: site.ink, lineHeight: 23, letterSpacing: -0.2 },
+  aboutSteps: { flexDirection: 'row', gap: 20 },
+  aboutStep: { gap: 10, paddingTop: 20, borderTopWidth: 1, borderTopColor: site.line },
+  aboutStepNum: { fontSize: 22, color: site.copper },
+  aboutStory: { borderTopWidth: 1, borderTopColor: site.line },
+  aboutStoryRow: { flexDirection: 'row', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
+  aboutWhen: { fontSize: 10, letterSpacing: 1.3, color: site.copper, fontWeight: '600', paddingTop: 4 },
   cmpTable: { borderTopWidth: 1, borderTopColor: site.line },
   cmpRow: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
   cmpTh: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },

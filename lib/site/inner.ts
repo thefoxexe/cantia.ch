@@ -44,16 +44,22 @@ export interface InnerCopy {
     formText: string;
   };
   about: Hero & {
-    factsEyebrow: string;
-    factsTitle: string;
-    facts: { k: string; v: string }[];
-    spacesEyebrow: string;
-    spacesTitle: string;
-    spacesText: string;
-    spaces: { label: string; title: string; text: string; link: string; href: string }[];
-    contactStrong: string;
-    contact: string;
-    contactLink: string;
+    forEyebrow: string;
+    forTitle: string;
+    forText: string;
+    sectors: Record<'batiment' | 'services' | 'etudes' | 'creatifs', string>;
+    sectorLink: string;
+    howEyebrow: string;
+    howTitle: string;
+    // One line per product family (lib/site/copy.ts families), in order.
+    how: string[];
+    storyEyebrow: string;
+    storyTitle: string;
+    storyText: string;
+    story: { when: string; title: string; text: string }[];
+    trustorStrong: string;
+    trustor: string;
+    trustorLink: string;
   };
   app: Hero & {
     open: string;
@@ -145,32 +151,44 @@ const fr: InnerCopy = {
     formText: 'Décrivez votre besoin en quelques lignes. Nous revenons vers vous pour définir la prochaine étape.',
   },
   about: {
-    seoTitle: 'À propos de Cantia, logiciel suisse de gestion | Cantia',
-    seoDescription: 'Cantia est édité à Sion par Ryser Creative et hébergé en Suisse. Qui fait Cantia, et les espaces pour les entreprises, les fiduciaires et les partenaires.',
+    seoTitle: 'À propos de Cantia : pour qui, comment, son histoire | Cantia',
+    seoDescription: 'Cantia, la suite suisse de gestion des entreprises qui travaillent par projets : pour qui elle est faite, comment elle fonctionne et comment elle est née sur les chantiers.',
     crumb: 'À propos',
     eyebrow: 'À propos',
-    h1Plain: 'Cantia.',
-    h1Accent: 'Fait en Suisse, pour vos projets.',
-    lead: 'Cantia réunit les devis, le planning, les rapports, les factures et les finances des entreprises qui travaillent par projets. Le logiciel est édité à Sion, en Valais, et ses données sont hébergées en Suisse.',
-    factsEyebrow: 'Qui fait Cantia',
-    factsTitle: 'Une équipe en Valais.',
-    facts: [
-      { k: 'Éditeur', v: 'Ryser Creative, entreprise individuelle à Sion (Valais)' },
-      { k: 'Hébergement', v: 'Données de l’application à Zurich, en Suisse' },
-      { k: 'Langues', v: 'Français, allemand et italien' },
-      { k: 'Contact', v: 'info@cantia.ch · +41 78 450 14 57' },
+    h1Plain: 'Né sur les chantiers.',
+    h1Accent: 'Ouvert à vos projets.',
+    lead: 'Cantia réunit au même endroit ce qui se gère souvent entre un tableur, des papiers et une messagerie : le devis, le planning, les rapports, les heures, la facture et les finances.',
+    forEyebrow: 'Pour qui',
+    forTitle: 'Les entreprises qui travaillent par projets.',
+    forText: 'Indépendants et PME en Suisse, du premier devis au paiement. Chaque secteur garde son vocabulaire : chantier, intervention, mandat ou projet.',
+    sectors: {
+      batiment: 'Artisans, entreprises générales et PME du bâtiment : devis, chantiers, rapports avec photos et factures QR.',
+      services: 'Nettoyage, conciergerie, garages, déménagement : interventions planifiées, heures et facturation.',
+      etudes: 'Ingénieurs, architectes, géomètres : mandats, heures par projet et honoraires.',
+      creatifs: 'Agences, studios et événementiel : projets, équipe et rentabilité de chaque mandat.',
+    },
+    sectorLink: 'Voir le secteur',
+    howEyebrow: 'Comment ça fonctionne',
+    howTitle: 'Un seul fil, du devis au paiement.',
+    how: [
+      'Le devis part avec votre logo et votre catalogue de prix. Le client le signe en ligne.',
+      'Le devis accepté devient un projet : planning de l’équipe, documents et tâches au même endroit.',
+      'Sur le terrain, chacun saisit ses heures et ses rapports, depuis son téléphone.',
+      'La facture QR reprend le devis et les travaux réalisés. Les paiements se suivent sans recopier.',
+      'Dépenses, rentabilité de chaque projet et trésorerie à venir, à jour en continu.',
     ],
-    spacesEyebrow: 'Les espaces Cantia',
-    spacesTitle: 'Le bon espace pour chaque rôle.',
-    spacesText: 'La gestion de l’entreprise, le travail de la fiduciaire et la recommandation de Cantia ont chacun leur place.',
-    spaces: [
-      { label: 'Cantia', title: 'Votre entreprise,\nau quotidien.', text: 'Devis, projets, rapports, factures, heures et finances dans la suite de gestion.', link: 'Les fonctionnalités', href: 'fonctionnalites' },
-      { label: 'Cantia Accounting', title: 'Un espace dédié\naux fiduciaires.', text: 'Gestion comptable des mandants, imports, TVA, bouclement, pièces et signatures. Gratuit pour les fiduciaires.', link: 'Découvrir Accounting', href: 'https://accounting.cantia.ch' },
-      { label: 'Cantia Partners', title: 'Vous recommandez.\nLe partenariat suit.', text: 'Un programme de recommandation avec commission sur les entreprises apportées. Les conditions sont précisées dans l’espace partenaire.', link: 'Découvrir le programme', href: 'https://partners.cantia.ch' },
+    storyEyebrow: 'Notre histoire',
+    storyTitle: 'D’un outil de chantier à une suite de gestion.',
+    storyText: 'Cantia a commencé par le chantier : un devis, une équipe, un rapport. Chaque étape suivante est venue des besoins des entreprises qui l’utilisent.',
+    story: [
+      { when: 'Juillet 2026', title: 'Les premières versions', text: 'Projets, rapports de chantier, devis et planning d’équipe.' },
+      { when: 'Août 2026', title: 'Facturer en Suisse', text: 'QR-facture, trésorerie prévisionnelle, salaires et connexion à Bexio.' },
+      { when: 'Septembre 2026', title: 'Trois langues et un assistant', text: 'Allemand et italien, assistant à la voix, comptabilité générée automatiquement, espaces pour les fiduciaires et les partenaires.' },
+      { when: 'Novembre 2026', title: 'Au-delà du bâtiment', text: 'Cantia s’ouvre aux entreprises de service, aux bureaux d’études et aux agences.' },
     ],
-    contactStrong: 'Une question ?',
-    contact: 'Écrivez-nous ou appelez-nous : vous parlez directement à l’équipe qui fait Cantia.',
-    contactLink: 'Nous contacter',
+    trustorStrong: 'Vous êtes fiduciaire ?',
+    trustor: 'Cantia Accounting est l’espace gratuit des fiduciaires pour suivre leurs mandants.',
+    trustorLink: 'Découvrir Cantia Accounting',
   },
   app: {
     seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
@@ -296,32 +314,44 @@ const de: InnerCopy = {
     formText: 'Beschreiben Sie Ihren Bedarf in wenigen Zeilen. Wir melden uns, um den nächsten Schritt festzulegen.',
   },
   about: {
-    seoTitle: 'Über Cantia, die Schweizer Verwaltungssoftware | Cantia',
-    seoDescription: 'Cantia wird in Sitten von Ryser Creative herausgegeben und in der Schweiz gehostet. Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.',
+    seoTitle: 'Über Cantia: für wen, wie es funktioniert, Geschichte | Cantia',
+    seoDescription: 'Cantia, die Schweizer Verwaltungssoftware für Unternehmen, die in Projekten arbeiten: für wen sie gemacht ist, wie sie funktioniert und wie sie auf der Baustelle entstand.',
     crumb: 'Über uns',
     eyebrow: 'Über uns',
-    h1Plain: 'Cantia.',
-    h1Accent: 'Aus der Schweiz, für Ihre Projekte.',
-    lead: 'Cantia vereint Offerten, Planung, Rapporte, Rechnungen und Finanzen von Unternehmen, die in Projekten arbeiten. Die Software wird in Sitten im Wallis herausgegeben, ihre Daten werden in der Schweiz gehostet.',
-    factsEyebrow: 'Wer Cantia macht',
-    factsTitle: 'Ein Team im Wallis.',
-    facts: [
-      { k: 'Herausgeber', v: 'Ryser Creative, Einzelunternehmen in Sitten (Wallis)' },
-      { k: 'Hosting', v: 'Daten der App in Zürich, Schweiz' },
-      { k: 'Sprachen', v: 'Französisch, Deutsch und Italienisch' },
-      { k: 'Kontakt', v: 'info@cantia.ch · +41 78 450 14 57' },
+    h1Plain: 'Auf der Baustelle entstanden.',
+    h1Accent: 'Offen für Ihre Projekte.',
+    lead: 'Cantia vereint, was oft zwischen Tabelle, Papier und Messenger verwaltet wird: Offerte, Planung, Rapporte, Stunden, Rechnung und Finanzen.',
+    forEyebrow: 'Für wen',
+    forTitle: 'Unternehmen, die in Projekten arbeiten.',
+    forText: 'Selbständige und KMU in der Schweiz, von der ersten Offerte bis zur Zahlung. Jede Branche behält ihre Begriffe: Baustelle, Einsatz, Mandat oder Projekt.',
+    sectors: {
+      batiment: 'Handwerker, Generalunternehmen und Bau-KMU: Offerten, Baustellen, Rapporte mit Fotos und QR-Rechnungen.',
+      services: 'Reinigung, Hauswartung, Garagen, Umzüge: geplante Einsätze, Stunden und Fakturierung.',
+      etudes: 'Ingenieure, Architekten, Geometer: Mandate, Stunden pro Projekt und Honorare.',
+      creatifs: 'Agenturen, Studios und Events: Projekte, Team und Rentabilität jedes Mandats.',
+    },
+    sectorLink: 'Zur Branche',
+    howEyebrow: 'So funktioniert es',
+    howTitle: 'Ein roter Faden, von der Offerte bis zur Zahlung.',
+    how: [
+      'Die Offerte geht mit Ihrem Logo und Ihrem Preiskatalog raus. Der Kunde unterschreibt online.',
+      'Die angenommene Offerte wird zum Projekt: Teamplanung, Dokumente und Aufgaben an einem Ort.',
+      'Vor Ort erfasst jede Person Stunden und Rapporte auf dem Smartphone.',
+      'Die QR-Rechnung übernimmt Offerte und ausgeführte Arbeiten. Zahlungen verfolgen Sie ohne Abschreiben.',
+      'Ausgaben, Rentabilität jedes Projekts und kommende Liquidität, laufend aktuell.',
     ],
-    spacesEyebrow: 'Die Cantia-Bereiche',
-    spacesTitle: 'Der richtige Bereich für jede Rolle.',
-    spacesText: 'Die Führung des Unternehmens, die Arbeit der Treuhand und die Empfehlung von Cantia haben je ihren Platz.',
-    spaces: [
-      { label: 'Cantia', title: 'Ihr Unternehmen,\nim Alltag.', text: 'Offerten, Projekte, Rapporte, Rechnungen, Stunden und Finanzen in der Verwaltungssoftware.', link: 'Die Funktionen', href: 'fonctionnalites' },
-      { label: 'Cantia Accounting', title: 'Ein eigener Bereich\nfür Treuhänder.', text: 'Buchhaltung der Mandanten, Importe, MWST, Abschluss, Belege und Unterschriften. Kostenlos für Treuhänder.', link: 'Accounting entdecken', href: 'https://accounting.cantia.ch/de' },
-      { label: 'Cantia Partners', title: 'Sie empfehlen.\nDie Partnerschaft folgt.', text: 'Ein Empfehlungsprogramm mit Provision auf vermittelte Unternehmen. Die Bedingungen stehen im Partnerbereich.', link: 'Das Programm entdecken', href: 'https://partners.cantia.ch/de' },
+    storyEyebrow: 'Unsere Geschichte',
+    storyTitle: 'Vom Baustellen-Tool zur Verwaltungssoftware.',
+    storyText: 'Cantia begann auf der Baustelle: eine Offerte, ein Team, ein Rapport. Jeder weitere Schritt kam aus den Bedürfnissen der Unternehmen, die Cantia nutzen.',
+    story: [
+      { when: 'Juli 2026', title: 'Die ersten Versionen', text: 'Projekte, Baustellenrapporte, Offerten und Teamplanung.' },
+      { when: 'August 2026', title: 'Fakturieren in der Schweiz', text: 'QR-Rechnung, Liquiditätsplanung, Löhne und Verbindung zu Bexio.' },
+      { when: 'September 2026', title: 'Drei Sprachen und ein Assistent', text: 'Deutsch und Italienisch, Sprachassistent, automatisch erstellte Buchhaltung, Bereiche für Treuhänder und Partner.' },
+      { when: 'November 2026', title: 'Über den Bau hinaus', text: 'Cantia öffnet sich für Serviceunternehmen, Planungsbüros und Agenturen.' },
     ],
-    contactStrong: 'Eine Frage?',
-    contact: 'Schreiben oder rufen Sie uns an: Sie sprechen direkt mit dem Team, das Cantia macht.',
-    contactLink: 'Kontakt aufnehmen',
+    trustorStrong: 'Sie sind Treuhänder?',
+    trustor: 'Cantia Accounting ist der kostenlose Bereich für Treuhänder, um ihre Mandanten zu begleiten.',
+    trustorLink: 'Cantia Accounting entdecken',
   },
   app: {
     seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
@@ -447,32 +477,44 @@ const it: InnerCopy = {
     formText: 'Descrivete la vostra esigenza in poche righe. Vi ricontattiamo per definire il passo successivo.',
   },
   about: {
-    seoTitle: 'Chi siamo: Cantia, software svizzero di gestione | Cantia',
-    seoDescription: 'Cantia è pubblicato a Sion da Ryser Creative e ospitato in Svizzera. Chi fa Cantia, e gli spazi per aziende, fiduciarie e partner.',
+    seoTitle: 'Chi siamo: per chi è Cantia, come funziona, la storia | Cantia',
+    seoDescription: 'Cantia, il software svizzero di gestione per le aziende che lavorano per progetti: per chi è fatto, come funziona e come è nato sui cantieri.',
     crumb: 'Chi siamo',
     eyebrow: 'Chi siamo',
-    h1Plain: 'Cantia.',
-    h1Accent: 'Fatto in Svizzera, per i vostri progetti.',
-    lead: 'Cantia riunisce preventivi, pianificazione, rapporti, fatture e finanze delle aziende che lavorano per progetti. Il software è pubblicato a Sion, in Vallese, e i suoi dati sono ospitati in Svizzera.',
-    factsEyebrow: 'Chi fa Cantia',
-    factsTitle: 'Un team in Vallese.',
-    facts: [
-      { k: 'Editore', v: 'Ryser Creative, impresa individuale a Sion (Vallese)' },
-      { k: 'Hosting', v: 'Dati dell’app a Zurigo, in Svizzera' },
-      { k: 'Lingue', v: 'Francese, tedesco e italiano' },
-      { k: 'Contatto', v: 'info@cantia.ch · +41 78 450 14 57' },
+    h1Plain: 'Nato sui cantieri.',
+    h1Accent: 'Aperto ai vostri progetti.',
+    lead: 'Cantia riunisce ciò che spesso si gestisce tra un foglio di calcolo, carte e una chat: preventivo, pianificazione, rapporti, ore, fattura e finanze.',
+    forEyebrow: 'Per chi',
+    forTitle: 'Le aziende che lavorano per progetti.',
+    forText: 'Indipendenti e PMI in Svizzera, dal primo preventivo al pagamento. Ogni settore mantiene il suo vocabolario: cantiere, intervento, mandato o progetto.',
+    sectors: {
+      batiment: 'Artigiani, imprese generali e PMI edili: preventivi, cantieri, rapporti con foto e fatture QR.',
+      services: 'Pulizie, portineria, garage, traslochi: interventi pianificati, ore e fatturazione.',
+      etudes: 'Ingegneri, architetti, geometri: mandati, ore per progetto e onorari.',
+      creatifs: 'Agenzie, studi ed eventi: progetti, team e redditività di ogni mandato.',
+    },
+    sectorLink: 'Vedere il settore',
+    howEyebrow: 'Come funziona',
+    howTitle: 'Un solo filo, dal preventivo al pagamento.',
+    how: [
+      'Il preventivo parte con il vostro logo e il vostro catalogo prezzi. Il cliente lo firma online.',
+      'Il preventivo accettato diventa un progetto: pianificazione del team, documenti e compiti nello stesso posto.',
+      'Sul posto, ognuno registra ore e rapporti dal telefono.',
+      'La fattura QR riprende il preventivo e i lavori svolti. I pagamenti si seguono senza ricopiare.',
+      'Spese, redditività di ogni progetto e liquidità futura, sempre aggiornate.',
     ],
-    spacesEyebrow: 'Gli spazi Cantia',
-    spacesTitle: 'Lo spazio giusto per ogni ruolo.',
-    spacesText: 'La gestione dell’azienda, il lavoro della fiduciaria e la raccomandazione di Cantia hanno ciascuno il loro posto.',
-    spaces: [
-      { label: 'Cantia', title: 'La vostra azienda,\nogni giorno.', text: 'Preventivi, progetti, rapporti, fatture, ore e finanze nel software di gestione.', link: 'Le funzionalità', href: 'fonctionnalites' },
-      { label: 'Cantia Accounting', title: 'Uno spazio dedicato\nalle fiduciarie.', text: 'Contabilità dei mandanti, importazioni, IVA, chiusura, giustificativi e firme. Gratuito per le fiduciarie.', link: 'Scoprire Accounting', href: 'https://accounting.cantia.ch/it' },
-      { label: 'Cantia Partners', title: 'Voi raccomandate.\nLa partnership segue.', text: 'Un programma di raccomandazione con commissione sulle aziende portate. Le condizioni sono indicate nello spazio partner.', link: 'Scoprire il programma', href: 'https://partners.cantia.ch/it' },
+    storyEyebrow: 'La nostra storia',
+    storyTitle: 'Da strumento di cantiere a software di gestione.',
+    storyText: 'Cantia è iniziato dal cantiere: un preventivo, un team, un rapporto. Ogni passo successivo è venuto dai bisogni delle aziende che lo usano.',
+    story: [
+      { when: 'Luglio 2026', title: 'Le prime versioni', text: 'Progetti, rapporti di cantiere, preventivi e pianificazione del team.' },
+      { when: 'Agosto 2026', title: 'Fatturare in Svizzera', text: 'Fattura QR, liquidità prevista, salari e collegamento a Bexio.' },
+      { when: 'Settembre 2026', title: 'Tre lingue e un assistente', text: 'Tedesco e italiano, assistente vocale, contabilità generata automaticamente, spazi per fiduciarie e partner.' },
+      { when: 'Novembre 2026', title: 'Oltre l’edilizia', text: 'Cantia si apre alle aziende di servizi, agli studi tecnici e alle agenzie.' },
     ],
-    contactStrong: 'Una domanda?',
-    contact: 'Scriveteci o chiamateci: parlate direttamente con il team che fa Cantia.',
-    contactLink: 'Contattarci',
+    trustorStrong: 'Siete una fiduciaria?',
+    trustor: 'Cantia Accounting è lo spazio gratuito delle fiduciarie per seguire i loro mandanti.',
+    trustorLink: 'Scoprire Cantia Accounting',
   },
   app: {
     seoTitle: 'Cantia su computer e telefono | Cantia',

@@ -4778,8 +4778,8 @@ export const ROUTES = [
   },
   {
     path: "a-propos",
-    title: "À propos de Cantia, logiciel suisse de gestion | Cantia",
-    description: "Cantia est édité à Sion par Ryser Creative et hébergé en Suisse. Qui fait Cantia, et les espaces pour les entreprises, les fiduciaires et les partenaires.",
+    title: "À propos de Cantia : pour qui, comment, son histoire | Cantia",
+    description: "Cantia, la suite suisse de gestion des entreprises qui travaillent par projets : pour qui elle est faite, comment elle fonctionne et comment elle est née sur les chantiers.",
   },
   {
     path: "ressources",
@@ -4788,8 +4788,8 @@ export const ROUTES = [
   },
   {
     path: "de/a-propos",
-    title: "Über Cantia, die Schweizer Verwaltungssoftware | Cantia",
-    description: "Cantia wird in Sitten von Ryser Creative herausgegeben und in der Schweiz gehostet. Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.",
+    title: "Über Cantia: für wen, wie es funktioniert, Geschichte | Cantia",
+    description: "Cantia, die Schweizer Verwaltungssoftware für Unternehmen, die in Projekten arbeiten: für wen sie gemacht ist, wie sie funktioniert und wie sie auf der Baustelle entstand.",
   },
   {
     path: "de/ressources",
@@ -4798,8 +4798,8 @@ export const ROUTES = [
   },
   {
     path: "it/a-propos",
-    title: "Chi siamo: Cantia, software svizzero di gestione | Cantia",
-    description: "Cantia è pubblicato a Sion da Ryser Creative e ospitato in Svizzera. Chi fa Cantia, e gli spazi per aziende, fiduciarie e partner.",
+    title: "Chi siamo: per chi è Cantia, come funziona, la storia | Cantia",
+    description: "Cantia, il software svizzero di gestione per le aziende che lavorano per progetti: per chi è fatto, come funziona e come è nato sui cantieri.",
   },
   {
     path: "it/ressources",
