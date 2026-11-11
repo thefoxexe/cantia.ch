@@ -97,6 +97,12 @@ const TRADE_SECTOR: Record<string, SectorKey> = {
   informaticien: 'etudes', consultant: 'etudes', formateur: 'etudes',
   graphiste: 'creatifs', photographe: 'creatifs', traiteur: 'creatifs',
 };
+// The trade page inside the sector, for the merged trades.
+const TRADE_SUB: Record<string, string> = {
+  'entreprise-nettoyage': 'entreprise-nettoyage', conciergerie: 'conciergerie', garagiste: 'garage', demenageur: 'demenageur',
+  informaticien: 'informaticien-formateur', formateur: 'informaticien-formateur', consultant: 'consultant',
+  graphiste: 'graphiste', photographe: 'photographe-videaste', traiteur: 'traiteur',
+};
 function sectorOfPost(post: BlogPost): SectorKey {
   if (post.relatedTradeSlug && TRADE_SECTOR[post.relatedTradeSlug]) return TRADE_SECTOR[post.relatedTradeSlug];
   const s = post.slug;
@@ -119,9 +125,13 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   }, [heroAnim]);
 
   const related = getRelatedPosts(post, 3, locale);
-  const sector = sectorOfPost(post);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   const blogHrefPrefix = `${tradeHrefPrefix}blog`;
+  const sector = sectorOfPost(post);
+  const siteLocale = locale === 'de' || locale === 'it' ? locale : 'fr';
+  const sectorUrl = sectorHref(tradeHrefPrefix === '/' ? '' : tradeHrefPrefix.slice(0, -1), sector);
+  const subSlug = post.relatedTradeSlug ? TRADE_SUB[post.relatedTradeSlug] : undefined;
+  const subTrade = subSlug ? SECTORS_COPY[siteLocale][sector].trades.find((tr) => tr.sub === subSlug) : undefined;
   const categoryClosing = locale === 'fr' ? CATEGORY_CLOSING_FR[post.category] : undefined;
   const closing = {
     title: categoryClosing?.title ?? t('blogArticlePage.closingTitle'),
@@ -164,10 +174,10 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         ) : null}
 
         {/* Every article points to the sector page it belongs to. */}
-        <Link href={sectorHref(tradeHrefPrefix === '/' ? '' : tradeHrefPrefix.slice(0, -1), sector) as any} asChild>
+        <Link href={(subTrade ? `${sectorUrl}/${subTrade.sub}` : sectorUrl) as any} asChild>
           <Hover accessibilityRole="link" base={[styles2.trade, { marginTop: 12 }]} hover={{ borderColor: site.copper }}>
             <Feather name="briefcase" size={16} color={site.copper} />
-            <Text style={[sans, styles2.tradeText]}>{t('blogArticlePage.sectorLinkText', { sector: SECTORS_COPY[locale === 'de' || locale === 'it' ? locale : 'fr'][sector].label })}</Text>
+            <Text style={[sans, styles2.tradeText]}>{t('blogArticlePage.sectorLinkText', { sector: subTrade?.name ?? SECTORS_COPY[siteLocale][sector].label })}</Text>
             <Feather name="arrow-right" size={15} color={site.ink} />
           </Hover>
         </Link>

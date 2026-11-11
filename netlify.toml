@@ -1733,6 +1733,96 @@
   from = "/it/metiers/bureaux-etudes/informaticien-formateur"
   to = "/it/metiers/bureaux-etudes/informaticien-formateur.html"
   status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/agence-communication"
+  to = "/metiers/agences-evenementiel/agence-communication.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/graphiste"
+  to = "/metiers/agences-evenementiel/graphiste.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/photographe-videaste"
+  to = "/metiers/agences-evenementiel/photographe-videaste.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/traiteur"
+  to = "/metiers/agences-evenementiel/traiteur.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/organisateur-evenements"
+  to = "/metiers/agences-evenementiel/organisateur-evenements.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/agences-evenementiel/location-materiel"
+  to = "/metiers/agences-evenementiel/location-materiel.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/agence-communication"
+  to = "/de/metiers/agences-evenementiel/agence-communication.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/graphiste"
+  to = "/de/metiers/agences-evenementiel/graphiste.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/photographe-videaste"
+  to = "/de/metiers/agences-evenementiel/photographe-videaste.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/traiteur"
+  to = "/de/metiers/agences-evenementiel/traiteur.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/organisateur-evenements"
+  to = "/de/metiers/agences-evenementiel/organisateur-evenements.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/agences-evenementiel/location-materiel"
+  to = "/de/metiers/agences-evenementiel/location-materiel.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/agence-communication"
+  to = "/it/metiers/agences-evenementiel/agence-communication.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/graphiste"
+  to = "/it/metiers/agences-evenementiel/graphiste.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/photographe-videaste"
+  to = "/it/metiers/agences-evenementiel/photographe-videaste.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/traiteur"
+  to = "/it/metiers/agences-evenementiel/traiteur.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/organisateur-evenements"
+  to = "/it/metiers/agences-evenementiel/organisateur-evenements.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/agences-evenementiel/location-materiel"
+  to = "/it/metiers/agences-evenementiel/location-materiel.html"
+  status = 200
 # END generated routes
 
 # Content triage (docs/seo-tri-contenu.md): merged articles, German slugs and
@@ -3739,7 +3829,7 @@
 
 [[redirects]]
   from = "/de/graphiste"
-  to = "/de/metiers/agences-evenementiel"
+  to = "/de/metiers/agences-evenementiel/graphiste"
   status = 301
   force = true
 
@@ -3751,13 +3841,13 @@
 
 [[redirects]]
   from = "/de/photographe"
-  to = "/de/metiers/agences-evenementiel"
+  to = "/de/metiers/agences-evenementiel/photographe-videaste"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/traiteur"
-  to = "/de/metiers/agences-evenementiel"
+  to = "/de/metiers/agences-evenementiel/traiteur"
   status = 301
   force = true
 
@@ -3787,7 +3877,7 @@
 
 [[redirects]]
   from = "/graphiste"
-  to = "/metiers/agences-evenementiel"
+  to = "/metiers/agences-evenementiel/graphiste"
   status = 301
   force = true
 
@@ -5017,7 +5107,7 @@
 
 [[redirects]]
   from = "/it/graphiste"
-  to = "/it/metiers/agences-evenementiel"
+  to = "/it/metiers/agences-evenementiel/graphiste"
   status = 301
   force = true
 
@@ -5029,25 +5119,25 @@
 
 [[redirects]]
   from = "/it/photographe"
-  to = "/it/metiers/agences-evenementiel"
+  to = "/it/metiers/agences-evenementiel/photographe-videaste"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/traiteur"
-  to = "/it/metiers/agences-evenementiel"
+  to = "/it/metiers/agences-evenementiel/traiteur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/photographe"
-  to = "/metiers/agences-evenementiel"
+  to = "/metiers/agences-evenementiel/photographe-videaste"
   status = 301
   force = true
 
 [[redirects]]
   from = "/traiteur"
-  to = "/metiers/agences-evenementiel"
+  to = "/metiers/agences-evenementiel/traiteur"
   status = 301
   force = true
 # END generated blog redirects

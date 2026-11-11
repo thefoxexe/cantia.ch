@@ -758,6 +758,420 @@ export const SUBTRADE_SEO = [
         "a": "Sì, il piano Essentiel è fatto per indipendenti e piccoli team."
       }
     ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/agence-communication",
+    "title": "Logiciel pour agence de communication en Suisse | Cantia",
+    "description": "Offres par projet signées en ligne, heures de l’équipe par type de travail, acomptes, rentabilité et factures QR : Cantia pour les agences de communication en Suisse.",
+    "faq": [
+      {
+        "q": "Puis-je appeler mes dossiers « projets » ?",
+        "a": "Oui. À l’inscription, choisissez « projet » : le mot est repris dans le menu, les boutons et vos documents."
+      },
+      {
+        "q": "Puis-je voir la rentabilité d’un projet en cours ?",
+        "a": "Oui, avec la formule Équipe : heures et dépenses sont comparées à l’offre à tout moment."
+      },
+      {
+        "q": "Les fichiers du projet peuvent-ils être rangés dans Cantia ?",
+        "a": "Oui, chaque projet a son espace Documents. Pour les gros fichiers de production, gardez votre stockage habituel et rangez ici les versions validées."
+      },
+      {
+        "q": "Cantia gère-t-il les salaires de l’agence ?",
+        "a": "Oui, avec la formule Équipe : fiches de salaire avec les déductions suisses."
+      }
+    ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/graphiste",
+    "title": "Logiciel pour graphiste et studio créatif en Suisse | Cantia",
+    "description": "Offres avec corrections incluses, compléments signés, temps par projet, acomptes et factures QR : Cantia pour les graphistes indépendants et les studios créatifs en Suisse.",
+    "faq": [
+      {
+        "q": "Puis-je préciser les droits d’utilisation dans l’offre ?",
+        "a": "Oui, dans les lignes ou dans les notes de l’offre, signées par le client avec le reste."
+      },
+      {
+        "q": "Cantia convient-il à un graphiste seul ?",
+        "a": "Oui, la formule Essentiel couvre offres, factures QR, comptabilité et TVA pour un indépendant."
+      },
+      {
+        "q": "Le client peut-il signer depuis son téléphone ?",
+        "a": "Oui, depuis le lien reçu par e-mail, sans créer de compte."
+      },
+      {
+        "q": "Mes factures sont-elles à mes couleurs ?",
+        "a": "Oui, offres et factures reprennent votre logo et votre couleur."
+      }
+    ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/photographe-videaste",
+    "title": "Logiciel pour photographe et vidéaste en Suisse | Cantia",
+    "description": "Mariages, entreprises et reportages : offre signée, acompte à la réservation, planning des tournages et solde à la livraison. Cantia pour les photographes et vidéastes.",
+    "faq": [
+      {
+        "q": "Puis-je inclure des conditions d’annulation ?",
+        "a": "Oui, dans les notes de l’offre, signées par le client avec le reste."
+      },
+      {
+        "q": "Les frais de déplacement sont-ils gérés ?",
+        "a": "Oui, comme dépenses du projet ou comme ligne de l’offre et de la facture."
+      },
+      {
+        "q": "Puis-je livrer les images par Cantia ?",
+        "a": "Non, Cantia n’est pas une galerie de livraison. Il gère l’offre, le planning, le temps et les factures."
+      },
+      {
+        "q": "Cantia convient-il à un indépendant ?",
+        "a": "Oui, la formule Essentiel est faite pour les indépendants et les petites équipes."
+      }
+    ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/traiteur",
+    "title": "Logiciel pour traiteur en Suisse | Cantia",
+    "description": "Événements chiffrés au nombre d’invités, offre signée, équipe planifiée, extras du jour facturés et salaires du personnel : Cantia pour les traiteurs en Suisse.",
+    "faq": [
+      {
+        "q": "Puis-je chiffrer au prix par personne ?",
+        "a": "Oui, la quantité d’une ligne peut être le nombre d’invités, avec un prix unitaire par personne."
+      },
+      {
+        "q": "Les achats de marchandises sont-ils suivis ?",
+        "a": "Oui, une photo du ticket suffit : la dépense est rattachée à l’événement et compte dans sa rentabilité."
+      },
+      {
+        "q": "Cantia gère-t-il les stocks de cuisine ?",
+        "a": "Non, Cantia ne fait pas de gestion de stock. Il suit les achats, le personnel, les offres et les factures."
+      },
+      {
+        "q": "Les salaires du personnel extra sont-ils gérés ?",
+        "a": "Oui, avec la formule Équipe : fiches de salaire à partir des heures, avec les déductions suisses."
+      }
+    ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/organisateur-evenements",
+    "title": "Logiciel pour organisateur d’événements en Suisse | Cantia",
+    "description": "Salons, soirées et séminaires : offre signée, prestataires, planning de l’équipe, acomptes, rentabilité et factures QR. Cantia pour les organisateurs d’événements en Suisse.",
+    "faq": [
+      {
+        "q": "Puis-je suivre les factures de mes prestataires ?",
+        "a": "Oui, avec le module Sous-traitants : chaque facture reçue est rattachée au projet avec son statut de paiement."
+      },
+      {
+        "q": "La trésorerie tient-elle compte des acomptes ?",
+        "a": "Oui, avec la formule Équipe : factures attendues et factures à payer apparaissent dans la prévision à 90 jours."
+      },
+      {
+        "q": "Puis-je appeler mes dossiers « projets » ?",
+        "a": "Oui, le mot choisi à l’inscription est repris partout dans l’application."
+      },
+      {
+        "q": "Cantia gère-t-il la billetterie ?",
+        "a": "Non. Cantia gère les offres, les prestataires, l’équipe et les factures, pas la vente de billets."
+      }
+    ]
+  },
+  {
+    "path": "metiers/agences-evenementiel/location-materiel",
+    "title": "Logiciel pour location de matériel événementiel | Cantia",
+    "description": "Matériel, montage et techniciens par événement : offres signées, planning, heures, extras facturés et factures QR. Cantia pour la location de matériel et la technique événementielle.",
+    "faq": [
+      {
+        "q": "Cantia gère-t-il l’inventaire du matériel ?",
+        "a": "Non, Cantia ne suit pas les stocks ni les disponibilités du matériel. Il gère les offres, le planning, les heures et les factures."
+      },
+      {
+        "q": "Mes prix de location sont-ils repris d’une offre à l’autre ?",
+        "a": "Oui, le Catalogue retient chaque position avec son unité et son dernier prix, et les trames regroupent vos packs habituels."
+      },
+      {
+        "q": "Les techniciens peuvent-ils pointer depuis le lieu ?",
+        "a": "Oui, depuis le navigateur de leur téléphone, sans application à installer."
+      },
+      {
+        "q": "Puis-je demander un acompte ?",
+        "a": "Oui, la facture d’acompte part depuis l’offre acceptée, et la facture finale la déduit."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/agence-communication",
+    "title": "Software für Kommunikationsagenturen in der Schweiz | Cantia",
+    "description": "Online unterschriebene Projektofferten, Stunden des Teams nach Art der Arbeit, Akontos, Rentabilität und QR-Rechnungen: Cantia für Kommunikationsagenturen in der Schweiz.",
+    "faq": [
+      {
+        "q": "Kann ich meine Dossiers «Projekte» nennen?",
+        "a": "Ja. Wählen Sie bei der Registrierung «Projekt»: Das Wort erscheint im Menü, auf den Schaltflächen und in Ihren Dokumenten."
+      },
+      {
+        "q": "Sehe ich die Rentabilität eines laufenden Projekts?",
+        "a": "Ja, mit dem Abo Team: Stunden und Ausgaben werden jederzeit mit der Offerte verglichen."
+      },
+      {
+        "q": "Lassen sich die Projektdateien in Cantia ablegen?",
+        "a": "Ja, jedes Projekt hat seinen Dokumentenbereich. Für grosse Produktionsdateien behalten Sie Ihren gewohnten Speicher und legen hier die freigegebenen Versionen ab."
+      },
+      {
+        "q": "Verwaltet Cantia die Löhne der Agentur?",
+        "a": "Ja, mit dem Abo Team: Lohnabrechnungen mit Schweizer Abzügen."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/graphiste",
+    "title": "Software für Grafiker und Kreativstudios | Cantia",
+    "description": "Offerten mit inbegriffenen Korrekturen, unterschriebene Ergänzungen, Zeit pro Projekt, Akontos und QR-Rechnungen: Cantia für Grafikerinnen und Kreativstudios in der Schweiz.",
+    "faq": [
+      {
+        "q": "Kann ich die Nutzungsrechte in der Offerte festhalten?",
+        "a": "Ja, in den Positionen oder in den Notizen der Offerte, vom Kunden mit dem Rest unterschrieben."
+      },
+      {
+        "q": "Eignet sich Cantia für eine Grafikerin allein?",
+        "a": "Ja, das Abo Essentiel deckt Offerten, QR-Rechnungen, Buchhaltung und MWST für Selbstständige ab."
+      },
+      {
+        "q": "Kann der Kunde auf dem Telefon unterschreiben?",
+        "a": "Ja, über den Link aus der E-Mail, ohne Konto zu erstellen."
+      },
+      {
+        "q": "Sind meine Rechnungen in meinen Farben?",
+        "a": "Ja, Offerten und Rechnungen übernehmen Ihr Logo und Ihre Farbe."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/photographe-videaste",
+    "title": "Software für Fotografen und Videografen | Cantia",
+    "description": "Hochzeiten, Firmen und Reportagen: unterschriebene Offerte, Anzahlung bei Reservation, Drehplanung und Restbetrag bei Lieferung. Cantia für Fotografen und Videografen.",
+    "faq": [
+      {
+        "q": "Kann ich Annullationsbedingungen aufnehmen?",
+        "a": "Ja, in den Notizen der Offerte, vom Kunden mit dem Rest unterschrieben."
+      },
+      {
+        "q": "Werden Reisekosten verwaltet?",
+        "a": "Ja, als Ausgaben des Projekts oder als Position in Offerte und Rechnung."
+      },
+      {
+        "q": "Kann ich die Bilder über Cantia liefern?",
+        "a": "Nein, Cantia ist keine Galerie zur Auslieferung. Es verwaltet Offerte, Planung, Zeit und Rechnungen."
+      },
+      {
+        "q": "Eignet sich Cantia für Selbstständige?",
+        "a": "Ja, das Abo Essentiel ist für Selbstständige und kleine Teams gemacht."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/traiteur",
+    "title": "Software für Caterer in der Schweiz | Cantia",
+    "description": "Anlässe nach Anzahl Gäste kalkuliert, unterschriebene Offerte, geplantes Team, verrechnete Extras am Abend und Löhne des Personals: Cantia für Caterer in der Schweiz.",
+    "faq": [
+      {
+        "q": "Kann ich zum Preis pro Person kalkulieren?",
+        "a": "Ja, die Menge einer Position kann die Anzahl Gäste sein, mit einem Einzelpreis pro Person."
+      },
+      {
+        "q": "Werden Wareneinkäufe verfolgt?",
+        "a": "Ja, ein Foto der Quittung genügt: Die Ausgabe wird dem Anlass zugeordnet und zählt in seiner Rentabilität."
+      },
+      {
+        "q": "Verwaltet Cantia Küchenvorräte?",
+        "a": "Nein, Cantia macht keine Lagerverwaltung. Es verfolgt Einkäufe, Personal, Offerten und Rechnungen."
+      },
+      {
+        "q": "Werden die Löhne des Aushilfspersonals verwaltet?",
+        "a": "Ja, mit dem Abo Team: Lohnabrechnungen aus den Stunden, mit Schweizer Abzügen."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/organisateur-evenements",
+    "title": "Software für Eventorganisatoren in der Schweiz | Cantia",
+    "description": "Messen, Abende und Seminare: unterschriebene Offerte, Dienstleister, Teamplanung, Akontos, Rentabilität und QR-Rechnungen. Cantia für Eventorganisatoren in der Schweiz.",
+    "faq": [
+      {
+        "q": "Kann ich die Rechnungen meiner Dienstleister verfolgen?",
+        "a": "Ja, mit dem Modul Subunternehmer: Jede erhaltene Rechnung wird mit ihrem Zahlungsstatus dem Projekt zugeordnet."
+      },
+      {
+        "q": "Berücksichtigt die Liquidität die Akontos?",
+        "a": "Ja, mit dem Abo Team: erwartete und zu bezahlende Rechnungen erscheinen in der 90-Tage-Prognose."
+      },
+      {
+        "q": "Kann ich meine Dossiers «Projekte» nennen?",
+        "a": "Ja, das bei der Registrierung gewählte Wort wird überall in der App verwendet."
+      },
+      {
+        "q": "Verwaltet Cantia den Ticketverkauf?",
+        "a": "Nein. Cantia verwaltet Offerten, Dienstleister, Team und Rechnungen, nicht den Verkauf von Tickets."
+      }
+    ]
+  },
+  {
+    "path": "de/metiers/agences-evenementiel/location-materiel",
+    "title": "Software für Eventtechnik und Materialvermietung | Cantia",
+    "description": "Material, Aufbau und Techniker pro Anlass: unterschriebene Offerten, Planung, Stunden, verrechnete Extras und QR-Rechnungen. Cantia für Materialvermietung und Eventtechnik.",
+    "faq": [
+      {
+        "q": "Verwaltet Cantia das Materialinventar?",
+        "a": "Nein, Cantia verfolgt weder Bestände noch Verfügbarkeiten des Materials. Es verwaltet Offerten, Planung, Stunden und Rechnungen."
+      },
+      {
+        "q": "Werden meine Mietpreise von Offerte zu Offerte übernommen?",
+        "a": "Ja, der Katalog merkt sich jede Position mit Einheit und letztem Preis, und Vorlagen bündeln Ihre üblichen Pakete."
+      },
+      {
+        "q": "Können die Techniker vor Ort Stunden erfassen?",
+        "a": "Ja, im Browser ihres Telefons, ohne App zu installieren."
+      },
+      {
+        "q": "Kann ich eine Anzahlung verlangen?",
+        "a": "Ja, die Anzahlungsrechnung geht aus der angenommenen Offerte hinaus, und die Schlussrechnung zieht sie ab."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/agence-communication",
+    "title": "Software per agenzie di comunicazione in Svizzera | Cantia",
+    "description": "Offerte per progetto firmate online, ore del team per tipo di lavoro, acconti, redditività e fatture QR: Cantia per le agenzie di comunicazione in Svizzera.",
+    "faq": [
+      {
+        "q": "Posso chiamare i miei dossier «progetti»?",
+        "a": "Sì. All’iscrizione scelga «progetto»: la parola compare nel menu, sui pulsanti e nei suoi documenti."
+      },
+      {
+        "q": "Vedo la redditività di un progetto in corso?",
+        "a": "Sì, con il piano Team: ore e spese vengono confrontate con l’offerta in ogni momento."
+      },
+      {
+        "q": "I file del progetto si possono archiviare in Cantia?",
+        "a": "Sì, ogni progetto ha il suo spazio Documenti. Per i grandi file di produzione tenga il suo archivio abituale e metta qui le versioni approvate."
+      },
+      {
+        "q": "Cantia gestisce i salari dell’agenzia?",
+        "a": "Sì, con il piano Team: buste paga con le deduzioni svizzere."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/graphiste",
+    "title": "Software per grafici e studi creativi in Svizzera | Cantia",
+    "description": "Offerte con correzioni incluse, complementi firmati, tempo per progetto, acconti e fatture QR: Cantia per grafici indipendenti e studi creativi in Svizzera.",
+    "faq": [
+      {
+        "q": "Posso indicare i diritti d’uso nell’offerta?",
+        "a": "Sì, nelle voci o nelle note dell’offerta, firmate dal cliente con il resto."
+      },
+      {
+        "q": "Cantia va bene per un grafico da solo?",
+        "a": "Sì, il piano Essentiel copre offerte, fatture QR, contabilità e IVA per un indipendente."
+      },
+      {
+        "q": "Il cliente può firmare dal telefono?",
+        "a": "Sì, dal link ricevuto per e-mail, senza creare un account."
+      },
+      {
+        "q": "Le mie fatture hanno i miei colori?",
+        "a": "Sì, offerte e fatture riprendono il suo logo e il suo colore."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/photographe-videaste",
+    "title": "Software per fotografi e videomaker in Svizzera | Cantia",
+    "description": "Matrimoni, aziende e reportage: offerta firmata, acconto alla prenotazione, pianificazione delle riprese e saldo alla consegna. Cantia per fotografi e videomaker.",
+    "faq": [
+      {
+        "q": "Posso includere condizioni d’annullamento?",
+        "a": "Sì, nelle note dell’offerta, firmate dal cliente con il resto."
+      },
+      {
+        "q": "Le spese di viaggio sono gestite?",
+        "a": "Sì, come spese del progetto o come voce dell’offerta e della fattura."
+      },
+      {
+        "q": "Posso consegnare le immagini con Cantia?",
+        "a": "No, Cantia non è una galleria di consegna. Gestisce offerta, pianificazione, tempo e fatture."
+      },
+      {
+        "q": "Cantia va bene per un indipendente?",
+        "a": "Sì, il piano Essentiel è fatto per indipendenti e piccoli team."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/traiteur",
+    "title": "Software per catering in Svizzera | Cantia",
+    "description": "Eventi calcolati sul numero di ospiti, offerta firmata, personale pianificato, extra della serata fatturati e salari del personale: Cantia per i servizi di catering in Svizzera.",
+    "faq": [
+      {
+        "q": "Posso calcolare al prezzo per persona?",
+        "a": "Sì, la quantità di una voce può essere il numero di ospiti, con un prezzo unitario per persona."
+      },
+      {
+        "q": "Gli acquisti di merce vengono seguiti?",
+        "a": "Sì, basta una foto dello scontrino: la spesa viene collegata all’evento e conta nella sua redditività."
+      },
+      {
+        "q": "Cantia gestisce le scorte della cucina?",
+        "a": "No, Cantia non fa gestione di magazzino. Segue acquisti, personale, offerte e fatture."
+      },
+      {
+        "q": "I salari del personale ausiliario sono gestiti?",
+        "a": "Sì, con il piano Team: buste paga dalle ore, con le deduzioni svizzere."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/organisateur-evenements",
+    "title": "Software per organizzatori di eventi in Svizzera | Cantia",
+    "description": "Fiere, serate e seminari: offerta firmata, fornitori, pianificazione del team, acconti, redditività e fatture QR. Cantia per gli organizzatori di eventi in Svizzera.",
+    "faq": [
+      {
+        "q": "Posso seguire le fatture dei miei fornitori?",
+        "a": "Sì, con il modulo Subappaltatori: ogni fattura ricevuta viene collegata al progetto con il suo stato di pagamento."
+      },
+      {
+        "q": "La liquidità tiene conto degli acconti?",
+        "a": "Sì, con il piano Team: le fatture attese e da pagare compaiono nella previsione a 90 giorni."
+      },
+      {
+        "q": "Posso chiamare i miei dossier «progetti»?",
+        "a": "Sì, la parola scelta all’iscrizione viene usata ovunque nell’app."
+      },
+      {
+        "q": "Cantia gestisce la biglietteria?",
+        "a": "No. Cantia gestisce offerte, fornitori, team e fatture, non la vendita di biglietti."
+      }
+    ]
+  },
+  {
+    "path": "it/metiers/agences-evenementiel/location-materiel",
+    "title": "Software per noleggio di materiale per eventi | Cantia",
+    "description": "Materiale, montaggio e tecnici per evento: offerte firmate, pianificazione, ore, extra fatturati e fatture QR. Cantia per il noleggio di materiale e la tecnica per eventi.",
+    "faq": [
+      {
+        "q": "Cantia gestisce l’inventario del materiale?",
+        "a": "No, Cantia non segue scorte né disponibilità del materiale. Gestisce offerte, pianificazione, ore e fatture."
+      },
+      {
+        "q": "I miei prezzi di noleggio vengono ripresi da un’offerta all’altra?",
+        "a": "Sì, il Catalogo ricorda ogni posizione con la sua unità e l’ultimo prezzo, e i modelli raggruppano i suoi pacchetti abituali."
+      },
+      {
+        "q": "I tecnici possono registrare le ore sul posto?",
+        "a": "Sì, dal browser del telefono, senza app da installare."
+      },
+      {
+        "q": "Posso chiedere un acconto?",
+        "a": "Sì, la fattura d’acconto parte dall’offerta accettata, e la fattura finale la deduce."
+      }
+    ]
   }
 ];
 
@@ -773,7 +1187,13 @@ export const SUBTRADE_CRUMBS = {
     "metiers/bureaux-etudes/bureau-technique": "Bureaux techniques CVC et électricité",
     "metiers/bureaux-etudes/geometre": "Géomètres",
     "metiers/bureaux-etudes/consultant": "Conseillers et consultants",
-    "metiers/bureaux-etudes/informaticien-formateur": "Informaticiens et formateurs"
+    "metiers/bureaux-etudes/informaticien-formateur": "Informaticiens et formateurs",
+    "metiers/agences-evenementiel/agence-communication": "Agences de communication",
+    "metiers/agences-evenementiel/graphiste": "Graphistes et studios créatifs",
+    "metiers/agences-evenementiel/photographe-videaste": "Photographes et vidéastes",
+    "metiers/agences-evenementiel/traiteur": "Traiteurs",
+    "metiers/agences-evenementiel/organisateur-evenements": "Organisateurs d’événements",
+    "metiers/agences-evenementiel/location-materiel": "Location de matériel et techniciens"
   },
   "de": {
     "metiers/service-entretien/entreprise-nettoyage": "Reinigungsfirmen",
@@ -786,7 +1206,13 @@ export const SUBTRADE_CRUMBS = {
     "metiers/bureaux-etudes/bureau-technique": "Fachplaner HLK und Elektro",
     "metiers/bureaux-etudes/geometre": "Geometer",
     "metiers/bureaux-etudes/consultant": "Beraterinnen und Berater",
-    "metiers/bureaux-etudes/informaticien-formateur": "Informatiker und Ausbildner"
+    "metiers/bureaux-etudes/informaticien-formateur": "Informatiker und Ausbildner",
+    "metiers/agences-evenementiel/agence-communication": "Kommunikationsagenturen",
+    "metiers/agences-evenementiel/graphiste": "Grafikerinnen und Kreativstudios",
+    "metiers/agences-evenementiel/photographe-videaste": "Fotografen und Videografen",
+    "metiers/agences-evenementiel/traiteur": "Caterer",
+    "metiers/agences-evenementiel/organisateur-evenements": "Eventorganisatoren",
+    "metiers/agences-evenementiel/location-materiel": "Materialvermietung und Technik"
   },
   "it": {
     "metiers/service-entretien/entreprise-nettoyage": "Imprese di pulizia",
@@ -799,6 +1225,12 @@ export const SUBTRADE_CRUMBS = {
     "metiers/bureaux-etudes/bureau-technique": "Studi tecnici RVC ed elettricità",
     "metiers/bureaux-etudes/geometre": "Geometri",
     "metiers/bureaux-etudes/consultant": "Consulenti",
-    "metiers/bureaux-etudes/informaticien-formateur": "Informatici e formatori"
+    "metiers/bureaux-etudes/informaticien-formateur": "Informatici e formatori",
+    "metiers/agences-evenementiel/agence-communication": "Agenzie di comunicazione",
+    "metiers/agences-evenementiel/graphiste": "Grafici e studi creativi",
+    "metiers/agences-evenementiel/photographe-videaste": "Fotografi e videomaker",
+    "metiers/agences-evenementiel/traiteur": "Catering",
+    "metiers/agences-evenementiel/organisateur-evenements": "Organizzatori di eventi",
+    "metiers/agences-evenementiel/location-materiel": "Noleggio materiale e tecnici"
   }
 };

@@ -3,6 +3,7 @@ import type { SectorKey } from '../sectors';
 import type { SubTrade } from './types';
 import { SERVICES_TRADES } from './services';
 import { ETUDES_TRADES } from './etudes';
+import { CREATIFS_TRADES } from './creatifs';
 
 export type { SubTrade };
 
@@ -10,6 +11,7 @@ export type { SubTrade };
 const BY_SECTOR: Partial<Record<SectorKey, Record<SiteLocale, SubTrade[]>>> = {
   services: SERVICES_TRADES,
   etudes: ETUDES_TRADES,
+  creatifs: CREATIFS_TRADES,
 };
 
 export function subTradesOf(sector: SectorKey, locale: SiteLocale): SubTrade[] {
