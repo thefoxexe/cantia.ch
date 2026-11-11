@@ -567,9 +567,17 @@ export default function FactureDetailScreen() {
             </View>
             <StatusBadge status={facture.status} />
           </View>
-          <Text style={styles.client}>{facture.client_name}</Text>
-          {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
-          {facture.client_email ? <Text style={styles.meta}>{facture.client_email}</Text> : null}
+          <View style={styles.summaryRow}>
+            <View style={{ flex: 1, minWidth: 200 }}>
+              <Text style={styles.client}>{facture.client_name}</Text>
+              {facture.client_address ? <Text style={styles.meta}>{facture.client_address}</Text> : null}
+              {facture.client_email ? <Text style={styles.meta}>{facture.client_email}</Text> : null}
+            </View>
+            <View>
+              <Text style={styles.summaryTotalLabel}>{totalPaid > 0 ? t('factureDetail.remainingDue') : Number(facture.vat_rate) > 0 ? t('factureDetail.totalInclVat') : t('devisDetail.total')}</Text>
+              <Text style={styles.summaryTotalValue}>CHF {fmtChf(totalPaid > 0 ? remaining : total)}</Text>
+            </View>
+          </View>
           {facture.status === 'draft' ? (
             <View style={styles.dueDateEditor}>
               <Text style={styles.fieldLabel}>{t('factureDetail.dueDateEditLabel')}</Text>
@@ -687,6 +695,7 @@ export default function FactureDetailScreen() {
         <Button
           title={t('factureDetail.actions')}
           icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
+          variant="secondary"
           onPress={() => setActionsOpen((v) => !v)}
           loading={busy}
           style={{ marginTop: spacing.md }}
@@ -915,6 +924,9 @@ export default function FactureDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  summaryRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: spacing.lg, marginTop: spacing.xs },
+  summaryTotalLabel: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.6 },
+  summaryTotalValue: { fontSize: 24, fontWeight: '600', color: colors.text, letterSpacing: -0.6, fontVariant: ['tabular-nums'], marginTop: 2 },
   scroll: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 3,

@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useAuth } from '../../../lib/auth-context';
 import { confirm } from '../../../lib/confirm';
 import { downloadTextFile } from '../../../lib/downloadFile';
-import { Button, Card, EmptyState, Field, PageHeader, AppScreen } from '../../../components/ui';
+import { Button, Card, EmptyState, Field, PageHeader, AppScreen, HeaderAction } from '../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import {
@@ -192,18 +192,12 @@ export default function InventaireScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('inventaire.title')} />
-        <Text style={styles.pageSubtitle}>
-          {t('inventaire.subtitle')}
-        </Text>
-
-        <Button
-          title={t('inventaire.actions')}
-          icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
-          onPress={() => setActionsOpen((v) => !v)}
-          loading={importing}
-          style={{ marginBottom: spacing.sm }}
+        <PageHeader
+          title={t('inventaire.title')}
+          subtitle={t('inventaire.subtitle')}
+          right={<HeaderAction title={t('inventaire.actions')} icon={actionsOpen ? 'chevron-up' : 'chevron-down'} variant="secondary" onPress={() => setActionsOpen((v) => !v)} />}
         />
+        {importing ? <ActivityIndicator color={colors.primary} style={{ alignSelf: 'flex-start', marginBottom: spacing.sm }} /> : null}
         {actionsOpen ? (
           <Card style={styles.actionsPanel}>
             {actionRows.map((action, i) => (

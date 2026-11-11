@@ -136,7 +136,9 @@ export function PageHeader({
           <Feather name="arrow-left" size={18} color={colors.text} />
         </Pressable>
       ) : null}
-      <View style={{ flex: 1, minWidth: 0 }}>
+      {/* Needs ~260 px: on a phone the actions on the right wrap to their
+          own line under the title instead of squeezing it. */}
+      <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 260, minWidth: 0 }}>
         <Text style={styles.pageHeaderTitle} numberOfLines={1} accessibilityRole="header">
           {title}
         </Text>

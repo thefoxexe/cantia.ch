@@ -327,7 +327,7 @@ export default function ChantiersListScreen() {
                 )}
                 <View style={styles.cardBody}>
                   <View style={styles.row}>
-                    {item.reference ? <Text style={styles.ref}>{item.reference}</Text> : null}
+                    {item.reference ? <Text style={styles.ref} numberOfLines={1}>{item.reference}</Text> : null}
                     <Text style={styles.name} numberOfLines={1}>
                       {item.name}
                     </Text>
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   thumbPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   cardBody: { flex: 1, minWidth: 0, gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  ref: { fontSize: fontSize.xs, fontWeight: '800', color: colors.primary, backgroundColor: colors.primarySoft, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, fontVariant: ['tabular-nums'], overflow: 'hidden' },
+  ref: { flexShrink: 0, fontSize: fontSize.xs, fontWeight: '700', color: colors.primary, backgroundColor: colors.primarySoft, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, fontVariant: ['tabular-nums'], overflow: 'hidden' },
   name: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, flexShrink: 1 },
   meta: { fontSize: fontSize.sm, color: colors.textMuted },
   unreadBadge: { minWidth: 20, height: 20, paddingHorizontal: 5, borderRadius: radius.pill, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },

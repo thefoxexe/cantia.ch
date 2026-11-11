@@ -292,7 +292,7 @@ export default function DepensesScreen() {
             </Card>
 
             {plan.has_treasury ? (
-              <Button title={t('treasury.newExpense')} icon="plus" onPress={openAddOneOff} />
+              <Button title={t('treasury.newExpense')} icon="plus" onPress={openAddOneOff} style={{ alignSelf: 'flex-start' }} />
             ) : null}
 
             {upcoming > 0 ? (
