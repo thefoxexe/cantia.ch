@@ -8,10 +8,11 @@ import { FaqItem } from './FamilyPage';
 import { LaptopShot } from './Laptop';
 import { useSiteLocale } from './SiteNav';
 import { SECTOR_SCREENS } from './sectorScreens';
-import { BUILDING_TRADES, sectorHref, HUB_COPY, SECTOR_KEYS, SECTOR_SLUGS, SECTOR_UI, SECTORS_COPY, type SectorKey } from '../../lib/site/sectors';
+import { BUILDING_TRADES, sectorHref, HUB_COPY, SECTOR_KEYS, SECTOR_SLUGS, SECTOR_UI, SECTORS_COPY, type SectorKey, type SectorTrade } from '../../lib/site/sectors';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
 import { getTradePage } from '../../lib/tradeLandingPages';
+import { getSubTrade, subTradesOf } from '../../lib/site/subTrades';
 
 type IconName = keyof typeof Feather.glyphMap;
 const SECTOR_ICONS: Record<SectorKey, IconName> = { batiment: 'home', services: 'droplet', etudes: 'compass', creatifs: 'aperture' };
@@ -125,7 +126,7 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
   const cols = phone ? 1 : width <= 900 ? 2 : 3;
   const cellW = cols === 1 ? '100%' : cols === 2 ? '47.5%' : '31%';
   const screens = SECTOR_SCREENS[locale][sector];
-  const trades = sector === 'batiment' ? BUILDING_TRADES.map((slug) => ({ slug, name: cap(getTradePage(slug, locale)?.tradeName ?? slug), text: getTradePage(slug, locale)?.hero.eyebrow ?? '' })) : c.trades;
+  const trades: SectorTrade[] = sector === 'batiment' ? BUILDING_TRADES.map((slug) => ({ slug, name: cap(getTradePage(slug, locale)?.tradeName ?? slug), text: getTradePage(slug, locale)?.hero.eyebrow ?? '' })) : c.trades;
 
   return (
     <SitePage title={c.seoTitle} description={c.seoDescription} cta={false}>
@@ -179,9 +180,9 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
               <View key={t.name} style={[styles.tradeCell, { width: cellW }]}>
                 <Text style={[sans, styles.tradeName]}>{t.name}</Text>
                 <Text style={[sans, styles.body]}>{t.text}</Text>
-                {t.slug ? (
+                {t.slug || (t.sub && getSubTrade(sector, t.sub, locale)) ? (
                   <View style={{ marginTop: 10 }}>
-                    <TextLink label={ui.tradePage} href={`${p}/${t.slug}`} size={11} />
+                    <TextLink label={ui.tradePage} href={t.slug ? `${p}/${t.slug}` : `${sectorHref(p, sector)}/${t.sub}`} size={11} />
                   </View>
                 ) : null}
               </View>
@@ -291,6 +292,149 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
       </Section>
 
       <Closing title={c.closingTitle} text={c.closingText} />
+    </SitePage>
+  );
+}
+
+// ─── /metiers/<sector>/<trade> ─────────────────────────────────────────────
+
+const SUB_UI = {
+  fr: { siblings: 'Dans le même secteur', sectorAll: 'Tout le secteur' },
+  de: { siblings: 'In derselben Branche', sectorAll: 'Die ganze Branche' },
+  it: { siblings: 'Nello stesso settore', sectorAll: 'Tutto il settore' },
+} as const;
+
+// One trade of a non-building sector: its own words, the sector's real
+// screens, and links back to the sector and to the other trades in it.
+export function SubTradePage({ sector, slug }: { sector: SectorKey; slug: string }) {
+  const locale = useSiteLocale();
+  const ui = SECTOR_UI[locale];
+  const sub = SUB_UI[locale];
+  const c = SECTORS_COPY[locale][sector];
+  const t = getSubTrade(sector, slug, locale);
+  const p = usePrefix();
+  const { phone, tablet, width, h2Size } = useSiteLayout();
+  if (!t) return null;
+  const h1 = phone ? 38 : tablet ? 46 : 54;
+  const cols = phone ? 1 : width <= 900 ? 2 : 4;
+  const cellW = cols === 1 ? '100%' : cols === 2 ? '47.5%' : '22.5%';
+  const screens = SECTOR_SCREENS[locale][sector];
+  const siblings = subTradesOf(sector, locale).filter((o) => o.slug !== slug);
+  const sectorUrl = sectorHref(p, sector);
+
+  return (
+    <SitePage title={t.seoTitle} description={t.seoDescription} cta={false}>
+      <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 40 : 70 }}>
+        <Wrap>
+          <Breadcrumbs items={[{ label: ui.crumbHome, href: p || '/' }, { label: ui.crumbTrades, href: `${p}/metiers` }, { label: c.label, href: sectorUrl }, { label: t.name }]} />
+          <View style={[styles.hero, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 64 }]}>
+            <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
+              <Eyebrow>{t.eyebrow}</Eyebrow>
+              <Headline level={1} size={h1} plain={t.h1Plain} accent={t.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.2, lineHeight: h1 * 1.08 }} />
+              <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{t.lead}</Text>
+              <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
+                <View>
+                  <Btn label={ui.tryCta} href={authHref('signup')} small={phone} />
+                </View>
+                <View>
+                  <TextLink label={ui.pricing} href={`${p}/tarifs`} size={phone ? 11 : 12} />
+                </View>
+              </View>
+              <Text style={[sans, styles.trust]}>{ui.trust}</Text>
+            </View>
+            <View style={phone ? undefined : { flex: 1.15, minWidth: 0 }}>
+              <LaptopShot source={screens.detail} alt={`${t.name} · Cantia`} />
+            </View>
+          </View>
+        </Wrap>
+      </View>
+
+      <Section white>
+        <SectionHead eyebrow={ui.painsEyebrow} plain={ui.painsTitle} />
+        {t.pains.map((pain) => (
+          <View key={pain.title} style={[styles.painRow, tablet && { flexDirection: 'column', gap: 10 }]}>
+            <View style={!tablet ? { flex: 1 } : undefined}>
+              <Text style={[sans, styles.painTitle]}>{pain.title}</Text>
+              <Text style={[sans, styles.body, { marginTop: 8 }]}>{pain.text}</Text>
+            </View>
+            <View style={[styles.answer, !tablet && { flex: 1 }]}>
+              <Text style={[sans, styles.answerLabel]}>{ui.answer.toUpperCase()}</Text>
+              <Text style={[sans, styles.answerText]}>{pain.answer}</Text>
+            </View>
+          </View>
+        ))}
+      </Section>
+
+      <Section>
+        <SectionHead eyebrow={ui.usesEyebrow} plain={ui.usesTitle} />
+        <View style={styles.grid}>
+          {t.uses.map((u) => (
+            <View key={u.title} style={[styles.useCell, { width: cellW }]}>
+              <Feather name={u.icon} size={18} color={site.copper} />
+              <Text style={[sans, styles.useTitle]}>{u.title}</Text>
+              <Text style={[sans, styles.body]}>{u.text}</Text>
+              {u.module ? (
+                <View style={{ marginTop: 12 }}>
+                  <TextLink label={ui.more} href={`${p}/${u.module}`} size={11} color={site.muted} />
+                </View>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      </Section>
+
+      <Section white>
+        <SectionHead eyebrow={ui.scenarioEyebrow} plain={t.scenarioTitle} />
+        <View style={[styles.steps, (phone || width <= 900) && { flexDirection: 'column', gap: 0 }]}>
+          {t.scenario.map((st, i) => (
+            <View key={st.title} style={[styles.step, !(phone || width <= 900) && { flex: 1 }]}>
+              <Text style={[serif, styles.stepNum]}>{String(i + 1).padStart(2, '0')}</Text>
+              <Text style={[sans, styles.stepTitle]}>{st.title}</Text>
+              <Text style={[sans, styles.body]}>{st.text}</Text>
+            </View>
+          ))}
+        </View>
+      </Section>
+
+      <Section>
+        <View style={styles.faq}>
+          <Eyebrow>{ui.faqEyebrow}</Eyebrow>
+          <Headline plain={ui.faqTitle} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+          {t.faq.map((f, i) => (
+            <FaqItem key={f.q} q={f.q} a={f.a} last={i === t.faq.length - 1} />
+          ))}
+        </View>
+      </Section>
+
+      <Section white>
+        <Eyebrow>{sub.siblings}</Eyebrow>
+        <View style={[styles.chips, { marginTop: 18 }]}>
+          {siblings.map((o) => (
+            <Link key={o.slug} href={`${sectorUrl}/${o.slug}` as any} asChild>
+              <Hover accessibilityRole="link" base={styles.chip} hover={{ borderColor: site.copper }}>
+                {(hovered) => (
+                  <>
+                    <Text style={[sans, styles.chipText, hovered && { color: site.copper }]}>{o.name}</Text>
+                    <Feather name="arrow-up-right" size={12} color={hovered ? site.copper : site.muted} />
+                  </>
+                )}
+              </Hover>
+            </Link>
+          ))}
+          <Link href={sectorUrl as any} asChild>
+            <Hover accessibilityRole="link" base={styles.chip} hover={{ borderColor: site.copper }}>
+              {(hovered) => (
+                <>
+                  <Text style={[sans, styles.chipText, { fontWeight: '600' }, hovered && { color: site.copper }]}>{`${sub.sectorAll} · ${c.label}`}</Text>
+                  <Feather name="arrow-right" size={12} color={hovered ? site.copper : site.muted} />
+                </>
+              )}
+            </Hover>
+          </Link>
+        </View>
+      </Section>
+
+      <Closing title={t.closingTitle} text={c.closingText} />
     </SitePage>
   );
 }

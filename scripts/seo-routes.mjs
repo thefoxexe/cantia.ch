@@ -4,6 +4,7 @@ import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
 import { CRUMB_NAMES } from './crumb-names.mjs';
 import { SHORT_TITLES } from './seo-short-titles.mjs';
+import { SUBTRADE_CRUMBS, SUBTRADE_SEO } from './subtrade-seo-data.generated.mjs';
 
 // Home page FAQ, shared with app/index.tsx (shown there, FAQPage here).
 const HOME_FAQ = JSON.parse(readFileSync(new URL('../lib/site/homeFaq.json', import.meta.url), 'utf8'));
@@ -4805,6 +4806,8 @@ export const ROUTES = [
     title: "Scoprire Cantia: aiuto, guide e risorse | Cantia",
     description: "Centro assistenza, accesso mobile, spazi Cantia, blog, calcolatori gratuiti e contatto diretto: tutte le risorse per iniziare con Cantia.",
   },
+  // Trade pages of the non-building sectors (lib/site/subTrades).
+  ...SUBTRADE_SEO,
 ];
 
 // Content triage (lib/blog/triage.json, docs/seo-tri-contenu.md): merged
@@ -5015,6 +5018,8 @@ export function jsonLdFor(url, route) {
 // Titles a search result would cut (over 65 characters): the brand suffix
 // goes first, then a shorter title from scripts/seo-short-titles.mjs. The
 // page's H1 keeps the full headline.
+for (const loc of Object.keys(SUBTRADE_CRUMBS)) Object.assign(CRUMB_NAMES[loc] ??= {}, SUBTRADE_CRUMBS[loc]);
+
 const BRAND_SUFFIX = / \| (Cantia Hilfe-Center|Centro assistenza Cantia|Centre d'aide Cantia|Cantia)$/;
 for (const route of ROUTES) {
   if (SHORT_TITLES[route.path]) route.title = SHORT_TITLES[route.path];

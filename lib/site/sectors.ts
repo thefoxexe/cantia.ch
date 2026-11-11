@@ -33,6 +33,7 @@ export interface SectorTrade {
   name: string;
   text: string;
   slug?: string; // a trade page exists
+  sub?: string; // its page under the sector (lib/site/subTrades)
 }
 export interface SectorCopy {
   label: string;
@@ -219,12 +220,12 @@ const FR: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Pour qui',
     forTitle: 'Les métiers du service et de l’entretien.',
     trades: [
-      { name: 'Entreprises de nettoyage', text: 'Contrats d’entretien, nettoyages de fin de bail et de fin de chantier, équipes réparties sur plusieurs adresses.' },
-      { name: 'Conciergeries et facility management', text: 'Immeubles suivis par gérance, petites interventions, rapports avec photos pour la régie.' },
+      { name: 'Entreprises de nettoyage', text: 'Contrats d’entretien, nettoyages de fin de bail et de fin de chantier, équipes réparties sur plusieurs adresses.', sub: 'entreprise-nettoyage' },
+      { name: 'Conciergeries et facility management', text: 'Immeubles suivis par gérance, petites interventions, rapports avec photos pour la régie.', sub: 'conciergerie' },
       { name: 'Paysagistes et entretien d’espaces verts', text: 'Tonte, taille, aménagements et contrats annuels, du devis à la facture.', slug: 'paysagiste' },
-      { name: 'Déménageurs', text: 'Devis sur visite, équipes et véhicules planifiés, suppléments notés le jour même.' },
-      { name: 'Garages et entretien technique', text: 'Interventions, pièces et heures par client, factures QR sans ressaisie.' },
-      { name: 'Déneigement et services saisonniers', text: 'Interventions sur appel, heures par adresse et factures groupées en fin de mois.' },
+      { name: 'Déménageurs', text: 'Devis sur visite, équipes et véhicules planifiés, suppléments notés le jour même.', sub: 'demenageur' },
+      { name: 'Garages et entretien technique', text: 'Interventions, pièces et heures par client, factures QR sans ressaisie.', sub: 'garage' },
+      { name: 'Déneigement et services saisonniers', text: 'Interventions sur appel, heures par adresse et factures groupées en fin de mois.', sub: 'deneigement' },
     ],
     pains: [
       { title: 'Les heures arrivent sur papier en fin de mois', text: 'Les équipes notent ce qu’elles peuvent, le bureau reconstitue, et une partie du temps passé n’est jamais facturée.', answer: 'Chacun saisit ses heures sur son téléphone, par dossier et par type de travail. La facture reprend ce qui a été fait.' },
@@ -271,12 +272,12 @@ const FR: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Pour qui',
     forTitle: 'Les bureaux qui travaillent par mandat.',
     trades: [
-      { name: 'Bureaux d’ingénieurs civils', text: 'Études de structure, direction des travaux, expertises : le temps passé suivi phase par phase.' },
-      { name: 'Architectes', text: 'Avant-projets, mises à l’enquête et direction des travaux, documents et échanges réunis par mandat.' },
-      { name: 'Bureaux techniques CVC et électricité', text: 'Études, plans et suivi d’exécution, heures par collaborateur et par mandat.' },
-      { name: 'Géomètres', text: 'Relevés, piquetages et mensurations, interventions sur le terrain et facturation au temps.' },
-      { name: 'Conseillers et consultants', text: 'Missions au forfait ou au temps passé, offres signées et factures QR.' },
-      { name: 'Informaticiens et formateurs', text: 'Projets clients, heures par mandat, factures et relances sans outil à part.' },
+      { name: 'Bureaux d’ingénieurs civils', text: 'Études de structure, direction des travaux, expertises : le temps passé suivi phase par phase.', sub: 'ingenieur-civil' },
+      { name: 'Architectes', text: 'Avant-projets, mises à l’enquête et direction des travaux, documents et échanges réunis par mandat.', sub: 'architecte' },
+      { name: 'Bureaux techniques CVC et électricité', text: 'Études, plans et suivi d’exécution, heures par collaborateur et par mandat.', sub: 'bureau-technique' },
+      { name: 'Géomètres', text: 'Relevés, piquetages et mensurations, interventions sur le terrain et facturation au temps.', sub: 'geometre' },
+      { name: 'Conseillers et consultants', text: 'Missions au forfait ou au temps passé, offres signées et factures QR.', sub: 'consultant' },
+      { name: 'Informaticiens et formateurs', text: 'Projets clients, heures par mandat, factures et relances sans outil à part.', sub: 'informaticien-formateur' },
     ],
     pains: [
       { title: 'Le temps passé se reconstitue de mémoire', text: 'En fin de mois, chacun estime ses heures par mandat. Les honoraires facturés ne reflètent plus le travail réel.', answer: 'Chaque collaborateur saisit son temps par mandat et par type de travail. Vous facturez ce qui a été fait.' },
@@ -323,12 +324,12 @@ const FR: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Pour qui',
     forTitle: 'Les métiers qui livrent des projets.',
     trades: [
-      { name: 'Agences de communication', text: 'Offres par projet, heures de l’équipe, acomptes et factures QR.' },
-      { name: 'Graphistes et studios créatifs', text: 'Identités, sites et campagnes : chaque projet avec son offre, son temps et ses fichiers.' },
-      { name: 'Photographes et vidéastes', text: 'Mariages, entreprises et reportages : devis signé, acompte, livraison et solde.' },
-      { name: 'Traiteurs', text: 'Événements chiffrés au nombre d’invités, équipe planifiée, suppléments facturés.' },
-      { name: 'Organisateurs d’événements', text: 'Salons, soirées et séminaires : prestataires, planning et facturation au même endroit.' },
-      { name: 'Location de matériel et techniciens', text: 'Matériel, montage et techniciens planifiés par événement, factures sans ressaisie.' },
+      { name: 'Agences de communication', text: 'Offres par projet, heures de l’équipe, acomptes et factures QR.', sub: 'agence-communication' },
+      { name: 'Graphistes et studios créatifs', text: 'Identités, sites et campagnes : chaque projet avec son offre, son temps et ses fichiers.', sub: 'graphiste' },
+      { name: 'Photographes et vidéastes', text: 'Mariages, entreprises et reportages : devis signé, acompte, livraison et solde.', sub: 'photographe-videaste' },
+      { name: 'Traiteurs', text: 'Événements chiffrés au nombre d’invités, équipe planifiée, suppléments facturés.', sub: 'traiteur' },
+      { name: 'Organisateurs d’événements', text: 'Salons, soirées et séminaires : prestataires, planning et facturation au même endroit.', sub: 'organisateur-evenements' },
+      { name: 'Location de matériel et techniciens', text: 'Matériel, montage et techniciens planifiés par événement, factures sans ressaisie.', sub: 'location-materiel' },
     ],
     pains: [
       { title: 'L’offre change dix fois avant l’accord', text: 'Les versions circulent par e-mail, et personne ne sait plus laquelle le client a acceptée.', answer: 'L’offre est modifiée dans Cantia et le client signe la dernière version en ligne. Elle reste dans le projet.' },
@@ -423,12 +424,12 @@ const DE: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Für wen',
     forTitle: 'Die Berufe in Service und Unterhalt.',
     trades: [
-      { name: 'Reinigungsfirmen', text: 'Unterhaltsverträge, End- und Baureinigungen, Teams an mehreren Adressen.' },
-      { name: 'Hauswartung und Facility Management', text: 'Liegenschaften pro Verwaltung, kleine Einsätze, Rapporte mit Fotos für die Verwaltung.' },
+      { name: 'Reinigungsfirmen', text: 'Unterhaltsverträge, End- und Baureinigungen, Teams an mehreren Adressen.', sub: 'entreprise-nettoyage' },
+      { name: 'Hauswartung und Facility Management', text: 'Liegenschaften pro Verwaltung, kleine Einsätze, Rapporte mit Fotos für die Verwaltung.', sub: 'conciergerie' },
       { name: 'Gartenbau und Grünflächenpflege', text: 'Mähen, Schneiden, Gestaltung und Jahresverträge, von der Offerte bis zur Rechnung.', slug: 'paysagiste' },
-      { name: 'Umzugsfirmen', text: 'Offerte nach Besichtigung, geplante Teams und Fahrzeuge, Zuschläge am selben Tag erfasst.' },
-      { name: 'Garagen und technischer Unterhalt', text: 'Einsätze, Teile und Stunden pro Kunde, QR-Rechnungen ohne Abtippen.' },
-      { name: 'Winterdienst und Saisonarbeiten', text: 'Einsätze auf Abruf, Stunden pro Adresse und gesammelte Rechnungen am Monatsende.' },
+      { name: 'Umzugsfirmen', text: 'Offerte nach Besichtigung, geplante Teams und Fahrzeuge, Zuschläge am selben Tag erfasst.', sub: 'demenageur' },
+      { name: 'Garagen und technischer Unterhalt', text: 'Einsätze, Teile und Stunden pro Kunde, QR-Rechnungen ohne Abtippen.', sub: 'garage' },
+      { name: 'Winterdienst und Saisonarbeiten', text: 'Einsätze auf Abruf, Stunden pro Adresse und gesammelte Rechnungen am Monatsende.', sub: 'deneigement' },
     ],
     pains: [
       { title: 'Die Stunden kommen Ende Monat auf Papier', text: 'Die Teams notieren, was sie können, das Büro rekonstruiert, und ein Teil der Zeit wird nie verrechnet.', answer: 'Alle erfassen ihre Stunden auf dem Handy, pro Dossier und Tätigkeit. Die Rechnung übernimmt, was gemacht wurde.' },
@@ -475,12 +476,12 @@ const DE: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Für wen',
     forTitle: 'Die Büros, die nach Mandaten arbeiten.',
     trades: [
-      { name: 'Bauingenieurbüros', text: 'Tragwerksplanung, Bauleitung, Gutachten: die Zeit Phase für Phase erfasst.' },
-      { name: 'Architekturbüros', text: 'Vorprojekte, Baueingaben und Bauleitung, Dokumente und Austausch pro Mandat gebündelt.' },
-      { name: 'Fachplaner HLK und Elektro', text: 'Studien, Pläne und Ausführungsbegleitung, Stunden pro Mitarbeitende und Mandat.' },
-      { name: 'Geometer', text: 'Aufnahmen, Absteckungen und Vermessungen, Einsätze im Feld und Abrechnung nach Aufwand.' },
-      { name: 'Beraterinnen und Berater', text: 'Mandate pauschal oder nach Aufwand, unterschriebene Offerten und QR-Rechnungen.' },
-      { name: 'Informatik und Weiterbildung', text: 'Kundenprojekte, Stunden pro Mandat, Rechnungen und Mahnungen ohne separates Werkzeug.' },
+      { name: 'Bauingenieurbüros', text: 'Tragwerksplanung, Bauleitung, Gutachten: die Zeit Phase für Phase erfasst.', sub: 'ingenieur-civil' },
+      { name: 'Architekturbüros', text: 'Vorprojekte, Baueingaben und Bauleitung, Dokumente und Austausch pro Mandat gebündelt.', sub: 'architecte' },
+      { name: 'Fachplaner HLK und Elektro', text: 'Studien, Pläne und Ausführungsbegleitung, Stunden pro Mitarbeitende und Mandat.', sub: 'bureau-technique' },
+      { name: 'Geometer', text: 'Aufnahmen, Absteckungen und Vermessungen, Einsätze im Feld und Abrechnung nach Aufwand.', sub: 'geometre' },
+      { name: 'Beraterinnen und Berater', text: 'Mandate pauschal oder nach Aufwand, unterschriebene Offerten und QR-Rechnungen.', sub: 'consultant' },
+      { name: 'Informatik und Weiterbildung', text: 'Kundenprojekte, Stunden pro Mandat, Rechnungen und Mahnungen ohne separates Werkzeug.', sub: 'informaticien-formateur' },
     ],
     pains: [
       { title: 'Die Zeit wird aus dem Gedächtnis rekonstruiert', text: 'Ende Monat schätzt jede Person ihre Stunden pro Mandat. Die verrechneten Honorare spiegeln die echte Arbeit nicht mehr.', answer: 'Alle Mitarbeitenden erfassen ihre Zeit pro Mandat und Tätigkeit. Sie verrechnen, was gemacht wurde.' },
@@ -527,12 +528,12 @@ const DE: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Für wen',
     forTitle: 'Die Berufe, die Projekte liefern.',
     trades: [
-      { name: 'Kommunikationsagenturen', text: 'Offerten pro Projekt, Stunden des Teams, Akontos und QR-Rechnungen.' },
-      { name: 'Grafik- und Kreativstudios', text: 'Erscheinungsbilder, Websites und Kampagnen: jedes Projekt mit Offerte, Zeit und Dateien.' },
-      { name: 'Fotografen und Videografen', text: 'Hochzeiten, Unternehmen und Reportagen: unterschriebene Offerte, Akonto, Lieferung und Restzahlung.' },
-      { name: 'Caterer', text: 'Anlässe nach Gästezahl kalkuliert, Team geplant, Zusatzleistungen verrechnet.' },
-      { name: 'Eventveranstalter', text: 'Messen, Abende und Seminare: Dienstleister, Planung und Abrechnung am selben Ort.' },
-      { name: 'Materialvermietung und Technik', text: 'Material, Aufbau und Techniker pro Anlass geplant, Rechnungen ohne Abtippen.' },
+      { name: 'Kommunikationsagenturen', text: 'Offerten pro Projekt, Stunden des Teams, Akontos und QR-Rechnungen.', sub: 'agence-communication' },
+      { name: 'Grafik- und Kreativstudios', text: 'Erscheinungsbilder, Websites und Kampagnen: jedes Projekt mit Offerte, Zeit und Dateien.', sub: 'graphiste' },
+      { name: 'Fotografen und Videografen', text: 'Hochzeiten, Unternehmen und Reportagen: unterschriebene Offerte, Akonto, Lieferung und Restzahlung.', sub: 'photographe-videaste' },
+      { name: 'Caterer', text: 'Anlässe nach Gästezahl kalkuliert, Team geplant, Zusatzleistungen verrechnet.', sub: 'traiteur' },
+      { name: 'Eventveranstalter', text: 'Messen, Abende und Seminare: Dienstleister, Planung und Abrechnung am selben Ort.', sub: 'organisateur-evenements' },
+      { name: 'Materialvermietung und Technik', text: 'Material, Aufbau und Techniker pro Anlass geplant, Rechnungen ohne Abtippen.', sub: 'location-materiel' },
     ],
     pains: [
       { title: 'Die Offerte ändert sich zehnmal vor der Zusage', text: 'Die Versionen kreisen per E-Mail, und niemand weiss mehr, welche der Kunde angenommen hat.', answer: 'Die Offerte wird in Cantia angepasst, und der Kunde unterschreibt die letzte Version online. Sie bleibt im Projekt.' },
@@ -627,12 +628,12 @@ const IT: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Per chi',
     forTitle: 'I mestieri dei servizi e della manutenzione.',
     trades: [
-      { name: 'Imprese di pulizia', text: 'Contratti di manutenzione, pulizie di fine locazione e di fine cantiere, squadre su più indirizzi.' },
-      { name: 'Portinerie e facility management', text: 'Stabili seguiti per amministrazione, piccoli interventi, rapporti con foto per l’amministrazione.' },
+      { name: 'Imprese di pulizia', text: 'Contratti di manutenzione, pulizie di fine locazione e di fine cantiere, squadre su più indirizzi.', sub: 'entreprise-nettoyage' },
+      { name: 'Portinerie e facility management', text: 'Stabili seguiti per amministrazione, piccoli interventi, rapporti con foto per l’amministrazione.', sub: 'conciergerie' },
       { name: 'Giardinieri e manutenzione del verde', text: 'Taglio erba, potature, sistemazioni e contratti annuali, dal preventivo alla fattura.', slug: 'paysagiste' },
-      { name: 'Ditte di traslochi', text: 'Preventivo dopo sopralluogo, squadre e veicoli pianificati, supplementi registrati il giorno stesso.' },
-      { name: 'Garage e manutenzione tecnica', text: 'Interventi, pezzi e ore per cliente, fatture QR senza ribattere nulla.' },
-      { name: 'Sgombero neve e servizi stagionali', text: 'Interventi su chiamata, ore per indirizzo e fatture raggruppate a fine mese.' },
+      { name: 'Ditte di traslochi', text: 'Preventivo dopo sopralluogo, squadre e veicoli pianificati, supplementi registrati il giorno stesso.', sub: 'demenageur' },
+      { name: 'Garage e manutenzione tecnica', text: 'Interventi, pezzi e ore per cliente, fatture QR senza ribattere nulla.', sub: 'garage' },
+      { name: 'Sgombero neve e servizi stagionali', text: 'Interventi su chiamata, ore per indirizzo e fatture raggruppate a fine mese.', sub: 'deneigement' },
     ],
     pains: [
       { title: 'Le ore arrivano su carta a fine mese', text: 'Le squadre annotano ciò che possono, l’ufficio ricostruisce e una parte del tempo non viene mai fatturata.', answer: 'Ognuno registra le ore sul telefono, per dossier e tipo di lavoro. La fattura riprende ciò che è stato fatto.' },
@@ -679,12 +680,12 @@ const IT: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Per chi',
     forTitle: 'Gli studi che lavorano per mandato.',
     trades: [
-      { name: 'Studi d’ingegneria civile', text: 'Studi strutturali, direzione lavori, perizie: il tempo seguito fase per fase.' },
-      { name: 'Architetti', text: 'Progetti di massima, domande di costruzione e direzione lavori, documenti e scambi riuniti per mandato.' },
-      { name: 'Studi tecnici RVCS ed elettricità', text: 'Studi, piani e accompagnamento dell’esecuzione, ore per collaboratore e per mandato.' },
-      { name: 'Geometri', text: 'Rilievi, picchettamenti e misurazioni, interventi sul terreno e fatturazione a ore.' },
-      { name: 'Consulenti', text: 'Mandati a forfait o a ore, offerte firmate e fatture QR.' },
-      { name: 'Informatici e formatori', text: 'Progetti clienti, ore per mandato, fatture e solleciti senza strumenti a parte.' },
+      { name: 'Studi d’ingegneria civile', text: 'Studi strutturali, direzione lavori, perizie: il tempo seguito fase per fase.', sub: 'ingenieur-civil' },
+      { name: 'Architetti', text: 'Progetti di massima, domande di costruzione e direzione lavori, documenti e scambi riuniti per mandato.', sub: 'architecte' },
+      { name: 'Studi tecnici RVCS ed elettricità', text: 'Studi, piani e accompagnamento dell’esecuzione, ore per collaboratore e per mandato.', sub: 'bureau-technique' },
+      { name: 'Geometri', text: 'Rilievi, picchettamenti e misurazioni, interventi sul terreno e fatturazione a ore.', sub: 'geometre' },
+      { name: 'Consulenti', text: 'Mandati a forfait o a ore, offerte firmate e fatture QR.', sub: 'consultant' },
+      { name: 'Informatici e formatori', text: 'Progetti clienti, ore per mandato, fatture e solleciti senza strumenti a parte.', sub: 'informaticien-formateur' },
     ],
     pains: [
       { title: 'Il tempo si ricostruisce a memoria', text: 'A fine mese ognuno stima le sue ore per mandato. Gli onorari fatturati non riflettono più il lavoro reale.', answer: 'Ogni collaboratore registra il suo tempo per mandato e tipo di lavoro. Fattura ciò che è stato fatto.' },
@@ -731,12 +732,12 @@ const IT: Record<SectorKey, SectorCopy> = {
     forEyebrow: 'Per chi',
     forTitle: 'I mestieri che consegnano progetti.',
     trades: [
-      { name: 'Agenzie di comunicazione', text: 'Offerte per progetto, ore della squadra, acconti e fatture QR.' },
-      { name: 'Grafici e studi creativi', text: 'Identità, siti e campagne: ogni progetto con la sua offerta, il suo tempo e i suoi file.' },
-      { name: 'Fotografi e videomaker', text: 'Matrimoni, aziende e reportage: preventivo firmato, acconto, consegna e saldo.' },
-      { name: 'Catering', text: 'Eventi calcolati sul numero di ospiti, squadra pianificata, extra fatturati.' },
-      { name: 'Organizzatori di eventi', text: 'Fiere, serate e seminari: fornitori, programma e fatturazione nello stesso posto.' },
-      { name: 'Noleggio materiale e tecnici', text: 'Materiale, montaggio e tecnici pianificati per evento, fatture senza ribattere nulla.' },
+      { name: 'Agenzie di comunicazione', text: 'Offerte per progetto, ore della squadra, acconti e fatture QR.', sub: 'agence-communication' },
+      { name: 'Grafici e studi creativi', text: 'Identità, siti e campagne: ogni progetto con la sua offerta, il suo tempo e i suoi file.', sub: 'graphiste' },
+      { name: 'Fotografi e videomaker', text: 'Matrimoni, aziende e reportage: preventivo firmato, acconto, consegna e saldo.', sub: 'photographe-videaste' },
+      { name: 'Catering', text: 'Eventi calcolati sul numero di ospiti, squadra pianificata, extra fatturati.', sub: 'traiteur' },
+      { name: 'Organizzatori di eventi', text: 'Fiere, serate e seminari: fornitori, programma e fatturazione nello stesso posto.', sub: 'organisateur-evenements' },
+      { name: 'Noleggio materiale e tecnici', text: 'Materiale, montaggio e tecnici pianificati per evento, fatture senza ribattere nulla.', sub: 'location-materiel' },
     ],
     pains: [
       { title: 'L’offerta cambia dieci volte prima dell’accordo', text: 'Le versioni girano per e-mail e nessuno sa più quale il cliente ha accettato.', answer: 'L’offerta viene modificata in Cantia e il cliente firma l’ultima versione online. Resta nel progetto.' },

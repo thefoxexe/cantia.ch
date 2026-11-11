@@ -1568,6 +1568,171 @@
   from = "/it/ressources"
   to = "/it/ressources.html"
   status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien/entreprise-nettoyage"
+  to = "/metiers/service-entretien/entreprise-nettoyage.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien/conciergerie"
+  to = "/metiers/service-entretien/conciergerie.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien/demenageur"
+  to = "/metiers/service-entretien/demenageur.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien/garage"
+  to = "/metiers/service-entretien/garage.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/service-entretien/deneigement"
+  to = "/metiers/service-entretien/deneigement.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien/entreprise-nettoyage"
+  to = "/de/metiers/service-entretien/entreprise-nettoyage.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien/conciergerie"
+  to = "/de/metiers/service-entretien/conciergerie.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien/demenageur"
+  to = "/de/metiers/service-entretien/demenageur.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien/garage"
+  to = "/de/metiers/service-entretien/garage.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/service-entretien/deneigement"
+  to = "/de/metiers/service-entretien/deneigement.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien/entreprise-nettoyage"
+  to = "/it/metiers/service-entretien/entreprise-nettoyage.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien/conciergerie"
+  to = "/it/metiers/service-entretien/conciergerie.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien/demenageur"
+  to = "/it/metiers/service-entretien/demenageur.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien/garage"
+  to = "/it/metiers/service-entretien/garage.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/service-entretien/deneigement"
+  to = "/it/metiers/service-entretien/deneigement.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/ingenieur-civil"
+  to = "/metiers/bureaux-etudes/ingenieur-civil.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/architecte"
+  to = "/metiers/bureaux-etudes/architecte.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/bureau-technique"
+  to = "/metiers/bureaux-etudes/bureau-technique.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/geometre"
+  to = "/metiers/bureaux-etudes/geometre.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/consultant"
+  to = "/metiers/bureaux-etudes/consultant.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers/bureaux-etudes/informaticien-formateur"
+  to = "/metiers/bureaux-etudes/informaticien-formateur.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/ingenieur-civil"
+  to = "/de/metiers/bureaux-etudes/ingenieur-civil.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/architecte"
+  to = "/de/metiers/bureaux-etudes/architecte.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/bureau-technique"
+  to = "/de/metiers/bureaux-etudes/bureau-technique.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/geometre"
+  to = "/de/metiers/bureaux-etudes/geometre.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/consultant"
+  to = "/de/metiers/bureaux-etudes/consultant.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/metiers/bureaux-etudes/informaticien-formateur"
+  to = "/de/metiers/bureaux-etudes/informaticien-formateur.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/ingenieur-civil"
+  to = "/it/metiers/bureaux-etudes/ingenieur-civil.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/architecte"
+  to = "/it/metiers/bureaux-etudes/architecte.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/bureau-technique"
+  to = "/it/metiers/bureaux-etudes/bureau-technique.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/geometre"
+  to = "/it/metiers/bureaux-etudes/geometre.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/consultant"
+  to = "/it/metiers/bureaux-etudes/consultant.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/metiers/bureaux-etudes/informaticien-formateur"
+  to = "/it/metiers/bureaux-etudes/informaticien-formateur.html"
+  status = 200
 # END generated routes
 
 # Content triage (docs/seo-tri-contenu.md): merged articles, German slugs and
@@ -2356,13 +2521,13 @@
 
 [[redirects]]
   from = "/conciergerie"
-  to = "/metiers/service-entretien"
+  to = "/metiers/service-entretien/conciergerie"
   status = 301
   force = true
 
 [[redirects]]
   from = "/consultant"
-  to = "/metiers/bureaux-etudes"
+  to = "/metiers/bureaux-etudes/consultant"
   status = 301
   force = true
 
@@ -3538,37 +3703,37 @@
 
 [[redirects]]
   from = "/de/conciergerie"
-  to = "/de/metiers/service-entretien"
+  to = "/de/metiers/service-entretien/conciergerie"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/consultant"
-  to = "/de/metiers/bureaux-etudes"
+  to = "/de/metiers/bureaux-etudes/consultant"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/demenageur"
-  to = "/de/metiers/service-entretien"
+  to = "/de/metiers/service-entretien/demenageur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/entreprise-nettoyage"
-  to = "/de/metiers/service-entretien"
+  to = "/de/metiers/service-entretien/entreprise-nettoyage"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/formateur"
-  to = "/de/metiers/bureaux-etudes"
+  to = "/de/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/garagiste"
-  to = "/de/metiers/service-entretien"
+  to = "/de/metiers/service-entretien/garage"
   status = 301
   force = true
 
@@ -3580,7 +3745,7 @@
 
 [[redirects]]
   from = "/de/informaticien"
-  to = "/de/metiers/bureaux-etudes"
+  to = "/de/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
@@ -3598,25 +3763,25 @@
 
 [[redirects]]
   from = "/demenageur"
-  to = "/metiers/service-entretien"
+  to = "/metiers/service-entretien/demenageur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/entreprise-nettoyage"
-  to = "/metiers/service-entretien"
+  to = "/metiers/service-entretien/entreprise-nettoyage"
   status = 301
   force = true
 
 [[redirects]]
   from = "/formateur"
-  to = "/metiers/bureaux-etudes"
+  to = "/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/garagiste"
-  to = "/metiers/service-entretien"
+  to = "/metiers/service-entretien/garage"
   status = 301
   force = true
 
@@ -3628,7 +3793,7 @@
 
 [[redirects]]
   from = "/informaticien"
-  to = "/metiers/bureaux-etudes"
+  to = "/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
@@ -4816,37 +4981,37 @@
 
 [[redirects]]
   from = "/it/conciergerie"
-  to = "/it/metiers/service-entretien"
+  to = "/it/metiers/service-entretien/conciergerie"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/consultant"
-  to = "/it/metiers/bureaux-etudes"
+  to = "/it/metiers/bureaux-etudes/consultant"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/demenageur"
-  to = "/it/metiers/service-entretien"
+  to = "/it/metiers/service-entretien/demenageur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/entreprise-nettoyage"
-  to = "/it/metiers/service-entretien"
+  to = "/it/metiers/service-entretien/entreprise-nettoyage"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/formateur"
-  to = "/it/metiers/bureaux-etudes"
+  to = "/it/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/garagiste"
-  to = "/it/metiers/service-entretien"
+  to = "/it/metiers/service-entretien/garage"
   status = 301
   force = true
 
@@ -4858,7 +5023,7 @@
 
 [[redirects]]
   from = "/it/informaticien"
-  to = "/it/metiers/bureaux-etudes"
+  to = "/it/metiers/bureaux-etudes/informaticien-formateur"
   status = 301
   force = true
 
