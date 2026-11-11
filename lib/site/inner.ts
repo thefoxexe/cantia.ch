@@ -48,6 +48,11 @@ export interface InnerCopy {
     calloutStrong: string;
     callout: string;
     calloutLink: string;
+    partnersEyebrow: string;
+    partnersPlain: string;
+    partnersAccent: string;
+    partnersText: string;
+    partners: { label: string; title: string; text: string; link: string; href: string }[];
   };
   app: Hero & {
     open: string;
@@ -154,6 +159,14 @@ const fr: InnerCopy = {
     calloutStrong: 'Vous utilisez Bexio ?',
     callout: 'Cantia peut se connecter à vos données clients, factures et paiements.',
     calloutLink: 'Voir l’intégration Bexio',
+    partnersEyebrow: 'Partenaires',
+    partnersPlain: 'Ils accompagnent les entreprises.',
+    partnersAccent: 'Et recommandent Cantia.',
+    partnersText: 'Des entreprises qui conseillent les PME au quotidien et peuvent leur proposer Cantia au bon moment.',
+    partners: [
+      { label: 'Agence web', title: 'Webalp', text: 'Webalp accompagne les entreprises dans leur présence sur le web. Lorsqu’une entreprise met en place son site, Webalp peut lui recommander Cantia pour ses devis, ses projets et ses factures.', link: 'Visiter webalp.ch', href: 'https://webalp.ch' },
+      { label: 'Devenir partenaire', title: 'Vous accompagnez\ndes entreprises ?', text: 'Agence, conseil, fournisseur ou association professionnelle : recommandez Cantia à vos clients avec Cantia Partners.', link: 'Découvrir le programme', href: 'https://partners.cantia.ch' },
+    ],
   },
   app: {
     seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
@@ -294,6 +307,14 @@ const de: InnerCopy = {
     calloutStrong: 'Sie nutzen Bexio?',
     callout: 'Cantia kann sich mit Ihren Kunden-, Rechnungs- und Zahlungsdaten verbinden.',
     calloutLink: 'Die Bexio-Integration ansehen',
+    partnersEyebrow: 'Partner',
+    partnersPlain: 'Sie begleiten Unternehmen.',
+    partnersAccent: 'Und empfehlen Cantia.',
+    partnersText: 'Unternehmen, die KMU im Alltag beraten und ihnen Cantia im richtigen Moment vorschlagen können.',
+    partners: [
+      { label: 'Webagentur', title: 'Webalp', text: 'Webalp begleitet Unternehmen bei ihrem Auftritt im Web. Wenn ein Unternehmen seine Website aufbaut, kann Webalp ihm Cantia für Offerten, Projekte und Rechnungen empfehlen.', link: 'webalp.ch besuchen', href: 'https://webalp.ch' },
+      { label: 'Partner werden', title: 'Sie begleiten\nUnternehmen?', text: 'Agentur, Beratung, Lieferant oder Berufsverband: Empfehlen Sie Cantia Ihren Kunden mit Cantia Partners.', link: 'Das Programm entdecken', href: 'https://partners.cantia.ch/de' },
+    ],
   },
   app: {
     seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
@@ -434,6 +455,14 @@ const it: InnerCopy = {
     calloutStrong: 'Usate Bexio?',
     callout: 'Cantia può collegarsi ai vostri dati di clienti, fatture e pagamenti.',
     calloutLink: 'Vedere l’integrazione Bexio',
+    partnersEyebrow: 'Partner',
+    partnersPlain: 'Accompagnano le aziende.',
+    partnersAccent: 'E raccomandano Cantia.',
+    partnersText: 'Aziende che consigliano le PMI ogni giorno e possono proporre loro Cantia al momento giusto.',
+    partners: [
+      { label: 'Agenzia web', title: 'Webalp', text: 'Webalp accompagna le aziende nella loro presenza sul web. Quando un’azienda realizza il suo sito, Webalp può raccomandarle Cantia per preventivi, progetti e fatture.', link: 'Visitare webalp.ch', href: 'https://webalp.ch' },
+      { label: 'Diventare partner', title: 'Accompagnate\ndelle aziende?', text: 'Agenzia, consulenza, fornitore o associazione professionale: raccomandate Cantia ai vostri clienti con Cantia Partners.', link: 'Scoprire il programma', href: 'https://partners.cantia.ch/it' },
+    ],
   },
   app: {
     seoTitle: 'Cantia su computer e telefono | Cantia',

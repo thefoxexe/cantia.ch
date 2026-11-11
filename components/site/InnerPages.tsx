@@ -229,6 +229,14 @@ export function EcosystemPage() {
           <Callout strong={c.calloutStrong} text={c.callout} link={<TextLink label={c.calloutLink} href={href('integrations')} />} />
         </View>
       </Section>
+      <Section>
+        <SectionHead eyebrow={c.partnersEyebrow} plain={c.partnersPlain} accent={c.partnersAccent} text={c.partnersText} />
+        <Grid cols={2}>
+          {c.partners.map((s, i) => (
+            <Card key={s.title} icon={(['globe', 'share-2'] as IconName[])[i]} label={s.label} title={s.title} text={s.text} link={<TextLink label={s.link} href={s.href} />} />
+          ))}
+        </Grid>
+      </Section>
     </SitePage>
   );
 }
