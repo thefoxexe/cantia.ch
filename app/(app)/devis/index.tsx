@@ -7,7 +7,7 @@ import { devisSubtotals } from '../../../lib/api/subtotals';
 import { supabase } from '../../../lib/supabase';
 import { confirm } from '../../../lib/confirm';
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../lib/api/integrations';
-import { Card, EmptyState, HeaderAction, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
+import { Card, EmptyState, HeaderAction, LoadingScreen, PageHeader, AppScreen, StatusBadge, ChipRow } from '../../../components/ui';
 import { RowActionMenu } from '../../../components/RowActionMenu';
 import { PageSettings } from '../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../lib/translations';
@@ -281,12 +281,12 @@ export default function DevisListScreen() {
         ) : (
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {!openProject ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kpiGrid}>
+              <View style={[styles.kpiGrid, { flexDirection: 'row', flexWrap: 'wrap' }]}>
                 <KpiTile label={t('devisList.kpiPending')} amount={kpis.sentSum} count={kpis.sentCount} tone="primary" icon="clock" />
                 <KpiTile label={t('devisList.kpiAccepted')} amount={kpis.acceptedSum} tone="success" icon="check-circle" />
                 <KpiTile label={t('devisList.kpiRefused')} count={kpis.refusedCount} tone="danger" icon="x-circle" hideAmount />
                 <KpiTile label={t('devisList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
-              </ScrollView>
+              </View>
             ) : null}
             {!openProject && devisList.length > 0 ? (
               <>
@@ -306,7 +306,7 @@ export default function DevisListScreen() {
                     </Pressable>
                   ) : null}
                 </View>
-                <View style={styles.filterRow}>
+                <ChipRow style={styles.filterRow}>
                   {statusFilters.map((f) => (
                     <Pressable key={f.key} onPress={() => setFilter(f.key)} style={[styles.filterChip, filter === f.key && styles.filterChipActive]}>
                       <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>
@@ -314,7 +314,7 @@ export default function DevisListScreen() {
                       </Text>
                     </Pressable>
                   ))}
-                </View>
+                </ChipRow>
               </>
             ) : null}
             {!openProject && filtering ? (

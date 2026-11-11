@@ -9,7 +9,7 @@ import { sendFactureReminder, recomputeFactureDepositDeduction, addLateFeeToFact
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../../lib/api/integrations';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
-import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge, HeaderAction } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge, HeaderAction, ChipRow } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { PageSettings } from '../../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../../lib/translations';
@@ -466,12 +466,12 @@ export default function FacturesListScreen() {
           <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl, gap: spacing.md }} showsVerticalScrollIndicator={false}>
             {!openProject ? (
               <View style={{ gap: spacing.md }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kpiGrid}>
+                <View style={[styles.kpiGrid, { flexDirection: 'row', flexWrap: 'wrap' }]}>
                   <KpiTile label={t('facturesList.kpiOverdue')} amount={kpis.overdueSum} count={kpis.overdueCount} tone="danger" icon="alert-triangle" />
                   <KpiTile label={t('facturesList.kpiPending')} amount={kpis.pendingSum} count={kpis.pendingCount} tone="primary" icon="clock" />
                   <KpiTile label={t('facturesList.kpiPaidThisMonth')} amount={kpis.paidSum} tone="success" icon="check-circle" />
                   <KpiTile label={t('facturesList.kpiDraft')} count={kpis.draftCount} tone="muted" icon="file-text" hideAmount />
-                </ScrollView>
+                </View>
 
                 <View style={styles.searchRow}>
                   <Feather name="search" size={15} color={colors.textMuted} />
@@ -501,7 +501,7 @@ export default function FacturesListScreen() {
               </View>
             ) : null}
 
-            <View style={styles.filterRow}>
+            <ChipRow style={styles.filterRow}>
               {filters.map((f) => (
                 <Pressable key={f.key} onPress={() => setFilter(f.key)} style={[styles.filterChip, filter === f.key && styles.filterChipActive]}>
                   <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>
@@ -509,16 +509,16 @@ export default function FacturesListScreen() {
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </ChipRow>
 
-            <View style={styles.sortRow}>
+            <ChipRow style={styles.sortRow}>
               <Text style={styles.sortLabel}>{t('facturesList.sortLabel')}</Text>
               {SORTS.map((s) => (
                 <Pressable key={s.key} onPress={() => setSort(s.key)} style={[styles.sortChip, sort === s.key && styles.sortChipActive]}>
                   <Text style={[styles.sortChipText, sort === s.key && styles.sortChipTextActive]}>{t(s.labelKey)}</Text>
                 </Pressable>
               ))}
-            </View>
+            </ChipRow>
 
             {reminderError ? <Text style={styles.reminderError}>{reminderError}</Text> : null}
 

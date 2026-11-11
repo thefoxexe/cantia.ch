@@ -5,7 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listClients } from '../../../lib/api/clients';
 import { listSubcontractors } from '../../../lib/api/subcontractors';
-import { Card, EmptyState, HeaderAction, PageHeader, AppScreen } from '../../../components/ui';
+import { Card, EmptyState, HeaderAction, PageHeader, AppScreen, ChipRow } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { ClientType } from '../../../lib/types';
@@ -133,7 +133,7 @@ export default function ClientsListScreen() {
         </View>
 
         {filters.length > 1 ? (
-          <View style={styles.filterRow}>
+          <ChipRow style={styles.filterRow}>
             {filters.map((f) => (
               <Pressable
                 key={f.key}
@@ -143,7 +143,7 @@ export default function ClientsListScreen() {
                 <Text style={[styles.filterChipText, filter === f.key && styles.filterChipTextActive]}>{f.label}</Text>
               </Pressable>
             ))}
-          </View>
+          </ChipRow>
         ) : null}
 
         <FlatList

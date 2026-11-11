@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +39,7 @@ const ALL_ACTIONS: Exclude<VoiceCommandAction, 'unknown'>[] = ['payroll_entry', 
 // by re-dictating.
 export function VoiceAssistant() {
   const { t } = useTranslation();
+  const { width: windowWidth } = useWindowDimensions();
   const { organization, user, canViewFinances, canManageDevis } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -371,16 +372,19 @@ export function VoiceAssistant() {
   }
 
   const recording = dictation.listening;
+  const phoneFab = windowWidth < 640;
   const busy = dictation.transcribing || stage === 'routing';
 
   return (
     <>
       <Pressable
         onPress={openAssistant}
-        style={[styles.fab, { bottom: insets.bottom + spacing.lg }]}
+        // Smaller and tucked closer to the corner on a phone, where it sat on
+        // top of the last line of every list.
+        style={[styles.fab, { bottom: insets.bottom + (phoneFab ? spacing.md : spacing.lg) }, phoneFab && styles.fabPhone]}
         accessibilityLabel={t('voiceAssistant.title')}
       >
-        <Feather name="mic" size={22} color="#fff" />
+        <Feather name="mic" size={phoneFab ? 19 : 22} color="#fff" />
       </Pressable>
 
       <Modal visible={open} animationType="fade" transparent onRequestClose={resetAndClose}>
@@ -828,6 +832,7 @@ function DevisFactureConfirm({
 }
 
 const styles = StyleSheet.create({
+  fabPhone: { width: 46, height: 46, right: spacing.md },
   fab: {
     position: 'absolute',
     right: spacing.lg,

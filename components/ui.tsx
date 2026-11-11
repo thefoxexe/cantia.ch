@@ -6,6 +6,7 @@ import {
   Image,
   Platform,
   Pressable,
+  ScrollView,
   StyleProp,
   StyleSheet,
   Text,
@@ -248,6 +249,27 @@ export function HeaderAction({
       {icon ? <Feather name={icon} size={15} color={primary ? '#fff' : colors.text} /> : null}
       <Text style={[styles.headerActionText, !primary && { color: colors.text }]} numberOfLines={1}>{title}</Text>
     </Pressable>
+  );
+}
+
+// A row of filter chips: wraps on a computer, scrolls sideways on a phone so
+// it stays one line high above the list.
+export function ChipRow({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  const [w, setW] = useState(0);
+  const narrow = w > 0 && w < 560;
+  if (narrow) {
+    return (
+      <View onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[style, { flexDirection: 'row', flexWrap: 'nowrap', gap: spacing.xs, paddingRight: spacing.lg }]}>
+          {children}
+        </ScrollView>
+      </View>
+    );
+  }
+  return (
+    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={[{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }, style]}>
+      {children}
+    </View>
   );
 }
 
