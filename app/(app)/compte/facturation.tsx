@@ -111,6 +111,7 @@ export default function FacturationScreen() {
   }
 
   async function continueToCancel() {
+    if (!cancelReason) return;
     setShowCancelReason(false);
     if (organization && user) await saveCancellationReason(organization.id, user.id, cancelReason, cancelComment);
     goToPortal('cancel');
@@ -301,7 +302,7 @@ export default function FacturationScreen() {
               maxLength={2000}
               style={styles.reasonInput}
             />
-            <Button title={t('facturationSettings.cancelReasonContinue')} variant="secondary" onPress={continueToCancel} />
+            <Button title={t('facturationSettings.cancelReasonContinue')} variant="secondary" onPress={continueToCancel} disabled={!cancelReason} />
             <Button title={t('facturationSettings.cancelReasonBack')} onPress={() => setShowCancelReason(false)} />
           </View>
         </View>

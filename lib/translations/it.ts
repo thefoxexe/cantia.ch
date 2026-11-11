@@ -1287,7 +1287,7 @@ export const it: TranslationDict = {
     cancelSubscription: 'Disdici il mio abbonamento',
     cancelSubscriptionHint: 'Annulla direttamente su Stripe',
     cancelReasonTitle: 'Prima di andare',
-    cancelReasonText: 'Perché disdice? La sua risposta viene letta da Bastien e serve a migliorare Cantia. È facoltativa.',
+    cancelReasonText: 'Perché disdice?',
     cancelReasons: {
       too_expensive: 'È troppo caro per noi',
       missing_feature: 'Manca una funzione che mi serve',
@@ -1298,7 +1298,7 @@ export const it: TranslationDict = {
       seasonal: 'Tornerò la prossima stagione',
       other: 'Altro motivo',
     },
-    cancelReasonCommentPlaceholder: 'Qualcosa da aggiungere? (facoltativo)',
+    cancelReasonCommentPlaceholder: 'Un’osservazione? (facoltativo)',
     cancelReasonContinue: 'Continua con la disdetta',
     cancelReasonBack: 'Mantenere l’abbonamento',
   },

@@ -1279,7 +1279,7 @@ export const de: TranslationDict = {
     cancelSubscription: 'Abonnement kündigen',
     cancelSubscriptionHint: 'Direkt bei Stripe kündigen',
     cancelReasonTitle: 'Bevor Sie gehen',
-    cancelReasonText: 'Warum kündigen Sie? Ihre Antwort wird von Bastien gelesen und hilft, Cantia zu verbessern. Sie ist freiwillig.',
+    cancelReasonText: 'Warum kündigen Sie?',
     cancelReasons: {
       too_expensive: 'Es ist uns zu teuer',
       missing_feature: 'Es fehlt eine Funktion, die ich brauche',
@@ -1290,7 +1290,7 @@ export const de: TranslationDict = {
       seasonal: 'Ich komme in der nächsten Saison wieder',
       other: 'Anderer Grund',
     },
-    cancelReasonCommentPlaceholder: 'Noch ein Wort? (freiwillig)',
+    cancelReasonCommentPlaceholder: 'Eine Bemerkung? (freiwillig)',
     cancelReasonContinue: 'Weiter zur Kündigung',
     cancelReasonBack: 'Abo behalten',
   },

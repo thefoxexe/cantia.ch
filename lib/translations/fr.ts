@@ -1265,7 +1265,7 @@ export const fr = {
     cancelSubscription: 'Résilier mon abonnement',
     cancelSubscriptionHint: 'Annuler directement sur Stripe',
     cancelReasonTitle: 'Avant de partir',
-    cancelReasonText: 'Qu’est-ce qui vous fait résilier ? Votre réponse est lue par Bastien et sert à améliorer Cantia. Elle est facultative.',
+    cancelReasonText: 'Pourquoi résiliez-vous ?',
     cancelReasons: {
       too_expensive: 'C’est trop cher pour nous',
       missing_feature: 'Il manque une fonction dont j’ai besoin',
@@ -1276,7 +1276,7 @@ export const fr = {
       seasonal: 'Je reviendrai à la prochaine saison',
       other: 'Autre raison',
     },
-    cancelReasonCommentPlaceholder: 'Un mot de plus ? (facultatif)',
+    cancelReasonCommentPlaceholder: 'Une remarque ? (facultatif)',
     cancelReasonContinue: 'Continuer vers la résiliation',
     cancelReasonBack: 'Garder mon abonnement',
   },
