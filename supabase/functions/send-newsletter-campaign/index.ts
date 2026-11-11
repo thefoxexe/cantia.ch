@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { cleanVariants, loadRecipients, renderFor, type Locale } from '../_shared/campaign-render.ts';
+import { appendExternal, cleanExternal, cleanVariants, loadRecipients, renderFor, type Locale } from '../_shared/campaign-render.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -101,16 +101,7 @@ Deno.serve(async (req: Request) => {
     // Addresses typed by hand in the composer (people without a Cantia
     // account, e.g. a fiduciary to invite): sent as they are, in the language
     // given, at most 200 per send.
-    const EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]{2,}$/;
-    const external = (Array.isArray(externalRecipients) ? externalRecipients : [])
-      .map((r: any) => ({
-        email: String(r?.email ?? '').trim().toLowerCase(),
-        fullName: String(r?.name ?? '').trim().slice(0, 120),
-        company: String(r?.company ?? '').trim().slice(0, 160),
-        locale: (r?.locale === 'de' || r?.locale === 'it' ? r.locale : 'fr') as Locale,
-      }))
-      .filter((r: { email: string }) => EMAIL_RE.test(r.email))
-      .slice(0, 200);
+    const external = cleanExternal(externalRecipients);
     const targetIds: string[] = Array.isArray(userIds) ? userIds : [];
     if (targetIds.length === 0 && external.length === 0) return json({ error: 'Aucun destinataire sélectionné.' }, 400);
 
@@ -134,12 +125,7 @@ Deno.serve(async (req: Request) => {
     const recipients = finalIds.length ? await loadRecipients(admin, finalIds) : new Map();
     const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
     const skipped = targetIds.length - list.length;
-    const known = new Set(list.map((r) => r.email.toLowerCase()));
-    for (const e of external) {
-      if (known.has(e.email)) continue;
-      known.add(e.email);
-      list.push({ userId: `external:${e.email}`, email: e.email, fullName: e.fullName, firstName: e.fullName.split(/\s+/)[0] ?? '', company: e.company, planId: null, locale: e.locale });
-    }
+    appendExternal(list, external);
 
     // 5 at a time: Resend rate-limits per second, and a burst of 20 parallel
     // calls can come back 429 for most of them.

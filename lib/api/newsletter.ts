@@ -97,6 +97,8 @@ export interface ScheduledCampaign {
   created_at: string;
   variants?: LangVariants | null;
   audience_label?: string | null;
+  // Addresses without a Cantia account (20261111200000 migration).
+  external_recipients?: { email: string; name?: string; company?: string; locale?: string }[] | null;
 }
 
 // Freezes the recipient list at scheduling time — the same array the
@@ -196,7 +198,23 @@ export async function scheduleNewsletterSendV2(params: {
   scheduledAt: string;
   variants: LangVariants | null;
   audienceLabel: string | null;
+  externalRecipients?: { email: string; name?: string; company?: string; locale?: string }[];
 }): Promise<{ id: string | null; error: string | null }> {
+  // With addresses outside Cantia: v3, which stores them with the schedule.
+  if (params.externalRecipients?.length) {
+    const { data, error } = await supabase.rpc('admin_schedule_newsletter_send_v3', {
+      p_subject: params.subject,
+      p_html: params.html,
+      p_user_ids: params.userIds,
+      p_from_persona: params.fromPersona,
+      p_include_unsubscribed: params.includeUnsubscribed,
+      p_scheduled_at: params.scheduledAt,
+      p_variants: params.variants,
+      p_audience_label: params.audienceLabel,
+      p_external_recipients: params.externalRecipients,
+    });
+    return { id: error ? null : (data as string), error: error?.message ?? null };
+  }
   const { data, error } = await supabase.rpc('admin_schedule_newsletter_send_v2', {
     p_subject: params.subject,
     p_html: params.html,

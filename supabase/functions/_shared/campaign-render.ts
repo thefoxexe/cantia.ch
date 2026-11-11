@@ -125,6 +125,44 @@ export async function loadRecipients(admin: SupabaseClient, userIds: string[]): 
   return out;
 }
 
+// Addresses typed in the composer for people without a Cantia account
+// (prospects, fiduciaries to invite): cleaned, at most 200, in the language
+// given (French otherwise).
+const EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]{2,}$/;
+export const MAX_EXTERNAL = 200;
+export function cleanExternal(raw: unknown): Recipient[] {
+  const out: Recipient[] = [];
+  const seen = new Set<string>();
+  for (const r of Array.isArray(raw) ? raw : []) {
+    const email = String((r as any)?.email ?? '').trim().toLowerCase();
+    if (!EMAIL_RE.test(email) || seen.has(email)) continue;
+    seen.add(email);
+    const fullName = String((r as any)?.name ?? '').trim().slice(0, 120);
+    out.push({
+      userId: `external:${email}`,
+      email,
+      fullName,
+      firstName: fullName.split(/\s+/)[0] ?? '',
+      company: String((r as any)?.company ?? '').trim().slice(0, 160),
+      planId: null,
+      locale: asLocale((r as any)?.locale),
+    });
+    if (out.length >= MAX_EXTERNAL) break;
+  }
+  return out;
+}
+
+// The external addresses not already in the list (same e-mail as an
+// account), appended to it.
+export function appendExternal(list: Recipient[], external: Recipient[]): void {
+  const known = new Set(list.map((r) => r.email.toLowerCase()));
+  for (const e of external) {
+    if (known.has(e.email)) continue;
+    known.add(e.email);
+    list.push(e);
+  }
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

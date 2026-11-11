@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { cleanVariants, loadRecipients, renderFor } from '../_shared/campaign-render.ts';
+import { appendExternal, cleanExternal, cleanVariants, loadRecipients, renderFor } from '../_shared/campaign-render.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -91,9 +91,13 @@ Deno.serve(async (req: Request) => {
     }
 
     const variants = cleanVariants(claimed.variants);
-    const recipients = await loadRecipients(admin, finalIds);
+    const recipients = finalIds.length ? await loadRecipients(admin, finalIds) : new Map();
     const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
     const skipped = targetIds.length - list.length;
+    // Addresses without a Cantia account, frozen with the schedule.
+    const external = cleanExternal(claimed.external_recipients);
+    appendExternal(list, external);
+    const total = targetIds.length + external.length;
 
     // 5 at a time with a pause, like send-newsletter-campaign: Resend
     // rate-limits per second.
@@ -124,7 +128,7 @@ Deno.serve(async (req: Request) => {
 
     // Nobody reached: the schedule is a failure with its reason, not "sent".
     const error =
-      targetIds.length > 0 && list.length === 0
+      total > 0 && list.length === 0
         ? 'Aucune adresse e-mail trouvée pour les destinataires.'
         : sent === 0 && failed > 0
           ? failReason ?? 'Envoi refusé par le service mail.'
@@ -145,7 +149,7 @@ Deno.serve(async (req: Request) => {
         skipped_count: skipped,
         failed_count: failed,
         error: error ?? failReason,
-        total_count: targetIds.length,
+        total_count: total,
         variants,
         audience_label: claimed.audience_label ?? null,
       });
@@ -153,7 +157,7 @@ Deno.serve(async (req: Request) => {
       console.error('newsletter_campaigns insert failed', err);
     }
 
-    return json({ ok: !error, sent, skipped, failed, error, total: targetIds.length });
+    return json({ ok: !error, sent, skipped, failed, error, total });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

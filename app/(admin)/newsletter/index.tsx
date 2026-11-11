@@ -17,7 +17,7 @@ import {
 import { AdminEmailAudience, PLAN_LABEL, ago, sectorLabel } from '../../../components/AdminEmailAudience';
 import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEmailStudio';
 import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
-import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona, parseExternalRecipients } from '../../../lib/api/newsletterCampaign';
+import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona, type ExternalRecipient, parseExternalRecipients } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -64,6 +64,30 @@ function formatDateTime(iso: string): string {
 // search. Every criterion defaults to subscribed-only; including people who
 // opted out is an explicit choice and needs the confirmation box before a
 // newsletter-persona send.
+// External addresses of the list being built, kept in this browser until
+// the e-mail is sent (web only; storage may be blocked).
+const EXTERNALS_KEY = 'cantia:admin-email-externals';
+const MAX_EXTERNAL = 200;
+function loadExternals(): Map<string, ExternalRecipient> {
+  try {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return new Map();
+    const raw = JSON.parse(window.localStorage.getItem(EXTERNALS_KEY) || '[]');
+    const list = Array.isArray(raw) ? (raw as ExternalRecipient[]).filter((r) => r && typeof r.email === 'string') : [];
+    return new Map(list.map((r) => [r.email, r]));
+  } catch {
+    return new Map();
+  }
+}
+function saveExternals(map: Map<string, ExternalRecipient>): void {
+  try {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    if (map.size) window.localStorage.setItem(EXTERNALS_KEY, JSON.stringify([...map.values()]));
+    else window.localStorage.removeItem(EXTERNALS_KEY);
+  } catch {
+    // Not kept: the list still works for this visit.
+  }
+}
+
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
@@ -100,10 +124,24 @@ export default function AdminNewsletterScreen() {
   const includesUnsubscribed =
     audienceRows.some((r) => !r.subscribed && !removed.has(r.user_id)) || [...extras.values()].some((e) => e.unsubscribed);
   const [confirmUnsubscribed, setConfirmUnsubscribed] = useState(false);
-  // Addresses without a Cantia account (e.g. fiduciaries to invite): sent
-  // with « Maintenant » only, see send-newsletter-campaign.
-  const [externalText, setExternalText] = useState('');
-  const external = parseExternalRecipients(externalText);
+  // Addresses without a Cantia account (prospects, fiduciaries to invite),
+  // in the same list as the accounts: typed in the search field or pasted
+  // as a list. Kept in this browser until sent, so a list built over
+  // several visits is not lost.
+  const [externals, setExternals] = useState<Map<string, ExternalRecipient>>(() => loadExternals());
+  const externalList = useMemo(() => [...externals.values()], [externals]);
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [pasteNote, setPasteNote] = useState<string | null>(null);
+  useEffect(() => saveExternals(externals), [externals]);
+  const totalRecipients = selectedIds.size + externals.size;
+  // A typed e-mail (« marie@cabinet.ch, Marie Rochat, Cabinet Rochat ») that
+  // is not in the list yet: offered as an external address.
+  const typedExternal = (() => {
+    if (!search.includes('@')) return null;
+    const r = parseExternalRecipients(search).recipients[0];
+    return r && !externals.has(r.email) ? r : null;
+  })();
 
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
@@ -146,7 +184,7 @@ export default function AdminNewsletterScreen() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => loadUsers(search), 250);
+    const timer = setTimeout(() => loadUsers(search.split(/[,;\t]/)[0].trim()), 250);
     return () => clearTimeout(timer);
   }, [search, loadUsers]);
 
@@ -221,6 +259,46 @@ export default function AdminNewsletterScreen() {
   function resetHandEdits() {
     setExtras(new Map());
     setRemoved(new Set());
+    setExternals(new Map());
+  }
+
+  function addExternals(list: ExternalRecipient[]): void {
+    setExternals((prev) => {
+      const next = new Map(prev);
+      for (const r of list) {
+        if (next.size >= MAX_EXTERNAL && !next.has(r.email)) break;
+        next.set(r.email, { ...prev.get(r.email), ...Object.fromEntries(Object.entries(r).filter(([, v]) => v)) } as ExternalRecipient);
+      }
+      return next;
+    });
+  }
+
+  function addTypedExternal() {
+    if (!typedExternal) return;
+    addExternals([typedExternal]);
+    setSearch('');
+  }
+
+  function addPasted() {
+    const { recipients, invalid } = parseExternalRecipients(pasteText);
+    const before = externals.size;
+    addExternals(recipients);
+    const room = Math.max(0, MAX_EXTERNAL - before);
+    const parts = [
+      recipients.length ? `${recipients.length} adresse${recipients.length > 1 ? 's' : ''} ajoutée${recipients.length > 1 ? 's' : ''} à la liste.` : 'Aucune adresse trouvée.',
+      invalid.length ? `${invalid.length} ligne${invalid.length > 1 ? 's' : ''} ignorée${invalid.length > 1 ? 's' : ''} : ${invalid.slice(0, 3).join(' · ')}${invalid.length > 3 ? '…' : ''}` : '',
+      recipients.length > room ? `Limite de ${MAX_EXTERNAL} adresses externes par envoi atteinte.` : '',
+    ];
+    setPasteNote(parts.filter(Boolean).join(' '));
+    if (recipients.length) setPasteText(invalid.join('\n'));
+  }
+
+  function removeExternal(email: string) {
+    setExternals((prev) => {
+      const next = new Map(prev);
+      next.delete(email);
+      return next;
+    });
   }
 
   const handleAudienceChange = useCallback((rows: AudienceRow[], label: string) => {
@@ -252,6 +330,7 @@ export default function AdminNewsletterScreen() {
       if (l === 'fr' || l === 'de' || l === 'it') counts[l] += 1;
       else counts.unknown += 1;
     }
+    for (const r of externals.values()) counts[r.locale ?? 'fr'] += 1;
     return counts;
   })();
   function handleStudio(r: StudioResult) {
@@ -264,8 +343,13 @@ export default function AdminNewsletterScreen() {
   }
 
   const removedCount = audienceRows.filter((r) => removed.has(r.user_id)).length;
-  const audienceLabel = selectedIds.size
-    ? [audienceText || 'Tous les clients', extras.size ? `+ ${extras.size} ajouté${extras.size > 1 ? 's' : ''} à la main` : '', removedCount ? `− ${removedCount} retiré${removedCount > 1 ? 's' : ''}` : '']
+  const audienceLabel = totalRecipients
+    ? [
+        selectedIds.size ? audienceText || 'Tous les clients' : '',
+        extras.size ? `+ ${extras.size} ajouté${extras.size > 1 ? 's' : ''} à la main` : '',
+        removedCount ? `− ${removedCount} retiré${removedCount > 1 ? 's' : ''}` : '',
+        externals.size ? `${selectedIds.size ? '+ ' : ''}${externals.size} adresse${externals.size > 1 ? 's' : ''} externe${externals.size > 1 ? 's' : ''}` : '',
+      ]
         .filter(Boolean)
         .join(' ')
     : null;
@@ -280,7 +364,7 @@ export default function AdminNewsletterScreen() {
   }
 
   async function handleSend() {
-    if (!subject.trim() || !html.trim() || (selectedIds.size === 0 && external.recipients.length === 0)) return;
+    if (!subject.trim() || !html.trim() || totalRecipients === 0) return;
     // The "confirm before mailing someone who opted out" friction only
     // makes sense for the newsletter persona — a one-off "info" message
     // (e.g. reaching out to a churned account) isn't the newsletter the
@@ -293,10 +377,6 @@ export default function AdminNewsletterScreen() {
     const effectiveIncludeUnsubscribed = fromPersona === 'info' || (includesUnsubscribed && confirmUnsubscribed);
 
     if (sendMode === 'schedule') {
-      if (external.recipients.length) {
-        setError('Les adresses externes partent seulement avec « Maintenant ». Videz-les pour programmer.');
-        return;
-      }
       if (!scheduledAt) {
         setError("Choisissez une date et une heure d'envoi.");
         return;
@@ -318,13 +398,15 @@ export default function AdminNewsletterScreen() {
         scheduledAt: iso,
         variants: readyVariants,
         audienceLabel,
+        externalRecipients: externalList,
       });
       setSending(false);
       if (err) {
         setError(err);
         return;
       }
-      setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} : ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}.`);
+      setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} : ${totalRecipients} destinataire${totalRecipients > 1 ? 's' : ''}.`);
+      setExternals(new Map());
       setScheduledAt('');
       if (showScheduled) loadScheduled();
       return;
@@ -341,8 +423,8 @@ export default function AdminNewsletterScreen() {
       includeUnsubscribed: effectiveIncludeUnsubscribed,
       fromPersona,
       variants: readyVariants,
-      audienceLabel: external.recipients.length ? [audienceLabel, `+ ${external.recipients.length} adresse${external.recipients.length > 1 ? 's' : ''} externe${external.recipients.length > 1 ? 's' : ''}`].filter(Boolean).join(' ') : audienceLabel,
-      externalRecipients: external.recipients,
+      audienceLabel,
+      externalRecipients: externalList,
     });
     setSending(false);
     if (err) {
@@ -350,13 +432,14 @@ export default function AdminNewsletterScreen() {
       return;
     }
     setResult({ sent, skipped, failed, failReason, total });
+    if (sent > 0) setExternals(new Map());
     if (showHistory) loadHistory();
   }
 
   const canSend =
     subject.trim().length > 0 &&
     html.trim().length > 0 &&
-    (selectedIds.size > 0 || external.recipients.length > 0) &&
+    totalRecipients > 0 &&
     (fromPersona === 'info' || !includesUnsubscribed || confirmUnsubscribed) &&
     (sendMode === 'now' || !!scheduledAt);
 
@@ -392,10 +475,10 @@ export default function AdminNewsletterScreen() {
         <View style={styles.selectionBox}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.selectionTitle}>
-              {selectedIds.size} destinataire{selectedIds.size > 1 ? 's' : ''}
+              {totalRecipients} destinataire{totalRecipients > 1 ? 's' : ''}
               {audienceLabel ? <Text style={styles.selectionSub}>  ·  {audienceLabel}</Text> : null}
             </Text>
-            {extras.size || removedCount ? (
+            {extras.size || removedCount || externals.size ? (
               <Pressable onPress={resetHandEdits} hitSlop={6}>
                 <Text style={styles.clearLink}>Annuler les ajouts et retraits</Text>
               </Pressable>
@@ -412,7 +495,7 @@ export default function AdminNewsletterScreen() {
             )}
             {selectionByLang.unknown ? <Text style={styles.langBadge}>{selectionByLang.unknown} ajoutés à la main (langue de leur compte)</Text> : null}
           </View>
-          {selectedIds.size ? (
+          {totalRecipients ? (
             <Pressable onPress={() => setShowRecipients((v) => !v)} hitSlop={6} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               <Feather name={showRecipients ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} />
               <Text style={styles.clearLink}>{showRecipients ? 'Masquer la liste' : 'Voir la liste et retirer des personnes'}</Text>
@@ -434,6 +517,12 @@ export default function AdminNewsletterScreen() {
                     unsubscribed: !r.subscribed,
                   })),
                 ...[...extras.entries()].map(([id, e]) => ({ id, name: e.name, meta: `${e.meta} · ajouté à la main`, unsubscribed: e.unsubscribed })),
+                ...externalList.map((e) => ({
+                  id: `external:${e.email}`,
+                  name: e.name || e.email,
+                  meta: [e.name ? e.email : '', e.company, (e.locale ?? 'fr').toUpperCase(), 'adresse externe'].filter(Boolean).join(' · '),
+                  unsubscribed: false,
+                })),
               ].map((r) => (
                 <View key={r.id} style={styles.recipientRow}>
                   <View style={{ flex: 1, minWidth: 0 }}>
@@ -445,7 +534,11 @@ export default function AdminNewsletterScreen() {
                     </Text>
                   </View>
                   {r.unsubscribed ? <Text style={styles.unsubTag}>désabonné</Text> : null}
-                  <Pressable onPress={() => removeRecipient(r.id)} hitSlop={8} accessibilityLabel="Retirer">
+                  <Pressable
+                    onPress={() => (r.id.startsWith('external:') ? removeExternal(r.id.slice(9)) : removeRecipient(r.id))}
+                    hitSlop={8}
+                    accessibilityLabel="Retirer"
+                  >
                     <Feather name="x" size={16} color={colors.textMuted} />
                   </Pressable>
                 </View>
@@ -455,7 +548,29 @@ export default function AdminNewsletterScreen() {
         </View>
 
         <View style={styles.pickerBox}>
-          <Field label="Ajouter ou retirer une personne précise" placeholder="Nom, e-mail ou entreprise…" value={search} onChangeText={setSearch} />
+          <Field
+            label="Ajouter une personne, de Cantia ou d'ailleurs"
+            placeholder="Nom, entreprise ou n'importe quelle adresse e-mail…"
+            value={search}
+            onChangeText={setSearch}
+            autoCapitalize="none"
+            onSubmitEditing={addTypedExternal}
+          />
+          {typedExternal ? (
+            <Pressable onPress={addTypedExternal} style={[styles.userRow, styles.addExternalRow]}>
+              <View style={[styles.checkbox, styles.addExternalIcon]}>
+                <Feather name="plus" size={12} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.userName} numberOfLines={1}>
+                  Ajouter {typedExternal.email}
+                </Text>
+                <Text style={styles.userMeta} numberOfLines={1}>
+                  {[typedExternal.name, typedExternal.company, 'adresse externe, sans compte Cantia'].filter(Boolean).join(' · ')}
+                </Text>
+              </View>
+            </Pressable>
+          ) : null}
           {loadingUsers ? (
             <Text style={styles.hint}>Chargement…</Text>
           ) : (
@@ -486,25 +601,37 @@ export default function AdminNewsletterScreen() {
               })}
             </ScrollView>
           )}
-        </View>
 
-        <View style={styles.pickerBox}>
-          <Field
-            label="Adresses externes (sans compte Cantia)"
-            placeholder={'fiduciaire@exemple.ch, Marie Rochat, Fiduciaire Rochat SA\ninfo@cabinet.ch, , Cabinet Favre, de'}
-            value={externalText}
-            onChangeText={setExternalText}
-            multiline
-            numberOfLines={4}
-            style={{ minHeight: 96, textAlignVertical: 'top' }}
-            autoCapitalize="none"
-          />
-          <Text style={styles.hint}>
-            Une adresse par ligne : e-mail, puis si vous voulez nom, entreprise et langue (de ou it, français sinon). {'{{prenom}}'} et {'{{entreprise}}'} sont remplis avec ce que vous indiquez.
-            {external.recipients.length ? ` ${external.recipients.length} adresse${external.recipients.length > 1 ? 's' : ''} prête${external.recipients.length > 1 ? 's' : ''}.` : ''}
-            {external.invalid.length ? ` ${external.invalid.length} ligne${external.invalid.length > 1 ? 's' : ''} ignorée${external.invalid.length > 1 ? 's' : ''} (adresse invalide).` : ''}
-            {' '}Envoi « Maintenant » seulement.
-          </Text>
+          <Pressable onPress={() => setShowPaste((v) => !v)} hitSlop={6} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Feather name={showPaste ? 'chevron-up' : 'clipboard'} size={14} color={colors.primary} />
+            <Text style={styles.clearLink}>{showPaste ? 'Fermer' : 'Coller une liste d’adresses (Excel, CSV, e-mails)'}</Text>
+          </Pressable>
+          {showPaste ? (
+            <View style={{ gap: spacing.sm }}>
+              <Field
+                label="Une adresse par ligne"
+                placeholder={'marie@cabinet-rochat.ch, Marie Rochat, Fiduciaire Rochat SA\ninfo@treuhand-muster.ch, Hans Muster, Treuhand Muster AG, de\ncontact@studio.ch'}
+                value={pasteText}
+                onChangeText={(v) => {
+                  setPasteText(v);
+                  setPasteNote(null);
+                }}
+                multiline
+                numberOfLines={5}
+                style={{ minHeight: 110, textAlignVertical: 'top' }}
+                autoCapitalize="none"
+              />
+              <Text style={styles.hint}>
+                E-mail, puis si vous voulez nom, entreprise et langue (de ou it, français sinon), séparés par une virgule, un point-virgule ou une
+                tabulation : des colonnes copiées depuis Excel marchent telles quelles. {'{{prenom}}'} et {'{{entreprise}}'} sont remplis avec ce
+                que vous indiquez.
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, flexWrap: 'wrap' }}>
+                <Button title="Ajouter à la liste" onPress={addPasted} disabled={!pasteText.trim()} />
+                {pasteNote ? <Text style={[styles.hint, { flex: 1 }]}>{pasteNote}</Text> : null}
+              </View>
+            </View>
+          ) : null}
         </View>
 
         {includesUnsubscribed && fromPersona === 'newsletter' ? (
@@ -659,7 +786,7 @@ export default function AdminNewsletterScreen() {
           title={
             sendMode === 'schedule'
               ? `Programmer l'envoi à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`
-              : `Envoyer à ${selectedIds.size + external.recipients.length} destinataire${selectedIds.size + external.recipients.length > 1 ? 's' : ''}`
+              : `Envoyer à ${totalRecipients} destinataire${totalRecipients > 1 ? 's' : ''}`
           }
           onPress={handleSend}
           loading={sending}
@@ -693,7 +820,7 @@ export default function AdminNewsletterScreen() {
                     </Text>
                     <Text style={styles.historyMeta}>
                       Prévu le {formatDateTime(s.scheduled_at)} · depuis {s.from_persona === 'info' ? 'info@cantia.ch' : 'newsletter@cantia.ch'} ·{' '}
-                      {s.user_ids.length} destinataire{s.user_ids.length > 1 ? 's' : ''}
+                      {s.user_ids.length + (s.external_recipients?.length ?? 0)} destinataire{s.user_ids.length + (s.external_recipients?.length ?? 0) > 1 ? "s" : ""}
                       {s.variants ? ` · FR${s.variants.de ? '/DE' : ''}${s.variants.it ? '/IT' : ''}` : ''}
                     </Text>
                     {s.audience_label ? (
@@ -960,6 +1087,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  addExternalRow: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.primary,
+  },
+  addExternalIcon: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   userRowSelected: {
     backgroundColor: colors.primarySoft,
