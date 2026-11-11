@@ -186,6 +186,16 @@ export function buildDemoFixtures(LOC: DemoLocale, now: number = Date.now()): an
   {
     const d1 = tables.devis.find((d) => d.id === 'd1');
     tables.devis.push({ ...d1, id: 'd9', number: 'D-2026-0131', status: 'accepted', created_at: ts(add(-40)), updated_at: ts(add(-38)) });
+    // Positions of the accepted quote, adding up to its subtotal (18'450 HT).
+    const lines9 = [
+      [L3('Dépose de l’ancien revêtement et évacuation', 'Rückbau des alten Belags und Entsorgung', 'Rimozione del vecchio rivestimento e sgombero'), 1, L3('forfait', 'Pauschal', 'forfait'), 2760],
+      [L3('Chape et ragréage, cuisine et séjour', 'Unterlagsboden und Ausgleich, Küche und Wohnraum', 'Massetto e livellamento, cucina e soggiorno'), 46, 'm²', 55],
+      [L3('Carrelage sol cuisine, fourniture et pose', 'Bodenplatten Küche, Lieferung und Verlegung', 'Piastrelle pavimento cucina, fornitura e posa'), 34, 'm²', 150],
+      [L3('Faïence crédence, fourniture et pose', 'Wandplatten Küchenrückwand, Lieferung und Verlegung', 'Piastrelle paraschizzi, fornitura e posa'), 12, 'm²', 165],
+      [L3('Plinthes assorties', 'Passende Sockelleisten', 'Battiscopa coordinati'), 60, 'ml', 18],
+      [L3('Terrasse en grès cérame sur plots', 'Terrasse aus Feinsteinzeug auf Stelzlagern', 'Terrazza in gres porcellanato su piedini'), 25, 'm²', 200],
+    ];
+    tables.devis_items.push(...lines9.map(([d, q, u, p], i) => ({ id: 'd9i' + i, devis_id: 'd9', description: d, quantity: q, unit: u, unit_price: p, sort_order: i })));
     { const DS = { d1: 10540, d9: 18450 }; rpc.devis_subtotals = (b) => (b.p_ids || Object.keys(DS)).filter((i) => DS[i] != null).map((i) => ({ devis_id: i, subtotal: DS[i] })); }
     rpc.project_total_real_hours = 96;
     const ex = (id, label, amount, cat, day) => ({ id, organization_id: ORG, project_id: 'p1', label, amount, category: cat, expense_date: add(day), notes: null, vat_rate: 8.1, created_by: USER, created_at: ts(add(day), '16:00') });
@@ -249,6 +259,32 @@ export function buildDemoFixtures(LOC: DemoLocale, now: number = Date.now()): an
       { description: L3('Évacuation des déchets verts', 'Entsorgung Grüngut', 'Smaltimento scarti verdi'), quantity: 1, unit: L3('forfait', 'Pauschal', 'forfait'), unitPrice: 120, matched: true, priceSource: 'catalog' },
     ] },
   };
+
+  // ---- demo only: what the detail pages read (client sheet, expenses, mailbox)
+  {
+    const byClient = { f1: 'c1', f2: 'c2', f3: 'c3', f4: 'c5', f5: 'c4' };
+    const issued = { f1: -6, f2: -18, f3: -34, f4: -3, f5: -1 };
+    tables.factures = tables.factures.map((f) => ({
+      organization_id: ORG,
+      client_id: byClient[f.id] ?? null,
+      project_id: { f1: 'p1', f2: 'p2', f3: 'p3', f5: 'p4' }[f.id] ?? null,
+      issue_date: add(issued[f.id] ?? -5),
+      created_at: ts(add(issued[f.id] ?? -5)),
+      updated_at: ts(add(issued[f.id] ?? -5)),
+      ...f,
+    }));
+    tables.client_notes = [
+      { id: 'cn1', organization_id: ORG, client_id: 'c1', body: L3('Préfèrent être appelés après 17 h. Accès au chantier par le portail côté verger.', 'Möchten nach 17 Uhr angerufen werden. Zugang zur Baustelle über das Tor beim Obstgarten.', 'Preferiscono essere chiamati dopo le 17. Accesso al cantiere dal cancello lato frutteto.'), created_by: USER, created_at: ts(add(-9), '10:20') },
+      { id: 'cn2', organization_id: ORG, client_id: 'c3', body: L3('Facturer au service des bâtiments, avec la référence du bon de commande.', 'An die Bauverwaltung fakturieren, mit der Bestellnummer.', 'Fatturare all’ufficio edifici, con il riferimento dell’ordine.'), created_by: USER, created_at: ts(add(-20), '14:05') },
+    ];
+    tables.expenses = [
+      { id: 'e1', organization_id: ORG, label: L3('Colle et joints, Villa des Vignes', 'Kleber und Fugen, Villa des Vignes', 'Colla e fughe, Villa des Vignes'), category: 'materiel', amount_chf: 486.4, expense_date: add(-2), notes: null, vat_rate: 8.1, project_id: 'p1', created_by: USER, created_at: ts(add(-2)), updated_at: ts(add(-2)) },
+      { id: 'e2', organization_id: ORG, label: L3('Carburant camionnette', 'Treibstoff Lieferwagen', 'Carburante furgone'), category: 'vehicule', amount_chf: 112.7, expense_date: add(-4), notes: null, vat_rate: 8.1, project_id: null, created_by: USER, created_at: ts(add(-4)), updated_at: ts(add(-4)) },
+      { id: 'e3', organization_id: ORG, label: L3('Location carrelette électrique', 'Miete Fliesenschneider', 'Noleggio tagliapiastrelle'), category: 'materiel', amount_chf: 95, expense_date: add(-7), notes: null, vat_rate: 8.1, project_id: 'p2', created_by: USER, created_at: ts(add(-7)), updated_at: ts(add(-7)) },
+    ];
+    tables.email_messages = [];
+    tables.sales_emails = [];
+  }
 
   return { tables, rpc, USER, ORG, org, plan, funcs };
 

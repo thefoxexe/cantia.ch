@@ -80,7 +80,13 @@ function refused(what: string): Response {
 function filterRows(rows: any[], params: URLSearchParams): any[] {
   let out = rows;
   for (const [k, v] of params) {
-    if (!out.length || !(k in out[0])) continue;
+    if (!out.length) continue;
+    // A link to another row (client_id=eq.c1) on a sample table that has no
+    // such column matches nothing, instead of returning every row.
+    if (!(k in out[0])) {
+      if (k.endsWith('_id') && k !== 'organization_id' && (v.startsWith('eq.') || v.startsWith('in.('))) out = [];
+      continue;
+    }
     if (v.startsWith('in.(')) {
       const set = v.slice(4, -1).split(',').map((x) => x.replace(/^"|"$/g, ''));
       out = out.filter((x) => set.includes(String(x[k])));
@@ -118,6 +124,7 @@ export async function demoFetch(input: RequestInfo | URL, init?: RequestInit): P
       return json(result ?? null);
     }
     if (method !== 'GET' && method !== 'HEAD') return refused(`${method} ${path}`);
+    if (__DEV__ && d.tables[rest[2]] === undefined) console.info('[demo] missing table', rest[2]);
     let rows: any[] = d.tables[rest[2]] ?? [];
     rows = filterRows(rows, url.searchParams);
     const range = { 'content-range': `0-${Math.max(0, rows.length - 1)}/${rows.length}` };
