@@ -229,7 +229,7 @@ const fr: InnerCopy = {
     items: [
       { title: 'Centre d’aide.', text: 'Les guides et explications pour les devis, les projets, la facturation et le travail en équipe.', link: 'Consulter l’aide', href: 'aide' },
       { title: 'Votre accès mobile.', text: 'Comprendre l’application web et ajouter Cantia à l’écran d’accueil de votre téléphone.', link: 'Utiliser Cantia sur téléphone', href: 'telechargement' },
-      { title: 'À propos de Cantia.', text: 'Qui fait Cantia, et les espaces dédiés aux entreprises, aux fiduciaires et aux partenaires.', link: 'Lire la page', href: 'a-propos' },
+      { title: 'À propos de Cantia.', text: 'Pour qui, comment ça fonctionne, l’histoire de Cantia et son écosystème.', link: 'Lire la page', href: 'a-propos' },
       { title: 'Le blog Cantia.', text: 'Les articles publiés par Cantia autour de la gestion et de l’organisation des entreprises.', link: 'Lire les articles', href: 'blog' },
       { title: 'Les outils gratuits.', text: 'Calculateurs de salaire, de taux horaire, de TVA et de marge, proposés gratuitement.', link: 'Voir les outils', href: 'outils' },
       { title: 'Un contact direct.', text: 'Une question sur un usage, une formule ou un besoin particulier ? Contactez l’équipe.', link: 'Contacter Cantia', href: 'contact' },
@@ -397,7 +397,7 @@ const de: InnerCopy = {
     items: [
       { title: 'Hilfecenter.', text: 'Anleitungen und Erklärungen zu Offerten, Projekten, Rechnungen und Teamarbeit.', link: 'Hilfe ansehen', href: 'aide' },
       { title: 'Ihr mobiler Zugang.', text: 'Die Web-App verstehen und Cantia zum Startbildschirm Ihres Smartphones hinzufügen.', link: 'Cantia auf dem Smartphone', href: 'telechargement' },
-      { title: 'Über Cantia.', text: 'Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.', link: 'Seite lesen', href: 'a-propos' },
+      { title: 'Über Cantia.', text: 'Für wen, wie es funktioniert, die Geschichte von Cantia und sein Ökosystem.', link: 'Seite lesen', href: 'a-propos' },
       { title: 'Der Cantia-Blog.', text: 'Artikel von Cantia rund um Führung und Organisation von Unternehmen.', link: 'Artikel lesen', href: 'blog' },
       { title: 'Kostenlose Rechner.', text: 'Rechner für Lohn, Stundensatz, MWST und Marge, kostenlos.', link: 'Lohnrechner öffnen', href: 'calculateur-salaire' },
       { title: 'Direkter Kontakt.', text: 'Eine Frage zu einem Einsatz, einem Abo oder einem besonderen Bedarf? Kontaktieren Sie das Team.', link: 'Cantia kontaktieren', href: 'contact' },
@@ -565,7 +565,7 @@ const it: InnerCopy = {
     items: [
       { title: 'Centro assistenza.', text: 'Guide e spiegazioni per preventivi, progetti, fatturazione e lavoro in team.', link: 'Consultare l’aiuto', href: 'aide' },
       { title: 'Il vostro accesso mobile.', text: 'Capire l’applicazione web e aggiungere Cantia alla schermata iniziale del telefono.', link: 'Usare Cantia sul telefono', href: 'telechargement' },
-      { title: 'Chi siamo.', text: 'Chi fa Cantia, e gli spazi dedicati alle aziende, alle fiduciarie e ai partner.', link: 'Leggere la pagina', href: 'a-propos' },
+      { title: 'Chi siamo.', text: 'Per chi, come funziona, la storia di Cantia e il suo ecosistema.', link: 'Leggere la pagina', href: 'a-propos' },
       { title: 'Il blog Cantia.', text: 'Gli articoli di Cantia sulla gestione e l’organizzazione delle aziende.', link: 'Leggere gli articoli', href: 'blog' },
       { title: 'Calcolatori gratuiti.', text: 'Calcolatori di salario, tariffa oraria, IVA e margine, gratuiti.', link: 'Aprire il calcolatore', href: 'calculateur-salaire' },
       { title: 'Un contatto diretto.', text: 'Una domanda su un uso, un piano o un’esigenza particolare? Contattate il team.', link: 'Contattare Cantia', href: 'contact' },
