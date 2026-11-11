@@ -43,7 +43,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
         { label: f.tradeLink, href: `${p}/metiers` },
         { label: f.pricingLink, href: `${p}/tarifs` },
         { label: f.customLink, href: `${p}/sur-mesure` },
-        { label: f.ecosystemLink, href: `${p}/ecosysteme` },
+        { label: f.ecosystemLink, href: `${p}/a-propos` },
         { label: f.devicesLink, href: `${p}/telechargement` },
         { label: f.compareLink, href: `${p}/comparatifs` },
       ],

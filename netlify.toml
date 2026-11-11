@@ -1541,7 +1541,12 @@
 
 [[redirects]]
   from = "/ecosysteme"
-  to = "/ecosysteme.html"
+  to = "/a-propos"
+  status = 301
+
+[[redirects]]
+  from = "/a-propos"
+  to = "/a-propos.html"
   status = 200
 
 [[redirects]]
@@ -1566,7 +1571,12 @@
 
 [[redirects]]
   from = "/de/ecosysteme"
-  to = "/de/ecosysteme.html"
+  to = "/de/a-propos"
+  status = 301
+
+[[redirects]]
+  from = "/de/a-propos"
+  to = "/de/a-propos.html"
   status = 200
 
 [[redirects]]
@@ -1576,7 +1586,12 @@
 
 [[redirects]]
   from = "/it/ecosysteme"
-  to = "/it/ecosysteme.html"
+  to = "/it/a-propos"
+  status = 301
+
+[[redirects]]
+  from = "/it/a-propos"
+  to = "/it/a-propos.html"
   status = 200
 
 [[redirects]]

@@ -43,11 +43,17 @@ export interface InnerCopy {
     formAccent: string;
     formText: string;
   };
-  ecosystem: Hero & {
+  about: Hero & {
+    factsEyebrow: string;
+    factsTitle: string;
+    facts: { k: string; v: string }[];
+    spacesEyebrow: string;
+    spacesTitle: string;
+    spacesText: string;
     spaces: { label: string; title: string; text: string; link: string; href: string }[];
-    calloutStrong: string;
-    callout: string;
-    calloutLink: string;
+    contactStrong: string;
+    contact: string;
+    contactLink: string;
   };
   app: Hero & {
     open: string;
@@ -138,22 +144,33 @@ const fr: InnerCopy = {
     formAccent: 'vous manque aujourd’hui.',
     formText: 'Décrivez votre besoin en quelques lignes. Nous revenons vers vous pour définir la prochaine étape.',
   },
-  ecosystem: {
-    seoTitle: 'Fiduciaires & partenaires : l’écosystème Cantia | Cantia',
-    seoDescription: 'Cantia pour les entreprises, Cantia Accounting pour les fiduciaires, Cantia Partners pour recommander Cantia : trouvez l’espace qui correspond à votre rôle.',
-    crumb: 'Fiduciaires & partenaires',
-    eyebrow: 'Autour de votre activité',
-    h1Plain: 'Le bon espace.',
-    h1Accent: 'Pour chaque rôle.',
-    lead: 'La gestion de l’entreprise, le travail de la fiduciaire et la recommandation de Cantia ont chacun leur place. Retrouvez l’espace qui correspond à votre activité.',
+  about: {
+    seoTitle: 'À propos de Cantia, logiciel suisse de gestion | Cantia',
+    seoDescription: 'Cantia est édité à Sion par Ryser Creative et hébergé en Suisse. Qui fait Cantia, et les espaces pour les entreprises, les fiduciaires et les partenaires.',
+    crumb: 'À propos',
+    eyebrow: 'À propos',
+    h1Plain: 'Cantia.',
+    h1Accent: 'Fait en Suisse, pour vos projets.',
+    lead: 'Cantia réunit les devis, le planning, les rapports, les factures et les finances des entreprises qui travaillent par projets. Le logiciel est édité à Sion, en Valais, et ses données sont hébergées en Suisse.',
+    factsEyebrow: 'Qui fait Cantia',
+    factsTitle: 'Une équipe en Valais.',
+    facts: [
+      { k: 'Éditeur', v: 'Ryser Creative, entreprise individuelle à Sion (Valais)' },
+      { k: 'Hébergement', v: 'Données de l’application à Zurich, en Suisse' },
+      { k: 'Langues', v: 'Français, allemand et italien' },
+      { k: 'Contact', v: 'info@cantia.ch · +41 78 450 14 57' },
+    ],
+    spacesEyebrow: 'Les espaces Cantia',
+    spacesTitle: 'Le bon espace pour chaque rôle.',
+    spacesText: 'La gestion de l’entreprise, le travail de la fiduciaire et la recommandation de Cantia ont chacun leur place.',
     spaces: [
-      { label: 'Cantia', title: 'Votre entreprise,\nau quotidien.', text: 'Devis, projets, rapports, factures, heures et finances dans la suite de gestion.', link: 'Explorer le logiciel', href: 'fonctionnalites' },
+      { label: 'Cantia', title: 'Votre entreprise,\nau quotidien.', text: 'Devis, projets, rapports, factures, heures et finances dans la suite de gestion.', link: 'Les fonctionnalités', href: 'fonctionnalites' },
       { label: 'Cantia Accounting', title: 'Un espace dédié\naux fiduciaires.', text: 'Gestion comptable des mandants, imports, TVA, bouclement, pièces et signatures. Gratuit pour les fiduciaires.', link: 'Découvrir Accounting', href: 'https://accounting.cantia.ch' },
       { label: 'Cantia Partners', title: 'Vous recommandez.\nLe partenariat suit.', text: 'Un programme de recommandation avec commission sur les entreprises apportées. Les conditions sont précisées dans l’espace partenaire.', link: 'Découvrir le programme', href: 'https://partners.cantia.ch' },
     ],
-    calloutStrong: 'Vous utilisez Bexio ?',
-    callout: 'Cantia peut se connecter à vos données clients, factures et paiements.',
-    calloutLink: 'Voir l’intégration Bexio',
+    contactStrong: 'Une question ?',
+    contact: 'Écrivez-nous ou appelez-nous : vous parlez directement à l’équipe qui fait Cantia.',
+    contactLink: 'Nous contacter',
   },
   app: {
     seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
@@ -180,7 +197,7 @@ const fr: InnerCopy = {
   resources: {
     seoTitle: 'Découvrir Cantia : aide, guides et ressources | Cantia',
     seoDescription: 'Centre d’aide, accès mobile, espaces Cantia, blog, outils gratuits et contact direct : toutes les ressources pour prendre Cantia en main.',
-    crumb: 'Découvrir Cantia',
+    crumb: 'Ressources',
     eyebrow: 'Les bons repères',
     h1Plain: 'Découvrir.',
     h1Accent: 'Comprendre. Avancer.',
@@ -188,7 +205,7 @@ const fr: InnerCopy = {
     items: [
       { title: 'Centre d’aide.', text: 'Les guides et explications pour les devis, les projets, la facturation et le travail en équipe.', link: 'Consulter l’aide', href: 'aide' },
       { title: 'Votre accès mobile.', text: 'Comprendre l’application web et ajouter Cantia à l’écran d’accueil de votre téléphone.', link: 'Utiliser Cantia sur téléphone', href: 'telechargement' },
-      { title: 'Les espaces Cantia.', text: 'Retrouvez les espaces dédiés aux entreprises, aux fiduciaires et aux partenaires.', link: 'Explorer les espaces', href: 'ecosysteme' },
+      { title: 'À propos de Cantia.', text: 'Qui fait Cantia, et les espaces dédiés aux entreprises, aux fiduciaires et aux partenaires.', link: 'Lire la page', href: 'a-propos' },
       { title: 'Le blog Cantia.', text: 'Les articles publiés par Cantia autour de la gestion et de l’organisation des entreprises.', link: 'Lire les articles', href: 'blog' },
       { title: 'Les outils gratuits.', text: 'Calculateurs de salaire, de taux horaire, de TVA et de marge, proposés gratuitement.', link: 'Voir les outils', href: 'outils' },
       { title: 'Un contact direct.', text: 'Une question sur un usage, une formule ou un besoin particulier ? Contactez l’équipe.', link: 'Contacter Cantia', href: 'contact' },
@@ -278,22 +295,33 @@ const de: InnerCopy = {
     formAccent: 'was Ihnen heute fehlt.',
     formText: 'Beschreiben Sie Ihren Bedarf in wenigen Zeilen. Wir melden uns, um den nächsten Schritt festzulegen.',
   },
-  ecosystem: {
-    seoTitle: 'Treuhänder & Partner: das Cantia-Ökosystem | Cantia',
-    seoDescription: 'Cantia für Unternehmen, Cantia Accounting für Treuhänder, Cantia Partners für Empfehlungen: finden Sie den Bereich, der zu Ihrer Rolle passt.',
-    crumb: 'Treuhänder & Partner',
-    eyebrow: 'Rund um Ihre Tätigkeit',
-    h1Plain: 'Der richtige Bereich.',
-    h1Accent: 'Für jede Rolle.',
-    lead: 'Die Führung des Unternehmens, die Arbeit der Treuhand und die Empfehlung von Cantia haben je ihren Platz. Finden Sie den Bereich, der zu Ihrer Tätigkeit passt.',
+  about: {
+    seoTitle: 'Über Cantia, die Schweizer Verwaltungssoftware | Cantia',
+    seoDescription: 'Cantia wird in Sitten von Ryser Creative herausgegeben und in der Schweiz gehostet. Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.',
+    crumb: 'Über uns',
+    eyebrow: 'Über uns',
+    h1Plain: 'Cantia.',
+    h1Accent: 'Aus der Schweiz, für Ihre Projekte.',
+    lead: 'Cantia vereint Offerten, Planung, Rapporte, Rechnungen und Finanzen von Unternehmen, die in Projekten arbeiten. Die Software wird in Sitten im Wallis herausgegeben, ihre Daten werden in der Schweiz gehostet.',
+    factsEyebrow: 'Wer Cantia macht',
+    factsTitle: 'Ein Team im Wallis.',
+    facts: [
+      { k: 'Herausgeber', v: 'Ryser Creative, Einzelunternehmen in Sitten (Wallis)' },
+      { k: 'Hosting', v: 'Daten der App in Zürich, Schweiz' },
+      { k: 'Sprachen', v: 'Französisch, Deutsch und Italienisch' },
+      { k: 'Kontakt', v: 'info@cantia.ch · +41 78 450 14 57' },
+    ],
+    spacesEyebrow: 'Die Cantia-Bereiche',
+    spacesTitle: 'Der richtige Bereich für jede Rolle.',
+    spacesText: 'Die Führung des Unternehmens, die Arbeit der Treuhand und die Empfehlung von Cantia haben je ihren Platz.',
     spaces: [
-      { label: 'Cantia', title: 'Ihr Unternehmen,\nim Alltag.', text: 'Offerten, Projekte, Rapporte, Rechnungen, Stunden und Finanzen in der Verwaltungssoftware.', link: 'Die Software ansehen', href: 'fonctionnalites' },
+      { label: 'Cantia', title: 'Ihr Unternehmen,\nim Alltag.', text: 'Offerten, Projekte, Rapporte, Rechnungen, Stunden und Finanzen in der Verwaltungssoftware.', link: 'Die Funktionen', href: 'fonctionnalites' },
       { label: 'Cantia Accounting', title: 'Ein eigener Bereich\nfür Treuhänder.', text: 'Buchhaltung der Mandanten, Importe, MWST, Abschluss, Belege und Unterschriften. Kostenlos für Treuhänder.', link: 'Accounting entdecken', href: 'https://accounting.cantia.ch/de' },
       { label: 'Cantia Partners', title: 'Sie empfehlen.\nDie Partnerschaft folgt.', text: 'Ein Empfehlungsprogramm mit Provision auf vermittelte Unternehmen. Die Bedingungen stehen im Partnerbereich.', link: 'Das Programm entdecken', href: 'https://partners.cantia.ch/de' },
     ],
-    calloutStrong: 'Sie nutzen Bexio?',
-    callout: 'Cantia kann sich mit Ihren Kunden-, Rechnungs- und Zahlungsdaten verbinden.',
-    calloutLink: 'Die Bexio-Integration ansehen',
+    contactStrong: 'Eine Frage?',
+    contact: 'Schreiben oder rufen Sie uns an: Sie sprechen direkt mit dem Team, das Cantia macht.',
+    contactLink: 'Kontakt aufnehmen',
   },
   app: {
     seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
@@ -320,7 +348,7 @@ const de: InnerCopy = {
   resources: {
     seoTitle: 'Cantia entdecken: Hilfe, Anleitungen und Ressourcen | Cantia',
     seoDescription: 'Hilfecenter, mobiler Zugang, Cantia-Bereiche, Blog, kostenlose Rechner und direkter Kontakt: alle Ressourcen für den Einstieg in Cantia.',
-    crumb: 'Cantia entdecken',
+    crumb: 'Ressourcen',
     eyebrow: 'Die richtigen Anhaltspunkte',
     h1Plain: 'Entdecken.',
     h1Accent: 'Verstehen. Vorankommen.',
@@ -328,7 +356,7 @@ const de: InnerCopy = {
     items: [
       { title: 'Hilfecenter.', text: 'Anleitungen und Erklärungen zu Offerten, Projekten, Rechnungen und Teamarbeit.', link: 'Hilfe ansehen', href: 'aide' },
       { title: 'Ihr mobiler Zugang.', text: 'Die Web-App verstehen und Cantia zum Startbildschirm Ihres Smartphones hinzufügen.', link: 'Cantia auf dem Smartphone', href: 'telechargement' },
-      { title: 'Die Cantia-Bereiche.', text: 'Die Bereiche für Unternehmen, Treuhänder und Partner.', link: 'Bereiche ansehen', href: 'ecosysteme' },
+      { title: 'Über Cantia.', text: 'Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.', link: 'Seite lesen', href: 'a-propos' },
       { title: 'Der Cantia-Blog.', text: 'Artikel von Cantia rund um Führung und Organisation von Unternehmen.', link: 'Artikel lesen', href: 'blog' },
       { title: 'Kostenlose Rechner.', text: 'Rechner für Lohn, Stundensatz, MWST und Marge, kostenlos.', link: 'Lohnrechner öffnen', href: 'calculateur-salaire' },
       { title: 'Direkter Kontakt.', text: 'Eine Frage zu einem Einsatz, einem Abo oder einem besonderen Bedarf? Kontaktieren Sie das Team.', link: 'Cantia kontaktieren', href: 'contact' },
@@ -418,22 +446,33 @@ const it: InnerCopy = {
     formAccent: 'vi manca oggi.',
     formText: 'Descrivete la vostra esigenza in poche righe. Vi ricontattiamo per definire il passo successivo.',
   },
-  ecosystem: {
-    seoTitle: 'Fiduciarie e partner: l’ecosistema Cantia | Cantia',
-    seoDescription: 'Cantia per le aziende, Cantia Accounting per le fiduciarie, Cantia Partners per raccomandare Cantia: trovate lo spazio adatto al vostro ruolo.',
-    crumb: 'Fiduciarie e partner',
-    eyebrow: 'Attorno alla vostra attività',
-    h1Plain: 'Lo spazio giusto.',
-    h1Accent: 'Per ogni ruolo.',
-    lead: 'La gestione dell’azienda, il lavoro della fiduciaria e la raccomandazione di Cantia hanno ciascuno il loro posto. Ritrovate lo spazio adatto alla vostra attività.',
+  about: {
+    seoTitle: 'Chi siamo: Cantia, software svizzero di gestione | Cantia',
+    seoDescription: 'Cantia è pubblicato a Sion da Ryser Creative e ospitato in Svizzera. Chi fa Cantia, e gli spazi per aziende, fiduciarie e partner.',
+    crumb: 'Chi siamo',
+    eyebrow: 'Chi siamo',
+    h1Plain: 'Cantia.',
+    h1Accent: 'Fatto in Svizzera, per i vostri progetti.',
+    lead: 'Cantia riunisce preventivi, pianificazione, rapporti, fatture e finanze delle aziende che lavorano per progetti. Il software è pubblicato a Sion, in Vallese, e i suoi dati sono ospitati in Svizzera.',
+    factsEyebrow: 'Chi fa Cantia',
+    factsTitle: 'Un team in Vallese.',
+    facts: [
+      { k: 'Editore', v: 'Ryser Creative, impresa individuale a Sion (Vallese)' },
+      { k: 'Hosting', v: 'Dati dell’app a Zurigo, in Svizzera' },
+      { k: 'Lingue', v: 'Francese, tedesco e italiano' },
+      { k: 'Contatto', v: 'info@cantia.ch · +41 78 450 14 57' },
+    ],
+    spacesEyebrow: 'Gli spazi Cantia',
+    spacesTitle: 'Lo spazio giusto per ogni ruolo.',
+    spacesText: 'La gestione dell’azienda, il lavoro della fiduciaria e la raccomandazione di Cantia hanno ciascuno il loro posto.',
     spaces: [
-      { label: 'Cantia', title: 'La vostra azienda,\nogni giorno.', text: 'Preventivi, progetti, rapporti, fatture, ore e finanze nel software di gestione.', link: 'Esplorare il software', href: 'fonctionnalites' },
+      { label: 'Cantia', title: 'La vostra azienda,\nogni giorno.', text: 'Preventivi, progetti, rapporti, fatture, ore e finanze nel software di gestione.', link: 'Le funzionalità', href: 'fonctionnalites' },
       { label: 'Cantia Accounting', title: 'Uno spazio dedicato\nalle fiduciarie.', text: 'Contabilità dei mandanti, importazioni, IVA, chiusura, giustificativi e firme. Gratuito per le fiduciarie.', link: 'Scoprire Accounting', href: 'https://accounting.cantia.ch/it' },
       { label: 'Cantia Partners', title: 'Voi raccomandate.\nLa partnership segue.', text: 'Un programma di raccomandazione con commissione sulle aziende portate. Le condizioni sono indicate nello spazio partner.', link: 'Scoprire il programma', href: 'https://partners.cantia.ch/it' },
     ],
-    calloutStrong: 'Usate Bexio?',
-    callout: 'Cantia può collegarsi ai vostri dati di clienti, fatture e pagamenti.',
-    calloutLink: 'Vedere l’integrazione Bexio',
+    contactStrong: 'Una domanda?',
+    contact: 'Scriveteci o chiamateci: parlate direttamente con il team che fa Cantia.',
+    contactLink: 'Contattarci',
   },
   app: {
     seoTitle: 'Cantia su computer e telefono | Cantia',
@@ -460,7 +499,7 @@ const it: InnerCopy = {
   resources: {
     seoTitle: 'Scoprire Cantia: aiuto, guide e risorse | Cantia',
     seoDescription: 'Centro assistenza, accesso mobile, spazi Cantia, blog, calcolatori gratuiti e contatto diretto: tutte le risorse per iniziare con Cantia.',
-    crumb: 'Scoprire Cantia',
+    crumb: 'Risorse',
     eyebrow: 'I punti di riferimento',
     h1Plain: 'Scoprire.',
     h1Accent: 'Capire. Avanzare.',
@@ -468,7 +507,7 @@ const it: InnerCopy = {
     items: [
       { title: 'Centro assistenza.', text: 'Guide e spiegazioni per preventivi, progetti, fatturazione e lavoro in team.', link: 'Consultare l’aiuto', href: 'aide' },
       { title: 'Il vostro accesso mobile.', text: 'Capire l’applicazione web e aggiungere Cantia alla schermata iniziale del telefono.', link: 'Usare Cantia sul telefono', href: 'telechargement' },
-      { title: 'Gli spazi Cantia.', text: 'Gli spazi dedicati alle aziende, alle fiduciarie e ai partner.', link: 'Esplorare gli spazi', href: 'ecosysteme' },
+      { title: 'Chi siamo.', text: 'Chi fa Cantia, e gli spazi dedicati alle aziende, alle fiduciarie e ai partner.', link: 'Leggere la pagina', href: 'a-propos' },
       { title: 'Il blog Cantia.', text: 'Gli articoli di Cantia sulla gestione e l’organizzazione delle aziende.', link: 'Leggere gli articoli', href: 'blog' },
       { title: 'Calcolatori gratuiti.', text: 'Calcolatori di salario, tariffa oraria, IVA e margine, gratuiti.', link: 'Aprire il calcolatore', href: 'calculateur-salaire' },
       { title: 'Un contatto diretto.', text: 'Una domanda su un uso, un piano o un’esigenza particolare? Contattate il team.', link: 'Contattare Cantia', href: 'contact' },

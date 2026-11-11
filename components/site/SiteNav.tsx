@@ -55,7 +55,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
   const links = [
     { label: c.trade, href: `${p}/metiers` },
     { label: c.pricing, href: `${p}/tarifs` },
-    ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }] : []),
+    ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }, { label: c.ecosystem, href: `${p}/a-propos` }] : []),
   ];
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
@@ -143,11 +143,6 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                     <Text style={[sans, styles.megaBottomLink]}>{c.devices}</Text>
                   </Pressable>
                 </Link>
-                <Link href={`${p}/ecosysteme` as any} asChild>
-                  <Pressable onPress={() => setMegaOpen(false)}>
-                    <Text style={[sans, styles.megaBottomLink]}>{c.ecosystem}</Text>
-                  </Pressable>
-                </Link>
               </View>
             </View>
           </View>
@@ -174,11 +169,11 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             ))}
             <DrawerGroup title={c.discover}>
               <DrawerSubLink icon="monitor" label={c.devices} href={`${p}/telechargement`} onNavigate={() => setDrawerOpen(false)} />
-              <DrawerSubLink icon="briefcase" label={c.ecosystem} href={`${p}/ecosysteme`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="compass" label={c.discover} href={`${p}/ressources`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="help-circle" label={c.help} href={`${p}/aide`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="mail" label={c.contact} href={`${p}/contact`} onNavigate={() => setDrawerOpen(false)} />
             </DrawerGroup>
+            <DrawerLink label={c.ecosystem} href={`${p}/a-propos`} onNavigate={() => setDrawerOpen(false)} />
             <View style={{ marginTop: 28, gap: 16 }}>
               <Btn label={c.tryLong} href={authHref('signup')} />
               <Link href={authHref('login') as any} asChild>

@@ -177,7 +177,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/bexio-vs-cantia-logiciel-batiment</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -547,12 +547,12 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/cantia-vs-klara</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/blog/cantia-vs-winbiz</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1467,7 +1467,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/bexio-vs-cantia-logiciel-batiment</loc>
-    <lastmod>2026-09-08</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2287,7 +2287,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/bexio-vs-cantia-logiciel-batiment</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2686,8 +2686,7 @@
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/ecosysteme</loc>
-    <lastmod>2026-11-10</lastmod>
+    <loc>https://cantia.ch/a-propos</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2696,8 +2695,7 @@
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/ecosysteme</loc>
-    <lastmod>2026-11-10</lastmod>
+    <loc>https://cantia.ch/de/a-propos</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2706,8 +2704,7 @@
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/ecosysteme</loc>
-    <lastmod>2026-11-10</lastmod>
+    <loc>https://cantia.ch/it/a-propos</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2717,14 +2714,17 @@
   </url>
   <url>
     <loc>https://cantia.ch/comparatifs</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/comparatifs</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/comparatifs</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>

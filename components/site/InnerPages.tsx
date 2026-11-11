@@ -212,23 +212,36 @@ export function SurMesurePage() {
   );
 }
 
-// ─── Fiduciaires & partenaires ──────────────────────────────────────────────
+// ─── À propos ───────────────────────────────────────────────────────────────
 
-export function EcosystemPage() {
+export function AboutPage() {
   const locale = useSiteLocale();
-  const c = INNER_COPY[locale].ecosystem;
+  const c = INNER_COPY[locale].about;
   const href = useHref();
+  const { phone } = useSiteLayout();
   return (
     <SitePage title={c.seoTitle} description={c.seoDescription}>
       <PageHero crumb={c.crumb} eyebrow={c.eyebrow} plain={c.h1Plain} accent={c.h1Accent} lead={c.lead} />
       <Section white>
+        <SectionHead eyebrow={c.factsEyebrow} plain={c.factsTitle} />
+        <View style={[styles.aboutFacts, phone && { flexDirection: 'column' }]}>
+          {c.facts.map((f) => (
+            <View key={f.k} style={[styles.aboutFact, !phone && { flex: 1 }]}>
+              <Text style={[sans, styles.cardLabel]}>{f.k.toUpperCase()}</Text>
+              <Text style={[sans, styles.aboutFactV]}>{f.v}</Text>
+            </View>
+          ))}
+        </View>
+      </Section>
+      <Section>
+        <SectionHead eyebrow={c.spacesEyebrow} plain={c.spacesTitle} text={c.spacesText} />
         <Grid>
           {c.spaces.map((s, i) => (
             <Card key={s.label} icon={(['grid', 'book', 'users'] as IconName[])[i]} label={s.label} title={s.title} text={s.text} link={<TextLink label={s.link} href={href(s.href)} />} />
           ))}
         </Grid>
         <View style={{ marginTop: 40 }}>
-          <Callout strong={c.calloutStrong} text={c.callout} link={<TextLink label={c.calloutLink} href={href('integrations')} />} />
+          <Callout strong={c.contactStrong} text={c.contact} link={<TextLink label={c.contactLink} href={href('contact')} />} />
         </View>
       </Section>
     </SitePage>
@@ -454,6 +467,9 @@ export function ContactPage() {
 }
 
 const styles = StyleSheet.create({
+  aboutFacts: { flexDirection: 'row', gap: 24, borderTopWidth: 1, borderTopColor: site.line, paddingTop: 24 },
+  aboutFact: { gap: 8 },
+  aboutFactV: { fontSize: 15, color: site.ink, lineHeight: 23, letterSpacing: -0.2 },
   cmpTable: { borderTopWidth: 1, borderTopColor: site.line },
   cmpRow: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
   cmpTh: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },

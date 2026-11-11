@@ -4777,9 +4777,9 @@ export const ROUTES = [
     description: "Preventivi, firma, progetti, pianificazione, rapporti, ore, fatture QR, spese e tesoreria: tutte le funzionalità di Cantia, raggruppate in cinque usi.",
   },
   {
-    path: "ecosysteme",
-    title: "Fiduciaires & partenaires : l’écosystème Cantia | Cantia",
-    description: "Cantia pour les entreprises, Cantia Accounting pour les fiduciaires, Cantia Partners pour recommander Cantia : trouvez l’espace qui correspond à votre rôle.",
+    path: "a-propos",
+    title: "À propos de Cantia, logiciel suisse de gestion | Cantia",
+    description: "Cantia est édité à Sion par Ryser Creative et hébergé en Suisse. Qui fait Cantia, et les espaces pour les entreprises, les fiduciaires et les partenaires.",
   },
   {
     path: "ressources",
@@ -4787,9 +4787,9 @@ export const ROUTES = [
     description: "Centre d’aide, accès mobile, espaces Cantia, blog, outils gratuits et contact direct : toutes les ressources pour prendre Cantia en main.",
   },
   {
-    path: "de/ecosysteme",
-    title: "Treuhänder & Partner: das Cantia-Ökosystem | Cantia",
-    description: "Cantia für Unternehmen, Cantia Accounting für Treuhänder, Cantia Partners für Empfehlungen: finden Sie den Bereich, der zu Ihrer Rolle passt.",
+    path: "de/a-propos",
+    title: "Über Cantia, die Schweizer Verwaltungssoftware | Cantia",
+    description: "Cantia wird in Sitten von Ryser Creative herausgegeben und in der Schweiz gehostet. Wer Cantia macht, und die Bereiche für Unternehmen, Treuhänder und Partner.",
   },
   {
     path: "de/ressources",
@@ -4797,9 +4797,9 @@ export const ROUTES = [
     description: "Hilfecenter, mobiler Zugang, Cantia-Bereiche, Blog, kostenlose Rechner und direkter Kontakt: alle Ressourcen für den Einstieg in Cantia.",
   },
   {
-    path: "it/ecosysteme",
-    title: "Fiduciarie e partner: l’ecosistema Cantia | Cantia",
-    description: "Cantia per le aziende, Cantia Accounting per le fiduciarie, Cantia Partners per raccomandare Cantia: trovate lo spazio adatto al vostro ruolo.",
+    path: "it/a-propos",
+    title: "Chi siamo: Cantia, software svizzero di gestione | Cantia",
+    description: "Cantia è pubblicato a Sion da Ryser Creative e ospitato in Svizzera. Chi fa Cantia, e gli spazi per aziende, fiduciarie e partner.",
   },
   {
     path: "it/ressources",

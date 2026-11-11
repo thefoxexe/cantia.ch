@@ -1,5 +1,5 @@
 import { forceLocale } from '../../lib/translations';
-import Page from '../ecosysteme';
+import Page from '../a-propos';
 
 forceLocale('it');
 
