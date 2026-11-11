@@ -13,7 +13,7 @@ import {
   type PlanningAssignmentWithNames,
 } from '../../../lib/api/planning';
 import { parseFlexibleTime } from '../../../lib/api/payroll';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, HeaderAction } from '../../../components/ui';
 import { DateField } from '../../../components/DateField';
 import { DayView } from '../../../components/planning/DayView';
 import { CalendarSheet } from '../../../components/planning/CalendarSheet';
@@ -33,7 +33,7 @@ const DAY_LABEL_KEYS = ['dayMon', 'dayTue', 'dayWed', 'dayThu', 'dayFri', 'daySa
 // Deterministic color per project (not per assignment) — same chantier
 // always reads as the same color across the whole grid, so a glance at the
 // calendar shows who's on what without reading every label.
-const PROJECT_PALETTE = [colors.primary, colors.accent, colors.success, colors.warning, '#6B7FD7', '#B35FA3'];
+const PROJECT_PALETTE = [colors.primary, colors.success, colors.slate, colors.plum, colors.warning, colors.accent];
 const NO_PROJECT_COLOR = colors.textMuted;
 function colorForProject(projectId: string | null): string {
   if (!projectId) return NO_PROJECT_COLOR;
@@ -51,9 +51,14 @@ function initials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+// Minimum width of a day: on a computer the 7 days share the card's whole
+// width (see gridWidth below), on a phone the grid scrolls sideways.
 const DAY_COL_WIDTH = 108;
-const MEMBER_COL_WIDTH = 96;
-const ROW_HEIGHT = 60;
+const MEMBER_COL_WIDTH = 150;
+const ROW_HEIGHT = 64;
+
+// A chantier's colour as a soft tint (event background) — hex + alpha.
+const tint = (hex: string, alpha = '1F') => (/^#[0-9a-f]{6}$/i.test(hex) ? `${hex}${alpha}` : hex);
 
 function startOfWeek(d: Date): Date {
   const date = new Date(d);
@@ -77,6 +82,8 @@ function formatShort(d: Date): string {
   return d.toLocaleDateString(`${getAppLocale()}-CH`, { day: '2-digit', month: '2-digit' });
 }
 
+const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
+
 export default function PlanningScreen() {
   const { t } = useTranslation();
   const { organization, user, role, permissions } = useAuth();
@@ -94,6 +101,11 @@ export default function PlanningScreen() {
   const isAdmin = role === 'owner' || role === 'admin';
   const router = useRouter();
   const [view, setView] = useState<'week' | 'day'>('week');
+  // The week fills the card: each day takes an equal share of what the
+  // member column leaves, never less than DAY_COL_WIDTH (then it scrolls).
+  const [gridWidth, setGridWidth] = useState(0);
+  const memberColWidth = gridWidth && gridWidth < 640 ? 110 : MEMBER_COL_WIDTH;
+  const dayWidth = Math.max(DAY_COL_WIDTH, Math.floor((gridWidth - memberColWidth - 2) / 7));
   const [cursor, setCursor] = useState(() => new Date());
   const weekStart = useMemo(() => startOfWeek(cursor), [toIso(cursor)]);
   // People hidden from my view (draftsmen who never plan anything, etc.).
@@ -116,6 +128,14 @@ export default function PlanningScreen() {
   }
   const [assignments, setAssignments] = useState<PlanningAssignmentWithNames[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  // Each chantier of the week gets its own colour (by position in the list,
+  // so two chantiers never share one while the palette lasts); an unknown id
+  // falls back to the stable hash.
+  const projectColor = (projectId: string | null): string => {
+    if (!projectId) return NO_PROJECT_COLOR;
+    const i = projects.findIndex((p) => p.id === projectId);
+    return i >= 0 ? PROJECT_PALETTE[i % PROJECT_PALETTE.length] : colorForProject(projectId);
+  };
   const [members, setMembers] = useState<PickItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -344,14 +364,17 @@ export default function PlanningScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('planning.title')} backTo="/(app)" right={
-            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-              <Button title={t('planning.calendars')} icon="link" variant="secondary" onPress={() => setCalendarsOpen(true)} />
-              <Button title={t('planning.assign')} icon="plus" onPress={() => openCreateForm()} />
-            </View>
+        <PageHeader
+          title={t('planning.title')}
+          subtitle={t('planning.subtitle')}
+          backTo="/(app)"
+          right={
+            <>
+              <HeaderAction title={t('planning.calendars')} icon="link" variant="secondary" onPress={() => setCalendarsOpen(true)} />
+              <HeaderAction title={t('planning.assign')} onPress={() => openCreateForm()} />
+            </>
           }
         />
-        <Text style={styles.pageSubtitle}>{t('planning.subtitle')}</Text>
         {calendarNotice ? (
           <Pressable onPress={() => setCalendarNotice(null)} style={[styles.calendarNotice, !calendarNotice.ok && { borderColor: colors.danger }]}>
             <Feather name={calendarNotice.ok ? 'check-circle' : 'alert-triangle'} size={16} color={calendarNotice.ok ? colors.success : colors.danger} />
@@ -403,7 +426,7 @@ export default function PlanningScreen() {
               dayIso={toIso(cursor)}
               members={visibleMembers}
               events={assignments}
-              colorFor={(a) => colorForProject(a.project_id)}
+              colorFor={(a) => projectColor(a.project_id)}
               labelFor={eventLabel}
               privateLabel={t('planning.privateBusy')}
               allDayLabel={t('planning.allDayShort')}
@@ -416,14 +439,16 @@ export default function PlanningScreen() {
             contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}
             refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
           >
-            <View style={styles.gridRow}>
+            <View style={[styles.gridRow, styles.gridCard]} onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}>
               {/* Member axis — stays put while the day grid scrolls horizontally. */}
-              <View style={{ width: MEMBER_COL_WIDTH }}>
-                <View style={styles.cornerCell} />
+              <View style={{ width: memberColWidth }}>
+                <View style={styles.cornerCell}>
+                  <Text style={styles.cornerText}>{t('planning.people')}</Text>
+                </View>
                 {visibleMembers.map((m) => (
                   <View key={m.id} style={styles.memberCell}>
-                    <View style={styles.memberAvatar}>
-                      <Text style={styles.memberAvatarText}>{initials(m.label)}</Text>
+                    <View style={[styles.memberAvatar, { backgroundColor: tint(colorForProject(m.id), '24') }]}>
+                      <Text style={[styles.memberAvatarText, { color: colorForProject(m.id) }]}>{initials(m.label)}</Text>
                     </View>
                     <Text style={styles.memberName} numberOfLines={2}>
                       {m.label}
@@ -444,12 +469,14 @@ export default function PlanningScreen() {
                             setCursor(day);
                             setView('day');
                           }}
-                          style={[styles.dayHeaderCell, isToday && styles.dayHeaderCellToday]}
+                          style={[styles.dayHeaderCell, { width: dayWidth }, isWeekend(day) && styles.weekendCell]}
                         >
                           <Text style={[styles.dayHeaderLabel, isToday && styles.dayHeaderLabelToday]}>
                             {t(`planning.${DAY_LABEL_KEYS[(day.getDay() + 6) % 7]}`)}
                           </Text>
-                          <Text style={[styles.dayHeaderDate, isToday && styles.dayHeaderLabelToday]}>{formatShort(day)}</Text>
+                          <View style={[styles.dayNumber, isToday && styles.dayNumberToday]}>
+                            <Text style={[styles.dayHeaderDate, isToday && { color: '#fff' }]}>{day.getDate()}</Text>
+                          </View>
                         </Pressable>
                       );
                     })}
@@ -465,12 +492,13 @@ export default function PlanningScreen() {
                           <Pressable
                             key={iso}
                             onPress={() => openCreateForm(day, m.id)}
-                            style={[styles.dayCell, isToday && styles.dayCellToday]}
+                            style={({ hovered }: any) => [styles.dayCell, { width: dayWidth }, isWeekend(day) && styles.weekendCell, isToday && styles.dayCellToday, hovered && styles.dayCellHover]}
                           >
                             {cellAssignments.slice(0, cellAssignments.length > 2 ? 1 : 2).map((a) => {
                               const isStart = a.starts_on === iso;
                               const isEnd = a.ends_on === iso;
-                              const showLabel = isStart || day.getTime() === weekStart.getTime();
+                              // Every day of a multi-day job says what it is, not only the first.
+                              const showLabel = true;
                               const label = a.masked ? t('planning.privateBusy') : eventLabel(a);
                               const time = isStart && a.start_time ? `${hm(a.start_time)}${a.end_time && a.ends_on === a.starts_on ? `–${hm(a.end_time)}` : ''} ` : '';
                               return (
@@ -480,16 +508,16 @@ export default function PlanningScreen() {
                                   disabled={a.masked}
                                   style={[
                                     styles.assignmentBar,
-                                    { backgroundColor: a.masked ? colors.border : colorForProject(a.project_id) },
-                                    isStart ? styles.assignmentBarStart : styles.assignmentBarNoStart,
+                                    { backgroundColor: a.masked ? colors.surfaceAlt : tint(projectColor(a.project_id)) },
+                                    isStart ? [styles.assignmentBarStart, { borderLeftColor: a.masked ? colors.border : projectColor(a.project_id) }] : styles.assignmentBarNoStart,
                                     isEnd ? styles.assignmentBarEnd : styles.assignmentBarNoEnd,
                                   ]}
                                 >
                                   {showLabel ? (
                                     <View style={styles.assignmentBarInner}>
-                                      {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : '#fff'} /> : null}
-                                      <Text style={[styles.assignmentBarText, a.masked && { color: colors.textMuted }]} numberOfLines={1}>
-                                        {time}
+                                      {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : projectColor(a.project_id)} /> : null}
+                                      <Text style={[styles.assignmentBarText, { color: a.masked ? colors.textMuted : colors.text }]} numberOfLines={1}>
+                                        {time ? <Text style={[styles.assignmentBarTime, { color: a.masked ? colors.textMuted : projectColor(a.project_id) }]}>{time}</Text> : null}
                                         {label}
                                       </Text>
                                     </View>
@@ -513,13 +541,13 @@ export default function PlanningScreen() {
 
             <View style={styles.legendRow}>
               {projects.map((p) => (
-                <View key={p.id} style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: colorForProject(p.id) }]} />
+                <View key={p.id} style={[styles.legendItem, { backgroundColor: tint(projectColor(p.id), '14') }]}>
+                  <View style={[styles.legendDot, { backgroundColor: projectColor(p.id) }]} />
                   <Text style={styles.legendText}>{p.name}</Text>
                 </View>
               ))}
               {assignments.some((a) => !a.project_id) ? (
-                <View style={styles.legendItem}>
+                <View style={[styles.legendItem, { backgroundColor: colors.surfaceAlt }]}>
                   <View style={[styles.legendDot, { backgroundColor: NO_PROJECT_COLOR }]} />
                   <Text style={styles.legendText}>{t('planning.noProject')}</Text>
                 </View>
@@ -814,38 +842,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
+  gridCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+  },
   cornerCell: {
-    height: 52,
+    height: 64,
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.md,
+    paddingBottom: 10,
+  },
+  cornerText: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
   },
   memberCell: {
     height: ROW_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    paddingRight: spacing.sm,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
   memberAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   memberAvatarText: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 11,
+    fontWeight: '700',
     color: colors.primary,
   },
   memberName: {
     flex: 1,
-    fontSize: fontSize.xs,
+    fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.text,
-    lineHeight: 14,
+    lineHeight: 17,
     // Member names fall back to the raw email when no display name is set,
     // and an email has no spaces to wrap at — without this, RN-web's default
     // CSS lets it run straight past the fixed-width member column.
@@ -853,29 +898,40 @@ const styles = StyleSheet.create({
   },
   dayHeaderRow: {
     flexDirection: 'row',
-    height: 52,
+    height: 64,
   },
   dayHeaderCell: {
     width: DAY_COL_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  dayHeaderCellToday: {
-    backgroundColor: colors.primarySoft,
-    borderTopLeftRadius: radius.sm,
-    borderTopRightRadius: radius.sm,
+    gap: 3,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.border,
   },
   dayHeaderLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.2,
     color: colors.textMuted,
     textTransform: 'uppercase',
   },
+  dayNumber: {
+    minWidth: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  dayNumberToday: {
+    backgroundColor: colors.primary,
+  },
   dayHeaderDate: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: -0.4,
     color: colors.text,
-    marginTop: 1,
+    fontVariant: ['tabular-nums'],
   },
   dayHeaderLabelToday: {
     color: colors.primary,
@@ -886,33 +942,41 @@ const styles = StyleSheet.create({
   dayCell: {
     width: DAY_COL_WIDTH,
     height: ROW_HEIGHT,
-    padding: 3,
-    gap: 2,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    gap: 3,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderColor: colors.border,
   },
+  weekendCell: {
+    backgroundColor: '#FAF9F5',
+  },
   dayCellToday: {
-    backgroundColor: colors.primarySoft,
+    backgroundColor: tint(colors.primary, '0D'),
+  },
+  dayCellHover: {
+    backgroundColor: colors.surfaceAlt,
   },
   assignmentBar: {
-    height: 20,
+    height: 22,
     justifyContent: 'center',
-    paddingHorizontal: 5,
-    marginHorizontal: -3,
+    paddingHorizontal: 6,
+    marginHorizontal: -4,
   },
   assignmentBarStart: {
-    borderTopLeftRadius: radius.sm,
-    borderBottomLeftRadius: radius.sm,
-    marginLeft: 3,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
+    borderLeftWidth: 3,
+    marginLeft: 2,
   },
   assignmentBarNoStart: {
     marginLeft: -1,
   },
   assignmentBarEnd: {
-    borderTopRightRadius: radius.sm,
-    borderBottomRightRadius: radius.sm,
-    marginRight: 3,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    marginRight: 2,
   },
   assignmentBarNoEnd: {
     marginRight: -1,
@@ -920,33 +984,37 @@ const styles = StyleSheet.create({
   assignmentBarInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   assignmentBarText: {
     flexShrink: 1,
-    fontSize: 10,
+    fontSize: 11,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  assignmentBarTime: {
     fontWeight: '700',
-    color: '#fff',
+    fontVariant: ['tabular-nums'],
   },
   moreText: {
     fontSize: 10,
     fontWeight: '700',
     color: colors.textMuted,
-    paddingLeft: 2,
+    paddingLeft: 4,
   },
   legendRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.sm,
     marginTop: spacing.lg,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
   },
   legendDot: {
     width: 8,
@@ -955,7 +1023,8 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: fontSize.xs,
-    color: colors.textMuted,
+    fontWeight: '500',
+    color: colors.text,
   },
   backdrop: {
     flex: 1,

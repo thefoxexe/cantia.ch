@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import type { PlanningAssignmentWithNames } from '../../lib/api/planning';
@@ -9,7 +10,7 @@ import { colors, fontSize, radius } from '../../lib/theme';
 
 const HOUR_HEIGHT = 44;
 const COL_WIDTH = 150;
-const AXIS_WIDTH = 44;
+const AXIS_WIDTH = 64;
 
 const minutes = (t: string) => {
   const [h, m] = t.split(':').map(Number);
@@ -43,6 +44,10 @@ export function DayView({
   onPressEvent: (a: PlanningAssignmentWithNames) => void;
   onCreateAt: (memberId: string, time: string | null) => void;
 }) {
+  // People share the card's width (never narrower than COL_WIDTH: then the
+  // day scrolls sideways), like the days of the week grid.
+  const [boxWidth, setBoxWidth] = useState(0);
+  const colWidth = Math.max(COL_WIDTH, Math.floor((boxWidth - AXIS_WIDTH - 2) / Math.max(1, members.length)));
   const today = events.filter((a) => a.starts_on <= dayIso && a.ends_on >= dayIso);
   // A timed event spanning several days covers this day fully except on its
   // first and last day.
@@ -85,13 +90,14 @@ export function DayView({
   }
 
   return (
+    <View style={styles.card} onLayout={(e) => setBoxWidth(e.nativeEvent.layout.width)}>
     <ScrollView horizontal showsHorizontalScrollIndicator={Platform.OS === 'web'}>
       <View>
         {/* People */}
         <View style={styles.headRow}>
           <View style={{ width: AXIS_WIDTH }} />
           {members.map((m) => (
-            <View key={m.id} style={styles.headCell}>
+            <View key={m.id} style={[styles.headCell, { width: colWidth }]}>
               <Text style={styles.headText} numberOfLines={1}>
                 {m.label}
               </Text>
@@ -106,7 +112,7 @@ export function DayView({
               <Text style={styles.allDayLabel}>{allDayLabel}</Text>
             </View>
             {members.map((m) => (
-              <View key={m.id} style={styles.allDayCell}>
+              <View key={m.id} style={[styles.allDayCell, { width: colWidth }]}>
                 {allDay
                   .filter((a) => a.member_user_id === m.id)
                   .map((a) => (
@@ -114,9 +120,9 @@ export function DayView({
                       key={a.id}
                       disabled={a.masked}
                       onPress={() => onPressEvent(a)}
-                      style={[styles.allDayChip, { backgroundColor: a.masked ? colors.border : colorFor(a) }]}
+                      style={[styles.allDayChip, { backgroundColor: a.masked ? colors.surfaceAlt : soft(colorFor(a)), borderLeftColor: a.masked ? colors.border : colorFor(a) }]}
                     >
-                      {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : '#fff'} /> : null}
+                      {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : colorFor(a)} /> : null}
                       <Text style={[styles.eventTitle, a.masked && { color: colors.textMuted }]} numberOfLines={1}>
                         {a.masked ? privateLabel : labelFor(a)}
                       </Text>
@@ -139,7 +145,7 @@ export function DayView({
           {members.map((m) => {
             const { placed, count } = lanes(timed.filter((a) => a.member_user_id === m.id));
             return (
-              <View key={m.id} style={[styles.col, { height: gridHeight }]}>
+              <View key={m.id} style={[styles.col, { width: colWidth, height: gridHeight }]}>
                 {hours.map((h) => (
                   <Pressable
                     key={h}
@@ -150,7 +156,7 @@ export function DayView({
                 {placed.map(({ a, s, e, lane }) => {
                   const top = ((s - firstHour * 60) / 60) * HOUR_HEIGHT;
                   const height = Math.max(((e - s) / 60) * HOUR_HEIGHT - 2, 18);
-                  const width = (COL_WIDTH - 6) / count;
+                  const width = (colWidth - 6) / count;
                   return (
                     <Pressable
                       key={a.id}
@@ -158,17 +164,17 @@ export function DayView({
                       onPress={() => onPressEvent(a)}
                       style={[
                         styles.event,
-                        { top, height, left: 3 + lane * width, width: width - 2, backgroundColor: a.masked ? colors.border : colorFor(a) },
+                        { top, height, left: 3 + lane * width, width: width - 2, backgroundColor: a.masked ? colors.surfaceAlt : soft(colorFor(a)), borderLeftColor: a.masked ? colors.border : colorFor(a) },
                       ]}
                     >
                       <View style={styles.eventHead}>
-                        {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : '#fff'} /> : null}
+                        {a.is_private ? <Feather name="lock" size={9} color={a.masked ? colors.textMuted : colorFor(a)} /> : null}
                         <Text style={[styles.eventTitle, a.masked && { color: colors.textMuted }]} numberOfLines={height > 34 ? 2 : 1}>
                           {a.masked ? privateLabel : labelFor(a)}
                         </Text>
                       </View>
                       {height > 30 ? (
-                        <Text style={[styles.eventTime, a.masked && { color: colors.textMuted }]} numberOfLines={1}>
+                        <Text style={[styles.eventTime, { color: a.masked ? colors.textMuted : colorFor(a) }]} numberOfLines={1}>
                           {a.starts_on === dayIso ? hm(a.start_time) : '…'}
                           {a.end_time ? `–${a.ends_on === dayIso ? hm(a.end_time) : '…'}` : ''}
                         </Text>
@@ -183,24 +189,30 @@ export function DayView({
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 }
 
+// Same look as the week grid: the chantier's colour as a soft tint, with a
+// solid edge on the left.
+const soft = (hex: string) => (/^#[0-9a-f]{6}$/i.test(hex) ? `${hex}1F` : hex);
+
 const styles = StyleSheet.create({
-  headRow: { flexDirection: 'row', height: 36, alignItems: 'center' },
+  card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, overflow: 'hidden', paddingBottom: 8 },
+  headRow: { flexDirection: 'row', height: 48, alignItems: 'center' },
   headCell: { width: COL_WIDTH, paddingHorizontal: 6 },
-  headText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text, textAlign: 'center' },
+  headText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text, textAlign: 'center' },
   allDayRow: { flexDirection: 'row', borderTopWidth: 1, borderColor: colors.border },
   axisCell: { justifyContent: 'center', paddingRight: 4 },
-  allDayLabel: { fontSize: 9, fontWeight: '700', color: colors.textMuted, textAlign: 'right', textTransform: 'uppercase' },
+  allDayLabel: { fontSize: 9, fontWeight: '600', letterSpacing: 0.8, color: colors.textMuted, textAlign: 'right', textTransform: 'uppercase' },
   allDayCell: { width: COL_WIDTH, padding: 3, gap: 2, borderLeftWidth: 1, borderColor: colors.border, minHeight: 28 },
-  allDayChip: { flexDirection: 'row', alignItems: 'center', gap: 3, borderRadius: radius.sm, paddingHorizontal: 5, height: 20 },
+  allDayChip: { flexDirection: 'row', alignItems: 'center', gap: 3, borderRadius: 5, borderLeftWidth: 3, paddingHorizontal: 6, height: 22 },
   hourLabel: { position: 'absolute', right: 6, fontSize: 10, color: colors.textMuted, fontVariant: ['tabular-nums'] },
   col: { width: COL_WIDTH, borderLeftWidth: 1, borderColor: colors.border, position: 'relative' },
   hourSlot: { position: 'absolute', left: 0, right: 0, height: HOUR_HEIGHT, borderTopWidth: 1, borderColor: colors.border },
-  event: { position: 'absolute', borderRadius: radius.sm, paddingHorizontal: 5, paddingVertical: 3, overflow: 'hidden' },
+  event: { position: 'absolute', borderRadius: 5, borderLeftWidth: 3, paddingHorizontal: 6, paddingVertical: 4, overflow: 'hidden' },
   eventHead: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  eventTitle: { flexShrink: 1, fontSize: 11, fontWeight: '700', color: '#fff' },
-  eventTime: { fontSize: 10, color: 'rgba(255,255,255,0.9)', marginTop: 1, fontVariant: ['tabular-nums'] },
+  eventTitle: { flexShrink: 1, fontSize: 11, fontWeight: '600', color: colors.text },
+  eventTime: { fontSize: 10, fontWeight: '700', marginTop: 1, fontVariant: ['tabular-nums'] },
   nowLine: { position: 'absolute', left: 0, right: 0, height: 2, backgroundColor: colors.danger },
 });
