@@ -270,6 +270,9 @@ export interface RegistryCompany {
   trades: string[];
   status: 'new' | 'contacted' | 'ignored';
   email: string | null;
+  // 'site:lugonbois.ch' when found by itself on the company's site.
+  email_source?: string | null;
+  site_checked_at?: string | null;
   website: string | null;
   phone: string | null;
   note: string | null;

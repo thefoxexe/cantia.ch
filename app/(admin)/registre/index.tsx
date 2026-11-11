@@ -100,6 +100,7 @@ export default function AdminRegistry() {
   const [trade, setTrade] = useState('all');
   const [status, setStatus] = useState<RegistryCompany['status'] | 'all'>('new');
   const [query, setQuery] = useState('');
+  const [withEmail, setWithEmail] = useState(false);
   const [shown, setShown] = useState(40);
   const [searching, setSearching] = useState<number | null>(null);
   // Addresses already in the E-mails list (shared with the computer).
@@ -167,18 +168,24 @@ export default function AdminRegistry() {
       if (r.publication_date < since) return false;
       if (cantons.length && !cantons.includes(r.canton)) return false;
       if (status !== 'all' && r.status !== status) return false;
+      if (withEmail && !r.email) return false;
       if (trade === 'building' && !r.trades.some((t) => BUILDING.includes(t))) return false;
       if (trade === 'other' && r.trades.length) return false;
       if (trade !== 'all' && trade !== 'building' && trade !== 'other' && !r.trades.includes(trade)) return false;
       if (q && !`${r.name} ${r.town ?? ''} ${r.seat ?? ''} ${r.purpose ?? ''}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [rows, days, cantons, status, trade, query]);
+  }, [rows, days, cantons, status, trade, query, withEmail]);
 
   const counts = useMemo(() => {
     const since = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
     const base = rows.filter((r) => r.publication_date >= since && (!cantons.length || cantons.includes(r.canton)));
-    return { total: base.length, building: base.filter((r) => r.trades.some((t) => BUILDING.includes(t))).length, todo: base.filter((r) => r.status === 'new').length };
+    return {
+      total: base.length,
+      building: base.filter((r) => r.trades.some((t) => BUILDING.includes(t))).length,
+      todo: base.filter((r) => r.status === 'new').length,
+      withEmail: base.filter((r) => r.email).length,
+    };
   }, [rows, days, cantons]);
 
   return (
@@ -199,7 +206,7 @@ export default function AdminRegistry() {
           </Pressable>
         </View>
         <Text style={styles.meta}>
-          {counts.total} entreprise{counts.total > 1 ? 's' : ''} sur {days} jours · {counts.building} dans le bâtiment · {counts.todo} à traiter
+          {counts.total} entreprise{counts.total > 1 ? 's' : ''} sur {days} jours · {counts.building} dans le bâtiment · {counts.withEmail} avec e-mail · {counts.todo} à traiter
           {lastFetch ? ` · mis à jour ${new Date(lastFetch).toLocaleString('fr-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : ''}
         </Text>
 
@@ -235,6 +242,7 @@ export default function AdminRegistry() {
             {STATUS_FILTERS.map((s) => (
               <Chip key={s.id} label={s.label} active={status === s.id} onPress={() => setStatus(s.id)} strong />
             ))}
+            <Chip label="Avec e-mail" active={withEmail} onPress={() => setWithEmail((v) => !v)} />
           </View>
           <View style={styles.searchBox}>
             <Feather name="search" size={15} color={colors.textMuted} />
@@ -294,6 +302,12 @@ function CompanyCard({
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(r.email ?? '');
   const [saving, setSaving] = useState(false);
+  // An address found by itself while the page is open fills the field.
+  useEffect(() => {
+    if (r.email && !email) setEmail(r.email);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [r.email]);
+  const foundOn = r.email_source?.startsWith('site:') && r.email === email.trim().toLowerCase() ? r.email_source.slice(5) : null;
   const who = firstPerson(r.persons);
   const person = who?.display ?? null;
   const others = personCount(r.persons) - 1;
@@ -396,6 +410,12 @@ function CompanyCard({
         </Pressable>
       </View>
 
+      {foundOn ? (
+        <Text style={styles.found}>
+          Trouvé automatiquement sur {foundOn}. Vérifiez-le sur le site avant d’écrire.
+        </Text>
+      ) : null}
+
       <View style={styles.statusRow}>
         {r.status !== 'contacted' ? (
           <Pressable onPress={() => onStatus('contacted')} style={styles.statusBtn} hitSlop={4}>
@@ -469,6 +489,7 @@ const styles = StyleSheet.create({
   addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: 9, flexGrow: 1, flexBasis: 160 },
   addBtnDone: { backgroundColor: colors.successSoft },
   addBtnText: { color: '#fff', fontSize: 12.5, fontWeight: '700' },
+  found: { fontSize: 11.5, color: colors.success, fontWeight: '600' },
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.border },
   statusBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 4 },
   statusText: { fontSize: 12.5, fontWeight: '600', color: colors.textMuted },
