@@ -41,13 +41,34 @@ const READ_ONLY: Record<DemoLocale, string> = {
 // link, else the browser language, else French. The sample company is
 // built in that language and its owner's language is set to it, so the app
 // follows (lib/auth-context.tsx reads it from organization_members).
+// The choice is kept for the whole visit (reloads and links without the
+// parameter keep the language the visitor came in with).
+const LOCALE_KEY = 'cantia:demo-locale';
+const isLocale = (v: unknown): v is DemoLocale => v === 'fr' || v === 'de' || v === 'it';
 const DEMO_LOCALE: DemoLocale = (() => {
   if (typeof window === 'undefined') return 'fr';
   const param = new URLSearchParams(window.location.search).get('locale');
-  if (param === 'fr' || param === 'de' || param === 'it') return param;
+  if (isLocale(param)) {
+    try {
+      window.localStorage.setItem(LOCALE_KEY, param);
+    } catch {
+      // Not remembered: this page still opens in that language.
+    }
+    return param;
+  }
+  try {
+    const kept = window.localStorage.getItem(LOCALE_KEY);
+    if (isLocale(kept)) return kept;
+  } catch {
+    // Storage blocked: fall back to the browser language.
+  }
   const lang = typeof navigator !== 'undefined' ? navigator.language?.slice(0, 2).toLowerCase() : '';
   return lang === 'de' || lang === 'it' ? lang : 'fr';
 })();
+
+export function demoLocale(): DemoLocale {
+  return DEMO_LOCALE;
+}
 
 function locale(): DemoLocale {
   const l = getAppLocale();
