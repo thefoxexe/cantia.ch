@@ -136,6 +136,9 @@ export function PartnersLanding() {
         </Wrap>
       </View>
 
+      {/* Featured partner */}
+      <FeaturedPartner t={c.featured} wide={wide} phone={phone} />
+
       {/* Three ways of working together */}
       <Section white>
         <Head2 eyebrow={c.kinds.eyebrow} title={c.kinds.title} text={c.kinds.text} />
@@ -350,6 +353,53 @@ const PROOF_COPY = {
   },
 } as const;
 
+// WebAlp, the first partner: its wordmark as on webalp.ch (Space Grotesk,
+// « Alp » in its accent green, on black).
+const WEBALP_LOGO = require('../../assets/marketing/partners/webalp.png');
+
+function FeaturedPartner({ t, wide, phone }: { t: LandingCopy['featured']; wide: boolean; phone: boolean }) {
+  return (
+    <Section>
+      <View style={[styles.featured, paperShadow, phone && { padding: 22 }, !wide && { flexDirection: 'column', gap: 26 }]}>
+        <View style={[{ gap: 18 }, wide && { width: 300 }]}>
+          <Hover onPress={() => Linking.openURL('https://webalp.ch')} accessibilityRole="link" accessibilityLabel="WebAlp" hover={{ opacity: 0.85 }}>
+            <Image source={WEBALP_LOGO} style={{ width: phone ? 200 : 240, height: (phone ? 200 : 240) * (330 / 900) }} resizeMode="contain" />
+          </Hover>
+          <Text style={[sans, styles.who]}>{t.tag.toUpperCase()}</Text>
+          <View style={{ gap: 7 }}>
+            {t.points.map((pt) => (
+              <View key={pt} style={{ flexDirection: 'row', gap: 10 }}>
+                <Feather name="check" size={13} color={site.copper} style={{ marginTop: 3 }} />
+                <Text style={[sans, styles.cardText, { flex: 1 }]}>{pt}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={wide ? { flex: 1, minWidth: 0 } : undefined}>
+          <Eyebrow>{t.eyebrow}</Eyebrow>
+          <Headline plain={t.title} size={phone ? 28 : 36} style={{ marginTop: 14, marginBottom: 16 }} />
+          <Text style={[sans, styles.cardText, { fontSize: 13, lineHeight: 23 }]}>{t.text}</Text>
+          <View style={styles.featuredHow}>
+            <Text style={[sans, styles.label, { marginTop: 0 }]}>{t.howTitle}</Text>
+            <Text style={[sans, styles.cardText]}>{t.how}</Text>
+          </View>
+          <View style={[styles.actions, { marginTop: 22 }]}>
+            <Hover onPress={() => Linking.openURL('https://webalp.ch')} accessibilityRole="link" base={styles.textLink} hover={{ opacity: 0.75 }}>
+              <Text style={[sans, styles.textLinkText]}>{t.link}</Text>
+              <Feather name="arrow-up-right" size={14} color={site.ink} />
+            </Hover>
+            <Link href={'/connexion?mode=signup' as any} asChild>
+              <Hover accessibilityRole="link" base={[styles.textLink, { flexShrink: 1, maxWidth: '100%' }]} hover={{ opacity: 0.75 }}>
+                <Text style={[sans, styles.textLinkText, { color: site.copper, flexShrink: 1 }]}>{t.join}</Text>
+              </Hover>
+            </Link>
+          </View>
+        </View>
+      </View>
+    </Section>
+  );
+}
+
 function PartnerSpace({ locale, wide, phone }: { locale: 'fr' | 'de' | 'it'; wide: boolean; phone: boolean }) {
   const t = PROOF_COPY[locale];
   const shots = PARTNER_SHOTS[locale];
@@ -445,6 +495,8 @@ function CharterCard({ t }: { t: LandingCopy['charter'] }) {
 }
 
 const styles = StyleSheet.create({
+  featured: { flexDirection: 'row', gap: 48, padding: 40, backgroundColor: site.white, borderRadius: 8, borderWidth: 1, borderColor: site.line },
+  featuredHow: { marginTop: 22, paddingTop: 18, borderTopWidth: 1, borderTopColor: site.line, gap: 6 },
   shotFrame: { borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: site.line, backgroundColor: site.white },
   shotCaption: { fontSize: 11, color: site.muted, textAlign: 'center' },
   docCard: { borderWidth: 1, borderColor: site.line, borderRadius: 12, overflow: 'hidden', backgroundColor: site.white },

@@ -28,6 +28,17 @@ export type LandingCopy = {
   process: { eyebrow: string; title: string; items: Item[] };
   terms: { eyebrow: string; title: string; text: string; facts: string[] };
   wall: { eyebrow: string; title: string };
+  featured: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    tag: string;
+    points: string[];
+    howTitle: string;
+    how: string;
+    link: string;
+    join: string;
+  };
   faq: { eyebrow: string; title: string; items: { q: string; a: string }[] };
   final: { title: string; text: string; cta: string; write: string };
 };
@@ -128,6 +139,17 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       facts: ['Conditions écrites, propres à chaque partenaire', 'Rémunération versée chaque mois', 'Aucun frais d’adhésion, aucune durée minimale'],
     },
     wall: { eyebrow: 'Partenaires', title: 'Ils accompagnent leurs clients avec Cantia.' },
+    featured: {
+      eyebrow: 'Partenaire à la une',
+      title: 'WebAlp, agence web à Sion.',
+      text: 'WebAlp crée des sites internet pour les PME suisses : sites vitrines, boutiques en ligne, applications web et maintenance. Quand une entreprise met en place sa présence en ligne avec WebAlp, elle peut aussi organiser ses devis, ses projets et ses factures avec Cantia.',
+      tag: 'Agence web · Sion, Valais',
+      points: ['Sites vitrines et refontes', 'Boutiques en ligne et applications web', 'Référencement Google et maintenance'],
+      howTitle: 'Comment le partenariat fonctionne',
+      how: 'Pendant un projet web, WebAlp voit comment l’entreprise travaille au quotidien. Lorsque ses devis, ses projets ou sa facturation méritent un vrai outil, WebAlp lui recommande Cantia.',
+      link: 'Visiter webalp.ch',
+      join: 'Vous accompagnez aussi des entreprises ? Devenez partenaire.',
+    },
     faq: {
       eyebrow: 'Questions fréquentes',
       title: 'Ce qu’il faut savoir',
@@ -237,6 +259,17 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       facts: ['Schriftliche Konditionen, für jeden Partner eigene', 'Vergütung monatlich ausbezahlt', 'Keine Beitrittsgebühr, keine Mindestdauer'],
     },
     wall: { eyebrow: 'Partner', title: 'Sie begleiten ihre Kunden mit Cantia.' },
+    featured: {
+      eyebrow: 'Partner im Fokus',
+      title: 'WebAlp, Webagentur in Sitten.',
+      text: 'WebAlp erstellt Websites für Schweizer KMU: Firmenwebsites, Onlineshops, Webanwendungen und Wartung. Wenn ein Unternehmen seinen Webauftritt mit WebAlp aufbaut, kann es auch seine Offerten, Projekte und Rechnungen mit Cantia organisieren.',
+      tag: 'Webagentur · Sitten, Wallis',
+      points: ['Firmenwebsites und Redesigns', 'Onlineshops und Webanwendungen', 'Google-Ranking und Wartung'],
+      howTitle: 'So funktioniert die Partnerschaft',
+      how: 'Während eines Webprojekts sieht WebAlp, wie das Unternehmen im Alltag arbeitet. Wenn Offerten, Projekte oder Rechnungen ein richtiges Werkzeug verdienen, empfiehlt WebAlp Cantia.',
+      link: 'webalp.ch besuchen',
+      join: 'Sie begleiten ebenfalls Unternehmen? Werden Sie Partner.',
+    },
     faq: {
       eyebrow: 'Häufige Fragen',
       title: 'Was Sie wissen sollten',
@@ -346,6 +379,17 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       facts: ['Condizioni scritte, proprie a ogni partner', 'Remunerazione versata ogni mese', 'Nessuna quota di adesione, nessuna durata minima'],
     },
     wall: { eyebrow: 'Partner', title: 'Accompagnano i loro clienti con Cantia.' },
+    featured: {
+      eyebrow: 'Partner in evidenza',
+      title: 'WebAlp, agenzia web a Sion.',
+      text: 'WebAlp crea siti internet per le PMI svizzere: siti vetrina, negozi online, applicazioni web e manutenzione. Quando un’azienda costruisce la sua presenza online con WebAlp, può anche organizzare preventivi, progetti e fatture con Cantia.',
+      tag: 'Agenzia web · Sion, Vallese',
+      points: ['Siti vetrina e restyling', 'Negozi online e applicazioni web', 'Posizionamento Google e manutenzione'],
+      howTitle: 'Come funziona la partnership',
+      how: 'Durante un progetto web, WebAlp vede come l’azienda lavora ogni giorno. Quando preventivi, progetti o fatturazione meritano un vero strumento, WebAlp le raccomanda Cantia.',
+      link: 'Visitare webalp.ch',
+      join: 'Accompagnate anche voi delle aziende? Diventate partner.',
+    },
     faq: {
       eyebrow: 'Domande frequenti',
       title: 'Cosa sapere',
