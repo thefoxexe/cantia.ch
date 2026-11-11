@@ -16,7 +16,7 @@ type Set = { app: { dash: Shot; dashMobile: Shot; tres: Shot; tresMobile: Shot; 
 export const EXPORTS: Record<SiteLocale, Set> = {
   fr: {
     app: {
-      bexio: { source: require('../../assets/marketing/site/app-bexio.jpg'), ratio: 1470 / 1920 },
+      bexio: { source: require('../../assets/marketing/site/app-bexio.jpg'), ratio: 1081 / 1600 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie.jpg'), ratio: 1000 / 1600 },
@@ -32,7 +32,7 @@ export const EXPORTS: Record<SiteLocale, Set> = {
   },
   de: {
     app: {
-      bexio: { source: require('../../assets/marketing/site/app-bexio-de.jpg'), ratio: 1470 / 1920 },
+      bexio: { source: require('../../assets/marketing/site/app-bexio-de.jpg'), ratio: 1081 / 1600 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord-de.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile-de.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie-de.jpg'), ratio: 1000 / 1600 },
@@ -48,7 +48,7 @@ export const EXPORTS: Record<SiteLocale, Set> = {
   },
   it: {
     app: {
-      bexio: { source: require('../../assets/marketing/site/app-bexio-it.jpg'), ratio: 1470 / 1920 },
+      bexio: { source: require('../../assets/marketing/site/app-bexio-it.jpg'), ratio: 1081 / 1600 },
       dash: { source: require('../../assets/marketing/site/app-tableau-de-bord-it.jpg'), ratio: 1000 / 1600 },
       dashMobile: { source: require('../../assets/marketing/site/app-tableau-de-bord-mobile-it.jpg'), ratio: 1688 / 780 },
       tres: { source: require('../../assets/marketing/site/app-tresorerie-it.jpg'), ratio: 1000 / 1600 },
