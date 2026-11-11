@@ -80,6 +80,9 @@ import { post as p139 } from "./posts-it/remplir-soumission-pdf-architecte";
 import { post as p141 } from "./posts-it/calculer-prix-unitaire-soumission";
 import { post as p142 } from "./posts-it/rabais-escompte-tva-ordre-soumission";
 import { post as p143 } from "./posts-it/comprendre-soumission-can-positions";
+import { post as cmp0 } from "./posts-it/cantia-vs-cresus-facturation";
+import { post as cmp1 } from "./posts-it/cantia-vs-klara";
+import { post as cmp2 } from "./posts-it/cantia-vs-winbiz";
 
 // Italian blog posts — mirrors lib/blog/index.ts one-for-one, sourced from
 // lib/blog/posts-it/<slug>.ts instead of lib/blog/posts/<slug>.ts. All 138
@@ -91,4 +94,4 @@ export const BLOG_POSTS_IT: BlogPost[] = [
   p21, p22, p23, p24, p26, p27, p28, p29, p30,
   p31, p32, p34, p35, p36, p38, p39, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50,
   p51, p52, p53, p54, p55, p57, p59, p61, p63, p64, p65, p66, p68, p69, p70,
-  p71, p72, p73, p74, p75, p76, p77, p78, p91, p93, p94, p96, p97, p101, p103, p104, p117, p128, p139, p141, p142, p143, ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  p71, p72, p73, p74, p75, p76, p77, p78, p91, p93, p94, p96, p97, p101, p103, p104, p117, p128, p139, p141, p142, p143, cmp0, cmp1, cmp2, ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));

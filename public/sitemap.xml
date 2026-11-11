@@ -1491,6 +1491,21 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/blog/cantia-vs-cresus-facturation</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/blog/cantia-vs-klara</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/blog/cantia-vs-winbiz</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/blog/client-refuse-payer-solde-final-que-faire</loc>
     <lastmod>2026-09-03</lastmod>
     <priority>0.6</priority>
@@ -2316,6 +2331,21 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/it/blog/cantia-vs-cresus-facturation</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/blog/cantia-vs-klara</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/blog/cantia-vs-winbiz</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/it/blog/certificat-de-travail-obligation-employeur-batiment</loc>
     <lastmod>2026-09-10</lastmod>
     <priority>0.6</priority>
@@ -2687,6 +2717,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/a-propos</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2696,6 +2727,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/a-propos</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2705,6 +2737,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/a-propos</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>

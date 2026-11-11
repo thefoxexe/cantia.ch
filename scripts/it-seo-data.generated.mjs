@@ -126,7 +126,7 @@ export const BLOG_SEO_IT = [
     "faq": [
       {
         "q": "Cantia può sostituire completamente Bexio?",
-        "a": "Cantia non è un software di contabilità generale (nessuna contabilità in partita doppia). Per la tenuta contabile completa, la maggior parte delle aziende mantiene uno strumento dedicato o una fiduciaria, mentre Cantia si concentra sulla gestione operativa del cantiere."
+        "a": "Sì, è possibile. Cantia tiene una contabilità in partita doppia generata automaticamente da fatture, incassi, spese e salari, con il rendiconto IVA e un assistente per la chiusura annuale. Chi preferisce mantenere Bexio per la contabilità può anche collegare i due: clienti, articoli, fatture e pagamenti si sincronizzano."
       },
       {
         "q": "Bexio propone un modulo cantiere o redditività per progetto?",
@@ -238,6 +238,66 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-10-24"
+  },
+  {
+    "path": "it/blog/cantia-vs-cresus-facturation",
+    "title": "Cantia vs Crésus Facturation: la differenza per l’edilizia | Cantia",
+    "description": "Crésus Facturation è un software svizzero popolare ed economico, storicamente pensato per Windows. Cantia è pensata mobile, per il cantiere. Un confronto onesto dei due approcci.",
+    "faq": [
+      {
+        "q": "Crésus Facturation basta per gestire un’impresa edile?",
+        "a": "Per la sola fatturazione, spesso sì. Ma Crésus Facturation non copre la gestione del cantiere, la redditività per progetto né i preventivi creati sul posto, bisogni tipici del mestiere edile."
+      },
+      {
+        "q": "Qual è la differenza principale tra Crésus Facturation e Cantia?",
+        "a": "Crésus Facturation è un software di fatturazione generalista, semplice ed economico. Cantia è pensata apposta per lo svolgimento di un cantiere edile, dal preventivo sul posto al pagamento finale."
+      },
+      {
+        "q": "Si possono usare Crésus e Cantia in parallelo?",
+        "a": "È possibile per un periodo di transizione, ma la maggior parte delle imprese edili che adottano uno strumento di settore come Cantia finisce per riunire preventivi e fatture nello stesso posto, per evitare di inserire due volte i dati."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
+    "path": "it/blog/cantia-vs-klara",
+    "title": "Cantia vs Klara: quale software per un’impresa edile svizzera | Cantia",
+    "description": "Klara è una solida soluzione svizzera di contabilità e fatturazione per indipendenti e piccole aziende. Cantia è pensata apposta per il cantiere. Un confronto onesto dei due approcci.",
+    "faq": [
+      {
+        "q": "Klara va bene per un’impresa edile?",
+        "a": "Klara può bastare per la fatturazione e la contabilità generale, ma non è stato concepito apposta per l’edilizia: nessuna redditività per cantiere, nessun catalogo prezzi di settore, nessun rapporto di cantiere con foto."
+      },
+      {
+        "q": "Qual è la differenza principale tra Klara e Cantia?",
+        "a": "Klara è uno strumento generalista di contabilità e fatturazione per piccole aziende svizzere di tutti i settori. Cantia è pensata apposta per lo svolgimento di un cantiere, dal primo preventivo al pagamento finale."
+      },
+      {
+        "q": "Si possono usare Klara e Cantia insieme?",
+        "a": "Sì, ma oggi non esiste un collegamento diretto tra i due. Cantia tiene anche una propria contabilità in partita doppia, generata automaticamente da fatture, spese e salari, con il rendiconto IVA: molte aziende hanno quindi bisogno di un solo strumento."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
+    "path": "it/blog/cantia-vs-winbiz",
+    "title": "Cantia vs Winbiz: confronto per artigiani dell’edilizia | Cantia",
+    "description": "Winbiz è un software svizzero affermato di contabilità, fatturazione e gestione, storicamente pensato per una postazione fissa. Cantia è pensata mobile, per il cantiere. Un confronto oggettivo dei due approcci.",
+    "faq": [
+      {
+        "q": "Winbiz va bene per un’impresa edile?",
+        "a": "Winbiz copre bene la contabilità e la fatturazione generale, ma non è stato concepito apposta per l’edilizia né per l’uso mobile dal cantiere, a differenza di uno strumento come Cantia."
+      },
+      {
+        "q": "Si può sostituire Winbiz solo con Cantia?",
+        "a": "Cantia tiene una contabilità in partita doppia generata automaticamente da fatture, incassi, spese e salari, con il rendiconto IVA e un assistente per la chiusura annuale. Un’azienda legata a Winbiz per la contabilità può anche tenerlo e usare Cantia per la gestione dei cantieri."
+      },
+      {
+        "q": "Winbiz funziona bene dal cantiere, su mobile?",
+        "a": "Winbiz resta storicamente più orientato all’uso da una postazione fissa. Per creare un preventivo o documentare un cantiere direttamente sul posto, uno strumento pensato mobile fin dall’inizio, come Cantia, è in genere più adatto."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "it/blog/certificat-de-travail-obligation-employeur-batiment",

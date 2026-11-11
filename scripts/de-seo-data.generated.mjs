@@ -126,7 +126,7 @@ export const BLOG_SEO_DE = [
     "faq": [
       {
         "q": "Kann Cantia Bexio vollständig ersetzen?",
-        "a": "Cantia ist keine allgemeine Buchhaltungssoftware (keine doppelte Buchhaltung). Für die vollständige Buchführung behalten die meisten Unternehmen ein dediziertes Tool oder eine Treuhandstelle, während sich Cantia auf die operative Steuerung der Baustelle konzentriert."
+        "a": "Ja, das ist möglich. Cantia führt eine doppelte Buchhaltung, die automatisch aus Rechnungen, Zahlungen, Ausgaben und Löhnen entsteht, mit MWST-Abrechnung und einem Assistenten für den Jahresabschluss. Wer Bexio für die Buchhaltung behalten möchte, kann beide verbinden: Kunden, Artikel, Rechnungen und Zahlungen werden synchronisiert."
       },
       {
         "q": "Bietet Bexio ein Baustellen- oder Rentabilitätsmodul pro Projekt an?",
@@ -238,6 +238,66 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-10-24"
+  },
+  {
+    "path": "de/blog/cantia-vs-cresus-facturation",
+    "title": "Cantia vs. Crésus Facturation: der Unterschied für den Bau | Cantia",
+    "description": "Crésus Facturation ist eine beliebte und günstige Schweizer Software, ursprünglich für Windows gedacht. Cantia ist mobil, für die Baustelle gemacht. Ein ehrlicher Vergleich der beiden Ansätze.",
+    "faq": [
+      {
+        "q": "Reicht Crésus Facturation, um ein Bauunternehmen zu führen?",
+        "a": "Für die reine Fakturierung oft ja. Crésus Facturation deckt aber weder die Baustellenführung noch die Rentabilität pro Projekt noch vor Ort erstellte Offerten ab, typische Bedürfnisse des Bauberufs."
+      },
+      {
+        "q": "Was ist der wichtigste Unterschied zwischen Crésus Facturation und Cantia?",
+        "a": "Crésus Facturation ist eine generalistische, einfache und günstige Fakturierungssoftware. Cantia ist speziell für den Ablauf einer Baustelle gemacht, von der Offerte vor Ort bis zur Schlusszahlung."
+      },
+      {
+        "q": "Kann man Crésus und Cantia parallel nutzen?",
+        "a": "Für eine Übergangszeit ist das möglich, doch die meisten Bauunternehmen, die ein Branchentool wie Cantia einführen, bündeln Offerten und Rechnungen schliesslich an einem Ort, um doppeltes Erfassen zu vermeiden."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
+    "path": "de/blog/cantia-vs-klara",
+    "title": "Cantia vs. Klara: Welche Software für ein Schweizer Bauunternehmen | Cantia",
+    "description": "Klara ist eine solide Schweizer Lösung für Buchhaltung und Fakturierung von Selbständigen und kleinen Unternehmen. Cantia ist speziell für die Baustelle gemacht. Ein ehrlicher Vergleich der beiden Ansätze.",
+    "faq": [
+      {
+        "q": "Eignet sich Klara für ein Bauunternehmen?",
+        "a": "Klara kann für Fakturierung und Finanzbuchhaltung genügen, wurde aber nicht speziell für den Bau entwickelt: keine Rentabilität pro Baustelle, kein Branchen-Preiskatalog, kein Baustellenrapport mit Fotos."
+      },
+      {
+        "q": "Was ist der wichtigste Unterschied zwischen Klara und Cantia?",
+        "a": "Klara ist ein generalistisches Tool für Buchhaltung und Fakturierung von Schweizer Kleinunternehmen aller Branchen. Cantia ist speziell für den Ablauf einer Baustelle gemacht, von der ersten Offerte bis zur Schlusszahlung."
+      },
+      {
+        "q": "Kann man Klara und Cantia zusammen nutzen?",
+        "a": "Ja, aber heute gibt es keine direkte Verbindung zwischen beiden. Cantia führt auch eine eigene doppelte Buchhaltung, automatisch aus Rechnungen, Ausgaben und Löhnen erstellt, mit MWST-Abrechnung: Viele Unternehmen brauchen deshalb nur ein einziges Tool."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
+    "path": "de/blog/cantia-vs-winbiz",
+    "title": "Cantia vs. Winbiz: Vergleich für Handwerksbetriebe im Bau | Cantia",
+    "description": "Winbiz ist eine etablierte Schweizer Software für Buchhaltung, Fakturierung und Verwaltung, ursprünglich für den festen Arbeitsplatz gedacht. Cantia ist mobil, für die Baustelle gemacht. Ein sachlicher Vergleich der beiden Ansätze.",
+    "faq": [
+      {
+        "q": "Eignet sich Winbiz für ein Bauunternehmen?",
+        "a": "Winbiz deckt Buchhaltung und allgemeine Fakturierung gut ab, wurde aber nicht speziell für den Bau oder für die mobile Nutzung auf der Baustelle entwickelt, anders als ein Werkzeug wie Cantia."
+      },
+      {
+        "q": "Kann man Winbiz ganz durch Cantia ersetzen?",
+        "a": "Cantia führt eine doppelte Buchhaltung, die automatisch aus Rechnungen, Zahlungen, Ausgaben und Löhnen entsteht, mit MWST-Abrechnung und einem Assistenten für den Jahresabschluss. Wer Winbiz für die Buchhaltung behalten möchte, kann es behalten und Cantia für die Steuerung der Baustellen nutzen."
+      },
+      {
+        "q": "Funktioniert Winbiz gut auf der Baustelle, mobil?",
+        "a": "Winbiz ist historisch eher auf den festen Arbeitsplatz ausgerichtet. Um eine Offerte zu erstellen oder eine Baustelle direkt vor Ort zu dokumentieren, ist ein von Anfang an mobil gedachtes Werkzeug wie Cantia meist besser geeignet."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "de/blog/certificat-de-travail-obligation-employeur-batiment",
@@ -2872,7 +2932,7 @@ export const BLOG_FAQ_FR = {
   "bexio-vs-cantia-logiciel-batiment": [
     {
       "q": "Cantia peut-il remplacer complètement Bexio ?",
-      "a": "Cantia n’est pas un logiciel de comptabilité générale (pas de comptabilité en partie double). Pour la tenue comptable complète, la plupart des entreprises gardent un outil dédié ou une fiduciaire, tandis que Cantia se concentre sur le pilotage opérationnel du chantier."
+      "a": "Oui, c’est possible. Cantia tient une comptabilité en partie double générée automatiquement à partir des factures, encaissements, dépenses et salaires, avec le décompte TVA et un assistant de bouclement annuel. Une entreprise qui préfère garder Bexio pour sa comptabilité peut aussi relier les deux : clients, articles, factures et paiements se synchronisent."
     },
     {
       "q": "Bexio propose-t-il un module chantier ou rentabilité par projet ?",
@@ -3028,7 +3088,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Peut-on utiliser Klara et Cantia ensemble ?",
-      "a": "C’est possible : certaines entreprises gardent un outil de comptabilité générale comme Klara pour la clôture annuelle, tout en utilisant Cantia au quotidien pour le pilotage opérationnel des chantiers."
+      "a": "Oui, mais il n’existe pas de connexion directe entre les deux aujourd’hui. Cantia tient aussi sa propre comptabilité en partie double, générée automatiquement depuis les factures, dépenses et salaires, avec le décompte TVA : beaucoup d’entreprises n’ont donc besoin que d’un seul outil."
     }
   ],
   "cantia-vs-winbiz": [
@@ -3038,7 +3098,7 @@ export const BLOG_FAQ_FR = {
     },
     {
       "q": "Peut-on remplacer Winbiz uniquement par Cantia ?",
-      "a": "Cantia n’est pas un logiciel de comptabilité générale en partie double. Pour la tenue comptable complète, beaucoup d’entreprises gardent un outil dédié comme Winbiz, tout en utilisant Cantia pour le pilotage opérationnel des chantiers."
+      "a": "Cantia tient une comptabilité en partie double générée automatiquement à partir des factures, encaissements, dépenses et salaires, avec le décompte TVA et un assistant de bouclement annuel. Une entreprise attachée à Winbiz pour sa comptabilité peut aussi le garder et utiliser Cantia pour le pilotage des chantiers."
     },
     {
       "q": "Winbiz fonctionne-t-il bien depuis un chantier, sur mobile ?",
