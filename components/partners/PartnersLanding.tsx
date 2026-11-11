@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Platform, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import Head from 'expo-router/head';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ import { getShowcase, partnerLogoUrl, type ShowcaseEntry } from '../../lib/partn
 import { Btn, Eyebrow, Headline, Hover, Micro, Wrap } from '../site/Primitives';
 import { paperShadow } from '../site/Sections';
 import { FaqItem } from '../site/FamilyPage';
+import { LaptopShot } from '../site/Laptop';
+import { EXPORTS } from '../site/exports';
 import { sans, serif, site } from '../../lib/siteTheme';
 
 // partners.cantia.ch landing in the November 2026 identity: a long-term
@@ -152,6 +154,9 @@ export function PartnersLanding() {
         </View>
       </Section>
 
+      {/* The real partner space */}
+      <PartnerSpace locale={locale} wide={wide} phone={phone} />
+
       {/* Commitments */}
       <Section>
         <View style={[styles.split, !wide && { flexDirection: 'column', gap: 29, alignItems: 'stretch' }]}>
@@ -172,6 +177,9 @@ export function PartnersLanding() {
           </View>
         </View>
       </Section>
+
+      {/* What they recommend: the real app and real documents */}
+      <WhatYouRecommend locale={locale} wide={wide} phone={phone} />
 
       {/* Where the programme stands, and the terms */}
       <Section white>
@@ -289,6 +297,124 @@ export function PartnersLanding() {
 
 // The written framework of a partnership, as it is consigned in the partner
 // space (sample partner).
+// Real screens and documents, not mock-ups. The partner space is captured
+// from partners.cantia.ch/espace with a sample partner (Keller Conseil);
+// the app and the PDFs come from components/site/exports (the same real
+// renderers as cantia.ch, sample company Atelier Martin SA).
+const PARTNER_SHOTS: Record<'fr' | 'de' | 'it', { space: ImageSourcePropType; clients: ImageSourcePropType }> = {
+  fr: { space: require('../../assets/marketing/partners/espace-fr.jpg'), clients: require('../../assets/marketing/partners/clients-fr.jpg') },
+  de: { space: require('../../assets/marketing/partners/espace-de.jpg'), clients: require('../../assets/marketing/partners/clients-de.jpg') },
+  it: { space: require('../../assets/marketing/partners/espace-it.jpg'), clients: require('../../assets/marketing/partners/clients-it.jpg') },
+};
+const CLIENTS_RATIO = 872 / 1600;
+
+const PROOF_COPY = {
+  fr: {
+    spaceEyebrow: 'Votre espace',
+    spaceTitle: 'Tout se suit depuis votre espace partenaire.',
+    spaceText: 'Votre lien et votre code QR, les commissions disponibles et en validation, les versements. Dans l’onglet Clients, chaque contact suit son chemin : clic, inscription, essai, client payant.',
+    spaceCaption: 'L’onglet Clients : le parcours de vos contacts et l’état de chaque recommandation.',
+    productEyebrow: 'Ce que vous recommandez',
+    productTitle: 'Un outil que vos clients utilisent tous les jours.',
+    productText: 'Cantia gère les devis, les factures QR, les chantiers, les heures et la trésorerie des entreprises que vous accompagnez. Voici l’application, et deux documents tels qu’elle les produit.',
+    devis: 'Devis signé en ligne',
+    facture: 'Facture QR',
+    pdf: 'Ouvrir le PDF',
+    appAlt: 'Le tableau de bord de Cantia',
+  },
+  de: {
+    spaceEyebrow: 'Ihr Bereich',
+    spaceTitle: 'Alles im Blick in Ihrem Partnerbereich.',
+    spaceText: 'Ihr Link und Ihr QR-Code, verfügbare und noch zu bestätigende Provisionen, die Auszahlungen. Im Reiter Kunden sehen Sie den Weg jedes Kontakts: Klick, Registrierung, Test, zahlender Kunde.',
+    spaceCaption: 'Der Reiter Kunden: der Weg Ihrer Kontakte und der Stand jeder Empfehlung.',
+    productEyebrow: 'Was Sie empfehlen',
+    productTitle: 'Ein Werkzeug, das Ihre Kunden jeden Tag nutzen.',
+    productText: 'Cantia verwaltet Offerten, QR-Rechnungen, Baustellen, Stunden und Liquidität der Unternehmen, die Sie begleiten. Hier die App und zwei Dokumente, so wie sie sie erstellt.',
+    devis: 'Online unterschriebene Offerte',
+    facture: 'QR-Rechnung',
+    pdf: 'PDF öffnen',
+    appAlt: 'Die Startseite von Cantia',
+  },
+  it: {
+    spaceEyebrow: 'Il suo spazio',
+    spaceTitle: 'Tutto si segue dal suo spazio partner.',
+    spaceText: 'Il suo link e il suo codice QR, le commissioni disponibili e in convalida, i versamenti. Nella scheda Clienti ogni contatto segue il suo percorso: clic, iscrizione, prova, cliente pagante.',
+    spaceCaption: 'La scheda Clienti: il percorso dei suoi contatti e lo stato di ogni raccomandazione.',
+    productEyebrow: 'Cosa raccomanda',
+    productTitle: 'Uno strumento che i suoi clienti usano ogni giorno.',
+    productText: 'Cantia gestisce preventivi, fatture QR, cantieri, ore e liquidità delle imprese che accompagna. Ecco l’app, e due documenti così come li produce.',
+    devis: 'Preventivo firmato online',
+    facture: 'Fattura QR',
+    pdf: 'Aprire il PDF',
+    appAlt: 'La dashboard di Cantia',
+  },
+} as const;
+
+function PartnerSpace({ locale, wide, phone }: { locale: 'fr' | 'de' | 'it'; wide: boolean; phone: boolean }) {
+  const t = PROOF_COPY[locale];
+  const shots = PARTNER_SHOTS[locale];
+  const [w, setW] = useState(0);
+  return (
+    <Section white>
+      <View style={[styles.split, !wide && { flexDirection: 'column', gap: 29, alignItems: 'stretch' }]}>
+        <View style={wide ? { flex: 0.75 } : undefined}>
+          <Eyebrow>{t.spaceEyebrow}</Eyebrow>
+          <Headline plain={t.spaceTitle} size={phone ? 32 : 40} style={{ marginTop: 15, marginBottom: 16 }} />
+          <Text style={[sans, styles.cardText]}>{t.spaceText}</Text>
+        </View>
+        <View style={wide ? { flex: 1.25, minWidth: 0 } : undefined}>
+          <LaptopShot source={shots.space} alt={t.spaceTitle} />
+        </View>
+      </View>
+      <View style={{ marginTop: phone ? 32 : 48, gap: 12 }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+        <View style={[styles.shotFrame, paperShadow]}>
+          <Image source={shots.clients} style={{ width: '100%', height: w ? w * CLIENTS_RATIO : 360 }} resizeMode="cover" accessibilityLabel={t.spaceCaption} />
+        </View>
+        <Text style={[sans, styles.shotCaption]}>{t.spaceCaption}</Text>
+      </View>
+    </Section>
+  );
+}
+
+function WhatYouRecommend({ locale, wide, phone }: { locale: 'fr' | 'de' | 'it'; wide: boolean; phone: boolean }) {
+  const t = PROOF_COPY[locale];
+  const ex = EXPORTS[locale];
+  return (
+    <Section>
+      <Head2 eyebrow={t.productEyebrow} title={t.productTitle} text={t.productText} />
+      <LaptopShot source={ex.app.dash.source} alt={t.appAlt} maxWidth={900} />
+      <View style={[styles.grid, { marginTop: phone ? 32 : 48 }, phone && { flexDirection: 'column', gap: 20 }]}>
+        <DocCard title={t.devis} cta={t.pdf} pdf={ex.devisFull.pdf} source={ex.devisFull.source} ratio={ex.devisFull.ratio} phone={phone} />
+        <DocCard title={t.facture} cta={t.pdf} pdf={ex.facture.pdf} source={ex.facture.source} ratio={ex.facture.ratio} phone={phone} />
+      </View>
+    </Section>
+  );
+}
+
+// The PDFs live on cantia.ch (public/exemples), linked there in full.
+function DocCard({ title, cta, pdf, source, ratio, phone }: { title: string; cta: string; pdf: string; source: ImageSourcePropType; ratio: number; phone: boolean }) {
+  const [w, setW] = useState(0);
+  const href = `https://cantia.ch${pdf}`;
+  return (
+    <Hover onPress={() => Linking.openURL(href)} accessibilityRole="link" base={[styles.docCard, !phone && { flex: 1 }]} hover={{ borderColor: site.copper }}>
+      {(hovered) => (
+        <>
+          <View style={styles.docStage} onLayout={(e) => setW(e.nativeEvent.layout.width - 60)}>
+            <View style={[styles.docPaper, paperShadow]}>
+              <Image source={source} style={{ width: '100%', height: w > 0 ? w * ratio : 420 }} resizeMode="cover" accessibilityLabel={title} />
+            </View>
+          </View>
+          <View style={styles.docMeta}>
+            <Text style={[sans, styles.cardTitle, { flex: 1, marginTop: 0 }]}>{title}</Text>
+            <Text style={[sans, styles.docCta, hovered && { color: site.copper }]}>{cta}</Text>
+            <Feather name="arrow-up-right" size={14} color={hovered ? site.copper : site.ink} />
+          </View>
+        </>
+      )}
+    </Hover>
+  );
+}
+
 function CharterCard({ t }: { t: LandingCopy['charter'] }) {
   const phone = !useIsWide(760);
   return (
@@ -319,6 +445,13 @@ function CharterCard({ t }: { t: LandingCopy['charter'] }) {
 }
 
 const styles = StyleSheet.create({
+  shotFrame: { borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: site.line, backgroundColor: site.white },
+  shotCaption: { fontSize: 11, color: site.muted, textAlign: 'center' },
+  docCard: { borderWidth: 1, borderColor: site.line, borderRadius: 12, overflow: 'hidden', backgroundColor: site.white },
+  docStage: { backgroundColor: site.stage, padding: 30 },
+  docPaper: { backgroundColor: '#fff', borderRadius: 3, overflow: 'hidden' },
+  docMeta: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 18, paddingHorizontal: 22, borderTopWidth: 1, borderTopColor: site.line },
+  docCta: { fontSize: 12, color: site.ink, fontWeight: '500' },
   heroGrid: { flexDirection: 'row', alignItems: 'center', gap: 60 },
   lead: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 560 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 25, marginTop: 26 },
