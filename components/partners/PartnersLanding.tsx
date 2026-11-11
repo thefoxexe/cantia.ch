@@ -300,7 +300,7 @@ export function PartnersLanding() {
             {FEATURED_PARTNERS.map((fp) => (
               <Link key={fp.slug} href={`${prefix}/partenaires/${fp.slug}` as any} asChild>
                 <Hover accessibilityRole="link" accessibilityLabel={fp.name} hover={{ opacity: 0.85 }}>
-                  <Image source={fp.logo} style={{ width: 120, height: 120 * fp.ratio }} resizeMode="contain" />
+                  <Image source={fp.logo} style={{ width: 110, height: 110 * fp.ratio }} resizeMode="contain" />
                 </Hover>
               </Link>
             ))}

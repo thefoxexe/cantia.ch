@@ -42,7 +42,7 @@ export function PartnerProfile({ slug }: { slug: string }) {
           <View style={[styles.card, paperShadow, phone && { padding: 22 }, !wide && { flexDirection: 'column', gap: 26 }]}>
             <View style={[{ gap: 18 }, wide && { width: 300 }]}>
               <Hover onPress={() => Linking.openURL(partner.website)} accessibilityRole="link" accessibilityLabel={partner.name} hover={{ opacity: 0.85 }}>
-                <Image source={partner.logo} style={{ width: phone ? 200 : 240, height: (phone ? 200 : 240) * partner.ratio }} resizeMode="contain" />
+                <Image source={partner.logoLight} style={{ width: phone ? 170 : 200, height: (phone ? 170 : 200) * partner.ratio }} resizeMode="contain" />
               </Hover>
               <Text style={[sans, styles.tag]}>{t.tag.toUpperCase()}</Text>
               <View style={{ gap: 7 }}>

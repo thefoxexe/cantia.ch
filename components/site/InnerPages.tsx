@@ -216,6 +216,45 @@ export function SurMesurePage() {
 
 // ─── À propos ───────────────────────────────────────────────────────────────
 
+// A chronological frieze: a line with one mark per step, across on a
+// computer, down on a phone. The highlighted step gets a filled mark.
+function Timeline({ items, highlight, phone }: { items: { when: string; title: string; text: string }[]; highlight: number; phone: boolean }) {
+  if (phone) {
+    return (
+      <View style={{ marginTop: 8 }}>
+        {items.map((it, i) => (
+          <View key={it.when} style={{ flexDirection: 'row', gap: 16 }}>
+            <View style={{ width: 14, alignItems: 'center' }}>
+              <View style={[styles.tlDot, i === highlight && styles.tlDotOn, { marginTop: 3 }]} />
+              {i < items.length - 1 ? <View style={styles.tlLineV} /> : null}
+            </View>
+            <View style={{ flex: 1, gap: 6, paddingBottom: 26 }}>
+              <Text style={[sans, styles.tlWhen]}>{it.when.toUpperCase()}</Text>
+              <Text style={[sans, styles.tlTitle]}>{it.title}</Text>
+              <Text style={[sans, styles.cardText]}>{it.text}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  }
+  return (
+    <View style={{ marginTop: 12 }}>
+      <View style={styles.tlLineH} />
+      <View style={{ flexDirection: 'row', gap: 24 }}>
+        {items.map((it, i) => (
+          <View key={it.when} style={{ flex: 1, gap: 8 }}>
+            <View style={[styles.tlDot, i === highlight && styles.tlDotOn, { marginBottom: 14 }]} />
+            <Text style={[sans, styles.tlWhen]}>{it.when.toUpperCase()}</Text>
+            <Text style={[sans, styles.tlTitle]}>{it.title}</Text>
+            <Text style={[sans, styles.cardText]}>{it.text}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 export function AboutPage() {
   const locale = useSiteLocale();
   const c = INNER_COPY[locale].about;
@@ -249,20 +288,15 @@ export function AboutPage() {
       </Section>
       <Section white>
         <SectionHead eyebrow={c.storyEyebrow} plain={c.storyTitle} text={c.storyText} />
-        <View style={styles.aboutStory}>
-          {c.story.map((st) => (
-            <View key={st.when} style={[styles.aboutStoryRow, phone && { flexDirection: 'column', gap: 6 }]}>
-              <Text style={[sans, styles.aboutWhen, !phone && { width: 170 }]}>{st.when.toUpperCase()}</Text>
-              <View style={{ flex: 1, gap: 6 }}>
-                <Text style={[sans, styles.cardTitle, { fontSize: 18, marginTop: 0, marginBottom: 0 }]}>{st.title}</Text>
-                <Text style={[sans, styles.cardText]}>{st.text}</Text>
-              </View>
-            </View>
+        <Timeline items={c.story} highlight={2} phone={phone} />
+      </Section>
+      <Section>
+        <SectionHead eyebrow={c.ecoEyebrow} plain={c.ecoTitle} text={c.ecoText} />
+        <Grid cols={2}>
+          {c.eco.map((e, i) => (
+            <Card key={e.label} icon={(['book', 'users'] as IconName[])[i]} label={e.label} title={e.title} text={e.text} link={<TextLink label={e.link} href={e.href} />} />
           ))}
-        </View>
-        <View style={{ marginTop: 40 }}>
-          <Callout strong={c.trustorStrong} text={c.trustor} link={<TextLink label={c.trustorLink} href={`https://accounting.cantia.ch${locale === 'fr' ? '' : `/${locale}`}`} />} />
-        </View>
+        </Grid>
       </Section>
     </SitePage>
   );
@@ -490,9 +524,12 @@ const styles = StyleSheet.create({
   aboutSteps: { flexDirection: 'row', gap: 20 },
   aboutStep: { gap: 10, paddingTop: 20, borderTopWidth: 1, borderTopColor: site.line },
   aboutStepNum: { fontSize: 22, color: site.copper },
-  aboutStory: { borderTopWidth: 1, borderTopColor: site.line },
-  aboutStoryRow: { flexDirection: 'row', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
-  aboutWhen: { fontSize: 10, letterSpacing: 1.3, color: site.copper, fontWeight: '600', paddingTop: 4 },
+  tlLineH: { position: 'absolute', top: 6, left: 0, right: 0, height: 1, backgroundColor: site.line },
+  tlLineV: { width: 1, flex: 1, backgroundColor: site.line, marginTop: 6 },
+  tlDot: { width: 13, height: 13, borderRadius: 7, borderWidth: 2, borderColor: site.copper, backgroundColor: site.white },
+  tlDotOn: { backgroundColor: site.copper },
+  tlWhen: { fontSize: 10, letterSpacing: 1.3, color: site.copper, fontWeight: '600' },
+  tlTitle: { fontSize: 17, color: site.ink, letterSpacing: -0.3 },
   cmpTable: { borderTopWidth: 1, borderTopColor: site.line },
   cmpRow: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
   cmpTh: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },

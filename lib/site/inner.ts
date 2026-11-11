@@ -57,9 +57,10 @@ export interface InnerCopy {
     storyTitle: string;
     storyText: string;
     story: { when: string; title: string; text: string }[];
-    trustorStrong: string;
-    trustor: string;
-    trustorLink: string;
+    ecoEyebrow: string;
+    ecoTitle: string;
+    ecoText: string;
+    eco: { label: string; title: string; text: string; link: string; href: string }[];
   };
   app: Hero & {
     open: string;
@@ -155,9 +156,9 @@ const fr: InnerCopy = {
     seoDescription: 'Cantia, la suite suisse de gestion des entreprises qui travaillent par projets : pour qui elle est faite, comment elle fonctionne et comment elle est née sur les chantiers.',
     crumb: 'À propos',
     eyebrow: 'À propos',
-    h1Plain: 'Né sur les chantiers.',
-    h1Accent: 'Ouvert à vos projets.',
-    lead: 'Cantia réunit au même endroit ce qui se gère souvent entre un tableur, des papiers et une messagerie : le devis, le planning, les rapports, les heures, la facture et les finances.',
+    h1Plain: 'L’administratif d’une PME,',
+    h1Accent: 'enfin au même endroit.',
+    lead: 'Devis, planning, rapports, heures, factures et finances : ce qui se gérait entre un tableur, des papiers et une messagerie tient dans un seul outil, pensé pour les entreprises suisses qui travaillent par projets.',
     forEyebrow: 'Pour qui',
     forTitle: 'Les entreprises qui travaillent par projets.',
     forText: 'Indépendants et PME en Suisse, du premier devis au paiement. Chaque secteur garde son vocabulaire : chantier, intervention, mandat ou projet.',
@@ -179,16 +180,21 @@ const fr: InnerCopy = {
     ],
     storyEyebrow: 'Notre histoire',
     storyTitle: 'D’un outil de chantier à une suite de gestion.',
-    storyText: 'Cantia a commencé par le chantier : un devis, une équipe, un rapport. Chaque étape suivante est venue des besoins des entreprises qui l’utilisent.',
+    storyText: 'Développé depuis avril 2026 et lancé officiellement en septembre, Cantia a commencé par le chantier : un devis, une équipe, un rapport. Chaque étape suivante est venue des entreprises qui l’utilisent.',
     story: [
-      { when: 'Juillet 2026', title: 'Les premières versions', text: 'Projets, rapports de chantier, devis et planning d’équipe.' },
-      { when: 'Août 2026', title: 'Facturer en Suisse', text: 'QR-facture, trésorerie prévisionnelle, salaires et connexion à Bexio.' },
-      { when: 'Septembre 2026', title: 'Trois langues et un assistant', text: 'Allemand et italien, assistant à la voix, comptabilité générée automatiquement, espaces pour les fiduciaires et les partenaires.' },
+      { when: 'Avril 2026', title: 'Le début du développement', text: 'Premières versions de Cantia : projets, rapports de chantier, devis et planning d’équipe.' },
+      { when: 'Été 2026', title: 'Facturer en Suisse', text: 'QR-facture, trésorerie prévisionnelle, salaires et connexion à Bexio.' },
+      { when: 'Septembre 2026', title: 'Le lancement officiel', text: 'Cantia ouvre au public, en français, en allemand et en italien, avec l’assistant à la voix.' },
+      { when: 'Fin septembre 2026', title: 'L’écosystème', text: 'Comptabilité générée automatiquement, Cantia Accounting pour les fiduciaires et le programme Cantia Partners.' },
       { when: 'Novembre 2026', title: 'Au-delà du bâtiment', text: 'Cantia s’ouvre aux entreprises de service, aux bureaux d’études et aux agences.' },
     ],
-    trustorStrong: 'Vous êtes fiduciaire ?',
-    trustor: 'Cantia Accounting est l’espace gratuit des fiduciaires pour suivre leurs mandants.',
-    trustorLink: 'Découvrir Cantia Accounting',
+    ecoEyebrow: 'L’écosystème Cantia',
+    ecoTitle: 'Autour de votre entreprise.',
+    ecoText: 'Votre fiduciaire et ceux qui vous recommandent Cantia ont aussi leur espace.',
+    eco: [
+      { label: 'Cantia Accounting', title: 'La gestion des fiduciaires.', text: 'Un espace gratuit pour suivre la comptabilité des mandants : pièces, imports, TVA, bouclement et signatures, à partir des données de leur Cantia.', link: 'Découvrir Accounting', href: 'https://accounting.cantia.ch' },
+      { label: 'Cantia Partners', title: 'Le programme partenaire.', text: 'Fiduciaires, intégrateurs, agences et associations recommandent Cantia à leurs clients. Les conditions sont fixées avec chaque partenaire.', link: 'Découvrir le programme', href: 'https://partners.cantia.ch' },
+    ],
   },
   app: {
     seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
@@ -318,9 +324,9 @@ const de: InnerCopy = {
     seoDescription: 'Cantia, die Schweizer Verwaltungssoftware für Unternehmen, die in Projekten arbeiten: für wen sie gemacht ist, wie sie funktioniert und wie sie auf der Baustelle entstand.',
     crumb: 'Über uns',
     eyebrow: 'Über uns',
-    h1Plain: 'Auf der Baustelle entstanden.',
-    h1Accent: 'Offen für Ihre Projekte.',
-    lead: 'Cantia vereint, was oft zwischen Tabelle, Papier und Messenger verwaltet wird: Offerte, Planung, Rapporte, Stunden, Rechnung und Finanzen.',
+    h1Plain: 'Die Verwaltung eines KMU,',
+    h1Accent: 'endlich an einem Ort.',
+    lead: 'Offerten, Planung, Rapporte, Stunden, Rechnungen und Finanzen: Was zwischen Tabelle, Papier und Messenger verwaltet wurde, steckt in einem einzigen Werkzeug, gemacht für Schweizer Unternehmen, die in Projekten arbeiten.',
     forEyebrow: 'Für wen',
     forTitle: 'Unternehmen, die in Projekten arbeiten.',
     forText: 'Selbständige und KMU in der Schweiz, von der ersten Offerte bis zur Zahlung. Jede Branche behält ihre Begriffe: Baustelle, Einsatz, Mandat oder Projekt.',
@@ -342,16 +348,21 @@ const de: InnerCopy = {
     ],
     storyEyebrow: 'Unsere Geschichte',
     storyTitle: 'Vom Baustellen-Tool zur Verwaltungssoftware.',
-    storyText: 'Cantia begann auf der Baustelle: eine Offerte, ein Team, ein Rapport. Jeder weitere Schritt kam aus den Bedürfnissen der Unternehmen, die Cantia nutzen.',
+    storyText: 'Seit April 2026 entwickelt und im September offiziell gestartet, begann Cantia auf der Baustelle: eine Offerte, ein Team, ein Rapport. Jeder weitere Schritt kam von den Unternehmen, die Cantia nutzen.',
     story: [
-      { when: 'Juli 2026', title: 'Die ersten Versionen', text: 'Projekte, Baustellenrapporte, Offerten und Teamplanung.' },
-      { when: 'August 2026', title: 'Fakturieren in der Schweiz', text: 'QR-Rechnung, Liquiditätsplanung, Löhne und Verbindung zu Bexio.' },
-      { when: 'September 2026', title: 'Drei Sprachen und ein Assistent', text: 'Deutsch und Italienisch, Sprachassistent, automatisch erstellte Buchhaltung, Bereiche für Treuhänder und Partner.' },
+      { when: 'April 2026', title: 'Der Beginn der Entwicklung', text: 'Erste Versionen von Cantia: Projekte, Baustellenrapporte, Offerten und Teamplanung.' },
+      { when: 'Sommer 2026', title: 'Fakturieren in der Schweiz', text: 'QR-Rechnung, Liquiditätsplanung, Löhne und Verbindung zu Bexio.' },
+      { when: 'September 2026', title: 'Der offizielle Start', text: 'Cantia ist öffentlich verfügbar, auf Französisch, Deutsch und Italienisch, mit dem Sprachassistenten.' },
+      { when: 'Ende September 2026', title: 'Das Ökosystem', text: 'Automatisch erstellte Buchhaltung, Cantia Accounting für Treuhänder und das Programm Cantia Partners.' },
       { when: 'November 2026', title: 'Über den Bau hinaus', text: 'Cantia öffnet sich für Serviceunternehmen, Planungsbüros und Agenturen.' },
     ],
-    trustorStrong: 'Sie sind Treuhänder?',
-    trustor: 'Cantia Accounting ist der kostenlose Bereich für Treuhänder, um ihre Mandanten zu begleiten.',
-    trustorLink: 'Cantia Accounting entdecken',
+    ecoEyebrow: 'Das Cantia-Ökosystem',
+    ecoTitle: 'Rund um Ihr Unternehmen.',
+    ecoText: 'Ihre Treuhand und wer Cantia empfiehlt, haben ebenfalls ihren Bereich.',
+    eco: [
+      { label: 'Cantia Accounting', title: 'Die Verwaltung für Treuhänder.', text: 'Ein kostenloser Bereich, um die Buchhaltung der Mandanten zu begleiten: Belege, Importe, MWST, Abschluss und Unterschriften, aus den Daten ihres Cantia.', link: 'Accounting entdecken', href: 'https://accounting.cantia.ch/de' },
+      { label: 'Cantia Partners', title: 'Das Partnerprogramm.', text: 'Treuhänder, Integratoren, Agenturen und Verbände empfehlen Cantia ihren Kunden. Die Bedingungen werden mit jedem Partner festgelegt.', link: 'Das Programm entdecken', href: 'https://partners.cantia.ch/de' },
+    ],
   },
   app: {
     seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
@@ -481,9 +492,9 @@ const it: InnerCopy = {
     seoDescription: 'Cantia, il software svizzero di gestione per le aziende che lavorano per progetti: per chi è fatto, come funziona e come è nato sui cantieri.',
     crumb: 'Chi siamo',
     eyebrow: 'Chi siamo',
-    h1Plain: 'Nato sui cantieri.',
-    h1Accent: 'Aperto ai vostri progetti.',
-    lead: 'Cantia riunisce ciò che spesso si gestisce tra un foglio di calcolo, carte e una chat: preventivo, pianificazione, rapporti, ore, fattura e finanze.',
+    h1Plain: 'L’amministrazione di una PMI,',
+    h1Accent: 'finalmente in un unico posto.',
+    lead: 'Preventivi, pianificazione, rapporti, ore, fatture e finanze: ciò che si gestiva tra un foglio di calcolo, carte e una chat sta in un solo strumento, pensato per le aziende svizzere che lavorano per progetti.',
     forEyebrow: 'Per chi',
     forTitle: 'Le aziende che lavorano per progetti.',
     forText: 'Indipendenti e PMI in Svizzera, dal primo preventivo al pagamento. Ogni settore mantiene il suo vocabolario: cantiere, intervento, mandato o progetto.',
@@ -505,16 +516,21 @@ const it: InnerCopy = {
     ],
     storyEyebrow: 'La nostra storia',
     storyTitle: 'Da strumento di cantiere a software di gestione.',
-    storyText: 'Cantia è iniziato dal cantiere: un preventivo, un team, un rapporto. Ogni passo successivo è venuto dai bisogni delle aziende che lo usano.',
+    storyText: 'Sviluppato da aprile 2026 e lanciato ufficialmente a settembre, Cantia è iniziato dal cantiere: un preventivo, un team, un rapporto. Ogni passo successivo è venuto dalle aziende che lo usano.',
     story: [
-      { when: 'Luglio 2026', title: 'Le prime versioni', text: 'Progetti, rapporti di cantiere, preventivi e pianificazione del team.' },
-      { when: 'Agosto 2026', title: 'Fatturare in Svizzera', text: 'Fattura QR, liquidità prevista, salari e collegamento a Bexio.' },
-      { when: 'Settembre 2026', title: 'Tre lingue e un assistente', text: 'Tedesco e italiano, assistente vocale, contabilità generata automaticamente, spazi per fiduciarie e partner.' },
+      { when: 'Aprile 2026', title: 'L’inizio dello sviluppo', text: 'Prime versioni di Cantia: progetti, rapporti di cantiere, preventivi e pianificazione del team.' },
+      { when: 'Estate 2026', title: 'Fatturare in Svizzera', text: 'Fattura QR, liquidità prevista, salari e collegamento a Bexio.' },
+      { when: 'Settembre 2026', title: 'Il lancio ufficiale', text: 'Cantia apre al pubblico, in francese, tedesco e italiano, con l’assistente vocale.' },
+      { when: 'Fine settembre 2026', title: 'L’ecosistema', text: 'Contabilità generata automaticamente, Cantia Accounting per le fiduciarie e il programma Cantia Partners.' },
       { when: 'Novembre 2026', title: 'Oltre l’edilizia', text: 'Cantia si apre alle aziende di servizi, agli studi tecnici e alle agenzie.' },
     ],
-    trustorStrong: 'Siete una fiduciaria?',
-    trustor: 'Cantia Accounting è lo spazio gratuito delle fiduciarie per seguire i loro mandanti.',
-    trustorLink: 'Scoprire Cantia Accounting',
+    ecoEyebrow: 'L’ecosistema Cantia',
+    ecoTitle: 'Attorno alla vostra azienda.',
+    ecoText: 'La vostra fiduciaria e chi vi raccomanda Cantia hanno anch’essi il loro spazio.',
+    eco: [
+      { label: 'Cantia Accounting', title: 'La gestione delle fiduciarie.', text: 'Uno spazio gratuito per seguire la contabilità dei mandanti: giustificativi, importazioni, IVA, chiusura e firme, a partire dai dati del loro Cantia.', link: 'Scoprire Accounting', href: 'https://accounting.cantia.ch/it' },
+      { label: 'Cantia Partners', title: 'Il programma partner.', text: 'Fiduciarie, integratori, agenzie e associazioni raccomandano Cantia ai loro clienti. Le condizioni sono definite con ogni partner.', link: 'Scoprire il programma', href: 'https://partners.cantia.ch/it' },
+    ],
   },
   app: {
     seoTitle: 'Cantia su computer e telefono | Cantia',
