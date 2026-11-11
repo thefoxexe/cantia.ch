@@ -72,10 +72,19 @@ function formatDate(iso: string): string {
   return new Date(`${iso}T12:00:00`).toLocaleDateString('fr-CH', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-// « Lugon, Nils, de Finhaut, à Finhaut, associé… » → « Nils Lugon ».
-function firstPerson(persons: string | null): string | null {
-  const m = persons?.match(/^\s*([^,;]+),\s*([^,;]+),/);
-  return m ? `${m[2].trim()} ${m[1].trim()}` : null;
+// The first person registered, and the first name when the register gives
+// it apart:
+//   « Lugon, Nils, de Finhaut, à Finhaut, associé… » → Nils Lugon (Nils)
+//   « Houenou Isabelle Madeleine, de Waldenburg, … » → as written, no first
+//   name (the registers do not mark where the family name ends).
+// A company registered as a partner (« "UBA …" AG ») is skipped.
+function firstPerson(persons: string | null): { display: string; first: string | null } | null {
+  const first = persons?.split(/;\s*|,?\s+et\s+(?=[A-ZÀ-Ý])/)[0]?.trim();
+  if (!first || first.startsWith('"') || first.startsWith('«')) return null;
+  const parts = first.split(/,\s*/);
+  const origin = /^(de|du|des|d’|d'|von|vom|da|di|citoyen|citoyenne|ressortissant|ressortissante|cittadin|Staatsangehörige)\b/i;
+  if (parts.length >= 3 && parts[1] && !origin.test(parts[1])) return { display: `${parts[1]} ${parts[0]}`, first: parts[1].split(/\s+/)[0] };
+  return parts[0] ? { display: parts[0], first: null } : null;
 }
 
 function personCount(persons: string | null): number {
@@ -281,7 +290,8 @@ function CompanyCard({
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(r.email ?? '');
   const [saving, setSaving] = useState(false);
-  const person = firstPerson(r.persons);
+  const who = firstPerson(r.persons);
+  const person = who?.display ?? null;
   const others = personCount(r.persons) - 1;
   const where = [r.street, [r.zip, r.town].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   const emailOk = EMAIL_RE.test(email.trim());
@@ -303,7 +313,8 @@ function CompanyCard({
     const v = email.trim().toLowerCase();
     if (!EMAIL_RE.test(v)) return;
     if (v !== (r.email ?? '')) await saveEmail();
-    const ok = addToEmailList({ email: v, name: person ?? undefined, company: r.name, locale: r.language === 'de' || r.language === 'it' ? r.language : 'fr' });
+    // The greeting uses the first name only when the register gives it.
+    const ok = addToEmailList({ email: v, name: who?.first ? who.display : undefined, company: r.name, locale: r.language === 'de' || r.language === 'it' ? r.language : 'fr' });
     if (!ok) onError('La liste d’envoi est pleine (200 adresses externes).');
     onListChanged();
   }
