@@ -16,8 +16,7 @@ import { sans, site } from '../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../lib/appHost';
 import { HeroDevices } from '../components/site/HeroDevices';
 import { FaqItem } from '../components/site/FamilyPage';
-import { sectorHref } from '../components/site/SectorPages';
-import { SECTOR_KEYS, SECTORS_COPY, type SectorKey } from '../lib/site/sectors';
+import { SECTOR_KEYS, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/site/sectors';
 import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
 
 const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; title: string; items: { q: string; a: string }[] }>;

@@ -8,6 +8,7 @@ import { CtaButton } from './landing/CtaButton';
 import { Breadcrumbs, Section, SitePage, useSiteLayout } from './site/Sections';
 import { Eyebrow, Headline, Hover, Wrap } from './site/Primitives';
 import { FaqItem } from './site/FamilyPage';
+import { BUILDING_TRADES, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/site/sectors';
 import { SITE_PAGES } from '../lib/site/pages';
 import { sans, site } from '../lib/siteTheme';
 import { BlogLeadMagnet } from './BlogLeadMagnet';
@@ -88,6 +89,23 @@ const CATEGORY_CLOSING_FR: Partial<Record<BlogPost['category'], { title: string;
   },
 };
 
+// The sector page an article belongs to: from its trade when it has one
+// (the merged trades of lib/blog/triage.json), else from words in its slug,
+// else the building sector, which most of the blog is about.
+const TRADE_SECTOR: Record<string, SectorKey> = {
+  'entreprise-nettoyage': 'services', conciergerie: 'services', garagiste: 'services', demenageur: 'services',
+  informaticien: 'etudes', consultant: 'etudes', formateur: 'etudes',
+  graphiste: 'creatifs', photographe: 'creatifs', traiteur: 'creatifs',
+};
+function sectorOfPost(post: BlogPost): SectorKey {
+  if (post.relatedTradeSlug && TRADE_SECTOR[post.relatedTradeSlug]) return TRADE_SECTOR[post.relatedTradeSlug];
+  const s = post.slug;
+  if (/nettoyage|conciergerie|gerance|entretien|demenag|garage|informatique/.test(s)) return 'services';
+  if (/graphiste|photograph|traiteur|evenementiel|agence|studio/.test(s)) return 'creatifs';
+  if (/ingenieur|architecte|bureau-etudes|geometre|consultant|formateur/.test(s)) return 'etudes';
+  return 'batiment';
+}
+
 export function BlogArticle({ post }: { post: BlogPost }) {
   const { t } = useTranslation();
   const locale = getAppLocale();
@@ -101,6 +119,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   }, [heroAnim]);
 
   const related = getRelatedPosts(post, 3, locale);
+  const sector = sectorOfPost(post);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   const blogHrefPrefix = `${tradeHrefPrefix}blog`;
   const categoryClosing = locale === 'fr' ? CATEGORY_CLOSING_FR[post.category] : undefined;
@@ -134,7 +153,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </View>
         ) : null}
 
-        {post.relatedTradeSlug ? (
+        {post.relatedTradeSlug && BUILDING_TRADES.includes(post.relatedTradeSlug) ? (
           <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
             <Hover accessibilityRole="link" base={styles2.trade} hover={{ borderColor: site.copper }}>
               <Feather name="tool" size={16} color={site.copper} />
@@ -143,6 +162,15 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             </Hover>
           </Link>
         ) : null}
+
+        {/* Every article points to the sector page it belongs to. */}
+        <Link href={sectorHref(tradeHrefPrefix === '/' ? '' : tradeHrefPrefix.slice(0, -1), sector) as any} asChild>
+          <Hover accessibilityRole="link" base={[styles2.trade, { marginTop: 12 }]} hover={{ borderColor: site.copper }}>
+            <Feather name="briefcase" size={16} color={site.copper} />
+            <Text style={[sans, styles2.tradeText]}>{t('blogArticlePage.sectorLinkText', { sector: SECTORS_COPY[locale === 'de' || locale === 'it' ? locale : 'fr'][sector].label })}</Text>
+            <Feather name="arrow-right" size={15} color={site.ink} />
+          </Hover>
+        </Link>
       </ArticleBody>
 
       {related.length ? (

@@ -17,6 +17,10 @@ export const SECTOR_SLUGS: Record<SectorKey, string> = {
   creatifs: 'agences-evenementiel',
 };
 
+export function sectorHref(prefix: string, key: SectorKey) {
+  return `${prefix}/metiers/${SECTOR_SLUGS[key]}`;
+}
+
 // Trade pages of the building sector, linked from its sector page (the
 // trade pages of other sectors were merged into their sector page).
 export const BUILDING_TRADES = [

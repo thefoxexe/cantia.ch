@@ -4216,6 +4216,7 @@ export const fr = {
     byAuthor: 'Par {{name}}',
     faqEyebrow: 'Questions fréquentes',
     tradeLinkText: 'Voir comment Cantia s’adapte à ce métier',
+    sectorLinkText: 'Cantia pour {{sector}}',
     seeAlsoEyebrow: 'À lire aussi',
     readArticle: 'Lire l’article',
     closingTitle: 'Piloter vos chantiers sans y penser',

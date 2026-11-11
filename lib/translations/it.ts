@@ -4235,6 +4235,7 @@ export const it: TranslationDict = {
     byAuthor: 'Di {{name}}',
     faqEyebrow: 'Domande frequenti',
     tradeLinkText: 'Veda come Cantia si adatta a questo mestiere',
+    sectorLinkText: 'Cantia per {{sector}}',
     seeAlsoEyebrow: 'Da leggere anche',
     readArticle: 'Leggi l’articolo',
     closingTitle: 'Gestire i suoi cantieri senza pensarci',

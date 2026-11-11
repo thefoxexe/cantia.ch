@@ -8,7 +8,7 @@ import { FaqItem } from './FamilyPage';
 import { LaptopShot } from './Laptop';
 import { useSiteLocale } from './SiteNav';
 import { SECTOR_SCREENS } from './sectorScreens';
-import { BUILDING_TRADES, HUB_COPY, SECTOR_KEYS, SECTOR_SLUGS, SECTOR_UI, SECTORS_COPY, type SectorKey } from '../../lib/site/sectors';
+import { BUILDING_TRADES, sectorHref, HUB_COPY, SECTOR_KEYS, SECTOR_SLUGS, SECTOR_UI, SECTORS_COPY, type SectorKey } from '../../lib/site/sectors';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
 import { getTradePage } from '../../lib/tradeLandingPages';
@@ -16,9 +16,7 @@ import { getTradePage } from '../../lib/tradeLandingPages';
 type IconName = keyof typeof Feather.glyphMap;
 const SECTOR_ICONS: Record<SectorKey, IconName> = { batiment: 'home', services: 'droplet', etudes: 'compass', creatifs: 'aperture' };
 
-export function sectorHref(prefix: string, key: SectorKey) {
-  return `${prefix}/metiers/${SECTOR_SLUGS[key]}`;
-}
+export { sectorHref };
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 

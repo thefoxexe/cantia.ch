@@ -3,6 +3,7 @@ import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRAD
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
 import { CRUMB_NAMES } from './crumb-names.mjs';
+import { SHORT_TITLES } from './seo-short-titles.mjs';
 
 // Home page FAQ, shared with app/index.tsx (shown there, FAQPage here).
 const HOME_FAQ = JSON.parse(readFileSync(new URL('../lib/site/homeFaq.json', import.meta.url), 'utf8'));
@@ -5009,4 +5010,13 @@ export function jsonLdFor(url, route) {
     });
   }
   return { '@context': 'https://schema.org', '@graph': graph };
+}
+
+// Titles a search result would cut (over 65 characters): the brand suffix
+// goes first, then a shorter title from scripts/seo-short-titles.mjs. The
+// page's H1 keeps the full headline.
+const BRAND_SUFFIX = / \| (Cantia Hilfe-Center|Centro assistenza Cantia|Centre d'aide Cantia|Cantia)$/;
+for (const route of ROUTES) {
+  if (SHORT_TITLES[route.path]) route.title = SHORT_TITLES[route.path];
+  else if (route.title && route.title.length > 65 && BRAND_SUFFIX.test(route.title)) route.title = route.title.replace(BRAND_SUFFIX, '');
 }

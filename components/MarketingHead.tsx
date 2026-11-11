@@ -9,8 +9,28 @@ const OG_IMAGE = 'https://cantia.ch/og-image.jpg';
 // WhatsApp/LinkedIn/Facebook showed no preview card at all. description is
 // optional per-page (falls back to the site-wide tagline) so existing
 // callers keep working untouched while still getting real OG/Twitter tags.
-export function MarketingHead({ title, description }: { title: string; description?: string }) {
-  const desc = description ?? DEFAULT_DESCRIPTION;
+// The pre-rendered HTML (scripts/inject-seo-meta.mjs) already carries the
+// curated title and description, sometimes shorter than the page headline so
+// a search result shows them whole. Read once at load, before any Head
+// update, and kept for that same URL so the app doesn't swap them back once
+// it starts. Pages reached later by in-app navigation use their own props.
+const STATIC_HEAD = (() => {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return null;
+  const title = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+  const description = document.querySelector('meta[name="description"]')?.getAttribute('content');
+  if (!title) return null;
+  return { path: window.location.pathname.replace(/\/+$/, ''), title, description: description ?? undefined };
+})();
+
+function staticHeadFor(): { title: string; description?: string } | null {
+  if (!STATIC_HEAD || typeof window === 'undefined') return null;
+  return window.location.pathname.replace(/\/+$/, '') === STATIC_HEAD.path ? STATIC_HEAD : null;
+}
+
+export function MarketingHead({ title: propTitle, description }: { title: string; description?: string }) {
+  const pre = staticHeadFor();
+  const title = pre?.title ?? propTitle;
+  const desc = pre?.description ?? description ?? DEFAULT_DESCRIPTION;
   return (
     <Head>
       <title>{title}</title>
