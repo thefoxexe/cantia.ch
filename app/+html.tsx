@@ -43,6 +43,10 @@ export default function Root({ children }: PropsWithChildren) {
             Consent mode: no ad cookie until the visitor accepts in the
             cookie banner (components/CookieBanner.tsx), whose choice is
             kept in the .cantia.ch cookie read below. */}
+        {/* Cloudflare Web Analytics: no cookie, no personal data, so it loads
+            for every visitor without the consent banner. Same snippet as
+            scripts/inject-seo-meta.mjs (CF_BEACON). */}
+        <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "d2207a54495f48449b9c5a5991d31d16"}' />
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
         <script
           dangerouslySetInnerHTML={{

@@ -29,6 +29,11 @@ const GTAG_SCRIPT = `
       gtag('config', 'AW-18465996566');
       if (cantiaConsent === 'granted') gtag('config', 'G-1K03L5TNDX');</script>`;
 
+// Cloudflare Web Analytics (no cookie): every page, no consent needed. Also
+// in app/+html.tsx; added here only where a page lacks it.
+const CF_BEACON = `
+    <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d2207a54495f48449b9c5a5991d31d16"}'></script>`;
+
 const OG_LOCALES = { fr: 'fr_CH', de: 'de_CH', it: 'it_CH' };
 const HREFLANG_TAGS = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
 
@@ -160,6 +165,7 @@ const HYDRATE_FLAG = /<script type="module">globalThis\.__EXPO_ROUTER_HYDRATE__=
 function headExtras(html) {
   let extras = '';
   if (!html.includes('/fonts/dm-sans-latin.woff2') && !html.includes('fonts.googleapis.com/css2')) extras += FONT_LINKS;
+  if (!html.includes('cloudflareinsights.com/beacon')) extras += CF_BEACON;
   if (!html.includes('googletagmanager.com/gtag')) extras += GTAG_SCRIPT;
   if (!html.includes('html:not(.hydrated)')) extras += HYDRATION_STYLE;
   return extras;
