@@ -3940,7 +3940,7 @@ export const it: TranslationDict = {
     title: 'Note legali',
     updated: 'Ultimo aggiornamento: novembre 2026',
     publisherTitle: 'Editore del sito',
-    publisherText: 'Il sito cantia.ch e l’app Cantia sono pubblicati da un’impresa individuale iscritta in Svizzera, numero IDI CHE-316.009.008. Può scriverci a info@cantia.ch.',
+    publisherText: 'Il sito cantia.ch e l’app Cantia sono pubblicati da Ryser Creative, impresa individuale iscritta in Svizzera, numero IDI CHE-316.009.008. E-mail: info@cantia.ch. Telefono: +41 78 450 14 57.',
     hostingTitle: 'Hosting',
     hostingText: 'I dati dell’app (account, documenti, file) sono ospitati da Supabase, nel suo centro dati di Zurigo, in Svizzera. Il sito e l’interfaccia web sono serviti da Netlify. Netlify si limita a trasmettere le pagine e non conserva nessuno dei suoi dati.',
     ipTitle: 'Proprietà intellettuale',

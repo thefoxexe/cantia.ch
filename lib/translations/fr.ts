@@ -3921,7 +3921,7 @@ export const fr = {
     title: 'Mentions légales',
     updated: 'Dernière mise à jour : novembre 2026',
     publisherTitle: 'Éditeur du site',
-    publisherText: 'Le site cantia.ch et l’application Cantia sont édités par une entreprise individuelle inscrite en Suisse, numéro IDE CHE-316.009.008. Vous pouvez nous écrire à info@cantia.ch.',
+    publisherText: 'Le site cantia.ch et l’application Cantia sont édités par Ryser Creative, entreprise individuelle inscrite en Suisse, numéro IDE CHE-316.009.008. E-mail : info@cantia.ch. Téléphone : +41 78 450 14 57.',
     hostingTitle: 'Hébergement',
     hostingText: 'Les données de l’application (comptes, documents, fichiers) sont hébergées par Supabase, dans son centre de données de Zurich, en Suisse. Le site et l’interface web sont servis par Netlify. Netlify ne fait que transmettre les pages : il ne garde aucune de vos données.',
     ipTitle: 'Propriété intellectuelle',
