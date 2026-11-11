@@ -77,6 +77,14 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
               {'\n'}
               {f.languages}
             </Text>
+            <View style={{ marginTop: 22, gap: 9 }}>
+              <Text style={[sans, styles.colTitle, { marginBottom: 0 }]}>{f.payments.toUpperCase()}</Text>
+              <View style={styles.payments}>
+                {PAYMENT_METHODS.map((m) => (
+                  <Image key={m.file} source={{ uri: `/payments/${m.file}.svg` }} accessibilityLabel={m.name} style={styles.payment} />
+                ))}
+              </View>
+            </View>
           </View>
           {columns.map((col) => (
             <View key={col.title} style={[phone ? { width: '100%' } : { flex: 1 }]}>
@@ -125,7 +133,23 @@ function BottomLink({ label, href }: FooterLink) {
   );
 }
 
+// Payment methods actually accepted at checkout (Stripe, CHF subscriptions):
+// cards, Apple Pay, Google Pay and Klarna, checked in the Stripe account.
+// TWINT is pending approval: add it here once it is live at checkout (the
+// checkout also needs a Stripe API version that supports recurring TWINT).
+// Logos: public/payments (payment-icons, MPL-2.0; simple-icons, CC0).
+const PAYMENT_METHODS = [
+  { file: 'visa', name: 'Visa' },
+  { file: 'mastercard', name: 'Mastercard' },
+  { file: 'amex', name: 'American Express' },
+  { file: 'apple-pay', name: 'Apple Pay' },
+  { file: 'google-pay', name: 'Google Pay' },
+  { file: 'klarna', name: 'Klarna' },
+];
+
 const styles = StyleSheet.create({
+  payments: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  payment: { width: 38, height: 24 },
   footer: { paddingTop: 47, paddingBottom: 22, backgroundColor: site.bg, borderTopWidth: 1, borderTopColor: site.line },
   grid: { flexDirection: 'row', gap: 40 },
   gridTablet: { flexWrap: 'wrap', rowGap: 34 },
