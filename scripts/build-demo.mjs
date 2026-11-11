@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -23,4 +23,19 @@ writeFileSync(path.join(outputDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n'
 for (const f of ['sitemap.xml', 'llms.txt']) rmSync(path.join(outputDir, f), { force: true });
 // Extra header for every page of the demo, on top of netlify.toml's.
 writeFileSync(path.join(outputDir, '_headers'), '/*\n  X-Robots-Tag: noindex, nofollow\n');
+// The pre-rendered pages carry the marketing site's titles and share tags
+// (any language): the demo has its own title, set again in the visitor's
+// language once the app starts (components/DemoBanner.tsx).
+function htmlFiles(dir) {
+  return readdirSync(dir).flatMap((f) => {
+    const p = path.join(dir, f);
+    return statSync(p).isDirectory() ? htmlFiles(p) : f.endsWith('.html') ? [p] : [];
+  });
+}
+for (const file of htmlFiles(outputDir)) {
+  const html = readFileSync(file, 'utf8')
+    .replace(/<title[^>]*>[\s\S]*?<\/title>/g, '<title>Démo Cantia</title>')
+    .replace(/<meta[^>]+(?:property="og:[^"]+"|name="twitter:[^"]+"|name="description")[^>]*>/g, '');
+  writeFileSync(file, html);
+}
 console.log('demo.cantia.ch build ready.');

@@ -13,6 +13,7 @@ import { sans } from '../lib/siteTheme';
 // - the same window once, after a few pages visited.
 const COPY = {
   fr: {
+    tab: 'Démo Cantia · Atelier Martin SA',
     label: 'Démo · Atelier Martin SA, entreprise d’exemple',
     cta: 'Essayer Cantia',
     blockedTitle: 'Enregistrez pour de vrai.',
@@ -24,6 +25,7 @@ const COPY = {
     keep: 'Continuer la visite',
   },
   de: {
+    tab: 'Cantia Demo · Atelier Martin SA',
     label: 'Demo · Atelier Martin SA, Beispielunternehmen',
     cta: 'Cantia testen',
     blockedTitle: 'Jetzt richtig speichern.',
@@ -35,6 +37,7 @@ const COPY = {
     keep: 'Weiter ansehen',
   },
   it: {
+    tab: 'Demo Cantia · Atelier Martin SA',
     label: 'Demo · Atelier Martin SA, azienda di esempio',
     cta: 'Provare Cantia',
     blockedTitle: 'Salvate per davvero.',
@@ -86,6 +89,24 @@ export function DemoBanner() {
       setModal('tour');
     }
   }, [pathname]);
+
+  // The tab title of the demo, in the language of the visit: the HTML of
+  // the build carries the marketing home's title (of any language), which
+  // no app screen replaces.
+  const tabLocale = getAppLocale();
+  useEffect(() => {
+    if (!IS_DEMO || typeof document === 'undefined') return;
+    const title = COPY[tabLocale === 'de' || tabLocale === 'it' ? tabLocale : 'fr'].tab;
+    document.title = title;
+    // A Head update from a screen would put the old title back: keep ours.
+    const el = document.querySelector('title');
+    if (!el) return;
+    const obs = new MutationObserver(() => {
+      if (document.title !== title) document.title = title;
+    });
+    obs.observe(el, { childList: true, characterData: true, subtree: true });
+    return () => obs.disconnect();
+  }, [tabLocale, pathname]);
 
   if (!IS_DEMO) return null;
   const locale = getAppLocale();
