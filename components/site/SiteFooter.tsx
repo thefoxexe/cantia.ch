@@ -134,14 +134,13 @@ function BottomLink({ label, href }: FooterLink) {
 }
 
 // Payment methods actually accepted at checkout (Stripe, CHF subscriptions):
-// cards, Apple Pay, Google Pay and Klarna, checked in the Stripe account.
+// Visa, Mastercard, Apple Pay, Google Pay and Klarna (checked in Stripe).
 // TWINT is pending approval: add it here once it is live at checkout (the
 // checkout also needs a Stripe API version that supports recurring TWINT).
 // Logos: public/payments (payment-icons, MPL-2.0; simple-icons, CC0).
 const PAYMENT_METHODS = [
   { file: 'visa', name: 'Visa' },
   { file: 'mastercard', name: 'Mastercard' },
-  { file: 'amex', name: 'American Express' },
   { file: 'apple-pay', name: 'Apple Pay' },
   { file: 'google-pay', name: 'Google Pay' },
   { file: 'klarna', name: 'Klarna' },
