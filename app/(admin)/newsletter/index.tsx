@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -19,7 +19,7 @@ import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEm
 import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona, type ExternalRecipient, parseExternalRecipients } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
-import { loadEmailList, saveEmailList, MAX_EXTERNAL } from '../../../lib/admin/emailList';
+import { fetchEmailList, syncEmailList, markEmailListSent, MAX_EXTERNAL } from '../../../lib/admin/emailList';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
@@ -65,9 +65,6 @@ function formatDateTime(iso: string): string {
 // search. Every criterion defaults to subscribed-only; including people who
 // opted out is an explicit choice and needs the confirmation box before a
 // newsletter-persona send.
-const loadExternals = loadEmailList;
-const saveExternals = saveEmailList;
-
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();
   const [subject, setSubject] = useState('');
@@ -106,14 +103,27 @@ export default function AdminNewsletterScreen() {
   const [confirmUnsubscribed, setConfirmUnsubscribed] = useState(false);
   // Addresses without a Cantia account (prospects, fiduciaries to invite),
   // in the same list as the accounts: typed in the search field or pasted
-  // as a list. Kept in this browser until sent, so a list built over
-  // several visits is not lost.
-  const [externals, setExternals] = useState<Map<string, ExternalRecipient>>(() => loadExternals());
+  // as a list, or added from Nouvelles entreprises. Kept in the database
+  // (admin_email_list) until sent: the same list on the phone and on the
+  // computer.
+  const [externals, setExternals] = useState<Map<string, ExternalRecipient>>(new Map());
+  const syncedExternals = useRef<Map<string, ExternalRecipient> | null>(null);
   const externalList = useMemo(() => [...externals.values()], [externals]);
   const [showPaste, setShowPaste] = useState(false);
   const [pasteText, setPasteText] = useState('');
   const [pasteNote, setPasteNote] = useState<string | null>(null);
-  useEffect(() => saveExternals(externals), [externals]);
+  useEffect(() => {
+    fetchEmailList().then(({ list }) => {
+      syncedExternals.current = list;
+      setExternals(list);
+    });
+  }, []);
+  useEffect(() => {
+    const before = syncedExternals.current;
+    if (!before || before === externals) return;
+    syncedExternals.current = externals;
+    syncEmailList(before, externals).then((err) => err && setError(`Liste d’envoi non enregistrée : ${err}`));
+  }, [externals]);
   const totalRecipients = selectedIds.size + externals.size;
   // A typed e-mail (« marie@cabinet.ch, Marie Rochat, Cabinet Rochat ») that
   // is not in the list yet: offered as an external address.
@@ -386,6 +396,8 @@ export default function AdminNewsletterScreen() {
         return;
       }
       setScheduleConfirmed(`Envoi programmé pour le ${formatDateTime(iso)} : ${totalRecipients} destinataire${totalRecipients > 1 ? 's' : ''}.`);
+      await markEmailListSent(externalList.map((r) => r.email));
+      syncedExternals.current = new Map();
       setExternals(new Map());
       setScheduledAt('');
       if (showScheduled) loadScheduled();
@@ -412,7 +424,11 @@ export default function AdminNewsletterScreen() {
       return;
     }
     setResult({ sent, skipped, failed, failReason, total });
-    if (sent > 0) setExternals(new Map());
+    if (sent > 0) {
+      await markEmailListSent(externalList.map((r) => r.email));
+      syncedExternals.current = new Map();
+      setExternals(new Map());
+    }
     if (showHistory) loadHistory();
   }
 

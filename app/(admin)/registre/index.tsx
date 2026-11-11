@@ -6,7 +6,7 @@ import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { listRegistryCompanies, refreshRegistry, registryPending, updateRegistryCompany, type RegistryCompany } from '../../../lib/api/admin';
-import { addToEmailList, isInEmailList } from '../../../lib/admin/emailList';
+import { addToEmailList, emailListAddresses } from '../../../lib/admin/emailList';
 
 // Super Admin › Nouvelles entreprises: companies entered in the commercial
 // register these last days (FOSC, fetched by the database every morning and
@@ -102,7 +102,8 @@ export default function AdminRegistry() {
   const [query, setQuery] = useState('');
   const [shown, setShown] = useState(40);
   const [searching, setSearching] = useState<number | null>(null);
-  const [, setTick] = useState(0);
+  // Addresses already in the E-mails list (shared with the computer).
+  const [inList, setInList] = useState<Set<string>>(new Set());
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(async () => {
@@ -114,6 +115,7 @@ export default function AdminRegistry() {
 
   useEffect(() => {
     load();
+    emailListAddresses().then(setInList);
     registryPending().then((n) => (n > 0 ? watch() : null));
     return () => {
       if (poll.current) clearInterval(poll.current);
@@ -252,7 +254,7 @@ export default function AdminRegistry() {
         ) : (
           <View style={{ gap: spacing.sm }}>
             {filtered.slice(0, shown).map((r) => (
-              <CompanyCard key={r.id} r={r} onStatus={(s) => setRowStatus(r, s)} onPatched={(p) => patchRow(r.id, p)} onError={setError} onListChanged={() => setTick((t) => t + 1)} />
+              <CompanyCard key={r.id} r={r} onStatus={(s) => setRowStatus(r, s)} onPatched={(p) => patchRow(r.id, p)} onError={setError} inList={!!r.email && inList.has(r.email)} onAdded={(e) => setInList((prev) => new Set(prev).add(e))} />
             ))}
             {filtered.length > shown ? (
               <Pressable onPress={() => setShown((n) => n + 40)} style={styles.more}>
@@ -279,13 +281,15 @@ function CompanyCard({
   onStatus,
   onPatched,
   onError,
-  onListChanged,
+  inList,
+  onAdded,
 }: {
   r: RegistryCompany;
   onStatus: (s: RegistryCompany['status']) => void;
   onPatched: (p: Partial<RegistryCompany>) => void;
   onError: (e: string) => void;
-  onListChanged: () => void;
+  inList: boolean;
+  onAdded: (email: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(r.email ?? '');
@@ -295,7 +299,6 @@ function CompanyCard({
   const others = personCount(r.persons) - 1;
   const where = [r.street, [r.zip, r.town].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   const emailOk = EMAIL_RE.test(email.trim());
-  const inList = isInEmailList(r.email);
   const searchName = `"${r.name}" ${r.town ?? r.seat ?? ''}`;
 
   async function saveEmail() {
@@ -314,9 +317,15 @@ function CompanyCard({
     if (!EMAIL_RE.test(v)) return;
     if (v !== (r.email ?? '')) await saveEmail();
     // The greeting uses the first name only when the register gives it.
-    const ok = addToEmailList({ email: v, name: who?.first ? who.display : undefined, company: r.name, locale: r.language === 'de' || r.language === 'it' ? r.language : 'fr' });
-    if (!ok) onError('La liste d’envoi est pleine (200 adresses externes).');
-    onListChanged();
+    setSaving(true);
+    const { ok, error } = await addToEmailList(
+      { email: v, name: who?.first ? who.display : undefined, company: r.name, locale: r.language === 'de' || r.language === 'it' ? r.language : 'fr' },
+      r.id,
+    );
+    setSaving(false);
+    if (error) onError(`Pas ajoutée à la liste d’envoi : ${error}`);
+    else if (!ok) onError('La liste d’envoi est pleine (200 adresses externes).');
+    else onAdded(v);
   }
 
   return (
