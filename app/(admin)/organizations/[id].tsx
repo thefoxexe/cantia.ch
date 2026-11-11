@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AdminCancellationReasons } from '../../../components/AdminCancellationReasons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
@@ -400,6 +401,8 @@ export default function AdminOrganizationDetailScreen() {
             })}
           </View>
         )}
+
+        <AdminCancellationReasons organizationId={detail.organization.id} />
 
         <Text style={styles.sectionTitle}>Membres ({detail.members.length})</Text>
         <View style={styles.list}>

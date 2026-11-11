@@ -27,6 +27,31 @@ async function notifyPaymentFailed(organizationId: string): Promise<void> {
 // Powers the "log per organization" timeline on the admin org detail
 // screen — best-effort: a logging failure must never fail the webhook
 // itself (Stripe already got its confirmation via the row update above).
+// Stripe's own cancellation reason (feedback + comment), asked by the
+// customer portal when it is set to collect it. Stored once per cancellation
+// in subscription_cancellation_reasons, next to the reason picked in the app.
+// Best-effort: never fails the webhook (the table may not exist yet).
+async function saveStripeCancellationReason(admin: ReturnType<typeof createClient>, organizationId: string, subscription: Stripe.Subscription): Promise<void> {
+  const details = subscription.cancellation_details;
+  const feedback = details?.feedback ?? null;
+  const comment = details?.comment?.trim() ? details.comment.trim().slice(0, 2000) : null;
+  if (!feedback && !comment) return;
+  try {
+    const since = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
+    const { data: existing } = await admin
+      .from('subscription_cancellation_reasons')
+      .select('id')
+      .eq('organization_id', organizationId)
+      .eq('source', 'stripe')
+      .gte('created_at', since)
+      .limit(1);
+    if (existing && existing.length) return;
+    await admin.from('subscription_cancellation_reasons').insert({ organization_id: organizationId, source: 'stripe', reason: feedback, comment });
+  } catch (err) {
+    console.error('saveStripeCancellationReason failed', err);
+  }
+}
+
 async function logOrgEvent(
   admin: ReturnType<typeof createClient>,
   organizationId: string,
@@ -259,6 +284,13 @@ Deno.serve(async (req: Request) => {
             })
             .eq('id', organizationId);
 
+          // The customer asked to cancel at the end of the period (Stripe
+          // portal): keep the reason they gave, if any.
+          const previous = (event.data as { previous_attributes?: Partial<Stripe.Subscription> }).previous_attributes;
+          if (subscription.cancel_at_period_end && previous?.cancel_at_period_end === false) {
+            await saveStripeCancellationReason(admin, organizationId, subscription);
+          }
+
           if (grantsTrial) {
             await logOrgEvent(admin, organizationId, 'trial_started', { plan_id: planId ?? null, trial_end: trialEndsAt });
           } else if (!hasAccess && orgBefore?.plan_id) {
@@ -290,7 +322,12 @@ Deno.serve(async (req: Request) => {
             .maybeSingle();
           const wasTrialing = orgBefore?.subscription_status === 'trialing';
 
-          await logOrgEvent(admin, organizationId, 'canceled', { was_trialing: wasTrialing });
+          await logOrgEvent(admin, organizationId, 'canceled', {
+            was_trialing: wasTrialing,
+            feedback: subscription.cancellation_details?.feedback ?? null,
+            reason: subscription.cancellation_details?.reason ?? null,
+          });
+          await saveStripeCancellationReason(admin, organizationId, subscription);
 
           // No free plan to fall back to — cancelling locks the org out.
           // plan_id is cleared (not just plan_selected) so app/_layout.tsx's

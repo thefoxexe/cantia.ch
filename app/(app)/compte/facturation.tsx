@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { openBillingPortal, startCheckout } from '../../../lib/api/billing';
+import { CANCELLATION_REASONS, saveCancellationReason, type CancellationReason } from '../../../lib/api/cancellation';
 import { openCheckoutUrl } from '../../../lib/openUrl';
 import { Button, Container, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
@@ -13,13 +14,17 @@ import type { Plan } from '../../../lib/types';
 
 export default function FacturationScreen() {
   const { t } = useTranslation();
-  const { organization, role, refreshOrganization } = useAuth();
+  const { organization, role, refreshOrganization, user } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showChoice, setShowChoice] = useState(false);
   const [showManage, setShowManage] = useState(false);
+  // Asked once, just before Stripe's cancellation flow: why they leave.
+  const [showCancelReason, setShowCancelReason] = useState(false);
+  const [cancelReason, setCancelReason] = useState<CancellationReason | null>(null);
+  const [cancelComment, setCancelComment] = useState('');
   const isAdmin = role === 'owner' || role === 'admin';
   const hasActiveSubscription = !!organization?.stripe_subscription_id;
 
@@ -96,7 +101,19 @@ export default function FacturationScreen() {
 
   function pickManageAction(flow?: 'cancel') {
     setShowManage(false);
+    if (flow === 'cancel') {
+      setCancelReason(null);
+      setCancelComment('');
+      setShowCancelReason(true);
+      return;
+    }
     goToPortal(flow);
+  }
+
+  async function continueToCancel() {
+    setShowCancelReason(false);
+    if (organization && user) await saveCancellationReason(organization.id, user.id, cancelReason, cancelComment);
+    goToPortal('cancel');
   }
 
   return (
@@ -256,6 +273,39 @@ export default function FacturationScreen() {
           </View>
         </View>
       </Modal>
+      {/* Why they cancel: optional, never blocks the way to Stripe. */}
+      <Modal visible={showCancelReason} animationType="slide" transparent onRequestClose={() => setShowCancelReason(false)}>
+        <View style={styles.sheetOverlay}>
+          <View style={styles.sheet}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>{t('facturationSettings.cancelReasonTitle')}</Text>
+              <Pressable onPress={() => setShowCancelReason(false)} hitSlop={10}>
+                <Feather name="x" size={22} color={colors.text} />
+              </Pressable>
+            </View>
+            <Text style={styles.planOptionMeta}>{t('facturationSettings.cancelReasonText')}</Text>
+            <ScrollView style={{ maxHeight: 380 }} contentContainerStyle={{ gap: spacing.xs }}>
+              {CANCELLATION_REASONS.map((r) => (
+                <Pressable key={r} style={[styles.reasonRow, cancelReason === r && styles.reasonRowOn]} onPress={() => setCancelReason(r)} accessibilityRole="radio" aria-checked={cancelReason === r}>
+                  <Feather name={cancelReason === r ? 'check-circle' : 'circle'} size={18} color={cancelReason === r ? colors.primary : colors.textMuted} />
+                  <Text style={styles.reasonText}>{t(`facturationSettings.cancelReasons.${r}` as any)}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            <TextInput
+              value={cancelComment}
+              onChangeText={setCancelComment}
+              placeholder={t('facturationSettings.cancelReasonCommentPlaceholder')}
+              placeholderTextColor={colors.textMuted}
+              multiline
+              maxLength={2000}
+              style={styles.reasonInput}
+            />
+            <Button title={t('facturationSettings.cancelReasonContinue')} variant="secondary" onPress={continueToCancel} />
+            <Button title={t('facturationSettings.cancelReasonBack')} onPress={() => setShowCancelReason(false)} />
+          </View>
+        </View>
+      </Modal>
     </AppScreen>
   );
 }
@@ -349,6 +399,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.text,
   },
+  reasonRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
+  reasonRowOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  reasonText: { flex: 1, fontSize: fontSize.sm, color: colors.text },
+  reasonInput: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, minHeight: 72, fontSize: fontSize.sm, color: colors.text, textAlignVertical: 'top' },
   planOption: {
     flexDirection: 'row',
     alignItems: 'center',

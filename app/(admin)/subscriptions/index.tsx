@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AdminCancellationReasons } from '../../../components/AdminCancellationReasons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -109,6 +110,8 @@ export default function AdminSubscriptionsList() {
             nested inside this page's outer vertical ScrollView captured the
             touch/wheel gesture wherever it started, locking the page
             mid-scroll (the same bug the Entreprises list had). */}
+        <AdminCancellationReasons limit={20} title="Derniers motifs de résiliation" />
+
         <View style={styles.countRow}>
           {STATUS_FILTERS.map((f) => (
             <StatusCountTile
