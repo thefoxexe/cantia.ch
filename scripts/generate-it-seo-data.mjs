@@ -44,10 +44,12 @@ function descriptionFrom(paragraphs) {
 }
 
 const { HELP_ARTICLES_IT } = loadTsModule(path.join(rootDir, 'lib/helpArticles.ts'));
+const { HELP_MORE_IT } = loadTsModule(path.join(rootDir, 'lib/helpArticlesMore.it.ts'));
 const helpRoutesIt = (HELP_ARTICLES_IT ?? []).map((a) => ({
   path: `it/aide/${a.id}`,
   title: `${a.title} | Centro assistenza Cantia`,
   description: descriptionFrom(a.body),
+  faq: HELP_MORE_IT[a.id]?.faq ?? [],
 }));
 
 const { TRADE_PAGES_IT } = loadTsModule(path.join(rootDir, 'lib/tradeLandingPagesIt.ts'));

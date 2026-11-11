@@ -3,7 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { SitePage } from '../../components/site/Sections';
 import { Btn, Headline, Wrap } from '../../components/site/Primitives';
 import { HelpArticlePage } from '../../components/HelpArticlePage';
-import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../../lib/helpArticles';
+import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../../lib/helpArticlesFull';
 import { getAppLocale, useTranslation } from '../../lib/translations';
 import { sans, site } from '../../lib/siteTheme';
 

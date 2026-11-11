@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 import { Eyebrow, Headline, Hover, Wrap } from '../components/site/Primitives';
 import { Breadcrumbs, Section, SitePage, useSiteLayout } from '../components/site/Sections';
 import { SITE_PAGES } from '../lib/site/pages';
-import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpArticles';
+import { HELP_ARTICLES, HELP_ARTICLES_DE, HELP_ARTICLES_IT } from '../lib/helpArticlesFull';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
 import { sans, site } from '../lib/siteTheme';

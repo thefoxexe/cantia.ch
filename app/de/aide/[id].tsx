@@ -1,5 +1,5 @@
 import { forceLocale } from '../../../lib/translations';
-import { HELP_ARTICLES_DE } from '../../../lib/helpArticles';
+import { HELP_ARTICLES_DE } from '../../../lib/helpArticlesFull';
 import HelpArticleScreen from '../../aide/[id]';
 
 forceLocale('de');

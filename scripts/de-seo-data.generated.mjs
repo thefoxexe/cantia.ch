@@ -4833,142 +4833,534 @@ export const HELP_SEO_FR = [
   {
     "path": "aide/demarrage",
     "title": "Premiers pas avec Cantia | Centre d'aide Cantia",
-    "description": "Tout tourne autour d'une organisation (votre entreprise) : vous l'avez créée à l'inscription, et toutes les personnes qui la rejoignent partagent les…"
+    "description": "Tout tourne autour d'une organisation (votre entreprise) : vous l'avez créée à l'inscription, et toutes les personnes qui la rejoignent partagent les…",
+    "faq": [
+      {
+        "q": "Puis-je utiliser Cantia sur mon téléphone ?",
+        "a": "Oui. Cantia fonctionne dans le navigateur du téléphone, et vous pouvez l'ajouter à l'écran d'accueil pour l'ouvrir comme une application."
+      },
+      {
+        "q": "Un module désactivé efface-t-il mes données ?",
+        "a": "Non. Un module éteint disparaît de la navigation, ses données restent. Si vous le rallumez, tout est là."
+      },
+      {
+        "q": "Où trouver de l’aide en cours de route ?",
+        "a": "Dans Compte → Aide, avec tous les articles de ce centre d'aide, et par e-mail à info@cantia.ch."
+      }
+    ]
   },
   {
     "path": "aide/devis-creation",
     "title": "Créer et envoyer un devis | Centre d'aide Cantia",
-    "description": "Un devis se crée avec un client (nom, adresse, e-mail) et des lignes (description, quantité, unité, prix unitaire)."
+    "description": "Un devis se crée avec un client (nom, adresse, e-mail) et des lignes (description, quantité, unité, prix unitaire).",
+    "faq": [
+      {
+        "q": "Combien de devis puis-je créer ?",
+        "a": "Autant que vous voulez : les devis et les factures sont illimités sur toutes les formules."
+      },
+      {
+        "q": "Le devis peut-il partir en allemand ou en italien ?",
+        "a": "Oui, dès la formule Équipe : chaque document peut sortir dans la langue du client."
+      },
+      {
+        "q": "Que se passe-t-il quand le client signe ?",
+        "a": "Le devis passe à Accepté, la signature est horodatée et la facture correspondante est créée. Vous n'avez rien à recopier."
+      }
+    ]
   },
   {
     "path": "aide/devis-trames",
     "title": "Gagner du temps avec les trames | Centre d'aide Cantia",
-    "description": "Une trame est un ensemble de lignes de devis réutilisables (par exemple toutes les positions habituelles d'une salle de bain) "
+    "description": "Une trame est un ensemble de lignes de devis réutilisables (par exemple toutes les positions habituelles d'une salle de bain).",
+    "faq": [
+      {
+        "q": "Une trame modifiée change-t-elle mes anciens devis ?",
+        "a": "Non. Les devis déjà créés gardent leurs lignes. La trame ne sert qu'aux prochains devis."
+      },
+      {
+        "q": "Puis-je partir d’un devis existant ?",
+        "a": "Oui, avec « Enregistrer comme trame » dans le menu du devis."
+      },
+      {
+        "q": "Toute l’équipe voit-elle les trames ?",
+        "a": "Oui, les trames appartiennent à l'entreprise et sont partagées par tous ceux qui créent des devis."
+      }
+    ]
   },
   {
     "path": "aide/facturation-acomptes",
     "title": "Factures, acomptes et paiements partiels | Centre d'aide Cantia",
-    "description": "Depuis un devis accepté, vous pouvez facturer un acompte (un pourcentage du montant total) avant la facture finale."
+    "description": "Depuis un devis accepté, vous pouvez facturer un acompte (un pourcentage du montant total) avant la facture finale.",
+    "faq": [
+      {
+        "q": "Puis-je faire plusieurs acomptes sur un même devis ?",
+        "a": "Oui. La facture finale les déduit tous automatiquement."
+      },
+      {
+        "q": "Et si j’annule un acompte ?",
+        "a": "La déduction est recalculée : le solde de la facture finale reste juste."
+      },
+      {
+        "q": "Les factures ont-elles une QR-facture ?",
+        "a": "Oui, toutes les factures incluent la partie QR suisse avec la référence de paiement."
+      }
+    ]
   },
   {
     "path": "aide/facturation-email-lien",
     "title": "Envoyer un devis ou une facture, et le lien client public | Centre d'aide Cantia",
-    "description": "Le bouton \"Envoyer par e-mail\" sur un devis ou une facture envoie automatiquement le PDF en pièce jointe, accompagné du lien du portail client "
+    "description": "Le bouton \"Envoyer par e-mail\" sur un devis ou une facture envoie automatiquement le PDF en pièce jointe, accompagné du lien du portail client.",
+    "faq": [
+      {
+        "q": "Faut-il générer le PDF avant l’envoi ?",
+        "a": "Oui, le PDF doit exister pour être joint. Il se génère dès que le document sort du brouillon."
+      },
+      {
+        "q": "Le lien expire-t-il ?",
+        "a": "Le lien reste valable, mais il ne s'ouvre qu'après vérification de l'adresse e-mail du client inscrite sur le document."
+      },
+      {
+        "q": "Le client peut-il payer depuis le lien ?",
+        "a": "Il voit le détail, le solde et la QR-facture. Le paiement se fait ensuite depuis sa banque, comme pour toute QR-facture."
+      }
+    ]
   },
   {
     "path": "aide/chantiers-rapports",
     "title": "Fil de chantier et rapports PDF | Centre d'aide Cantia",
-    "description": "Chaque chantier a un fil d'actualité façon discussion : vous y postez des photos géolocalisées et des messages (dictés à la voix si besoin) au fur et à…"
+    "description": "Chaque chantier a un fil d'actualité façon discussion : vous y postez des photos géolocalisées et des messages (dictés à la voix si besoin) au fur et à…",
+    "faq": [
+      {
+        "q": "Les photos sont-elles datées ?",
+        "a": "Oui, chaque photo du fil est horodatée et géolocalisée, ce qui en fait une preuve utile en cas de contestation."
+      },
+      {
+        "q": "Puis-je travailler sans réseau ?",
+        "a": "Oui, les photos prises hors ligne se synchronisent dès que la connexion revient."
+      },
+      {
+        "q": "Qui voit le fil d’un chantier ?",
+        "a": "Les membres de l'entreprise qui ont accès à ce chantier, selon leur rôle."
+      }
+    ]
   },
   {
     "path": "aide/rentabilite",
     "title": "Rentabilité par chantier | Centre d'aide Cantia",
-    "description": "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel : matériel (dépenses saisies sur le chantier) et main d'œuvre (calculée…"
+    "description": "L'onglet Rentabilité d'un chantier compare le montant devisé/facturé au coût réel ",
+    "faq": [
+      {
+        "q": "Quelle formule faut-il ?",
+        "a": "La rentabilité par chantier est incluse dès la formule Équipe."
+      },
+      {
+        "q": "Les heures sont-elles comptées automatiquement ?",
+        "a": "Oui, les heures pointées sur le chantier dans RH & Salaires sont valorisées au coût horaire défini."
+      },
+      {
+        "q": "Les factures de sous-traitants comptent-elles ?",
+        "a": "Oui, elles s'ajoutent au coût réel du chantier auquel elles sont liées."
+      }
+    ]
   },
   {
     "path": "aide/planning",
     "title": "Planning d'équipe | Centre d'aide Cantia",
-    "description": "Le Planning affiche un vrai calendrier où chaque membre de l'équipe peut être affecté à un chantier sur une ou plusieurs journées."
+    "description": "Le Planning affiche un vrai calendrier où chaque membre de l'équipe peut être affecté à un chantier sur une ou plusieurs journées.",
+    "faq": [
+      {
+        "q": "Quelle formule faut-il ?",
+        "a": "Le planning est inclus dès la formule Équipe."
+      },
+      {
+        "q": "Le planning remplace-t-il le pointage des heures ?",
+        "a": "Non. Il sert d'estimation tant qu'aucune heure n'est pointée, puis les heures réelles prennent le relais pour la rentabilité."
+      },
+      {
+        "q": "Les employés voient-ils le planning ?",
+        "a": "Oui, chacun voit ses affectations depuis son téléphone."
+      }
+    ]
   },
   {
     "path": "aide/metre",
     "title": "Le métré | Centre d'aide Cantia",
-    "description": "Le module Métré donne un tableau de mesures adapté au mobile, pour calculer des surfaces et quantités directement depuis le chantier."
+    "description": "Le module Métré donne un tableau de mesures adapté au mobile, pour calculer des surfaces et quantités directement depuis le chantier.",
+    "faq": [
+      {
+        "q": "Où activer le métré ?",
+        "a": "Dans les paramètres du chantier, avec les autres outils propres au chantier."
+      },
+      {
+        "q": "Le devis généré reste-t-il modifiable ?",
+        "a": "Oui, c'est un devis normal : lignes, prix et textes se modifient avant l'envoi."
+      },
+      {
+        "q": "Le métré est-il supprimé avec le chantier ?",
+        "a": "Oui, supprimer un chantier supprime aussi son métré. Les devis déjà créés sont conservés."
+      }
+    ]
   },
   {
     "path": "aide/inventaire",
     "title": "À quoi sert le Catalogue ? | Centre d'aide Cantia",
-    "description": "Ce n'est pas un suivi de stock ou de matériel physique : c'est une bibliothèque de vos positions (description, unité, prix) qui se remplit automatiquement…"
+    "description": "Ce n'est pas un suivi de stock ou de matériel physique : c'est une bibliothèque de vos positions (description, unité, prix) qui se remplit automatiquement…",
+    "faq": [
+      {
+        "q": "Le Catalogue gère-t-il un stock ?",
+        "a": "Non. C'est une bibliothèque de positions et de prix, pas un suivi de matériel en stock."
+      },
+      {
+        "q": "Modifier une position change-t-il mes anciens devis ?",
+        "a": "Non, seulement les prochains."
+      },
+      {
+        "q": "Puis-je supprimer une position ?",
+        "a": "Oui, depuis le Catalogue, à tout moment."
+      }
+    ]
   },
   {
     "path": "aide/equipe-modules",
     "title": "Inviter l'équipe et activer des modules | Centre d'aide Cantia",
-    "description": "Depuis Compte → Équipe, un lien d'invitation permet à un collègue de rejoindre l'organisation ; les demandes d'adhésion en attente sont validées par un…"
+    "description": "Depuis Compte → Équipe, un lien d'invitation permet à un collègue de rejoindre l'organisation ; les demandes d'adhésion en attente sont validées par un…",
+    "faq": [
+      {
+        "q": "Un membre parti garde-t-il l’accès ?",
+        "a": "Non, retirez-le de Compte → Équipe et il n'a plus accès. Les documents qu'il a créés restent dans l'entreprise."
+      },
+      {
+        "q": "Puis-je créer mes propres rôles ?",
+        "a": "Oui, avec des droits choisis. La formule Essentiel en compte deux, Équipe et Entreprise sans limite."
+      },
+      {
+        "q": "Un module coûte-t-il en plus ?",
+        "a": "Non, les modules inclus dans votre formule sont compris dans le prix."
+      }
+    ]
   },
   {
     "path": "aide/personnalisation-abonnement",
     "title": "Kit de marque, plans et abonnement | Centre d'aide Cantia",
-    "description": "Dans Compte → Entreprise, vous pouvez définir la couleur de marque et le logo utilisés sur vos devis, factures et rapports PDF, dès le plan Essentiel "
+    "description": "Dans Compte → Entreprise, vous pouvez définir la couleur de marque et le logo utilisés sur vos devis, factures et rapports PDF, dès le plan Essentiel.",
+    "faq": [
+      {
+        "q": "Les prix incluent-ils la TVA ?",
+        "a": "Les prix affichés sont ceux de la page Tarifs. Votre facture Stripe détaille le montant."
+      },
+      {
+        "q": "Je veux récupérer mes données avant de partir ?",
+        "a": "Vos devis et factures existent en PDF, et les listes s'exportent. Pour le reste, écrivez à info@cantia.ch."
+      },
+      {
+        "q": "J’ai reçu un code personnel, où l’entrer ?",
+        "a": "Sur l'écran de choix de la formule, avec « Vous avez un plan personnalisé ? »."
+      }
+    ]
   },
   {
     "path": "aide/tableau-de-bord",
     "title": "Comprendre le tableau de bord | Centre d'aide Cantia",
-    "description": "L'écran d'accueil affiche les indicateurs qui comptent au quotidien : devis en attente de réponse, factures impayées ou en retard, et chantiers…"
+    "description": "L'écran d'accueil affiche les indicateurs qui comptent au quotidien : devis en attente de réponse, factures impayées ou en retard, et chantiers…",
+    "faq": [
+      {
+        "q": "Pourquoi je ne vois pas les montants ?",
+        "a": "Les chiffres financiers dépendent de votre rôle. Un administrateur peut vous en donner l'accès."
+      },
+      {
+        "q": "Les indicateurs sont-ils à jour ?",
+        "a": "Oui, ils sont calculés à chaque ouverture à partir de vos documents."
+      },
+      {
+        "q": "Puis-je recevoir les notifications par e-mail ?",
+        "a": "Oui, type par type, dans Compte → Notifications."
+      }
+    ]
   },
   {
     "path": "aide/rejoindre-organisation",
     "title": "Rejoindre une organisation existante | Centre d'aide Cantia",
-    "description": "Si votre entreprise utilise déjà Cantia, inutile de créer une nouvelle organisation : un administrateur vous envoie un lien d'invitation (depuis Compte →…"
+    "description": "Si votre entreprise utilise déjà Cantia, inutile de créer une nouvelle organisation ",
+    "faq": [
+      {
+        "q": "Mon patron doit-il payer pour moi ?",
+        "a": "Votre accès fait partie de l'abonnement de l'entreprise, dans la limite de membres de sa formule."
+      },
+      {
+        "q": "Je me suis trompé d’entreprise, que faire ?",
+        "a": "Demandez à l'administrateur de cette entreprise de vous retirer, puis rejoignez la bonne."
+      },
+      {
+        "q": "Que voit l’entreprise de mon compte ?",
+        "a": "Votre nom, votre e-mail, et ce que vous saisissez pour elle : heures, frais, messages de chantier."
+      }
+    ]
   },
   {
     "path": "aide/dictee-vocale",
     "title": "La dictée vocale, partout dans Cantia | Centre d'aide Cantia",
-    "description": "Le bouton micro apparaît à chaque endroit où vous écrivez dans Cantia : une ligne de devis, un message du fil de chantier, une note de rapport."
+    "description": "Le bouton micro apparaît à chaque endroit où vous écrivez dans Cantia : une ligne de devis, un message du fil de chantier, une note de rapport.",
+    "faq": [
+      {
+        "q": "Mes enregistrements sont-ils conservés ?",
+        "a": "Non. L'audio sert à la transcription, puis le fichier temporaire est supprimé. Seul le texte reste."
+      },
+      {
+        "q": "Faut-il une connexion ?",
+        "a": "Oui, au moment de dicter, car la transcription se fait sur des serveurs sécurisés."
+      },
+      {
+        "q": "Ça comprend le suisse romand ?",
+        "a": "Oui, les nombres comme septante ou nonante et le vocabulaire du bâtiment sont compris."
+      }
+    ]
   },
   {
     "path": "aide/chantiers-documents",
     "title": "Photos et documents de chantier | Centre d'aide Cantia",
-    "description": "Chaque chantier a son propre espace Documents, organisé en dossiers (plans, autorisations, contrats, factures fournisseurs…) plutôt qu'un simple tas de…"
+    "description": "Chaque chantier a son propre espace Documents, organisé en dossiers (plans, autorisations, contrats, factures fournisseurs…) plutôt qu'un simple tas de…",
+    "faq": [
+      {
+        "q": "Puis-je partager un document avec le client ?",
+        "a": "Les devis, factures et travaux supplémentaires se partagent par le portail client. Les autres documents se téléchargent puis se transmettent."
+      },
+      {
+        "q": "Quels fichiers sont acceptés ?",
+        "a": "PDF, images et fichiers Office, entre autres. Les plus courants s’ouvrent en aperçu."
+      },
+      {
+        "q": "Que se passe-t-il si je supprime le chantier ?",
+        "a": "Ses documents et photos sont supprimés avec lui. Les devis et factures sont conservés."
+      }
+    ]
   },
   {
     "path": "aide/chantiers-sous-traitants",
     "title": "Sous-traitants sur un chantier | Centre d'aide Cantia",
-    "description": "Un sous-traitant peut être ajouté directement à un chantier précis, avec ses propres coordonnées et le suivi de ses factures liées à ce chantier."
+    "description": "Un sous-traitant peut être ajouté directement à un chantier précis, avec ses propres coordonnées et le suivi de ses factures liées à ce chantier.",
+    "faq": [
+      {
+        "q": "Dois-je ressaisir un sous-traitant à chaque chantier ?",
+        "a": "Non, le répertoire des sous-traitants permet de le choisir en quelques clics."
+      },
+      {
+        "q": "Le sous-traitant a-t-il accès à Cantia ?",
+        "a": "Non, il apparaît comme un contact. Il n'a pas de compte dans votre entreprise."
+      },
+      {
+        "q": "Où activer cet onglet ?",
+        "a": "Dans les paramètres du chantier."
+      }
+    ]
   },
   {
     "path": "aide/travaux-supplementaires",
     "title": "Travaux supplémentaires (TS) | Centre d'aide Cantia",
-    "description": "Un Travaux supplémentaires (TS) est un document séparé pour tout ce qui est demandé en plus du devis initial en cours de chantier "
+    "description": "Un Travaux supplémentaires (TS) est un document séparé pour tout ce qui est demandé en plus du devis initial en cours de chantier.",
+    "faq": [
+      {
+        "q": "Faut-il un devis d’origine ?",
+        "a": "Non, un travaux supplémentaires peut être lié au devis d'origine ou créé seul sur le chantier."
+      },
+      {
+        "q": "Le client doit-il créer un compte pour signer ?",
+        "a": "Non, il signe depuis le lien reçu par e-mail, après vérification de son adresse."
+      },
+      {
+        "q": "La marge du chantier est-elle mise à jour ?",
+        "a": "Oui, un travaux supplémentaires accepté augmente le montant devisé du chantier."
+      }
+    ]
   },
   {
     "path": "aide/rh-heures-salaires",
     "title": "Heures, frais et fiches de salaire | Centre d'aide Cantia",
-    "description": "Chaque employé pointe ses heures directement depuis son téléphone, rattachées à un chantier précis "
+    "description": "Chaque employé pointe ses heures directement depuis son téléphone, rattachées à un chantier précis, ce qui permet ensuite de comparer le temps prévu au…",
+    "faq": [
+      {
+        "q": "Quelle formule faut-il ?",
+        "a": "Les salaires sont inclus dès la formule Équipe."
+      },
+      {
+        "q": "Les taux sont-ils à jour ?",
+        "a": "Les taux légaux de base sont préremplis, mais vérifiez toujours ceux de vos caisses et de votre canton."
+      },
+      {
+        "q": "Ma fiduciaire peut-elle voir les salaires ?",
+        "a": "Oui, si vous lui donnez accès depuis Compte → Fiduciaire."
+      }
+    ]
   },
   {
     "path": "aide/rh-heures-guide",
     "title": "Saisir ses heures et les refacturer par chantier : le guide pas à pas | Centre d'aide Cantia",
-    "description": "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures. Du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les…"
+    "description": "Concrètement, à quoi ça ressemble d'utiliser Cantia pour les heures. Du téléphone d'un employé sur le chantier jusqu'au bureau qui refacture et sort les…",
+    "faq": [
+      {
+        "q": "Un employé peut-il corriger ses heures ?",
+        "a": "Oui, depuis sa feuille d’heures, en ouvrant l’entrée à corriger."
+      },
+      {
+        "q": "Peut-on pointer pour quelqu’un d’autre ?",
+        "a": "Un responsable avec le bon rôle peut saisir les heures d'un membre de l'équipe."
+      },
+      {
+        "q": "L’export CSV contient quoi ?",
+        "a": "Les heures de la période affichée, avec la date, la personne, le chantier et le type de travail."
+      }
+    ]
   },
   {
     "path": "aide/tresorerie",
     "title": "Prévision de trésorerie | Centre d'aide Cantia",
-    "description": "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité : factures clients non soldées,…"
+    "description": "Le module Trésorerie projette votre solde à venir sur 90 jours, à partir de ce que Cantia sait déjà de votre activité ",
+    "faq": [
+      {
+        "q": "Quelle formule faut-il ?",
+        "a": "La trésorerie est incluse dès la formule Équipe."
+      },
+      {
+        "q": "Cantia accède-t-il à mon compte bancaire ?",
+        "a": "Non. Le solde se saisit à la main, et l'import de relevé est un fichier que vous choisissez de charger."
+      },
+      {
+        "q": "Les achats ponctuels comptent-ils ?",
+        "a": "Non, la projection ne retient que ce qui est récurrent ou attendu. Les achats ponctuels apparaissent dans Dépenses."
+      }
+    ]
   },
   {
     "path": "aide/depenses",
     "title": "Dépenses : créer, suivre et filtrer | Centre d'aide Cantia",
-    "description": "La section Dépenses (dans la navigation, à côté de Trésorerie) regroupe en une seule liste toutes les dépenses de l'entreprise : celles liées à un…"
+    "description": "La section Dépenses (dans la navigation, à côté de Trésorerie) regroupe en une seule liste toutes les dépenses de l'entreprise ",
+    "faq": [
+      {
+        "q": "Une dépense peut-elle changer de chantier ?",
+        "a": "Oui, en la modifiant depuis la rentabilité du chantier."
+      },
+      {
+        "q": "Que faire d’un ticket illisible ?",
+        "a": "Saisissez le montant et le fournisseur à la main, la photo reste en justificatif."
+      },
+      {
+        "q": "Les dépenses récurrentes se répètent-elles seules ?",
+        "a": "Oui, avec un rappel avant chaque échéance."
+      }
+    ]
   },
   {
     "path": "aide/clients",
     "title": "La fiche client | Centre d'aide Cantia",
-    "description": "Chaque client a sa propre fiche : coordonnées, historique complet de ses devis, factures et chantiers, et notes de suivi "
+    "description": "Chaque client a sa propre fiche : coordonnées, historique complet de ses devis, factures et chantiers, et notes de suivi, un seul endroit plutôt qu'une…",
+    "faq": [
+      {
+        "q": "Comment éviter les doublons ?",
+        "a": "Cherchez le client avant d’en créer un nouveau : au moment du devis, Cantia propose les fiches existantes."
+      },
+      {
+        "q": "Le client voit-il sa fiche ?",
+        "a": "Non, il ne voit que les documents que vous lui envoyez, par le portail client."
+      },
+      {
+        "q": "Un particulier et une entreprise, c’est pareil ?",
+        "a": "Oui, une fiche client sert aux deux. Indiquez simplement le nom de la société quand il y en a une."
+      }
+    ]
   },
   {
     "path": "aide/sous-traitants",
     "title": "Le répertoire des sous-traitants | Centre d'aide Cantia",
-    "description": "Le module Sous-traitants (activable dans Compte → Modules) centralise tous les sous-traitants avec qui vous travaillez, au-delà d'un seul chantier "
+    "description": "Le module Sous-traitants (activable dans Compte → Modules) centralise tous les sous-traitants avec qui vous travaillez, au-delà d'un seul chantier.",
+    "faq": [
+      {
+        "q": "Où activer le module ?",
+        "a": "Dans Compte → Modules."
+      },
+      {
+        "q": "Puis-je voir tout ce que j’ai payé à un sous-traitant ?",
+        "a": "Oui, sa fiche regroupe ses factures sur tous les chantiers."
+      },
+      {
+        "q": "Le sous-traitant reçoit-il un accès ?",
+        "a": "Non, c'est un contact dans votre répertoire, sans compte Cantia."
+      }
+    ]
   },
   {
     "path": "aide/integration-bexio",
     "title": "Intégration Bexio | Centre d'aide Cantia",
-    "description": "L'intégration Bexio (disponible dès le plan Équipe) connecte Cantia à votre comptabilité via l'API officielle de Bexio, depuis Compte → Intégrations."
+    "description": "L'intégration Bexio (disponible dès le plan Équipe) connecte Cantia à votre comptabilité via l'API officielle de Bexio, depuis Compte → Intégrations.",
+    "faq": [
+      {
+        "q": "Quelle formule faut-il ?",
+        "a": "L'intégration Bexio est incluse dès la formule Équipe."
+      },
+      {
+        "q": "Faut-il un abonnement Bexio particulier ?",
+        "a": "Il faut un compte Bexio qui donne accès à l'API. Les formules actuelles de Bexio le permettent en général, vérifiez la vôtre."
+      },
+      {
+        "q": "Que se passe-t-il si je déconnecte ?",
+        "a": "Les échanges s’arrêtent tout de suite. Les données déjà présentes de chaque côté restent."
+      }
+    ]
   },
   {
     "path": "aide/relances-impayes",
     "title": "Relancer une facture impayée | Centre d'aide Cantia",
-    "description": "Une facture en retard apparaît directement sur le tableau de bord et dans la liste des factures, sans avoir à comparer manuellement un relevé bancaire à…"
+    "description": "Une facture en retard apparaît directement sur le tableau de bord et dans la liste des factures, sans avoir à comparer manuellement un relevé bancaire à…",
+    "faq": [
+      {
+        "q": "Puis-je modifier le texte du rappel ?",
+        "a": "Oui, dans Compte → E-mails, et avant chaque envoi."
+      },
+      {
+        "q": "Cantia ajoute-t-il des intérêts de retard ?",
+        "a": "Non, c'est à vous de décider. L'outil gratuit de calcul des intérêts de retard donne le montant."
+      },
+      {
+        "q": "Comment éviter de relancer un client qui a payé ?",
+        "a": "Rapprochez les paiements avant de relancer, par la référence QR ou l’import du relevé."
+      }
+    ]
   },
   {
     "path": "aide/import-releve-bancaire",
     "title": "Importer un relevé bancaire | Centre d'aide Cantia",
-    "description": "Depuis Facturation → Import de relevé, un fichier de relevé bancaire (format CAMT.053 notamment) peut être importé pour rapprocher automatiquement les…"
+    "description": "Depuis Facturation → Import de relevé, un fichier de relevé bancaire (format CAMT.053 notamment) peut être importé pour rapprocher automatiquement les…",
+    "faq": [
+      {
+        "q": "Quelles banques sont compatibles ?",
+        "a": "Toute banque suisse qui exporte un relevé CAMT.053, ce qui est le cas des principales."
+      },
+      {
+        "q": "Cantia se connecte-t-il à ma banque ?",
+        "a": "Non, vous chargez vous-même un fichier. Aucun accès à votre compte n'est donné."
+      },
+      {
+        "q": "Et si un client paie deux factures d’un coup ?",
+        "a": "Vérifiez la proposition et répartissez le paiement sur les factures concernées."
+      }
+    ]
   },
   {
     "path": "aide/portail-client",
     "title": "Ce que voit le client sur son portail | Centre d'aide Cantia",
-    "description": "Le lien envoyé à un client ouvre un portail sécurisé, sans qu'il ait besoin de créer de compte ni de mot de passe "
+    "description": "Le lien envoyé à un client ouvre un portail sécurisé, sans qu'il ait besoin de créer de compte ni de mot de passe.",
+    "faq": [
+      {
+        "q": "Le client peut-il refuser ?",
+        "a": "Oui, il peut refuser le devis depuis le portail. Vous en êtes averti."
+      },
+      {
+        "q": "Une signature en ligne a-t-elle de la valeur ?",
+        "a": "Elle prouve l'accord du client, avec la date et l'heure. Pour des cas particuliers, demandez conseil à un juriste."
+      },
+      {
+        "q": "Que se passe-t-il si le lien est transféré ?",
+        "a": "Sans l'accès à l'adresse e-mail du client, le code ne peut pas être reçu et le document ne s'ouvre pas."
+      }
+    ]
   }
 ];
 
@@ -4976,141 +5368,533 @@ export const HELP_SEO_DE = [
   {
     "path": "de/aide/demarrage",
     "title": "Erste Schritte mit Cantia | Cantia Hilfe-Center",
-    "description": "Alles dreht sich um eine Organisation (Ihr Unternehmen): Sie haben sie bei der Registrierung erstellt, und alle Personen, die ihr beitreten, teilen…"
+    "description": "Alles dreht sich um eine Organisation (Ihr Unternehmen): Sie haben sie bei der Registrierung erstellt, und alle Personen, die ihr beitreten, teilen…",
+    "faq": [
+      {
+        "q": "Kann ich Cantia auf dem Telefon nutzen?",
+        "a": "Ja. Cantia läuft im Browser des Telefons, und Sie können es auf dem Startbildschirm ablegen und wie eine App öffnen."
+      },
+      {
+        "q": "Löscht ein deaktiviertes Modul meine Daten?",
+        "a": "Nein. Ein ausgeschaltetes Modul verschwindet aus der Navigation, seine Daten bleiben. Schalten Sie es wieder ein, ist alles da."
+      },
+      {
+        "q": "Wo finde ich unterwegs Hilfe?",
+        "a": "Unter Konto → Hilfe, mit allen Artikeln dieses Hilfe-Centers, und per E-Mail an info@cantia.ch."
+      }
+    ]
   },
   {
     "path": "de/aide/devis-creation",
     "title": "Eine Offerte erstellen und versenden | Cantia Hilfe-Center",
-    "description": "Eine Offerte wird mit einem Kunden (Name, Adresse, E-Mail) und Positionen (Beschreibung, Menge, Einheit, Einzelpreis) erstellt."
+    "description": "Eine Offerte wird mit einem Kunden (Name, Adresse, E-Mail) und Positionen (Beschreibung, Menge, Einheit, Einzelpreis) erstellt.",
+    "faq": [
+      {
+        "q": "Wie viele Offerten kann ich erstellen?",
+        "a": "So viele Sie wollen: Offerten und Rechnungen sind in allen Abos unbegrenzt."
+      },
+      {
+        "q": "Kann die Offerte auf Französisch oder Italienisch hinausgehen?",
+        "a": "Ja, ab dem Abo Team: Jedes Dokument kann in der Sprache des Kunden erstellt werden."
+      },
+      {
+        "q": "Was passiert, wenn der Kunde unterschreibt?",
+        "a": "Die Offerte wechselt auf Angenommen, die Unterschrift wird mit Zeitstempel gespeichert und die zugehörige Rechnung erstellt. Sie müssen nichts abtippen."
+      }
+    ]
   },
   {
     "path": "de/aide/devis-trames",
     "title": "Mit Vorlagen Zeit sparen | Cantia Hilfe-Center",
-    "description": "Eine Vorlage ist eine Sammlung wiederverwendbarer Offertpositionen (zum Beispiel alle üblichen Positionen für ein Badezimmer) "
+    "description": "Eine Vorlage ist eine Sammlung wiederverwendbarer Offertpositionen (zum Beispiel alle üblichen Positionen für ein Badezimmer).",
+    "faq": [
+      {
+        "q": "Ändert eine geänderte Vorlage meine alten Offerten?",
+        "a": "Nein. Bereits erstellte Offerten behalten ihre Positionen. Die Vorlage dient nur den nächsten Offerten."
+      },
+      {
+        "q": "Kann ich von einer bestehenden Offerte ausgehen?",
+        "a": "Ja, mit «Als Vorlage speichern» im Menü der Offerte."
+      },
+      {
+        "q": "Sieht das ganze Team die Vorlagen?",
+        "a": "Ja, die Vorlagen gehören dem Unternehmen und stehen allen zur Verfügung, die Offerten erstellen."
+      }
+    ]
   },
   {
     "path": "de/aide/facturation-acomptes",
     "title": "Rechnungen, Anzahlungen und Teilzahlungen | Cantia Hilfe-Center",
-    "description": "Ab einer angenommenen Offerte können Sie eine Anzahlung (einen Prozentsatz des Gesamtbetrags) vor der Schlussrechnung fakturieren."
+    "description": "Ab einer angenommenen Offerte können Sie eine Anzahlung (einen Prozentsatz des Gesamtbetrags) vor der Schlussrechnung fakturieren.",
+    "faq": [
+      {
+        "q": "Kann ich mehrere Anzahlungen auf derselben Offerte machen?",
+        "a": "Ja. Die Schlussrechnung zieht sie alle automatisch ab."
+      },
+      {
+        "q": "Und wenn ich eine Anzahlung storniere?",
+        "a": "Der Abzug wird neu berechnet: Der Restbetrag der Schlussrechnung stimmt weiterhin."
+      },
+      {
+        "q": "Haben die Rechnungen einen QR-Teil?",
+        "a": "Ja, alle Rechnungen enthalten den Schweizer QR-Teil mit der Zahlungsreferenz."
+      }
+    ]
   },
   {
     "path": "de/aide/facturation-email-lien",
     "title": "Eine Offerte oder Rechnung versenden, und der öffentliche Kundenlink | Cantia Hilfe-Center",
-    "description": "Die Schaltfläche \"Per E-Mail senden\" bei einer Offerte oder Rechnung versendet automatisch das PDF als Anhang, zusammen mit dem Link zum Kundenportal "
+    "description": "Die Schaltfläche \"Per E-Mail senden\" bei einer Offerte oder Rechnung versendet automatisch das PDF als Anhang, zusammen mit dem Link zum Kundenportal.",
+    "faq": [
+      {
+        "q": "Muss das PDF vor dem Versand erstellt sein?",
+        "a": "Ja, das PDF muss existieren, um angehängt zu werden. Es wird erstellt, sobald das Dokument den Entwurf verlässt."
+      },
+      {
+        "q": "Läuft der Link ab?",
+        "a": "Der Link bleibt gültig, öffnet sich aber erst nach Bestätigung der E-Mail-Adresse des Kunden, die auf dem Dokument steht."
+      },
+      {
+        "q": "Kann der Kunde über den Link bezahlen?",
+        "a": "Er sieht die Details, den offenen Betrag und die QR-Rechnung. Bezahlt wird danach über seine Bank, wie bei jeder QR-Rechnung."
+      }
+    ]
   },
   {
     "path": "de/aide/chantiers-rapports",
     "title": "Baustellen-Feed und PDF-Berichte | Cantia Hilfe-Center",
-    "description": "Jede Baustelle hat einen Feed im Chat-Stil: Sie posten dort laufend geolokalisierte Fotos und Nachrichten (bei Bedarf per Spracheingabe diktiert), während…"
+    "description": "Jede Baustelle hat einen Feed im Chat-Stil: Sie posten dort laufend geolokalisierte Fotos und Nachrichten (bei Bedarf per Spracheingabe diktiert), während…",
+    "faq": [
+      {
+        "q": "Sind die Fotos datiert?",
+        "a": "Ja, jedes Foto im Feed hat Zeitstempel und Standort, was es zu einem nützlichen Beweis im Streitfall macht."
+      },
+      {
+        "q": "Kann ich ohne Netz arbeiten?",
+        "a": "Ja, offline aufgenommene Fotos werden synchronisiert, sobald die Verbindung zurück ist."
+      },
+      {
+        "q": "Wer sieht den Feed einer Baustelle?",
+        "a": "Die Mitglieder des Unternehmens mit Zugriff auf diese Baustelle, je nach Rolle."
+      }
+    ]
   },
   {
     "path": "de/aide/rentabilite",
     "title": "Rentabilität pro Baustelle | Cantia Hilfe-Center",
-    "description": "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (auf der Baustelle erfasste…"
+    "description": "Der Reiter Rentabilität einer Baustelle vergleicht den offerierten/fakturierten Betrag mit den tatsächlichen Kosten: Material (auf der Baustelle erfasste…",
+    "faq": [
+      {
+        "q": "Welches Abo braucht es?",
+        "a": "Die Rentabilität pro Baustelle ist ab dem Abo Team enthalten."
+      },
+      {
+        "q": "Werden die Stunden automatisch gezählt?",
+        "a": "Ja, die auf der Baustelle erfassten Stunden werden zum festgelegten Stundensatz bewertet."
+      },
+      {
+        "q": "Zählen die Rechnungen der Subunternehmer?",
+        "a": "Ja, sie werden zu den tatsächlichen Kosten der Baustelle gezählt, mit der sie verknüpft sind."
+      }
+    ]
   },
   {
     "path": "de/aide/planning",
     "title": "Team-Planung | Cantia Hilfe-Center",
-    "description": "Die Planung zeigt einen echten Kalender, in dem jedes Teammitglied für einen oder mehrere Tage einer Baustelle zugewiesen werden kann."
+    "description": "Die Planung zeigt einen echten Kalender, in dem jedes Teammitglied für einen oder mehrere Tage einer Baustelle zugewiesen werden kann.",
+    "faq": [
+      {
+        "q": "Welches Abo braucht es?",
+        "a": "Die Planung ist ab dem Abo Team enthalten."
+      },
+      {
+        "q": "Ersetzt die Planung die Zeiterfassung?",
+        "a": "Nein. Sie dient als Schätzung, solange keine Stunden erfasst sind, danach übernehmen die tatsächlichen Stunden für die Rentabilität."
+      },
+      {
+        "q": "Sehen die Mitarbeiter die Planung?",
+        "a": "Ja, jeder sieht seine Zuteilungen auf dem Telefon."
+      }
+    ]
   },
   {
     "path": "de/aide/metre",
     "title": "Das Aufmass | Cantia Hilfe-Center",
-    "description": "Das Aufmass-Modul bietet eine mobilgerechte Messtabelle, um Flächen und Mengen direkt auf der Baustelle zu berechnen."
+    "description": "Das Aufmass-Modul bietet eine mobilgerechte Messtabelle, um Flächen und Mengen direkt auf der Baustelle zu berechnen.",
+    "faq": [
+      {
+        "q": "Wo aktiviere ich das Aufmass?",
+        "a": "In den Einstellungen der Baustelle, zusammen mit den anderen Werkzeugen der Baustelle."
+      },
+      {
+        "q": "Bleibt die erzeugte Offerte änderbar?",
+        "a": "Ja, es ist eine normale Offerte: Positionen, Preise und Texte lassen sich vor dem Versand ändern."
+      },
+      {
+        "q": "Wird das Aufmass mit der Baustelle gelöscht?",
+        "a": "Ja, beim Löschen einer Baustelle wird auch ihr Aufmass gelöscht. Bereits erstellte Offerten bleiben erhalten."
+      }
+    ]
   },
   {
     "path": "de/aide/inventaire",
     "title": "Wozu dient der Katalog? | Cantia Hilfe-Center",
-    "description": "Das ist keine Bestandsverwaltung für physisches Material: Es ist eine Bibliothek Ihrer Positionen (Beschreibung, Einheit, Preis), die sich bei jeder…"
+    "description": "Das ist keine Bestandsverwaltung für physisches Material: Es ist eine Bibliothek Ihrer Positionen (Beschreibung, Einheit, Preis), die sich bei jeder…",
+    "faq": [
+      {
+        "q": "Verwaltet der Katalog einen Lagerbestand?",
+        "a": "Nein. Er ist eine Bibliothek von Positionen und Preisen, keine Lagerverwaltung."
+      },
+      {
+        "q": "Ändert eine geänderte Position meine alten Offerten?",
+        "a": "Nein, nur die nächsten."
+      },
+      {
+        "q": "Kann ich eine Position löschen?",
+        "a": "Ja, jederzeit im Katalog."
+      }
+    ]
   },
   {
     "path": "de/aide/equipe-modules",
     "title": "Team einladen und Module aktivieren | Cantia Hilfe-Center",
-    "description": "Unter Konto → Team ermöglicht ein Einladungslink einem Kollegen, der Organisation beizutreten; ausstehende Beitrittsanfragen werden von einem…"
+    "description": "Unter Konto → Team ermöglicht ein Einladungslink einem Kollegen, der Organisation beizutreten; ausstehende Beitrittsanfragen werden von einem…",
+    "faq": [
+      {
+        "q": "Behält ein ausgetretenes Mitglied den Zugang?",
+        "a": "Nein, entfernen Sie es unter Konto → Team, dann hat es keinen Zugang mehr. Die Dokumente, die es erstellt hat, bleiben im Unternehmen."
+      },
+      {
+        "q": "Kann ich eigene Rollen erstellen?",
+        "a": "Ja, mit frei gewählten Rechten. Das Abo Essentiel umfasst zwei, Team und Entreprise sind unbegrenzt."
+      },
+      {
+        "q": "Kostet ein Modul extra?",
+        "a": "Nein, die Module Ihres Abos sind im Preis inbegriffen."
+      }
+    ]
   },
   {
     "path": "de/aide/personnalisation-abonnement",
     "title": "Markenkit, Pläne und Abonnement | Cantia Hilfe-Center",
-    "description": "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und…"
+    "description": "Unter Konto → Unternehmen können Sie bereits ab dem Plan Essentiel die Markenfarbe und das Logo festlegen, die auf Ihren Offerten, Rechnungen und…",
+    "faq": [
+      {
+        "q": "Sind die Preise inklusive MWST?",
+        "a": "Massgebend sind die Preise auf der Seite Preise. Ihre Stripe-Rechnung zeigt den Betrag im Detail."
+      },
+      {
+        "q": "Kann ich meine Daten vor dem Austritt mitnehmen?",
+        "a": "Ihre Offerten und Rechnungen existieren als PDF, und die Listen lassen sich exportieren. Für alles Weitere schreiben Sie an info@cantia.ch."
+      },
+      {
+        "q": "Ich habe einen persönlichen Code erhalten, wo gebe ich ihn ein?",
+        "a": "Auf dem Bildschirm zur Wahl des Abos, über «Haben Sie einen persönlichen Plan?»."
+      }
+    ]
   },
   {
     "path": "de/aide/tableau-de-bord",
     "title": "Die Startseite verstehen | Cantia Hilfe-Center",
-    "description": "Der Startbildschirm zeigt die Kennzahlen, die im Alltag zählen: Offerten, die auf eine Antwort warten, unbezahlte oder überfällige Rechnungen und aktuell…"
+    "description": "Der Startbildschirm zeigt die Kennzahlen, die im Alltag zählen: Offerten, die auf eine Antwort warten, unbezahlte oder überfällige Rechnungen und aktuell…",
+    "faq": [
+      {
+        "q": "Warum sehe ich die Beträge nicht?",
+        "a": "Die Finanzzahlen hängen von Ihrer Rolle ab. Ein Administrator kann Ihnen den Zugang geben."
+      },
+      {
+        "q": "Sind die Kennzahlen aktuell?",
+        "a": "Ja, sie werden bei jedem Öffnen aus Ihren Dokumenten berechnet."
+      },
+      {
+        "q": "Kann ich Benachrichtigungen per E-Mail erhalten?",
+        "a": "Ja, Typ für Typ, unter Konto → Benachrichtigungen."
+      }
+    ]
   },
   {
     "path": "de/aide/rejoindre-organisation",
     "title": "Einer bestehenden Organisation beitreten | Cantia Hilfe-Center",
-    "description": "Wenn Ihr Unternehmen Cantia bereits nutzt, müssen Sie keine neue Organisation erstellen: Ein Administrator sendet Ihnen einen Einladungslink (unter Konto…"
+    "description": "Wenn Ihr Unternehmen Cantia bereits nutzt, müssen Sie keine neue Organisation erstellen: Ein Administrator sendet Ihnen einen Einladungslink (unter Konto…",
+    "faq": [
+      {
+        "q": "Muss mein Chef für mich bezahlen?",
+        "a": "Ihr Zugang ist Teil des Abos des Unternehmens, im Rahmen der Mitgliederzahl seines Abos."
+      },
+      {
+        "q": "Ich bin im falschen Unternehmen, was nun?",
+        "a": "Bitten Sie den Administrator dieses Unternehmens, Sie zu entfernen, und treten Sie dem richtigen bei."
+      },
+      {
+        "q": "Was sieht das Unternehmen von meinem Konto?",
+        "a": "Ihren Namen, Ihre E-Mail und was Sie für das Unternehmen erfassen: Stunden, Spesen, Baustellennachrichten."
+      }
+    ]
   },
   {
     "path": "de/aide/dictee-vocale",
     "title": "Die Spracheingabe, überall in Cantia | Cantia Hilfe-Center",
-    "description": "Die Mikrofon-Schaltfläche erscheint überall dort, wo Sie in Cantia etwas eingeben: eine Offertposition, eine Nachricht im Baustellen-Feed, eine Notiz im…"
+    "description": "Die Mikrofon-Schaltfläche erscheint überall dort, wo Sie in Cantia etwas eingeben: eine Offertposition, eine Nachricht im Baustellen-Feed, eine Notiz im…",
+    "faq": [
+      {
+        "q": "Werden meine Aufnahmen gespeichert?",
+        "a": "Nein. Die Aufnahme dient der Transkription, danach wird die temporäre Datei gelöscht. Nur der Text bleibt."
+      },
+      {
+        "q": "Braucht es eine Verbindung?",
+        "a": "Ja, beim Diktieren, denn die Transkription erfolgt auf sicheren Servern."
+      },
+      {
+        "q": "Versteht es Schweizerdeutsch?",
+        "a": "Am besten sprechen Sie Hochdeutsch. Fachbegriffe des Baus und Zahlen werden gut erkannt."
+      }
+    ]
   },
   {
     "path": "de/aide/chantiers-documents",
     "title": "Fotos und Dokumente der Baustelle | Cantia Hilfe-Center",
-    "description": "Jede Baustelle hat ihren eigenen Dokumentenbereich, organisiert in Ordnern (Pläne, Bewilligungen, Verträge, Lieferantenrechnungen…) statt eines einfachen…"
+    "description": "Jede Baustelle hat ihren eigenen Dokumentenbereich, organisiert in Ordnern (Pläne, Bewilligungen, Verträge, Lieferantenrechnungen…) statt eines einfachen…",
+    "faq": [
+      {
+        "q": "Kann ich ein Dokument mit dem Kunden teilen?",
+        "a": "Offerten, Rechnungen und Zusatzarbeiten werden über das Kundenportal geteilt. Andere Dokumente laden Sie herunter und leiten sie weiter."
+      },
+      {
+        "q": "Welche Dateien sind möglich?",
+        "a": "Unter anderem PDF, Bilder und Office-Dateien. Die gängigsten öffnen sich in der Vorschau."
+      },
+      {
+        "q": "Was passiert beim Löschen der Baustelle?",
+        "a": "Ihre Dokumente und Fotos werden mit ihr gelöscht. Offerten und Rechnungen bleiben erhalten."
+      }
+    ]
   },
   {
     "path": "de/aide/chantiers-sous-traitants",
     "title": "Subunternehmer auf einer Baustelle | Cantia Hilfe-Center",
-    "description": "Ein Subunternehmer kann direkt zu einer bestimmten Baustelle hinzugefügt werden, mit seinen eigenen Kontaktdaten und der Nachverfolgung seiner mit dieser…"
+    "description": "Ein Subunternehmer kann direkt zu einer bestimmten Baustelle hinzugefügt werden, mit seinen eigenen Kontaktdaten und der Nachverfolgung seiner mit dieser…",
+    "faq": [
+      {
+        "q": "Muss ich einen Subunternehmer auf jeder Baustelle neu erfassen?",
+        "a": "Nein, im Verzeichnis der Subunternehmer wählen Sie ihn mit wenigen Klicks."
+      },
+      {
+        "q": "Hat der Subunternehmer Zugang zu Cantia?",
+        "a": "Nein, er erscheint als Kontakt. Er hat kein Konto in Ihrem Unternehmen."
+      },
+      {
+        "q": "Wo aktiviere ich diesen Reiter?",
+        "a": "In den Einstellungen der Baustelle."
+      }
+    ]
   },
   {
     "path": "de/aide/travaux-supplementaires",
     "title": "Zusatzarbeiten (ZA) | Cantia Hilfe-Center",
-    "description": "Eine Zusatzarbeit (ZA) ist ein eigenständiges Dokument für alles, was während der Bauausführung zusätzlich zur ursprünglichen Offerte verlangt wird "
+    "description": "Eine Zusatzarbeit (ZA) ist ein eigenständiges Dokument für alles, was während der Bauausführung zusätzlich zur ursprünglichen Offerte verlangt wird.",
+    "faq": [
+      {
+        "q": "Braucht es eine ursprüngliche Offerte?",
+        "a": "Nein, eine Zusatzarbeit kann mit der ursprünglichen Offerte verknüpft oder allein auf der Baustelle erstellt werden."
+      },
+      {
+        "q": "Muss der Kunde ein Konto erstellen, um zu unterschreiben?",
+        "a": "Nein, er unterschreibt über den Link aus der E-Mail, nach Bestätigung seiner Adresse."
+      },
+      {
+        "q": "Wird die Marge der Baustelle aktualisiert?",
+        "a": "Ja, eine angenommene Zusatzarbeit erhöht den offerierten Betrag der Baustelle."
+      }
+    ]
   },
   {
     "path": "de/aide/rh-heures-salaires",
     "title": "Stunden, Spesen und Lohnabrechnungen | Cantia Hilfe-Center",
-    "description": "Jeder Mitarbeiter erfasst seine Arbeitsstunden direkt über sein Smartphone, zugeordnet zu einer bestimmten Baustelle "
+    "description": "Jeder Mitarbeiter erfasst seine Arbeitsstunden direkt über sein Smartphone, zugeordnet zu einer bestimmten Baustelle.",
+    "faq": [
+      {
+        "q": "Welches Abo braucht es?",
+        "a": "Die Löhne sind ab dem Abo Team enthalten."
+      },
+      {
+        "q": "Sind die Sätze aktuell?",
+        "a": "Die gesetzlichen Grundsätze sind vorausgefüllt, prüfen Sie aber immer die Ihrer Kassen und Ihres Kantons."
+      },
+      {
+        "q": "Kann meine Treuhand die Löhne sehen?",
+        "a": "Ja, wenn Sie ihr unter Konto → Treuhand Zugang geben."
+      }
+    ]
   },
   {
     "path": "de/aide/rh-heures-guide",
     "title": "Arbeitszeit erfassen und pro Baustelle verrechnen: Schritt für Schritt | Cantia Hilfe-Center",
-    "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt. Vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…"
+    "description": "Wie sich Cantia für die Arbeitszeiterfassung konkret anfühlt. Vom Mitarbeiter-Smartphone auf der Baustelle bis zum Büro, das verrechnet und die Zahlen…",
+    "faq": [
+      {
+        "q": "Kann ein Mitarbeiter seine Stunden korrigieren?",
+        "a": "Ja, in seinem Stundenblatt, indem er den Eintrag öffnet."
+      },
+      {
+        "q": "Kann man für jemand anderen erfassen?",
+        "a": "Eine verantwortliche Person mit der passenden Rolle kann die Stunden eines Teammitglieds erfassen."
+      },
+      {
+        "q": "Was enthält der CSV-Export?",
+        "a": "Die Stunden des angezeigten Zeitraums, mit Datum, Person, Baustelle und Art der Arbeit."
+      }
+    ]
   },
   {
     "path": "de/aide/tresorerie",
     "title": "Liquiditätsprognose | Cantia Hilfe-Center",
-    "description": "Das Modul Liquidität projiziert Ihren zukünftigen Saldo über 90 Tage, basierend auf dem, was Cantia bereits über Ihre Tätigkeit weiss: offene…"
+    "description": "Das Modul Liquidität projiziert Ihren zukünftigen Saldo über 90 Tage, basierend auf dem, was Cantia bereits über Ihre Tätigkeit weiss: offene…",
+    "faq": [
+      {
+        "q": "Welches Abo braucht es?",
+        "a": "Die Liquidität ist ab dem Abo Team enthalten."
+      },
+      {
+        "q": "Greift Cantia auf mein Bankkonto zu?",
+        "a": "Nein. Der Saldo wird von Hand erfasst, und der Kontoauszug ist eine Datei, die Sie selbst hochladen."
+      },
+      {
+        "q": "Zählen einmalige Einkäufe?",
+        "a": "Nein, die Prognose berücksichtigt nur Wiederkehrendes und Erwartetes. Einmalige Einkäufe erscheinen unter Ausgaben."
+      }
+    ]
   },
   {
     "path": "de/aide/depenses",
     "title": "Ausgaben: erstellen, verfolgen und filtern | Cantia Hilfe-Center",
-    "description": "Der Bereich Ausgaben (in der Navigation, neben Liquidität) bündelt in einer einzigen Liste alle Ausgaben des Unternehmens: die einer bestimmten Baustelle…"
+    "description": "Der Bereich Ausgaben (in der Navigation, neben Liquidität) bündelt in einer einzigen Liste alle Ausgaben des Unternehmens: die einer bestimmten Baustelle…",
+    "faq": [
+      {
+        "q": "Kann eine Ausgabe die Baustelle wechseln?",
+        "a": "Ja, indem Sie sie in der Rentabilität der Baustelle bearbeiten."
+      },
+      {
+        "q": "Was tun bei einer unleserlichen Quittung?",
+        "a": "Erfassen Sie Betrag und Lieferant von Hand, das Foto bleibt als Beleg."
+      },
+      {
+        "q": "Wiederholen sich wiederkehrende Ausgaben selbst?",
+        "a": "Ja, mit einer Erinnerung vor jeder Fälligkeit."
+      }
+    ]
   },
   {
     "path": "de/aide/clients",
     "title": "Die Kundenkartei | Cantia Hilfe-Center",
-    "description": "Jeder Kunde hat seine eigene Kundenkartei: Kontaktdaten, vollständiger Verlauf seiner Offerten, Rechnungen und Baustellen, sowie Notizen zur…"
+    "description": "Jeder Kunde hat seine eigene Kundenkartei: Kontaktdaten, vollständiger Verlauf seiner Offerten, Rechnungen und Baustellen, sowie Notizen zur…",
+    "faq": [
+      {
+        "q": "Wie vermeide ich Doppel?",
+        "a": "Suchen Sie den Kunden, bevor Sie einen neuen erstellen: Bei der Offerte schlägt Cantia die bestehenden Karteien vor."
+      },
+      {
+        "q": "Sieht der Kunde seine Kartei?",
+        "a": "Nein, er sieht nur die Dokumente, die Sie ihm über das Kundenportal senden."
+      },
+      {
+        "q": "Privatperson und Firma, ist das gleich?",
+        "a": "Ja, eine Kundenkartei dient beiden. Geben Sie einfach den Firmennamen an, wenn es einen gibt."
+      }
+    ]
   },
   {
     "path": "de/aide/sous-traitants",
     "title": "Das Verzeichnis der Subunternehmer | Cantia Hilfe-Center",
-    "description": "Das Modul Subunternehmer (aktivierbar unter Konto → Module) bündelt alle Subunternehmer, mit denen Sie zusammenarbeiten, über eine einzelne Baustelle…"
+    "description": "Das Modul Subunternehmer (aktivierbar unter Konto → Module) bündelt alle Subunternehmer, mit denen Sie zusammenarbeiten, über eine einzelne Baustelle…",
+    "faq": [
+      {
+        "q": "Wo aktiviere ich das Modul?",
+        "a": "Unter Konto → Module."
+      },
+      {
+        "q": "Sehe ich alles, was ich einem Subunternehmer bezahlt habe?",
+        "a": "Ja, seine Kartei bündelt seine Rechnungen über alle Baustellen."
+      },
+      {
+        "q": "Erhält der Subunternehmer einen Zugang?",
+        "a": "Nein, er ist ein Kontakt in Ihrem Verzeichnis, ohne Cantia-Konto."
+      }
+    ]
   },
   {
     "path": "de/aide/integration-bexio",
     "title": "Bexio-Integration | Cantia Hilfe-Center",
-    "description": "Die Bexio-Integration (verfügbar ab dem Team-Plan) verbindet Cantia über die offizielle Bexio-API mit Ihrer Buchhaltung, unter Konto → Integrationen."
+    "description": "Die Bexio-Integration (verfügbar ab dem Team-Plan) verbindet Cantia über die offizielle Bexio-API mit Ihrer Buchhaltung, unter Konto → Integrationen.",
+    "faq": [
+      {
+        "q": "Welches Abo braucht es?",
+        "a": "Die Bexio-Integration ist ab dem Abo Team enthalten."
+      },
+      {
+        "q": "Braucht es ein bestimmtes Bexio-Abo?",
+        "a": "Es braucht ein Bexio-Konto mit Zugang zur API. Die aktuellen Bexio-Abos erlauben das in der Regel, prüfen Sie Ihres."
+      },
+      {
+        "q": "Was passiert beim Trennen?",
+        "a": "Der Austausch stoppt sofort. Die bereits vorhandenen Daten bleiben auf beiden Seiten."
+      }
+    ]
   },
   {
     "path": "de/aide/relances-impayes",
     "title": "Eine unbezahlte Rechnung mahnen | Cantia Hilfe-Center",
-    "description": "Eine überfällige Rechnung erscheint direkt auf der Startseite und in der Rechnungsliste, ohne dass ein Kontoauszug manuell mit einer Liste versendeter…"
+    "description": "Eine überfällige Rechnung erscheint direkt auf der Startseite und in der Rechnungsliste, ohne dass ein Kontoauszug manuell mit einer Liste versendeter…",
+    "faq": [
+      {
+        "q": "Kann ich den Text der Erinnerung ändern?",
+        "a": "Ja, unter Konto → E-Mails und vor jedem Versand."
+      },
+      {
+        "q": "Rechnet Cantia Verzugszinsen dazu?",
+        "a": "Nein, das entscheiden Sie. Das kostenlose Werkzeug für Verzugszinsen berechnet den Betrag."
+      },
+      {
+        "q": "Wie vermeide ich, einen Kunden zu mahnen, der bezahlt hat?",
+        "a": "Ordnen Sie die Zahlungen vor dem Mahnen zu, über die QR-Referenz oder den Import des Kontoauszugs."
+      }
+    ]
   },
   {
     "path": "de/aide/import-releve-bancaire",
     "title": "Kontoauszug importieren | Cantia Hilfe-Center",
-    "description": "Unter Rechnungsstellung → Kontoauszug-Import kann eine Kontoauszugsdatei (insbesondere im camt.053-Format) importiert werden, um erhaltene Zahlungen…"
+    "description": "Unter Rechnungsstellung → Kontoauszug-Import kann eine Kontoauszugsdatei (insbesondere im camt.053-Format) importiert werden, um erhaltene Zahlungen…",
+    "faq": [
+      {
+        "q": "Welche Banken sind kompatibel?",
+        "a": "Jede Schweizer Bank, die einen camt.053-Auszug exportiert, was bei den wichtigsten der Fall ist."
+      },
+      {
+        "q": "Verbindet sich Cantia mit meiner Bank?",
+        "a": "Nein, Sie laden selbst eine Datei hoch. Es wird kein Zugang zu Ihrem Konto gegeben."
+      },
+      {
+        "q": "Und wenn ein Kunde zwei Rechnungen auf einmal bezahlt?",
+        "a": "Prüfen Sie den Vorschlag und verteilen Sie die Zahlung auf die betroffenen Rechnungen."
+      }
+    ]
   },
   {
     "path": "de/aide/portail-client",
     "title": "Was der Kunde auf seinem Portal sieht | Cantia Hilfe-Center",
-    "description": "Der an einen Kunden gesendete Link öffnet ein sicheres Portal, ohne dass er ein Konto oder Passwort erstellen muss "
+    "description": "Der an einen Kunden gesendete Link öffnet ein sicheres Portal, ohne dass er ein Konto oder Passwort erstellen muss, nur seine E-Mail-Adresse, die Cantia…",
+    "faq": [
+      {
+        "q": "Kann der Kunde ablehnen?",
+        "a": "Ja, er kann die Offerte im Portal ablehnen. Sie werden benachrichtigt."
+      },
+      {
+        "q": "Hat eine Online-Unterschrift einen Wert?",
+        "a": "Sie belegt die Zustimmung des Kunden mit Datum und Uhrzeit. Für besondere Fälle fragen Sie eine Fachperson für Recht."
+      },
+      {
+        "q": "Was passiert, wenn der Link weitergeleitet wird?",
+        "a": "Ohne Zugang zur E-Mail-Adresse des Kunden kann der Code nicht empfangen werden, und das Dokument öffnet sich nicht."
+      }
+    ]
   }
 ];

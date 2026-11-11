@@ -58,15 +58,21 @@ function descriptionFrom(paragraphs) {
 }
 
 const { HELP_ARTICLES, HELP_ARTICLES_DE } = loadTsModule(path.join(rootDir, 'lib/helpArticles.ts'));
+// Extra sections and questions of each article (lib/helpArticlesMore.*.ts):
+// the questions become the article's FAQPage.
+const { HELP_MORE_FR } = loadTsModule(path.join(rootDir, 'lib/helpArticlesMore.fr.ts'));
+const { HELP_MORE_DE } = loadTsModule(path.join(rootDir, 'lib/helpArticlesMore.de.ts'));
 const helpRoutesFr = HELP_ARTICLES.map((a) => ({
   path: `aide/${a.id}`,
   title: `${a.title} | Centre d'aide Cantia`,
   description: descriptionFrom(a.body),
+  faq: HELP_MORE_FR[a.id]?.faq ?? [],
 }));
 const helpRoutesDe = HELP_ARTICLES_DE.map((a) => ({
   path: `de/aide/${a.id}`,
   title: `${a.title} | Cantia Hilfe-Center`,
   description: descriptionFrom(a.body),
+  faq: HELP_MORE_DE[a.id]?.faq ?? [],
 }));
 
 const { TRADE_PAGES_DE } = loadTsModule(path.join(rootDir, 'lib/tradeLandingPagesDe.ts'));

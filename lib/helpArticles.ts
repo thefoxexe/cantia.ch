@@ -1,6 +1,8 @@
 // Static content for the in-app help library (Compte → Aide) — bundled with
 // the app rather than stored per-organization in the DB, since it explains
 // how Cantia itself works and doesn't vary between organizations.
+import type { HelpArticleSection } from './helpArticlesMore';
+
 export interface HelpArticleStep {
   // Base filename (no extension) of a screenshot under public/help-shots/<screenshot>[-de|-it].jpg.
   screenshot: string;
@@ -25,6 +27,10 @@ export interface HelpArticle {
   // addition to — the single `screenshot` above. Same demo-org sourcing
   // rule applies to every step's screenshot.
   steps?: HelpArticleStep[];
+  // Headed sections and questions added after the intro (lib/helpArticlesMore*.ts,
+  // merged in lib/helpArticlesFull.ts).
+  sections?: HelpArticleSection[];
+  faq?: { q: string; a: string }[];
 }
 
 export const HELP_ARTICLES: HelpArticle[] = [

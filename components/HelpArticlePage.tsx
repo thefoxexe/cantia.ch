@@ -7,7 +7,10 @@ import { Breadcrumbs, SitePage, useSiteLayout } from './site/Sections';
 import { SITE_PAGES } from '../lib/site/pages';
 import { sans, serif, site } from '../lib/siteTheme';
 import { authHref } from '../lib/appHost';
-import { HelpArticle } from '../lib/helpArticles';
+import type { HelpArticle } from '../lib/helpArticlesFull';
+import { FaqItem } from './site/FamilyPage';
+
+const FAQ_TITLE = { fr: 'Questions fréquentes', de: 'Häufige Fragen', it: 'Domande frequenti' } as const;
 import { getAppLocale, useTranslation } from '../lib/translations';
 
 // Real size of each capture of the app (public/help-shots/<name>[-de|-it].jpg,
@@ -88,6 +91,19 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
                 ))}
               </View>
 
+              {article.sections?.map((sec) => (
+                <View key={sec.title} style={{ marginTop: 40, gap: 16 }}>
+                  <Text role="heading" aria-level={2} style={[sans, styles.h2, phone && { fontSize: 20 }]}>
+                    {sec.title}
+                  </Text>
+                  {sec.paragraphs.map((p, i) => (
+                    <Text key={i} style={[sans, styles.p]}>
+                      {p}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+
               {article.steps?.length ? (
                 <View style={{ marginTop: 40, gap: 40 }}>
                   {article.steps.map((step, i) => (
@@ -98,6 +114,17 @@ export function HelpArticlePage({ article, related }: { article: HelpArticle; re
                       </View>
                       <AppCapture name={step.screenshot} alt={`${article.title} · ${i + 1}`} />
                     </View>
+                  ))}
+                </View>
+              ) : null}
+
+              {article.faq?.length ? (
+                <View style={{ marginTop: 48 }}>
+                  <Text role="heading" aria-level={2} style={[sans, styles.h2, { marginBottom: 14 }, phone && { fontSize: 20 }]}>
+                    {FAQ_TITLE[locale]}
+                  </Text>
+                  {article.faq.map((q, i, all) => (
+                    <FaqItem key={q.q} q={q.q} a={q.a} last={i === all.length - 1} />
                   ))}
                 </View>
               ) : null}
@@ -156,6 +183,7 @@ const styles = StyleSheet.create({
   phone: { padding: 8, backgroundColor: '#1f241c', boxShadow: '0 16px 36px rgba(37,41,33,0.18)' } as object,
   caption: { fontSize: 8, letterSpacing: 0.6, color: '#8f927f', textAlign: 'center', marginTop: 12 },
   p: { fontSize: 15, lineHeight: 27, color: '#4b5045' },
+  h2: { fontSize: 24, lineHeight: 31, fontWeight: '500', letterSpacing: -0.6, color: site.ink },
   step: { gap: 18 },
   stepHead: { flexDirection: 'row', gap: 16, alignItems: 'baseline' },
   stepNum: { fontSize: 30, color: site.copper, lineHeight: 34 },
