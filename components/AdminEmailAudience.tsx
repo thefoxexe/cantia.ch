@@ -27,7 +27,8 @@ const STATUSES: { id: string; label: string }[] = [
   { id: 'trial_expired', label: 'Essai terminé' },
   { id: 'past_due', label: 'Paiement en retard' },
   { id: 'canceled', label: 'Résilié' },
-  { id: 'none', label: 'Sans abonnement' },
+  { id: 'none', label: 'Sans abonnement (bloqué au paiement)' },
+  { id: 'no_company', label: 'Inscription non terminée (sans entreprise)' },
 ];
 
 const LOCALES: { id: string; label: string }[] = [
@@ -129,7 +130,8 @@ export function AdminEmailAudience({ onChange }: { onChange: (rows: AudienceRow[
       trades: sectors.flatMap(tradeValuesForSector),
       specialties,
       plans: plans.includes('custom') ? [...plans, 'illimite', 'custom-besson'] : plans,
-      statuses,
+      // « Sans abonnement » also covers a checkout that Stripe left unpaid.
+      statuses: statuses.flatMap((x) => (x === 'none' ? ['none', 'incomplete', 'incomplete_expired'] : [x])),
       locales,
       activity: activity ?? undefined,
       used: used.flatMap((id) => MODULES.find((m) => m.id === id)?.areas ?? []),
@@ -187,7 +189,7 @@ export function AdminEmailAudience({ onChange }: { onChange: (rows: AudienceRow[
       byLocale.set(r.locale, (byLocale.get(r.locale) ?? 0) + 1);
       const p = PLAN_LABEL[r.plan_id ?? ''] ?? (r.plan_id ? 'Sur mesure' : 'Sans plan');
       byPlan.set(p, (byPlan.get(p) ?? 0) + 1);
-      orgs.add(r.organization_id);
+      if (r.organization_id) orgs.add(r.organization_id);
       if (!r.subscribed) unsubscribed += 1;
     }
     return { byLocale, byPlan, orgs: orgs.size, unsubscribed };

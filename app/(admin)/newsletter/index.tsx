@@ -417,7 +417,9 @@ export default function AdminNewsletterScreen() {
                   .map((r) => ({
                     id: r.user_id,
                     name: r.full_name || r.email,
-                    meta: `${r.organization_name} · ${sectorLabel(r.trade)} · ${PLAN_LABEL[r.plan_id ?? ''] ?? r.plan_id ?? '—'} · ${r.locale.toUpperCase()} · actif ${ago(r.last_active_at)}`,
+                    meta: r.organization_id
+                      ? `${r.organization_name} · ${sectorLabel(r.trade)} · ${PLAN_LABEL[r.plan_id ?? ''] ?? r.plan_id ?? '—'} · ${r.locale.toUpperCase()} · actif ${ago(r.last_active_at)}`
+                      : `${r.email} · inscription non terminée, sans entreprise · actif ${ago(r.last_active_at)}`,
                     unsubscribed: !r.subscribed,
                   })),
                 ...[...extras.entries()].map(([id, e]) => ({ id, name: e.name, meta: `${e.meta} · ajouté à la main`, unsubscribed: e.unsubscribed })),

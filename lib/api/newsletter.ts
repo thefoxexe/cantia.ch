@@ -156,13 +156,14 @@ export interface AudienceRow {
   user_id: string;
   email: string;
   full_name: string | null;
-  organization_id: string;
-  organization_name: string;
+  // null for « Inscription non terminée »: signed up, no company yet.
+  organization_id: string | null;
+  organization_name: string | null;
   trade: string | null;
   specialties: string[];
   plan_id: string | null;
   subscription_status: string;
-  role: string;
+  role: string | null;
   locale: 'fr' | 'de' | 'it' | string;
   subscribed: boolean;
   last_active_at: string | null;
