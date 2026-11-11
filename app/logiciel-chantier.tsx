@@ -338,7 +338,9 @@ function RoiExplainer({ field, hours, rate }: { field: number; hours: number; ra
 }
 
 export default function LogicielChantierPage() {
-  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const { phone, tablet: tabletOnly, width, h2Size  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   const isTablet = width < 1000;
   const X = EXPORTS.fr;
   const L = SITE_PAGES.fr.labels;

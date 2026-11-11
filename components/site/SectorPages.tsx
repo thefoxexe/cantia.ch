@@ -31,7 +31,9 @@ export function MetiersPage() {
   const ui = SECTOR_UI[locale];
   const all = SECTORS_COPY[locale];
   const p = usePrefix();
-  const { phone, tablet, width } = useSiteLayout();
+  const { phone, tablet: tabletOnly, width  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   const [active, setActive] = useState<SectorKey>('batiment');
   const h1Size = phone ? 43 : tablet ? 52 : 62;
   const cols = width > 1000 ? 4 : width > 640 ? 2 : 1;
@@ -121,7 +123,9 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
   const ui = SECTOR_UI[locale];
   const c = SECTORS_COPY[locale][sector];
   const p = usePrefix();
-  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const { phone, tablet: tabletOnly, width, h2Size  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   const h1 = phone ? 40 : tablet ? 48 : 58;
   const cols = phone ? 1 : width <= 900 ? 2 : 3;
   const cellW = cols === 1 ? '100%' : cols === 2 ? '47.5%' : '31%';
@@ -313,7 +317,9 @@ export function SubTradePage({ sector, slug }: { sector: SectorKey; slug: string
   const c = SECTORS_COPY[locale][sector];
   const t = getSubTrade(sector, slug, locale);
   const p = usePrefix();
-  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const { phone, tablet: tabletOnly, width, h2Size  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   if (!t) return null;
   const h1 = phone ? 38 : tablet ? 46 : 54;
   const cols = phone ? 1 : width <= 900 ? 2 : 4;

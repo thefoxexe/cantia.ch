@@ -22,7 +22,9 @@ export function TradePage({ slug }: { slug: string }) {
   const { t } = useTranslation();
   const locale = getAppLocale() as 'fr' | 'de' | 'it';
   const trade = getTradePage(slug, locale)!;
-  const { phone, tablet, width, h2Size } = useSiteLayout();
+  const { phone, tablet: tabletOnly, width, h2Size  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   const L = SITE_PAGES[locale]?.labels ?? SITE_PAGES.fr.labels;
 
   // Outside the building trades, the shared copy talks about projects.

@@ -62,7 +62,9 @@ function AppCapture({ name, alt }: { name: string; alt: string }) {
 export function HelpArticlePage({ article, related }: { article: HelpArticle; related: HelpArticle[] }) {
   const { t } = useTranslation();
   const locale = (getAppLocale() as 'fr' | 'de' | 'it') ?? 'fr';
-  const { phone, tablet } = useSiteLayout();
+  const { phone, tablet: tabletOnly  } = useSiteLayout();
+  // Stacked layouts collapse on phones too, not only on tablets.
+  const tablet = phone || tabletOnly;
   const pre = locale === 'fr' ? '' : `/${locale}`;
   const aide = `${pre}/aide`;
   const L = SITE_PAGES[locale].labels;
