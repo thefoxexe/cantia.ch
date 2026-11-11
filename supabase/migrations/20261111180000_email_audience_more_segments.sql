@@ -120,6 +120,8 @@ begin
   from auth.users u
   left join public.newsletter_subscriptions ns on ns.user_id = u.id
   where v_statuses is not null and 'no_company' = any(v_statuses)
+    -- Company filters (sector, specialty, plan, features used) leave them out.
+    and v_trades is null and v_specs is null and v_plans is null and v_used is null and v_not_used is null
     and u.email is not null
     and not exists (select 1 from public.organization_members m where m.user_id = u.id)
     and not exists (select 1 from public.partner_profiles pp where pp.user_id = u.id)
@@ -140,6 +142,8 @@ begin
   join auth.users u on u.id = fm.user_id
   left join public.newsletter_subscriptions ns on ns.user_id = fm.user_id
   where v_statuses is not null and 'fiduciary' = any(v_statuses)
+    -- Company filters (sector, specialty, plan, features used) leave them out.
+    and v_trades is null and v_specs is null and v_plans is null and v_used is null and v_not_used is null
     and u.email is not null and ff.status = 'ACTIVE'
     and (not v_owners or fm.role = 'OWNER')
     and (v_subscribed is null or coalesce(ns.subscribed, true) = v_subscribed)
@@ -155,6 +159,8 @@ begin
   join auth.users u on u.id = pp.user_id
   left join public.newsletter_subscriptions ns on ns.user_id = pp.user_id
   where v_statuses is not null and 'partner' = any(v_statuses)
+    -- Company filters (sector, specialty, plan, features used) leave them out.
+    and v_trades is null and v_specs is null and v_plans is null and v_used is null and v_not_used is null
     and u.email is not null and pp.status = 'ACTIVE'
     and (v_subscribed is null or coalesce(ns.subscribed, true) = v_subscribed)
     and (v_locales is null or pp.locale = any(v_locales))
