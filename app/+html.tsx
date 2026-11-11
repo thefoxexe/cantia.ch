@@ -1,4 +1,5 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
+import { IS_DEMO } from '../lib/demo';
 import { type PropsWithChildren } from 'react';
 import { FontHead } from '../components/site/FontHead';
 import { Splash } from '../components/site/Splash';
@@ -46,19 +47,24 @@ export default function Root({ children }: PropsWithChildren) {
         {/* Cloudflare Web Analytics: no cookie, no personal data, so it loads
             for every visitor without the consent banner. Same snippet as
             scripts/inject-seo-meta.mjs (CF_BEACON). */}
-        <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "d2207a54495f48449b9c5a5991d31d16"}' />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-var cantiaConsent = /(?:^|; )cantia_cookie_consent=accepted/.test(document.cookie) ? 'granted' : 'denied';
-gtag('consent', 'default', { ad_storage: cantiaConsent, ad_user_data: cantiaConsent, ad_personalization: cantiaConsent, analytics_storage: cantiaConsent });
-gtag('js', new Date());
-gtag('config', 'AW-18465996566');
-if (cantiaConsent === 'granted') gtag('config', 'G-1K03L5TNDX');`,
-          }}
-        />
+        {/* Not in the read-only demo (demo.cantia.ch): its visits are not site traffic. */}
+        {IS_DEMO ? null : (
+          <>
+            <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "d2207a54495f48449b9c5a5991d31d16"}' />
+            <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    var cantiaConsent = /(?:^|; )cantia_cookie_consent=accepted/.test(document.cookie) ? 'granted' : 'denied';
+    gtag('consent', 'default', { ad_storage: cantiaConsent, ad_user_data: cantiaConsent, ad_personalization: cantiaConsent, analytics_storage: cantiaConsent });
+    gtag('js', new Date());
+    gtag('config', 'AW-18465996566');
+    if (cantiaConsent === 'granted') gtag('config', 'G-1K03L5TNDX');`,
+              }}
+            />
+          </>
+        )}
       </head>
       <body>
         <Splash />

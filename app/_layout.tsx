@@ -14,6 +14,7 @@ import { installConversionTracking, trackPageview } from '../lib/siteAnalytics';
 import { registerForPushNotificationsAsync } from '../lib/notifications/registerPush';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SaveConfirmationOverlay } from '../components/SaveConfirmation';
+import { DemoBanner } from '../components/DemoBanner';
 import { CookieBanner } from '../components/CookieBanner';
 import { getCookieConsent } from '../lib/siteAnalytics';
 import { onRouteChange, startSessionReplay } from '../lib/sessionReplay';
@@ -177,6 +178,7 @@ function RootNavigation() {
       </ErrorBoundary>
       <SaveConfirmationOverlay />
       <CookieBanner />
+      <DemoBanner />
     </>
   );
 }

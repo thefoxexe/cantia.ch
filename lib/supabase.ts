@@ -1,6 +1,8 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { IS_DEMO } from './demo';
+import { DemoSocket, demoAuthStorage, demoFetch } from './demo/fetch';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
@@ -32,7 +34,14 @@ function makeSsrStub(): any {
 export const supabase = (
   typeof window === 'undefined'
     ? (makeSsrStub() as ReturnType<typeof createClient>)
-    : createClient(supabaseUrl, supabaseAnonKey, {
+    : IS_DEMO
+      ? // demo.cantia.ch: no network at all, see lib/demo.
+        createClient('https://demo.invalid', 'demo', {
+          auth: { storage: demoAuthStorage(), autoRefreshToken: false, persistSession: true, detectSessionInUrl: false },
+          global: { fetch: demoFetch },
+          realtime: { transport: DemoSocket as any },
+        })
+      : createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
           storage: AsyncStorage,
           autoRefreshToken: true,

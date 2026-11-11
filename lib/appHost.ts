@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { forceLocale, getAppLocale, type AppLocale } from './translations';
+import { IS_DEMO } from './demo';
 
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
@@ -25,6 +26,8 @@ export function isMarketingHost(): boolean {
 // no landing page, straight to login (or the dashboard once session-checked).
 export function isAppHost(): boolean {
   if (Platform.OS !== 'web') return true;
+  // The demo build behaves as the app wherever it is served.
+  if (IS_DEMO) return true;
   return hostname() === APP_HOST;
 }
 

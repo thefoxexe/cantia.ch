@@ -1,10 +1,12 @@
 # One repository, three Netlify sites: cantia.ch + app.cantia.ch (this build),
 # partners.cantia.ch (environment variable CANTIA_SURFACE=partners ->
 # scripts/build-partners.mjs) and accounting.cantia.ch (CANTIA_SURFACE=accounting
-# -> scripts/build-accounting.mjs). Each has its own route root and its own
+# -> scripts/build-accounting.mjs), plus the read-only demo demo.cantia.ch
+# (CANTIA_SURFACE=demo -> scripts/build-demo.mjs, same route root as the app).
+# Each has its own route root and its own
 # _redirects, which Netlify reads before the rules below.
 [build]
-  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs && node scripts/write-version.mjs; fi"
+  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"demo\" ]; then node scripts/build-demo.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs && node scripts/write-version.mjs; fi"
   publish = "dist"
 
 [build.environment]
@@ -136,6 +138,22 @@
 [[redirects]]
   from = "/link"
   to = "/liens"
+  status = 301
+
+# /ecosysteme became /a-propos (November 2026).
+[[redirects]]
+  from = "/ecosysteme"
+  to = "/a-propos"
+  status = 301
+
+[[redirects]]
+  from = "/de/ecosysteme"
+  to = "/de/a-propos"
+  status = 301
+
+[[redirects]]
+  from = "/it/ecosysteme"
+  to = "/it/a-propos"
   status = 301
 
 # BEGIN generated routes (scripts/generate-netlify-redirects.mjs — do not hand-edit)
@@ -1540,11 +1558,6 @@
   status = 200
 
 [[redirects]]
-  from = "/ecosysteme"
-  to = "/a-propos"
-  status = 301
-
-[[redirects]]
   from = "/a-propos"
   to = "/a-propos.html"
   status = 200
@@ -1552,6 +1565,26 @@
 [[redirects]]
   from = "/ressources"
   to = "/ressources.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/a-propos"
+  to = "/de/a-propos.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/ressources"
+  to = "/de/ressources.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/a-propos"
+  to = "/it/a-propos.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/ressources"
+  to = "/it/ressources.html"
   status = 200
 
 [[redirects]]
@@ -1567,36 +1600,6 @@
 [[redirects]]
   from = "/it/comparatifs"
   to = "/it/comparatifs.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/ecosysteme"
-  to = "/de/a-propos"
-  status = 301
-
-[[redirects]]
-  from = "/de/a-propos"
-  to = "/de/a-propos.html"
-  status = 200
-
-[[redirects]]
-  from = "/de/ressources"
-  to = "/de/ressources.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/ecosysteme"
-  to = "/it/a-propos"
-  status = 301
-
-[[redirects]]
-  from = "/it/a-propos"
-  to = "/it/a-propos.html"
-  status = 200
-
-[[redirects]]
-  from = "/it/ressources"
-  to = "/it/ressources.html"
   status = 200
 
 [[redirects]]
@@ -2816,24 +2819,6 @@
 [[redirects]]
   from = "/de/blog/cantia-adapte-metier-specifique-batiment"
   to = "/de/sur-mesure"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/de/blog/cantia-vs-cresus-facturation"
-  to = "/blog/cantia-vs-cresus-facturation"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/de/blog/cantia-vs-klara"
-  to = "/blog/cantia-vs-klara"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/de/blog/cantia-vs-winbiz"
-  to = "/blog/cantia-vs-winbiz"
   status = 301
   force = true
 
@@ -4094,24 +4079,6 @@
 [[redirects]]
   from = "/it/blog/cantia-adapte-metier-specifique-batiment"
   to = "/it/sur-mesure"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/cantia-vs-cresus-facturation"
-  to = "/blog/cantia-vs-cresus-facturation"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/cantia-vs-klara"
-  to = "/blog/cantia-vs-klara"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/cantia-vs-winbiz"
-  to = "/blog/cantia-vs-winbiz"
   status = 301
   force = true
 
