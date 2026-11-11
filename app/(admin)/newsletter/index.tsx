@@ -19,6 +19,7 @@ import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEm
 import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
 import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona, type ExternalRecipient, parseExternalRecipients } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
+import { loadEmailList, saveEmailList, MAX_EXTERNAL } from '../../../lib/admin/emailList';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
@@ -64,29 +65,8 @@ function formatDateTime(iso: string): string {
 // search. Every criterion defaults to subscribed-only; including people who
 // opted out is an explicit choice and needs the confirmation box before a
 // newsletter-persona send.
-// External addresses of the list being built, kept in this browser until
-// the e-mail is sent (web only; storage may be blocked).
-const EXTERNALS_KEY = 'cantia:admin-email-externals';
-const MAX_EXTERNAL = 200;
-function loadExternals(): Map<string, ExternalRecipient> {
-  try {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return new Map();
-    const raw = JSON.parse(window.localStorage.getItem(EXTERNALS_KEY) || '[]');
-    const list = Array.isArray(raw) ? (raw as ExternalRecipient[]).filter((r) => r && typeof r.email === 'string') : [];
-    return new Map(list.map((r) => [r.email, r]));
-  } catch {
-    return new Map();
-  }
-}
-function saveExternals(map: Map<string, ExternalRecipient>): void {
-  try {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
-    if (map.size) window.localStorage.setItem(EXTERNALS_KEY, JSON.stringify([...map.values()]));
-    else window.localStorage.removeItem(EXTERNALS_KEY);
-  } catch {
-    // Not kept: the list still works for this visit.
-  }
-}
+const loadExternals = loadEmailList;
+const saveExternals = saveEmailList;
 
 export default function AdminNewsletterScreen() {
   const { user } = useAuth();

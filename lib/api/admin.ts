@@ -251,6 +251,67 @@ export async function listActivity(params: { limit?: number; before?: string | n
   return { rows: err || !data ? [] : (data as ActivityEvent[]), error: err };
 }
 
+// Super Admin › Nouvelles entreprises: new entries of the commercial
+// register (FOSC), fetched by the database (20261112090000).
+export interface RegistryCompany {
+  id: string;
+  publication_date: string;
+  canton: string;
+  language: string | null;
+  name: string;
+  uid: string | null;
+  legal_form: string | null;
+  seat: string | null;
+  street: string | null;
+  zip: string | null;
+  town: string | null;
+  purpose: string | null;
+  persons: string | null;
+  trades: string[];
+  status: 'new' | 'contacted' | 'ignored';
+  email: string | null;
+  website: string | null;
+  phone: string | null;
+  note: string | null;
+  contacted_at: string | null;
+  fetched_at: string;
+}
+export async function listRegistryCompanies(sinceDays: number): Promise<{ rows: RegistryCompany[]; error: string | null }> {
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from('registry_companies')
+    .select('*')
+    .gte('publication_date', since)
+    .order('publication_date', { ascending: false })
+    .order('name', { ascending: true })
+    .limit(2000);
+  const err = logRpcError('registry_companies', error);
+  return { rows: err || !data ? [] : (data as RegistryCompany[]), error: err };
+}
+export async function refreshRegistry(cantons: string[], days: number): Promise<{ queued: number; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_registry_refresh', { p_cantons: cantons, p_days: days });
+  const err = logRpcError('admin_registry_refresh', error);
+  return { queued: (data as { queued?: number } | null)?.queued ?? 0, error: err };
+}
+export async function registryPending(): Promise<number> {
+  const { data } = await supabase.rpc('admin_registry_pending');
+  return typeof data === 'number' ? data : 0;
+}
+export async function updateRegistryCompany(
+  id: string,
+  patch: { status?: RegistryCompany['status']; email?: string; website?: string; phone?: string; note?: string },
+): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_registry_update', {
+    p_id: id,
+    p_status: patch.status ?? null,
+    p_email: patch.email ?? null,
+    p_website: patch.website ?? null,
+    p_phone: patch.phone ?? null,
+    p_note: patch.note ?? null,
+  });
+  return { error: logRpcError('admin_registry_update', error) };
+}
+
 // Real Stripe billing state — never derived/guessed locally. The edge
 // function itself re-checks is_platform_admin() and never returns the
 // Stripe secret key, only these derived fields.

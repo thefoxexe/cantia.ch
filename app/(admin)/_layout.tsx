@@ -18,7 +18,7 @@ import { BrandLogo, BrandMark } from '../../components/brand/Logo';
 // users) is not a destination: a member is reached from its company's page.
 // Each entry carries one line saying what is in it, shown in the phone
 // menu, so nobody has to open a page to find out.
-type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap; desc: string };
+type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap; desc: string; short?: string };
 const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
   { title: null, items: [{ href: '/(admin)', label: 'Tableau de bord', icon: 'home', desc: 'Revenu mensuel, inscriptions et encaissements du moment.' }] },
   {
@@ -34,6 +34,12 @@ const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
     items: [
       { href: '/(admin)/fiduciaires', label: 'Fiduciaires', icon: 'shield', desc: 'Cantia Accounting : les cabinets, leurs mandats et leur activité.' },
       { href: '/(admin)/partners', label: 'Partenaires', icon: 'award', desc: 'Cantia Partners : les apporteurs, leurs clients et leurs commissions.' },
+    ],
+  },
+  {
+    title: 'Prospection',
+    items: [
+      { href: '/(admin)/registre', label: 'Nouvelles entreprises', short: 'Prospection', icon: 'search', desc: 'Les entreprises inscrites ces derniers jours au registre du commerce, par canton et par métier.' },
     ],
   },
   {
@@ -250,7 +256,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
         <Pressable style={styles.tab} onPress={() => setMenuOpen((v) => !v)} accessibilityRole="tab" accessibilityState={{ selected: menuOpen || !inTabs }}>
           <Feather name={menuOpen ? 'x' : 'menu'} size={20} color={menuOpen || !inTabs ? colors.primary : colors.textMuted} />
           <Text style={[styles.tabText, (menuOpen || !inTabs) && styles.tabTextActive]} numberOfLines={1}>
-            {!menuOpen && !inTabs && current ? current.label : 'Plus'}
+            {!menuOpen && !inTabs && current ? current.short ?? current.label : 'Plus'}
           </Text>
         </Pressable>
       </View>
