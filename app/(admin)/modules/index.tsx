@@ -65,7 +65,7 @@ export default function AdminModulesList() {
           <View style={styles.list}>
             {modules.map((mod) => (
               <View key={mod.id} style={styles.row}>
-                <View style={{ flex: 1 }}>
+                <View style={{ flexGrow: 1, flexBasis: 220, minWidth: 0 }}>
                   <View style={styles.rowTitleLine}>
                     <Text style={styles.rowTitle}>{mod.name}</Text>
                     <Text style={styles.rowKey}>{mod.key}</Text>
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
   },
   rowTitleLine: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'baseline',
     gap: spacing.sm,
   },

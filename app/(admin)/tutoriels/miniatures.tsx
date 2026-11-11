@@ -150,7 +150,7 @@ export default function AdminTutorialThumbnailsScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
             <Link href="/(admin)/tutoriels" asChild>
               <Pressable style={styles.back} hitSlop={8}>
                 <Feather name="arrow-left" size={14} color={colors.textMuted} />
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: spacing.md,

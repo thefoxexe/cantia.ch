@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminCancellationReasons } from '../../../components/AdminCancellationReasons';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, Field, LoadingScreen } from '../../../components/ui';
@@ -38,8 +38,10 @@ const STATUS_FILTERS: { key: OrgStatusBucket | null; label: string }[] = [
 ];
 
 function StatusCountTile({ label, count, active, onPress }: { label: string; count: number; active: boolean; onPress: () => void }) {
+  // Even rows: two tiles per row on a phone, four on a computer.
+  const { width } = useWindowDimensions();
   return (
-    <Pressable style={[styles.countTile, active && styles.countTileActive]} onPress={onPress}>
+    <Pressable style={[styles.countTile, { flexBasis: width < 860 ? '45%' : '22%' }, active && styles.countTileActive]} onPress={onPress}>
       <Text style={[styles.countValue, active && styles.countValueActive]}>{count}</Text>
       <Text style={[styles.countLabel, active && styles.countLabelActive]}>{label}</Text>
     </Pressable>
@@ -86,7 +88,7 @@ export default function AdminSubscriptionsList() {
     return counts;
   }, [rows]);
 
-  const plans = useMemo(() => Array.from(new Map(rows.map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
+  const plans = useMemo(() => Array.from(new Map(rows.filter((o) => o.plan_id && o.plan_name).map((o) => [o.plan_id, o.plan_name])).entries()), [rows]);
   const filteredRows = useMemo(() => {
     let base = rows;
     if (statusFilter) base = base.filter((o) => getOrgStatus(o).bucket === statusFilter);
@@ -202,7 +204,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   countTile: {
-    minWidth: 96,
+    minWidth: 0,
     flexGrow: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,

@@ -12,51 +12,59 @@ import { AdminDataProvider, useAdminData } from '../../lib/adminDataContext';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { BrandLogo, BrandMark } from '../../components/brand/Logo';
 
-// Grouped by what you come to do. "Comptes" (individual users) is not a
-// top-level destination: a member is reached from its company's page. The
-// partner program and the fiduciary space are administered here too (their
-// own sites have no admin anymore).
-type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap };
+// Grouped by what you come to do, in the order you need it: clients first,
+// then the two other spaces (fiduciaries, partners), writing to people,
+// the product numbers, and Cantia's own books and log. "Comptes" (individual
+// users) is not a destination: a member is reached from its company's page.
+// Each entry carries one line saying what is in it, shown in the phone
+// menu, so nobody has to open a page to find out.
+type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap; desc: string };
 const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
-  { title: null, items: [{ href: '/(admin)', label: 'Tableau de bord', icon: 'home' }] },
+  { title: null, items: [{ href: '/(admin)', label: 'Tableau de bord', icon: 'home', desc: 'Revenu mensuel, inscriptions et encaissements du moment.' }] },
   {
     title: 'Clients',
     items: [
-      { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase' },
-      { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card' },
-      { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up' },
-    ],
-  },
-  {
-    title: 'Ma gestion',
-    items: [{ href: '/(admin)/compta', label: 'Comptabilité', icon: 'book' }],
-  },
-  {
-    title: 'Produit',
-    items: [
-      { href: '/(admin)/usage', label: 'Utilisation', icon: 'bar-chart-2' },
-      { href: '/(admin)/modules', label: 'Modules', icon: 'grid' },
+      { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase', desc: 'Toutes les entreprises inscrites, leur plan, leurs membres et leur activité.' },
+      { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card', desc: 'Qui paie, qui est en essai, les retards et les motifs de résiliation.' },
+      { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up', desc: 'Encaissé, frais Stripe et dépenses de la plateforme.' },
     ],
   },
   {
     title: 'Écosystème',
     items: [
-      { href: '/(admin)/partners', label: 'Partners', icon: 'award' },
-      { href: '/(admin)/fiduciaires', label: 'Fiduciaires', icon: 'shield' },
+      { href: '/(admin)/fiduciaires', label: 'Fiduciaires', icon: 'shield', desc: 'Cantia Accounting : les cabinets, leurs mandats et leur activité.' },
+      { href: '/(admin)/partners', label: 'Partenaires', icon: 'award', desc: 'Cantia Partners : les apporteurs, leurs clients et leurs commissions.' },
     ],
   },
   {
-    title: 'Acquisition',
+    title: 'Communication',
     items: [
-      { href: '/(admin)/trafic', label: 'Trafic', icon: 'compass' },
-      { href: '/(admin)/blog-leads', label: 'Blog & leads', icon: 'download' },
-      { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail' },
-      { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video' },
+      { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail', desc: 'Écrire à vos clients, fiduciaires, partenaires ou à n’importe quelle adresse.' },
+      { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video', desc: 'Le plan de tournage des vidéos, chapitre par chapitre.' },
     ],
   },
-  { title: 'Système', items: [{ href: '/(admin)/logs', label: 'Logs', icon: 'list' }] },
+  {
+    title: 'Produit',
+    items: [
+      { href: '/(admin)/usage', label: 'Utilisation', icon: 'bar-chart-2', desc: 'Les fonctions vraiment utilisées, entreprise par entreprise.' },
+      { href: '/(admin)/modules', label: 'Modules', icon: 'grid', desc: 'Ce que contient chaque plan et les modules sur mesure.' },
+      { href: '/(admin)/trafic', label: 'Trafic', icon: 'compass', desc: 'D’où viennent les visites et les inscriptions.' },
+      { href: '/(admin)/blog-leads', label: 'Blog & leads', icon: 'download', desc: 'Les e-mails captés et ce que rapporte chaque article.' },
+    ],
+  },
+  {
+    title: 'Gestion',
+    items: [
+      { href: '/(admin)/compta', label: 'Comptabilité', icon: 'book', desc: 'Les recettes, dépenses et justificatifs de Cantia.' },
+      { href: '/(admin)/logs', label: 'Journal', icon: 'list', desc: 'Tout ce qui se passe : inscriptions, paiements, envois, actions admin.' },
+    ],
+  },
 ];
 const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
+// Phone: the four pages opened most often sit in a bar at the bottom, the
+// rest is one tap away under « Plus ».
+const TAB_HREFS = ['/(admin)', '/(admin)/organizations', '/(admin)/subscriptions', '/(admin)/newsletter'];
+const TAB_LABEL: Record<string, string> = { '/(admin)': 'Accueil' };
 
 function activeHrefFor(pathname: string): string | null {
   let best: string | null = null;
@@ -110,7 +118,7 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const isDesktop = width >= breakpoints.tablet;
+  const isDesktop = width >= 860;
   const activeHref = activeHrefFor(pathname);
   const { loading: dataLoading } = useAdminData();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -165,58 +173,86 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
     );
   }
 
+  const current = NAV_ITEMS.find((i) => i.href === activeHref);
+  const inTabs = !!activeHref && TAB_HREFS.includes(activeHref);
+  const go = (href: string) => {
+    setMenuOpen(false);
+    router.replace(href as any);
+  };
+
   return (
     <View style={styles.mobileRoot}>
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
-        <BrandMark size={30} />
+        <BrandMark size={26} />
+        <Text style={styles.mobileTitle} numberOfLines={1}>
+          {menuOpen ? 'Toutes les sections' : 'Administration'}
+        </Text>
         <View style={[styles.badge, styles.badgeInline]}>
           <Feather name="shield" size={10} color="#fff" />
-          <Text style={styles.badgeText}>SUPER ADMIN</Text>
+          <Text style={styles.badgeText}>ADMIN</Text>
         </View>
-        <View style={{ flex: 1 }} />
-        <Pressable style={styles.mobileExitButton} onPress={signOut} hitSlop={8}>
-          <Feather name="log-out" size={18} color={colors.textMuted} />
-        </Pressable>
       </View>
-      {/* Current page + a menu button: the grouped list opens under the
-          bar (no horizontal ScrollView here, it broke the page's vertical
-          scroll on real phones). */}
-      <Pressable style={styles.mobileCurrent} onPress={() => setMenuOpen((v) => !v)}>
-        <Feather name={NAV_ITEMS.find((i) => i.href === activeHref)?.icon ?? 'menu'} size={15} color={colors.primary} />
-        <Text style={styles.mobileCurrentText}>{NAV_ITEMS.find((i) => i.href === activeHref)?.label ?? 'Menu'}</Text>
-        <Feather name={menuOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
-      </Pressable>
-      {menuOpen ? (
-        <View style={styles.mobileMenu}>
-          {NAV_GROUPS.map((group) => (
-            <View key={group.title ?? 'home'} style={{ gap: 2 }}>
-              {group.title ? <Text style={styles.groupTitle}>{group.title}</Text> : null}
-              <View style={styles.mobileMenuRow}>
-                {group.items.map((item) => {
-                  const active = item.href === activeHref;
-                  return (
-                    <Pressable
-                      key={item.href}
-                      style={[styles.mobileNavItem, active && styles.mobileNavItemActive]}
-                      onPress={() => {
-                        setMenuOpen(false);
-                        router.replace(item.href as any);
-                      }}
-                    >
-                      <Feather name={item.icon} size={15} color={active ? colors.primary : colors.textMuted} />
-                      <Text style={[styles.mobileNavItemText, active && styles.mobileNavItemTextActive]}>{item.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-          ))}
-        </View>
-      ) : null}
+
       <View style={styles.mobileContent}>
-        <ErrorBoundary key={pathname}>
-          <Slot />
-        </ErrorBoundary>
+        {menuOpen ? (
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.sheet}>
+            {NAV_GROUPS.map((group) => (
+              <View key={group.title ?? 'home'} style={styles.sheetGroup}>
+                {group.title ? <Text style={styles.sheetGroupTitle}>{group.title}</Text> : null}
+                <View style={styles.sheetCard}>
+                  {group.items.map((item, idx) => {
+                    const active = item.href === activeHref;
+                    return (
+                      <Pressable
+                        key={item.href}
+                        onPress={() => go(item.href)}
+                        style={({ pressed }) => [styles.sheetRow, idx > 0 && styles.sheetRowBorder, (pressed || active) && styles.sheetRowActive]}
+                      >
+                        <View style={[styles.sheetIcon, active && styles.sheetIconActive]}>
+                          <Feather name={item.icon} size={17} color={active ? '#fff' : colors.primary} />
+                        </View>
+                        <View style={{ flex: 1, minWidth: 0 }}>
+                          <Text style={styles.sheetLabel}>{item.label}</Text>
+                          <Text style={styles.sheetDesc}>{item.desc}</Text>
+                        </View>
+                        <Feather name="chevron-right" size={16} color={colors.textMuted} />
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+            <Pressable style={styles.sheetLogout} onPress={signOut}>
+              <Feather name="log-out" size={16} color={colors.textMuted} />
+              <Text style={styles.sheetLogoutText}>Déconnexion</Text>
+            </Pressable>
+          </ScrollView>
+        ) : (
+          <ErrorBoundary key={pathname}>
+            <Slot />
+          </ErrorBoundary>
+        )}
+      </View>
+
+      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 6) }]}>
+        {TAB_HREFS.map((href) => {
+          const item = NAV_ITEMS.find((i) => i.href === href)!;
+          const active = !menuOpen && activeHref === href;
+          return (
+            <Pressable key={href} style={styles.tab} onPress={() => go(href)} accessibilityRole="tab" accessibilityState={{ selected: active }}>
+              <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
+              <Text style={[styles.tabText, active && styles.tabTextActive]} numberOfLines={1}>
+                {TAB_LABEL[href] ?? item.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+        <Pressable style={styles.tab} onPress={() => setMenuOpen((v) => !v)} accessibilityRole="tab" accessibilityState={{ selected: menuOpen || !inTabs }}>
+          <Feather name={menuOpen ? 'x' : 'menu'} size={20} color={menuOpen || !inTabs ? colors.primary : colors.textMuted} />
+          <Text style={[styles.tabText, (menuOpen || !inTabs) && styles.tabTextActive]} numberOfLines={1}>
+            {!menuOpen && !inTabs && current ? current.label : 'Plus'}
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -436,6 +472,108 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   mobileNavItemTextActive: {
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  mobileTitle: {
+    flex: 1,
+    fontSize: fontSize.md,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  sheet: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    gap: spacing.lg,
+  },
+  sheetGroup: {
+    gap: spacing.xs,
+  },
+  sheetGroupTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
+    paddingHorizontal: spacing.xs,
+  },
+  sheetCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  sheetRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  sheetRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  sheetRowActive: {
+    backgroundColor: colors.primarySoft,
+  },
+  sheetIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetIconActive: {
+    backgroundColor: colors.primary,
+  },
+  sheetLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  sheetDesc: {
+    fontSize: fontSize.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+    lineHeight: 17,
+  },
+  sheetLogout: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  sheetLogoutText: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textMuted,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 6,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+    paddingVertical: 4,
+    minWidth: 0,
+  },
+  tabText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    color: colors.textMuted,
+    maxWidth: '100%',
+  },
+  tabTextActive: {
     color: colors.primary,
     fontWeight: '700',
   },

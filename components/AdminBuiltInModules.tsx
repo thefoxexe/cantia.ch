@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { ORG_MODULES, PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, type ModuleKey } from '../lib/modules';
 import type { Plan } from '../lib/types';
@@ -61,6 +61,7 @@ const FEATURES: { label: string; sub?: string; value: (p: Plan) => { text: strin
 
 export function AdminBuiltInModules() {
   const [plans, setPlans] = useState<Record<string, Plan>>({});
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     supabase
@@ -106,6 +107,7 @@ export function AdminBuiltInModules() {
         Lu en direct dans la table des plans. « Par chantier » : cochés d’office sur chaque nouveau chantier (Paramètres › Modules › Outils des
         nouveaux chantiers), chaque chantier peut les retirer. Soumission et planning de chantier : entreprises du bâtiment seulement.
       </Text>
+      {width < 700 ? <Text style={styles.swipe}>Faites glisser le tableau vers la gauche pour voir les plans.</Text> : null}
       <ScrollView horizontal contentContainerStyle={{ minWidth: '100%' }}>
         <View style={{ flex: 1, minWidth: 560 }}>
           <View style={[styles.row, styles.headRow]}>
@@ -160,6 +162,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
   hint: { fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 17 },
+  swipe: { fontSize: fontSize.xs, color: colors.primary, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },
   headRow: { borderBottomColor: colors.text },
   sectionRow: { borderBottomWidth: 0, paddingTop: spacing.md, paddingBottom: 2 },

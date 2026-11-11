@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, LoadingScreen, Switch } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
@@ -70,12 +70,16 @@ const BLANK_DRAFT: Draft = {
 };
 
 function StatTile({ label, value, icon, accent }: { label: string; value: string; icon: keyof typeof Feather.glyphMap; accent?: string }) {
+  // On a phone the tiles go two by two: the icon makes way for the amount.
+  const { width } = useWindowDimensions();
   return (
     <View style={styles.statTile}>
-      <View style={[styles.statIcon, accent ? { backgroundColor: `${accent}1c` } : null]}>
-        <Feather name={icon} size={15} color={accent ?? colors.textMuted} />
-      </View>
-      <View style={{ flex: 1 }}>
+      {width >= 640 ? (
+        <View style={[styles.statIcon, accent ? { backgroundColor: `${accent}1c` } : null]}>
+          <Feather name={icon} size={15} color={accent ?? colors.textMuted} />
+        </View>
+      ) : null}
+      <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={[styles.statValue, accent ? { color: accent } : null]}>{value}</Text>
         <Text style={styles.statLabel}>{label}</Text>
       </View>
@@ -205,7 +209,7 @@ export default function AdminRentabiliteScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
             <Text style={styles.title}>Rentabilité</Text>
             <Text style={styles.hint}>Cash réellement encaissé (brut) moins les frais Stripe et les dépenses de la plateforme.</Text>
           </View>
@@ -445,6 +449,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: spacing.md,
@@ -465,12 +470,12 @@ const styles = StyleSheet.create({
   statGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    gap: spacing.sm,
     marginBottom: spacing.md,
   },
   statTile: {
     flex: 1,
-    minWidth: 180,
+    minWidth: 150,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,

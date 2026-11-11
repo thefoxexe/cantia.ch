@@ -169,7 +169,7 @@ export default function AdminDashboard() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
             <Text style={styles.title}>Tableau de bord</Text>
             <Text style={styles.today}>{new Date().toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
           </View>
@@ -248,6 +248,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.xl,
@@ -343,7 +344,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    flexBasis: 200,
+    // Two per row on a phone, up to four side by side on a computer.
+    flexBasis: 150,
     minWidth: 0,
     flexGrow: 1,
     backgroundColor: colors.surface,

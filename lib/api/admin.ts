@@ -226,6 +226,31 @@ export async function listAuditLogs(limit = 50, offset = 0): Promise<{ rows: Adm
   return { rows, total: rows[0]?.total_count ?? 0, error: null };
 }
 
+// Super Admin › Journal (admin_activity_feed): sign-ups, companies,
+// subscriptions, e-mails sent, fiduciary and partner activity, Bexio errors,
+// blog leads and admin actions in one list, newest first. Pass the oldest
+// `at` already shown as `before` to load the next page.
+export type ActivityKind = 'signup' | 'company' | 'subscription' | 'cancel_reason' | 'email' | 'fiduciary' | 'partner' | 'sync_error' | 'lead' | 'admin';
+export interface ActivityEvent {
+  at: string;
+  kind: ActivityKind;
+  action: string;
+  title: string;
+  detail: string | null;
+  organization_id: string | null;
+  organization_name: string | null;
+  actor: string | null;
+}
+export async function listActivity(params: { limit?: number; before?: string | null; kinds?: ActivityKind[] | null } = {}): Promise<{ rows: ActivityEvent[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_activity_feed', {
+    p_limit: params.limit ?? 150,
+    p_before: params.before ?? null,
+    p_kinds: params.kinds?.length ? params.kinds : null,
+  });
+  const err = logRpcError('admin_activity_feed', error);
+  return { rows: err || !data ? [] : (data as ActivityEvent[]), error: err };
+}
+
 // Real Stripe billing state — never derived/guessed locally. The edge
 // function itself re-checks is_platform_admin() and never returns the
 // Stripe secret key, only these derived fields.

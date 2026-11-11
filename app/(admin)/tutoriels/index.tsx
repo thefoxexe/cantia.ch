@@ -169,7 +169,7 @@ export default function AdminTutorialsScreen() {
     <ScrollView style={{ flex: 1 }}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
             <Text style={styles.title}>Tutoriels</Text>
             <Text style={styles.hint}>
               Plan de tournage : un chapitre par fonctionnalité, avec les points à montrer et le lien YouTube une fois publié.
@@ -403,6 +403,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: spacing.md,

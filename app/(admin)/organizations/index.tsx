@@ -517,6 +517,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   sortChipRow: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,

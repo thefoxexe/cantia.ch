@@ -10,7 +10,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 // One company (its detail page) or the latest across all (Abonnements).
 // Internal tool: French only.
 
-const LABELS: Record<string, string> = {
+export const CANCEL_REASON_LABELS: Record<string, string> = {
   // picked in the app (lib/api/cancellation.ts)
   too_expensive: 'Trop cher',
   missing_feature: 'Il manque une fonction',
@@ -50,7 +50,7 @@ export function AdminCancellationReasons({ organizationId, limit = 30, title = '
   }, [organizationId, limit]);
 
   const counts = (rows ?? []).reduce<Record<string, number>>((acc, r) => {
-    const k = LABELS[r.reason ?? ''] ?? (r.reason ? r.reason : 'Sans motif');
+    const k = CANCEL_REASON_LABELS[r.reason ?? ''] ?? (r.reason ? r.reason : 'Sans motif');
     acc[k] = (acc[k] ?? 0) + 1;
     return acc;
   }, {});
@@ -90,7 +90,7 @@ export function AdminCancellationReasons({ organizationId, limit = 30, title = '
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={styles.reason}>
-                    {r.reason ? LABELS[r.reason] ?? r.reason : 'Sans motif choisi'}
+                    {r.reason ? CANCEL_REASON_LABELS[r.reason] ?? r.reason : 'Sans motif choisi'}
                     {!organizationId ? <Text style={styles.org}>{`  ·  ${orgNames[r.organization_id] ?? 'Entreprise'}`}</Text> : null}
                   </Text>
                   {r.comment ? <Text style={styles.comment}>« {r.comment} »</Text> : null}
