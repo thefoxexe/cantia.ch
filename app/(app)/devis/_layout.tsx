@@ -55,10 +55,10 @@ export default function DevisLayout() {
           title) — the Stack's auto header would otherwise stack a second
           title above it. */}
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="new" options={{ title: t('devisLayout.newDevis'), presentation: 'modal' }} />
+      <Stack.Screen name="new" options={{ headerShown: false, title: t('devisLayout.newDevis'), presentation: 'modal' }} />
       <Stack.Screen name="[id]" options={{ title: t('devisLayout.devis'), headerLeft: () => <StackBack to="/(app)/devis" label={t('nav.devis')} /> }} />
       <Stack.Screen name="factures/index" options={{ headerShown: false }} />
-      <Stack.Screen name="factures/new" options={{ title: t('devisLayout.newFacture'), presentation: 'modal' }} />
+      <Stack.Screen name="factures/new" options={{ headerShown: false, title: t('devisLayout.newFacture'), presentation: 'modal' }} />
       <Stack.Screen name="factures/[id]" options={{ title: t('devisLayout.facture'), headerLeft: () => <StackBack to="/(app)/devis/factures" label={t('nav.factures')} /> }} />
       <Stack.Screen name="factures/import-releve" options={{ headerShown: false }} />
       <Stack.Screen name="trames/index" options={{ headerShown: false }} />

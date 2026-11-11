@@ -7,7 +7,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../../lib/auth-context';
 import { supabase } from '../../../../lib/supabase';
-import { Button, Card, Field, AppScreen } from '../../../../components/ui';
+import { Button, Card, Field, AppScreen, PageHeader } from '../../../../components/ui';
 import { ClientPicker } from '../../../../components/ClientPicker';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { TramePicker } from '../../../../components/TramePicker';
@@ -528,14 +528,14 @@ export default function NewFactureScreen() {
       <ScrollView contentContainerStyle={[{ padding: spacing.xl }, !isDesktop && styles.scrollWithBar]}>
         <View style={isDesktop ? styles.layoutDesktop : undefined}>
         <View style={[styles.content, isDesktop && styles.contentDesktop]}>
-          <PageSettings page="documentEditor" style={{ alignSelf: 'flex-end', marginBottom: spacing.sm }} />
+          <PageHeader title={t('devisLayout.newFacture')} backTo="/(app)/devis/factures" right={<PageSettings page="documentEditor" />} style={{ marginBottom: spacing.lg }} />
           {editId && editingNumber ? (
             <View style={styles.editBanner}>
               <Feather name="edit-3" size={14} color={colors.primaryDark} />
               <Text style={styles.editBannerText}>{t('factureNew.editBannerTitle', { number: editingNumber })}</Text>
             </View>
           ) : null}
-          <Text style={styles.sectionTitle}>{t('devisNew.clientTitle')}</Text>
+          <Text style={[styles.sectionTitle, { marginTop: 0 }]}>{t('devisNew.clientTitle')}</Text>
           {organization ? (
             <ClientPicker
               organizationId={organization.id}
@@ -864,18 +864,18 @@ const styles = StyleSheet.create({
   layoutDesktop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: spacing.xl,
-    maxWidth: 1120,
+    gap: spacing.xxl,
+    maxWidth: 1240,
     width: '100%',
     alignSelf: 'center',
   },
   contentDesktop: {
     flex: 1,
-    maxWidth: 660,
+    minWidth: 0,
     alignSelf: 'stretch',
   },
   previewColumn: {
-    width: 380,
+    width: 400,
     position: 'sticky' as 'relative',
     top: spacing.xl,
   },
