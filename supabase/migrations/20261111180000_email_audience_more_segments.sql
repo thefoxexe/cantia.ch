@@ -1,7 +1,10 @@
--- Super Admin › E-mails: a « Inscription non terminée » status for people
--- who signed up but never created their company (they were in no segment,
--- since every other filter starts from organization_members). Same
--- function as 20261024150000_email_audience.sql otherwise.
+-- Super Admin › E-mails: three more audiences, chosen through p_filters
+-- 'statuses' (every other filter starts from organization_members, so they
+-- were in no segment):
+--   no_company  signed up but never created their company
+--   fiduciary   members of a fiduciary firm (accounting.cantia.ch)
+--   partner     Cantia Partners (partners.cantia.ch)
+-- Same function as 20261024150000_email_audience.sql otherwise.
 
 create or replace function public.admin_email_audience(p_filters jsonb default '{}'::jsonb)
 returns table(
@@ -125,6 +128,37 @@ begin
     and (v_subscribed is null or coalesce(ns.subscribed, true) = v_subscribed)
     and (v_locales is null or coalesce(nullif(u.raw_user_meta_data->>'locale', ''), 'fr') = any(v_locales))
     and (v_created is null or u.created_at >= now() - make_interval(days => v_created))
+  union all
+  -- Fiduciaries (statuses contains 'fiduciary'): one row per member, with
+  -- the firm as company.
+  select
+    fm.user_id, u.email::text, trim(concat_ws(' ', fm.first_name, fm.last_name))::text,
+    null::uuid, ff.name::text, null::text, '{}'::text[], null::text, 'fiduciary'::text, lower(fm.role)::text,
+    ff.locale::text, coalesce(ns.subscribed, true), greatest(fm.last_seen_at, u.last_sign_in_at), null::text
+  from public.fiduciary_members fm
+  join public.fiduciary_firms ff on ff.id = fm.firm_id
+  join auth.users u on u.id = fm.user_id
+  left join public.newsletter_subscriptions ns on ns.user_id = fm.user_id
+  where v_statuses is not null and 'fiduciary' = any(v_statuses)
+    and u.email is not null and ff.status = 'ACTIVE'
+    and (not v_owners or fm.role = 'OWNER')
+    and (v_subscribed is null or coalesce(ns.subscribed, true) = v_subscribed)
+    and (v_locales is null or ff.locale = any(v_locales))
+    and (v_created is null or fm.created_at >= now() - make_interval(days => v_created))
+  union all
+  -- Partners (statuses contains 'partner').
+  select
+    pp.user_id, u.email::text, trim(concat_ws(' ', pp.first_name, pp.last_name))::text,
+    null::uuid, pp.company_name::text, null::text, '{}'::text[], null::text, 'partner'::text, lower(pp.partner_type)::text,
+    pp.locale::text, coalesce(ns.subscribed, true), u.last_sign_in_at, null::text
+  from public.partner_profiles pp
+  join auth.users u on u.id = pp.user_id
+  left join public.newsletter_subscriptions ns on ns.user_id = pp.user_id
+  where v_statuses is not null and 'partner' = any(v_statuses)
+    and u.email is not null and pp.status = 'ACTIVE'
+    and (v_subscribed is null or coalesce(ns.subscribed, true) = v_subscribed)
+    and (v_locales is null or pp.locale = any(v_locales))
+    and (v_created is null or pp.created_at >= now() - make_interval(days => v_created))
   order by 13 desc nulls last;
 end;
 $$;

@@ -96,6 +96,26 @@ export async function loadRecipients(admin: SupabaseClient, userIds: string[]): 
       });
     }
   }
+  // Fiduciaries and partners have no company membership: their name, firm
+  // and language come from their own space.
+  const rest = userIds.filter((id) => !out.has(id) && emails.has(id));
+  for (let i = 0; i < rest.length; i += 200) {
+    const ids = rest.slice(i, i + 200);
+    const [{ data: fids }, { data: partners }] = await Promise.all([
+      admin.from('fiduciary_members').select('user_id, first_name, last_name, fiduciary_firms(name, locale)').in('user_id', ids),
+      admin.from('partner_profiles').select('user_id, first_name, last_name, company_name, locale').in('user_id', ids),
+    ]);
+    for (const f of (fids ?? []) as any[]) {
+      const firm = Array.isArray(f.fiduciary_firms) ? f.fiduciary_firms[0] : f.fiduciary_firms;
+      const fullName = [f.first_name, f.last_name].filter(Boolean).join(' ').trim();
+      out.set(f.user_id, { userId: f.user_id, email: emails.get(f.user_id)!, fullName, firstName: String(f.first_name ?? '').trim(), company: String(firm?.name ?? '').trim(), planId: null, locale: asLocale(firm?.locale) });
+    }
+    for (const p of (partners ?? []) as any[]) {
+      if (out.has(p.user_id)) continue;
+      const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ').trim();
+      out.set(p.user_id, { userId: p.user_id, email: emails.get(p.user_id)!, fullName, firstName: String(p.first_name ?? '').trim(), company: String(p.company_name ?? '').trim(), planId: null, locale: asLocale(p.locale) });
+    }
+  }
   // Users without a membership still get the FR message, unpersonalised.
   for (const id of userIds) {
     if (out.has(id)) continue;

@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
     const { data: isAdmin } = await userClient.rpc('is_platform_admin');
     if (!isAdmin) return json({ error: 'Accès refusé : réservé aux administrateurs de la plateforme.' }, 403);
 
-    const { subject, html, userIds, includeUnsubscribed, testEmail, testLocale, fromPersona, variants: rawVariants, audienceLabel } = await req.json();
+    const { subject, html, userIds, includeUnsubscribed, testEmail, testLocale, fromPersona, variants: rawVariants, audienceLabel, externalRecipients } = await req.json();
     const variants = cleanVariants(rawVariants);
     if (!subject || !html) return json({ error: 'Sujet et contenu requis.' }, 400);
 
@@ -98,8 +98,21 @@ Deno.serve(async (req: Request) => {
     // decision (all-subscribed, by-plan, manual, deliberately including
     // unsubscribed people) happens client-side via admin_filter_user_ids
     // and the manual picker, and lands here as one flat array.
-    if (!Array.isArray(userIds) || userIds.length === 0) return json({ error: 'Aucun destinataire sélectionné.' }, 400);
-    const targetIds: string[] = userIds;
+    // Addresses typed by hand in the composer (people without a Cantia
+    // account, e.g. a fiduciary to invite): sent as they are, in the language
+    // given, at most 200 per send.
+    const EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]{2,}$/;
+    const external = (Array.isArray(externalRecipients) ? externalRecipients : [])
+      .map((r: any) => ({
+        email: String(r?.email ?? '').trim().toLowerCase(),
+        fullName: String(r?.name ?? '').trim().slice(0, 120),
+        company: String(r?.company ?? '').trim().slice(0, 160),
+        locale: (r?.locale === 'de' || r?.locale === 'it' ? r.locale : 'fr') as Locale,
+      }))
+      .filter((r: { email: string }) => EMAIL_RE.test(r.email))
+      .slice(0, 200);
+    const targetIds: string[] = Array.isArray(userIds) ? userIds : [];
+    if (targetIds.length === 0 && external.length === 0) return json({ error: 'Aucun destinataire sélectionné.' }, 400);
 
     // Re-verify subscription status server-side regardless of how the
     // client built the list — the ONE thing it can't get wrong. Skipped
@@ -118,9 +131,15 @@ Deno.serve(async (req: Request) => {
       finalIds = targetIds.filter((id) => subMap.get(id) !== false);
     }
 
-    const recipients = await loadRecipients(admin, finalIds);
+    const recipients = finalIds.length ? await loadRecipients(admin, finalIds) : new Map();
     const list = finalIds.map((id) => recipients.get(id)).filter((r): r is NonNullable<typeof r> => !!r);
     const skipped = targetIds.length - list.length;
+    const known = new Set(list.map((r) => r.email.toLowerCase()));
+    for (const e of external) {
+      if (known.has(e.email)) continue;
+      known.add(e.email);
+      list.push({ userId: `external:${e.email}`, email: e.email, fullName: e.fullName, firstName: e.fullName.split(/\s+/)[0] ?? '', company: e.company, planId: null, locale: e.locale });
+    }
 
     // 5 at a time: Resend rate-limits per second, and a burst of 20 parallel
     // calls can come back 429 for most of them.
@@ -163,7 +182,7 @@ Deno.serve(async (req: Request) => {
         skipped_count: skipped,
         failed_count: failed,
         error: list.length === 0 && targetIds.length > 0 ? 'Aucune adresse e-mail trouvée pour les destinataires.' : failReason,
-        total_count: targetIds.length,
+        total_count: targetIds.length + external.length,
         variants,
         audience_label: typeof audienceLabel === 'string' ? audienceLabel.slice(0, 300) : null,
       });
@@ -171,7 +190,7 @@ Deno.serve(async (req: Request) => {
       console.error('newsletter_campaigns insert failed', err);
     }
 
-    return json({ sent, skipped, failed, failReason, total: targetIds.length });
+    return json({ sent, skipped, failed, failReason, total: targetIds.length + external.length });
   } catch (err) {
     console.error(err);
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);

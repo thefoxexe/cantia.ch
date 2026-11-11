@@ -17,7 +17,7 @@ import {
 import { AdminEmailAudience, PLAN_LABEL, ago, sectorLabel } from '../../../components/AdminEmailAudience';
 import { AdminEmailStudio, type StudioResult } from '../../../components/AdminEmailStudio';
 import { AdminEmailPreview } from '../../../components/AdminEmailPreview';
-import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona } from '../../../lib/api/newsletterCampaign';
+import { sendNewsletterCampaign, sendNewsletterTest, type SenderPersona, parseExternalRecipients } from '../../../lib/api/newsletterCampaign';
 import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -100,6 +100,10 @@ export default function AdminNewsletterScreen() {
   const includesUnsubscribed =
     audienceRows.some((r) => !r.subscribed && !removed.has(r.user_id)) || [...extras.values()].some((e) => e.unsubscribed);
   const [confirmUnsubscribed, setConfirmUnsubscribed] = useState(false);
+  // Addresses without a Cantia account (e.g. fiduciaries to invite): sent
+  // with « Maintenant » only, see send-newsletter-campaign.
+  const [externalText, setExternalText] = useState('');
+  const external = parseExternalRecipients(externalText);
 
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
@@ -276,7 +280,7 @@ export default function AdminNewsletterScreen() {
   }
 
   async function handleSend() {
-    if (!subject.trim() || !html.trim() || selectedIds.size === 0) return;
+    if (!subject.trim() || !html.trim() || (selectedIds.size === 0 && external.recipients.length === 0)) return;
     // The "confirm before mailing someone who opted out" friction only
     // makes sense for the newsletter persona — a one-off "info" message
     // (e.g. reaching out to a churned account) isn't the newsletter the
@@ -289,6 +293,10 @@ export default function AdminNewsletterScreen() {
     const effectiveIncludeUnsubscribed = fromPersona === 'info' || (includesUnsubscribed && confirmUnsubscribed);
 
     if (sendMode === 'schedule') {
+      if (external.recipients.length) {
+        setError('Les adresses externes partent seulement avec « Maintenant ». Videz-les pour programmer.');
+        return;
+      }
       if (!scheduledAt) {
         setError("Choisissez une date et une heure d'envoi.");
         return;
@@ -333,7 +341,8 @@ export default function AdminNewsletterScreen() {
       includeUnsubscribed: effectiveIncludeUnsubscribed,
       fromPersona,
       variants: readyVariants,
-      audienceLabel,
+      audienceLabel: external.recipients.length ? [audienceLabel, `+ ${external.recipients.length} adresse${external.recipients.length > 1 ? 's' : ''} externe${external.recipients.length > 1 ? 's' : ''}`].filter(Boolean).join(' ') : audienceLabel,
+      externalRecipients: external.recipients,
     });
     setSending(false);
     if (err) {
@@ -347,7 +356,7 @@ export default function AdminNewsletterScreen() {
   const canSend =
     subject.trim().length > 0 &&
     html.trim().length > 0 &&
-    selectedIds.size > 0 &&
+    (selectedIds.size > 0 || external.recipients.length > 0) &&
     (fromPersona === 'info' || !includesUnsubscribed || confirmUnsubscribed) &&
     (sendMode === 'now' || !!scheduledAt);
 
@@ -419,7 +428,9 @@ export default function AdminNewsletterScreen() {
                     name: r.full_name || r.email,
                     meta: r.organization_id
                       ? `${r.organization_name} · ${sectorLabel(r.trade)} · ${PLAN_LABEL[r.plan_id ?? ''] ?? r.plan_id ?? '—'} · ${r.locale.toUpperCase()} · actif ${ago(r.last_active_at)}`
-                      : `${r.email} · inscription non terminée, sans entreprise · actif ${ago(r.last_active_at)}`,
+                      : r.subscription_status === 'fiduciary' || r.subscription_status === 'partner'
+                        ? `${r.organization_name || r.email} · ${r.subscription_status === 'fiduciary' ? 'fiduciaire' : 'partenaire'} · ${r.locale.toUpperCase()} · actif ${ago(r.last_active_at)}`
+                        : `${r.email} · inscription non terminée, sans entreprise · actif ${ago(r.last_active_at)}`,
                     unsubscribed: !r.subscribed,
                   })),
                 ...[...extras.entries()].map(([id, e]) => ({ id, name: e.name, meta: `${e.meta} · ajouté à la main`, unsubscribed: e.unsubscribed })),
@@ -475,6 +486,25 @@ export default function AdminNewsletterScreen() {
               })}
             </ScrollView>
           )}
+        </View>
+
+        <View style={styles.pickerBox}>
+          <Field
+            label="Adresses externes (sans compte Cantia)"
+            placeholder={'fiduciaire@exemple.ch, Marie Rochat, Fiduciaire Rochat SA\ninfo@cabinet.ch, , Cabinet Favre, de'}
+            value={externalText}
+            onChangeText={setExternalText}
+            multiline
+            numberOfLines={4}
+            style={{ minHeight: 96, textAlignVertical: 'top' }}
+            autoCapitalize="none"
+          />
+          <Text style={styles.hint}>
+            Une adresse par ligne : e-mail, puis si vous voulez nom, entreprise et langue (de ou it, français sinon). {'{{prenom}}'} et {'{{entreprise}}'} sont remplis avec ce que vous indiquez.
+            {external.recipients.length ? ` ${external.recipients.length} adresse${external.recipients.length > 1 ? 's' : ''} prête${external.recipients.length > 1 ? 's' : ''}.` : ''}
+            {external.invalid.length ? ` ${external.invalid.length} ligne${external.invalid.length > 1 ? 's' : ''} ignorée${external.invalid.length > 1 ? 's' : ''} (adresse invalide).` : ''}
+            {' '}Envoi « Maintenant » seulement.
+          </Text>
         </View>
 
         {includesUnsubscribed && fromPersona === 'newsletter' ? (
@@ -629,7 +659,7 @@ export default function AdminNewsletterScreen() {
           title={
             sendMode === 'schedule'
               ? `Programmer l'envoi à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`
-              : `Envoyer à ${selectedIds.size} destinataire${selectedIds.size > 1 ? 's' : ''}`
+              : `Envoyer à ${selectedIds.size + external.recipients.length} destinataire${selectedIds.size + external.recipients.length > 1 ? 's' : ''}`
           }
           onPress={handleSend}
           loading={sending}

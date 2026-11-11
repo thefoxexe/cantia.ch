@@ -29,6 +29,8 @@ const STATUSES: { id: string; label: string }[] = [
   { id: 'canceled', label: 'Résilié' },
   { id: 'none', label: 'Sans abonnement (bloqué au paiement)' },
   { id: 'no_company', label: 'Inscription non terminée (sans entreprise)' },
+  { id: 'fiduciary', label: 'Fiduciaires (Cantia Accounting)' },
+  { id: 'partner', label: 'Partenaires (Cantia Partners)' },
 ];
 
 const LOCALES: { id: string; label: string }[] = [
