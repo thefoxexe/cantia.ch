@@ -140,6 +140,25 @@
   to = "/liens"
   status = 301
 
+# cantia.ch/demo: the read-only demo (scripts/build-demo.mjs), in the visitor's language.
+[[redirects]]
+  from = "/demo"
+  to = "https://demo.cantia.ch/?locale=fr"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/de/demo"
+  to = "https://demo.cantia.ch/?locale=de"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/it/demo"
+  to = "https://demo.cantia.ch/?locale=it"
+  status = 302
+  force = true
+
 # /ecosysteme became /a-propos (November 2026).
 [[redirects]]
   from = "/ecosysteme"

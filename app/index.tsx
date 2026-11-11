@@ -74,6 +74,9 @@ function LandingContent() {
                     <Btn label={h.tryCta} href={authHref('signup')} small={phone || width <= 900} />
                   </View>
                   <View>
+                    <TextLink label={h.demo} href={`https://demo.cantia.ch/?locale=${locale}`} size={phone || width <= 900 ? 11 : 12} />
+                  </View>
+                  <View>
                     <TextLink label={h.explore} href={`${p}/fonctionnalites`} size={phone || width <= 900 ? 11 : 12} />
                   </View>
                 </View>

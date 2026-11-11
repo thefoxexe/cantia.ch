@@ -58,6 +58,7 @@ export interface SiteCopy {
     lead: string;
     tryCta: string;
     explore: string;
+    demo: string;
     micro: string;
     stageTag: string;
     stageNote: string;
@@ -159,6 +160,7 @@ const fr: SiteCopy = {
     lead: 'Cantia relie vos projets, votre équipe et vos finances dans un même espace.',
     tryCta: 'Essayer 14 jours',
     explore: 'Explorer le logiciel',
+    demo: 'Voir la démo',
     micro: 'Dès CHF 39.– / mois · Carte bancaire requise pour l’essai',
     stageTag: 'Votre journée, dans Cantia.',
     stageNote: 'Données d’exemple',
@@ -260,6 +262,7 @@ const de: SiteCopy = {
     lead: 'Cantia verbindet Ihre Projekte, Ihr Team und Ihre Finanzen an einem Ort.',
     tryCta: '14 Tage testen',
     explore: 'Software entdecken',
+    demo: 'Demo ansehen',
     micro: 'Ab CHF 39.– / Monat · Kreditkarte für die Testphase erforderlich',
     stageTag: 'Ihr Tag, in Cantia.',
     stageNote: 'Beispieldaten',
@@ -361,6 +364,7 @@ const it: SiteCopy = {
     lead: 'Cantia collega i suoi progetti, il suo team e le sue finanze in un unico spazio.',
     tryCta: 'Provare 14 giorni',
     explore: 'Esplorare il software',
+    demo: 'Vedere la demo',
     micro: 'Da CHF 39.– / mese · Carta di credito richiesta per la prova',
     stageTag: 'La vostra giornata, in Cantia.',
     stageNote: 'Dati di esempio',
