@@ -16,7 +16,7 @@ import type { AdminOrgActivity, SignupChannel } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 

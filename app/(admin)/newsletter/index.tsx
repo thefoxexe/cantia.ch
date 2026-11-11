@@ -22,7 +22,7 @@ import { Button, Container, Field } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 type SendMode = 'now' | 'schedule';
 

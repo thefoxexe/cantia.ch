@@ -6,7 +6,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getBlogFunnelOverview } from '../../../lib/api/admin';
 import type { AdminBlogFunnelOverview } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (

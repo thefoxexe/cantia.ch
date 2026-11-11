@@ -11,7 +11,7 @@ import { TrialForecast } from '../../components/TrialForecast';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { useAdminData } from '../../lib/adminDataContext';
 import type { AdminRevenueOverview } from '../../lib/types';
-import { displayType } from '../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../lib/adminTheme';
 import { partnersAdmin, type AdminOverview as PartnersOverview } from '../../lib/partners/api';
 import { accAdmin } from '../../lib/accounting/api';
 
@@ -31,16 +31,18 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 // The one figure this whole platform exists to grow, promoted above
 // everything else on the page — a dark card, not another tile among tiles,
 // so it reads as the headline the instant the dashboard loads.
-function MrrHero({ overview }: { overview: AdminRevenueOverview }) {
+function MrrHero({ overview, cancelPct }: { overview: AdminRevenueOverview; cancelPct: number | null }) {
   const netUp = overview.net_mrr_this_month_chf >= 0;
+  // Light tints: the dark card needs them to stay readable.
+  const deltaColor = netUp ? '#8fdc9a' : '#f4a3a3';
   return (
     <View style={styles.hero}>
       <Text style={styles.heroLabel}>Revenu récurrent mensuel (MRR)</Text>
       <Text style={styles.heroValue}>{formatChf(overview.mrr_active_chf)}</Text>
       <View style={styles.heroMetaRow}>
         <View style={[styles.heroDelta, netUp ? styles.heroDeltaUp : styles.heroDeltaDown]}>
-          <Feather name={netUp ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={netUp ? colors.success : colors.danger} />
-          <Text style={[styles.heroDeltaText, { color: netUp ? colors.success : colors.danger }]}>
+          <Feather name={netUp ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={deltaColor} />
+          <Text style={[styles.heroDeltaText, { color: deltaColor }]}>
             {netUp ? '+' : '−'}
             {formatChf(Math.abs(overview.net_mrr_this_month_chf))} ce mois
           </Text>
@@ -48,6 +50,12 @@ function MrrHero({ overview }: { overview: AdminRevenueOverview }) {
         <Text style={styles.heroSub}>
           ARR {formatChf(overview.arr_chf)} · {overview.active_count} client{overview.active_count > 1 ? 's' : ''} payant{overview.active_count > 1 ? 's' : ''}
         </Text>
+        {cancelPct !== null ? (
+          <View style={[styles.heroDelta, { backgroundColor: cancelPct > 0 ? 'rgba(240, 170, 60, 0.18)' : 'rgba(255,255,255,0.08)' }]}>
+            <Feather name="alert-triangle" size={12} color={cancelPct > 0 ? '#f3c37a' : 'rgba(255,255,255,0.6)'} />
+            <Text style={[styles.heroDeltaText, { color: cancelPct > 0 ? '#f3c37a' : 'rgba(255,255,255,0.6)' }]}>{cancelPct.toLocaleString('fr-CH', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} % de résiliations programmées</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -59,7 +67,7 @@ function StatTile({ label, value, icon, accent, hint }: { label: string; value: 
       <View style={[styles.statIcon, accent ? { backgroundColor: `${accent}1c` } : null]}>
         <Feather name={icon} size={15} color={accent ?? colors.textMuted} />
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={[styles.statValue, accent ? { color: accent } : null]}>{value}</Text>
         <Text style={styles.statLabel}>{label}</Text>
         {hint ? <Text style={styles.statHint}>{hint}</Text> : null}
@@ -141,7 +149,7 @@ export default function AdminDashboard() {
   // 1→3 week reads as "+200%" and means nothing at Cantia's current size).
   const signupsThisWeek = useMemo(() => {
     if (!overview) return 0;
-    return overview.timeseries.slice(-7).reduce((sum, p) => sum + p.signups, 0);
+    return (overview.timeseries ?? []).slice(-7).reduce((sum, p) => sum + p.signups, 0);
   }, [overview]);
 
   // % of everyone still alive today (payants + essais réellement en cours)
@@ -161,13 +169,16 @@ export default function AdminDashboard() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
       <Container style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Dashboard</Text>
+          <View>
+            <Text style={styles.title}>Tableau de bord</Text>
+            <Text style={styles.today}>{new Date().toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+          </View>
           <AdminRefreshButton onPress={refresh} loading={refreshing} hasSignal={newSignal} />
         </View>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
-        {overview ? <MrrHero overview={overview} /> : null}
+        {overview ? <MrrHero overview={overview} cancelPct={scheduledCancelPct} /> : null}
 
         <View style={styles.statGrid}>
           <StatTile
@@ -193,12 +204,7 @@ export default function AdminDashboard() {
                 accent={colors.success}
                 hint={overview.stripe_fees_total_chf > 0 ? `frais Stripe déduits : ${formatChf(overview.stripe_fees_total_chf)}` : undefined}
               />
-              <StatTile
-                label="Résiliations programmées"
-                value={scheduledCancelPct !== null ? `${scheduledCancelPct.toFixed(1)}%` : '—'}
-                icon="alert-triangle"
-                accent={scheduledCancelPct ? colors.warning : undefined}
-              />
+
             </>
           ) : null}
         </View>
@@ -248,9 +254,14 @@ const styles = StyleSheet.create({
   },
   title: {
     ...displayType,
-    fontSize: fontSize.xxl,
-    fontWeight: '800',
+    fontSize: 30,
+    fontWeight: '700',
     color: colors.text,
+  },
+  today: {
+    fontSize: fontSize.sm,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   hero: {
     backgroundColor: colors.text,
@@ -332,7 +343,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    minWidth: 170,
+    flexBasis: 200,
+    minWidth: 0,
     flexGrow: 1,
     backgroundColor: colors.surface,
     borderWidth: 1,

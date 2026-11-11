@@ -9,7 +9,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { deleteTutorialChapter, listTutorialChapters, upsertTutorialChapter } from '../../../lib/api/admin';
 import { buildPublicVideoDescription } from '../../../lib/tutorialYoutubeDescription';
 import type { AdminTutorialChapter, TutorialChapterStatus } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 const STATUS_ORDER: TutorialChapterStatus[] = ['a_faire', 'tourne', 'monte', 'publie'];
 const STATUS_LABEL: Record<TutorialChapterStatus, string> = {

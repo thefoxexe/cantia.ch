@@ -12,7 +12,7 @@ import { generateThumbnailDataUrl } from '../../../lib/thumbnailGenerator';
 import { buildYoutubeDescription, buildYoutubeTitle } from '../../../lib/tutorialYoutubeDescription';
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminTutorialChapter } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 function slugify(title: string): string {
   return title

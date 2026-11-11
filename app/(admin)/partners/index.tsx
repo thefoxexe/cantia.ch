@@ -15,7 +15,8 @@ import {
   type ShowcaseStatus,
 } from '../../../lib/partners/api';
 import { PARTNERS_COPY } from '../../../lib/partners/copy';
-import { displayType, monoType } from '../../../lib/marketingTheme';
+import { monoType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // Super Admin › Partners: administration of Cantia Partners (moved here

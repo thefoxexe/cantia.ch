@@ -13,7 +13,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getOrgBillingStatuses, listOrganizations } from '../../../lib/api/admin';
 import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import type { AdminOrgBillingStatus, AdminOrganizationSummary } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 const PAGE_SIZE = 50;
 

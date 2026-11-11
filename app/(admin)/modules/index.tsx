@@ -6,7 +6,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listModules } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { AdminBuiltInModules } from '../../../components/AdminBuiltInModules';
 
 const VISIBILITY_LABEL: Record<string, string> = { standard: 'Standard', private: 'Privé', experimental: 'Beta' };

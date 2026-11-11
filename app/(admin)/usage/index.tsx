@@ -7,7 +7,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getFeatureUsage, getFeatureUsageByOrg } from '../../../lib/api/admin';
 import type { AdminFeatureUsage, AdminFeatureUsageByOrg } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 const CATEGORY_ORDER = ['coeur_metier', 'rh', 'finance', 'integrations', 'ia', 'personnalisation'];
 const CATEGORY_LABEL: Record<string, string> = {

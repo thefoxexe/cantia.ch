@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { releaseHydrationViewport } from '../../lib/hydrationViewport';
+import { useSiteFontScope } from '../../components/site/Primitives';
 import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
@@ -17,7 +18,7 @@ import { BrandLogo, BrandMark } from '../../components/brand/Logo';
 // own sites have no admin anymore).
 type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap };
 const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
-  { title: null, items: [{ href: '/(admin)', label: 'Dashboard', icon: 'home' }] },
+  { title: null, items: [{ href: '/(admin)', label: 'Tableau de bord', icon: 'home' }] },
   {
     title: 'Clients',
     items: [
@@ -75,6 +76,8 @@ function activeHrefFor(pathname: string): string | null {
 // the DB regardless of what this component renders.
 export default function AdminLayout() {
   useEffect(releaseHydrationViewport, []);
+  // The panel reads in the brand typeface (DM Sans), like the site.
+  useSiteFontScope();
   const { session, isPlatformAdmin, loading, signOut } = useAuth();
   const router = useRouter();
 

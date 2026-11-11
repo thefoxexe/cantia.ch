@@ -6,7 +6,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listAuditLogs } from '../../../lib/api/admin';
 import type { AdminAuditLog } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 const ACTION_LABEL: Record<string, string> = {
   module_enabled: 'Module activé',

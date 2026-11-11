@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Button } from '../../../components/ui';
-import { accAdmin, formatChf, formatDate, type FirmActivity, type FirmUsage } from '../../../lib/accounting/api';
-import { FiduciaryUsagePanel, freshnessColor, relativeTime } from '../../../components/AdminFiduciaryUsage';
-import { displayType } from '../../../lib/marketingTheme';
+import { useRouter } from 'expo-router';
+import { accAdmin, formatChf, formatDate, type FirmActivity } from '../../../lib/accounting/api';
+import { freshnessColor, relativeTime } from '../../../components/AdminFiduciaryUsage';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
 // Super Admin › Fiduciaires: administration of Cantia Accounting (moved
@@ -23,7 +23,7 @@ export default function AdminFiduciaires() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [firms, setFirms] = useState<Firms>([]);
   const [query, setQuery] = useState('');
-  const [open, setOpen] = useState<string | null>(null);
+  const router = useRouter();
   const [activity, setActivity] = useState<Record<string, FirmActivity>>({});
   const [sort, setSort] = useState<'recent' | 'activity'>('activity');
 
@@ -94,7 +94,7 @@ export default function AdminFiduciaires() {
             {list.length === 0 ? <Text style={styles.muted}>Aucune fiduciaire.</Text> : null}
             {list.map((f) => (
               <View key={f.id} style={styles.card}>
-                <Pressable onPress={() => setOpen(open === f.id ? null : f.id)} style={styles.firmHead}>
+                <Pressable onPress={() => router.push(`/(admin)/fiduciaires/${f.id}` as any)} style={styles.firmHead}>
                   <View style={{ flex: 1, minWidth: 220 }}>
                     <Text style={styles.cardTitle}>
                       {f.name}
@@ -105,7 +105,7 @@ export default function AdminFiduciaires() {
                   </View>
                   <Pill label={STATUS[f.status] ?? f.status} tone={f.status === 'ACTIVE' ? 'ok' : 'bad'} />
                   {f.partner ? <Pill label="Partner" tone="accent" /> : null}
-                  <Feather name={open === f.id ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+                  <Feather name="chevron-right" size={18} color={colors.textMuted} />
                 </Pressable>
                 <View style={styles.metrics}>
                   <Metric label="Membres" value={f.members} />
@@ -115,7 +115,6 @@ export default function AdminFiduciaires() {
                   <Metric label="Clients acquis" value={f.acquired} />
                 </View>
                 <ActivityLine a={activity[f.id]} />
-                {open === f.id ? <FirmDetail id={f.id} onChanged={load} /> : null}
               </View>
             ))}
           </>
@@ -139,142 +138,6 @@ function ActivityLine({ a }: { a: FirmActivity | undefined }) {
         {'  ·  '}
         {a.features_used} / {a.features_total} fonctions utilisées
       </Text>
-    </View>
-  );
-}
-
-function FirmDetail({ id, onChanged }: { id: string; onChanged: () => void }) {
-  const [detail, setDetail] = useState<Record<string, any> | null>(null);
-  const [usage, setUsage] = useState<FirmUsage | null>(null);
-  const [note, setNote] = useState('');
-  const [reason, setReason] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const [d, u] = await Promise.all([accAdmin.firm(id), accAdmin.usage(id)]);
-    setDetail(d.data);
-    setUsage(u.data);
-  }, [id]);
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  async function run(action: () => Promise<{ error: string | null }>) {
-    setBusy(true);
-    const { error } = await action();
-    setBusy(false);
-    setMessage(error ?? 'Enregistré.');
-    await load();
-    onChanged();
-  }
-
-  if (!detail) return <Text style={styles.muted}>Chargement…</Text>;
-  const firm = detail.firm ?? {};
-  return (
-    <View style={styles.detail}>
-      <View style={styles.actions}>
-        <Button title={firm.verified ? 'Retirer la vérification' : 'Vérifier'} variant="secondary" onPress={() => run(() => accAdmin.setFirm(id, { verified: !firm.verified }))} disabled={busy} />
-        {firm.status !== 'ACTIVE' ? <Button title="Réactiver" variant="secondary" onPress={() => run(() => accAdmin.setFirm(id, { status: 'ACTIVE' }))} disabled={busy} /> : null}
-        {firm.status === 'ACTIVE' ? <Button title="Suspendre" variant="secondary" onPress={() => run(() => accAdmin.setFirm(id, { status: 'SUSPENDED' }))} disabled={busy} /> : null}
-        {firm.status !== 'BLOCKED' ? <Button title="Bloquer" variant="danger" onPress={() => run(() => accAdmin.setFirm(id, { status: 'BLOCKED' }))} disabled={busy} /> : null}
-      </View>
-      {message ? <Text style={styles.small}>{message}</Text> : null}
-      <Text style={styles.small}>
-        {[firm.phone, firm.address, [firm.postal_code, firm.city].filter(Boolean).join(' '), firm.ide_number, firm.website, firm.mandates_range ? `${firm.mandates_range} mandats` : null, (firm.software ?? []).join(', ')].filter(Boolean).join(' · ')}
-      </Text>
-
-      {usage ? (
-        <View style={styles.usageCard}>
-          <Text style={styles.usageTitle}>Utilisation</Text>
-          <FiduciaryUsagePanel usage={usage} />
-        </View>
-      ) : null}
-
-      <Block title="Membres">
-        {(detail.members ?? []).map((m: any) => (
-          <Text key={m.user_id} style={styles.row}>
-            {m.name || m.email} · {m.email} · {m.role}
-          </Text>
-        ))}
-      </Block>
-
-      <Block title="Mandants">
-        <TextInput value={reason} onChangeText={setReason} placeholder="Raison (pour retirer un accès)" placeholderTextColor={colors.textMuted} style={styles.input} />
-        {(detail.clients ?? []).map((c: any) => (
-          <View key={c.access_id} style={styles.clientRow}>
-            <Text style={[styles.row, { flex: 1 }]}>
-              {c.organization} · {STATUS[c.status] ?? c.status} · {c.source} · {(c.permissions ?? []).length} droits
-            </Text>
-            {c.status === 'ACTIVE' ? (
-              <Pressable onPress={() => reason.trim().length >= 3 && run(() => accAdmin.removeAccess(c.access_id, reason.trim()))} disabled={busy || reason.trim().length < 3}>
-                <Text style={[styles.link, reason.trim().length < 3 && { opacity: 0.4 }]}>Retirer l’accès</Text>
-              </Pressable>
-            ) : null}
-          </View>
-        ))}
-      </Block>
-
-      <Block title="Invitations">
-        {(detail.invitations ?? []).map((i: any, idx: number) => (
-          <Text key={idx} style={styles.row}>
-            {i.kind} · {i.email} {i.company_name ? `(${i.company_name})` : ''} · {STATUS[i.status] ?? i.status}
-            {i.organization ? ` → ${i.organization}` : ''}
-            {i.partner_code ? ` · code ${i.partner_code}` : ''}
-          </Text>
-        ))}
-      </Block>
-
-      <Block title="Cantia Partners">
-        {(detail.partners ?? []).length === 0 ? <Text style={styles.row}>Aucun profil partenaire.</Text> : null}
-        {(detail.partners ?? []).map((p: any, idx: number) => (
-          <Text key={idx} style={styles.row}>
-            {p.name} · {p.status} · {p.referrals} rattachés · {p.paying} payants · {formatChf(p.commissions_chf)} de commissions
-          </Text>
-        ))}
-      </Block>
-
-      <Block title="Notes">
-        <TextInput value={note} onChangeText={setNote} placeholder="Ajouter une note interne" placeholderTextColor={colors.textMuted} style={styles.input} multiline />
-        <View style={styles.actions}>
-          <Button
-            title="Ajouter"
-            variant="secondary"
-            onPress={() =>
-              run(async () => {
-                const r = await accAdmin.addNote(id, note);
-                if (!r.error) setNote('');
-                return r;
-              })
-            }
-            disabled={busy || !note.trim()}
-          />
-        </View>
-        {(detail.notes ?? []).map((n: any) => (
-          <Text key={n.id} style={styles.row}>
-            {formatDate(n.created_at, 'fr')} · {n.author} : {n.body}
-          </Text>
-        ))}
-      </Block>
-
-      <Block title="Journal">
-        {(detail.audit ?? []).slice(0, 40).map((a: any, idx: number) => (
-          <Text key={idx} style={styles.row}>
-            {formatDate(a.created_at, 'fr')} · {a.action}
-            {a.organization ? ` · ${a.organization}` : ''}
-            {a.actor ? ` · ${a.actor}` : ''}
-          </Text>
-        ))}
-      </Block>
-    </View>
-  );
-}
-
-function Block({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={styles.blockTitle}>{title}</Text>
-      {children}
     </View>
   );
 }

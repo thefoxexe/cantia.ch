@@ -7,7 +7,7 @@ import { TrafficChart } from '../../../components/TrafficChart';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getSiteTrafficOverview } from '../../../lib/api/admin';
 import type { AdminSiteTrafficOverview } from '../../../lib/types';
-import { displayType } from '../../../lib/marketingTheme';
+import { adminDisplay as displayType } from '../../../lib/adminTheme';
 
 function pct(current: number, previous: number): { label: string; direction: 'up' | 'down' | 'flat' } {
   if (previous === 0) {
