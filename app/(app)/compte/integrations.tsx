@@ -120,7 +120,7 @@ export default function IntegrationsScreen() {
   return (
     <AppScreen>
       <Container>
-        <PageHeader title={t('integrationsSettings.title')} backTo="/(app)/compte" />
+        <PageHeader title={t('integrationsSettings.title')} subtitle={t('integrationsSettings.pageSubtitle')} backTo="/(app)/compte" />
         {error ? (
           <View style={styles.errorBanner}>
             <Feather name="alert-circle" size={16} color={colors.danger} />
@@ -134,6 +134,8 @@ export default function IntegrationsScreen() {
           </View>
         ) : null}
 
+        <Text style={styles.eyebrow}>{t('integrationsSettings.sectionAccounting')}</Text>
+        <Text style={styles.sectionDesc}>{t('integrationsSettings.sectionAccountingDesc')}</Text>
         <View style={[styles.card, locked && styles.cardLocked]}>
           <View style={styles.cardHeader}>
             <View style={[styles.logoBadge, locked && styles.logoBadgeLocked]}>
@@ -144,16 +146,20 @@ export default function IntegrationsScreen() {
               <Text style={[styles.cardSubtitle, locked && styles.textLocked]}>
                 {locked
                   ? t('integrationsSettings.subtitleLocked')
-                  : isConnected
-                    ? t('integrationsSettings.subtitleConnected')
-                    : t('integrationsSettings.subtitleDisconnected')}
+                  : // The status pill on the right already says « Connecté ».
+                    t('integrationsSettings.subtitleDisconnected')}
               </Text>
             </View>
             {locked ? (
               <Feather name="lock" size={16} color={colors.textMuted} />
-            ) : isConnected ? (
-              <View style={styles.statusDot} />
-            ) : null}
+            ) : (
+              <View style={[styles.statusPill, isConnected ? styles.statusPillOn : null]}>
+                <View style={[styles.statusPillDot, { backgroundColor: isConnected ? colors.success : colors.textMuted }]} />
+                <Text style={[styles.statusPillText, isConnected && { color: colors.success }]}>
+                  {isConnected ? t('integrationsSettings.statusConnected') : t('integrationsSettings.statusOff')}
+                </Text>
+              </View>
+            )}
           </View>
 
           {loading ? (
@@ -199,14 +205,15 @@ export default function IntegrationsScreen() {
                       thumbColor="#fff"
                     />
                   </View>
-                  <Pressable style={styles.syncButton} onPress={handleSyncNow} disabled={busy}>
-                    <Feather name="refresh-cw" size={14} color={colors.primary} />
-                    <Text style={styles.syncText}>{t('integrationsSettings.syncNow')}</Text>
-                  </Pressable>
-                  <Pressable style={styles.disconnectButton} onPress={handleDisconnect} disabled={busy}>
-                    <Feather name="x-circle" size={14} color={colors.danger} />
-                    <Text style={styles.disconnectText}>{t('integrationsSettings.disconnect')}</Text>
-                  </Pressable>
+                  <View style={styles.actionsRow}>
+                    <Pressable style={styles.syncButton} onPress={handleSyncNow} disabled={busy}>
+                      <Feather name="refresh-cw" size={14} color={colors.text} />
+                      <Text style={styles.syncText}>{t('integrationsSettings.syncNow')}</Text>
+                    </Pressable>
+                    <Pressable style={styles.disconnectButton} onPress={handleDisconnect} disabled={busy}>
+                      <Text style={styles.disconnectText}>{t('integrationsSettings.disconnect')}</Text>
+                    </Pressable>
+                  </View>
                 </>
               )}
             </View>
@@ -215,14 +222,18 @@ export default function IntegrationsScreen() {
           ) : (
             <Text style={styles.helperText}>{t('integrationsSettings.adminOnlyHint')}</Text>
           )}
+          {/* What travels, inside the card it explains. */}
+          <View style={styles.howBlock}>
+            <Text style={styles.howTitle}>{t('integrationsSettings.howItWorks')}</Text>
+            <Text style={styles.footnote}>
+              {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
+            </Text>
+          </View>
         </View>
 
-        <Text style={styles.footnote}>
-          {locked ? t('integrationsSettings.footnoteLocked') : t('integrationsSettings.footnoteUnlocked')}
-        </Text>
-
-        {/* Each person's own calendar (Planning ↔ Google Agenda / Outlook). */}
-        <Text style={styles.sectionTitle}>{t('integrationsSettings.calendarSectionTitle')}</Text>
+        {/* Each person's own calendar (Planning ↔ Google Agenda). */}
+        <Text style={[styles.eyebrow, { marginTop: spacing.xxl }]}>{t('integrationsSettings.calendarSectionTitle')}</Text>
+        <Text style={styles.sectionDesc}>{t('integrationsSettings.sectionCalendarDesc')}</Text>
         {organization && user ? (
           <View style={styles.card}>
             <CalendarConnections organizationId={organization.id} userId={user.id} />
@@ -234,6 +245,15 @@ export default function IntegrationsScreen() {
 }
 
 const styles = StyleSheet.create({
+  eyebrow: { fontSize: 11, fontWeight: '600', letterSpacing: 1.6, textTransform: 'uppercase', color: colors.primary },
+  sectionDesc: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: 4, marginBottom: spacing.md },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
+  statusPillOn: { backgroundColor: colors.successSoft },
+  statusPillDot: { width: 7, height: 7, borderRadius: 4 },
+  statusPillText: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted },
+  actionsRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
+  howBlock: { marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.border },
+  howTitle: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text, marginBottom: 4 },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -394,20 +414,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    alignSelf: 'flex-start',
-    marginTop: spacing.sm,
+    paddingHorizontal: 14,
+    minHeight: 38,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   syncText: {
-    color: colors.primary,
+    color: colors.text,
     fontSize: fontSize.sm,
     fontWeight: '600',
   },
   disconnectButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    alignSelf: 'flex-start',
-    marginTop: spacing.sm,
+    paddingHorizontal: 12,
+    minHeight: 38,
+    justifyContent: 'center',
   },
   disconnectText: {
     color: colors.danger,
@@ -417,7 +439,6 @@ const styles = StyleSheet.create({
   footnote: {
     fontSize: fontSize.xs,
     color: colors.textMuted,
-    marginTop: spacing.lg,
     lineHeight: 18,
   },
 });

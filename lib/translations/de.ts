@@ -1382,6 +1382,13 @@ export const de: TranslationDict = {
     catalogAdd: 'Auswahl hinzufügen',
   },
   integrationsSettings: {
+    pageSubtitle: 'Die mit Cantia verbundene Software und Kalender.',
+    sectionAccounting: 'Buchhaltung',
+    sectionAccountingDesc: 'Kunden, Artikel und Rechnungen, geteilt mit Ihrer Buchhaltungssoftware.',
+    sectionCalendarDesc: 'Ihr persönlicher Kalender, verbunden mit Ihrer Planung. Jede Person verbindet ihren eigenen.',
+    statusConnected: 'Verbunden',
+    statusOff: 'Nicht verbunden',
+    howItWorks: 'Was synchronisiert wird',
     calendarSectionTitle: 'Meine Kalender',
     title: 'Integrationen',
     bexioConnected: 'Bexio ist verbunden.',

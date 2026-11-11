@@ -11,7 +11,7 @@ import { colors, fontSize, radius, spacing } from '../../lib/theme';
 const COPY = {
   fr: {
     title: 'Mes agendas',
-    intro: 'Reliez votre agenda Google ou Outlook à votre planning Cantia : ce que vous planifiez ici y apparaît, et vos rendez-vous de l’agenda arrivent dans votre planning (en privé : vos collègues voient seulement « Rendez-vous privé »).',
+    intro: 'Reliez votre agenda Google à votre planning Cantia : ce que vous planifiez ici y apparaît, et vos rendez-vous de l’agenda arrivent dans votre planning (en privé : vos collègues voient seulement « Rendez-vous privé »).',
     connect: 'Connecter',
     disconnect: 'Déconnecter',
     syncNow: 'Synchroniser',
@@ -24,7 +24,7 @@ const COPY = {
   },
   de: {
     title: 'Meine Kalender',
-    intro: 'Verbinden Sie Ihren Google- oder Outlook-Kalender mit Ihrer Cantia-Planung: Was Sie hier planen, erscheint dort, und Ihre Termine kommen in Ihre Planung (privat: Kollegen sehen nur « Privater Termin »).',
+    intro: 'Verbinden Sie Ihren Google-Kalender mit Ihrer Cantia-Planung: Was Sie hier planen, erscheint dort, und Ihre Termine kommen in Ihre Planung (privat: Kollegen sehen nur « Privater Termin »).',
     connect: 'Verbinden',
     disconnect: 'Trennen',
     syncNow: 'Synchronisieren',
@@ -37,7 +37,7 @@ const COPY = {
   },
   it: {
     title: 'I miei calendari',
-    intro: 'Collegate il vostro calendario Google o Outlook alla pianificazione Cantia: ciò che pianificate qui vi appare, e i vostri appuntamenti arrivano nella pianificazione (in privato: i colleghi vedono solo « Appuntamento privato »).',
+    intro: 'Collegate il vostro calendario Google alla pianificazione Cantia: ciò che pianificate qui vi appare, e i vostri appuntamenti arrivano nella pianificazione (in privato: i colleghi vedono solo « Appuntamento privato »).',
     connect: 'Collegare',
     disconnect: 'Scollegare',
     syncNow: 'Sincronizzare',
@@ -50,7 +50,8 @@ const COPY = {
   },
 };
 
-// Outlook is announced: the Microsoft app registration is not done yet.
+// Outlook waits for the Microsoft app registration: it stays out of the list
+// (no « Bientôt » in the product) until it works; see `soon` below.
 const PROVIDERS: { key: CalendarProvider; name: string; icon: keyof typeof Feather.glyphMap; soon?: boolean }[] = [
   { key: 'google', name: 'Google Agenda', icon: 'calendar' },
   { key: 'microsoft', name: 'Outlook / Microsoft 365', icon: 'calendar', soon: true },
@@ -96,7 +97,7 @@ export function CalendarConnections({ organizationId, userId, onChanged }: { org
       <Text style={styles.intro}>{c.intro}</Text>
       {list === null ? <ActivityIndicator color={colors.primary} /> : null}
       {list !== null
-        ? PROVIDERS.map((p) => {
+        ? PROVIDERS.filter((p) => !p.soon || list.some((x) => x.provider === p.key)).map((p) => {
             const conn = list.find((x) => x.provider === p.key);
             return (
               <View key={p.key} style={[styles.row, p.soon && !conn && { opacity: 0.6 }]}>

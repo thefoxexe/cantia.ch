@@ -111,10 +111,6 @@ export function MailboxSettings({ orgId, hasPlan }: { orgId: string; hasPlan: bo
             </View>
           </View>
 
-          <View style={[styles.card, styles.soon]}>
-            <Text style={styles.label}>{t('emailHub.connected')}</Text>
-            <Text style={styles.hint}>{t('emailHub.connectedText')}</Text>
-          </View>
         </>
       ) : null}
     </ScrollView>

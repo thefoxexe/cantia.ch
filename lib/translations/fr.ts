@@ -1368,6 +1368,13 @@ export const fr = {
     catalogAdd: 'Ajouter la sélection',
   },
   integrationsSettings: {
+    pageSubtitle: 'Les logiciels et agendas reliés à Cantia.',
+    sectionAccounting: 'Comptabilité',
+    sectionAccountingDesc: 'Clients, articles et factures partagés avec votre logiciel comptable.',
+    sectionCalendarDesc: 'Votre agenda personnel, relié à votre planning. Chacun relie le sien.',
+    statusConnected: 'Connecté',
+    statusOff: 'Non connecté',
+    howItWorks: 'Ce qui est synchronisé',
     calendarSectionTitle: 'Mes agendas',
     title: 'Intégrations',
     bexioConnected: 'Bexio est connecté.',

@@ -1390,6 +1390,13 @@ export const it: TranslationDict = {
     catalogAdd: 'Aggiungi la selezione',
   },
   integrationsSettings: {
+    pageSubtitle: 'I programmi e i calendari collegati a Cantia.',
+    sectionAccounting: 'Contabilità',
+    sectionAccountingDesc: 'Clienti, articoli e fatture condivisi con il suo programma di contabilità.',
+    sectionCalendarDesc: 'Il suo calendario personale, collegato alla pianificazione. Ognuno collega il proprio.',
+    statusConnected: 'Collegato',
+    statusOff: 'Non collegato',
+    howItWorks: 'Cosa viene sincronizzato',
     calendarSectionTitle: 'I miei calendari',
     title: 'Integrazioni',
     bexioConnected: 'Bexio è collegato.',
