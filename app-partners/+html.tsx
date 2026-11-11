@@ -21,6 +21,9 @@ export default function Root({ children }: PropsWithChildren) {
         <FontHead />
         <style>{'html, body { background-color: #f6f4ef; font-family: "DM Sans", "DM Sans Fallback", Arial, sans-serif; }'}</style>
         <ScrollViewStyleReset />
+        {/* Cloudflare Web Analytics for partners.cantia.ch (its own site token): no
+            cookie, no personal data. */}
+        <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bf190492f0ba4757aa69419ef0fdcb00"}' />
       </head>
       <body>
         <Splash />
