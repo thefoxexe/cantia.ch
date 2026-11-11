@@ -68,7 +68,7 @@ export default function DevisSettingsScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('devisSettings.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
           <Text style={styles.intro}>{t('devisSettings.intro')}</Text>

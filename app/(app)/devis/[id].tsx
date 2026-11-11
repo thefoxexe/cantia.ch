@@ -26,6 +26,7 @@ import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 import { DevisTrackingPanel } from '../../../components/DevisTrackingPanel';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
 
@@ -534,27 +535,27 @@ export default function DevisDetailScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemDesc}>{it.description}</Text>
                 <Text style={styles.meta}>
-                  {it.quantity} {it.unit} × CHF {Number(it.unit_price).toFixed(2)}
+                  {it.quantity} {it.unit} × CHF {fmtChf(Number(it.unit_price))}
                 </Text>
               </View>
-              <Text style={styles.itemTotal}>CHF {(Number(it.quantity) * Number(it.unit_price)).toFixed(2)}</Text>
+              <Text style={styles.itemTotal}>CHF {fmtChf((Number(it.quantity) * Number(it.unit_price)))}</Text>
             </View>
           ))}
           <View style={styles.totalsBlock}>
             <View style={styles.totalRow}>
               <Text style={styles.meta}>{t('devisDetail.subtotal')}</Text>
-              <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
+              <Text style={styles.meta}>CHF {fmtChf(subtotal)}</Text>
             </View>
             {/* No VAT line for a company that isn't VAT-registered (rate 0). */}
             {Number(devis.vat_rate) > 0 ? (
               <View style={styles.totalRow}>
                 <Text style={styles.meta}>{t('devisDetail.vat', { rate: devis.vat_rate })}</Text>
-                <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
+                <Text style={styles.meta}>CHF {fmtChf(vat)}</Text>
               </View>
             ) : null}
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>{Number(devis.vat_rate) > 0 ? t('devisDetail.totalInclVat') : t('devisDetail.total')}</Text>
-              <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
+              <Text style={styles.totalLabel}>CHF {fmtChf(total)}</Text>
             </View>
           </View>
         </Card>
@@ -714,7 +715,7 @@ export default function DevisDetailScreen() {
 const styles = StyleSheet.create({
   scroll: {
     padding: spacing.xl,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 3,
   },
   headerRow: {
     flexDirection: 'row',

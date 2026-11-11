@@ -79,7 +79,7 @@ export default function NewClientScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('newClient.title')} backTo="/(app)/clients" />
 

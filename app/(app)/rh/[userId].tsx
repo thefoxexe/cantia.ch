@@ -35,6 +35,7 @@ import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { payrollLabel } from '../../../lib/payroll/standardLabels';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { PayrollDeductionType, PayrollProfile, PayrollProfileDeduction, PayrollTreiziemeMode, SalaryType } from '../../../lib/types';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 export default function PayrollProfileScreen() {
   const { t } = useTranslation();
@@ -328,7 +329,7 @@ export default function PayrollProfileScreen() {
           }
         />
 
-        <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.xl }}>
+        <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: spacing.xxl * 3, gap: spacing.xl }}>
           {isGhost ? (
             <Card style={styles.ghostBanner}>
               <Feather name="user-x" size={16} color={colors.textMuted} />
@@ -640,7 +641,7 @@ function RateField({ label, value, onChange, suffix }: { label: string; value: s
 }
 
 function BreakdownRow({ label, value, bold, accent, unit }: { label: string; value: number; bold?: boolean; accent?: boolean; unit?: 'CHF' | 'j' | 'h' }) {
-  const formatted = unit && unit !== 'CHF' ? `${value.toFixed(2)} ${unit}` : `CHF ${value.toFixed(2)}`;
+  const formatted = unit && unit !== 'CHF' ? `${value.toFixed(2)} ${unit}` : `CHF ${fmtChf(value)}`;
   return (
     <View style={styles.breakdownRow}>
       <Text style={[styles.breakdownLabel, bold && styles.breakdownLabelBold]}>{label}</Text>
@@ -652,7 +653,7 @@ function BreakdownRow({ label, value, bold, accent, unit }: { label: string; val
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

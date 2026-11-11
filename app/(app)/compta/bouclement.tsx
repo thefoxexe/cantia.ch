@@ -781,7 +781,7 @@ function LinkButton({ label, onPress }: { label: string; onPress: () => void }) 
 }
 
 const styles = StyleSheet.create({
-  page: { padding: spacing.lg, paddingBottom: spacing.xxl * 2, gap: spacing.lg, width: '100%', maxWidth: 820, alignSelf: 'center' },
+  page: { padding: spacing.lg, paddingBottom: spacing.xxl * 3, gap: spacing.lg, width: '100%', maxWidth: 820, alignSelf: 'center' },
   subtitle: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: -spacing.sm, lineHeight: 20, maxWidth: 760 },
   body: { fontSize: fontSize.sm, color: colors.text, lineHeight: 20 },
   muted: { fontSize: fontSize.xs, color: colors.textMuted, lineHeight: 17 },

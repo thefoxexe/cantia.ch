@@ -43,6 +43,7 @@ import type {
   PayrollWorkType,
   SwissSocialInsuranceRates,
 } from '../../../lib/types';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 const CERTIFICATE_BOX_OPTIONS: { value: CertificateBox | null; labelKey: string }[] = [
   { value: null, labelKey: 'payrollSettings.certificateBoxNone' },
@@ -369,7 +370,7 @@ export default function PayrollSettingsScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('payrollSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('payrollSettings.intro')}</Text>
@@ -387,7 +388,7 @@ export default function PayrollSettingsScreen() {
             rows={workTypes.map((w) => ({
               id: w.id,
               label: payrollLabel(w.label, getAppLocale()),
-              meta: w.hourly_rate_chf != null ? `CHF ${w.hourly_rate_chf.toFixed(2)}/h` : null,
+              meta: w.hourly_rate_chf != null ? `CHF ${fmtChf(w.hourly_rate_chf)}/h` : null,
               active: w.active,
               onPress: () => openEditWork(w),
             }))}
@@ -401,7 +402,7 @@ export default function PayrollSettingsScreen() {
             rows={expenseTypes.map((e) => ({
               id: e.id,
               label: payrollLabel(e.label, getAppLocale()),
-              meta: e.unit === 'km' && e.rate_chf != null ? `CHF ${e.rate_chf.toFixed(2)}/km` : t('payrollSettings.freeAmount'),
+              meta: e.unit === 'km' && e.rate_chf != null ? `CHF ${fmtChf(e.rate_chf)}/km` : t('payrollSettings.freeAmount'),
               active: e.active,
               onPress: () => openEditExpense(e),
             }))}

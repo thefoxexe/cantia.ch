@@ -19,6 +19,7 @@ import { generateDevisLines } from '../../../../lib/api/ai';
 import { useDictation } from '../../../../lib/useDictation';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import type { DevisTrameItem, Project } from '../../../../lib/types';
+import { formatChf as fmtChf } from '../../../../lib/tenders/numbers';
 
 interface PriceMismatch {
   catalogItemId: string;
@@ -666,7 +667,7 @@ export default function NewFactureScreen() {
                           <Text style={styles.suggestionText} numberOfLines={1}>
                             {m.description}
                           </Text>
-                          <Text style={styles.suggestionPrice}>CHF {m.unitPrice.toFixed(2)}</Text>
+                          <Text style={styles.suggestionPrice}>CHF {fmtChf(m.unitPrice)}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -856,7 +857,7 @@ export default function NewFactureScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

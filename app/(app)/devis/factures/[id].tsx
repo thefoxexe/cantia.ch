@@ -30,6 +30,7 @@ import { generatePaymentReference, formatReferenceForDisplay } from '../../../..
 import { defaultFactureEmailMessage } from '../../../../lib/emailDefaults';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import type { Facture, FactureItem, FacturePayment, FactureStatus, Plan, Project } from '../../../../lib/types';
+import { formatChf as fmtChf } from '../../../../lib/tenders/numbers';
 
 const DEPOSIT_PRESETS = [20, 30, 50];
 
@@ -733,27 +734,27 @@ export default function FactureDetailScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.itemDesc}>{it.description}</Text>
                 <Text style={styles.meta}>
-                  {it.quantity} {it.unit} × CHF {Number(it.unit_price).toFixed(2)}
+                  {it.quantity} {it.unit} × CHF {fmtChf(Number(it.unit_price))}
                 </Text>
               </View>
-              <Text style={styles.itemTotal}>CHF {(Number(it.quantity) * Number(it.unit_price)).toFixed(2)}</Text>
+              <Text style={styles.itemTotal}>CHF {fmtChf((Number(it.quantity) * Number(it.unit_price)))}</Text>
             </View>
           ))}
           <View style={styles.totalsBlock}>
             <View style={styles.totalRow}>
               <Text style={styles.meta}>{t('factureDetail.subtotal')}</Text>
-              <Text style={styles.meta}>CHF {subtotal.toFixed(2)}</Text>
+              <Text style={styles.meta}>CHF {fmtChf(subtotal)}</Text>
             </View>
             {/* No VAT line for a company that isn't VAT-registered (rate 0). */}
             {Number(facture.vat_rate) > 0 ? (
               <View style={styles.totalRow}>
                 <Text style={styles.meta}>{t('factureDetail.vat', { rate: facture.vat_rate })}</Text>
-                <Text style={styles.meta}>CHF {vat.toFixed(2)}</Text>
+                <Text style={styles.meta}>CHF {fmtChf(vat)}</Text>
               </View>
             ) : null}
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>{Number(facture.vat_rate) > 0 ? t('factureDetail.totalInclVat') : t('factureDetail.total')}</Text>
-              <Text style={styles.totalLabel}>CHF {total.toFixed(2)}</Text>
+              <Text style={styles.totalLabel}>CHF {fmtChf(total)}</Text>
             </View>
           </View>
         </Card>
@@ -764,18 +765,18 @@ export default function FactureDetailScreen() {
             <Card>
               <View style={styles.totalRow}>
                 <Text style={styles.meta}>{t('factureDetail.paid')}</Text>
-                <Text style={styles.meta}>CHF {totalPaid.toFixed(2)}</Text>
+                <Text style={styles.meta}>CHF {fmtChf(totalPaid)}</Text>
               </View>
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>{t('factureDetail.remainingDue')}</Text>
-                <Text style={styles.totalLabel}>CHF {remaining.toFixed(2)}</Text>
+                <Text style={styles.totalLabel}>CHF {fmtChf(remaining)}</Text>
               </View>
               {payments.length ? (
                 <View style={styles.totalsBlock}>
                   {payments.map((p) => (
                     <View key={p.id} style={styles.paymentRow}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.itemDesc}>CHF {Number(p.amount).toFixed(2)}</Text>
+                        <Text style={styles.itemDesc}>CHF {fmtChf(Number(p.amount))}</Text>
                         <Text style={styles.meta}>{new Date(p.paid_at).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                       </View>
                       {isAdmin ? (
@@ -916,7 +917,7 @@ export default function FactureDetailScreen() {
 const styles = StyleSheet.create({
   scroll: {
     padding: spacing.xl,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 3,
   },
   headerRow: {
     flexDirection: 'row',

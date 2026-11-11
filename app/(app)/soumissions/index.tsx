@@ -201,7 +201,7 @@ export default function SoumissionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: { width: '100%', maxWidth: 980, alignSelf: 'center', padding: spacing.xl, gap: spacing.md, paddingBottom: spacing.xxl * 2 },
+  page: { width: '100%', maxWidth: 980, alignSelf: 'center', padding: spacing.xl, gap: spacing.md, paddingBottom: spacing.xxl * 3 },
   head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   beta: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.warningSoft },
   betaText: { fontSize: 10, fontWeight: '800', color: colors.warning, letterSpacing: 0.5, textTransform: 'uppercase' },

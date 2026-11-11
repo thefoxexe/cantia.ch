@@ -254,7 +254,7 @@ export default function VatReturnScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <View style={styles.container}>
           <PageHeader title={c.title} backTo="/(app)/compta" />
           <Text style={styles.subtitle}>{c.subtitle}</Text>
@@ -497,7 +497,7 @@ function Row({
 
 const styles = StyleSheet.create({
   container: { width: '100%', maxWidth: 1180, alignSelf: 'center', gap: spacing.md },
-  subtitle: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20, maxWidth: 720 },
+  subtitle: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20, maxWidth: 880 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md },
   metaChip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   metaChipText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.text },

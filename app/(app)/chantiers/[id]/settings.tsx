@@ -216,7 +216,7 @@ export default function ChantierSettingsScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('chantierSettings.title')} backTo={`/(app)/chantiers/${id}`} onBeforeBack={confirmBeforeBack} />
 

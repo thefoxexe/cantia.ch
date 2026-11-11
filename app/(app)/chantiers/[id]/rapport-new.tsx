@@ -15,6 +15,7 @@ import { fetchCatalog, findMatches, type CatalogEntry, type CatalogMatch } from 
 import { Button, Field, PageHeader, AppScreen } from '../../../../components/ui';
 import { useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { formatChf as fmtChf } from '../../../../lib/tenders/numbers';
 
 interface PendingPhoto {
   id: string;
@@ -67,7 +68,7 @@ export default function NewReportScreen() {
   function applyCatalogMatch(match: CatalogMatch) {
     const before = notes.slice(0, notesFragmentStart + 1);
     const prefix = before && !/\s$/.test(before) ? `${before} ` : before;
-    setNotes(`${prefix}${match.description} (CHF ${match.unitPrice.toFixed(2)}/${match.unit})`);
+    setNotes(`${prefix}${match.description} (CHF ${fmtChf(match.unitPrice)}/${match.unit})`);
   }
 
   async function toggleDictation() {
@@ -272,7 +273,7 @@ export default function NewReportScreen() {
                   <Text style={styles.suggestionText} numberOfLines={1}>
                     {m.description}
                   </Text>
-                  <Text style={styles.suggestionPrice}>CHF {m.unitPrice.toFixed(2)}</Text>
+                  <Text style={styles.suggestionPrice}>CHF {fmtChf(m.unitPrice)}</Text>
                 </Pressable>
               ))}
             </View>

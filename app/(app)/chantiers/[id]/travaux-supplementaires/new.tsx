@@ -12,6 +12,7 @@ import { useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../../lib/theme';
 import { fetchCatalog, findMatches, guessUnit, normalizeDescription, updateCatalogItemPrice, type CatalogEntry } from '../../../../../lib/catalog';
 import type { Devis } from '../../../../../lib/types';
+import { formatChf as fmtChf } from '../../../../../lib/tenders/numbers';
 
 interface Line {
   description: string;
@@ -279,7 +280,7 @@ export default function NewExtraWorkScreen() {
                           <Text style={styles.suggestionText} numberOfLines={1}>
                             {m.description}
                           </Text>
-                          <Text style={styles.suggestionPrice}>CHF {m.unitPrice.toFixed(2)}</Text>
+                          <Text style={styles.suggestionPrice}>CHF {fmtChf(m.unitPrice)}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -361,7 +362,7 @@ export default function NewExtraWorkScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

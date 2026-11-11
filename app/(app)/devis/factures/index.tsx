@@ -15,6 +15,7 @@ import { PageSettings } from '../../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
 import type { Facture } from '../../../../lib/types';
+import { formatChf as fmtChf } from '../../../../lib/tenders/numbers';
 
 type FilterKey = 'all' | 'overdue' | 'pending' | 'paid' | 'draft';
 type SortKey = 'priority' | 'issued' | 'due';
@@ -369,7 +370,7 @@ export default function FacturesListScreen() {
                   {overdue ? t('facturesList.overduePrefix') : ''}
                   {t('facturesList.dueDate', { date: formatDate(item.due_date) })}
                 </Text>
-                <Text style={styles.amount}>CHF {amount.toFixed(2)}</Text>
+                <Text style={styles.amount}>CHF {fmtChf(amount)}</Text>
               </View>
             </View>
             <Feather name="chevron-right" size={18} color={colors.textMuted} />
@@ -655,7 +656,7 @@ function KpiTile({
         </View>
         <Text style={styles.kpiLabel} numberOfLines={1}>{label}</Text>
       </View>
-      {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
+      {!hideAmount ? <Text style={styles.kpiAmount}>CHF {fmtChf((amount ?? 0))}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
           {translate('facturesList.countSuffix', { count })}
@@ -668,7 +669,7 @@ function KpiTile({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

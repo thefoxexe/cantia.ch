@@ -396,7 +396,7 @@ export default function PlanningScreen() {
           <EmptyState title={t('planning.emptyMembersTitle')} subtitle={t('planning.emptyMembersSubtitle')} />
         ) : view === 'day' ? (
           <ScrollView
-            contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+            contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}
             refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
           >
             <DayView
@@ -413,7 +413,7 @@ export default function PlanningScreen() {
           </ScrollView>
         ) : (
           <ScrollView
-            contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+            contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}
             refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.primary} />}
           >
             <View style={styles.gridRow}>
@@ -712,7 +712,7 @@ const styles = StyleSheet.create({
   calendarNotice: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderWidth: 1, borderColor: colors.success, borderRadius: radius.md, backgroundColor: colors.surface, marginBottom: spacing.md },
   container: {
     flex: 1,
-    maxWidth: 880,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

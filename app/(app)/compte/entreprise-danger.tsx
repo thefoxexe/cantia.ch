@@ -135,7 +135,7 @@ export default function EntrepriseDangerZoneScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('compteMenu.entrepriseDanger.label')} backTo="/(app)/compte/entreprise" />
           <Text style={styles.intro}>{t('dangerZone.intro')}</Text>

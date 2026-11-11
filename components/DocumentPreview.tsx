@@ -6,6 +6,7 @@ import { colors, spacing } from '../lib/theme';
 import { getAppLocale, i18next, useTranslation } from '../lib/translations';
 import { getSignedUrl } from '../lib/api/storage';
 import type { Organization } from '../lib/types';
+import { formatChf as fmtChf } from '../lib/tenders/numbers';
 
 export interface PreviewLine {
   description: string;
@@ -227,17 +228,17 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
         <View style={styles.totals}>
           <View style={styles.totalRow}>
             <Text style={styles.body}>{t('documentPreview.subtotal')}</Text>
-            <Text style={styles.body}>CHF {subtotal.toFixed(2)}</Text>
+            <Text style={styles.body}>CHF {fmtChf(subtotal)}</Text>
           </View>
           {vatRate > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.body}>{t('documentPreview.vat', { rate: vatRate })}</Text>
-              <Text style={styles.body}>CHF {vat.toFixed(2)}</Text>
+              <Text style={styles.body}>CHF {fmtChf(vat)}</Text>
             </View>
           ) : null}
           <View style={[styles.grandTotalBox, { backgroundColor: totalBoxBg, borderColor: brandColor }]}>
             <Text style={[styles.grandTotalLabel, { color: brandColor }]}>{vatRate > 0 ? t('documentPreview.grandTotal') : t('documentPreview.total')}</Text>
-            <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {total.toFixed(2)}</Text>
+            <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {fmtChf(total)}</Text>
           </View>
         </View>
 

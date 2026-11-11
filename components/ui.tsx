@@ -14,13 +14,14 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { Link, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation, AVAILABLE_LOCALES, type AppLocale } from '../lib/translations';
 import { displayType } from '../lib/marketingTheme';
 import { colors, fontSize, radius, spacing } from '../lib/theme'
 import { releaseHydrationViewport } from '../lib/hydrationViewport';
+import { isMenuRoot } from '../lib/appNav';
 
 type IconName = keyof typeof Feather.glyphMap;
 
@@ -73,8 +74,10 @@ function MountainBackdrop() {
 // bare <Screen> — the marketing site and auth screens keep the plain one
 // untouched. Kept as a thin wrapper rather than changing <Screen>'s own
 // default so nothing here can leak onto the public site by accident.
+// Plain paper, like the public site: the faint mountain backdrop it used to
+// carry made text harder to read (November 2026 redesign).
 export function AppScreen(props: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <Screen background="mountain" {...props} />;
+  return <Screen {...props} />;
 }
 
 export function Container({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -91,12 +94,15 @@ export function Card({ children, style }: { children: React.ReactNode; style?: S
 // on a known parent screen instead of guessing from history.
 export function PageHeader({
   title,
+  subtitle,
   backTo,
   right,
   style,
   onBeforeBack,
 }: {
   title: string;
+  // One line under the title, in the muted body colour.
+  subtitle?: string;
   backTo?: string;
   right?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -107,7 +113,10 @@ export function PageHeader({
   onBeforeBack?: () => boolean | Promise<boolean>;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { t } = useTranslation();
+  // Pages opened from the menu need no way back: the menu is right there.
+  const showBack = !isMenuRoot(pathname);
   async function handleBack() {
     if (onBeforeBack) {
       const canLeave = await onBeforeBack();
@@ -116,18 +125,23 @@ export function PageHeader({
     backTo ? router.replace(backTo as any) : router.back();
   }
   return (
-    <View style={[styles.pageHeader, style]}>
-      <Pressable
-        onPress={handleBack}
-        hitSlop={8}
-        style={styles.pageHeaderBack}
-        accessibilityLabel={t('ui.back')}
-      >
-        <Feather name="arrow-left" size={20} color={colors.text} />
-      </Pressable>
-      <Text style={styles.pageHeaderTitle} numberOfLines={1}>
-        {title}
-      </Text>
+    <View style={[styles.pageHeader, subtitle ? { marginBottom: spacing.xl } : null, style]}>
+      {showBack ? (
+        <Pressable
+          onPress={handleBack}
+          hitSlop={8}
+          style={styles.pageHeaderBack}
+          accessibilityLabel={t('ui.back')}
+        >
+          <Feather name="arrow-left" size={18} color={colors.text} />
+        </Pressable>
+      ) : null}
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.pageHeaderTitle} numberOfLines={1} accessibilityRole="header">
+          {title}
+        </Text>
+        {subtitle ? <Text style={styles.pageHeaderSubtitle}>{subtitle}</Text> : null}
+      </View>
       {right ? <View style={styles.pageHeaderRight}>{right}</View> : null}
     </View>
   );
@@ -203,6 +217,34 @@ export function Button({
           <Text style={[styles.buttonText, variant === 'secondary' && styles.buttonTextSecondary]}>{title}</Text>
         </>
       )}
+    </Pressable>
+  );
+}
+
+// The main action of a page (« Nouveau devis », « Nouvelle facture »…),
+// placed in PageHeader's right slot, top right of the title, the way the
+// public site places its call to action. Same look as the primary Button,
+// sized for a header.
+export function HeaderAction({
+  title,
+  icon = 'plus',
+  onPress,
+  variant = 'primary',
+}: {
+  title: string;
+  icon?: IconName;
+  onPress: () => void;
+  variant?: 'primary' | 'secondary';
+}) {
+  const primary = variant === 'primary';
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.headerAction, primary ? styles.buttonPrimary : styles.buttonSecondary, pressed && (primary ? styles.buttonPressed : styles.buttonPressedSecondary)]}
+    >
+      {icon ? <Feather name={icon} size={15} color={primary ? '#fff' : colors.text} /> : null}
+      <Text style={[styles.headerActionText, !primary && { color: colors.text }]} numberOfLines={1}>{title}</Text>
     </Pressable>
   );
 }
@@ -503,6 +545,7 @@ const styles = StyleSheet.create({
   pageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.md,
     marginBottom: spacing.xl,
   },
@@ -522,19 +565,41 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   pageHeaderTitle: {
-    flex: 1,
     ...displayType,
-    fontSize: 30,
-    lineHeight: 32,
-    fontWeight: '800',
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: '500',
+    letterSpacing: -1,
     color: colors.text,
+  },
+  pageHeaderSubtitle: {
+    fontSize: fontSize.sm,
+    lineHeight: 20,
+    color: colors.textMuted,
+    marginTop: 4,
   },
   pageHeaderRight: {
     flexShrink: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  headerAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    minHeight: 40,
+    paddingHorizontal: 16,
+    borderRadius: radius.md,
+  },
+  headerActionText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
   button: {
     flexDirection: 'row',
-    minHeight: 48,
+    minHeight: 46,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -542,7 +607,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   container: {
-    maxWidth: 880,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

@@ -425,7 +425,7 @@ export default function ChantiersListScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: { padding: spacing.xl, gap: spacing.md, width: '100%', maxWidth: 1100, alignSelf: 'center', paddingBottom: spacing.xxl * 2 },
+  page: { padding: spacing.xl, gap: spacing.md, width: '100%', maxWidth: 1100, alignSelf: 'center', paddingBottom: spacing.xxl * 3 },
   pageSubtitle: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: -spacing.sm },
   crumbs: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 4 },
   crumb: { flexDirection: 'row', alignItems: 'center', gap: 4 },

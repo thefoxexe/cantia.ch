@@ -13,6 +13,7 @@ import { PageSettings } from '../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Devis } from '../../../lib/types';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 // Every route under app/(app)/devis is already gated behind canManageDevis
 // at the layout level (see devis/_layout.tsx) — a member without access to
@@ -58,7 +59,7 @@ function KpiTile({
         </View>
         <Text style={styles.kpiLabel} numberOfLines={1}>{label}</Text>
       </View>
-      {!hideAmount ? <Text style={styles.kpiAmount}>CHF {(amount ?? 0).toFixed(2)}</Text> : null}
+      {!hideAmount ? <Text style={styles.kpiAmount}>CHF {fmtChf((amount ?? 0))}</Text> : null}
       {count !== undefined ? (
         <Text style={styles.kpiCount}>
           {translate('devisList.countSuffix', { count })}
@@ -303,7 +304,7 @@ export default function DevisListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

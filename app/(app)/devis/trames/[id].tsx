@@ -180,7 +180,7 @@ export default function TrameDetailScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

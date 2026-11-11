@@ -374,7 +374,7 @@ function CreateTenderSheet({ onClose, onCreate }: { onClose: () => void; onCreat
 }
 
 const styles = StyleSheet.create({
-  page: { padding: spacing.xl, gap: spacing.lg, maxWidth: 980, width: '100%', alignSelf: 'center', paddingBottom: spacing.xxl * 2 },
+  page: { padding: spacing.xl, gap: spacing.lg, maxWidth: 980, width: '100%', alignSelf: 'center', paddingBottom: spacing.xxl * 3 },
   toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md, flexWrap: 'wrap' },
   beta: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, backgroundColor: colors.warningSoft },
   betaText: { fontSize: 10, fontWeight: '800', color: colors.warning, letterSpacing: 0.5, textTransform: 'uppercase' },

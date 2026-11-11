@@ -90,7 +90,7 @@ export default function NotificationsScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader
           title={t('notificationsPage.title')}
           backTo="/(app)"

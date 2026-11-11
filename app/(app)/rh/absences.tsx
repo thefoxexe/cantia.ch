@@ -183,7 +183,7 @@ export default function AbsencesScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader title={t('payrollAbsences.title')} backTo={canManagePayroll ? '/(app)/rh/salaires' : '/(app)/rh'} />
         <Text style={styles.pageSubtitle}>{canManagePayroll ? t('payrollAbsences.subtitleManager') : t('payrollAbsences.subtitleSelf')}</Text>
 

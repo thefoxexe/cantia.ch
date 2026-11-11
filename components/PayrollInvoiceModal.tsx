@@ -5,6 +5,7 @@ import { Button, Card, Switch } from './ui';
 import { ClientPicker } from './ClientPicker';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
+import { formatChf as fmtChf } from '../lib/tenders/numbers';
 
 export interface InvoiceCandidateLine {
   workTypeId: string | null;
@@ -208,7 +209,7 @@ export function PayrollInvoiceModal({
                               placeholder={t('payrollInvoiceModal.ratePlaceholder')}
                               placeholderTextColor={colors.textMuted}
                             />
-                            <Text style={styles.amountResult}>= CHF {amountFor(draft, line.hours).toFixed(2)}</Text>
+                            <Text style={styles.amountResult}>= CHF {fmtChf(amountFor(draft, line.hours))}</Text>
                           </View>
                         ) : (
                           <TextInput
@@ -229,7 +230,7 @@ export function PayrollInvoiceModal({
 
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>{t('payrollInvoiceModal.totalExclVat')}</Text>
-              <Text style={styles.totalValue}>CHF {total.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>CHF {fmtChf(total)}</Text>
             </View>
             <Text style={styles.hint}>{t('payrollInvoiceModal.draftHint')}</Text>
 

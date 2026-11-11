@@ -186,7 +186,7 @@ export default function CompteIndexScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('compteMenu.title')} backTo="/(app)" />
           <View style={styles.searchBar}>

@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.md,
     padding: spacing.lg,
-    maxWidth: 880,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

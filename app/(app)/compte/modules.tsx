@@ -98,7 +98,7 @@ export default function ModulesScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('moduleSettings.title')} backTo="/(app)/compte" />
           <Text style={styles.hint}>{t('moduleSettings.intro')}</Text>

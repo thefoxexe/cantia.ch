@@ -461,7 +461,7 @@ export default function TenderEditorScreen() {
             keyExtractor={(r) => r.node.id}
             initialNumToRender={40}
             windowSize={12}
-            contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+            contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}
             ListEmptyComponent={<Text style={[kit.muted, { padding: spacing.xl }]}>{c.noPosition}</Text>}
             renderItem={({ item }) => (
               <Row

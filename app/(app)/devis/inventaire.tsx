@@ -22,6 +22,7 @@ import {
 import { hasSiteSchedule } from '../../../lib/schedule/api';
 import { useScheduleCopy } from '../../../lib/schedule/useCopy';
 import { TemplatesCatalog } from '../../../components/schedule/TemplatesCatalog';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 interface ActionRow {
   key: string;
@@ -277,7 +278,7 @@ export default function InventaireScreen() {
                     <Text style={styles.meta}>{new Date(item.lastUsedAt).toLocaleDateString(`${getAppLocale()}-CH`)}</Text>
                   </View>
                 </View>
-                <Text style={styles.price}>CHF {item.unitPrice.toFixed(2)}</Text>
+                <Text style={styles.price}>CHF {fmtChf(item.unitPrice)}</Text>
                 <Feather name="chevron-right" size={16} color={colors.textMuted} />
               </Card>
             </Pressable>
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
   kindTextOn: { color: colors.surface },
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

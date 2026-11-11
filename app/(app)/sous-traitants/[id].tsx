@@ -256,7 +256,7 @@ export default function SubcontractorDetailScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <View style={styles.container}>
           <PageHeader
             title={subcontractor.company_name}
@@ -456,7 +456,7 @@ export default function SubcontractorDetailScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

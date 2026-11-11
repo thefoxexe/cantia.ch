@@ -497,7 +497,7 @@ export default function EmailsScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: spacing.xl, paddingBottom: spacing.lg, width: '100%', maxWidth: 1440, alignSelf: 'center' },
-  phone: { paddingHorizontal: spacing.md, paddingBottom: spacing.xxl * 2, gap: spacing.sm },
+  phone: { paddingHorizontal: spacing.md, paddingBottom: spacing.xxl * 3, gap: spacing.sm },
   phoneList: { marginHorizontal: -spacing.md, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface },
   headerBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingVertical: 7, paddingHorizontal: 10, backgroundColor: colors.surface },
   headerBtnText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },

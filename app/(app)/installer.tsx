@@ -113,7 +113,7 @@ export default function InstallerScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.lg,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 3,
     maxWidth: 640,
     width: '100%',
     alignSelf: 'center',

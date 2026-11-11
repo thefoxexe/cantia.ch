@@ -203,7 +203,7 @@ export default function SituationDetailScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    maxWidth: 720,
+    maxWidth: 880,
     width: '100%',
     alignSelf: 'center',
   },

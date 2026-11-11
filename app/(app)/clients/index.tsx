@@ -181,7 +181,7 @@ export default function ClientsListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

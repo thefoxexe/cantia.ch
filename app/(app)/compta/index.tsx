@@ -47,6 +47,7 @@ import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 type Tab = 'apercu' | 'ecritures' | 'rapports' | 'tva';
 type ReportView = 'balance' | 'grandLivre' | 'bilan';
@@ -397,7 +398,7 @@ export default function AccountingScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader title={t('accounting.title')} backTo="/(app)" />
         <Text style={styles.pageSubtitle}>{t('accounting.subtitleV2')}</Text>
 
@@ -747,11 +748,11 @@ export default function AccountingScreen() {
                     <View style={styles.rateBadge}><Text style={styles.rateBadgeText}>{row.vatRate}%</Text></View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
-                      <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                      <Text style={styles.rateValue}>CHF {fmtChf(row.turnoverExclVat)}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                       <Text style={styles.rateLabel}>{t('vatReport.vatDue')}</Text>
-                      <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                      <Text style={styles.rateValueVat}>CHF {fmtChf(row.vatAmount)}</Text>
                     </View>
                   </Card>
                 ))}
@@ -762,22 +763,22 @@ export default function AccountingScreen() {
                     <View style={styles.rateBadge}><Text style={styles.rateBadgeText}>{row.vatRate}%</Text></View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.rateLabel}>{t('vatReport.turnoverAtRate', { rate: row.vatRate })}</Text>
-                      <Text style={styles.rateValue}>CHF {row.turnoverExclVat.toFixed(2)}</Text>
+                      <Text style={styles.rateValue}>CHF {fmtChf(row.turnoverExclVat)}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                       <Text style={styles.rateLabel}>{t('vatReport.vatDeductible')}</Text>
-                      <Text style={styles.rateValueVat}>CHF {row.vatAmount.toFixed(2)}</Text>
+                      <Text style={styles.rateValueVat}>CHF {fmtChf(row.vatAmount)}</Text>
                     </View>
                   </Card>
                 ))}
 
                 <Card style={styles.totalCard}>
-                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalTurnover')}</Text><Text style={styles.totalValue}>CHF {vatReport.totalExclVat.toFixed(2)}</Text></View>
-                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text><Text style={styles.totalValue}>CHF {vatReport.totalVat.toFixed(2)}</Text></View>
-                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalDeductibleVat')}</Text><Text style={styles.totalValue}>− CHF {vatReport.totalDeductibleVat.toFixed(2)}</Text></View>
+                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalTurnover')}</Text><Text style={styles.totalValue}>CHF {fmtChf(vatReport.totalExclVat)}</Text></View>
+                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalVatDue')}</Text><Text style={styles.totalValue}>CHF {fmtChf(vatReport.totalVat)}</Text></View>
+                  <View style={styles.totalRow}><Text style={styles.totalLabel}>{t('vatReport.totalDeductibleVat')}</Text><Text style={styles.totalValue}>− CHF {fmtChf(vatReport.totalDeductibleVat)}</Text></View>
                   <View style={[styles.totalRow, styles.totalRowFinal]}>
                     <Text style={styles.totalLabelFinal}>{t('vatReport.netVatDue')}</Text>
-                    <Text style={[styles.totalValueFinal, vatReport.netVatDue < 0 && styles.totalValueCredit]}>CHF {vatReport.netVatDue.toFixed(2)}</Text>
+                    <Text style={[styles.totalValueFinal, vatReport.netVatDue < 0 && styles.totalValueCredit]}>CHF {fmtChf(vatReport.netVatDue)}</Text>
                   </View>
                 </Card>
                 <Button title={t('vatReport.exportCsv')} icon="download" variant="secondary" onPress={handleExportVat} />

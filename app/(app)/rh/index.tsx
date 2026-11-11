@@ -15,6 +15,7 @@ import { PageSettings } from '../../../components/PageSettings';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../../lib/theme';
 import type { Plan, PayrollWorkType } from '../../../lib/types';
+import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 interface MemberItem {
   id: string;
@@ -276,7 +277,7 @@ export default function PayrollScreen() {
           />
           <Text style={styles.pageSubtitle}>{t('payrollHub.selfSubtitle')}</Text>
           {isDesktop ? (
-            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}>
               <View style={styles.desktopLayout}>
                 <View style={styles.calendarCol}>
                   <PayrollDateFilter range={range} onChange={setRange} />
@@ -294,7 +295,7 @@ export default function PayrollScreen() {
               </View>
             </ScrollView>
           ) : (
-            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}>
               <PayrollEntryPanel
                 organizationId={organization.id}
                 targetUserId={user.id}
@@ -399,7 +400,7 @@ export default function PayrollScreen() {
         ) : null}
 
         {mode === 'invoicing' ? (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}>
             {/* Desktop: calendar in the same narrow side column as every
                 other tab, invoicing summary alongside it — previously
                 stacked full-width above the summary, which meant three
@@ -420,7 +421,7 @@ export default function PayrollScreen() {
             )}
           </ScrollView>
         ) : isDesktop ? (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 3 }}>
             <View style={styles.desktopLayout}>
               <View style={styles.calendarCol}>
                 <PayrollDateFilter range={range} onChange={setRange} />
@@ -441,7 +442,7 @@ export default function PayrollScreen() {
             </View>
           </ScrollView>
         ) : (
-          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 2, gap: spacing.lg }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl * 3, gap: spacing.lg }}>
             <PayrollDateFilter range={range} onChange={setRange} />
             {employeeList}
             {selectedUserId ? (
@@ -558,7 +559,7 @@ function SummaryCard({
                   <View style={styles.groupTotalRow}>
                     <Text style={styles.groupTotalLabel}>{t('payrollHub.projectTotal')}</Text>
                     <Text style={styles.groupTotalHours}>{groupTotalHours} h</Text>
-                    <Text style={styles.groupTotalChf}>CHF {groupChf.toFixed(2)}</Text>
+                    <Text style={styles.groupTotalChf}>CHF {fmtChf(groupChf)}</Text>
                   </View>
                   {group.lines.map((l, i) => (
                     <SummaryLineRow key={i} line={l} factures={factures} canInvoice={canInvoice} onLinkExisting={onLinkExisting} />
@@ -571,7 +572,7 @@ function SummaryCard({
                         <Pressable key={f.id} onPress={() => router.push(`/(app)/devis/factures/${f.id}`)} style={styles.trackerRow}>
                           <Text style={styles.trackerNumber} numberOfLines={1}>{f.number ?? t('payrollHub.draft')}</Text>
                           <StatusBadge status={f.status} />
-                          <Text style={styles.trackerAmount}>CHF {f.total.toFixed(2)}</Text>
+                          <Text style={styles.trackerAmount}>CHF {fmtChf(f.total)}</Text>
                           <Text style={[styles.trackerRemaining, f.remaining > 0 && styles.trackerRemainingDue]}>
                             {f.remaining > 0 ? t('payrollHub.remainingChf', { amount: f.remaining.toFixed(2) }) : t('payrollHub.settled')}
                           </Text>
@@ -592,7 +593,7 @@ function SummaryCard({
             <View style={styles.summaryTotalRow}>
               <Text style={styles.summaryTotalLabel}>{t('payrollHub.remainingToInvoice')}</Text>
               <Text style={styles.summaryHours}>{totalHours} h</Text>
-              <Text style={styles.summaryChf}>CHF {totalChf.toFixed(2)}</Text>
+              <Text style={styles.summaryChf}>CHF {fmtChf(totalChf)}</Text>
             </View>
           </View>
         )
@@ -636,7 +637,7 @@ function SummaryLineRow({
           ) : null}
         </View>
         <Text style={styles.summaryHours}>{line.hours} h</Text>
-        <Text style={styles.summaryChf}>{line.rate ? `CHF ${(line.rate * line.hours).toFixed(2)}` : '—'}</Text>
+        <Text style={styles.summaryChf}>{line.rate ? `CHF ${fmtChf((line.rate * line.hours))}` : '—'}</Text>
         {canLink ? (
           <Pressable onPress={() => setOpen((o) => !o)} hitSlop={8} style={styles.linkToggle}>
             <Feather name={open ? 'x' : 'link'} size={13} color={colors.textMuted} />
@@ -661,7 +662,7 @@ function SummaryLineRow({
               <Text style={styles.linkFactureNumber} numberOfLines={1}>
                 {f.number ?? t('payrollHub.draft')}
               </Text>
-              <Text style={styles.linkFactureAmount}>{linkingId === f.id ? t('payrollHub.linking') : `CHF ${f.total.toFixed(2)}`}</Text>
+              <Text style={styles.linkFactureAmount}>{linkingId === f.id ? t('payrollHub.linking') : `CHF ${fmtChf(f.total)}`}</Text>
             </Pressable>
           ))}
         </View>
@@ -705,7 +706,7 @@ function ProjectDetailToggle({ entries }: { entries: SummaryEntryDetail[] }) {
 const styles = StyleSheet.create({
   selfContainer: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

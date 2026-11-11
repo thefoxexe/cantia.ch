@@ -21,6 +21,7 @@ import {
 import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen } from '../../../../components/ui';
 import { getAppLocale, useTranslation } from '../../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../../lib/theme';
+import { formatChf as fmtChf } from '../../../../lib/tenders/numbers';
 
 // A transaction from the persisted bank_transactions table, reshaped back
 // into the BankStatementEntry the existing reference/amount/fuzzy matcher
@@ -368,7 +369,7 @@ export default function ImportReleveScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader
           title={t('importReleve.title')}
           backTo="/(app)/devis/factures"
@@ -460,7 +461,7 @@ export default function ImportReleveScreen() {
                               : t('importReleve.matchedByFuzzy')}
                         </Text>
                       </View>
-                      <Text style={styles.matchAmount}>CHF {row.entry.amount.toFixed(2)}</Text>
+                      <Text style={styles.matchAmount}>CHF {fmtChf(row.entry.amount)}</Text>
                     </Card>
                   </Pressable>
                 ))}
@@ -485,7 +486,7 @@ export default function ImportReleveScreen() {
                           {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? t('importReleve.noReference')}
                         </Text>
                       </View>
-                      <Text style={styles.matchMetaAmount}>CHF {entry.amount.toFixed(2)}</Text>
+                      <Text style={styles.matchMetaAmount}>CHF {fmtChf(entry.amount)}</Text>
                     </Card>
                   ))}
                 </View>
@@ -505,7 +506,7 @@ export default function ImportReleveScreen() {
                             {formatDateFr(entry.date)} · {entry.debtorName ?? entry.info ?? t('importReleve.noReference')}
                           </Text>
                         </View>
-                        <Text style={styles.matchMetaAmount}>− CHF {entry.amount.toFixed(2)}</Text>
+                        <Text style={styles.matchMetaAmount}>− CHF {fmtChf(entry.amount)}</Text>
                         <Feather name={expandedTxId === entry.transactionId ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
                       </Pressable>
                       {expandedTxId === entry.transactionId ? (

@@ -159,7 +159,7 @@ export default function EntrepriseScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('entreprise.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
           {!isAdmin ? <Text style={styles.readOnlyHint}>{t('entreprise.readOnlyHint')}</Text> : null}

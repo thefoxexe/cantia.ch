@@ -31,6 +31,7 @@ import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { payrollLabel } from '../lib/payroll/standardLabels';
 import type { PayrollExpenseType, PayrollWorkType, Project } from '../lib/types';
+import { formatChf as fmtChf } from '../lib/tenders/numbers';
 
 interface PickItem {
   id: string;
@@ -932,7 +933,7 @@ export function PayrollEntryPanel({
       <Card>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t('payrollEntry.expensesTitle')}</Text>
-          <Text style={styles.sectionTotal}>CHF {totalExpenses.toFixed(2)}</Text>
+          <Text style={styles.sectionTotal}>CHF {fmtChf(totalExpenses)}</Text>
         </View>
         {!loading && expenses.length === 0 ? (
           <Text style={styles.hint}>{t('payrollEntry.noExpensesHint')}</Text>
@@ -948,7 +949,7 @@ export function PayrollEntryPanel({
                     {e.project_name ? ` · ${e.project_name}` : ''}
                   </Text>
                 </View>
-                <Text style={styles.entryHours}>CHF {Number(e.amount_chf).toFixed(2)}</Text>
+                <Text style={styles.entryHours}>CHF {fmtChf(Number(e.amount_chf))}</Text>
                 <Pressable onPress={() => removeExpense(e.id)} hitSlop={8}>
                   <Feather name="trash-2" size={16} color={colors.textMuted} />
                 </Pressable>
@@ -974,7 +975,7 @@ export function PayrollEntryPanel({
                     <Pressable key={et.id} onPress={() => selectExpenseType(et.id)} style={[styles.chip, expenseTypeId === et.id && styles.chipActive]}>
                       <Text style={[styles.chipText, expenseTypeId === et.id && styles.chipTextActive]}>
                         {payrollLabel(et.label, getAppLocale())}
-                        {et.unit === 'km' && et.rate_chf != null ? ` (CHF ${et.rate_chf.toFixed(2)}/km)` : ''}
+                        {et.unit === 'km' && et.rate_chf != null ? ` (CHF ${fmtChf(et.rate_chf)}/km)` : ''}
                       </Text>
                     </Pressable>
                   ))}
@@ -1004,7 +1005,7 @@ export function PayrollEntryPanel({
                   </View>
                   {selectedExpenseType?.unit === 'km' && expenseQuantity ? (
                     <Text style={styles.hint}>
-                      = CHF {(Math.round((Number(expenseQuantity.replace(',', '.')) || 0) * (selectedExpenseType.rate_chf ?? 0) * 100) / 100).toFixed(2)}
+                      = CHF {fmtChf((Math.round((Number(expenseQuantity.replace(',', '.')) || 0) * (selectedExpenseType.rate_chf ?? 0) * 100) / 100))}
                     </Text>
                   ) : null}
 

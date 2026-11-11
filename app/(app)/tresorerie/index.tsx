@@ -420,7 +420,7 @@ function FlowList({
 }
 
 const styles = StyleSheet.create({
-  page: { padding: spacing.lg, paddingBottom: spacing.xxl * 2, gap: spacing.lg, width: '100%', maxWidth: 760, alignSelf: 'center' },
+  page: { padding: spacing.lg, paddingBottom: spacing.xxl * 3, gap: spacing.lg, width: '100%', maxWidth: 760, alignSelf: 'center' },
   upsell: { alignItems: 'flex-start', gap: spacing.xs, marginTop: spacing.lg },
   upsellTitle: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text, marginTop: spacing.sm },
   upsellText: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 20 },

@@ -323,7 +323,7 @@ export default function DataImportScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <View style={styles.container}>
           <PageHeader title={t('dataImport.title')} backTo="/(app)/compte" />
           <Text style={styles.subtitle}>{t('dataImport.subtitle')}</Text>

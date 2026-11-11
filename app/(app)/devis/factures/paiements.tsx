@@ -110,7 +110,7 @@ export default function PaymentsScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader title={t('payments.title')} backTo="/(app)/devis/factures" />
         <Text style={styles.pageSubtitle}>{t('payments.subtitle')}</Text>
 

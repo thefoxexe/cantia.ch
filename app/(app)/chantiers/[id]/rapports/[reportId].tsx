@@ -254,7 +254,7 @@ export default function ReportDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 3,
   },
   meta: {
     fontSize: fontSize.sm,

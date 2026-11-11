@@ -9,6 +9,7 @@ import type { SwissPayroll } from '../../lib/payroll/swissEngine.ts';
 import { fill, useWizardCopy } from '../../lib/payroll/wizardCopy';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import type { PayrollProfile } from '../../lib/types';
+import { formatChf as fmtChf } from '../../lib/tenders/numbers';
 
 // What's still missing before a first payslip. The employer fills
 // everything in; used on the employee's page and in « Fiches de salaire ».
@@ -96,7 +97,7 @@ export function SituationCard({
             <View style={styles.facts}>
               <Fact label={c.whtTitle} value={payroll.wht.subject ? fill(c.whtYes, { code: payroll.wht.code ?? '', canton: payroll.wht.canton ?? '' }) : c.whtNot} />
               <Fact label="LPP" value={payroll.lpp.applies ? `${payroll.lpp.creditPercent} %` : '—'} />
-              <Fact label={c.famTitle} value={payroll.familyAllowance > 0 ? `CHF ${payroll.familyAllowance.toFixed(2)}` : '—'} />
+              <Fact label={c.famTitle} value={payroll.familyAllowance > 0 ? `CHF ${fmtChf(payroll.familyAllowance)}` : '—'} />
             </View>
             <SalarySimulator payroll={payroll} />
           </View>

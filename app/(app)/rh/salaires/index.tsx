@@ -43,7 +43,7 @@ export default function PayrollSalariesHubScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader title={t('payrollSalariesHub.title')} backTo="/(app)/rh" />
         <Text style={styles.subtitle}>{t('payrollSalariesHub.subtitle')}</Text>
 

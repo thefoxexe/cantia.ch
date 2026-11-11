@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
     gap: spacing.lg,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 3,
     maxWidth: 880,
     width: '100%',
     alignSelf: 'center',

@@ -21,6 +21,7 @@ import { useTranslation } from '../../lib/translations';
 import { salesTrackingReady } from '../../lib/api/salesTracking';
 import { StatusLink } from '../../components/StatusLink';
 import { BrandLogo, BrandMark } from '../../components/brand/Logo';
+import { useSiteFontScope } from '../../components/site/Primitives';
 
 // The bell renders in the top bar of every authenticated screen — a crash
 // in it (bad data, a realtime hiccup) must not take the whole app down with
@@ -135,6 +136,9 @@ function activeHrefFor(pathname: string, sections: NavSection[]): string | null 
 // child route the same way whether it's rendered by <Slot/> in either shell.
 export default function AppLayout() {
   useEffect(releaseHydrationViewport, []);
+  // Same typeface as the public site everywhere in the app: any text that
+  // names no font of its own is set in DM Sans (see SITE_SCOPE_CSS).
+  useSiteFontScope();
   const { width } = useWindowDimensions();
   const pathname = usePathname();
   const { t } = useTranslation();

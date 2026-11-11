@@ -129,7 +129,7 @@ export default function ApparenceScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl * 3 }}>
         <Container>
           <PageHeader title={t('apparence.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
 

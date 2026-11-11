@@ -658,7 +658,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing.xl, paddingBottom: spacing.xxl * 2, maxWidth: 720, width: '100%', alignSelf: 'center', gap: spacing.lg },
+  container: { padding: spacing.xl, paddingBottom: spacing.xxl * 3, maxWidth: 1080, width: '100%', alignSelf: 'center', gap: spacing.lg },
   containerWide: { maxWidth: 1180 },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing.md },
   hello: { fontSize: fontSize.md, color: colors.textMuted },

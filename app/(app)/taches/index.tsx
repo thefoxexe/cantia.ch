@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   optionChipTextActive: { color: colors.primaryDark },
   container: {
     flex: 1,
-    maxWidth: 720,
+    maxWidth: 1080,
     width: '100%',
     alignSelf: 'center',
   },

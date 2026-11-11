@@ -66,7 +66,7 @@ export default function PayrollEmployeesScreen() {
 
   return (
     <AppScreen>
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 2 }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
         <PageHeader title={t('payrollSalariesHub.employeesTitle')} backTo="/(app)/rh/salaires" />
         <Text style={styles.subtitle}>{t('payrollSalariesHub.employeesSubtitle')}</Text>
         {/* The questionnaire: identity, situation, insurances, then the
