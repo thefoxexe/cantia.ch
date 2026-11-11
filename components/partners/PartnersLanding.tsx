@@ -294,17 +294,13 @@ export function PartnersLanding() {
       </View>
 
       {/* Partners who recommend Cantia: one page each (lib/partners/featured.ts) */}
-      <View style={[styles.recommend, { paddingVertical: phone ? 30 : 38 }]}>
-        <Wrap style={[styles.recommendRow, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 18 }]}>
-          <View style={{ gap: 8 }}>
-            <Text style={[sans, styles.who, { color: '#b2b9a7' }]}>{c.recommend.eyebrow.toUpperCase()}</Text>
-            <Text style={[sans, { fontSize: 20, color: '#f4f3e9', letterSpacing: -0.5 }]}>{c.recommend.title}</Text>
-          </View>
+      <View style={[styles.recommend, { paddingVertical: phone ? 22 : 26 }]}>
+        <Wrap style={styles.recommendRow}>
           <View style={[styles.recommendRow, { gap: 16 }]}>
             {FEATURED_PARTNERS.map((fp) => (
               <Link key={fp.slug} href={`${prefix}/partenaires/${fp.slug}` as any} asChild>
                 <Hover accessibilityRole="link" accessibilityLabel={fp.name} hover={{ opacity: 0.85 }}>
-                  <Image source={fp.logo} style={{ width: 150, height: 150 * fp.ratio }} resizeMode="contain" />
+                  <Image source={fp.logo} style={{ width: 120, height: 120 * fp.ratio }} resizeMode="contain" />
                 </Hover>
               </Link>
             ))}

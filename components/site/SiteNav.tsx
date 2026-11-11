@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Hover, Micro } from './Primitives';
+import { Btn, Hover } from './Primitives';
 import { sans, site, gutter } from '../../lib/siteTheme';
 import { SITE_COPY, type SiteLocale } from '../../lib/site/copy';
 import { getAppLocale } from '../../lib/translations';
@@ -55,7 +55,6 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
   const links = [
     { label: c.trade, href: `${p}/metiers` },
     { label: c.pricing, href: `${p}/tarifs` },
-    { label: c.custom, href: `${p}/sur-mesure` },
     ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }] : []),
   ];
   const megaItems = [
@@ -170,7 +169,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                 <DrawerSubLink key={m.key} icon={FAMILY_ICONS[m.key]} label={m.key === 'assistant' ? m.name : `${m.name} · ${m.text}`} href={m.href} onNavigate={() => setDrawerOpen(false)} />
               ))}
             </DrawerGroup>
-            {links.slice(0, 3).map((l) => (
+            {links.slice(0, 2).map((l) => (
               <DrawerLink key={l.href} label={l.label} href={l.href} onNavigate={() => setDrawerOpen(false)} />
             ))}
             <DrawerGroup title={c.discover}>
@@ -188,7 +187,6 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                 </Pressable>
               </Link>
               {languageSwitcher}
-              <Micro>{c.priceNote}</Micro>
             </View>
           </ScrollView>
         </View>
