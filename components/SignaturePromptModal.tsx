@@ -8,13 +8,14 @@ import { Button } from './ui';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 import { useTranslation } from '../lib/translations';
 
-// Shown when a member without a saved signature reaches devis/new.tsx —
+// Shown the first time a member without a saved signature sends a devis
+// (devis/[id].tsx, « Envoyer par e-mail » or « Copier le lien client ») —
 // closes the loop the client asked for: every devis should come out
 // electronically signed automatically, which only works once the signer's
 // personal signature (organization_members.signature_url, otherwise set by
 // hand in Compte → Mon profil) actually exists. "Plus tard" only skips this
-// visit — as long as no signature is saved, the prompt returns next time a
-// devis is created rather than being silenced forever after one dismissal.
+// visit — as long as no signature is saved, the prompt returns on a later
+// send rather than being silenced forever after one dismissal.
 export function SignaturePromptModal({ visible, onDone }: { visible: boolean; onDone: () => void }) {
   const { t } = useTranslation();
   const { organization, user } = useAuth();

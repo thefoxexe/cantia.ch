@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -26,6 +26,7 @@ import { defaultDevisEmailMessage } from '../../../lib/emailDefaults';
 import { getAppLocale, useTranslation } from '../../../lib/translations';
 import type { Devis, DevisItem, DevisStatus, Facture, Plan, Project } from '../../../lib/types';
 import { DevisTrackingPanel } from '../../../components/DevisTrackingPanel';
+import { SignaturePromptModal } from '../../../components/SignaturePromptModal';
 import { formatChf as fmtChf } from '../../../lib/tenders/numbers';
 
 type RelatedFacture = Pick<Facture, 'id' | 'number' | 'status' | 'is_deposit'>;
@@ -43,7 +44,7 @@ export default function DevisDetailScreen() {
   };
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { organization, role } = useAuth();
+  const { organization, role, user } = useAuth();
   const isAdmin = role === 'owner' || role === 'admin';
   const [devis, setDevis] = useState<Devis | null>(null);
   const [items, setItems] = useState<DevisItem[]>([]);
@@ -238,6 +239,31 @@ export default function DevisDetailScreen() {
   // The public link is only ever checkable client-side by the client's own
   // email matching devis.client_email (see accept_public_devis RPC) — so
   // without an email on file, the link would never verify.
+  // Devis PDFs draw the sender's personal signature (organization_members
+  // .signature_url) next to the client's. It used to be asked for as soon as
+  // « Nouveau devis » opened, before any work; now it is asked once, the
+  // first time this person sends a devis without one, and the send goes on
+  // right after (saved or « Plus tard »).
+  const [signatureAsk, setSignatureAsk] = useState<null | (() => void)>(null);
+  const hasSignature = useRef<boolean | null>(null);
+  async function withSignature(action: () => void) {
+    if (hasSignature.current === null && organization && user) {
+      const { data } = await supabase
+        .from('organization_members')
+        .select('signature_url')
+        .eq('organization_id', organization.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      hasSignature.current = !!data?.signature_url;
+    }
+    if (hasSignature.current === false) {
+      hasSignature.current = true; // ask only once per visit
+      setSignatureAsk(() => action);
+      return;
+    }
+    action();
+  }
+
   async function handleCopyClientLink() {
     if (!devis) return;
     await Clipboard.setStringAsync(publicDevisUrl(devis.public_token));
@@ -457,14 +483,14 @@ export default function DevisDetailScreen() {
                 title={emailSent ? t('devisDetail.emailSent') : t('devisDetail.sendByEmail')}
                 icon={emailSent ? 'check' : 'mail'}
                 disabled={plan?.has_email_sending === false}
-                onPress={handleOpenEmailModal}
+                onPress={() => withSignature(handleOpenEmailModal)}
                 style={styles.clientLinkButton}
               />
               <Button
                 title={linkCopied ? t('devisDetail.linkCopied') : t('devisDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
-                onPress={handleCopyClientLink}
+                onPress={() => withSignature(handleCopyClientLink)}
                 style={styles.clientLinkButton}
               />
               <Button
@@ -719,6 +745,14 @@ export default function DevisDetailScreen() {
           </View>
         </View>
       </Modal>
+      <SignaturePromptModal
+        visible={!!signatureAsk}
+        onDone={() => {
+          const next = signatureAsk;
+          setSignatureAsk(null);
+          next?.();
+        }}
+      />
     </AppScreen>
   );
 }
