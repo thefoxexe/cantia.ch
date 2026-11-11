@@ -22,6 +22,7 @@ import { confirm } from '../../../../lib/confirm';
 import { getFactureBexioMapping, getIntegration, pushClientToBexio, pushFactureToBexio, type BexioSyncDirection } from '../../../../lib/api/integrations';
 import { backfillDocumentClientContact } from '../../../../lib/api/clients';
 import { Button, Card, Container, Field, LangToggle, LoadingScreen, AppScreen, StatusBadge } from '../../../../components/ui';
+import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { ProjectPicker } from '../../../../components/ProjectPicker';
 import { SendToFiduciaryModal, sendToFiduciaryLabel } from '../../../../components/SendToFiduciaryModal';
 import { DateField } from '../../../../components/DateField';
@@ -528,6 +529,10 @@ export default function FactureDetailScreen() {
       ? ([{ key: 'edit', icon: 'edit-3', label: t('factureDetail.edit'), onPress: handleEdit }] as ActionRow[])
       : []),
     { key: 'duplicate', icon: 'copy', label: t('factureDetail.duplicate'), onPress: handleDuplicate },
+    // Bexio lives in the menu, as on the devis page: a sync, not the main step.
+    ...(canPushToBexio
+      ? ([{ key: 'bexio', icon: 'refresh-cw', label: bexioExternalId ? t('factureDetail.resyncBexio') : t('factureDetail.sendToBexio'), onPress: handlePushToBexio, disabled: pushingBexio }] as ActionRow[])
+      : []),
     ...(facture.devis_id
       ? ([{ key: 'devis', icon: 'file-text', label: t('factureDetail.viewDevis'), onPress: () => router.push(`/(app)/devis/${facture.devis_id}`) }] as ActionRow[])
       : []),
@@ -543,6 +548,9 @@ export default function FactureDetailScreen() {
         ] as ActionRow[])
       : []),
   ];
+  // Shown as buttons under the client; the rest goes to the « … » menu.
+  // (« Finaliser » already has its own button on a draft.)
+  const primaryKeys = ['record-payment', 'pdf'] as const;
 
   return (
     <AppScreen>
@@ -565,7 +573,16 @@ export default function FactureDetailScreen() {
                 </View>
               ) : null}
             </View>
-            <StatusBadge status={facture.status} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+              <StatusBadge status={facture.status} />
+              {/* Same « … » menu as the devis page: everything except the
+                  main actions shown under the client. */}
+              <RowActionMenu
+                actions={actionRows
+                  .filter((a) => a.key !== 'finalize' && !(primaryKeys as readonly string[]).includes(a.key))
+                  .map((a) => ({ key: a.key, icon: a.icon, label: a.label, onPress: a.onPress, danger: a.danger, disabled: a.disabled }))}
+              />
+            </View>
           </View>
           <View style={styles.summaryRow}>
             <View style={{ flex: 1, minWidth: 200 }}>
@@ -604,16 +621,6 @@ export default function FactureDetailScreen() {
               </Text>
             </View>
           ) : null}
-          {canPushToBexio ? (
-            <Button
-              title={bexioExternalId ? t('factureDetail.resyncBexio') : t('factureDetail.sendToBexio')}
-              variant="secondary"
-              icon="refresh-cw"
-              onPress={handlePushToBexio}
-              loading={pushingBexio}
-              style={{ marginTop: spacing.md }}
-            />
-          ) : null}
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={facture.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
           </View>
@@ -637,18 +644,17 @@ export default function FactureDetailScreen() {
           ) : (
             <View style={styles.clientLinkRow}>
               <Button
+                title={emailSent ? t('factureDetail.emailSent') : t('factureDetail.sendByEmail')}
+                icon={emailSent ? 'check' : 'mail'}
+                disabled={plan?.has_email_sending === false}
+                onPress={handleOpenEmailModal}
+                style={styles.clientLinkButton}
+              />
+              <Button
                 title={linkCopied ? t('factureDetail.linkCopied') : t('factureDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
                 onPress={handleCopyClientLink}
-                style={styles.clientLinkButton}
-              />
-              <Button
-                title={emailSent ? t('factureDetail.emailSent') : t('factureDetail.sendByEmail')}
-                variant="secondary"
-                icon={emailSent ? 'check' : 'mail'}
-                disabled={plan?.has_email_sending === false}
-                onPress={handleOpenEmailModal}
                 style={styles.clientLinkButton}
               />
             </View>
@@ -658,6 +664,14 @@ export default function FactureDetailScreen() {
               {t('factureDetail.emailPaidPlanOnly')}
             </Text>
           ) : null}
+          {/* The other everyday actions, one tap away (no « Actions » panel). */}
+          <View style={[styles.clientLinkRow, { marginTop: spacing.sm }]}>
+            {actionRows
+              .filter((a) => (primaryKeys as readonly string[]).includes(a.key))
+              .map((a) => (
+                <Button key={a.key} title={a.label} icon={a.icon} variant="secondary" onPress={a.onPress} disabled={a.disabled || busy} style={styles.clientLinkButton} />
+              ))}
+          </View>
           {plan?.has_document_locale_override ? (
             <View style={styles.docLocaleBlock}>
               <Text style={styles.docLocaleLabel}>{t('factureDetail.documentLocaleLabel')}</Text>
@@ -692,34 +706,6 @@ export default function FactureDetailScreen() {
           </View>
         ) : null}
 
-        <Button
-          title={t('factureDetail.actions')}
-          icon={actionsOpen ? 'chevron-up' : 'chevron-down'}
-          variant="secondary"
-          onPress={() => setActionsOpen((v) => !v)}
-          loading={busy}
-          style={{ marginTop: spacing.md }}
-        />
-        {actionsOpen ? (
-          <Card style={styles.actionsPanel}>
-            {actionRows.map((action, i) => (
-              <Pressable
-                key={action.key}
-                disabled={action.disabled}
-                onPress={action.onPress}
-                style={[styles.actionRow, i > 0 && styles.actionRowBorder, action.disabled && styles.actionRowDisabled]}
-              >
-                <Feather name={action.icon} size={16} color={action.danger ? colors.danger : colors.text} />
-                <Text style={[styles.actionRowText, action.danger && styles.actionRowTextDanger]}>{action.label}</Text>
-                {action.soon ? (
-                  <View style={styles.soonBadge}>
-                    <Text style={styles.soonBadgeText}>{t('factureDetail.soonAvailable')}</Text>
-                  </View>
-                ) : null}
-              </Pressable>
-            ))}
-          </Card>
-        ) : null}
         {error ? (
           <View>
             <Text style={styles.error}>{error}</Text>
