@@ -24,9 +24,6 @@ async function notifyPaymentFailed(organizationId: string): Promise<void> {
   });
 }
 
-// Powers the "log per organization" timeline on the admin org detail
-// screen — best-effort: a logging failure must never fail the webhook
-// itself (Stripe already got its confirmation via the row update above).
 // Stripe's own cancellation reason (feedback + comment), asked by the
 // customer portal when it is set to collect it. Stored once per cancellation
 // in subscription_cancellation_reasons, next to the reason picked in the app.
@@ -52,6 +49,9 @@ async function saveStripeCancellationReason(admin: ReturnType<typeof createClien
   }
 }
 
+// Powers the "log per organization" timeline on the admin org detail
+// screen — best-effort: a logging failure must never fail the webhook
+// itself (Stripe already got its confirmation via the row update above).
 async function logOrgEvent(
   admin: ReturnType<typeof createClient>,
   organizationId: string,
