@@ -48,7 +48,6 @@ export interface InnerCopy {
     calloutStrong: string;
     callout: string;
     calloutLink: string;
-    partnersEyebrow: string;
   };
   app: Hero & {
     open: string;
@@ -155,7 +154,6 @@ const fr: InnerCopy = {
     calloutStrong: 'Vous utilisez Bexio ?',
     callout: 'Cantia peut se connecter à vos données clients, factures et paiements.',
     calloutLink: 'Voir l’intégration Bexio',
-    partnersEyebrow: 'Ils recommandent Cantia',
   },
   app: {
     seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
@@ -296,7 +294,6 @@ const de: InnerCopy = {
     calloutStrong: 'Sie nutzen Bexio?',
     callout: 'Cantia kann sich mit Ihren Kunden-, Rechnungs- und Zahlungsdaten verbinden.',
     calloutLink: 'Die Bexio-Integration ansehen',
-    partnersEyebrow: 'Sie empfehlen Cantia',
   },
   app: {
     seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
@@ -437,7 +434,6 @@ const it: InnerCopy = {
     calloutStrong: 'Usate Bexio?',
     callout: 'Cantia può collegarsi ai vostri dati di clienti, fatture e pagamenti.',
     calloutLink: 'Vedere l’integrazione Bexio',
-    partnersEyebrow: 'Raccomandano Cantia',
   },
   app: {
     seoTitle: 'Cantia su computer e telefono | Cantia',

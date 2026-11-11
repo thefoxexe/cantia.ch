@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image, Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
@@ -212,9 +212,6 @@ export function SurMesurePage() {
   );
 }
 
-// WebAlp, partner (shown in full on partners.cantia.ch).
-const WEBALP_LOGO = require('../../assets/marketing/partners/webalp.png');
-
 // ─── Fiduciaires & partenaires ──────────────────────────────────────────────
 
 export function EcosystemPage() {
@@ -232,14 +229,6 @@ export function EcosystemPage() {
         </Grid>
         <View style={{ marginTop: 40 }}>
           <Callout strong={c.calloutStrong} text={c.callout} link={<TextLink label={c.calloutLink} href={href('integrations')} />} />
-        </View>
-      </Section>
-      <Section>
-        <View style={styles.partnerStrip}>
-          <Text style={[sans, styles.cardLabel, { marginBottom: 0 }]}>{c.partnersEyebrow.toUpperCase()}</Text>
-          <Hover onPress={() => Linking.openURL('https://webalp.ch')} accessibilityRole="link" accessibilityLabel="WebAlp" hover={{ opacity: 0.8 }}>
-            <Image source={WEBALP_LOGO} style={{ width: 120, height: 120 * (330 / 900) }} resizeMode="contain" />
-          </Hover>
         </View>
       </Section>
     </SitePage>
@@ -465,7 +454,6 @@ export function ContactPage() {
 }
 
 const styles = StyleSheet.create({
-  partnerStrip: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 24 },
   cmpTable: { borderTopWidth: 1, borderTopColor: site.line },
   cmpRow: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
   cmpTh: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },

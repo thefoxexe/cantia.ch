@@ -38,7 +38,11 @@ export type LandingCopy = {
     how: string;
     link: string;
     join: string;
+    back: string;
+    metaTitle: string;
+    metaDescription: string;
   };
+  recommend: { eyebrow: string; title: string };
   faq: { eyebrow: string; title: string; items: { q: string; a: string }[] };
   final: { title: string; text: string; cta: string; write: string };
 };
@@ -149,7 +153,11 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       how: 'Pendant un projet web, WebAlp voit comment l’entreprise travaille au quotidien. Lorsque ses devis, ses projets ou sa facturation méritent un vrai outil, WebAlp lui recommande Cantia.',
       link: 'Visiter webalp.ch',
       join: 'Vous accompagnez aussi des entreprises ? Devenez partenaire.',
+      back: 'Cantia Partners',
+      metaTitle: 'WebAlp, partenaire de Cantia | Cantia Partners',
+      metaDescription: 'WebAlp, agence web à Sion, crée des sites internet pour les PME suisses et recommande Cantia pour les devis, les projets et les factures.',
     },
+    recommend: { eyebrow: 'Partenaires', title: 'Ils nous recommandent.' },
     faq: {
       eyebrow: 'Questions fréquentes',
       title: 'Ce qu’il faut savoir',
@@ -269,7 +277,11 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       how: 'Während eines Webprojekts sieht WebAlp, wie das Unternehmen im Alltag arbeitet. Wenn Offerten, Projekte oder Rechnungen ein richtiges Werkzeug verdienen, empfiehlt WebAlp Cantia.',
       link: 'webalp.ch besuchen',
       join: 'Sie begleiten ebenfalls Unternehmen? Werden Sie Partner.',
+      back: 'Cantia Partners',
+      metaTitle: 'WebAlp, Partner von Cantia | Cantia Partners',
+      metaDescription: 'WebAlp, Webagentur in Sitten, erstellt Websites für Schweizer KMU und empfiehlt Cantia für Offerten, Projekte und Rechnungen.',
     },
+    recommend: { eyebrow: 'Partner', title: 'Sie empfehlen uns.' },
     faq: {
       eyebrow: 'Häufige Fragen',
       title: 'Was Sie wissen sollten',
@@ -389,7 +401,11 @@ export const LANDING_COPY: Record<PartnersLocale, LandingCopy> = {
       how: 'Durante un progetto web, WebAlp vede come l’azienda lavora ogni giorno. Quando preventivi, progetti o fatturazione meritano un vero strumento, WebAlp le raccomanda Cantia.',
       link: 'Visitare webalp.ch',
       join: 'Accompagnate anche voi delle aziende? Diventate partner.',
+      back: 'Cantia Partners',
+      metaTitle: 'WebAlp, partner di Cantia | Cantia Partners',
+      metaDescription: 'WebAlp, agenzia web a Sion, crea siti internet per le PMI svizzere e raccomanda Cantia per preventivi, progetti e fatture.',
     },
+    recommend: { eyebrow: 'Partner', title: 'Ci raccomandano.' },
     faq: {
       eyebrow: 'Domande frequenti',
       title: 'Cosa sapere',

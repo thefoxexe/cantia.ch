@@ -10,7 +10,7 @@ const STORAGE_KEY = 'cantia_partners_locale';
 function localeFromPath(pathname: string): PartnersLocale | null {
   if (pathname === '/de' || pathname.startsWith('/de/')) return 'de';
   if (pathname === '/it' || pathname.startsWith('/it/')) return 'it';
-  if (pathname === '/') return 'fr';
+  if (pathname === '/' || pathname.startsWith('/partenaires/')) return 'fr';
   return null;
 }
 

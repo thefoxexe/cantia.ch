@@ -3932,7 +3932,7 @@ export const de: TranslationDict = {
     title: 'Impressum',
     updated: 'Letzte Aktualisierung: November 2026',
     publisherTitle: 'Herausgeber der Website',
-    publisherText: 'Die Website cantia.ch und die App Cantia werden von Ryser Creative herausgegeben, einem in der Schweiz eingetragenen Einzelunternehmen, UID CHE-316.009.008. E-Mail: info@cantia.ch. Telefon: +41 78 450 14 57.',
+    publisherText: 'Die Website cantia.ch und die App Cantia werden von Ryser Creative herausgegeben, einem in der Schweiz eingetragenen Einzelunternehmen, UID CHE-316.009.008. Adresse: Rue de la Jonction 19, 1950 Sion, Schweiz. E-Mail: info@cantia.ch. Telefon: +41 78 450 14 57.',
     hostingTitle: 'Hosting',
     hostingText: 'Die Daten der App (Konten, Dokumente, Dateien) liegen bei Supabase, im Rechenzentrum in Zürich, Schweiz. Website und Weboberfläche werden über Netlify ausgeliefert. Netlify leitet die Seiten nur weiter und speichert keine Ihrer Daten.',
     ipTitle: 'Geistiges Eigentum',

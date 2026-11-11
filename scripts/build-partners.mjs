@@ -33,7 +33,8 @@ for (const entry of [
 // Netlify applies _redirects before netlify.toml, so these rules win over
 // the main site's ones (which don't apply to this site's files anyway).
 // Every route has its own prerendered HTML; anything else goes home.
-const routes = ['connexion', 'espace', 'de', 'it'];
+const partnerPages = ['partenaires/webalp', 'de/partenaires/webalp', 'it/partenaires/webalp'];
+const routes = ['connexion', 'espace', 'de', 'it', ...partnerPages];
 const redirects = [
   ...routes.map((r) => `/${r}  /${r}.html  200`),
   '/*  /  302',
@@ -48,7 +49,7 @@ writeFileSync(
   path.join(outputDir, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${['', 'de', 'it'].map((p) => `  <url><loc>https://partners.cantia.ch/${p}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
+${['', 'de', 'it', ...partnerPages].map((p) => `  <url><loc>https://partners.cantia.ch/${p}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
 </urlset>
 `,
 );
