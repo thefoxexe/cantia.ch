@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { Button, LoadingScreen, AppScreen } from '../../../components/ui';
+import { StackBack, stackHeaderTitleStyle } from '../../../components/StackBack';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 
@@ -46,7 +47,8 @@ export default function DevisLayout() {
         headerStyle: { backgroundColor: colors.bg },
         headerShadowVisible: false,
         headerTintColor: colors.text,
-        headerTitleStyle: { fontWeight: '700' },
+        headerTitleStyle: stackHeaderTitleStyle,
+        headerTitleAlign: 'center',
       }}
     >
       {/* These list screens render their own PageHeader (back arrow +
@@ -54,14 +56,14 @@ export default function DevisLayout() {
           title above it. */}
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="new" options={{ title: t('devisLayout.newDevis'), presentation: 'modal' }} />
-      <Stack.Screen name="[id]" options={{ title: t('devisLayout.devis') }} />
+      <Stack.Screen name="[id]" options={{ title: t('devisLayout.devis'), headerLeft: () => <StackBack to="/(app)/devis" label={t('nav.devis')} /> }} />
       <Stack.Screen name="factures/index" options={{ headerShown: false }} />
       <Stack.Screen name="factures/new" options={{ title: t('devisLayout.newFacture'), presentation: 'modal' }} />
-      <Stack.Screen name="factures/[id]" options={{ title: t('devisLayout.facture') }} />
+      <Stack.Screen name="factures/[id]" options={{ title: t('devisLayout.facture'), headerLeft: () => <StackBack to="/(app)/devis/factures" label={t('nav.factures')} /> }} />
       <Stack.Screen name="factures/import-releve" options={{ headerShown: false }} />
       <Stack.Screen name="trames/index" options={{ headerShown: false }} />
       <Stack.Screen name="trames/new" options={{ title: t('devisLayout.newTrame'), presentation: 'modal' }} />
-      <Stack.Screen name="trames/[id]" options={{ title: t('devisLayout.trame') }} />
+      <Stack.Screen name="trames/[id]" options={{ title: t('devisLayout.trame'), headerLeft: () => <StackBack to="/(app)/devis/trames" label={t('devisLayout.trame')} /> }} />
       <Stack.Screen name="inventaire" options={{ headerShown: false }} />
       <Stack.Screen name="tva" options={{ headerShown: false }} />
     </Stack>

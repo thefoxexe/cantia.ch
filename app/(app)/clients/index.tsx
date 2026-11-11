@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { listClients } from '../../../lib/api/clients';
 import { listSubcontractors } from '../../../lib/api/subcontractors';
-import { Button, Card, EmptyState, PageHeader, AppScreen } from '../../../components/ui';
+import { Card, EmptyState, HeaderAction, PageHeader, AppScreen } from '../../../components/ui';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { ClientType } from '../../../lib/types';
@@ -30,6 +30,9 @@ const FILTER_KEYS: FilterKey[] = ['all', 'particulier', 'entreprise', 'sous-trai
 export default function ClientsListScreen() {
   const { t } = useTranslation();
   const { organization, permissions, canManageDevis } = useAuth();
+  const { width } = useWindowDimensions();
+  // Two columns of contacts on a computer (the sidebar takes ~230 px).
+  const twoCols = width >= 1180;
   const router = useRouter();
   const params = useLocalSearchParams<{ type?: string }>();
   const showClients = canManageDevis;
@@ -105,14 +108,16 @@ export default function ClientsListScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('clientsList.title')} backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>{t('clientsList.subtitle')}</Text>
-
-        <Button
-          title={t('clientsList.newClient')}
-          icon="plus"
-          onPress={() => router.push(filter === 'all' ? '/(app)/clients/new' : (`/(app)/clients/new?type=${filter}` as any))}
-          style={{ marginBottom: spacing.sm }}
+        <PageHeader
+          title={t('clientsList.title')}
+          subtitle={t('clientsList.subtitle')}
+          backTo="/(app)"
+          right={
+            <HeaderAction
+              title={t('appActions.newContact')}
+              onPress={() => router.push(filter === 'all' ? '/(app)/clients/new' : (`/(app)/clients/new?type=${filter}` as any))}
+            />
+          }
         />
 
         <View style={styles.searchRow}>
@@ -142,6 +147,9 @@ export default function ClientsListScreen() {
         ) : null}
 
         <FlatList
+          key={twoCols ? 'grid' : 'list'}
+          numColumns={twoCols ? 2 : 1}
+          columnWrapperStyle={twoCols ? { gap: spacing.md } : undefined}
           data={filtered}
           keyExtractor={(item) => `${item.type}:${item.id}`}
           refreshing={loading}
@@ -153,7 +161,7 @@ export default function ClientsListScreen() {
             ) : null
           }
           renderItem={({ item }) => (
-            <Pressable onPress={() => router.push(item.href as any)}>
+            <Pressable onPress={() => router.push(item.href as any)} style={twoCols ? { flex: 1, maxWidth: '50%' } : undefined}>
               <Card style={styles.card}>
                 <View style={{ flex: 1 }}>
                   <View style={styles.nameRow}>
@@ -162,11 +170,10 @@ export default function ClientsListScreen() {
                       <Text style={[styles.typeBadgeText, item.type === 'sous-traitant' && styles.typeBadgeTextSub]}>{typeLabel[item.type]}</Text>
                     </View>
                   </View>
-                  {item.meta.filter(Boolean).map((m, i) => (
-                    <Text key={i} style={styles.meta}>
-                      {m}
-                    </Text>
-                  ))}
+                  {/* One line per contact: company, e-mail, phone. */}
+                  <Text style={styles.meta} numberOfLines={1}>
+                    {item.meta.filter(Boolean).join(' · ')}
+                  </Text>
                 </View>
                 <Feather name="chevron-right" size={18} color={colors.textMuted} />
               </Card>

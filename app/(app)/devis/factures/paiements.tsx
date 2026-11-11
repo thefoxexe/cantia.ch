@@ -111,8 +111,7 @@ export default function PaymentsScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('payments.title')} backTo="/(app)/devis/factures" />
-        <Text style={styles.pageSubtitle}>{t('payments.subtitle')}</Text>
+        <PageHeader title={t('payments.title')} backTo="/(app)/devis/factures" subtitle={t('payments.subtitle')} />
 
         <View style={styles.tabRow}>
           {(['fournisseur', 'remboursement'] as Kind[]).map((k) => (

@@ -390,6 +390,10 @@ export default function DevisDetailScreen() {
                     ? [{ key: 'edit', icon: 'edit-3' as const, label: t('devisDetail.edit'), onPress: handleEdit }]
                     : []),
                   { key: 'duplicate', icon: 'copy', label: t('devisDetail.duplicate'), onPress: handleDuplicate },
+                  // Bexio lives in the menu: it is a sync, not the main step.
+                  ...(canPushToBexio
+                    ? [{ key: 'bexio', icon: 'refresh-cw' as const, label: bexioExternalId ? t('devisDetail.resyncBexio') : t('devisDetail.sendToBexio'), onPress: handlePushToBexio, disabled: pushingBexio }]
+                    : []),
                   {
                     key: 'save-trame',
                     icon: 'layout',
@@ -407,9 +411,17 @@ export default function DevisDetailScreen() {
               />
             </View>
           </View>
-          <Text style={styles.client}>{devis.client_name}</Text>
-          {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
-          {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
+          <View style={styles.summaryRow}>
+            <View style={{ flex: 1, minWidth: 200 }}>
+              <Text style={styles.client}>{devis.client_name}</Text>
+              {devis.client_address ? <Text style={styles.meta}>{devis.client_address}</Text> : null}
+              {devis.client_email ? <Text style={styles.meta}>{devis.client_email}</Text> : null}
+            </View>
+            <View style={styles.summaryTotal}>
+              <Text style={styles.summaryTotalLabel}>{Number(devis.vat_rate) > 0 ? t('devisDetail.totalInclVat') : t('devisDetail.total')}</Text>
+              <Text style={styles.summaryTotalValue}>CHF {fmtChf(total)}</Text>
+            </View>
+          </View>
           {bexioExternalId ? (
             <View style={styles.bexioBadge}>
               <Feather name={bexioDirection === 'pull' ? 'download' : 'upload'} size={12} color={colors.success} />
@@ -422,16 +434,6 @@ export default function DevisDetailScreen() {
                 {bexioLastSyncedAt ? ` · ${new Date(bexioLastSyncedAt).toLocaleDateString(`${getAppLocale()}-CH`)}` : ''}
               </Text>
             </View>
-          ) : null}
-          {canPushToBexio ? (
-            <Button
-              title={bexioExternalId ? t('devisDetail.resyncBexio') : t('devisDetail.sendToBexio')}
-              variant="secondary"
-              icon="refresh-cw"
-              onPress={handlePushToBexio}
-              loading={pushingBexio}
-              style={{ marginTop: spacing.md }}
-            />
           ) : null}
           <View style={styles.projectPickerRow}>
             <ProjectPicker organizationId={devis.organization_id} selectedProject={linkedProject} onSelect={handleProjectChange} />
@@ -452,6 +454,13 @@ export default function DevisDetailScreen() {
           ) : (
             <View style={styles.clientLinkRow}>
               <Button
+                title={emailSent ? t('devisDetail.emailSent') : t('devisDetail.sendByEmail')}
+                icon={emailSent ? 'check' : 'mail'}
+                disabled={plan?.has_email_sending === false}
+                onPress={handleOpenEmailModal}
+                style={styles.clientLinkButton}
+              />
+              <Button
                 title={linkCopied ? t('devisDetail.linkCopied') : t('devisDetail.copyClientLink')}
                 variant="secondary"
                 icon={linkCopied ? 'check' : 'link'}
@@ -459,11 +468,10 @@ export default function DevisDetailScreen() {
                 style={styles.clientLinkButton}
               />
               <Button
-                title={emailSent ? t('devisDetail.emailSent') : t('devisDetail.sendByEmail')}
+                title={t('devisDetail.previewButton')}
+                icon="eye"
                 variant="secondary"
-                icon={emailSent ? 'check' : 'mail'}
-                disabled={plan?.has_email_sending === false}
-                onPress={handleOpenEmailModal}
+                onPress={() => setPreviewVisible(true)}
                 style={styles.clientLinkButton}
               />
             </View>
@@ -472,25 +480,6 @@ export default function DevisDetailScreen() {
             <Text style={styles.copyLinkHint}>
               {t('devisDetail.emailPaidPlanOnly')}
             </Text>
-          ) : null}
-          {plan?.has_document_locale_override ? (
-            <View style={styles.docLocaleBlock}>
-              <Text style={styles.docLocaleLabel}>{t('devisDetail.documentLocaleLabel')}</Text>
-              <Text style={styles.copyLinkHint}>{t('devisDetail.documentLocaleHint')}</Text>
-              <View style={styles.docLocaleChips}>
-                {([null, 'fr', 'de', 'it'] as const).map((loc) => (
-                  <Pressable
-                    key={loc ?? 'auto'}
-                    onPress={() => handleSetDocLocale(loc)}
-                    style={[styles.docLocaleChip, devis.locale === loc && styles.docLocaleChipActive]}
-                  >
-                    <Text style={[styles.docLocaleChipText, devis.locale === loc && styles.docLocaleChipTextActive]}>
-                      {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : loc === 'it' ? t('entreprise.localeIt') : t('devisDetail.documentLocaleAuto')}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
           ) : null}
         </Card>
 
@@ -560,6 +549,26 @@ export default function DevisDetailScreen() {
           </View>
         </Card>
 
+        {plan?.has_document_locale_override ? (
+          <Card style={{ marginTop: spacing.lg }}>
+            <Text style={styles.docLocaleLabel}>{t('devisDetail.documentLocaleLabel')}</Text>
+            <Text style={styles.copyLinkHint}>{t('devisDetail.documentLocaleHint')}</Text>
+            <View style={styles.docLocaleChips}>
+              {([null, 'fr', 'de', 'it'] as const).map((loc) => (
+                <Pressable
+                  key={loc ?? 'auto'}
+                  onPress={() => handleSetDocLocale(loc)}
+                  style={[styles.docLocaleChip, devis.locale === loc && styles.docLocaleChipActive]}
+                >
+                  <Text style={[styles.docLocaleChipText, devis.locale === loc && styles.docLocaleChipTextActive]}>
+                    {loc === 'fr' ? t('entreprise.localeFr') : loc === 'de' ? t('entreprise.localeDe') : loc === 'it' ? t('entreprise.localeIt') : t('devisDetail.documentLocaleAuto')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </Card>
+        ) : null}
+
         {error ? (
           <View>
             <Text style={styles.error}>{error}</Text>
@@ -585,13 +594,15 @@ export default function DevisDetailScreen() {
           />
         ) : null}
 
-        <Button
-          title={t('devisDetail.previewButton')}
-          icon="eye"
-          variant="secondary"
-          onPress={() => setPreviewVisible(true)}
-          style={{ marginTop: spacing.lg }}
-        />
+        {!devis.client_email || devis.status === 'draft' ? (
+          <Button
+            title={t('devisDetail.previewButton')}
+            icon="eye"
+            variant="secondary"
+            onPress={() => setPreviewVisible(true)}
+            style={{ marginTop: spacing.lg }}
+          />
+        ) : null}
         <Button
           title={devis.pdf_path ? t('devisDetail.regeneratePdf') : t('devisDetail.generatePdf')}
           onPress={handleGeneratePdf}
@@ -845,6 +856,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.sm,
   },
+  summaryRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: spacing.lg, marginTop: spacing.xs },
+  summaryTotal: { alignItems: 'flex-start' },
+  summaryTotalLabel: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.6 },
+  summaryTotalValue: { fontSize: 24, fontWeight: '600', color: colors.text, letterSpacing: -0.6, fontVariant: ['tabular-nums'], marginTop: 2 },
   sectionTitle: {
     fontSize: fontSize.lg,
     fontWeight: '700',

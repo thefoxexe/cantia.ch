@@ -9,7 +9,7 @@ import { sendFactureReminder, recomputeFactureDepositDeduction, addLateFeeToFact
 import { getBexioSyncDirectionsByLocalId, type BexioSyncDirection } from '../../../../lib/api/integrations';
 import { generatePaymentReference } from '../../../../lib/qrReference';
 import { confirm } from '../../../../lib/confirm';
-import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../components/ui';
+import { Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge, HeaderAction } from '../../../../components/ui';
 import { RowActionMenu } from '../../../../components/RowActionMenu';
 import { PageSettings } from '../../../../components/PageSettings';
 import { formatDate, useTranslation } from '../../../../lib/translations';
@@ -440,27 +440,23 @@ export default function FacturesListScreen() {
             <PageHeader
               title={t('facturesList.title')}
               backTo="/(app)"
+              subtitle={t('facturesList.subtitle')}
               right={
                 isAdmin ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-                    <Pressable onPress={() => router.push('/(app)/devis/factures/new')} hitSlop={8}>
-                      <Feather name="plus-circle" size={18} color={colors.primary} />
-                    </Pressable>
-                    <Pressable onPress={() => router.push('/(app)/devis/factures/import-releve')} hitSlop={8}>
-                      <Feather name="upload-cloud" size={18} color={colors.textMuted} />
-                    </Pressable>
-                    <Pressable onPress={() => router.push('/(app)/devis/factures/paiements' as any)} hitSlop={8}>
-                      <Feather name="send" size={18} color={colors.textMuted} />
-                    </Pressable>
-                    <Pressable onPress={() => router.push('/(app)/compta')} hitSlop={8}>
-                      <Feather name="percent" size={18} color={colors.textMuted} />
-                    </Pressable>
+                  <>
+                    <RowActionMenu
+                      actions={[
+                        { key: 'import', icon: 'upload-cloud', label: t('appActions.importStatement'), onPress: () => router.push('/(app)/devis/factures/import-releve') },
+                        { key: 'payments', icon: 'send', label: t('appActions.payments'), onPress: () => router.push('/(app)/devis/factures/paiements' as any) },
+                        { key: 'vat', icon: 'percent', label: t('appActions.vat'), onPress: () => router.push('/(app)/compta') },
+                      ]}
+                    />
                     <PageSettings page="factures" />
-                  </View>
+                    <HeaderAction title={t('appActions.newFacture')} onPress={() => router.push('/(app)/devis/factures/new')} />
+                  </>
                 ) : undefined
               }
             />
-            <Text style={styles.pageSubtitle}>{t('facturesList.subtitle')}</Text>
           </>
         )}
 

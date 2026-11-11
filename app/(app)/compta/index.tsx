@@ -399,8 +399,7 @@ export default function AccountingScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('accounting.title')} backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>{t('accounting.subtitleV2')}</Text>
+        <PageHeader title={t('accounting.title')} backTo="/(app)" subtitle={t('accounting.subtitleV2')} />
 
         <ComptaHub />
 

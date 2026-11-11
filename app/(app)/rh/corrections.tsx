@@ -168,8 +168,7 @@ export default function PayrollCorrectionsScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('payrollCorrections.title')} backTo="/(app)/rh/salaires" />
-        <Text style={styles.pageSubtitle}>{t('payrollCorrections.subtitle')}</Text>
+        <PageHeader title={t('payrollCorrections.title')} backTo="/(app)/rh/salaires" subtitle={t('payrollCorrections.subtitle')} />
 
         {loading ? (
           <LoadingScreen />

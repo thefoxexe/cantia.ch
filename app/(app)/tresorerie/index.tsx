@@ -297,8 +297,7 @@ export default function TreasuryScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={[styles.page, wide && { maxWidth: 1180 }]}>
-        <PageHeader title={t('treasury.title')} backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>{t('treasury.subtitle')}</Text>
+        <PageHeader title={t('treasury.title')} backTo="/(app)" subtitle={t('treasury.subtitle')} />
 
         <View style={[styles.kpiRow, !wide && { flexWrap: 'wrap' }]}>
           <View style={wide ? { flex: 1.3 } : { width: '100%' }}>{balanceCard}</View>

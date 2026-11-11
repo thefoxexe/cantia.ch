@@ -145,8 +145,7 @@ export default function PayrollDeclarationsScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('payrollDeclarations.title')} backTo="/(app)/rh/salaires" />
-        <Text style={styles.pageSubtitle}>{t('payrollDeclarations.subtitle')}</Text>
+        <PageHeader title={t('payrollDeclarations.title')} backTo="/(app)/rh/salaires" subtitle={t('payrollDeclarations.subtitle')} />
         <View style={styles.disclaimerBox}>
           <Feather name="info" size={14} color={colors.textMuted} />
           <Text style={styles.disclaimerText}>{t('payrollDeclarations.disclaimer')}</Text>

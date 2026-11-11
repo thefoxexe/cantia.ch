@@ -125,8 +125,7 @@ export default function BankRulesScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('bankRules.title')} backTo="/(app)/devis/factures/import-releve" />
-        <Text style={styles.pageSubtitle}>{t('bankRules.subtitle')}</Text>
+        <PageHeader title={t('bankRules.title')} backTo="/(app)/devis/factures/import-releve" subtitle={t('bankRules.subtitle')} />
 
         {loading ? (
           <LoadingScreen />

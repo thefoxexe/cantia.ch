@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -158,6 +158,8 @@ export default function CompteIndexScreen() {
     [t],
   );
 
+  const { width } = useWindowDimensions();
+  const wideSettings = width >= 1180;
   const q = query.trim().toLowerCase();
   const matches = (item: { label: string; description: string }) => !q || item.label.toLowerCase().includes(q) || item.description.toLowerCase().includes(q);
 
@@ -167,7 +169,10 @@ export default function CompteIndexScreen() {
 
   // Searching auto-reveals every group with a match — no point requiring
   // an extra tap to see the result you just searched for.
-  const isOpen = (id: string) => q.length > 0 || expanded.has(id);
+  // On a computer every group is laid out open, two per row: one look at
+  // the page shows every setting, like a site map. Phones keep the
+  // accordion.
+  const isOpen = (id: string) => wideSettings || q.length > 0 || expanded.has(id);
   function toggleGroup(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -208,13 +213,13 @@ export default function CompteIndexScreen() {
           {noResults ? (
             <Text style={styles.empty}>{t('compteMenu.noResults', { query })}</Text>
           ) : (
-            <View style={styles.list}>
+            <View style={[styles.list, wideSettings && styles.listGrid]}>
               {filteredGroups.map((group) => {
                 const open = isOpen(group.id);
                 const groupColor = GROUP_COLORS[group.color];
                 return (
-                  <View key={group.id} style={[styles.groupCard, open && styles.groupCardOpen]}>
-                    <Pressable onPress={() => toggleGroup(group.id)} style={styles.groupHeader}>
+                  <View key={group.id} style={[styles.groupCard, open && styles.groupCardOpen, wideSettings && styles.groupCardGrid]}>
+                    <Pressable onPress={() => !wideSettings && toggleGroup(group.id)} disabled={wideSettings} style={styles.groupHeader}>
                       <View style={[styles.groupIconBadge, { backgroundColor: groupColor.bg }]}>
                         <Feather name={group.icon} size={19} color={groupColor.fg} />
                       </View>
@@ -224,9 +229,11 @@ export default function CompteIndexScreen() {
                           {t(group.descriptionKey as any)}
                         </Text>
                       </View>
-                      <View style={[styles.chevronBadge, open && styles.chevronBadgeOpen]}>
-                        <Feather name="chevron-down" size={16} color={open ? colors.primary : colors.textMuted} />
-                      </View>
+                      {!wideSettings ? (
+                        <View style={[styles.chevronBadge, open && styles.chevronBadgeOpen]}>
+                          <Feather name="chevron-down" size={16} color={open ? colors.primary : colors.textMuted} />
+                        </View>
+                      ) : null}
                     </Pressable>
                     {open ? (
                       <View style={styles.groupBody}>
@@ -304,6 +311,8 @@ const styles = StyleSheet.create({
   list: {
     gap: spacing.md,
   },
+  listGrid: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start' },
+  groupCardGrid: { width: '48.9%' },
   groupCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,

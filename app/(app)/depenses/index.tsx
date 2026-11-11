@@ -232,8 +232,7 @@ export default function DepensesScreen() {
           elsewhere (e.g. tresorerie/index.tsx). */}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('depensesList.title')} backTo="/(app)" />
-        <Text style={styles.pageSubtitle}>{t('depensesList.subtitle')}</Text>
+        <PageHeader title={t('depensesList.title')} backTo="/(app)" subtitle={t('depensesList.subtitle')} />
         <Pressable onPress={() => setFiduciaryOpen(true)} style={styles.fiduciaryLink} accessibilityRole="button">
           <Feather name="send" size={14} color={colors.primary} />
           <Text style={styles.fiduciaryLinkText}>{fiduciaryShareCopy().receipt}</Text>

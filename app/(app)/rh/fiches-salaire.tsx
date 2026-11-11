@@ -339,8 +339,7 @@ export default function PayrollSlipsScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing.xxl * 3 }}>
-        <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh/salaires" />
-        <Text style={styles.pageSubtitle}>{t('payrollSlips.subtitle')}</Text>
+        <PageHeader title={t('payrollSlips.title')} backTo="/(app)/rh/salaires" subtitle={t('payrollSlips.subtitle')} />
 
         <View style={styles.periodRow}>
           <Pressable onPress={() => changeMonth(-1)} hitSlop={8} style={styles.periodArrow}>

@@ -9,7 +9,7 @@ import { isOnline } from '../../lib/presence';
 import { listFavorites, setFavorite } from '../../lib/projectFolders';
 import { addressQueryFor, describeWeatherCode, fetchWeatherFor, type WeatherNow } from '../../lib/weather';
 import { listPlanningAssignments, type PlanningAssignmentWithNames } from '../../lib/api/planning';
-import { Button, Card, AppScreen } from '../../components/ui';
+import { Button, Card, AppScreen, HeaderAction } from '../../components/ui';
 import { FeatureHint } from '../../components/FeatureHint';
 import { useTranslation } from '../../lib/translations';
 import { applyWorkTerm } from '../../lib/vocabulary';
@@ -42,7 +42,7 @@ const COPY = {
     allDay: 'Journée',
     nothingToday: 'Rien de prévu aujourd’hui.',
     nothingWeek: 'Rien de prévu ces 7 prochains jours.',
-    create: 'Créer',
+    create: 'Planifier',
     openPlanning: 'Ouvrir le planning',
     privateEvent: 'Rendez-vous privé',
     noProject: 'Sans chantier',
@@ -73,7 +73,7 @@ const COPY = {
     allDay: 'Ganztägig',
     nothingToday: 'Heute nichts geplant.',
     nothingWeek: 'In den nächsten 7 Tagen nichts geplant.',
-    create: 'Erstellen',
+    create: 'Planen',
     openPlanning: 'Planung öffnen',
     privateEvent: 'Privater Termin',
     noProject: 'Ohne Baustelle',
@@ -104,7 +104,7 @@ const COPY = {
     allDay: 'Giornata',
     nothingToday: 'Niente in programma oggi.',
     nothingWeek: 'Niente in programma nei prossimi 7 giorni.',
-    create: 'Creare',
+    create: 'Pianificare',
     openPlanning: 'Aprire la pianificazione',
     privateEvent: 'Appuntamento privato',
     noProject: 'Senza cantiere',
@@ -383,13 +383,25 @@ export default function DashboardScreen() {
         </Pressable>
       </View>
       {projects.length ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          <Text style={styles.chipLabel}>{c.taskFor}</Text>
-          <Chip label={c.none} active={!newTaskProject} onPress={() => setNewTaskProject(null)} />
-          {projects.slice(0, 12).map((p) => (
-            <Chip key={p.id} label={p.name} active={newTaskProject === p.id} onPress={() => setNewTaskProject(p.id)} />
-          ))}
-        </ScrollView>
+        // A computer has room to show every chantier; a phone scrolls them
+        // sideways so the task list stays near the top.
+        wide ? (
+          <View style={[styles.chipRow, { flexWrap: 'wrap' }]}>
+            <Text style={styles.chipLabel}>{c.taskFor}</Text>
+            <Chip label={c.none} active={!newTaskProject} onPress={() => setNewTaskProject(null)} />
+            {projects.slice(0, 12).map((p) => (
+              <Chip key={p.id} label={p.name} active={newTaskProject === p.id} onPress={() => setNewTaskProject(p.id)} />
+            ))}
+          </View>
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+            <Text style={styles.chipLabel}>{c.taskFor}</Text>
+            <Chip label={c.none} active={!newTaskProject} onPress={() => setNewTaskProject(null)} />
+            {projects.slice(0, 12).map((p) => (
+              <Chip key={p.id} label={p.name} active={newTaskProject === p.id} onPress={() => setNewTaskProject(p.id)} />
+            ))}
+          </ScrollView>
+        )
       ) : null}
       <View style={styles.chipRowWrap}>
         {CATEGORY_ORDER.map((cat) => {
@@ -589,6 +601,13 @@ export default function DashboardScreen() {
             <Text style={styles.date}>{formatDateLong(new Date(), lang)}</Text>
             <Text style={styles.org}>{organization?.name}</Text>
           </View>
+          {wide ? (
+            <View style={styles.headerActions}>
+              {planningEnabled ? <HeaderAction title={c.create} icon="calendar" variant="secondary" onPress={() => router.push('/(app)/planning' as any)} /> : null}
+              {devisVisible ? <HeaderAction title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} /> : null}
+              <HeaderAction title={c.newProject} onPress={() => router.push('/(app)/chantiers/new')} />
+            </View>
+          ) : null}
           {weatherInfo && weather ? (
             <View style={styles.weather}>
               <Feather name={weatherInfo.icon} size={20} color={colors.primary} />
@@ -613,11 +632,13 @@ export default function DashboardScreen() {
 
         <FeatureHint id="dashboard-welcome" icon="compass" title={t('dashboard.welcomeTitle')} text={t('dashboard.welcomeText')} />
 
-        <View style={styles.quickRow}>
-          <Button title={c.newProject} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flexGrow: 1 }} />
-          {planningEnabled ? <Button title={c.create} icon="calendar" variant="secondary" onPress={() => router.push('/(app)/planning' as any)} style={{ flexGrow: 1 }} /> : null}
-          {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
-        </View>
+        {!wide ? (
+          <View style={styles.quickRow}>
+            <Button title={c.newProject} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flexGrow: 1 }} />
+            {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
+            {planningEnabled ? <Button title={c.create} icon="calendar" variant="secondary" onPress={() => router.push('/(app)/planning' as any)} style={{ flexGrow: 1 }} /> : null}
+          </View>
+        ) : null}
 
 
         {favoritesCard}
@@ -662,8 +683,9 @@ const styles = StyleSheet.create({
   containerWide: { maxWidth: 1180 },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing.md },
   hello: { fontSize: fontSize.md, color: colors.textMuted },
-  date: { ...monoType, fontSize: 11, letterSpacing: 0.6, color: colors.primary, marginTop: 2, textTransform: 'uppercase' },
-  org: { ...displayType, fontSize: fontSize.xxl, fontWeight: '800', color: colors.text },
+  date: { ...monoType, fontSize: 11, letterSpacing: 1.6, fontWeight: '600', color: colors.primary, marginTop: 6, textTransform: 'uppercase' },
+  org: { ...displayType, fontSize: 32, lineHeight: 38, fontWeight: '500', letterSpacing: -1, color: colors.text, marginTop: 4 },
+  headerActions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   weather: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   weatherTemp: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
   weatherLabel: { fontSize: fontSize.xs, color: colors.textMuted, maxWidth: 140 },

@@ -7,11 +7,11 @@ import { supabase } from '../../../lib/supabase';
 import { getSignedUrls } from '../../../lib/api/storage';
 import { getFeedUnreadCounts } from '../../../lib/api/feed';
 import { confirm } from '../../../lib/confirm';
-import { Button, EmptyState, PageHeader, AppScreen, StatusBadge } from '../../../components/ui';
+import { Button, EmptyState, PageHeader, AppScreen, StatusBadge, HeaderAction } from '../../../components/ui';
 import { FolderList } from '../../../components/chantier/ProjectInfoForm';
 import { PageSettings } from '../../../components/PageSettings';
 import { compareReference, createFolder, deleteFolder, folderPath, folderWords, listFavorites, listFolders, moveProject, setFavorite, updateFolder } from '../../../lib/projectFolders';
-import { useTranslation } from '../../../lib/translations';
+import { formatDate, useTranslation } from '../../../lib/translations';
 import { dragSource, dropTarget, type DragItem } from '../../../lib/dragDrop';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Project, ProjectFolder } from '../../../lib/types';
@@ -203,8 +203,19 @@ export default function ChantiersListScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={[styles.page, !wide && { padding: spacing.lg }]} refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
-        <PageHeader title={t('chantiersList.title')} backTo="/(app)" right={<PageSettings page="chantiers" />} />
-        <Text style={styles.pageSubtitle}>{t('chantiersList.subtitle')}</Text>
+        <PageHeader
+          title={t('chantiersList.title')}
+          subtitle={t('chantiersList.subtitle')}
+          backTo="/(app)"
+          right={
+            <>
+              <PageSettings page="chantiers" />
+              {canCreateProjects ? (
+                <HeaderAction title={t('appActions.newChantier')} onPress={() => router.push((here ? `/(app)/chantiers/new?folder=${here}` : '/(app)/chantiers/new') as never)} />
+              ) : null}
+            </>
+          }
+        />
 
         {/* breadcrumb */}
         <View style={styles.crumbs}>
@@ -226,7 +237,6 @@ export default function ChantiersListScreen() {
         <View style={styles.toolbar}>
           {canCreateProjects ? (
             <>
-              <Button title={t('chantiersList.newProject')} icon="plus" onPress={() => router.push((here ? `/(app)/chantiers/new?folder=${here}` : '/(app)/chantiers/new') as never)} style={wide ? undefined : { flex: 1 }} />
               <Button title={t('explorer.newFolder', fw)} icon="folder-plus" variant="secondary" onPress={() => setNaming({ folder: null, name: '' })} style={wide ? undefined : { flex: 1 }} />
             </>
           ) : null}
@@ -325,13 +335,19 @@ export default function ChantiersListScreen() {
                   <Text style={styles.meta} numberOfLines={1}>
                     {[item.client_name, item.address].filter(Boolean).join(' · ') || ' '}
                   </Text>
+                  {wide && (item.start_date || item.end_date) ? (
+                    <Text style={styles.dates} numberOfLines={1}>
+                      <Feather name="calendar" size={11} /> {[item.start_date, item.end_date].map((d) => (d ? formatDate(d) : '…')).join(' → ')}
+                    </Text>
+                  ) : null}
                   {where ? (
                     <Text style={[styles.meta, { color: colors.primary }]} numberOfLines={1}>
                       <Feather name="folder" size={11} /> {where}
                     </Text>
                   ) : null}
                 </View>
-                {wide ? <StatusBadge status={item.status} /> : null}
+                {/* An ongoing chantier is the normal case: only the others say so. */}
+                {wide && item.status !== 'active' ? <StatusBadge status={item.status} /> : null}
                 {unreadCounts[item.id] ? (
                   <View style={styles.unreadBadge}>
                     <Text style={styles.unreadBadgeText}>{unreadCounts[item.id] > 9 ? '9+' : unreadCounts[item.id]}</Text>
@@ -426,6 +442,7 @@ export default function ChantiersListScreen() {
 
 const styles = StyleSheet.create({
   page: { padding: spacing.xl, gap: spacing.md, width: '100%', maxWidth: 1100, alignSelf: 'center', paddingBottom: spacing.xxl * 3 },
+  dates: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 2, fontVariant: ['tabular-nums'] },
   pageSubtitle: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: -spacing.sm },
   crumbs: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 4 },
   crumb: { flexDirection: 'row', alignItems: 'center', gap: 4 },
