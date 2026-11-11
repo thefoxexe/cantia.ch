@@ -43,6 +43,16 @@ export default function Root({ children }: PropsWithChildren) {
             Consent mode: no ad cookie until the visitor accepts in the
             cookie banner (components/CookieBanner.tsx), whose choice is
             kept in the .cantia.ch cookie read below. */}
+        {/* Plausible (privacy-friendly analytics): no cookie, no personal
+            data, so it loads for every visitor without the consent banner.
+            Same snippet as scripts/inject-seo-meta.mjs (PLAUSIBLE_SCRIPT). */}
+        <script async src="https://plausible.io/js/pa-UPqJfHr3tzzDgcyjBkOav.js" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+plausible.init()`,
+          }}
+        />
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18465996566" />
         <script
           dangerouslySetInnerHTML={{
