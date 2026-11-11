@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useProject } from '../../../../../lib/useProject';
 import { supabase } from '../../../../../lib/supabase';
-import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge } from '../../../../../components/ui';
+import { Button, Card, EmptyState, LoadingScreen, PageHeader, AppScreen, StatusBadge, HeaderAction } from '../../../../../components/ui';
 import { formatDate, getAppLocale, useTranslation } from '../../../../../lib/translations';
 import { colors, fontSize, spacing } from '../../../../../lib/theme';
 import type { ExtraWork, ExtraWorkItem } from '../../../../../lib/types';
@@ -66,16 +66,13 @@ export default function ExtraWorksListScreen() {
   return (
     <AppScreen style={{ padding: spacing.xl }}>
       <View style={styles.container}>
-        <PageHeader title={t('extraWorksList.title')} backTo={`/(app)/chantiers/${id}`} />
+        <PageHeader
+          title={t('extraWorksList.title')}
+          backTo={`/(app)/chantiers/${id}`}
+          right={<HeaderAction title={t('extraWorksList.newExtraWork')} onPress={() => router.push(`/(app)/chantiers/${id}/travaux-supplementaires/new`)} />}
+        />
         <Text style={styles.projectName}>{project.name}</Text>
         <Text style={styles.hint}>{t('extraWorksList.hint')}</Text>
-
-        <Button
-          title={t('extraWorksList.newExtraWork')}
-          icon="plus"
-          onPress={() => router.push(`/(app)/chantiers/${id}/travaux-supplementaires/new`)}
-          style={{ marginBottom: spacing.lg }}
-        />
 
         {loading ? (
           <LoadingScreen />
