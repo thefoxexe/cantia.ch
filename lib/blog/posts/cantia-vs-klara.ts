@@ -43,7 +43,7 @@ export const post: BlogPost = {
         ['Suivi de rentabilité par chantier', 'Non', 'Oui'],
         ['Rapport de chantier avec photos', 'Non', 'Oui'],
         ['Planning d’équipe par chantier', 'Non', 'Oui'],
-        ['Comptabilité générale suisse', 'Oui', 'Non (pas son objectif)'],
+        ['Comptabilité générale suisse', 'Oui', 'Oui, générée automatiquement depuis factures, dépenses et salaires'],
       ],
     },
     {
@@ -71,7 +71,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on utiliser Klara et Cantia ensemble ?',
       answer:
-        'C’est possible : certaines entreprises gardent un outil de comptabilité générale comme Klara pour la clôture annuelle, tout en utilisant Cantia au quotidien pour le pilotage opérationnel des chantiers.',
+        'Oui, mais il n’existe pas de connexion directe entre les deux aujourd’hui. Cantia tient aussi sa propre comptabilité en partie double, générée automatiquement depuis les factures, dépenses et salaires, avec le décompte TVA : beaucoup d’entreprises n’ont donc besoin que d’un seul outil.',
     },
   ],
   relatedSlugs: ['bexio-vs-cantia-logiciel-batiment', 'cantia-vs-winbiz', 'meilleur-logiciel-devis-facture-batiment-suisse-2026'],

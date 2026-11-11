@@ -50,21 +50,21 @@ export const post: BlogPost = {
         ['Pianificazione del team per cantiere', 'No', 'Sì'],
         ['Portale cliente (firma preventivo online)', 'No', 'Sì'],
         ['Foto di scontrino → spesa registrata automaticamente', 'Sì (contabilità generale)', 'Sì, direttamente nella redditività del cantiere interessato'],
-        ['Contabilità generale in partita doppia', 'Sì', 'No (non è il suo obiettivo)'],
+        ['Contabilità generale in partita doppia', 'Sì', 'Sì, generata automaticamente da fatture, spese e salari'],
       ],
     },
     {
       type: 'p',
-      text: 'In pratica, molte aziende usano entrambi in parallelo: uno strumento di settore come Cantia per tutto ciò che riguarda il cantiere, e una trasmissione delle registrazioni a una fiduciaria o a uno strumento di contabilità per la chiusura annuale. Nessuno dei due ha bisogno di sostituire l’altro per essere la scelta giusta.',
+      text: 'In pratica si presentano due casi. Un’azienda che usa già Bexio spesso vi mantiene la contabilità e usa Cantia per tutto ciò che riguarda il cantiere, con i due sincronizzati. Un’azienda che inizia può fare tutto in Cantia: ogni fattura, incasso, spesa e salario genera una registrazione contabile, con il rendiconto IVA e la chiusura annuale, e la fiduciaria vi accede con Cantia Accounting.',
     },
     {
       type: 'callout',
       title: 'Entrambi, senza doppia registrazione',
-      text: 'Cantia ora si collega nativamente a Bexio (dal piano Impresa): clienti importati automaticamente, fatture inviate a Bexio con un clic, stati di pagamento sincronizzati ogni ora. Il dettaglio completo nel nostro articolo dedicato all’integrazione.',
+      text: 'Cantia ora si collega nativamente a Bexio (dal piano Team): clienti sincronizzati nei due sensi, fatture inviate a Bexio con un clic, stati di pagamento aggiornati ogni 15 minuti. Il dettaglio completo nel nostro articolo dedicato all’integrazione.',
     },
     {
       type: 'cta',
-      title: 'Pensata per il cantiere, non per la contabilità generale',
+      title: 'Pensata per il cantiere, fino alla contabilità',
       text: 'Cantia copre tutto il percorso di un cantiere svizzero: preventivi, fatturazione QR, rapporti, pianificazione, redditività e RH, tanto dal furgone quanto dall’ufficio.',
       buttonLabel: 'Provare 14 giorni',
     },
@@ -73,7 +73,7 @@ export const post: BlogPost = {
     {
       question: 'Cantia può sostituire completamente Bexio?',
       answer:
-        'Cantia non è un software di contabilità generale (nessuna contabilità in partita doppia). Per la tenuta contabile completa, la maggior parte delle aziende mantiene uno strumento dedicato o una fiduciaria, mentre Cantia si concentra sulla gestione operativa del cantiere.',
+        'Sì, è possibile. Cantia tiene una contabilità in partita doppia generata automaticamente da fatture, incassi, spese e salari, con il rendiconto IVA e un assistente per la chiusura annuale. Chi preferisce mantenere Bexio per la contabilità può anche collegare i due: clienti, articoli, fatture e pagamenti si sincronizzano.',
     },
     {
       question: 'Bexio propone un modulo cantiere o redditività per progetto?',

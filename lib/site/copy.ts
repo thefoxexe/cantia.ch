@@ -41,6 +41,7 @@ export interface SiteCopy {
     customLink: string;
     ecosystemLink: string;
     devicesLink: string;
+    compareLink: string;
     talk: string;
     help: string;
     login: string;
@@ -140,6 +141,7 @@ const fr: SiteCopy = {
     customLink: 'Développements sur mesure',
     ecosystemLink: 'Fiduciaires & partenaires',
     devicesLink: 'Ordinateur & téléphone',
+    compareLink: 'Comparatifs',
     talk: 'Parlons de votre activité',
     help: 'Aide & ressources',
     login: 'Connexion',
@@ -239,6 +241,7 @@ const de: SiteCopy = {
     customLink: 'Massgeschneiderte Entwicklungen',
     ecosystemLink: 'Treuhänder & Partner',
     devicesLink: 'Computer & Handy',
+    compareLink: 'Vergleiche',
     talk: 'Sprechen wir über Ihr Geschäft',
     help: 'Hilfe & Ressourcen',
     login: 'Anmelden',
@@ -338,6 +341,7 @@ const it: SiteCopy = {
     customLink: 'Sviluppi su misura',
     ecosystemLink: 'Fiduciarie & partner',
     devicesLink: 'Computer & telefono',
+    compareLink: 'Confronti',
     talk: 'Parliamo della sua attività',
     help: 'Aiuto & risorse',
     login: 'Accedi',

@@ -50,21 +50,21 @@ export const post: BlogPost = {
         ['Planning d’équipe par chantier', 'Non', 'Oui'],
         ['Portail client (signature devis en ligne)', 'Non', 'Oui'],
         ['Photo de ticket → dépense enregistrée automatiquement', 'Oui (comptabilité générale)', 'Oui, directement dans la rentabilité du chantier concerné'],
-        ['Comptabilité générale en partie double', 'Oui', 'Non (pas son objectif)'],
+        ['Comptabilité générale en partie double', 'Oui', 'Oui, générée automatiquement depuis factures, dépenses et salaires'],
       ],
     },
     {
       type: 'p',
-      text: 'Dans la pratique, beaucoup d’entreprises utilisent les deux en parallèle : un outil métier comme Cantia pour tout ce qui touche au chantier, et une transmission des écritures à une fiduciaire ou à un outil de comptabilité pour la clôture annuelle. Aucun des deux n’a besoin de remplacer l’autre pour être le bon choix.',
+      text: 'Dans la pratique, deux cas se présentent. Une entreprise déjà installée sur Bexio garde souvent sa comptabilité là-bas et utilise Cantia pour tout ce qui touche au chantier, les deux étant synchronisés. Une entreprise qui démarre peut tout faire dans Cantia : chaque facture, encaissement, dépense et salaire y génère une écriture comptable, avec le décompte TVA et le bouclement annuel, et la fiduciaire y accède avec Cantia Accounting.',
     },
     {
       type: 'callout',
       title: 'Les deux, sans double saisie',
-      text: 'Cantia se connecte désormais nativement à Bexio (dès le plan Entreprise) : clients importés automatiquement, factures envoyées vers Bexio en un clic, statuts de paiement synchronisés chaque heure. Le détail complet dans notre article dédié à l’intégration.',
+      text: 'Cantia se connecte désormais nativement à Bexio (dès le plan Équipe) : clients synchronisés dans les deux sens, factures envoyées vers Bexio en un clic, statuts de paiement mis à jour toutes les 15 minutes. Le détail complet dans notre article dédié à l’intégration.',
     },
     {
       type: 'cta',
-      title: 'Pensé pour le chantier, pas pour la comptabilité générale',
+      title: 'Pensé pour le chantier, jusqu’à la comptabilité',
       text: 'Cantia couvre tout le parcours d’un chantier suisse : devis, facturation QR, rapports, planning, rentabilité et RH, aussi bien depuis le van que depuis le bureau.',
       buttonLabel: 'Essayer 14 jours',
     },
@@ -73,7 +73,7 @@ export const post: BlogPost = {
     {
       question: 'Cantia peut-il remplacer complètement Bexio ?',
       answer:
-        'Cantia n’est pas un logiciel de comptabilité générale (pas de comptabilité en partie double). Pour la tenue comptable complète, la plupart des entreprises gardent un outil dédié ou une fiduciaire, tandis que Cantia se concentre sur le pilotage opérationnel du chantier.',
+        'Oui, c’est possible. Cantia tient une comptabilité en partie double générée automatiquement à partir des factures, encaissements, dépenses et salaires, avec le décompte TVA et un assistant de bouclement annuel. Une entreprise qui préfère garder Bexio pour sa comptabilité peut aussi relier les deux : clients, articles, factures et paiements se synchronisent.',
     },
     {
       question: 'Bexio propose-t-il un module chantier ou rentabilité par projet ?',

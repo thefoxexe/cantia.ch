@@ -8,6 +8,8 @@ import { FaqItem } from './FamilyPage';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
 import { INNER_COPY } from '../../lib/site/inner';
+import { COMPARE_COPY, COMPARE_GUIDE_SLUG } from '../../lib/site/compare';
+import { blogHref, isListed } from '../../lib/blog/triage';
 import { SITE_PAGES } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
@@ -241,6 +243,69 @@ export function EcosystemPage() {
   );
 }
 
+// ─── Comparatifs ────────────────────────────────────────────────────────────
+
+// An article of the blog in this language, or null when it is not published
+// there (untranslated articles redirect, see lib/blog/triage.json). Only the
+// triage data is read, so the articles stay out of this page's bundle.
+function articleHref(base: string, locale: 'fr' | 'de' | 'it'): string | null {
+  return isListed(base, locale) ? blogHref(base, locale) : null;
+}
+
+export function ComparePage() {
+  const locale = useSiteLocale();
+  const c = COMPARE_COPY[locale];
+  const href = useHref();
+  const { phone } = useSiteLayout();
+  const rows = c.rows.map((r) => ({ ...r, href: articleHref(r.slug, locale) }));
+  const guide = articleHref(COMPARE_GUIDE_SLUG, locale);
+  return (
+    <SitePage title={c.seoTitle} description={c.seoDescription}>
+      <PageHero crumb={c.crumb} eyebrow={c.eyebrow} plain={c.h1Plain} accent={c.h1Accent} lead={c.lead} />
+      <Section white>
+        <SectionHead eyebrow={c.tableEyebrow} plain={c.tablePlain} text={c.tableText} />
+        <View style={styles.cmpTable}>
+          {!phone ? (
+            <View style={[styles.cmpRow, { paddingVertical: 14 }]}>
+              <Text style={[sans, styles.cmpTh, { width: 130 }]}>{c.head[0].toUpperCase()}</Text>
+              <Text style={[sans, styles.cmpTh, { flex: 1 }]}>{c.head[1].toUpperCase()}</Text>
+              <Text style={[sans, styles.cmpTh, { flex: 1 }]}>{c.head[2].toUpperCase()}</Text>
+              <View style={{ width: 170 }} />
+            </View>
+          ) : null}
+          {rows.map((r) => (
+            <View key={r.tool} style={[styles.cmpRow, phone && { flexDirection: 'column', alignItems: 'flex-start', gap: 8 }]}>
+              <Text style={[sans, styles.cmpTool, !phone && { width: 130 }]}>{r.tool}</Text>
+              <Text style={[sans, styles.cardText, !phone && { flex: 1 }]}>{r.forWhom}</Text>
+              <Text style={[sans, styles.cardText, { color: site.ink }, !phone && { flex: 1 }]}>{r.withCantia}</Text>
+              <View style={!phone ? { width: 170 } : undefined}>
+                {r.href ? <TextLink label={c.read} href={r.href} /> : <TextLink label={c.noArticle} href={blogHref(r.slug, 'fr')} size={11} />}
+              </View>
+            </View>
+          ))}
+        </View>
+      </Section>
+      <Section>
+        <SectionHead eyebrow={c.cardsEyebrow} plain={c.cardsPlain} text={c.cardsText} />
+        <Grid>
+          {[
+            ...rows.filter((r) => r.href).map((r) => (
+              <Card key={r.slug} label={r.tool} title={c.vs.replace('{tool}', r.tool)} text={r.forWhom} link={<TextLink label={c.read} href={r.href!} />} />
+            )),
+            ...(guide ? [<Card key="guide" label={c.guideLabel} title={c.guideTitle} text={c.guideText} link={<TextLink label={c.guideRead} href={guide} />} />] : []),
+          ]}
+        </Grid>
+        <View style={{ marginTop: 40 }}>
+          <Callout strong={c.importStrong} text={c.importText} link={<TextLink label={c.importLink} href={href('integrations')} />} />
+        </View>
+      </Section>
+      <Section white>
+        <Faq eyebrow={c.faqEyebrow} title={c.faqTitle} items={c.faq} />
+      </Section>
+    </SitePage>
+  );
+}
+
 // ─── Ordinateur & téléphone ─────────────────────────────────────────────────
 
 export function AppPage() {
@@ -397,6 +462,10 @@ export function ContactPage() {
 }
 
 const styles = StyleSheet.create({
+  cmpTable: { borderTopWidth: 1, borderTopColor: site.line },
+  cmpRow: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingVertical: 22, borderBottomWidth: 1, borderBottomColor: site.line },
+  cmpTh: { fontSize: 9, letterSpacing: 1.4, color: site.muted, fontWeight: '600' },
+  cmpTool: { fontSize: 18, color: site.ink, fontWeight: '500', letterSpacing: -0.4 },
   leadGrid: { flexDirection: 'row', alignItems: 'center' },
   h1: { marginTop: 17, marginBottom: 21, fontWeight: '400', maxWidth: 850 },
   lead: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 610 },

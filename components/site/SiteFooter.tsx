@@ -45,6 +45,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
         { label: f.customLink, href: `${p}/sur-mesure` },
         { label: f.ecosystemLink, href: `${p}/ecosysteme` },
         { label: f.devicesLink, href: `${p}/telechargement` },
+        { label: f.compareLink, href: `${p}/comparatifs` },
       ],
     },
     {

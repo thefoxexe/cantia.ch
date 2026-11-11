@@ -50,21 +50,21 @@ export const post: BlogPost = {
         ['Teamplanung pro Baustelle', 'Nein', 'Ja'],
         ['Kundenportal (Online-Unterschrift der Offerte)', 'Nein', 'Ja'],
         ['Beleg fotografieren → Ausgabe automatisch erfasst', 'Ja (allgemeine Buchhaltung)', 'Ja, direkt in der Rentabilität der betroffenen Baustelle'],
-        ['Allgemeine doppelte Buchhaltung', 'Ja', 'Nein (nicht ihr Ziel)'],
+        ['Allgemeine doppelte Buchhaltung', 'Ja', 'Ja, automatisch aus Rechnungen, Ausgaben und Löhnen erstellt'],
       ],
     },
     {
       type: 'p',
-      text: 'In der Praxis nutzen viele Unternehmen beide Tools parallel: ein Fachtool wie Cantia für alles, was mit der Baustelle zu tun hat, und die Übermittlung der Buchungen an eine Treuhandstelle oder ein Buchhaltungstool für den Jahresabschluss. Keines der beiden Tools muss das andere ersetzen, um die richtige Wahl zu sein.',
+      text: 'In der Praxis gibt es zwei Fälle. Ein Unternehmen, das bereits mit Bexio arbeitet, behält dort oft seine Buchhaltung und nutzt Cantia für alles rund um die Baustelle, beide synchronisiert. Ein Unternehmen, das neu startet, kann alles in Cantia erledigen: Jede Rechnung, Zahlung, Ausgabe und jeder Lohn erzeugt eine Buchung, mit MWST-Abrechnung und Jahresabschluss, und die Treuhand greift über Cantia Accounting darauf zu.',
     },
     {
       type: 'callout',
       title: 'Beide, ohne Doppelerfassung',
-      text: 'Cantia verbindet sich neu nativ mit Bexio (ab dem Plan Entreprise): Kunden werden automatisch importiert, Rechnungen mit einem Klick an Bexio übermittelt, Zahlungsstatus stündlich synchronisiert. Alle Details dazu in unserem eigenen Artikel zur Integration.',
+      text: 'Cantia verbindet sich neu nativ mit Bexio (ab dem Abo Team): Kunden werden in beide Richtungen synchronisiert, Rechnungen mit einem Klick an Bexio übermittelt, Zahlungsstatus alle 15 Minuten aktualisiert. Alle Details dazu in unserem eigenen Artikel zur Integration.',
     },
     {
       type: 'cta',
-      title: 'Für die Baustelle konzipiert, nicht für die allgemeine Buchhaltung',
+      title: 'Für die Baustelle konzipiert, bis zur Buchhaltung',
       text: 'Cantia deckt den gesamten Weg einer Schweizer Baustelle ab: Offerte, QR-Fakturierung, Rapporte, Planung, Rentabilität und HR, sowohl aus dem Lieferwagen als auch vom Büro aus.',
       buttonLabel: '14 Tage testen',
     },
@@ -73,7 +73,7 @@ export const post: BlogPost = {
     {
       question: 'Kann Cantia Bexio vollständig ersetzen?',
       answer:
-        'Cantia ist keine allgemeine Buchhaltungssoftware (keine doppelte Buchhaltung). Für die vollständige Buchführung behalten die meisten Unternehmen ein dediziertes Tool oder eine Treuhandstelle, während sich Cantia auf die operative Steuerung der Baustelle konzentriert.',
+        'Ja, das ist möglich. Cantia führt eine doppelte Buchhaltung, die automatisch aus Rechnungen, Zahlungen, Ausgaben und Löhnen entsteht, mit MWST-Abrechnung und einem Assistenten für den Jahresabschluss. Wer Bexio für die Buchhaltung behalten möchte, kann beide verbinden: Kunden, Artikel, Rechnungen und Zahlungen werden synchronisiert.',
     },
     {
       question: 'Bietet Bexio ein Baustellen- oder Rentabilitätsmodul pro Projekt an?',

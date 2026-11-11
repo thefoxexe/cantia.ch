@@ -1550,6 +1550,21 @@
   status = 200
 
 [[redirects]]
+  from = "/comparatifs"
+  to = "/comparatifs.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/comparatifs"
+  to = "/de/comparatifs.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/comparatifs"
+  to = "/it/comparatifs.html"
+  status = 200
+
+[[redirects]]
   from = "/de/ecosysteme"
   to = "/de/ecosysteme.html"
   status = 200

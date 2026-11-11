@@ -37,7 +37,7 @@ export const post: BlogPost = {
       type: 'table',
       headers: ['Critère', 'Winbiz', 'Cantia'],
       rows: [
-        ['Comptabilité générale et facturation suisse', 'Oui', 'Non (pas son objectif)'],
+        ['Comptabilité générale et facturation suisse', 'Oui', 'Oui, générée automatiquement depuis factures, dépenses et salaires'],
         ['Devis créé directement depuis le chantier', 'Non', 'Oui'],
         ['Catalogue de prix spécifique aux métiers du bâtiment', 'Non', 'Oui'],
         ['Rapport de chantier avec photos', 'Non', 'Oui'],
@@ -65,7 +65,7 @@ export const post: BlogPost = {
     {
       question: 'Peut-on remplacer Winbiz uniquement par Cantia ?',
       answer:
-        'Cantia n’est pas un logiciel de comptabilité générale en partie double. Pour la tenue comptable complète, beaucoup d’entreprises gardent un outil dédié comme Winbiz, tout en utilisant Cantia pour le pilotage opérationnel des chantiers.',
+        'Cantia tient une comptabilité en partie double générée automatiquement à partir des factures, encaissements, dépenses et salaires, avec le décompte TVA et un assistant de bouclement annuel. Une entreprise attachée à Winbiz pour sa comptabilité peut aussi le garder et utiliser Cantia pour le pilotage des chantiers.',
     },
     {
       question: 'Winbiz fonctionne-t-il bien depuis un chantier, sur mobile ?',

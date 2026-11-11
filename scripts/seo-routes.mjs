@@ -4806,6 +4806,37 @@ export const ROUTES = [
     title: "Scoprire Cantia: aiuto, guide e risorse | Cantia",
     description: "Centro assistenza, accesso mobile, spazi Cantia, blog, calcolatori gratuiti e contatto diretto: tutte le risorse per iniziare con Cantia.",
   },
+  // Comparison hub (lib/site/compare.ts).
+  {
+    path: "comparatifs",
+    title: "Comparatifs : Cantia, Bexio, Klara, Crésus, WinBiz | Cantia",
+    description: "Cantia comparé aux logiciels suisses de gestion et au tableur : à qui s’adresse chaque outil, ce qu’il fait bien et quand l’associer à Cantia.",
+    faq: [
+      { q: "Cantia remplace-t-il un logiciel de comptabilité ?", a: "Cantia tient une comptabilité en partie double générée automatiquement à partir des factures, encaissements, dépenses et salaires, avec le décompte TVA et un assistant de bouclement annuel. Votre fiduciaire peut y accéder avec Cantia Accounting. Si vous préférez garder Bexio pour la comptabilité, les deux se synchronisent." },
+      { q: "Peut-on reprendre ses données d’un autre logiciel ?", a: "Oui. Exportez vos contacts, projets, devis, factures ou dépenses en Excel ou CSV : Cantia associe les colonnes aux bons champs, vous vérifiez, puis vous importez. Les devis et factures repris gardent leur montant total, pour l’historique." },
+      { q: "Comment ces comparatifs sont-ils rédigés ?", a: "Ils sont écrits par l’équipe Cantia, à partir du positionnement public de chaque outil, en indiquant aussi ce qu’il fait bien. Les fonctions évoluent : vérifiez toujours auprès de chaque éditeur avant de choisir." },
+    ],
+  },
+  {
+    path: "de/comparatifs",
+    title: "Vergleiche: Cantia, Bexio, Klara, Crésus, WinBiz | Cantia",
+    description: "Cantia im Vergleich mit Schweizer Verwaltungssoftware und Tabellen: für wen jedes Tool gedacht ist, was es gut macht und wann es zu Cantia passt.",
+    faq: [
+      { q: "Ersetzt Cantia eine Buchhaltungssoftware?", a: "Cantia führt eine doppelte Buchhaltung, die automatisch aus Rechnungen, Zahlungen, Ausgaben und Löhnen entsteht, mit MWST-Abrechnung und einem Assistenten für den Jahresabschluss. Ihre Treuhand greift über Cantia Accounting darauf zu. Wenn Sie Bexio für die Buchhaltung behalten möchten, werden beide synchronisiert." },
+      { q: "Kann ich meine Daten aus einer anderen Software übernehmen?", a: "Ja. Exportieren Sie Kontakte, Projekte, Offerten, Rechnungen oder Ausgaben als Excel oder CSV: Cantia ordnet die Spalten den richtigen Feldern zu, Sie prüfen und importieren. Übernommene Offerten und Rechnungen behalten ihren Gesamtbetrag, für den Verlauf." },
+      { q: "Wie entstehen diese Vergleiche?", a: "Sie werden vom Cantia-Team geschrieben, auf Grundlage der öffentlichen Positionierung jedes Tools, und nennen auch, was es gut macht. Funktionen entwickeln sich: Prüfen Sie vor der Wahl immer beim jeweiligen Anbieter." },
+    ],
+  },
+  {
+    path: "it/comparatifs",
+    title: "Confronti: Cantia, Bexio, Klara, Crésus, WinBiz | Cantia",
+    description: "Cantia a confronto con i software svizzeri di gestione e il foglio di calcolo: a chi si rivolge ogni strumento, cosa fa bene e quando abbinarlo a Cantia.",
+    faq: [
+      { q: "Cantia sostituisce un software di contabilità?", a: "Cantia tiene una contabilità in partita doppia generata automaticamente da fatture, incassi, spese e salari, con il rendiconto IVA e un assistente per la chiusura annuale. La vostra fiduciaria vi accede con Cantia Accounting. Se preferite mantenere Bexio per la contabilità, i due si sincronizzano." },
+      { q: "Si possono riprendere i dati da un altro software?", a: "Sì. Esportate contatti, progetti, preventivi, fatture o spese in Excel o CSV: Cantia associa le colonne ai campi giusti, voi verificate e importate. Preventivi e fatture ripresi conservano il loro importo totale, per lo storico." },
+      { q: "Come sono scritti questi confronti?", a: "Sono scritti dal team Cantia, a partire dal posizionamento pubblico di ogni strumento, indicando anche cosa fa bene. Le funzioni evolvono: verificate sempre presso ogni editore prima di scegliere." },
+    ],
+  },
   // Trade pages of the non-building sectors (lib/site/subTrades).
   ...SUBTRADE_SEO,
 ];
