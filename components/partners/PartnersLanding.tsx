@@ -306,7 +306,7 @@ const PARTNER_SHOTS: Record<'fr' | 'de' | 'it', { space: ImageSourcePropType; cl
   de: { space: require('../../assets/marketing/partners/espace-de.jpg'), clients: require('../../assets/marketing/partners/clients-de.jpg') },
   it: { space: require('../../assets/marketing/partners/espace-it.jpg'), clients: require('../../assets/marketing/partners/clients-it.jpg') },
 };
-const CLIENTS_RATIO = 872 / 1600;
+const CLIENTS_RATIO = 914 / 1600;
 
 const PROOF_COPY = {
   fr: {
