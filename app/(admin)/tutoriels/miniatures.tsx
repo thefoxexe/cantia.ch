@@ -45,7 +45,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
   useEffect(() => {
     let cancelled = false;
     setGenerating(true);
-    generateThumbnailDataUrl(chapter.title, chapter.feature_area).then((url) => {
+    generateThumbnailDataUrl(chapter.title, chapter.feature_area, chapter.order_index).then((url) => {
       if (!cancelled) {
         setThumb(url);
         setGenerating(false);
@@ -54,7 +54,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
     return () => {
       cancelled = true;
     };
-  }, [chapter.title, chapter.feature_area]);
+  }, [chapter.title, chapter.feature_area, chapter.order_index]);
 
   async function handleDownload() {
     if (!thumb) return;
@@ -83,7 +83,7 @@ function ChapterCard({ chapter }: { chapter: AdminTutorialChapter }) {
         <View style={styles.thumbInfo}>
           <Text style={styles.eyebrow}>{chapter.feature_area}</Text>
           <Text style={styles.chapterTitle}>{chapter.title}</Text>
-          <Text style={styles.thumbHint}>Format YouTube 1280×720 : logo, nom Cantia et titre appliqués automatiquement.</Text>
+          <Text style={styles.thumbHint}>Format YouTube 1920×1080 : logo, nom Cantia et titre appliqués automatiquement.</Text>
           <Pressable style={[styles.downloadButton, !thumb && styles.downloadButtonDisabled]} onPress={handleDownload} disabled={!thumb}>
             <Feather name="download" size={14} color="#fff" />
             <Text style={styles.downloadButtonText}>Télécharger la miniature</Text>

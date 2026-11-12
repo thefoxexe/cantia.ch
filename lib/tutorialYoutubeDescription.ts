@@ -19,8 +19,12 @@ const AREA_HASHTAG: Record<string, string> = {
   'Démarrage': '#PriseEnMain',
   'Devis': '#Devis',
   'Facturation': '#Facturation',
+  'E-mails': '#Emails',
   'Chantiers': '#GestionDeChantier',
   'Équipe & RH': '#RH',
+  'Clients': '#Clients',
+  'Gestion': '#Comptabilite',
+  'Outils': '#Outils',
   'Pilotage': '#Pilotage',
   'Paramètres': '#Parametres',
   'Migration': '#Migration',
@@ -41,40 +45,56 @@ function hashtagForArea(area: string): string {
 // from inside the app or the channel — so those stay as plain as the
 // internal title already is, no hook needed.
 const TITLE_OVERRIDES: Record<string, string> = {
-  'Créer son compte et démarrer sur Cantia': 'Créer son compte et démarrer sur Cantia',
-  'Tour du tableau de bord': 'Le tableau de bord Cantia en 2 minutes',
-  'Créer un devis à la voix': 'Créer un devis en 2 secondes, à la voix',
+  // Démarrage
+  'Créer son compte et démarrer sur Cantia': 'Créer son compte Cantia et démarrer en 5 minutes',
+  'Installer Cantia sur son téléphone': 'Installer Cantia sur son téléphone, iPhone ou Android',
+  'Importer ses données depuis un ancien logiciel': 'Reprendre ses clients et ses devis depuis Excel ou un ancien logiciel',
+  'Préparer ses devis et factures : logo, signature, numérotation': 'Des devis et factures à votre image : logo, signature, numérotation',
+  // Devis
+  'Créer un devis à la voix': 'Créer un devis à la voix, sur le chantier',
+  'Le catalogue : réutiliser ses prix': 'Le catalogue : vos prix proposés tout seuls dans chaque devis',
   'Trames de devis réutilisables': 'Des trames de devis pour ne plus repartir de zéro',
-  'Envoyer un devis et suivre la signature': 'Envoyer un devis et suivre la signature en direct',
-  'Transformer un devis accepté en facture': 'Transformer un devis accepté en facture, automatiquement',
-  'Créer une facture et la QR-facture suisse': 'Créer une facture avec QR-facture suisse automatique',
+  'Envoyer un devis et suivre la signature': 'Envoyer un devis et le faire signer en ligne',
+  'Relances automatiques des devis': 'Relancer automatiquement un devis resté sans réponse',
+  'Transformer un devis accepté en facture': 'Transformer un devis accepté en facture, sans rien ressaisir',
+  'Remplir une soumission reçue (bêta)': 'Remplir une soumission reçue et renvoyer le PDF chiffré',
+  // Facturation
+  'Créer une facture et la QR-facture suisse': 'Créer une facture avec QR-facture suisse',
   'Facturer un acompte': 'Facturer un acompte avant de démarrer un chantier',
-  'Suivre les paiements et relancer un impayé': 'Suivre ses paiements et relancer un impayé en un clic',
-  'Import de relevé bancaire': 'Importer un relevé bancaire et rapprocher ses factures',
-  "Créer un chantier et son fil d'actualité": "Créer un chantier et son fil d'actualité",
-  'Photos et documents de chantier': 'Photos et documents de chantier, géolocalisés',
-  'Rapport de chantier généré par IA': 'Le rapport de chantier généré automatiquement',
-  'Métré poste par poste': 'Le métré poste par poste, lié à votre devis',
-  'Sous-traitants sur un chantier': 'Suivre ses sous-traitants sur un chantier',
-  'Rentabilité par chantier': 'La rentabilité de chantier, en temps réel',
-  'Travaux supplémentaires (TS)': 'Travaux supplémentaires : devis, signature et facturation',
-  'Signature en direct sur tablette (travaux supplémentaires)': 'Signer un travail supplémentaire en direct sur tablette',
-  "Planning d'équipe": "Le planning d'équipe, chantier par chantier",
-  'RH : heures et salaires': 'Heures et salaires : du pointage à la fiche de paie',
-  'Gérer les membres et les rôles': 'Gérer les membres de son équipe et leurs rôles',
-  'Trésorerie prévisionnelle': 'La trésorerie prévisionnelle à 90 jours',
-  'Clients : historique centralisé': "L'historique client centralisé, devis et factures compris",
-  'Le portail client, côté client': 'Le portail client, côté client',
-  "Paramètres de l'organisation": 'Les paramètres de votre entreprise sur Cantia',
-  'Intégration Bexio': "L'intégration Bexio, synchronisée automatiquement",
-  'Dictée vocale partout dans l\'app': 'La dictée vocale, partout dans Cantia',
-  "Dépenses : suivi des sorties d'argent": 'Suivre ses dépenses, chantier par chantier',
-  'Comptabilité : bilan et compte de résultat': 'Bilan et compte de résultat, générés automatiquement',
   'Situations de chantier (facturation progressive)': 'Facturer un chantier par étapes, avec les situations',
-  'Décompte TVA': 'Le décompte TVA suisse, prêt en quelques clics',
-  'Importer ses données depuis un ancien logiciel': 'Importer ses données depuis un ancien logiciel',
-  "Tâches : la liste à faire de l'équipe": "La liste de tâches, pour toute l'équipe",
+  'Suivre les paiements et relancer un impayé': 'Suivre ses paiements et relancer un impayé',
+  'Import de relevé bancaire': 'Importer un relevé bancaire et pointer les factures payées',
+  // E-mails
+  'La boîte E-mails : réponses des clients et envois suivis': 'Tous vos e-mails clients au même endroit : envois suivis et réponses',
+  // Chantiers
+  "Créer un chantier et son fil d'actualité": "Créer un chantier et suivre son fil d'actualité",
+  'Photos, plans et documents de chantier': 'Photos, plans et documents de chantier, rangés au même endroit',
+  'Rapport de chantier généré par IA': 'Un rapport de chantier propre à partir de notes et de photos',
+  'Planning de chantier (Gantt)': 'Le planning de chantier : phases, tâches et avancement',
+  'Travaux supplémentaires (TS)': 'Travaux supplémentaires : chiffrer, faire signer, facturer',
+  'Signature en direct sur tablette (travaux supplémentaires)': 'Faire signer un travail supplémentaire sur place, sur tablette',
+  'Sous-traitants sur un chantier': 'Suivre ses sous-traitants sur un chantier',
+  'Rentabilité par chantier': 'Savoir si un chantier gagne de l’argent : devisé contre coût réel',
+  // Équipe & RH
+  "Planning d'équipe": "Le planning d'équipe : qui est où, chaque jour",
+  "Tâches : la liste à faire de l'équipe": "La liste de tâches de toute l'équipe",
+  'Gérer les membres et les rôles': 'Inviter son équipe et choisir ce que chacun voit',
+  'RH : heures et salaires': 'Des heures pointées à la fiche de salaire',
+  'Absences et soldes de vacances': 'Demandes de congé et soldes de vacances de l’équipe',
   'Répertoire des sous-traitants': 'Le répertoire de ses sous-traitants',
+  // Clients
+  'Clients : historique centralisé': 'Toute l’histoire d’un client sur une seule fiche',
+  'Le portail client, côté client': 'Ce que voit votre client : devis, factures et signature en ligne',
+  // Gestion
+  "Dépenses : suivi des sorties d'argent": 'Suivre ses dépenses et scanner ses tickets',
+  'Trésorerie prévisionnelle': 'La trésorerie prévue sur 90 jours',
+  'Comptabilité : bilan et compte de résultat': 'Bilan et compte de résultat, tenus automatiquement',
+  'Décompte TVA': 'Préparer son décompte TVA suisse',
+  "Bouclement de fin d'année": "Le bouclement de fin d'année, étape par étape",
+  'Travailler avec sa fiduciaire': 'Travailler avec sa fiduciaire sans échanger de classeurs',
+  // Outils
+  "L'assistant vocal et la dictée partout dans l'app": "L'assistant vocal : parler à Cantia au lieu de taper",
+  'Intégration Bexio': 'Relier Cantia à Bexio',
 };
 
 // The copy-pasteable YouTube title — distinct from AdminTutorialChapter.title,
@@ -161,21 +181,23 @@ export function buildYoutubeDescription(chapter: Pick<AdminTutorialChapter, 'tit
   const areaTag = hashtagForArea(chapter.feature_area);
   const youtubeTitle = buildYoutubeTitle(chapter);
 
-  return `${youtubeTitle} : Tutoriel Cantia 🇨🇭, le logiciel de gestion de chantier suisse
+  return `${youtubeTitle} | Tutoriel Cantia
 
-Cantia est le logiciel de gestion de chantier pensé et développé pour les artisans et entreprises du bâtiment en Suisse. Dans cette vidéo, on vous montre comment ${lowerFirst(chapter.title)}.
+Cantia est le logiciel suisse de gestion des artisans, des entreprises du bâtiment et des PME de services : devis, factures, projets, équipe et comptabilité au même endroit. Dans cette vidéo : ${lowerFirst(chapter.title)}.
 
-Ce que vous allez voir :
+Dans la vidéo :
 ${bullets}
 
-Pourquoi Cantia :
-• Devis et factures avec QR-facture suisse générée automatiquement
-• Chantiers, équipe et RH au même endroit, avec dictée vocale partout où vous écrivez
-• Données hébergées 100% en Suisse (Zurich)
-• Essai gratuit de 14 jours, résiliable à tout moment, sans engagement
+Cantia, c'est aussi :
+• Des factures avec QR-facture suisse
+• La dictée et l'assistant vocal partout où vous écrivez
+• Des données hébergées en Suisse (Zurich)
+• En français, en allemand et en italien
 
-Essayez Cantia gratuitement pendant 14 jours (carte bancaire requise à l'inscription, débitée seulement après l'essai, résiliable à tout moment sans frais) :
+Essayez Cantia pendant 14 jours, sans engagement et résiliable en ligne (carte demandée à l'inscription, débitée seulement après l'essai) :
 https://cantia.ch
 
-#Cantia #Suisse #BâtimentSuisse #ArtisanSuisse #ConstructionSuisse ${areaTag}`;
+Toutes les vidéos : https://cantia.ch/aide/videos
+
+#Cantia #Suisse #ArtisanSuisse #PME ${areaTag}`;
 }
