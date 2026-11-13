@@ -398,6 +398,8 @@ export const DESCRIPTION_OVERRIDES = {
     "Cantiere, dossier, mandato o progetto: Cantia parla come il suo mestiere, dall’edilizia ai servizi, agli studi tecnici, alle agenzie e agli eventi.",
   'it/metiers/agences-evenementiel':
     "Offerte firmate online, progetti, squadra, fornitori, acconti e fatture QR: Cantia per agenzie, studi creativi, fotografi, catering ed eventi.",
+  'it/blog/etablir-certificat-salaire-lohnausweis-premier-employe':
+    'Il primo certificato di salario: perché è obbligatorio ogni anno, cosa deve contenere, il modulo ufficiale, il termine e la differenza con la dichiarazione AVS.',
   'it/blog/accident-travail-chantier-obligations-employeur-suva':
     "Notifica nei termini, salario durante l’incapacità, ripresa del lavoro: gli obblighi del datore di lavoro edile assicurato presso la SUVA dopo un infortunio.",
   'it/blog/apprenti-batiment-salaire-obligations-employeur':

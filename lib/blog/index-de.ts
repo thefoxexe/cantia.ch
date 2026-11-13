@@ -83,6 +83,9 @@ import { post as p143 } from "./posts-de/comprendre-soumission-can-positions";
 import { post as cmp0 } from "./posts-de/cantia-vs-cresus-facturation";
 import { post as cmp1 } from "./posts-de/cantia-vs-klara";
 import { post as cmp2 } from "./posts-de/cantia-vs-winbiz";
+import { post as nw0 } from "./posts-de/etablir-certificat-salaire-lohnausweis-premier-employe";
+import { post as nw1 } from "./posts-de/tva-methode-effective-ou-tdfn-batiment";
+import { post as nw2 } from "./posts-de/delai-declaration-tva-suisse-calendrier";
 
 // German blog posts — mirrors lib/blog/index.ts one-for-one, sourced from
 // lib/blog/posts-de/<slug>.ts instead of lib/blog/posts/<slug>.ts. All 138
@@ -98,4 +101,4 @@ export const BLOG_POSTS_DE: BlogPost[] = [
   p111, p113, p115, p116, p117, p118, p119, p120,
   p121, p122, p123, p124, p125, p126, p127, p128, p130,
   p131, p132, p133, p134, p135, p136, p137, p138,
-  p139, p141, p142, p143, cmp0, cmp1, cmp2, ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  p139, p141, p142, p143, cmp0, cmp1, cmp2, nw0, nw1, nw2, ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));

@@ -128,6 +128,8 @@ export const SHORT_TITLES = {
   'it/metiers/bureaux-etudes': 'Software per studi d’ingegneria e di architettura',
   'it/metiers/agences-evenementiel': 'Software per agenzie, studi creativi ed eventi',
   'it/aide/rh-heures-guide': 'Registrare le ore e rifatturarle per cantiere',
+  'de/blog/mwst-abrechnung-fristen-schweiz': 'MWST-Abrechnung Schweiz: Fristen und Verzugszins',
+  'it/blog/etablir-certificat-salaire-lohnausweis-premier-employe': 'Certificato di salario per il primo dipendente',
   'it/blog/accident-travail-chantier-obligations-employeur-suva': 'Infortunio in cantiere: obblighi verso la SUVA',
   'it/blog/appel-offres-marches-publics-batiment-suisse': 'Appalti pubblici nell’edilizia: prima dell’offerta',
   'it/blog/apprenti-batiment-salaire-obligations-employeur': 'Apprendisti nell’edilizia: salario e obblighi',

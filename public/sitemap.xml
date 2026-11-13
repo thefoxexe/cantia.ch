@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cantia.ch/</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -12,32 +12,32 @@
   </url>
   <url>
     <loc>https://cantia.ch/outils</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/outils/calcul-taux-horaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/outils/calcul-tva</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/outils/calcul-marge</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/outils/interets-de-retard</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/outils/indemnite-vacances</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1017,7 +1017,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -1531,6 +1531,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/blog/mwst-abrechnung-fristen-schweiz</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/blog/zahlungsfrist-rechnung-handwerker-schweiz</loc>
     <lastmod>2026-09-03</lastmod>
     <priority>0.6</priority>
@@ -1568,6 +1573,11 @@
   <url>
     <loc>https://cantia.ch/de/blog/duree-validite-devis-non-signe-combien-temps</loc>
     <lastmod>2026-09-02</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/blog/lohnausweis-erstellen-erster-mitarbeiter</loc>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1746,6 +1756,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/blog/mwst-effektive-methode-oder-saldosteuersatz</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/blog/vacances-non-prises-fin-annee-batiment-cct</loc>
     <lastmod>2026-09-03</lastmod>
     <priority>0.6</priority>
@@ -1762,7 +1777,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -2396,6 +2411,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/it/blog/delai-declaration-tva-suisse-calendrier</loc>
+    <lastmod>2026-09-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/it/blog/delai-paiement-facture-artisan-code-obligations</loc>
     <lastmod>2026-09-10</lastmod>
     <priority>0.6</priority>
@@ -2438,6 +2458,11 @@
   <url>
     <loc>https://cantia.ch/it/blog/duree-validite-devis-non-signe-combien-temps</loc>
     <lastmod>2026-09-10</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/blog/etablir-certificat-salaire-lohnausweis-premier-employe</loc>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2598,6 +2623,11 @@
   <url>
     <loc>https://cantia.ch/it/blog/trouver-clients-artisan-batiment-suisse</loc>
     <lastmod>2026-09-10</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/blog/tva-methode-effective-ou-tdfn-batiment</loc>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -3027,62 +3057,62 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/outils</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/outils/calcul-taux-horaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/outils/calcul-tva</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/outils/calcul-marge</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/outils/interets-de-retard</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/outils/indemnite-vacances</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils/calcul-taux-horaire</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils/calcul-tva</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils/calcul-marge</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils/interets-de-retard</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/outils/indemnite-vacances</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.4</priority>
   </url>
 </urlset>

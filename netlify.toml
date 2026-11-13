@@ -3038,7 +3038,7 @@
 
 [[redirects]]
   from = "/de/blog/declaration-tva-trimestrielle-artisan-suisse"
-  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/de/blog/mwst-abrechnung-fristen-schweiz"
   status = 301
   force = true
 
@@ -3050,7 +3050,7 @@
 
 [[redirects]]
   from = "/de/blog/delai-declaration-tva-suisse-calendrier"
-  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/de/blog/mwst-abrechnung-fristen-schweiz"
   status = 301
   force = true
 
@@ -3302,7 +3302,7 @@
 
 [[redirects]]
   from = "/de/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
-  to = "/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  to = "/de/blog/lohnausweis-erstellen-erster-mitarbeiter"
   status = 301
   force = true
 
@@ -3866,7 +3866,7 @@
 
 [[redirects]]
   from = "/de/blog/tva-methode-effective-ou-tdfn-batiment"
-  to = "/blog/tva-methode-effective-ou-tdfn-batiment"
+  to = "/de/blog/mwst-effektive-methode-oder-saldosteuersatz"
   status = 301
   force = true
 
@@ -4298,19 +4298,13 @@
 
 [[redirects]]
   from = "/it/blog/declaration-tva-trimestrielle-artisan-suisse"
-  to = "/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/it/blog/delai-declaration-tva-suisse-calendrier"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/defaut-construction-decouvert-apres-reception-qui-paie"
   to = "/it/blog/garantie-travaux-construction-2-ou-5-ans"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/delai-declaration-tva-suisse-calendrier"
-  to = "/blog/delai-declaration-tva-suisse-calendrier"
   status = 301
   force = true
 
@@ -4533,12 +4527,6 @@
 [[redirects]]
   from = "/it/blog/essai-gratuit-logiciel-facturation-suisse"
   to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
-  to = "/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
   status = 301
   force = true
 
@@ -5103,12 +5091,6 @@
 [[redirects]]
   from = "/it/blog/travailleur-detache-batiment-suisse-regles"
   to = "/blog/travailleur-detache-batiment-suisse-regles"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/it/blog/tva-methode-effective-ou-tdfn-batiment"
-  to = "/blog/tva-methode-effective-ou-tdfn-batiment"
   status = 301
   force = true
 

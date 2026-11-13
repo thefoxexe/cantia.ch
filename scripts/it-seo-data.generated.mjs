@@ -480,6 +480,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
+    "path": "it/blog/delai-declaration-tva-suisse-calendrier",
+    "title": "Rendiconto IVA in Svizzera: le scadenze da non mancare mai | Cantia",
+    "description": "Il ritmo delle scadenze IVA in Svizzera secondo il metodo scelto, le conseguenze di un ritardo e come non mancare una scadenza quando si gestisce un cantiere.",
+    "faq": [
+      {
+        "q": "Cosa fare se si sa già di non poter rispettare la scadenza IVA?",
+        "a": "Prima della scadenza si può chiedere una proroga del termine all’AFC. Così si evita l’interesse di mora automatico legato a un ritardo non annunciato."
+      },
+      {
+        "q": "Il rendiconto mensile è interessante per una piccola impresa edile?",
+        "a": "Può esserlo per distribuire la liquidità ed evitare di accantonare un grosso importo trimestrale, ma moltiplica anche le pratiche amministrative nell’anno. È una scelta da fare secondo la dimensione del servizio contabile."
+      },
+      {
+        "q": "L’interesse di mora si applica anche per pochi giorni di ritardo?",
+        "a": "Sì, l’interesse di mora si calcola di solito dal giorno dopo la scadenza, senza giorni di tolleranza automatici. Meglio anticipare che contare su un margine."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
     "path": "it/blog/delai-paiement-facture-artisan-code-obligations",
     "title": "Termine di pagamento di una fattura di un artigiano in Svizzera: cosa dice la legge? | Cantia",
     "description": "Il Codice delle obbligazioni non fissa un termine di pagamento legale fisso: 30 giorni è la prassi, ma tutto dipende da ciò che figura sulla Sua fattura. Spiegazioni e modello di clausola.",
@@ -678,6 +698,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-09-10"
+  },
+  {
+    "path": "it/blog/etablir-certificat-salaire-lohnausweis-premier-employe",
+    "title": "Certificato di salario: come allestirlo per il primo dipendente | Cantia",
+    "description": "Il certificato di salario annuale spiegato a un datore di lavoro edile che assume il primo dipendente: contenuto obbligatorio, modulo ufficiale, termine e dichiarazione d’imposta.",
+    "faq": [
+      {
+        "q": "Serve un certificato di salario anche per un dipendente assunto durante l’anno?",
+        "a": "Sì, il certificato copre il periodo realmente lavorato nell’anno civile, anche se si tratta solo di qualche mese. Non esiste una durata minima d’impiego sotto la quale l’obbligo scompare."
+      },
+      {
+        "q": "Il certificato di salario è lo stesso documento della dichiarazione dei salari alla cassa AVS?",
+        "a": "No, sono due documenti distinti con destinatari diversi: il certificato di salario va al dipendente per la dichiarazione d’imposta, la dichiarazione annuale dei salari va alla cassa di compensazione AVS."
+      },
+      {
+        "q": "Come si valuta l’uso privato di un veicolo aziendale sul certificato di salario?",
+        "a": "In genere con un importo forfettario mensile pari a una percentuale del prezzo d’acquisto del veicolo, salvo se si tiene un conteggio effettivo più preciso. Le regole esatte vanno verificate con il fiduciario o con l’amministrazione fiscale cantonale."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "it/blog/excel-vs-logiciel-gestion-chantier-limites",
@@ -1602,6 +1642,26 @@ export const BLOG_SEO_IT = [
       }
     ],
     "publishedAt": "2026-09-10"
+  },
+  {
+    "path": "it/blog/tva-methode-effective-ou-tdfn-batiment",
+    "title": "IVA: metodo effettivo o aliquota saldo, quale scegliere? | Cantia",
+    "description": "Metodo effettivo o aliquota saldo per l’IVA di un’impresa edile: carico amministrativo, imposta precedente deducibile e come orientare la scelta.",
+    "faq": [
+      {
+        "q": "Si può cambiare metodo IVA durante l’anno?",
+        "a": "No, un cambiamento di metodo avviene in genere all’inizio di un periodo fiscale e richiede il rispetto di una durata minima prima di poter tornare all’altro metodo. Ogni domanda passa dall’AFC."
+      },
+      {
+        "q": "Con l’aliquota saldo non bisogna più conservare le fatture d’acquisto?",
+        "a": "No, l’aliquota saldo semplifica il calcolo dell’IVA dovuta, ma l’impresa deve comunque conservare le fatture d’acquisto e di vendita come ogni impresa assoggettata, in particolare in caso di controllo."
+      },
+      {
+        "q": "A una piccola impresa edile conviene restare con il metodo effettivo?",
+        "a": "Dipende soprattutto dal volume di acquisti di materiale e di investimenti deducibili. Chi compra molto materiale ha spesso interesse a restare con il metodo effettivo per recuperare l’imposta precedente reale piuttosto che un’aliquota forfettaria."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "it/blog/vacances-non-prises-fin-annee-batiment-cct",

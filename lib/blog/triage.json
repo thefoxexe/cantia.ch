@@ -321,10 +321,8 @@
     "it/blog/credit-construction-hypothecaire-entreprise-batiment": "blog/credit-construction-hypothecaire-entreprise-batiment",
     "de/blog/creer-entreprise-batiment-suisse-guide-complet": "blog/creer-entreprise-batiment-suisse-guide-complet",
     "it/blog/creer-entreprise-batiment-suisse-guide-complet": "blog/creer-entreprise-batiment-suisse-guide-complet",
-    "de/blog/declaration-tva-trimestrielle-artisan-suisse": "blog/delai-declaration-tva-suisse-calendrier",
-    "it/blog/declaration-tva-trimestrielle-artisan-suisse": "blog/delai-declaration-tva-suisse-calendrier",
-    "de/blog/delai-declaration-tva-suisse-calendrier": "blog/delai-declaration-tva-suisse-calendrier",
-    "it/blog/delai-declaration-tva-suisse-calendrier": "blog/delai-declaration-tva-suisse-calendrier",
+    "de/blog/declaration-tva-trimestrielle-artisan-suisse": "de/blog/mwst-abrechnung-fristen-schweiz",
+    "it/blog/declaration-tva-trimestrielle-artisan-suisse": "it/blog/delai-declaration-tva-suisse-calendrier",
     "de/blog/delai-permis-de-construire-canton-suisse": "blog/permis-construire-renovation-quand-necessaire",
     "it/blog/delai-permis-de-construire-canton-suisse": "blog/permis-construire-renovation-quand-necessaire",
     "de/blog/deleguer-sans-tout-controler-patron-artisan": "blog/motiver-equipe-chantier-batiment-quotidien",
@@ -371,8 +369,6 @@
     "it/blog/dix-erreurs-premiere-annee-entreprise-batiment": "blog/creer-entreprise-batiment-suisse-guide-complet",
     "de/blog/entretien-annuel-employe-batiment-comment-faire": "blog/motiver-equipe-chantier-batiment-quotidien",
     "it/blog/entretien-annuel-employe-batiment-comment-faire": "blog/motiver-equipe-chantier-batiment-quotidien",
-    "de/blog/etablir-certificat-salaire-lohnausweis-premier-employe": "blog/etablir-certificat-salaire-lohnausweis-premier-employe",
-    "it/blog/etablir-certificat-salaire-lohnausweis-premier-employe": "blog/etablir-certificat-salaire-lohnausweis-premier-employe",
     "de/blog/expertise-judiciaire-malfacon-construction-suisse": "blog/litige-chantier-mediation-ou-tribunal",
     "it/blog/expertise-judiciaire-malfacon-construction-suisse": "blog/litige-chantier-mediation-ou-tribunal",
     "de/blog/facturer-depannage-urgent-sans-devis": "blog/facturer-depannage-urgent-sans-devis",
@@ -485,8 +481,6 @@
     "it/blog/transmettre-entreprise-batiment-retraite": "blog/transmettre-entreprise-batiment-retraite",
     "de/blog/travailleur-detache-batiment-suisse-regles": "blog/travailleur-detache-batiment-suisse-regles",
     "it/blog/travailleur-detache-batiment-suisse-regles": "blog/travailleur-detache-batiment-suisse-regles",
-    "de/blog/tva-methode-effective-ou-tdfn-batiment": "blog/tva-methode-effective-ou-tdfn-batiment",
-    "it/blog/tva-methode-effective-ou-tdfn-batiment": "blog/tva-methode-effective-ou-tdfn-batiment",
     "de/blog/vacances-construction-suisse-dates-canton": "blog/vacances-construction-suisse-dates-canton",
     "it/blog/vacances-construction-suisse-dates-canton": "blog/vacances-construction-suisse-dates-canton",
     "de/blog/vacances-employe-batiment-cct-jours": "blog/vacances-employe-batiment-cct-jours",
@@ -547,7 +541,10 @@
     "traiteur": "metiers/agences-evenementiel/traiteur",
     "de/traiteur": "de/metiers/agences-evenementiel/traiteur",
     "it/traiteur": "it/metiers/agences-evenementiel/traiteur",
-    "logiciel-chantier": ""
+    "logiciel-chantier": "",
+    "de/blog/etablir-certificat-salaire-lohnausweis-premier-employe": "de/blog/lohnausweis-erstellen-erster-mitarbeiter",
+    "de/blog/tva-methode-effective-ou-tdfn-batiment": "de/blog/mwst-effektive-methode-oder-saldosteuersatz",
+    "de/blog/delai-declaration-tva-suisse-calendrier": "de/blog/mwst-abrechnung-fristen-schweiz"
   },
   "noindex": [
     "blog/acompte-demenagement-suisse-montant-facture",
@@ -610,6 +607,9 @@
     "difference-devis-offre-facture-pro-forma": "unterschied-offerte-rechnung-proforma",
     "assurance-rc-professionnelle-batiment-obligatoire": "betriebshaftpflicht-baugewerbe",
     "crm-artisan-batiment-pourquoi-utile": "crm-baubranche-handwerker",
-    "avenant-chantier-plus-value-moins-value": "nachtragsofferte-mehrkosten"
+    "avenant-chantier-plus-value-moins-value": "nachtragsofferte-mehrkosten",
+    "etablir-certificat-salaire-lohnausweis-premier-employe": "lohnausweis-erstellen-erster-mitarbeiter",
+    "tva-methode-effective-ou-tdfn-batiment": "mwst-effektive-methode-oder-saldosteuersatz",
+    "delai-declaration-tva-suisse-calendrier": "mwst-abrechnung-fristen-schweiz"
   }
 }

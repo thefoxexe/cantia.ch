@@ -480,6 +480,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-09-03"
   },
   {
+    "path": "de/blog/delai-declaration-tva-suisse-calendrier",
+    "title": "MWST-Abrechnung Schweiz: die Fristen, die Sie nie verpassen sollten | Cantia",
+    "description": "Der Rhythmus der MWST-Abrechnungen je nach Methode, die Folgen einer verspäteten Abrechnung und wie Sie trotz voller Baustellen keine Frist verpassen.",
+    "faq": [
+      {
+        "q": "Was tun, wenn man die MWST-Frist sicher nicht einhalten kann?",
+        "a": "Vor Ablauf der Frist kann bei der ESTV eine Fristerstreckung beantragt werden. So vermeiden Sie den automatischen Verzugszins einer unangemeldeten verspäteten Abrechnung."
+      },
+      {
+        "q": "Lohnt sich die monatliche Abrechnung für einen kleinen Baubetrieb?",
+        "a": "Sie kann die Liquidität glätten, weil kein grosser Quartalsbetrag zurückgestellt werden muss, vervielfacht aber auch die administrativen Schritte im Jahr. Das ist eine Abwägung je nach Grösse der Buchhaltung."
+      },
+      {
+        "q": "Gilt der Verzugszins auch bei wenigen Tagen Verspätung?",
+        "a": "Ja, der Verzugszins wird in der Regel ab dem Tag nach der Fälligkeit berechnet, ohne automatische Toleranz. Planen Sie besser voraus, als auf einen Spielraum zu zählen."
+      }
+    ],
+    "publishedAt": "2026-09-22"
+  },
+  {
     "path": "de/blog/delai-paiement-facture-artisan-code-obligations",
     "title": "Zahlungsfrist einer Handwerkerrechnung in der Schweiz: was sagt das Gesetz? | Cantia",
     "description": "Das Obligationenrecht legt keine feste gesetzliche Zahlungsfrist fest: 30 Tage sind üblich, aber alles hängt davon ab, was auf Ihrer Rechnung steht. Erklärungen und Musterklausel.",
@@ -678,6 +698,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-09-03"
+  },
+  {
+    "path": "de/blog/etablir-certificat-salaire-lohnausweis-premier-employe",
+    "title": "Lohnausweis erstellen: so geht es beim ersten Mitarbeitenden | Cantia",
+    "description": "Der jährliche Lohnausweis für Baubetriebe mit dem ersten Mitarbeitenden: Pflichtangaben, offizielles Formular, Frist und Bezug zur Steuererklärung.",
+    "faq": [
+      {
+        "q": "Braucht es auch für Mitarbeitende, die im Lauf des Jahres eingestellt wurden, einen Lohnausweis?",
+        "a": "Ja, der Lohnausweis deckt die tatsächlich gearbeitete Zeit im Kalenderjahr ab, auch wenn es nur einige Monate sind. Es gibt keine Mindestdauer der Anstellung, unter der die Pflicht entfällt."
+      },
+      {
+        "q": "Ist der Lohnausweis dasselbe wie die Lohnmeldung an die AHV-Ausgleichskasse?",
+        "a": "Nein, es sind zwei verschiedene Dokumente für verschiedene Empfänger: Der Lohnausweis geht an die Mitarbeitenden für ihre Steuererklärung, die jährliche Lohnmeldung an die AHV-Ausgleichskasse."
+      },
+      {
+        "q": "Wie wird die private Nutzung eines Geschäftsfahrzeugs auf dem Lohnausweis bewertet?",
+        "a": "Meist mit einem monatlichen Pauschalbetrag in Prozent des Kaufpreises des Fahrzeugs, ausser es wird eine genauere effektive Abrechnung geführt. Die genauen Regeln klären Sie mit Ihrem Treuhänder oder der kantonalen Steuerverwaltung."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "de/blog/excel-vs-logiciel-gestion-chantier-limites",
@@ -1602,6 +1642,26 @@ export const BLOG_SEO_DE = [
       }
     ],
     "publishedAt": "2026-09-03"
+  },
+  {
+    "path": "de/blog/tva-methode-effective-ou-tdfn-batiment",
+    "title": "MWST: effektive Methode oder Saldosteuersatz, was wählen? | Cantia",
+    "description": "Effektive Methode oder Saldosteuersatz für die MWST eines Baubetriebs: Aufwand, abziehbare Vorsteuer und wie Sie sich entscheiden.",
+    "faq": [
+      {
+        "q": "Kann man die MWST-Methode im Lauf des Jahres wechseln?",
+        "a": "Nein, ein Methodenwechsel erfolgt in der Regel auf Beginn einer Steuerperiode, und vor einem erneuten Wechsel gilt eine Mindestdauer. Jeder Wechsel läuft über die ESTV."
+      },
+      {
+        "q": "Muss man mit dem Saldosteuersatz die Einkaufsbelege nicht mehr aufbewahren?",
+        "a": "Doch. Der Saldosteuersatz vereinfacht die Berechnung der geschuldeten MWST, aber das Unternehmen muss Einkaufs- und Verkaufsbelege aufbewahren wie jedes steuerpflichtige Unternehmen, namentlich für eine Kontrolle."
+      },
+      {
+        "q": "Lohnt sich die effektive Methode für einen kleinen Baubetrieb?",
+        "a": "Das hängt vor allem vom Umfang der abziehbaren Material- und Investitionskäufe ab. Wer viel Material einkauft, fährt oft besser mit der effektiven Methode und holt die tatsächliche Vorsteuer zurück statt einen Pauschalsatz anzuwenden."
+      }
+    ],
+    "publishedAt": "2026-09-22"
   },
   {
     "path": "de/blog/vacances-non-prises-fin-annee-batiment-cct",
