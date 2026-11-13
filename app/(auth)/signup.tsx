@@ -27,12 +27,12 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   // Cantia Accounting: arrived through a fiduciary's invitation link.
-  const params = useLocalSearchParams<{ fiduciary_invite?: string; plan?: string; billing?: string; code?: string }>();
+  const params = useLocalSearchParams<{ fiduciary_invite?: string; plan?: string; billing?: string; code?: string; offer?: string }>();
   // The plan picked on cantia.ch ("Essayer Équipe") waits for the plan screen.
   useEffect(() => {
     savePlanIntent(params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.plan, params.billing, params.code]);
+  }, [params.plan, params.billing, params.code, params.offer]);
   const [invitedBy, setInvitedBy] = useState<string | null>(null);
 
   useEffect(() => {

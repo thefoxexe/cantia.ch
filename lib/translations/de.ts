@@ -2842,6 +2842,7 @@ export const de: TranslationDict = {
     resend: 'Code erneut senden',
   },
   authChoosePlan: {
+    offerBanner: "{{months}} Monate geschenkt mit Ihrem Code {{code}}: In dieser Zeit wird nichts belastet, jederzeit kündbar.",
     title: 'Wählen Sie Ihren Plan',
     subtitle: 'Ihr Arbeitsbereich {{name}} wurde erstellt. Wählen Sie die passende Formel, um zu starten.',
     checkoutStartError: 'Zahlung konnte nicht gestartet werden.',

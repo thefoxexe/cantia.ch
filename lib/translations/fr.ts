@@ -2828,6 +2828,7 @@ export const fr = {
     resend: 'Renvoyer le code',
   },
   authChoosePlan: {
+    offerBanner: "{{months}} mois offerts avec votre code {{code}} : rien n'est débité pendant cette période, résiliable à tout moment.",
     title: 'Choisissez votre plan',
     subtitle: 'Votre espace {{name}} est créé. Choisissez la formule qui vous convient pour commencer.',
     checkoutStartError: 'Impossible de démarrer le paiement.',

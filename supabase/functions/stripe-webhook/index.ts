@@ -284,6 +284,17 @@ Deno.serve(async (req: Request) => {
             })
             .eq('id', organizationId);
 
+          // A welcome code (trial_offer_codes) is spent once its trial exists.
+          const offerCode = subscription.metadata?.offer_code;
+          if (grantsTrial && offerCode) {
+            await admin
+              .from('trial_offer_codes')
+              .update({ redeemed_at: new Date().toISOString() })
+              .eq('code', offerCode)
+              .eq('organization_id', organizationId)
+              .is('redeemed_at', null);
+          }
+
           // The customer asked to cancel at the end of the period (Stripe
           // portal): keep the reason they gave, if any.
           const previous = (event.data as { previous_attributes?: Partial<Stripe.Subscription> }).previous_attributes;

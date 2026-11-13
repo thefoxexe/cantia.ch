@@ -2850,6 +2850,7 @@ export const it: TranslationDict = {
     resend: 'Invia di nuovo il codice',
   },
   authChoosePlan: {
+    offerBanner: "{{months}} mesi offerti con il vostro codice {{code}}: nessun addebito in questo periodo, disdicibile in qualsiasi momento.",
     title: 'Scelga il suo piano',
     subtitle: 'Il suo spazio {{name}} è stato creato. Scelga la formula più adatta per iniziare.',
     checkoutStartError: 'Impossibile avviare il pagamento.',

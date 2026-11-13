@@ -273,6 +273,19 @@ export interface RegistryCompany {
   // 'site:lugonbois.ch' when found by itself on the company's site.
   email_source?: string | null;
   site_checked_at?: string | null;
+  // Whether the site proves the address belongs to this company
+  // (supabase/migrations/20261113090000_registry_verify_emails.sql).
+  email_check?: 'confirmed' | 'probable' | 'doubtful' | 'manual' | null;
+  email_evidence?: string | null;
+  // Welcome e-mail with 3 months offered (registry-outreach).
+  outreach_status?: 'draft' | 'sent' | 'skipped' | 'failed' | null;
+  outreach_subject?: string | null;
+  outreach_body?: string | null;
+  outreach_code?: string | null;
+  outreach_prepared_at?: string | null;
+  outreach_sent_at?: string | null;
+  outreach_error?: string | null;
+  unsubscribed_at?: string | null;
   website: string | null;
   phone: string | null;
   note: string | null;
@@ -313,6 +326,34 @@ export async function updateRegistryCompany(
     p_note: patch.note ?? null,
   });
   return { error: logRpcError('admin_registry_update', error) };
+}
+
+// Welcome e-mails (supabase/functions/registry-outreach): the drafts of the
+// morning, corrected here, then sent on the admin's click (20 a day at most).
+export async function listOutreach(): Promise<{ rows: RegistryCompany[]; error: string | null }> {
+  const { data, error } = await supabase
+    .from('registry_companies')
+    .select('*')
+    .not('outreach_status', 'is', null)
+    .order('outreach_prepared_at', { ascending: false })
+    .limit(300);
+  const err = logRpcError('registry_companies outreach', error);
+  return { rows: err || !data ? [] : (data as RegistryCompany[]), error: err };
+}
+export async function updateOutreachDraft(id: string, patch: { subject?: string; body?: string; skip?: boolean }): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc('admin_registry_outreach_update', {
+    p_id: id,
+    p_subject: patch.subject ?? null,
+    p_body: patch.body ?? null,
+    p_skip: patch.skip ?? false,
+  });
+  return { error: logRpcError('admin_registry_outreach_update', error) };
+}
+export async function callOutreach(body: { action: 'send'; ids: string[] } | { action: 'test'; id: string } | { action: 'prepare_now' }): Promise<{ data: any; error: string | null }> {
+  const { data, error } = await supabase.functions.invoke('registry-outreach', { body });
+  if (error) return { data: null, error: error.message };
+  if (data?.error) return { data: null, error: String(data.error) };
+  return { data, error: null };
 }
 
 // Real Stripe billing state — never derived/guessed locally. The edge

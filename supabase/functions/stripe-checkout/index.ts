@@ -102,7 +102,39 @@ Deno.serve(async (req: Request) => {
     // of the plan's price or interval, then charges the real price.
     const promoCodeNormalized = typeof promo_code === 'string' ? promo_code.trim().toUpperCase() : '';
     const useEssai30 = promoCodeNormalized === 'ESSAI30';
-    const trialDays = useEssai30 ? 30 : org.trial_used !== true ? 14 : null;
+    // A welcome code sent to a newly founded company (registry-outreach,
+    // trial_offer_codes): its own trial length (90 days), one organization
+    // only, valid until expires_at. Claimed by the first organization that
+    // opens a checkout with it; redeemed in stripe-webhook once the trial
+    // subscription really exists. An unknown, expired or someone else's
+    // code is simply ignored (normal trial).
+    let offerCode: string | null = null;
+    let offerDays: number | null = null;
+    if (promoCodeNormalized && !useEssai30) {
+      const { data: offer } = await admin
+        .from('trial_offer_codes')
+        .select('code, trial_days, expires_at, organization_id, redeemed_at')
+        .eq('code', promoCodeNormalized)
+        .maybeSingle();
+      const usable = offer && offer.expires_at && new Date(offer.expires_at).getTime() > Date.now() && !offer.redeemed_at;
+      if (usable && offer.organization_id === org.id) {
+        offerCode = offer.code;
+        offerDays = offer.trial_days;
+      } else if (usable && !offer.organization_id) {
+        const { data: claimed } = await admin
+          .from('trial_offer_codes')
+          .update({ organization_id: org.id, claimed_at: new Date().toISOString() })
+          .eq('code', offer.code)
+          .is('organization_id', null)
+          .select('code');
+        if (claimed && claimed.length > 0) {
+          offerCode = offer.code;
+          offerDays = offer.trial_days;
+        }
+      }
+      if (offerCode) await admin.from('organizations').update({ promo_code_used: offerCode }).eq('id', org.id);
+    }
+    const trialDays = offerDays ?? (useEssai30 ? 30 : org.trial_used !== true ? 14 : null);
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -111,7 +143,7 @@ Deno.serve(async (req: Request) => {
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
-        metadata: { organization_id: org.id, plan_id: plan.id },
+        metadata: { organization_id: org.id, plan_id: plan.id, ...(offerCode ? { offer_code: offerCode } : {}) },
         ...(trialDays !== null ? { trial_period_days: trialDays } : {}),
       },
       success_url,

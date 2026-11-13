@@ -56,6 +56,17 @@ export default function ChoosePlanScreen() {
   const [customPlanChecking, setCustomPlanChecking] = useState(false);
   const [customPlanError, setCustomPlanError] = useState<string | null>(null);
 
+  // Welcome code of a newly founded company (?promo=… or kept from the
+  // sign-up link): checked once, shown as a banner, applied at checkout.
+  const offerCode = (typeof promo === 'string' && promo.trim() ? promo.trim() : intent.offer ?? '').toUpperCase();
+  const [offerDays, setOfferDays] = useState<number | null>(null);
+  useEffect(() => {
+    if (!offerCode || offerCode === 'ESSAI30') return;
+    supabase.rpc('trial_offer_preview', { p_code: offerCode }).then(({ data }) => {
+      if (typeof data === 'number' && data > 0) setOfferDays(data);
+    });
+  }, [offerCode]);
+
   // A link like /choose-plan?code=MORINA2026 (sent to one client) opens
   // straight on their personal plan, as if they had typed the code.
   useEffect(() => {
@@ -102,7 +113,7 @@ export default function ChoosePlanScreen() {
     // this silently sent 'year' for the custom plan too, and stripe-checkout
     // rejected it as "not configured for online payment" since it looked up
     // a yearly price id that was never set.
-    const { url, error: err } = await startCheckout(planId, intervalOverride ?? billingInterval, promo);
+    const { url, error: err } = await startCheckout(planId, intervalOverride ?? billingInterval, offerCode || undefined);
     if (url) clearPlanIntent();
     if (err || !url) {
       setBusyPlan(null);
@@ -137,6 +148,13 @@ export default function ChoosePlanScreen() {
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        {offerDays ? (
+          <View style={styles.promoBanner}>
+            <Feather name="gift" size={16} color={colors.primaryDark} />
+            <Text style={styles.promoBannerText}>{t('authChoosePlan.offerBanner', { months: Math.round(offerDays / 30), code: offerCode })}</Text>
+          </View>
+        ) : null}
 
         {isPlatformAdmin ? (
           <Pressable style={styles.adminShortcut} onPress={() => router.replace('/(admin)')}>

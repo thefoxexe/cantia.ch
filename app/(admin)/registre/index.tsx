@@ -7,6 +7,8 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { listRegistryCompanies, refreshRegistry, registryPending, updateRegistryCompany, type RegistryCompany } from '../../../lib/api/admin';
 import { addToEmailList, emailListAddresses } from '../../../lib/admin/emailList';
+import { OutreachPanel } from '../../../components/admin/OutreachPanel';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 // Super Admin › Nouvelles entreprises: companies entered in the commercial
 // register these last days (FOSC, fetched by the database every morning and
@@ -92,6 +94,10 @@ function personCount(persons: string | null): number {
 }
 
 export default function AdminRegistry() {
+  // « À envoyer » (the welcome e-mails to validate) opens from the morning e-mail: ?onglet=envois.
+  const { onglet } = useLocalSearchParams<{ onglet?: string }>();
+  const router = useRouter();
+  const [tab, setTab] = useState<'list' | 'outreach'>(onglet === 'envois' ? 'outreach' : 'list');
   const [rows, setRows] = useState<RegistryCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,6 +211,12 @@ export default function AdminRegistry() {
             <Text style={styles.primaryText}>{searching !== null ? 'Recherche en cours…' : 'Chercher les nouvelles'}</Text>
           </Pressable>
         </View>
+        <View style={styles.chips}>
+          <Chip label="Entreprises" active={tab === 'list'} strong onPress={() => { setTab('list'); router.setParams({ onglet: undefined }); }} />
+          <Chip label="À envoyer" active={tab === 'outreach'} strong onPress={() => { setTab('outreach'); router.setParams({ onglet: 'envois' }); }} />
+        </View>
+
+        {tab === 'outreach' ? <OutreachPanel /> : <>
         <Text style={styles.meta}>
           {counts.total} entreprise{counts.total > 1 ? 's' : ''} sur {days} jours · {counts.building} dans le bâtiment · {counts.withEmail} avec e-mail · {counts.todo} à traiter
           {lastFetch ? ` · mis à jour ${new Date(lastFetch).toLocaleString('fr-CH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : ''}
@@ -271,6 +283,7 @@ export default function AdminRegistry() {
             ) : null}
           </View>
         )}
+        </>}
       </Container>
     </ScrollView>
   );
@@ -411,10 +424,17 @@ function CompanyCard({
       </View>
 
       {foundOn ? (
-        <Text style={styles.found}>
-          Trouvé automatiquement sur {foundOn}. Vérifiez-le sur le site avant d’écrire.
+        <Text style={[styles.found, r.email_check === 'doubtful' && { color: colors.danger }, r.email_check === 'probable' && { color: colors.warning }, !r.email_check && { color: colors.textMuted }]}>
+          {r.email_check === 'confirmed'
+            ? `Confirmé : ${r.email_evidence ?? foundOn}`
+            : r.email_check === 'probable'
+              ? `Probable, à vérifier : ${r.email_evidence ?? foundOn}`
+              : r.email_check === 'doubtful'
+                ? `Douteux, sans doute une autre entreprise : ${r.email_evidence ?? foundOn}`
+                : `Trouvé sur ${foundOn}, vérification en cours.`}
         </Text>
       ) : null}
+      {r.outreach_status === 'sent' ? <Text style={styles.found}>E-mail de bienvenue envoyé{r.outreach_code ? ` (code ${r.outreach_code})` : ''}.</Text> : null}
 
       <View style={styles.statusRow}>
         {r.status !== 'contacted' ? (
