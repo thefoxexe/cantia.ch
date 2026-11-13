@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
-import { TrafficChart } from '../../../components/TrafficChart';
+import { TrafficChart } from '../../../components/charts/LazyCharts';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getSiteTrafficOverview } from '../../../lib/api/admin';
 import type { AdminSiteTrafficOverview } from '../../../lib/types';

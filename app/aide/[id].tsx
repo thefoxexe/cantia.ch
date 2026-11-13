@@ -40,6 +40,15 @@ export default function HelpArticleScreen() {
     );
   }
 
-  const related = articles.filter((a) => a.id !== article.id && a.category === article.category).slice(0, 3);
+  // The articles that follow this one in its category, around a ring (so
+  // every article is linked from its neighbours, not only the first ones of
+  // the category), topped up with the next articles of the whole list.
+  const ring = <T,>(list: T[], at: number) => list.slice(at + 1).concat(list.slice(0, at));
+  const sameCategory = articles.filter((a) => a.category === article.category);
+  const related = ring(sameCategory, sameCategory.indexOf(article)).slice(0, 3);
+  for (const a of ring(articles, articles.indexOf(article))) {
+    if (related.length >= 4) break;
+    if (!related.includes(a)) related.push(a);
+  }
   return <HelpArticlePage article={article} related={related} />;
 }

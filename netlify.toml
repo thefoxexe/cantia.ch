@@ -6,7 +6,7 @@
 # Each has its own route root and its own
 # _redirects, which Netlify reads before the rules below.
 [build]
-  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"demo\" ]; then node scripts/build-demo.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && node scripts/inject-seo-meta.mjs && node scripts/inject-static-content.mjs && node scripts/write-version.mjs; fi"
+  command = "if [ \"$CANTIA_SURFACE\" = \"partners\" ]; then node scripts/build-partners.mjs; elif [ \"$CANTIA_SURFACE\" = \"demo\" ]; then node scripts/build-demo.mjs; elif [ \"$CANTIA_SURFACE\" = \"accounting\" ]; then node scripts/build-accounting.mjs; else node scripts/patch-rnw-font.mjs && npx expo export -p web -c && CANTIA_SSR_VIEWPORT=phone npx expo export -p web --output-dir dist-phone && node scripts/inject-seo-meta.mjs && node scripts/generate-og-images.mjs && node scripts/inject-static-content.mjs && node scripts/build-phone-variants.mjs && node scripts/write-version.mjs; fi"
   publish = "dist"
 
 [build.environment]
@@ -107,6 +107,14 @@
 
 [[headers]]
   for = "/presentation*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# Phone renders of the public pages (scripts/build-phone-variants.mjs). Phones
+# get them under the normal URL through the edge function, which drops this
+# header; opened directly, they are never indexed.
+[[headers]]
+  for = "/_m/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
@@ -219,11 +227,6 @@
 [[redirects]]
   from = "/calculateur-salaire"
   to = "/calculateur-salaire.html"
-  status = 200
-
-[[redirects]]
-  from = "/logiciel-chantier"
-  to = "/logiciel-chantier.html"
   status = 200
 
 [[redirects]]
@@ -1875,6 +1878,66 @@
   from = "/it/metiers/agences-evenementiel/location-materiel"
   to = "/it/metiers/agences-evenementiel/location-materiel.html"
   status = 200
+
+[[redirects]]
+  from = "/de/outils"
+  to = "/de/outils.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/calcul-taux-horaire"
+  to = "/de/outils/calcul-taux-horaire.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/calcul-tva"
+  to = "/de/outils/calcul-tva.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/calcul-marge"
+  to = "/de/outils/calcul-marge.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/interets-de-retard"
+  to = "/de/outils/interets-de-retard.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/indemnite-vacances"
+  to = "/de/outils/indemnite-vacances.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils"
+  to = "/it/outils.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/calcul-taux-horaire"
+  to = "/it/outils/calcul-taux-horaire.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/calcul-tva"
+  to = "/it/outils/calcul-tva.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/calcul-marge"
+  to = "/it/outils/calcul-marge.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/interets-de-retard"
+  to = "/it/outils/interets-de-retard.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/indemnite-vacances"
+  to = "/it/outils/indemnite-vacances.html"
+  status = 200
 # END generated routes
 
 # Content triage (docs/seo-tri-contenu.md): merged articles, German slugs and
@@ -2411,7 +2474,7 @@
 
 [[redirects]]
   from = "/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
-  to = "/logiciel-chantier"
+  to = "/"
   status = 301
   force = true
 
@@ -2423,7 +2486,7 @@
 
 [[redirects]]
   from = "/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse"
-  to = "/logiciel-chantier"
+  to = "/"
   status = 301
   force = true
 
@@ -2453,7 +2516,7 @@
 
 [[redirects]]
   from = "/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
-  to = "/logiciel-chantier"
+  to = "/"
   status = 301
   force = true
 
@@ -2525,7 +2588,7 @@
 
 [[redirects]]
   from = "/blog/outil-devis-factures-sans-double-saisie"
-  to = "/logiciel-chantier"
+  to = "/"
   status = 301
   force = true
 
@@ -3467,7 +3530,7 @@
 
 [[redirects]]
   from = "/de/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
-  to = "/logiciel-chantier"
+  to = "/de"
   status = 301
   force = true
 
@@ -3503,7 +3566,7 @@
 
 [[redirects]]
   from = "/de/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
-  to = "/logiciel-chantier"
+  to = "/de"
   status = 301
   force = true
 
@@ -4697,7 +4760,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-gestion-evolutif-grandit-avec-entreprise"
-  to = "/logiciel-chantier"
+  to = "/it"
   status = 301
   force = true
 
@@ -4709,7 +4772,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse"
-  to = "/logiciel-chantier"
+  to = "/it"
   status = 301
   force = true
 
@@ -4739,7 +4802,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-tout-en-un-devis-facture-chantier-rh"
-  to = "/logiciel-chantier"
+  to = "/it"
   status = 301
   force = true
 
@@ -4835,7 +4898,7 @@
 
 [[redirects]]
   from = "/it/blog/outil-devis-factures-sans-double-saisie"
-  to = "/logiciel-chantier"
+  to = "/it"
   status = 301
   force = true
 
@@ -5142,6 +5205,12 @@
 [[redirects]]
   from = "/it/traiteur"
   to = "/it/metiers/agences-evenementiel/traiteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/logiciel-chantier"
+  to = "/"
   status = 301
   force = true
 

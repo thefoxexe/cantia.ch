@@ -3,7 +3,8 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Eyebrow, Headline, Hover, Wrap } from '../../components/site/Primitives';
 import { Breadcrumbs, SitePage, useSiteLayout } from '../../components/site/Sections';
-import { TOOLS } from '../../lib/tools/registry';
+import { toolsFor } from '../../lib/tools/registry';
+import { toolLocale, toolPrefix, toolsChrome, toolsHub } from '../../lib/tools/copy';
 import { sans, site } from '../../lib/siteTheme';
 
 // cantia.ch/outils: every free tool (lead magnets) on one page.
@@ -11,18 +12,22 @@ import { sans, site } from '../../lib/siteTheme';
 export default function ToolsHubPage() {
   const { phone, tablet, width } = useSiteLayout();
   const h1 = phone ? 40 : tablet ? 46 : 56;
+  const locale = toolLocale();
+  const H = toolsHub(locale);
+  const C = toolsChrome(locale);
+  const TOOLS = toolsFor(locale);
   return (
     <SitePage
-      title="Outils gratuits pour les entreprises du bâtiment en Suisse | Cantia"
-      description="Calculateurs gratuits : salaire net et charges, taux horaire, TVA, marge, intérêts de retard, indemnité de vacances. Aux règles suisses 2026, sans inscription."
+      title={H.title}
+      description={H.description}
     >
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 60 : 96 }}>
         <Wrap>
-          <Breadcrumbs items={[{ label: 'Accueil', href: '/' }, { label: 'Outils gratuits' }]} />
-          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>Gratuit · Sans inscription</Eyebrow>
-          <Headline level={1} plain="Les calculs de la semaine." accent="Aux règles suisses." size={h1} style={{ marginTop: 16, marginBottom: 20, letterSpacing: phone ? -1.6 : -2.6 }} />
+          <Breadcrumbs items={[{ label: C.home, href: toolPrefix(locale) || '/' }, { label: C.tools }]} />
+          <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{H.eyebrow}</Eyebrow>
+          <Headline level={1} plain={H.plain} accent={H.accent} size={h1} style={{ marginTop: 16, marginBottom: 20, letterSpacing: phone ? -1.6 : -2.6 }} />
           <Text style={[sans, styles.lede, phone && { fontSize: 13, lineHeight: 24 }]}>
-            Les calculs qu’un patron du bâtiment fait toutes les semaines, aux règles suisses en vigueur. Résultat immédiat, PDF à télécharger.
+            {H.lede}
           </Text>
           <View style={[styles.grid, { marginTop: phone ? 36 : 56 }]}>
             {TOOLS.map((t, i) => (
@@ -37,7 +42,7 @@ export default function ToolsHubPage() {
                       <Text style={[sans, styles.title]}>{t.title}</Text>
                       <Text style={[sans, styles.text]}>{t.text}</Text>
                       <View style={styles.open}>
-                        <Text style={[sans, styles.openText, hovered && { color: site.copper }]}>Ouvrir l’outil</Text>
+                        <Text style={[sans, styles.openText, hovered && { color: site.copper }]}>{H.open}</Text>
                         <Feather name="arrow-right" size={14} color={hovered ? site.copper : site.ink} />
                       </View>
                     </>

@@ -1,3 +1,5 @@
+import COPY from './copy.json';
+
 // The free tools of cantia.ch/outils (lead magnets), in display order.
 export const TOOLS: { slug: string; href: string; icon: string; title: string; text: string }[] = [
   { slug: 'calculateur-salaire', href: '/calculateur-salaire', icon: 'users', title: 'Calculateur de salaire', text: 'Du brut au net et au coût employeur : AVS, LPP selon l’âge, LAA, allocations, impôt à la source.' },
@@ -7,3 +9,10 @@ export const TOOLS: { slug: string; href: string; icon: string; title: string; t
   { slug: 'interets-de-retard', href: '/outils/interets-de-retard', icon: 'alert-circle', title: 'Intérêts de retard', text: 'Les intérêts moratoires d’une facture impayée selon le Code des obligations (5 %).' },
   { slug: 'indemnite-vacances', href: '/outils/indemnite-vacances', icon: 'sun', title: 'Indemnité de vacances', text: 'Le supplément vacances d’un salaire horaire : 8,33 %, 10,64 % ou 13,04 % selon les semaines.' },
 ];
+
+// The same list in a language: localized names, addresses under /de or /it.
+export function toolsFor(locale: 'fr' | 'de' | 'it'): typeof TOOLS {
+  const names = COPY.registry[locale] as unknown as Record<string, [string, string]>;
+  const prefix = locale === 'fr' ? '' : `/${locale}`;
+  return TOOLS.map((t) => ({ ...t, href: `${prefix}${t.href}`, title: names[t.slug]?.[0] ?? t.title, text: names[t.slug]?.[1] ?? t.text }));
+}

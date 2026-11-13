@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   lede: { fontSize: 15, lineHeight: 28, color: site.muted, marginTop: 20, maxWidth: 600 },
   ctas: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 25, marginTop: 28 },
   secondary: { fontSize: 12, fontWeight: '600', color: site.ink },
-  facts: { fontSize: 10, lineHeight: 18, color: '#8b9380', marginTop: 18 },
+  facts: { fontSize: 10, lineHeight: 18, color: '#6b6f65', marginTop: 18 },
 });
 
 export const pageColors = { ink: site.ink, bodyInk: site.muted, primary: site.copper };

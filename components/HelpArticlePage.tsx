@@ -12,6 +12,7 @@ import { FaqItem } from './site/FamilyPage';
 
 const FAQ_TITLE = { fr: 'Questions fréquentes', de: 'Häufige Fragen', it: 'Domande frequenti' } as const;
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { SiteImage } from './site/SiteImage';
 
 // Real size of each capture of the app (public/help-shots/<name>[-de|-it].jpg,
 // rendered from the app with sample data).
@@ -38,20 +39,22 @@ function AppCapture({ name, alt }: { name: string; alt: string }) {
     return (
       <View style={{ alignItems: 'center' }}>
         <View style={[styles.phone, { width: width + 16, borderRadius: 40 }]}>
-          <Image source={{ uri: shotUri(name, locale) }} style={{ width, height: width * ratio, borderRadius: 30 }} resizeMode="cover" accessibilityLabel={alt} />
+          <SiteImage source={{ uri: shotUri(name, locale) }} style={{ width, height: width * ratio, borderRadius: 30 }} resizeMode="cover" alt={alt} />
         </View>
       </View>
     );
   }
   return (
-    <View style={styles.window} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+    <View style={styles.window}>
       <View style={styles.bar}>
         {[0, 1, 2].map((i) => (
           <View key={i} style={styles.dot} />
         ))}
         <Text style={[sans, styles.url]}>app.cantia.ch</Text>
       </View>
-      <Image source={{ uri: shotUri(name, locale) }} style={{ width: '100%', height: w ? w * ratio : 300 }} resizeMode="cover" accessibilityLabel={alt} />
+      <View style={{ width: '100%', aspectRatio: 1 / ratio }}>
+        <SiteImage source={{ uri: shotUri(name, locale) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} />
+      </View>
     </View>
   );
 }

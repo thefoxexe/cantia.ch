@@ -18,18 +18,26 @@ import { DemoBanner } from '../components/DemoBanner';
 import { CookieBanner } from '../components/CookieBanner';
 import { getCookieConsent } from '../lib/siteAnalytics';
 import { onRouteChange, startSessionReplay } from '../lib/sessionReplay';
-import { holdHydrationViewport } from '../lib/hydrationViewport';
+import { holdHydrationViewport, ssrViewport } from '../lib/hydrationViewport';
 import '../lib/pwaInstall';
+import { useFonts } from 'expo-font';
+import { Feather } from '@expo/vector-icons';
 
-// Build-time static rendering has no window: give React Native Web a desktop
-// viewport so the HTML crawlers read is the full desktop layout instead of
-// a zero-width one.
+// Build-time static rendering has no window: give React Native Web a fixed
+// viewport so the HTML crawlers read is a real layout instead of a
+// zero-width one. The build renders every public page twice: at desktop
+// width (dist/), and at phone width when CANTIA_SSR_VIEWPORT=phone
+// (dist-phone/, turned into dist/_m/ by scripts/build-phone-variants.mjs and
+// served to phones by netlify/edge-functions/trailing-slash.ts). See
+// lib/hydrationViewport.ts for the two sizes.
 if (Platform.OS === 'web' && typeof window === 'undefined') {
-  const size = { width: 1440, height: 900, scale: 1, fontScale: 1 };
+  const size = ssrViewport(process.env.CANTIA_SSR_VIEWPORT);
   (Dimensions as unknown as { set: (d: unknown) => void }).set({ window: size, screen: size });
 }
 
 holdHydrationViewport();
+
+
 
 function RootNavigation() {
   const { session, organization, loading, isPlatformAdmin, isPasswordRecovery } = useAuth();
@@ -209,7 +217,13 @@ function MarkHydrated() {
   return null;
 }
 
+// The icon font of the site (Feather) is declared in the root layout, so the
+// static build already renders every arrow and check mark, with its
+// @font-face in the page head. Otherwise icons draw nothing until JavaScript
+// has loaded the font, then appear and widen buttons and links (the page
+// moved). The result is not awaited: nothing waits for the font.
 export default function RootLayout() {
+  useFonts(Feather.font);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

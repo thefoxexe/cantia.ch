@@ -7,6 +7,7 @@ import { SITE_COPY } from '../../lib/site/copy';
 import { authHref } from '../../lib/appHost';
 import { StatusLink } from '../StatusLink';
 import { SECTOR_KEYS, SECTOR_SLUGS, SECTORS_COPY } from '../../lib/site/sectors';
+import { SiteImage } from './SiteImage';
 
 const SECTORS_TITLE = { fr: 'Secteurs', de: 'Branchen', it: 'Settori' } as const;
 
@@ -68,7 +69,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
           <View style={[styles.brandCol, phone || tablet ? { width: '100%', maxWidth: '100%' } : { flex: 1.4 }]}>
             <Link href={(p || '/') as any} asChild>
               <Pressable accessibilityRole="link" accessibilityLabel="Cantia">
-                <Image source={LOGO} style={{ width: 138, height: 138 * (192 / 1036) }} resizeMode="contain" />
+                <SiteImage source={LOGO} alt="Cantia" style={{ width: 138, height: 138 * (192 / 1036) }} resizeMode="contain" />
               </Pressable>
             </Link>
             <Text style={[sans, styles.note]}>{f.tagline}</Text>
@@ -81,7 +82,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
               <Text style={[sans, styles.colTitle, { marginBottom: 0 }]}>{f.payments.toUpperCase()}</Text>
               <View style={styles.payments}>
                 {PAYMENT_METHODS.map((m) => (
-                  <Image key={m.file} source={{ uri: `/payments/${m.file}.svg` }} accessibilityLabel={m.name} style={styles.payment} />
+                  <SiteImage key={m.file} source={{ uri: `/payments/${m.file}.svg` }} alt={m.name} style={styles.payment} resizeMode="contain" />
                 ))}
               </View>
             </View>

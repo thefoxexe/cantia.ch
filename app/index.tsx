@@ -18,6 +18,7 @@ import { HeroDevices } from '../components/site/HeroDevices';
 import { FaqItem } from '../components/site/FamilyPage';
 import { SECTOR_KEYS, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/site/sectors';
 import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
+import { SiteImage } from '../components/site/SiteImage';
 
 const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; title: string; items: { q: string; a: string }[] }>;
 
@@ -60,7 +61,20 @@ function LandingContent() {
       <ScrollView style={{ flex: 1 }}>
         {/* Hero */}
         {/* The hero fills the first screen: content centred, trust line at the bottom. */}
-        <View style={{ paddingTop: phone ? 40 : tablet ? 48 : 56, minHeight: winH > 0 ? Math.max(phone ? 0 : 640, winH - (phone ? 75 : 86)) : undefined }}>
+        <View
+          style={{
+            paddingTop: phone ? 40 : tablet ? 48 : 56,
+            // The first screen minus the nav. In CSS on the web (svh: the
+            // visible height on a phone), so the pre-rendered page already
+            // has its real height and nothing moves when JavaScript runs.
+            minHeight:
+              Platform.OS === 'web'
+                ? ((phone ? 'calc(100svh - 75px)' : 'max(640px, calc(100svh - 86px))') as unknown as number)
+                : winH > 0
+                  ? Math.max(phone ? 0 : 640, winH - (phone ? 75 : 86))
+                  : undefined,
+          }}
+        >
           <Wrap style={{ flex: 1, justifyContent: 'space-between' }}>
             <View style={[styles.heroTop, { flex: 1, alignItems: 'center' }, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
               <View style={phone ? undefined : { flex: tablet ? 0.9 : 0.95, minWidth: 0 }}>
@@ -263,10 +277,9 @@ function ExportCard({ title, meta, phone, pdf, children }: { title: string; meta
 }
 
 function PaperImage({ source, ratio, alt }: { source: ImageSourcePropType; ratio: number; alt: string }) {
-  const [w, setW] = useState(0);
   return (
-    <View style={[styles.paper, paperShadow, { width: '100%' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 400 }} resizeMode="cover" accessibilityLabel={alt} />
+    <View style={[styles.paper, paperShadow, { width: '100%', aspectRatio: 1 / ratio }]}>
+      <SiteImage source={source} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} />
     </View>
   );
 }
@@ -313,7 +326,7 @@ const SECTOR_ICON: Record<SectorKey, keyof typeof Feather.glyphMap> = { batiment
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: site.bg },
   heroTop: { flexDirection: 'row', alignItems: 'flex-end' },
-  lead: { lineHeight: 26, color: '#73776c', maxWidth: 400 },
+  lead: { lineHeight: 26, color: site.muted, maxWidth: 400 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
   stage: { backgroundColor: site.stage, borderWidth: 1, borderColor: site.stageBorder, overflow: 'hidden', position: 'relative' },
   stageTag: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },

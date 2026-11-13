@@ -1,0 +1,1036 @@
+{
+ "_comment": "Texts of the free tools (cantia.ch/outils, /de/outils, /it/outils): page frame, list of tools, and each tool's page, meta and FAQ. Read by the pages (app/outils/*) and by scripts/seo-routes.mjs (titles, descriptions, FAQPage).",
+ "chrome": {
+  "fr": {
+   "home": "Accueil",
+   "tools": "Outils gratuits",
+   "ctaKicker": "DANS CANTIA, TOUT EST AUTOMATIQUE",
+   "ctaButton": "Essayer 14 jours",
+   "ctaNote": "Sans engagement · Données hébergées en Suisse",
+   "faqEyebrow": "Les réponses utiles",
+   "faqTitle": "Questions fréquentes.",
+   "othersEyebrow": "Gratuit, sans inscription",
+   "othersTitle": "Les autres outils.",
+   "pdfData": "Données",
+   "pdfResult": "Résultat",
+   "pdfDisclaimer": "Résultat indicatif, calculé avec les règles suisses en vigueur. Vérifiez les cas particuliers avec votre fiduciaire.",
+   "dateLocale": "fr-CH"
+  },
+  "de": {
+   "home": "Startseite",
+   "tools": "Gratis-Tools",
+   "ctaKicker": "IN CANTIA GEHT DAS AUTOMATISCH",
+   "ctaButton": "14 Tage testen",
+   "ctaNote": "Ohne Verpflichtung · Daten in der Schweiz gespeichert",
+   "faqEyebrow": "Die wichtigsten Antworten",
+   "faqTitle": "Häufige Fragen.",
+   "othersEyebrow": "Gratis, ohne Anmeldung",
+   "othersTitle": "Die anderen Tools.",
+   "pdfData": "Angaben",
+   "pdfResult": "Ergebnis",
+   "pdfDisclaimer": "Richtwert, berechnet nach den geltenden Schweizer Regeln. Klären Sie Sonderfälle mit Ihrem Treuhänder.",
+   "dateLocale": "de-CH"
+  },
+  "it": {
+   "home": "Home",
+   "tools": "Strumenti gratuiti",
+   "ctaKicker": "IN CANTIA È TUTTO AUTOMATICO",
+   "ctaButton": "Provare 14 giorni",
+   "ctaNote": "Senza impegno · Dati ospitati in Svizzera",
+   "faqEyebrow": "Le risposte utili",
+   "faqTitle": "Domande frequenti.",
+   "othersEyebrow": "Gratis, senza registrazione",
+   "othersTitle": "Gli altri strumenti.",
+   "pdfData": "Dati",
+   "pdfResult": "Risultato",
+   "pdfDisclaimer": "Risultato indicativo, calcolato con le regole svizzere in vigore. Verificate i casi particolari con il vostro fiduciario.",
+   "dateLocale": "it-CH"
+  }
+ },
+ "hub": {
+  "fr": {
+   "title": "Outils gratuits pour les entreprises du bâtiment en Suisse | Cantia",
+   "description": "Calculateurs gratuits : salaire net et charges, taux horaire, TVA, marge, intérêts de retard, indemnité de vacances. Aux règles suisses 2026, sans inscription.",
+   "eyebrow": "Gratuit · Sans inscription",
+   "plain": "Les calculs de la semaine.",
+   "accent": "Aux règles suisses.",
+   "lede": "Les calculs qu’un patron du bâtiment fait toutes les semaines, aux règles suisses en vigueur. Résultat immédiat, PDF à télécharger.",
+   "open": "Ouvrir l’outil"
+  },
+  "de": {
+   "title": "Gratis-Rechner für Bau- und Handwerksbetriebe | Cantia",
+   "description": "Gratis-Rechner: Nettolohn und Abzüge, Stundensatz, MWST, Marge, Verzugszins, Ferienentschädigung. Nach den Schweizer Regeln 2026, ohne Anmeldung.",
+   "eyebrow": "Gratis · Ohne Anmeldung",
+   "plain": "Die Rechnungen der Woche.",
+   "accent": "Nach Schweizer Regeln.",
+   "lede": "Die Berechnungen, die ein Bauunternehmer jede Woche macht, nach den geltenden Schweizer Regeln. Sofort ein Ergebnis, als PDF zum Herunterladen.",
+   "open": "Tool öffnen"
+  },
+  "it": {
+   "title": "Strumenti gratuiti per le imprese edili in Svizzera | Cantia",
+   "description": "Calcolatori gratuiti: salario netto e oneri, tariffa oraria, IVA, margine, interessi di mora, indennità per vacanze. Regole svizzere 2026, senza registrazione.",
+   "eyebrow": "Gratis · Senza registrazione",
+   "plain": "I calcoli della settimana.",
+   "accent": "Con le regole svizzere.",
+   "lede": "I calcoli che un impresario edile fa ogni settimana, con le regole svizzere in vigore. Risultato immediato, PDF da scaricare.",
+   "open": "Aprire lo strumento"
+  }
+ },
+ "registry": {
+  "fr": {
+   "calculateur-salaire": [
+    "Calculateur de salaire",
+    "Du brut au net et au coût employeur : AVS, LPP selon l’âge, LAA, allocations, impôt à la source."
+   ],
+   "calcul-taux-horaire": [
+    "Taux horaire de l’artisan",
+    "Le prix de revient d’une heure et le taux à facturer pour couvrir salaires, charges, frais et marge."
+   ],
+   "calcul-tva": [
+    "Calcul de TVA",
+    "HT ↔ TTC aux taux suisses 8,1 %, 2,6 % et 3,8 %, arrondi aux 5 centimes."
+   ],
+   "calcul-marge": [
+    "Marge et coefficient",
+    "Prix de vente à partir du coût, différence entre marge et majoration, coefficient multiplicateur."
+   ],
+   "interets-de-retard": [
+    "Intérêts de retard",
+    "Les intérêts moratoires d’une facture impayée selon le Code des obligations (5 %)."
+   ],
+   "indemnite-vacances": [
+    "Indemnité de vacances",
+    "Le supplément vacances d’un salaire horaire : 8,33 %, 10,64 % ou 13,04 % selon les semaines."
+   ]
+  },
+  "de": {
+   "calculateur-salaire": [
+    "Lohnrechner",
+    "Von brutto zu netto und zu den Arbeitgeberkosten: AHV, BVG nach Alter, UVG, Familienzulagen, Quellensteuer."
+   ],
+   "calcul-taux-horaire": [
+    "Stundensatz im Handwerk",
+    "Die Selbstkosten einer Stunde und der Satz, der Löhne, Abgaben, Gemeinkosten und Marge deckt."
+   ],
+   "calcul-tva": [
+    "MWST-Rechner",
+    "Exkl. ↔ inkl. MWST zu den Schweizer Sätzen 8,1 %, 2,6 % und 3,8 %, auf 5 Rappen gerundet."
+   ],
+   "calcul-marge": [
+    "Marge und Kalkulationsfaktor",
+    "Verkaufspreis aus den Kosten, Unterschied zwischen Marge und Zuschlag, Kalkulationsfaktor."
+   ],
+   "interets-de-retard": [
+    "Verzugszins",
+    "Der Verzugszins einer unbezahlten Rechnung nach Obligationenrecht (5 %)."
+   ],
+   "indemnite-vacances": [
+    "Ferienentschädigung",
+    "Der Ferienzuschlag auf einen Stundenlohn: 8,33 %, 10,64 % oder 13,04 % je nach Ferienwochen."
+   ]
+  },
+  "it": {
+   "calculateur-salaire": [
+    "Calcolatore di salario",
+    "Dal lordo al netto e al costo per il datore di lavoro: AVS, LPP secondo l’età, LAINF, assegni, imposta alla fonte."
+   ],
+   "calcul-taux-horaire": [
+    "Tariffa oraria dell’artigiano",
+    "Il prezzo di costo di un’ora e la tariffa che copre salari, oneri, spese generali e margine."
+   ],
+   "calcul-tva": [
+    "Calcolo dell’IVA",
+    "IVA esclusa ↔ inclusa alle aliquote svizzere 8,1 %, 2,6 % e 3,8 %, arrotondata ai 5 centesimi."
+   ],
+   "calcul-marge": [
+    "Margine e coefficiente",
+    "Prezzo di vendita dal costo, differenza tra margine e ricarico, coefficiente moltiplicatore."
+   ],
+   "interets-de-retard": [
+    "Interessi di mora",
+    "Gli interessi di mora di una fattura non pagata secondo il Codice delle obbligazioni (5 %)."
+   ],
+   "indemnite-vacances": [
+    "Indennità per vacanze",
+    "Il supplemento vacanze su un salario orario: 8,33 %, 10,64 % o 13,04 % secondo le settimane."
+   ]
+  }
+ },
+ "calcul-tva": {
+  "fr": {
+   "metaTitle": "Calcul TVA Suisse 2026 : HT ↔ TTC à 8,1 %, 2,6 %, 3,8 % | Cantia",
+   "metaDescription": "Calculateur de TVA suisse gratuit : passez du hors taxe au TTC et inversement aux taux 2026 (8,1 %, 2,6 %, 3,8 %), avec arrondi aux 5 centimes.",
+   "kicker": "Outil gratuit · TVA",
+   "title": "Calcul de TVA suisse",
+   "lede": "Hors taxe vers TTC ou TTC vers hors taxe, aux taux en vigueur en Suisse. Avec le montant de TVA à reporter sur vos devis et factures.",
+   "group": "Montant",
+   "haveHt": "J’ai le montant HT",
+   "haveTtc": "J’ai le montant TTC",
+   "amountHt": "Montant hors TVA",
+   "amountTtc": "Montant TVA comprise",
+   "rate": "Taux de TVA",
+   "rateNormal": "normal",
+   "rateReduced": "réduit",
+   "rateLodging": "hébergement",
+   "round": "Arrondir la TVA aux 5 centimes",
+   "yes": "Oui",
+   "no": "Non",
+   "ht": "Montant HT",
+   "ttc": "Montant TTC",
+   "vat": "TVA",
+   "formula": "Formule : TTC = HT × {f} · HT = TTC ÷ {f}",
+   "pdfTitle": "Calcul de TVA",
+   "pdfRound": "Arrondi aux 5 centimes",
+   "pdfRate": "Taux",
+   "pdfHint": "Le calcul sur une page, à joindre à votre devis ou à votre comptabilité.",
+   "pdfCta": "Devis et factures avec TVA et décompte AFC automatiques : cantia.ch · 14 jours d’essai",
+   "ctaTitle": "Avec Cantia, la TVA se calcule toute seule",
+   "ctaPoints": [
+    "Taux par document (8,1 %, 2,6 %, 3,8 % ou sans TVA) sur vos devis et factures",
+    "Factures QR conformes, envoyées par e-mail",
+    "Décompte TVA trimestriel rempli comme le formulaire de l’AFC",
+    "Non assujetti ? Les documents sont émis sans TVA automatiquement"
+   ],
+   "faq": [
+    {
+     "q": "Quels sont les taux de TVA en Suisse en 2026 ?",
+     "a": "Depuis le 1er janvier 2024 : 8,1 % (taux normal, la plupart des travaux et prestations du bâtiment), 2,6 % (taux réduit : denrées alimentaires, livres, médicaments) et 3,8 % (taux spécial pour l’hébergement)."
+    },
+    {
+     "q": "Comment passer d’un prix TTC à un prix HT ?",
+     "a": "Divisez le prix TTC par 1 + le taux. Au taux normal : HT = TTC ÷ 1,081. La TVA vaut alors TTC − HT. Par exemple, CHF 1’081 TTC = CHF 1’000 HT + CHF 81 de TVA."
+    },
+    {
+     "q": "Faut-il arrondir la TVA aux 5 centimes ?",
+     "a": "Sur une facture, l’arrondi aux 5 centimes est l’usage en Suisse pour les montants payables en espèces, mais il n’est pas obligatoire. Dans le décompte TVA, seul le montant final peut être arrondi, en faveur du contribuable."
+    },
+    {
+     "q": "À partir de quel chiffre d’affaires faut-il s’assujettir à la TVA ?",
+     "a": "L’assujettissement est obligatoire dès CHF 100’000 de chiffre d’affaires annuel provenant de prestations imposables en Suisse. En dessous, on peut s’assujettir volontairement pour récupérer la TVA sur les achats."
+    }
+   ]
+  },
+  "de": {
+   "metaTitle": "MWST-Rechner Schweiz 2026: exkl. ↔ inkl. 8,1 %, 2,6 %, 3,8 %",
+   "metaDescription": "Gratis MWST-Rechner für die Schweiz: von exkl. zu inkl. MWST und zurück, zu den Sätzen 2026 (8,1 %, 2,6 %, 3,8 %), mit Rundung auf 5 Rappen.",
+   "kicker": "Gratis-Tool · MWST",
+   "title": "MWST-Rechner Schweiz",
+   "lede": "Von exkl. zu inkl. MWST oder umgekehrt, zu den geltenden Schweizer Sätzen. Mit dem MWST-Betrag für Ihre Offerten und Rechnungen.",
+   "group": "Betrag",
+   "haveHt": "Ich habe den Betrag exkl. MWST",
+   "haveTtc": "Ich habe den Betrag inkl. MWST",
+   "amountHt": "Betrag exkl. MWST",
+   "amountTtc": "Betrag inkl. MWST",
+   "rate": "MWST-Satz",
+   "rateNormal": "Normalsatz",
+   "rateReduced": "reduziert",
+   "rateLodging": "Beherbergung",
+   "round": "MWST auf 5 Rappen runden",
+   "yes": "Ja",
+   "no": "Nein",
+   "ht": "Betrag exkl. MWST",
+   "ttc": "Betrag inkl. MWST",
+   "vat": "MWST",
+   "formula": "Formel: inkl. = exkl. × {f} · exkl. = inkl. ÷ {f}",
+   "pdfTitle": "MWST-Berechnung",
+   "pdfRound": "Rundung auf 5 Rappen",
+   "pdfRate": "Satz",
+   "pdfHint": "Die Berechnung auf einer Seite, für Ihre Offerte oder Buchhaltung.",
+   "pdfCta": "Offerten und Rechnungen mit MWST und ESTV-Abrechnung automatisch: cantia.ch · 14 Tage gratis",
+   "ctaTitle": "Mit Cantia rechnet sich die MWST von selbst",
+   "ctaPoints": [
+    "Satz pro Dokument (8,1 %, 2,6 %, 3,8 % oder ohne MWST) auf Offerten und Rechnungen",
+    "Konforme QR-Rechnungen, per E-Mail versendet",
+    "Quartalsabrechnung der MWST wie das Formular der ESTV ausgefüllt",
+    "Nicht mehrwertsteuerpflichtig? Die Dokumente gehen automatisch ohne MWST raus"
+   ],
+   "faq": [
+    {
+     "q": "Welche MWST-Sätze gelten 2026 in der Schweiz?",
+     "a": "Seit dem 1. Januar 2024: 8,1 % (Normalsatz, die meisten Bauarbeiten und Leistungen), 2,6 % (reduzierter Satz: Lebensmittel, Bücher, Medikamente) und 3,8 % (Sondersatz für Beherbergung)."
+    },
+    {
+     "q": "Wie rechnet man von inkl. auf exkl. MWST?",
+     "a": "Teilen Sie den Betrag inkl. MWST durch 1 + Satz. Zum Normalsatz: exkl. = inkl. ÷ 1,081. Die MWST ist dann inkl. − exkl. Beispiel: CHF 1’081 inkl. = CHF 1’000 exkl. + CHF 81 MWST."
+    },
+    {
+     "q": "Muss die MWST auf 5 Rappen gerundet werden?",
+     "a": "Auf Rechnungen ist die Rundung auf 5 Rappen in der Schweiz für bar zahlbare Beträge üblich, aber nicht vorgeschrieben. In der MWST-Abrechnung darf nur der Schlussbetrag gerundet werden, zugunsten der steuerpflichtigen Person."
+    },
+    {
+     "q": "Ab welchem Umsatz ist man mehrwertsteuerpflichtig?",
+     "a": "Die Steuerpflicht gilt ab CHF 100’000 Jahresumsatz aus steuerbaren Leistungen im Inland. Darunter kann man sich freiwillig unterstellen, um die Vorsteuer auf Einkäufen abzuziehen."
+    }
+   ]
+  },
+  "it": {
+   "metaTitle": "Calcolo IVA Svizzera 2026: 8,1 %, 2,6 %, 3,8 %",
+   "metaDescription": "Calcolatore IVA svizzero gratuito: da IVA esclusa a inclusa e viceversa, alle aliquote 2026 (8,1 %, 2,6 %, 3,8 %), arrotondamento ai 5 centesimi.",
+   "kicker": "Strumento gratuito · IVA",
+   "title": "Calcolo dell’IVA svizzera",
+   "lede": "Da IVA esclusa a IVA inclusa o viceversa, alle aliquote in vigore in Svizzera. Con l’importo dell’IVA da riportare su preventivi e fatture.",
+   "group": "Importo",
+   "haveHt": "Ho l’importo IVA esclusa",
+   "haveTtc": "Ho l’importo IVA inclusa",
+   "amountHt": "Importo IVA esclusa",
+   "amountTtc": "Importo IVA inclusa",
+   "rate": "Aliquota IVA",
+   "rateNormal": "normale",
+   "rateReduced": "ridotta",
+   "rateLodging": "alloggio",
+   "round": "Arrotondare l’IVA ai 5 centesimi",
+   "yes": "Sì",
+   "no": "No",
+   "ht": "Importo IVA esclusa",
+   "ttc": "Importo IVA inclusa",
+   "vat": "IVA",
+   "formula": "Formula: inclusa = esclusa × {f} · esclusa = inclusa ÷ {f}",
+   "pdfTitle": "Calcolo dell’IVA",
+   "pdfRound": "Arrotondamento ai 5 centesimi",
+   "pdfRate": "Aliquota",
+   "pdfHint": "Il calcolo su una pagina, da allegare al preventivo o alla contabilità.",
+   "pdfCta": "Preventivi e fatture con IVA e rendiconto AFC automatici: cantia.ch · 14 giorni di prova",
+   "ctaTitle": "Con Cantia l’IVA si calcola da sola",
+   "ctaPoints": [
+    "Aliquota per documento (8,1 %, 2,6 %, 3,8 % o senza IVA) su preventivi e fatture",
+    "Fatture QR conformi, inviate per e-mail",
+    "Rendiconto IVA trimestrale compilato come il modulo dell’AFC",
+    "Non assoggettati? I documenti vengono emessi senza IVA automaticamente"
+   ],
+   "faq": [
+    {
+     "q": "Quali sono le aliquote IVA in Svizzera nel 2026?",
+     "a": "Dal 1° gennaio 2024: 8,1 % (aliquota normale, la maggior parte dei lavori e delle prestazioni edili), 2,6 % (aliquota ridotta: alimenti, libri, medicamenti) e 3,8 % (aliquota speciale per l’alloggio)."
+    },
+    {
+     "q": "Come si passa da un prezzo IVA inclusa a IVA esclusa?",
+     "a": "Si divide il prezzo IVA inclusa per 1 + l’aliquota. All’aliquota normale: esclusa = inclusa ÷ 1,081. L’IVA vale allora inclusa − esclusa. Esempio: CHF 1’081 IVA inclusa = CHF 1’000 IVA esclusa + CHF 81 di IVA."
+    },
+    {
+     "q": "L’IVA va arrotondata ai 5 centesimi?",
+     "a": "In fattura l’arrotondamento ai 5 centesimi è l’uso in Svizzera per gli importi pagabili in contanti, ma non è obbligatorio. Nel rendiconto IVA si può arrotondare solo l’importo finale, a favore del contribuente."
+    },
+    {
+     "q": "Da quale cifra d’affari si è assoggettati all’IVA?",
+     "a": "L’assoggettamento è obbligatorio da CHF 100’000 di cifra d’affari annua da prestazioni imponibili in Svizzera. Sotto questa soglia ci si può assoggettare volontariamente per recuperare l’IVA sugli acquisti."
+    }
+   ]
+  }
+ },
+ "calcul-taux-horaire": {
+  "fr": {
+   "metaTitle": "Calcul du taux horaire artisan en Suisse (gratuit) | Cantia",
+   "metaDescription": "Calculez le prix de revient d’une heure et le taux horaire à facturer : salaires, 13e, charges sociales, frais généraux et marge. Outil gratuit pour les entreprises du bâtiment.",
+   "kicker": "Outil gratuit · Bâtiment",
+   "title": "Calcul du taux horaire",
+   "lede": "Le prix de revient d’une heure de travail et le taux à facturer pour couvrir les salaires, les charges, les frais généraux et votre marge. Pour ne plus vendre une heure à perte.",
+   "team": "Équipe",
+   "salary": "Salaire mensuel brut moyen par employé",
+   "salaries12": "12 salaires",
+   "salaries13": "13 salaires",
+   "employees": "Employés productifs (sur les chantiers)",
+   "charges": "Charges patronales",
+   "chargesHint": "AVS/AI/APG, AC, LPP, LAA, allocations familiales : 14 à 18 % en général.",
+   "hours": "Heures facturables par employé et par an",
+   "hoursHint": "Après vacances, fériés, maladie, déplacements et temps non facturable : 1’500 à 1’700 h.",
+   "company": "Entreprise",
+   "overhead": "Frais généraux annuels",
+   "overheadHint": "Loyer, véhicules, assurances, outillage, téléphone, comptabilité, salaires du bureau…",
+   "perYear": "CHF / an",
+   "margin": "Marge bénéficiaire sur le prix de vente",
+   "result": "Taux horaire à facturer (HT)",
+   "resultSub": "Prix de revient : CHF {cost} / h · TTC : CHF {ttc}",
+   "hourCost": "Ce que coûte une heure",
+   "salaryCharges": "Salaire et charges",
+   "overheadLine": "Frais généraux",
+   "costPrice": "Prix de revient",
+   "marginLine": "Marge ({m})",
+   "rateHt": "Taux de vente HT",
+   "perYearShort": "/ an",
+   "note": "Avec {hours} heures facturées par an, ce taux couvre CHF {cost} de coûts et dégage environ CHF {profit} de bénéfice.",
+   "pdfTitle": "Taux horaire de l’entreprise",
+   "pdfSalary": "Salaire mensuel brut moyen",
+   "pdfEmployees": "Employés productifs",
+   "pdfHours": "Heures facturables par employé et par an",
+   "pdfOverhead": "Frais généraux annuels",
+   "pdfMargin": "Marge bénéficiaire",
+   "pdfHighlight": "Taux horaire de vente (HT)",
+   "pdfPayroll": "Masse salariale annuelle",
+   "pdfCharges": "Charges patronales",
+   "pdfCost": "Coût total annuel",
+   "pdfBillable": "Heures facturables",
+   "pdfCostHour": "Prix de revient par heure",
+   "pdfTtc": "Taux horaire TTC (8,1 %)",
+   "pdfProfit": "Bénéfice annuel visé",
+   "pdfHint": "Le détail du calcul sur une page, à garder pour vos devis.",
+   "pdfCta": "Devis, heures et rentabilité par chantier automatiques avec Cantia : cantia.ch · 14 jours d’essai",
+   "ctaTitle": "Cantia calcule la rentabilité de chaque chantier",
+   "ctaPoints": [
+    "Vos taux horaires repris automatiquement dans chaque devis",
+    "Les heures saisies sur le chantier comparées au devis, en direct",
+    "Rentabilité réelle par chantier : heures, matériel, sous-traitants",
+    "Factures QR, rappels et salaires suisses dans le même outil"
+   ],
+   "faq": [
+    {
+     "q": "Comment calculer le taux horaire d’un artisan en Suisse ?",
+     "a": "Additionnez sur une année les salaires bruts (13e salaire compris), les charges patronales (environ 14 à 18 % : AVS, AC, LPP, LAA, allocations familiales) et les frais généraux (loyer, véhicules, assurances, outillage, administration). Divisez par les heures réellement facturables, puis ajoutez votre marge : vous obtenez le taux horaire de vente hors TVA."
+    },
+    {
+     "q": "Combien d’heures facturables compter par employé ?",
+     "a": "Un plein temps à 42 heures représente environ 2’100 heures par an. Après vacances, jours fériés, maladie, formation, déplacements et temps non facturable (préparation, rangement, garanties), il reste en général 1’500 à 1’700 heures réellement facturées."
+    },
+    {
+     "q": "Quelle marge appliquer sur le taux horaire ?",
+     "a": "Dans le bâtiment, une marge bénéficiaire de 5 à 15 % du prix de vente est courante. Elle doit couvrir les risques (dépassements, mauvais payeurs) et permettre d’investir. Le calculateur montre aussi le bénéfice annuel que représente votre marge."
+    },
+    {
+     "q": "Le taux horaire inclut-il la TVA ?",
+     "a": "Non, le taux calculé est hors TVA. Si vous êtes assujetti, ajoutez 8,1 % sur la facture ; le calculateur affiche aussi le taux TTC."
+    }
+   ]
+  },
+  "de": {
+   "metaTitle": "Stundensatz berechnen im Handwerk (gratis Rechner)",
+   "metaDescription": "Berechnen Sie die Selbstkosten einer Stunde und den Stundensatz: Löhne, 13. Monatslohn, Sozialabgaben, Gemeinkosten und Marge. Gratis für Baubetriebe.",
+   "kicker": "Gratis-Tool · Bau",
+   "title": "Stundensatz berechnen",
+   "lede": "Die Selbstkosten einer Arbeitsstunde und der Satz, der Löhne, Abgaben, Gemeinkosten und Ihre Marge deckt. Damit Sie keine Stunde mehr mit Verlust verkaufen.",
+   "team": "Team",
+   "salary": "Durchschnittlicher Bruttomonatslohn pro Mitarbeitende",
+   "salaries12": "12 Monatslöhne",
+   "salaries13": "13 Monatslöhne",
+   "employees": "Produktive Mitarbeitende (auf der Baustelle)",
+   "charges": "Arbeitgeberbeiträge",
+   "chargesHint": "AHV/IV/EO, ALV, BVG, UVG, Familienzulagen: meist 14 bis 18 %.",
+   "hours": "Verrechenbare Stunden pro Mitarbeitende und Jahr",
+   "hoursHint": "Nach Ferien, Feiertagen, Krankheit, Wegzeit und nicht verrechenbarer Zeit: 1’500 bis 1’700 h.",
+   "company": "Betrieb",
+   "overhead": "Jährliche Gemeinkosten",
+   "overheadHint": "Miete, Fahrzeuge, Versicherungen, Werkzeug, Telefon, Buchhaltung, Bürolöhne…",
+   "perYear": "CHF / Jahr",
+   "margin": "Gewinnmarge auf dem Verkaufspreis",
+   "result": "Stundensatz exkl. MWST",
+   "resultSub": "Selbstkosten: CHF {cost} / h · inkl. MWST: CHF {ttc}",
+   "hourCost": "Was eine Stunde kostet",
+   "salaryCharges": "Lohn und Abgaben",
+   "overheadLine": "Gemeinkosten",
+   "costPrice": "Selbstkosten",
+   "marginLine": "Marge ({m})",
+   "rateHt": "Verkaufssatz exkl. MWST",
+   "perYearShort": "/ Jahr",
+   "note": "Mit {hours} verrechneten Stunden pro Jahr deckt dieser Satz CHF {cost} Kosten und bringt rund CHF {profit} Gewinn.",
+   "pdfTitle": "Stundensatz des Betriebs",
+   "pdfSalary": "Durchschnittlicher Bruttomonatslohn",
+   "pdfEmployees": "Produktive Mitarbeitende",
+   "pdfHours": "Verrechenbare Stunden pro Mitarbeitende und Jahr",
+   "pdfOverhead": "Jährliche Gemeinkosten",
+   "pdfMargin": "Gewinnmarge",
+   "pdfHighlight": "Verkaufsstundensatz (exkl. MWST)",
+   "pdfPayroll": "Jährliche Lohnsumme",
+   "pdfCharges": "Arbeitgeberbeiträge",
+   "pdfCost": "Gesamtkosten pro Jahr",
+   "pdfBillable": "Verrechenbare Stunden",
+   "pdfCostHour": "Selbstkosten pro Stunde",
+   "pdfTtc": "Stundensatz inkl. MWST (8,1 %)",
+   "pdfProfit": "Angestrebter Jahresgewinn",
+   "pdfHint": "Die ganze Berechnung auf einer Seite, für Ihre Offerten.",
+   "pdfCta": "Offerten, Stunden und Rentabilität pro Baustelle automatisch mit Cantia: cantia.ch · 14 Tage gratis",
+   "ctaTitle": "Cantia rechnet die Rentabilität jeder Baustelle",
+   "ctaPoints": [
+    "Ihre Stundensätze automatisch in jeder Offerte",
+    "Die auf der Baustelle erfassten Stunden live mit der Offerte verglichen",
+    "Echte Rentabilität pro Baustelle: Stunden, Material, Subunternehmer",
+    "QR-Rechnungen, Mahnungen und Schweizer Löhne im selben Tool"
+   ],
+   "faq": [
+    {
+     "q": "Wie berechnet man den Stundensatz eines Handwerksbetriebs in der Schweiz?",
+     "a": "Zählen Sie über ein Jahr die Bruttolöhne (inkl. 13. Monatslohn), die Arbeitgeberbeiträge (rund 14 bis 18 %: AHV, ALV, BVG, UVG, Familienzulagen) und die Gemeinkosten (Miete, Fahrzeuge, Versicherungen, Werkzeug, Administration) zusammen. Teilen Sie durch die tatsächlich verrechenbaren Stunden und rechnen Sie Ihre Marge dazu: Das ergibt den Verkaufsstundensatz exkl. MWST."
+    },
+    {
+     "q": "Wie viele verrechenbare Stunden pro Mitarbeitende rechnet man?",
+     "a": "Eine Vollzeitstelle mit 42 Stunden ergibt rund 2’100 Stunden pro Jahr. Nach Ferien, Feiertagen, Krankheit, Weiterbildung, Wegzeit und nicht verrechenbarer Zeit (Vorbereitung, Aufräumen, Garantiearbeiten) bleiben meist 1’500 bis 1’700 tatsächlich verrechnete Stunden."
+    },
+    {
+     "q": "Welche Marge rechnet man auf den Stundensatz?",
+     "a": "Im Bau ist eine Gewinnmarge von 5 bis 15 % des Verkaufspreises üblich. Sie muss die Risiken (Überschreitungen, schlechte Zahler) decken und Investitionen erlauben. Der Rechner zeigt auch den Jahresgewinn, den Ihre Marge ergibt."
+    },
+    {
+     "q": "Ist die MWST im Stundensatz enthalten?",
+     "a": "Nein, der berechnete Satz versteht sich exkl. MWST. Wenn Sie mehrwertsteuerpflichtig sind, kommen 8,1 % auf die Rechnung; der Rechner zeigt auch den Satz inkl. MWST."
+    }
+   ]
+  },
+  "it": {
+   "metaTitle": "Calcolo della tariffa oraria dell’artigiano (gratis)",
+   "metaDescription": "Calcolate il prezzo di costo di un’ora e la tariffa oraria: salari, tredicesima, oneri sociali, spese generali e margine. Gratis per le imprese edili.",
+   "kicker": "Strumento gratuito · Edilizia",
+   "title": "Calcolo della tariffa oraria",
+   "lede": "Il prezzo di costo di un’ora di lavoro e la tariffa che copre salari, oneri, spese generali e il vostro margine. Per non vendere più un’ora in perdita.",
+   "team": "Squadra",
+   "salary": "Salario mensile lordo medio per dipendente",
+   "salaries12": "12 mensilità",
+   "salaries13": "13 mensilità",
+   "employees": "Dipendenti produttivi (in cantiere)",
+   "charges": "Oneri del datore di lavoro",
+   "chargesHint": "AVS/AI/IPG, AD, LPP, LAINF, assegni familiari: in genere dal 14 al 18 %.",
+   "hours": "Ore fatturabili per dipendente e per anno",
+   "hoursHint": "Dopo vacanze, festivi, malattia, spostamenti e tempo non fatturabile: da 1’500 a 1’700 h.",
+   "company": "Impresa",
+   "overhead": "Spese generali annue",
+   "overheadHint": "Affitto, veicoli, assicurazioni, attrezzi, telefono, contabilità, salari dell’ufficio…",
+   "perYear": "CHF / anno",
+   "margin": "Margine di utile sul prezzo di vendita",
+   "result": "Tariffa oraria da fatturare (IVA esclusa)",
+   "resultSub": "Prezzo di costo: CHF {cost} / h · IVA inclusa: CHF {ttc}",
+   "hourCost": "Quanto costa un’ora",
+   "salaryCharges": "Salario e oneri",
+   "overheadLine": "Spese generali",
+   "costPrice": "Prezzo di costo",
+   "marginLine": "Margine ({m})",
+   "rateHt": "Tariffa di vendita IVA esclusa",
+   "perYearShort": "/ anno",
+   "note": "Con {hours} ore fatturate all’anno, questa tariffa copre CHF {cost} di costi e genera circa CHF {profit} di utile.",
+   "pdfTitle": "Tariffa oraria dell’impresa",
+   "pdfSalary": "Salario mensile lordo medio",
+   "pdfEmployees": "Dipendenti produttivi",
+   "pdfHours": "Ore fatturabili per dipendente e per anno",
+   "pdfOverhead": "Spese generali annue",
+   "pdfMargin": "Margine di utile",
+   "pdfHighlight": "Tariffa oraria di vendita (IVA esclusa)",
+   "pdfPayroll": "Massa salariale annua",
+   "pdfCharges": "Oneri del datore di lavoro",
+   "pdfCost": "Costo totale annuo",
+   "pdfBillable": "Ore fatturabili",
+   "pdfCostHour": "Prezzo di costo per ora",
+   "pdfTtc": "Tariffa oraria IVA inclusa (8,1 %)",
+   "pdfProfit": "Utile annuo previsto",
+   "pdfHint": "Il dettaglio del calcolo su una pagina, da tenere per i preventivi.",
+   "pdfCta": "Preventivi, ore e redditività per cantiere automatici con Cantia: cantia.ch · 14 giorni di prova",
+   "ctaTitle": "Cantia calcola la redditività di ogni cantiere",
+   "ctaPoints": [
+    "Le vostre tariffe orarie riprese automaticamente in ogni preventivo",
+    "Le ore registrate in cantiere confrontate con il preventivo, in diretta",
+    "Redditività reale per cantiere: ore, materiale, subappaltatori",
+    "Fatture QR, solleciti e salari svizzeri nello stesso strumento"
+   ],
+   "faq": [
+    {
+     "q": "Come si calcola la tariffa oraria di un artigiano in Svizzera?",
+     "a": "Sommate su un anno i salari lordi (tredicesima compresa), gli oneri del datore di lavoro (circa dal 14 al 18 %: AVS, AD, LPP, LAINF, assegni familiari) e le spese generali (affitto, veicoli, assicurazioni, attrezzi, amministrazione). Dividete per le ore realmente fatturabili e aggiungete il margine: ottenete la tariffa oraria di vendita IVA esclusa."
+    },
+    {
+     "q": "Quante ore fatturabili contare per dipendente?",
+     "a": "Un tempo pieno a 42 ore rappresenta circa 2’100 ore all’anno. Dopo vacanze, festivi, malattia, formazione, spostamenti e tempo non fatturabile (preparazione, riordino, garanzie), restano in genere da 1’500 a 1’700 ore realmente fatturate."
+    },
+    {
+     "q": "Che margine applicare sulla tariffa oraria?",
+     "a": "Nell’edilizia è comune un margine di utile dal 5 al 15 % del prezzo di vendita. Deve coprire i rischi (sforamenti, cattivi pagatori) e permettere di investire. Il calcolatore mostra anche l’utile annuo che rappresenta il vostro margine."
+    },
+    {
+     "q": "La tariffa oraria include l’IVA?",
+     "a": "No, la tariffa calcolata è IVA esclusa. Se siete assoggettati, aggiungete l’8,1 % in fattura; il calcolatore mostra anche la tariffa IVA inclusa."
+    }
+   ]
+  }
+ },
+ "calcul-marge": {
+  "fr": {
+   "metaTitle": "Calcul de marge et prix de vente (marge, majoration, coefficient) | Cantia",
+   "metaDescription": "Calculez votre prix de vente à partir du coût et de la marge souhaitée, et comprenez la différence entre marge, majoration et coefficient. Outil gratuit.",
+   "kicker": "Outil gratuit · Prix",
+   "title": "Calcul de marge",
+   "lede": "Le prix de vente juste à partir de votre coût, sans confondre marge et majoration. Avec le coefficient à appliquer dans vos devis.",
+   "group": "Calcul",
+   "knowMargin": "Je connais ma marge",
+   "knowPrice": "Je connais mon prix de vente",
+   "cost": "Coût (prix d’achat ou de revient, HT)",
+   "marginWanted": "Marge souhaitée sur le prix de vente",
+   "priceHt": "Prix de vente HT",
+   "yourMargin": "Votre marge",
+   "sub": "Bénéfice : CHF {profit} · coefficient {coef}",
+   "marginLine": "Marge (sur le prix de vente)",
+   "markupLine": "Majoration (sur le coût)",
+   "coefLine": "Coefficient multiplicateur",
+   "table": "Correspondances",
+   "tableRow": "Marge {m} %",
+   "tableValue": "majoration {k} · ×{c}",
+   "warn": "Multiplier un coût par 1,20 ne donne pas 20 % de marge mais 16,7 %. Pour 20 % de marge, il faut multiplier par 1,25.",
+   "pdfTitle": "Calcul de marge",
+   "pdfCost": "Coût (prix d’achat ou de revient)",
+   "pdfMargin": "Marge souhaitée",
+   "pdfPrice": "Prix de vente",
+   "pdfProfit": "Bénéfice",
+   "pdfNote": "Marge {m} % = majoration {k} = coefficient {c}",
+   "pdfHint": "Le calcul et le tableau des correspondances sur une page.",
+   "pdfCta": "Marges appliquées automatiquement dans vos devis avec Cantia : cantia.ch · 14 jours d’essai",
+   "ctaTitle": "Des devis justes, sans calculette",
+   "ctaPoints": [
+    "Catalogue de vos articles avec prix d’achat et marge",
+    "Prix de vente calculés automatiquement dans chaque devis",
+    "Rentabilité réelle de chaque chantier après coup",
+    "Devis signés en ligne et transformés en facture en un clic"
+   ],
+   "faq": [
+    {
+     "q": "Quelle est la différence entre marge et majoration ?",
+     "a": "La marge se calcule sur le prix de vente, la majoration (ou taux de marque) sur le coût. Un matériel acheté CHF 100 et revendu CHF 125 donne CHF 25 de bénéfice : 20 % de marge (25 ÷ 125) mais 25 % de majoration (25 ÷ 100). Confondre les deux fait perdre de l’argent sur chaque devis."
+    },
+    {
+     "q": "Comment calculer un prix de vente à partir d’une marge ?",
+     "a": "Prix de vente = coût ÷ (1 − marge). Pour 20 % de marge sur un coût de CHF 100 : 100 ÷ 0,8 = CHF 125. Multiplier le coût par 1,20 ne donne que 16,7 % de marge."
+    },
+    {
+     "q": "Qu’est-ce que le coefficient multiplicateur ?",
+     "a": "C’est le nombre par lequel multiplier le coût d’achat pour obtenir le prix de vente : prix ÷ coût. Un coefficient de 1,25 correspond à 25 % de majoration et 20 % de marge."
+    },
+    {
+     "q": "Quelle marge appliquer sur le matériel dans le bâtiment ?",
+     "a": "Elle varie selon le métier et la concurrence : souvent 10 à 25 % sur le matériel fourni, davantage sur les petites fournitures. Elle doit couvrir la commande, le transport, le stockage, la garantie et le risque d’impayé."
+    }
+   ]
+  },
+  "de": {
+   "metaTitle": "Marge berechnen: Verkaufspreis, Zuschlag und Faktor",
+   "metaDescription": "Berechnen Sie den Verkaufspreis aus Kosten und gewünschter Marge und verstehen Sie den Unterschied zwischen Marge, Zuschlag und Kalkulationsfaktor. Gratis.",
+   "kicker": "Gratis-Tool · Preise",
+   "title": "Marge berechnen",
+   "lede": "Der richtige Verkaufspreis aus Ihren Kosten, ohne Marge und Zuschlag zu verwechseln. Mit dem Faktor für Ihre Offerten.",
+   "group": "Berechnung",
+   "knowMargin": "Ich kenne meine Marge",
+   "knowPrice": "Ich kenne meinen Verkaufspreis",
+   "cost": "Kosten (Einkaufs- oder Selbstkostenpreis, exkl. MWST)",
+   "marginWanted": "Gewünschte Marge auf dem Verkaufspreis",
+   "priceHt": "Verkaufspreis exkl. MWST",
+   "yourMargin": "Ihre Marge",
+   "sub": "Gewinn: CHF {profit} · Faktor {coef}",
+   "marginLine": "Marge (auf dem Verkaufspreis)",
+   "markupLine": "Zuschlag (auf den Kosten)",
+   "coefLine": "Kalkulationsfaktor",
+   "table": "Entsprechungen",
+   "tableRow": "Marge {m} %",
+   "tableValue": "Zuschlag {k} · ×{c}",
+   "warn": "Kosten × 1,20 ergibt nicht 20 % Marge, sondern 16,7 %. Für 20 % Marge muss man mit 1,25 multiplizieren.",
+   "pdfTitle": "Margenberechnung",
+   "pdfCost": "Kosten (Einkaufs- oder Selbstkostenpreis)",
+   "pdfMargin": "Gewünschte Marge",
+   "pdfPrice": "Verkaufspreis",
+   "pdfProfit": "Gewinn",
+   "pdfNote": "Marge {m} % = Zuschlag {k} = Faktor {c}",
+   "pdfHint": "Die Berechnung und die Tabelle der Entsprechungen auf einer Seite.",
+   "pdfCta": "Margen automatisch in Ihren Offerten mit Cantia: cantia.ch · 14 Tage gratis",
+   "ctaTitle": "Richtige Offerten, ohne Taschenrechner",
+   "ctaPoints": [
+    "Artikelkatalog mit Einkaufspreis und Marge",
+    "Verkaufspreise automatisch in jeder Offerte berechnet",
+    "Echte Rentabilität jeder Baustelle im Nachhinein",
+    "Online unterschriebene Offerten, mit einem Klick zur Rechnung"
+   ],
+   "faq": [
+    {
+     "q": "Was ist der Unterschied zwischen Marge und Zuschlag?",
+     "a": "Die Marge bezieht sich auf den Verkaufspreis, der Zuschlag auf die Kosten. Material für CHF 100 eingekauft und für CHF 125 verkauft ergibt CHF 25 Gewinn: 20 % Marge (25 ÷ 125), aber 25 % Zuschlag (25 ÷ 100). Wer beides verwechselt, verliert bei jeder Offerte Geld."
+    },
+    {
+     "q": "Wie berechnet man einen Verkaufspreis aus einer Marge?",
+     "a": "Verkaufspreis = Kosten ÷ (1 − Marge). Für 20 % Marge auf CHF 100 Kosten: 100 ÷ 0,8 = CHF 125. Kosten × 1,20 ergibt nur 16,7 % Marge."
+    },
+    {
+     "q": "Was ist der Kalkulationsfaktor?",
+     "a": "Die Zahl, mit der man den Einkaufspreis multipliziert, um den Verkaufspreis zu erhalten: Preis ÷ Kosten. Ein Faktor von 1,25 entspricht 25 % Zuschlag und 20 % Marge."
+    },
+    {
+     "q": "Welche Marge rechnet man im Bau auf Material?",
+     "a": "Das hängt von Branche und Konkurrenz ab: oft 10 bis 25 % auf geliefertes Material, mehr auf Kleinmaterial. Sie muss Bestellung, Transport, Lager, Garantie und das Risiko unbezahlter Rechnungen decken."
+    }
+   ]
+  },
+  "it": {
+   "metaTitle": "Calcolo del margine: prezzo, ricarico, coefficiente",
+   "metaDescription": "Calcolate il prezzo di vendita dal costo e dal margine e capite la differenza tra margine, ricarico e coefficiente moltiplicatore. Strumento gratuito.",
+   "kicker": "Strumento gratuito · Prezzi",
+   "title": "Calcolo del margine",
+   "lede": "Il prezzo di vendita giusto a partire dal vostro costo, senza confondere margine e ricarico. Con il coefficiente da applicare nei preventivi.",
+   "group": "Calcolo",
+   "knowMargin": "Conosco il mio margine",
+   "knowPrice": "Conosco il mio prezzo di vendita",
+   "cost": "Costo (prezzo d’acquisto o di costo, IVA esclusa)",
+   "marginWanted": "Margine desiderato sul prezzo di vendita",
+   "priceHt": "Prezzo di vendita IVA esclusa",
+   "yourMargin": "Il vostro margine",
+   "sub": "Utile: CHF {profit} · coefficiente {coef}",
+   "marginLine": "Margine (sul prezzo di vendita)",
+   "markupLine": "Ricarico (sul costo)",
+   "coefLine": "Coefficiente moltiplicatore",
+   "table": "Corrispondenze",
+   "tableRow": "Margine {m} %",
+   "tableValue": "ricarico {k} · ×{c}",
+   "warn": "Moltiplicare un costo per 1,20 non dà il 20 % di margine ma il 16,7 %. Per un margine del 20 % bisogna moltiplicare per 1,25.",
+   "pdfTitle": "Calcolo del margine",
+   "pdfCost": "Costo (prezzo d’acquisto o di costo)",
+   "pdfMargin": "Margine desiderato",
+   "pdfPrice": "Prezzo di vendita",
+   "pdfProfit": "Utile",
+   "pdfNote": "Margine {m} % = ricarico {k} = coefficiente {c}",
+   "pdfHint": "Il calcolo e la tabella delle corrispondenze su una pagina.",
+   "pdfCta": "Margini applicati automaticamente nei preventivi con Cantia: cantia.ch · 14 giorni di prova",
+   "ctaTitle": "Preventivi giusti, senza calcolatrice",
+   "ctaPoints": [
+    "Catalogo degli articoli con prezzo d’acquisto e margine",
+    "Prezzi di vendita calcolati automaticamente in ogni preventivo",
+    "Redditività reale di ogni cantiere a posteriori",
+    "Preventivi firmati online e trasformati in fattura con un clic"
+   ],
+   "faq": [
+    {
+     "q": "Qual è la differenza tra margine e ricarico?",
+     "a": "Il margine si calcola sul prezzo di vendita, il ricarico sul costo. Un materiale comprato a CHF 100 e rivenduto a CHF 125 dà CHF 25 di utile: 20 % di margine (25 ÷ 125) ma 25 % di ricarico (25 ÷ 100). Confonderli fa perdere soldi su ogni preventivo."
+    },
+    {
+     "q": "Come si calcola un prezzo di vendita da un margine?",
+     "a": "Prezzo di vendita = costo ÷ (1 − margine). Per un margine del 20 % su un costo di CHF 100: 100 ÷ 0,8 = CHF 125. Moltiplicare il costo per 1,20 dà solo il 16,7 % di margine."
+    },
+    {
+     "q": "Che cos’è il coefficiente moltiplicatore?",
+     "a": "È il numero per cui moltiplicare il costo d’acquisto per ottenere il prezzo di vendita: prezzo ÷ costo. Un coefficiente di 1,25 corrisponde al 25 % di ricarico e al 20 % di margine."
+    },
+    {
+     "q": "Che margine applicare sul materiale nell’edilizia?",
+     "a": "Dipende dal mestiere e dalla concorrenza: spesso dal 10 al 25 % sul materiale fornito, di più sulla minuteria. Deve coprire ordine, trasporto, magazzino, garanzia e rischio di insolvenza."
+    }
+   ]
+  }
+ },
+ "interets-de-retard": {
+  "fr": {
+   "metaTitle": "Calcul des intérêts de retard en Suisse (5 %, art. 104 CO) | Cantia",
+   "metaDescription": "Calculez gratuitement les intérêts moratoires d’une facture impayée selon le Code des obligations : 5 % par an dès l’échéance. Avec le total à réclamer.",
+   "kicker": "Outil gratuit · Impayés",
+   "title": "Intérêts de retard",
+   "lede": "Combien réclamer sur une facture payée en retard : les intérêts moratoires du Code des obligations, jour par jour, et le total dû.",
+   "group": "Facture",
+   "amount": "Montant de la facture (TTC)",
+   "due": "Date d’échéance",
+   "dateFormat": "Format JJ.MM.AAAA",
+   "paid": "Date du paiement (ou d’aujourd’hui)",
+   "rate": "Taux annuel",
+   "rateHint": "5 % selon l’art. 104 CO, sauf autre taux convenu.",
+   "result": "Intérêts de retard",
+   "sub": "{days} jours de retard · CHF {perDay} par jour",
+   "badDates": "Vérifiez les dates (JJ.MM.AAAA)",
+   "invoice": "Montant de la facture",
+   "interest": "Intérêts",
+   "total": "Total à réclamer",
+   "note": "Facture avec échéance fixe : le client est en demeure dès le lendemain, sans rappel. Sans échéance, envoyez d’abord un rappel : les intérêts courent dès sa réception.",
+   "pdfTitle": "Intérêts de retard",
+   "pdfDue": "Échéance",
+   "pdfPaid": "Date du paiement (ou du calcul)",
+   "pdfRate": "Taux annuel (art. 104 CO)",
+   "pdfDays": "Jours de retard",
+   "pdfPerDay": "Intérêt par jour",
+   "pdfTotal": "Montant dû avec intérêts",
+   "pdfNote": "Calcul : montant × taux × jours ÷ 365. Les intérêts courent dès le lendemain de l’échéance indiquée sur la facture (art. 102 al. 2 CO).",
+   "pdfHint": "Le décompte des intérêts sur une page, à joindre à votre rappel.",
+   "pdfCta": "Rappels de paiement automatiques et suivi des impayés avec Cantia : cantia.ch · 14 jours d’essai",
+   "ctaTitle": "Ne courez plus après vos factures",
+   "ctaPoints": [
+    "Rappels de paiement envoyés automatiquement à l’échéance",
+    "Factures QR : le paiement est rapproché tout seul",
+    "Tableau des impayés et trésorerie prévisionnelle",
+    "Relances de devis non signés, elles aussi automatiques"
+   ],
+   "faq": [
+    {
+     "q": "Quel est le taux d’intérêt de retard en Suisse ?",
+     "a": "Le Code des obligations (art. 104 CO) fixe l’intérêt moratoire à 5 % par an, sauf si le contrat ou vos conditions générales prévoient un autre taux. Entre commerçants, un taux plus élevé peut être réclamé s’il correspond au taux d’escompte bancaire usuel."
+    },
+    {
+     "q": "À partir de quand courent les intérêts de retard ?",
+     "a": "Si la facture indique une échéance précise (par exemple « payable à 30 jours »), le client est en demeure dès le lendemain de l’échéance, sans rappel (art. 102 al. 2 CO). Sans échéance fixe, il faut d’abord une interpellation, en pratique un rappel."
+    },
+    {
+     "q": "Peut-on facturer des frais de rappel ?",
+     "a": "Seulement s’ils sont prévus dans le contrat ou les conditions générales acceptées par le client. Les intérêts moratoires, eux, sont dus de par la loi."
+    },
+    {
+     "q": "Comment calculer les intérêts de retard ?",
+     "a": "Montant × taux × nombre de jours de retard ÷ 365. Pour une facture de CHF 10’000 payée 60 jours après l’échéance : 10’000 × 5 % × 60 ÷ 365 = CHF 82.20."
+    }
+   ]
+  },
+  "de": {
+   "metaTitle": "Verzugszins berechnen Schweiz (5 %, Art. 104 OR)",
+   "metaDescription": "Berechnen Sie gratis den Verzugszins einer unbezahlten Rechnung nach Obligationenrecht: 5 % pro Jahr ab Fälligkeit. Mit dem Total, das Sie fordern können.",
+   "kicker": "Gratis-Tool · Offene Rechnungen",
+   "title": "Verzugszins berechnen",
+   "lede": "Wie viel Sie für eine zu spät bezahlte Rechnung fordern können: der Verzugszins nach Obligationenrecht, Tag für Tag, und das geschuldete Total.",
+   "group": "Rechnung",
+   "amount": "Rechnungsbetrag (inkl. MWST)",
+   "due": "Fälligkeitsdatum",
+   "dateFormat": "Format TT.MM.JJJJ",
+   "paid": "Zahlungsdatum (oder heute)",
+   "rate": "Jahreszins",
+   "rateHint": "5 % nach Art. 104 OR, sofern kein anderer Satz vereinbart ist.",
+   "result": "Verzugszins",
+   "sub": "{days} Tage Verzug · CHF {perDay} pro Tag",
+   "badDates": "Bitte Daten prüfen (TT.MM.JJJJ)",
+   "invoice": "Rechnungsbetrag",
+   "interest": "Zins",
+   "total": "Total zu fordern",
+   "note": "Rechnung mit festem Fälligkeitsdatum: Der Kunde ist ab dem Folgetag in Verzug, ohne Mahnung. Ohne Fälligkeit zuerst mahnen: Der Zins läuft ab Erhalt der Mahnung.",
+   "pdfTitle": "Verzugszins",
+   "pdfDue": "Fälligkeit",
+   "pdfPaid": "Zahlungs- oder Berechnungsdatum",
+   "pdfRate": "Jahreszins (Art. 104 OR)",
+   "pdfDays": "Verzugstage",
+   "pdfPerDay": "Zins pro Tag",
+   "pdfTotal": "Geschuldeter Betrag mit Zins",
+   "pdfNote": "Berechnung: Betrag × Satz × Tage ÷ 365. Der Zins läuft ab dem Tag nach der auf der Rechnung angegebenen Fälligkeit (Art. 102 Abs. 2 OR).",
+   "pdfHint": "Die Zinsabrechnung auf einer Seite, zum Beilegen zur Mahnung.",
+   "pdfCta": "Automatische Zahlungserinnerungen und offene Posten mit Cantia: cantia.ch · 14 Tage gratis",
+   "ctaTitle": "Rennen Sie Ihren Rechnungen nicht mehr nach",
+   "ctaPoints": [
+    "Zahlungserinnerungen automatisch bei Fälligkeit versendet",
+    "QR-Rechnungen: Zahlungen werden von selbst zugeordnet",
+    "Übersicht der offenen Posten und Liquiditätsplanung",
+    "Nachfassen bei nicht unterschriebenen Offerten, ebenfalls automatisch"
+   ],
+   "faq": [
+    {
+     "q": "Wie hoch ist der Verzugszins in der Schweiz?",
+     "a": "Das Obligationenrecht (Art. 104 OR) setzt den Verzugszins auf 5 % pro Jahr fest, ausser der Vertrag oder Ihre AGB sehen einen anderen Satz vor. Unter Kaufleuten kann ein höherer Satz verlangt werden, wenn er dem üblichen Bankdiskont entspricht."
+    },
+    {
+     "q": "Ab wann läuft der Verzugszins?",
+     "a": "Nennt die Rechnung ein bestimmtes Fälligkeitsdatum (zum Beispiel «zahlbar innert 30 Tagen»), ist der Kunde ab dem Tag nach der Fälligkeit in Verzug, ohne Mahnung (Art. 102 Abs. 2 OR). Ohne festes Datum braucht es zuerst eine Mahnung."
+    },
+    {
+     "q": "Darf man Mahngebühren verrechnen?",
+     "a": "Nur wenn sie im Vertrag oder in den vom Kunden akzeptierten AGB vorgesehen sind. Der Verzugszins hingegen ist von Gesetzes wegen geschuldet."
+    },
+    {
+     "q": "Wie berechnet man den Verzugszins?",
+     "a": "Betrag × Satz × Anzahl Verzugstage ÷ 365. Für eine Rechnung über CHF 10’000, bezahlt 60 Tage nach Fälligkeit: 10’000 × 5 % × 60 ÷ 365 = CHF 82.20."
+    }
+   ]
+  },
+  "it": {
+   "metaTitle": "Interessi di mora in Svizzera (5 %, art. 104 CO)",
+   "metaDescription": "Calcolate gratis gli interessi di mora di una fattura non pagata secondo il Codice delle obbligazioni: 5 % annuo dalla scadenza. Con il totale da richiedere.",
+   "kicker": "Strumento gratuito · Insoluti",
+   "title": "Interessi di mora",
+   "lede": "Quanto richiedere per una fattura pagata in ritardo: gli interessi di mora del Codice delle obbligazioni, giorno per giorno, e il totale dovuto.",
+   "group": "Fattura",
+   "amount": "Importo della fattura (IVA inclusa)",
+   "due": "Data di scadenza",
+   "dateFormat": "Formato GG.MM.AAAA",
+   "paid": "Data del pagamento (o di oggi)",
+   "rate": "Tasso annuo",
+   "rateHint": "5 % secondo l’art. 104 CO, salvo altro tasso convenuto.",
+   "result": "Interessi di mora",
+   "sub": "{days} giorni di ritardo · CHF {perDay} al giorno",
+   "badDates": "Verificate le date (GG.MM.AAAA)",
+   "invoice": "Importo della fattura",
+   "interest": "Interessi",
+   "total": "Totale da richiedere",
+   "note": "Fattura con scadenza fissa: il cliente è in mora dal giorno dopo, senza sollecito. Senza scadenza, inviate prima un sollecito: gli interessi decorrono dalla sua ricezione.",
+   "pdfTitle": "Interessi di mora",
+   "pdfDue": "Scadenza",
+   "pdfPaid": "Data del pagamento (o del calcolo)",
+   "pdfRate": "Tasso annuo (art. 104 CO)",
+   "pdfDays": "Giorni di ritardo",
+   "pdfPerDay": "Interesse al giorno",
+   "pdfTotal": "Importo dovuto con interessi",
+   "pdfNote": "Calcolo: importo × tasso × giorni ÷ 365. Gli interessi decorrono dal giorno dopo la scadenza indicata in fattura (art. 102 cpv. 2 CO).",
+   "pdfHint": "Il conteggio degli interessi su una pagina, da allegare al sollecito.",
+   "pdfCta": "Solleciti di pagamento automatici e controllo degli insoluti con Cantia: cantia.ch · 14 giorni di prova",
+   "ctaTitle": "Basta rincorrere le fatture",
+   "ctaPoints": [
+    "Solleciti di pagamento inviati automaticamente alla scadenza",
+    "Fatture QR: il pagamento si abbina da solo",
+    "Tabella degli insoluti e previsione di liquidità",
+    "Promemoria per i preventivi non firmati, anch’essi automatici"
+   ],
+   "faq": [
+    {
+     "q": "Qual è il tasso degli interessi di mora in Svizzera?",
+     "a": "Il Codice delle obbligazioni (art. 104 CO) fissa l’interesse di mora al 5 % annuo, salvo che il contratto o le vostre condizioni generali prevedano un altro tasso. Tra commercianti si può chiedere un tasso più alto se corrisponde al tasso di sconto bancario usuale."
+    },
+    {
+     "q": "Da quando decorrono gli interessi di mora?",
+     "a": "Se la fattura indica una scadenza precisa (per esempio «pagabile a 30 giorni»), il cliente è in mora dal giorno dopo la scadenza, senza sollecito (art. 102 cpv. 2 CO). Senza scadenza fissa serve prima un’interpellazione, in pratica un sollecito."
+    },
+    {
+     "q": "Si possono fatturare spese di sollecito?",
+     "a": "Solo se previste dal contratto o dalle condizioni generali accettate dal cliente. Gli interessi di mora, invece, sono dovuti per legge."
+    },
+    {
+     "q": "Come si calcolano gli interessi di mora?",
+     "a": "Importo × tasso × numero di giorni di ritardo ÷ 365. Per una fattura di CHF 10’000 pagata 60 giorni dopo la scadenza: 10’000 × 5 % × 60 ÷ 365 = CHF 82.20."
+    }
+   ]
+  }
+ },
+ "indemnite-vacances": {
+  "fr": {
+   "metaTitle": "Indemnité de vacances salaire horaire : 8,33 %, 10,64 %, 13,04 % | Cantia",
+   "metaDescription": "Calculez l’indemnité de vacances d’un employé payé à l’heure en Suisse selon le nombre de semaines de vacances, avec le salaire horaire vacances comprises.",
+   "kicker": "Outil gratuit · Salaires",
+   "title": "Indemnité de vacances",
+   "lede": "Pour les employés payés à l’heure : le supplément vacances à ajouter au salaire, selon le nombre de semaines, et le montant sur un mois.",
+   "group": "Employé",
+   "hourly": "Salaire horaire de base (brut)",
+   "perHourSuffix": "CHF / h",
+   "weeks": "Semaines de vacances par an",
+   "weeksLabel": "{w} semaines",
+   "hours": "Heures travaillées sur un mois (exemple)",
+   "result": "Indemnité de vacances",
+   "sub": "+ CHF {s} par heure",
+   "base": "Salaire horaire de base",
+   "supplementLine": "Indemnité {p}",
+   "withHoliday": "Salaire horaire vacances comprises",
+   "monthLine": "Indemnité sur {h} h",
+   "note": "L’indemnité doit figurer séparément sur chaque fiche de salaire (montant ou pourcentage). Les jours fériés se calculent à part selon votre CCT.",
+   "pdfTitle": "Indemnité de vacances",
+   "pdfWeeks": "Semaines de vacances par an",
+   "pdfHours": "Heures par mois (exemple)",
+   "pdfSupplement": "Supplément par heure",
+   "pdfMonth": "Indemnité sur un mois",
+   "pdfNote": "{w} semaines : {p}",
+   "pdfHint": "Le calcul et le tableau des pourcentages sur une page.",
+   "pdfCta": "Fiches de salaire suisses avec indemnités calculées automatiquement : cantia.ch · 14 jours d’essai",
+   "ctaTitle": "Les fiches de salaire, sans prise de tête",
+   "ctaPoints": [
+    "Heures saisies sur le chantier, salaire calculé à la fin du mois",
+    "Indemnités vacances et jours fériés ajoutées automatiquement",
+    "AVS, LPP selon l’âge, LAA, allocations et impôt à la source",
+    "Fiches PDF envoyées à chaque employé"
+   ],
+   "faq": [
+    {
+     "q": "Comment calculer l’indemnité de vacances d’un employé payé à l’heure ?",
+     "a": "On ajoute au salaire horaire un pourcentage qui correspond aux semaines de vacances : semaines ÷ (52 − semaines). Pour 4 semaines : 8,33 % ; 5 semaines : 10,64 % ; 6 semaines : 13,04 %."
+    },
+    {
+     "q": "Combien de semaines de vacances au minimum en Suisse ?",
+     "a": "Le Code des obligations prévoit au moins 4 semaines par an, et 5 semaines jusqu’à 20 ans révolus (art. 329a CO). Beaucoup de conventions collectives du bâtiment en prévoient davantage, par exemple 5 semaines dès 50 ans ou plus selon la CCT."
+    },
+    {
+     "q": "L’indemnité de vacances doit-elle apparaître sur la fiche de salaire ?",
+     "a": "Oui. Le Tribunal fédéral admet le paiement des vacances avec le salaire uniquement pour un travail irrégulier, et à condition que le montant ou le pourcentage figure clairement sur chaque décompte de salaire."
+    },
+    {
+     "q": "Les jours fériés sont-ils compris ?",
+     "a": "Non. Le pourcentage ne couvre que les vacances. Selon la CCT applicable, les jours fériés payés font l’objet d’une indemnité séparée (souvent environ 3 %)."
+    }
+   ]
+  },
+  "de": {
+   "metaTitle": "Ferienentschädigung Stundenlohn: 8,33 %, 10,64 %, 13,04 %",
+   "metaDescription": "Berechnen Sie die Ferienentschädigung für Mitarbeitende im Stundenlohn in der Schweiz nach Anzahl Ferienwochen, mit dem Stundenlohn inklusive Ferien.",
+   "kicker": "Gratis-Tool · Löhne",
+   "title": "Ferienentschädigung",
+   "lede": "Für Mitarbeitende im Stundenlohn: der Ferienzuschlag auf den Lohn je nach Ferienwochen, und der Betrag für einen Monat.",
+   "group": "Mitarbeitende",
+   "hourly": "Grundstundenlohn (brutto)",
+   "perHourSuffix": "CHF / h",
+   "weeks": "Ferienwochen pro Jahr",
+   "weeksLabel": "{w} Wochen",
+   "hours": "Gearbeitete Stunden in einem Monat (Beispiel)",
+   "result": "Ferienentschädigung",
+   "sub": "+ CHF {s} pro Stunde",
+   "base": "Grundstundenlohn",
+   "supplementLine": "Entschädigung {p}",
+   "withHoliday": "Stundenlohn inklusive Ferien",
+   "monthLine": "Entschädigung auf {h} h",
+   "note": "Die Entschädigung muss auf jeder Lohnabrechnung separat ausgewiesen sein (Betrag oder Prozentsatz). Feiertage werden je nach GAV separat berechnet.",
+   "pdfTitle": "Ferienentschädigung",
+   "pdfWeeks": "Ferienwochen pro Jahr",
+   "pdfHours": "Stunden pro Monat (Beispiel)",
+   "pdfSupplement": "Zuschlag pro Stunde",
+   "pdfMonth": "Entschädigung für einen Monat",
+   "pdfNote": "{w} Wochen: {p}",
+   "pdfHint": "Die Berechnung und die Prozenttabelle auf einer Seite.",
+   "pdfCta": "Schweizer Lohnabrechnungen mit automatisch berechneten Entschädigungen: cantia.ch · 14 Tage gratis",
+   "ctaTitle": "Lohnabrechnungen, ohne Kopfzerbrechen",
+   "ctaPoints": [
+    "Stunden auf der Baustelle erfasst, Lohn Ende Monat berechnet",
+    "Ferien- und Feiertagsentschädigung automatisch hinzugefügt",
+    "AHV, BVG nach Alter, UVG, Zulagen und Quellensteuer",
+    "PDF-Abrechnungen an alle Mitarbeitenden versendet"
+   ],
+   "faq": [
+    {
+     "q": "Wie berechnet man die Ferienentschädigung im Stundenlohn?",
+     "a": "Zum Stundenlohn kommt ein Prozentsatz, der den Ferienwochen entspricht: Wochen ÷ (52 − Wochen). Für 4 Wochen: 8,33 %; 5 Wochen: 10,64 %; 6 Wochen: 13,04 %."
+    },
+    {
+     "q": "Wie viele Ferienwochen sind in der Schweiz mindestens vorgeschrieben?",
+     "a": "Das Obligationenrecht sieht mindestens 4 Wochen pro Jahr vor, und 5 Wochen bis zum vollendeten 20. Altersjahr (Art. 329a OR). Viele GAV im Bau sehen mehr vor, zum Beispiel 5 Wochen ab 50 Jahren oder mehr je nach GAV."
+    },
+    {
+     "q": "Muss die Ferienentschädigung auf der Lohnabrechnung stehen?",
+     "a": "Ja. Das Bundesgericht lässt die Abgeltung der Ferien mit dem Lohn nur bei unregelmässiger Arbeit zu, und nur wenn der Betrag oder Prozentsatz auf jeder Lohnabrechnung klar ausgewiesen ist."
+    },
+    {
+     "q": "Sind die Feiertage inbegriffen?",
+     "a": "Nein. Der Prozentsatz deckt nur die Ferien. Je nach anwendbarem GAV werden bezahlte Feiertage separat entschädigt (oft rund 3 %)."
+    }
+   ]
+  },
+  "it": {
+   "metaTitle": "Indennità per vacanze: 8,33 %, 10,64 %, 13,04 %",
+   "metaDescription": "Calcolate l’indennità per vacanze di un dipendente pagato a ore in Svizzera secondo le settimane di vacanza, con il salario orario vacanze comprese.",
+   "kicker": "Strumento gratuito · Salari",
+   "title": "Indennità per vacanze",
+   "lede": "Per i dipendenti pagati a ore: il supplemento vacanze da aggiungere al salario secondo le settimane, e l’importo su un mese.",
+   "group": "Dipendente",
+   "hourly": "Salario orario di base (lordo)",
+   "perHourSuffix": "CHF / h",
+   "weeks": "Settimane di vacanza all’anno",
+   "weeksLabel": "{w} settimane",
+   "hours": "Ore lavorate in un mese (esempio)",
+   "result": "Indennità per vacanze",
+   "sub": "+ CHF {s} all’ora",
+   "base": "Salario orario di base",
+   "supplementLine": "Indennità {p}",
+   "withHoliday": "Salario orario vacanze comprese",
+   "monthLine": "Indennità su {h} h",
+   "note": "L’indennità deve figurare separatamente su ogni conteggio di salario (importo o percentuale). I giorni festivi si calcolano a parte secondo il vostro CCL.",
+   "pdfTitle": "Indennità per vacanze",
+   "pdfWeeks": "Settimane di vacanza all’anno",
+   "pdfHours": "Ore al mese (esempio)",
+   "pdfSupplement": "Supplemento all’ora",
+   "pdfMonth": "Indennità su un mese",
+   "pdfNote": "{w} settimane: {p}",
+   "pdfHint": "Il calcolo e la tabella delle percentuali su una pagina.",
+   "pdfCta": "Buste paga svizzere con indennità calcolate automaticamente: cantia.ch · 14 giorni di prova",
+   "ctaTitle": "Le buste paga, senza grattacapi",
+   "ctaPoints": [
+    "Ore registrate in cantiere, salario calcolato a fine mese",
+    "Indennità per vacanze e festivi aggiunte automaticamente",
+    "AVS, LPP secondo l’età, LAINF, assegni e imposta alla fonte",
+    "Buste paga PDF inviate a ogni dipendente"
+   ],
+   "faq": [
+    {
+     "q": "Come si calcola l’indennità per vacanze di un dipendente pagato a ore?",
+     "a": "Al salario orario si aggiunge una percentuale che corrisponde alle settimane di vacanza: settimane ÷ (52 − settimane). Per 4 settimane: 8,33 %; 5 settimane: 10,64 %; 6 settimane: 13,04 %."
+    },
+    {
+     "q": "Quante settimane di vacanza minime in Svizzera?",
+     "a": "Il Codice delle obbligazioni prevede almeno 4 settimane all’anno, e 5 settimane fino ai 20 anni compiuti (art. 329a CO). Molti contratti collettivi dell’edilizia ne prevedono di più, per esempio 5 settimane dai 50 anni o più secondo il CCL."
+    },
+    {
+     "q": "L’indennità per vacanze deve figurare sulla busta paga?",
+     "a": "Sì. Il Tribunale federale ammette il pagamento delle vacanze con il salario solo per un lavoro irregolare, e a condizione che l’importo o la percentuale figurino chiaramente su ogni conteggio di salario."
+    },
+    {
+     "q": "I giorni festivi sono compresi?",
+     "a": "No. La percentuale copre solo le vacanze. Secondo il CCL applicabile, i giorni festivi pagati sono oggetto di un’indennità separata (spesso circa il 3 %)."
+    }
+   ]
+  }
+ }
+}

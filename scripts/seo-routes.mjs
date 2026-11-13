@@ -20,6 +20,15 @@ const TRADE_SLUGS = new Set([
 
 export const SITE = 'https://cantia.ch';
 export const OG_IMAGE = `${SITE}/og-image.jpg`;
+
+// The share image of a page (scripts/generate-og-images.mjs writes it at build
+// time); pages kept out of Google share the generic one.
+export function ogImageFile(routePath) {
+  return `og/${routePath || 'index'}.png`;
+}
+export function ogImageUrl(routePath) {
+  return isNoindex(routePath) ? OG_IMAGE : `${SITE}/${ogImageFile(routePath)}`;
+}
 export const ORG_LOGO = `${SITE}/pwa-icon-512.png`;
 
 const HOME = {
@@ -202,30 +211,6 @@ export const ROUTES = [
       {
         q: 'Le calculateur est-il gratuit ?',
         a: 'Oui, sans inscription, et rien n’est enregistré. Pour générer automatiquement les fiches de salaire chaque mois avec ces mêmes calculs, Cantia propose 14 jours d’essai.',
-      },
-    ],
-  },
-  {
-    path: 'logiciel-chantier',
-    title: 'Logiciel de gestion de chantier pour entreprises du bâtiment | Cantia',
-    description:
-      'Devis, factures, rapports de chantier, planning et rentabilité dans un seul logiciel suisse. 14 jours d’essai, sans engagement, hébergé en Suisse.',
-    faq: [
-      {
-        q: 'Combien coûte un logiciel de gestion de chantier avec Cantia ?',
-        a: "CHF 39.– par mois avec Essentiel, CHF 79.– avec Équipe et CHF 129.– avec Entreprise, ou 20 % de moins en facturation annuelle. Chaque formule commence par 14 jours d'essai (carte bancaire requise, aucun débit avant la fin de l'essai).",
-      },
-      {
-        q: 'Ai-je besoin d’installer un logiciel sur mon ordinateur ?',
-        a: 'Non. Cantia fonctionne entièrement dans le navigateur, sur ordinateur, tablette ou téléphone, sans rien installer, y compris directement depuis le chantier.',
-      },
-      {
-        q: 'Mes données sont-elles hébergées en Suisse ?',
-        a: 'Oui, toutes les données sont hébergées en Suisse (Zurich), chiffrées, jamais revendues.',
-      },
-      {
-        q: 'Y a-t-il un engagement ou une durée minimale ?',
-        a: "Aucun. Tous les plans sont résiliables à tout moment depuis Compte → Abonnement, sans justification ni frais de sortie.",
       },
     ],
   },
@@ -4847,13 +4832,25 @@ export const ROUTES = [
 // have their own German slug.
 const TRIAGE = JSON.parse(readFileSync(new URL('../lib/blog/triage.json', import.meta.url), 'utf8'));
 export const BLOG_REDIRECTS = TRIAGE.redirects;
+// The free tools in German and Italian (/de/outils, /it/outils): titles,
+// descriptions and FAQ from lib/tools/copy.json, the texts the pages show.
+const TOOL_COPY = JSON.parse(readFileSync(new URL('../lib/tools/copy.json', import.meta.url), 'utf8'));
+const TOOL_SLUGS = ['calcul-taux-horaire', 'calcul-tva', 'calcul-marge', 'interets-de-retard', 'indemnite-vacances'];
+for (const locale of ['de', 'it']) {
+  ROUTES.push({ path: `${locale}/outils`, title: TOOL_COPY.hub[locale].title, description: TOOL_COPY.hub[locale].description });
+  for (const slug of TOOL_SLUGS) {
+    const c = TOOL_COPY[slug][locale];
+    ROUTES.push({ path: `${locale}/outils/${slug}`, title: c.metaTitle, description: c.metaDescription, faq: c.faq });
+  }
+}
+
 const DE_SLUGS = TRIAGE.deSlugs;
 const DE_BASE = Object.fromEntries(Object.entries(DE_SLUGS).map(([base, de]) => [de, base]));
 for (let i = ROUTES.length - 1; i >= 0; i--) {
   const route = ROUTES[i];
   const deBlog = route.path.match(/^de\/blog\/(.+)$/);
   if (deBlog && DE_SLUGS[deBlog[1]]) route.path = `de/blog/${DE_SLUGS[deBlog[1]]}`;
-  if (BLOG_REDIRECTS[route.path]) ROUTES.splice(i, 1);
+  if (route.path in BLOG_REDIRECTS) ROUTES.splice(i, 1);
   else if (TRIAGE.noindex.includes(route.path)) route.noindex = true;
 }
 
@@ -4985,7 +4982,7 @@ export function jsonLdFor(url, route) {
       headline: title.replace(/\s*\|\s*Cantia$/, ''),
       description,
       url,
-      image: OG_IMAGE,
+      image: ogImageUrl(routePath),
       inLanguage: locale,
       ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
       author: { '@type': 'Person', '@id': `${SITE}/#bastien`, name: 'Bastien', worksFor: { '@id': `${SITE}/#organization` } },
@@ -5051,8 +5048,25 @@ export function jsonLdFor(url, route) {
 // page's H1 keeps the full headline.
 for (const loc of Object.keys(SUBTRADE_CRUMBS)) Object.assign(CRUMB_NAMES[loc] ??= {}, SUBTRADE_CRUMBS[loc]);
 
+// Descriptions over 160 characters are cut by Google. When the first
+// sentences alone make a full description (110 to 158 characters), keep only
+// them; the longer ones are rewritten in scripts/seo-descriptions.mjs.
+function fitDescription(text) {
+  if (!text || text.length <= 160) return text;
+  const parts = text.match(/[^.!?]+[.!?]+(\s|$)/g);
+  if (!parts) return text;
+  let out = '';
+  for (const part of parts) {
+    if ((out + part).trim().length > 158) break;
+    out += part;
+  }
+  out = out.trim();
+  return out.length >= 110 ? out : text;
+}
+for (const route of ROUTES) route.description = fitDescription(route.description);
+
 const BRAND_SUFFIX = / \| (Cantia Hilfe-Center|Centro assistenza Cantia|Centre d'aide Cantia|Cantia)$/;
 for (const route of ROUTES) {
   if (SHORT_TITLES[route.path]) route.title = SHORT_TITLES[route.path];
-  else if (route.title && route.title.length > 65 && BRAND_SUFFIX.test(route.title)) route.title = route.title.replace(BRAND_SUFFIX, '');
+  else if (route.title && route.title.length > 60 && BRAND_SUFFIX.test(route.title)) route.title = route.title.replace(BRAND_SUFFIX, '');
 }

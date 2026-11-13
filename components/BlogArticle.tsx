@@ -17,7 +17,7 @@ const DM = "'DM Sans', 'DM Sans Fallback', Arial, sans-serif";
 import { authHref } from '../lib/appHost';
 import { trackBlogCtaClick } from '../lib/blogAnalytics';
 import { BlogPost } from '../lib/blog/types';
-import { getRelatedPosts } from '../lib/blog';
+import { getCategoryNeighbours, getRelatedPosts } from '../lib/blog';
 import { blogHref } from '../lib/blog/triage';
 
 // Same name as the Article author in scripts/seo-routes.mjs (JSON-LD).
@@ -125,6 +125,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
   }, [heroAnim]);
 
   const related = getRelatedPosts(post, 3, locale);
+  const neighbours = getCategoryNeighbours(post, 4, locale, related);
   const tradeHrefPrefix = locale === 'de' ? '/de/' : locale === 'it' ? '/it/' : '/';
   const blogHrefPrefix = `${tradeHrefPrefix}blog`;
   const sector = sectorOfPost(post);
@@ -203,6 +204,24 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         </Section>
       ) : null}
 
+      {neighbours.length ? (
+        <Section>
+          <View style={styles.linklist}>
+            <Text style={styles.linklistTitle}>{t('blogArticlePage.sameCategoryTitle', { category: t(`blogCategories.${post.category}`) })}</Text>
+            <View style={styles.linklistItems}>
+              {neighbours.map((n) => (
+                <Link key={n.slug} href={`${blogHrefPrefix}/${n.slug}` as any} asChild>
+                  <Pressable style={styles.linklistRow}>
+                    <Text style={styles.linklistRowText}>{n.title}</Text>
+                    <Feather name="arrow-right" size={13} color={site.copper} />
+                  </Pressable>
+                </Link>
+              ))}
+            </View>
+          </View>
+        </Section>
+      ) : null}
+
       <View style={styles2.cta}>
         <Wrap style={styles2.ctaRow}>
           <View style={{ flex: 1, minWidth: 260, maxWidth: 720 }}>
@@ -243,7 +262,7 @@ function ArticleBody({ post, crumbs, category, meta, children }: { post: BlogPos
 const styles2 = StyleSheet.create({
   column: { width: '100%', maxWidth: 780 },
   question: { fontSize: 18, lineHeight: 29, color: site.muted, marginTop: 18 },
-  meta: { fontSize: 11, color: '#8b9380', marginTop: 22, paddingTop: 16, borderTopWidth: 1, borderTopColor: site.line },
+  meta: { fontSize: 11, color: '#6b6f65', marginTop: 22, paddingTop: 16, borderTopWidth: 1, borderTopColor: site.line },
   body: { marginTop: 30, gap: 22 },
   trade: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18, borderWidth: 1, borderColor: site.line, borderRadius: 8, backgroundColor: site.white, marginTop: 30 },
   tradeText: { flex: 1, fontSize: 13, color: site.ink },

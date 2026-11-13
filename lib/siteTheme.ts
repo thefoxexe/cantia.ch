@@ -7,7 +7,7 @@ export const site = {
   bg: '#f6f4ef',
   white: '#fffefa',
   ink: '#252921',
-  muted: '#74786e',
+  muted: '#666a61', // 4.6:1 on the paper colours (WCAG AA for small text)
   copper: '#a65d36',
   rust: '#8d4b2b',
   clay: '#e9d7c5',

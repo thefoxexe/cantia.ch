@@ -46,11 +46,6 @@
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/logiciel-chantier</loc>
-    <lastmod>2026-11-11</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://cantia.ch/solutions/devis</loc>
     <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
@@ -1491,18 +1486,23 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/blog/calculer-prix-unitaire-soumission</loc>
+    <lastmod>2026-10-24</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/blog/cantia-vs-cresus-facturation</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/cantia-vs-klara</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/cantia-vs-winbiz</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1513,6 +1513,11 @@
   <url>
     <loc>https://cantia.ch/de/blog/combien-coute-logiciel-gestion-chantier-roi</loc>
     <lastmod>2026-09-02</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/blog/comprendre-soumission-can-positions</loc>
+    <lastmod>2026-10-24</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1688,6 +1693,11 @@
   <url>
     <loc>https://cantia.ch/de/blog/software-bauunternehmen-schweiz-auswahl</loc>
     <lastmod>2026-11-04</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/blog/rabais-escompte-tva-ordre-soumission</loc>
+    <lastmod>2026-10-24</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2332,17 +2342,17 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/cantia-vs-cresus-facturation</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/cantia-vs-klara</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/cantia-vs-winbiz</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2762,206 +2772,317 @@
   </url>
   <url>
     <loc>https://cantia.ch/metiers/service-entretien/entreprise-nettoyage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/service-entretien/conciergerie</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/service-entretien/demenageur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/service-entretien/garage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/service-entretien/deneigement</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/service-entretien/entreprise-nettoyage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/service-entretien/conciergerie</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/service-entretien/demenageur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/service-entretien/garage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/service-entretien/deneigement</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/service-entretien/entreprise-nettoyage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/service-entretien/conciergerie</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/service-entretien/demenageur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/service-entretien/garage</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/service-entretien/deneigement</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/ingenieur-civil</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/architecte</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/bureau-technique</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/geometre</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/consultant</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/bureaux-etudes/informaticien-formateur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/ingenieur-civil</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/architecte</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/bureau-technique</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/geometre</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/consultant</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/bureaux-etudes/informaticien-formateur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/ingenieur-civil</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/architecte</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/bureau-technique</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/geometre</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/consultant</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/bureaux-etudes/informaticien-formateur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/agence-communication</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/graphiste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/photographe-videaste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/traiteur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/organisateur-evenements</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/metiers/agences-evenementiel/location-materiel</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/agence-communication</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/graphiste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/photographe-videaste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/traiteur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/organisateur-evenements</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metiers/agences-evenementiel/location-materiel</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/agence-communication</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/graphiste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/photographe-videaste</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/traiteur</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/organisateur-evenements</loc>
+    <lastmod>2026-11-11</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/metiers/agences-evenementiel/location-materiel</loc>
+    <lastmod>2026-11-11</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils</loc>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils/calcul-taux-horaire</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils/calcul-tva</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils/calcul-marge</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils/interets-de-retard</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/de/outils/indemnite-vacances</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils</loc>
+    <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils/calcul-taux-horaire</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils/calcul-tva</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils/calcul-marge</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils/interets-de-retard</loc>
+    <lastmod>2026-10-03</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/outils/indemnite-vacances</loc>
+    <lastmod>2026-10-03</lastmod>
     <priority>0.4</priority>
   </url>
 </urlset>

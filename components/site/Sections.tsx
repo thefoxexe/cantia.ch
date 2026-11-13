@@ -10,6 +10,7 @@ import { SITE_COPY } from '../../lib/site/copy';
 import { sans, site } from '../../lib/siteTheme';
 import { authHref, useSyncMarketingLocaleFromPath } from '../../lib/appHost';
 import { useSiteFontScope } from './Primitives';
+import { SiteImage } from './SiteImage';
 
 // Sections shared by the public pages of cantia.ch: the page frame, the
 // section heading, the closing call to action, the dictation demo and the
@@ -107,22 +108,16 @@ export function Breadcrumbs({ items }: { items: { label: string; href?: string }
   );
 }
 
-// A real PDF page, shown whole on a warm ground, sized to the room it has.
+// A real PDF page, shown whole on a warm ground, sized to the room it has
+// (in CSS: as wide as the stage allows, never taller than maxHeight).
 export function DocVisual({ source, ratio, alt, caption, maxHeight = 420 }: { source: ImageSourcePropType; ratio: number; alt: string; caption?: string; maxHeight?: number }) {
-  const [w, setW] = useState(0);
   const { phone } = useSiteLayout();
   const pad = phone ? 22 : 34;
-  const inner = Math.max(0, w - pad * 2);
-  const paperW = Math.min(inner, maxHeight / ratio);
   return (
-    <View style={[styles.docStage, { padding: pad }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      {w ? (
-        <View style={[styles.paper, paperShadow, { width: paperW }]}>
-          <Image source={source} style={{ width: paperW, height: paperW * ratio }} resizeMode="cover" accessibilityLabel={alt} />
-        </View>
-      ) : (
-        <View style={{ height: maxHeight }} />
-      )}
+    <View style={[styles.docStage, { padding: pad }]}>
+      <View style={[styles.paper, paperShadow, { width: '100%', maxWidth: maxHeight / ratio, aspectRatio: 1 / ratio }]}>
+        <SiteImage source={source} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} />
+      </View>
       {caption ? <Text style={[sans, styles.docCaption]}>{caption.toUpperCase()}</Text> : null}
     </View>
   );
@@ -138,7 +133,7 @@ export function PhoneShot({ source, ratio, width, maxHeight, alt }: { source: Im
   return (
     <View style={[styles.phone, paperShadow, { width, padding: bezel, borderRadius: width * 0.14 }]}>
       <View style={{ width: inner, height: h, overflow: 'hidden', borderRadius: width * 0.105, backgroundColor: '#f7f1e6' }}>
-        <Image source={source} style={{ width: inner, height: full }} resizeMode="cover" accessibilityLabel={alt} />
+        <SiteImage source={source} style={{ width: inner, height: full }} resizeMode="cover" alt={alt} />
       </View>
     </View>
   );
@@ -146,16 +141,17 @@ export function PhoneShot({ source, ratio, width, maxHeight, alt }: { source: Im
 
 // A real desktop screen of the app, framed like a window.
 export function ScreenShot({ source, ratio, alt }: { source: ImageSourcePropType; ratio: number; alt: string }) {
-  const [w, setW] = useState(0);
   return (
-    <View style={[styles.screen, paperShadow]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+    <View style={[styles.screen, paperShadow]}>
       <View style={styles.screenBar}>
         {[0, 1, 2].map((i) => (
           <View key={i} style={styles.screenDot} />
         ))}
         <Text style={[sans, styles.screenUrl]}>app.cantia.ch</Text>
       </View>
-      <Image source={source} style={{ width: '100%', height: w ? w * ratio : 300 }} resizeMode="cover" accessibilityLabel={alt} />
+      <View style={{ width: '100%', aspectRatio: 1 / ratio }}>
+        <SiteImage source={source} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} />
+      </View>
     </View>
   );
 }
@@ -183,7 +179,7 @@ const styles = StyleSheet.create({
   ctaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 40 },
   crumbs: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 27 },
   crumbItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  crumbText: { fontSize: 10, color: '#969c8c' },
+  crumbText: { fontSize: 10, color: '#6b6f65' },
   docStage: { backgroundColor: '#e7e4d8', borderRadius: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   docCaption: { fontSize: 8, color: '#8f927f', letterSpacing: 0.4, marginTop: 18, textAlign: 'center' },
   paper: { backgroundColor: '#ffffff', borderRadius: 3, overflow: 'hidden' },

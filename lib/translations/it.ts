@@ -4306,6 +4306,7 @@ export const it: TranslationDict = {
     tradeLinkText: 'Veda come Cantia si adatta a questo mestiere',
     sectorLinkText: 'Cantia per {{sector}}',
     seeAlsoEyebrow: 'Da leggere anche',
+    sameCategoryTitle: 'Nella stessa rubrica: {{category}}',
     readArticle: 'Leggi l’articolo',
     closingTitle: 'Gestire i suoi cantieri senza pensarci',
     closingText: 'Preventivi, fatture QR, rapporti e redditività per cantiere, riuniti in un unico strumento. 14 giorni di prova, nessun codice necessario.',

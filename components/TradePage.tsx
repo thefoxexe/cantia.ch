@@ -81,7 +81,7 @@ export function TradePage({ slug }: { slug: string }) {
               <Text style={[sans, styles.trust]}>{t('tradePage.heroTrust')}</Text>
             </View>
             <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
-              <LaptopShot source={APP_SCREENS[locale].chantier} alt={`${capitalize(trade.tradeName)} · Cantia`} />
+              <LaptopShot source={APP_SCREENS[locale].chantier} alt={`${capitalize(trade.tradeName)} · Cantia`} priority />
             </View>
           </View>
         </Wrap>
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   lead: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   leadText: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 600 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 26 },
-  trust: { fontSize: 10, color: '#8b9380', marginTop: 18 },
+  trust: { fontSize: 10, color: '#6b6f65', marginTop: 18 },
   row: { flexDirection: 'row', gap: 30, paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: site.line },
   headRow: { paddingVertical: 12, borderTopWidth: 1, borderTopColor: site.line },
   th: { fontSize: 9, letterSpacing: 1.3, color: site.muted, fontWeight: '600' },

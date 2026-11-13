@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -7,7 +7,8 @@ import { Breadcrumbs, Section, SitePage, useSiteLayout } from '../site/Sections'
 import { FaqItem } from '../site/FamilyPage';
 import { authHref } from '../../lib/appHost';
 import { sans, site } from '../../lib/siteTheme';
-import { TOOLS } from '../../lib/tools/registry';
+import { toolsFor } from '../../lib/tools/registry';
+import { toolLocale, toolPrefix, toolsChrome } from '../../lib/tools/copy';
 
 // Shared frame of the free tools on cantia.ch/outils (lead magnets): hero,
 // form on the left, result on the right, the Cantia call to action, an FAQ
@@ -44,13 +45,17 @@ export function ToolPage({
   extra?: ReactNode;
 }) {
   const { phone, tablet, width, h2Size } = useSiteLayout();
+  const locale = toolLocale();
+  const prefix = toolPrefix(locale);
+  const C = toolsChrome(locale);
+  const tools = toolsFor(locale);
   const wide = width >= 980;
   const h1 = phone ? 38 : tablet ? 44 : 52;
   return (
     <SitePage title={metaTitle} description={metaDescription} cta={false}>
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 30 : 44 }}>
         <Wrap>
-          <Breadcrumbs items={[{ label: 'Accueil', href: '/' }, { label: 'Outils gratuits', href: '/outils' }, { label: kicker }]} />
+          <Breadcrumbs items={[{ label: C.home, href: prefix || '/' }, { label: C.tools, href: `${prefix}/outils` }, { label: kicker }]} />
           <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{kicker}</Eyebrow>
           <Headline level={1} plain={title} size={h1} style={{ marginTop: 16, marginBottom: 20, maxWidth: 900, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.08 }} />
           <Text style={[sans, styles.lede, phone && { fontSize: 13, lineHeight: 24 }]}>{lede}</Text>
@@ -71,12 +76,12 @@ export function ToolPage({
       <View style={[styles.cta, { paddingVertical: phone ? 40 : 60 }]}>
         <Wrap style={wide ? { flexDirection: 'row', gap: 60, alignItems: 'center' } : { gap: 24 }}>
           <View style={wide ? { flex: 1 } : undefined}>
-            <Text style={[sans, styles.ctaKicker]}>DANS CANTIA, TOUT EST AUTOMATIQUE</Text>
+            <Text style={[sans, styles.ctaKicker]}>{C.ctaKicker}</Text>
             <Headline plain={cta.title} size={phone ? 30 : 36} color="#f4f3e9" style={{ marginTop: 14 }} />
             <View style={{ marginTop: 26, alignSelf: 'flex-start' }}>
-              <Btn label="Essayer 14 jours" href={authHref('signup')} tone="sand" />
+              <Btn label={C.ctaButton} href={authHref('signup')} tone="sand" />
             </View>
-            <Text style={[sans, styles.ctaNote]}>Sans engagement · Données hébergées en Suisse</Text>
+            <Text style={[sans, styles.ctaNote]}>{C.ctaNote}</Text>
           </View>
           <View style={[wide ? { flex: 1 } : undefined, { gap: 12 }]}>
             {cta.points.map((p) => (
@@ -91,8 +96,8 @@ export function ToolPage({
 
       <Section>
         <View style={styles.faq}>
-          <Eyebrow>Les réponses utiles</Eyebrow>
-          <Headline plain="Questions fréquentes." size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+          <Eyebrow>{C.faqEyebrow}</Eyebrow>
+          <Headline plain={C.faqTitle} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
           {faq.map((f, i) => (
             <FaqItem key={f.q} q={f.q} a={f.a} last={i === faq.length - 1} />
           ))}
@@ -100,10 +105,10 @@ export function ToolPage({
       </Section>
 
       <Section white>
-        <Eyebrow>Gratuit, sans inscription</Eyebrow>
-        <Headline plain="Les autres outils." size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+        <Eyebrow>{C.othersEyebrow}</Eyebrow>
+        <Headline plain={C.othersTitle} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
         <View style={styles.toolGrid}>
-          {TOOLS.filter((t) => t.slug !== slug).map((t) => (
+          {tools.filter((t) => t.slug !== slug).map((t) => (
             <Link key={t.slug} href={t.href as any} asChild>
               <Hover accessibilityRole="link" base={[styles.toolCard, { width: phone ? '100%' : width <= 900 ? '47.5%' : '31.5%' }]} hover={{ borderColor: site.copper }}>
                 <Feather name={t.icon as any} size={18} color={site.copper} />
@@ -138,10 +143,15 @@ export function Hint({ children }: { children: ReactNode }) {
   return <Text style={styles.hint}>{children}</Text>;
 }
 
+// The label of the Field an Input sits in, read by the field itself
+// (aria-label), so screen readers announce what to type.
+const FieldLabel = createContext<string | undefined>(undefined);
+
 export function Input({ value, onChange, placeholder, suffix, wide }: { value: string; onChange: (v: string) => void; placeholder?: string; suffix?: string; wide?: boolean }) {
+  const label = useContext(FieldLabel);
   return (
     <View style={[styles.inputWrap, wide && { flex: 1, minWidth: 160 }]}>
-      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#a1a697" keyboardType="decimal-pad" inputMode="decimal" style={styles.input} />
+      <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor="#a1a697" keyboardType="decimal-pad" inputMode="decimal" style={styles.input} accessibilityLabel={label} />
       {suffix ? <Text style={styles.suffix}>{suffix}</Text> : null}
     </View>
   );
@@ -151,7 +161,7 @@ export function Field({ label, children, hint }: { label: string; children: Reac
   return (
     <View style={{ gap: 4 }}>
       <Label>{label}</Label>
-      {children}
+      <FieldLabel.Provider value={label}>{children}</FieldLabel.Provider>
       {hint ? <Hint>{hint}</Hint> : null}
     </View>
   );
@@ -223,7 +233,7 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: 13, paddingVertical: 8, borderWidth: 1, borderColor: site.line, borderRadius: 5, backgroundColor: site.white },
   chipOn: { borderColor: site.copper, backgroundColor: '#f6ebe1' },
   chipText: { ...T, fontSize: 12, fontWeight: '500', color: site.ink },
-  chipTextOn: { color: site.copper },
+  chipTextOn: { color: '#8f4f2c' }, // 4.8:1 on the selected chip
   big: { padding: 28, backgroundColor: INK, borderRadius: 8, gap: 6 },
   bigLabel: { ...T, fontSize: 9, letterSpacing: 1.5, color: '#d9aa85', fontWeight: '600' },
   bigValue: { ...T, fontSize: 46, lineHeight: 52, fontWeight: '500', letterSpacing: -1.5, color: '#f4f3e9', fontVariant: ['tabular-nums'] },

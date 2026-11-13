@@ -39,7 +39,7 @@ Le paiement annuel coûte 20 % de moins que le mensuel. Détails : https://canti
 ## Pages par métier
 
 - [Tous les métiers](https://cantia.ch/metiers)
-- [Logiciel de gestion de chantier](https://cantia.ch/logiciel-chantier)
+- [Logiciel de gestion de chantier](https://cantia.ch/)
 - [Maçon](https://cantia.ch/macon), [Électricien](https://cantia.ch/electricien), [Plombier](https://cantia.ch/plombier), [Chauffagiste](https://cantia.ch/chauffagiste), [Peintre](https://cantia.ch/peintre), [Menuisier](https://cantia.ch/menuisier), [Charpentier](https://cantia.ch/charpentier), [Couvreur](https://cantia.ch/couvreur), [Carreleur](https://cantia.ch/carreleur), [Plâtrier](https://cantia.ch/platrier), [Façadier](https://cantia.ch/facadier), [Ferblantier](https://cantia.ch/ferblantier), [Paysagiste](https://cantia.ch/paysagiste), [Génie civil](https://cantia.ch/genie-civil), [Entreprise générale](https://cantia.ch/entreprise-generale), [Rénovation](https://cantia.ch/entreprise-renovation)
 - Autres PME : [Nettoyage](https://cantia.ch/entreprise-nettoyage), [Conciergerie](https://cantia.ch/conciergerie), [Garage](https://cantia.ch/garagiste), [Déménagement](https://cantia.ch/demenageur), [Informatique](https://cantia.ch/informaticien), [Graphiste](https://cantia.ch/graphiste), [Photographe](https://cantia.ch/photographe), [Traiteur](https://cantia.ch/traiteur), [Consultant](https://cantia.ch/consultant), [Formateur](https://cantia.ch/formateur)
 

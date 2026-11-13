@@ -212,7 +212,7 @@ function SwitchButton({ label, extra, active, onPress }: { label: string; extra?
     <Hover onPress={onPress} accessibilityRole="radio" aria-checked={active} base={[styles.switchBtn, active && styles.switchActive]}>
       <Text style={[sans, { fontSize: 11, color: site.ink }]}>
         {label}
-        {extra ? <Text style={{ fontSize: 9, color: site.copper }}>{'  '}{extra}</Text> : null}
+        {extra ? <Text style={{ fontSize: 9, color: '#9c5733' }}>{'  '}{extra}</Text> : null}
       </Text>
     </Hover>
   );
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 25 },
   price: { fontSize: 46, lineHeight: 55, letterSpacing: -1.8, color: site.ink },
   priceSmall: { fontSize: 11, color: site.ink },
-  billed: { fontSize: 9, color: '#959a89', minHeight: 20, marginTop: 8, marginBottom: 22 },
+  billed: { fontSize: 9, color: '#6b6f65', minHeight: 20, marginTop: 8, marginBottom: 22 },
   lines: { marginTop: 24, paddingTop: 18, borderTopWidth: 1, borderTopColor: site.line, gap: 8 },
   lineRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   lineText: { fontSize: 11, color: site.ink, lineHeight: 19, flex: 1 },

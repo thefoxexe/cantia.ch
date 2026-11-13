@@ -55,7 +55,7 @@ export const CRUMB_NAMES = {
   "aide": "Hilfe",
   "blog": "Blog",
   "plans": "Preise",
-  "outils": "Werkzeuge",
+  "outils": "Gratis-Tools",
   "tarifs": "Preise",
   "metiers/batiment-artisanat": "Bau & Handwerk",
   "metiers/service-entretien": "Service & Unterhalt",

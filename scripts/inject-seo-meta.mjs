@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { SITE, OG_IMAGE, ROUTES, hreflangAlternates, isNoindex, jsonLdFor, localeAndBareOf } from './seo-routes.mjs';
+import { SITE, ROUTES, hreflangAlternates, isNoindex, jsonLdFor, localeAndBareOf, ogImageUrl } from './seo-routes.mjs';
 
 const distDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const distIndex = path.join(distDir, 'index.html');
@@ -81,6 +81,7 @@ function patch(baseHtml, sourceRoute) {
   const { locale: routeLocale } = localeAndBareOf(routePath);
   const locale = OG_LOCALES[routeLocale];
   const canonicalUrl = routePath ? `${SITE}/${routePath}` : `${SITE}/`;
+  const ogImage = ogImageUrl(routePath);
   const alternates = hreflangAlternates(routePath);
   const frAlternate = alternates.find((a) => a.locale === 'fr');
   const hreflangTags = alternates
@@ -101,17 +102,17 @@ function patch(baseHtml, sourceRoute) {
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
-    <meta property="og:image" content="${OG_IMAGE}" />
+    <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="${locale}" />${alternateLocales}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
-    <meta name="twitter:image" content="${OG_IMAGE}" />
+    <meta name="twitter:image" content="${ogImage}" />
     <script type="application/ld+json">${JSON.stringify(jsonLdFor(canonicalUrl, route)).replace(/</g, '\\u003c')}</script>`;
 
-  let html = stripHeadManagerTags(baseHtml).replace(HYDRATE_FLAG, '').replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}"`);
+  let html = stripHeadManagerTags(baseHtml).replace(HYDRATE_FLAG, '').replace(/<html\s+lang="[^"]*"/, `<html lang="${routeLocale}" data-ssr-viewport="desktop"`);
   html = html.replace('<head>', `<head><title>${title}</title>${metaTags}${heroPreload(routePath)}${headExtras(html)}`);
   return html;
 }
@@ -159,7 +160,22 @@ function stripHeadManagerTags(html) {
 // While #root is hidden, a slow load (more than 0.4 s: a phone on 4G, a
 // cold cache) shows the logo in the middle of the page instead of an empty
 // background; a fast one never sees it.
-const HYDRATION_STYLE = `<style>html:not(.hydrated) #root{visibility:hidden}html:not(.hydrated) body::before{content:"";position:fixed;inset:0;margin:auto;width:150px;height:28px;background:url(/logo-email.png) center/contain no-repeat;opacity:0;animation:cantia-wait .5s ease .4s forwards}@keyframes cantia-wait{from{opacity:0}50%{opacity:.85}to{opacity:.85}}html.hydrated body::before{content:none}</style>`;
+// Until the page has hydrated (<html class="hydrated">, lib/site/markHydrated),
+// the pre-rendered markup shows as soon as it arrives when it was rendered for
+// this kind of screen: the desktop render (data-ssr-viewport="desktop",
+// 1440 px) from 1101 px wide, the phone render ("phone", 390 px) up to 760 px.
+// Anywhere else (a tablet, a narrow desktop window) the markup would not fit,
+// so #root stays hidden and a discreet logo shows until JavaScript has laid
+// the page out, as before. Pages without the attribute (the client-rendered
+// shell) keep that behaviour too.
+const WAIT = 'html:not(.hydrated)';
+const HIDDEN_WHEN = [
+  `${WAIT}:not([data-ssr-viewport])`,
+  `@media (max-width:1100px){${WAIT}[data-ssr-viewport=desktop]`,
+  `@media (min-width:761px){${WAIT}[data-ssr-viewport=phone]`,
+];
+const waitRules = (sel, body) => HIDDEN_WHEN.map((w) => (w.startsWith('@media') ? `${w} ${sel}{${body}}}` : `${w} ${sel}{${body}}`)).join('');
+const HYDRATION_STYLE = `<style>${waitRules('#root', 'visibility:hidden')}${waitRules('body::before', 'content:"";position:fixed;inset:0;margin:auto;width:150px;height:28px;background:url(/logo-email.png) center/contain no-repeat;opacity:0;animation:cantia-wait .5s ease .4s forwards')}@keyframes cantia-wait{from{opacity:0}50%{opacity:.85}to{opacity:.85}}html.hydrated body::before{content:none}</style>`;
 const HYDRATE_FLAG = /<script type="module">globalThis\.__EXPO_ROUTER_HYDRATE__=true;<\/script>/;
 
 function headExtras(html) {

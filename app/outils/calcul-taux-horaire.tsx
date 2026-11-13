@@ -4,33 +4,21 @@ import { BigResult, Chips, Field, Group, Hint, Input, Lines, Note, ToolPage } fr
 import { LeadGate } from '../../components/tools/LeadGate';
 import { hourlyRate } from '../../lib/tools/calcs';
 import { chf, downloadToolPdf, num, pct } from '../../lib/tools/toolPdf';
+import { fill, toolCopy, toolLocale, toolPrefix, toolsChrome } from '../../lib/tools/copy';
 import { spacing } from '../../lib/theme';
 
 // Free tool: the hourly rate a construction company must charge to cover
-// salaries, employer charges, overheads and a margin.
+// salaries, employer charges, overheads and a margin. Texts in
+// lib/tools/copy.json (French, German, Italian).
 
 const SLUG = 'calcul-taux-horaire';
 
-export const FAQ = [
-  {
-    q: 'Comment calculer le taux horaire d’un artisan en Suisse ?',
-    a: 'Additionnez sur une année les salaires bruts (13e salaire compris), les charges patronales (environ 14 à 18 % : AVS, AC, LPP, LAA, allocations familiales) et les frais généraux (loyer, véhicules, assurances, outillage, administration). Divisez par les heures réellement facturables, puis ajoutez votre marge : vous obtenez le taux horaire de vente hors TVA.',
-  },
-  {
-    q: 'Combien d’heures facturables compter par employé ?',
-    a: 'Un plein temps à 42 heures représente environ 2’100 heures par an. Après vacances, jours fériés, maladie, formation, déplacements et temps non facturable (préparation, rangement, garanties), il reste en général 1’500 à 1’700 heures réellement facturées.',
-  },
-  {
-    q: 'Quelle marge appliquer sur le taux horaire ?',
-    a: 'Dans le bâtiment, une marge bénéficiaire de 5 à 15 % du prix de vente est courante. Elle doit couvrir les risques (dépassements, mauvais payeurs) et permettre d’investir. Le calculateur montre aussi le bénéfice annuel que représente votre marge.',
-  },
-  {
-    q: 'Le taux horaire inclut-il la TVA ?',
-    a: 'Non, le taux calculé est hors TVA. Si vous êtes assujetti, ajoutez 8,1 % sur la facture ; le calculateur affiche aussi le taux TTC.',
-  },
-];
+export const FAQ = toolCopy(SLUG, 'fr').faq;
 
 export default function HourlyRatePage() {
+  const locale = toolLocale();
+  const L = toolCopy(SLUG, locale);
+  const C = toolsChrome(locale);
   const [salary, setSalary] = useState('5’600');
   const [salaries, setSalaries] = useState<12 | 13>(13);
   const [employees, setEmployees] = useState('4');
@@ -51,60 +39,61 @@ export default function HourlyRatePage() {
 
   const pdf = () =>
     downloadToolPdf({
-      title: 'Taux horaire de l’entreprise',
-      url: 'cantia.ch/outils/calcul-taux-horaire',
+      title: L.pdfTitle,
+      url: `cantia.ch${toolPrefix(locale)}/outils/${SLUG}`,
       inputs: [
-        { label: 'Salaire mensuel brut moyen', value: `CHF ${chf(num(salary))} × ${salaries}` },
-        { label: 'Employés productifs', value: String(Math.max(1, num(employees))) },
-        { label: 'Charges patronales', value: pct(num(charges)) },
-        { label: 'Heures facturables par employé et par an', value: chf(num(hours), 0) },
-        { label: 'Frais généraux annuels', value: `CHF ${chf(num(overhead))}` },
-        { label: 'Marge bénéficiaire', value: pct(num(margin)) },
+        { label: L.pdfSalary, value: `CHF ${chf(num(salary))} × ${salaries}` },
+        { label: L.pdfEmployees, value: String(Math.max(1, num(employees))) },
+        { label: L.pdfCharges, value: pct(num(charges)) },
+        { label: L.pdfHours, value: chf(num(hours), 0) },
+        { label: L.pdfOverhead, value: `CHF ${chf(num(overhead))}` },
+        { label: L.pdfMargin, value: pct(num(margin)) },
       ],
-      highlight: { label: 'Taux horaire de vente (HT)', value: `CHF ${chf(r.rate)}` },
+      highlight: { label: L.pdfHighlight, value: `CHF ${chf(r.rate)}` },
       results: [
-        { label: 'Masse salariale annuelle', value: `CHF ${chf(r.payroll)}` },
-        { label: 'Charges patronales', value: `CHF ${chf(r.charges)}` },
-        { label: 'Coût total annuel', value: `CHF ${chf(r.cost)}` },
-        { label: 'Heures facturables', value: chf(r.hours, 0) },
-        { label: 'Prix de revient par heure', value: `CHF ${chf(r.costPerHour)}`, strong: true },
-        { label: 'Taux horaire TTC (8,1 %)', value: `CHF ${chf(r.rateTtc)}` },
-        { label: 'Bénéfice annuel visé', value: `CHF ${chf(r.yearlyProfit)}` },
+        { label: L.pdfPayroll, value: `CHF ${chf(r.payroll)}` },
+        { label: L.pdfCharges, value: `CHF ${chf(r.charges)}` },
+        { label: L.pdfCost, value: `CHF ${chf(r.cost)}` },
+        { label: L.pdfBillable, value: chf(r.hours, 0) },
+        { label: L.pdfCostHour, value: `CHF ${chf(r.costPerHour)}`, strong: true },
+        { label: L.pdfTtc, value: `CHF ${chf(r.rateTtc)}` },
+        { label: L.pdfProfit, value: `CHF ${chf(r.yearlyProfit)}` },
       ],
-      cta: 'Devis, heures et rentabilité par chantier automatiques avec Cantia : cantia.ch · 14 jours d’essai',
-      file: 'taux-horaire.pdf',
+      cta: L.pdfCta,
+      file: locale === 'fr' ? 'taux-horaire.pdf' : `${SLUG}.pdf`,
+      labels: { data: C.pdfData, result: C.pdfResult, disclaimer: C.pdfDisclaimer, dateLocale: C.dateLocale },
     });
 
   return (
     <ToolPage
       slug={SLUG}
-      metaTitle="Calcul du taux horaire artisan en Suisse (gratuit) | Cantia"
-      metaDescription="Calculez le prix de revient d’une heure et le taux horaire à facturer : salaires, 13e, charges sociales, frais généraux et marge. Outil gratuit pour les entreprises du bâtiment."
-      kicker="Outil gratuit · Bâtiment"
-      title="Calcul du taux horaire"
-      lede="Le prix de revient d’une heure de travail et le taux à facturer pour couvrir les salaires, les charges, les frais généraux et votre marge. Pour ne plus vendre une heure à perte."
+      metaTitle={L.metaTitle}
+      metaDescription={L.metaDescription}
+      kicker={L.kicker}
+      title={L.title}
+      lede={L.lede}
       form={
         <View style={{ gap: spacing.lg }}>
-          <Group title="Équipe">
-            <Field label="Salaire mensuel brut moyen par employé">
+          <Group title={L.team}>
+            <Field label={L.salary}>
               <Input value={salary} onChange={setSalary} suffix="CHF" />
             </Field>
-            <Chips value={salaries} onChange={setSalaries} options={[{ value: 12, label: '12 salaires' }, { value: 13, label: '13 salaires' }]} />
-            <Field label="Employés productifs (sur les chantiers)">
+            <Chips value={salaries} onChange={setSalaries} options={[{ value: 12, label: L.salaries12 }, { value: 13, label: L.salaries13 }]} />
+            <Field label={L.employees}>
               <Input value={employees} onChange={setEmployees} />
             </Field>
-            <Field label="Charges patronales" hint="AVS/AI/APG, AC, LPP, LAA, allocations familiales : 14 à 18 % en général.">
+            <Field label={L.charges} hint={L.chargesHint}>
               <Input value={charges} onChange={setCharges} suffix="%" />
             </Field>
-            <Field label="Heures facturables par employé et par an" hint="Après vacances, fériés, maladie, déplacements et temps non facturable : 1’500 à 1’700 h.">
+            <Field label={L.hours} hint={L.hoursHint}>
               <Input value={hours} onChange={setHours} suffix="h" />
             </Field>
           </Group>
-          <Group title="Entreprise">
-            <Field label="Frais généraux annuels" hint="Loyer, véhicules, assurances, outillage, téléphone, comptabilité, salaires du bureau…">
-              <Input value={overhead} onChange={setOverhead} suffix="CHF / an" />
+          <Group title={L.company}>
+            <Field label={L.overhead} hint={L.overheadHint}>
+              <Input value={overhead} onChange={setOverhead} suffix={L.perYear} />
             </Field>
-            <Field label="Marge bénéficiaire sur le prix de vente">
+            <Field label={L.margin}>
               <Input value={margin} onChange={setMargin} suffix="%" />
             </Field>
           </Group>
@@ -112,38 +101,28 @@ export default function HourlyRatePage() {
       }
       result={
         <View style={{ gap: spacing.lg }}>
-          <BigResult label="Taux horaire à facturer (HT)" value={`CHF ${chf(r.rate)}`} sub={`Prix de revient : CHF ${chf(r.costPerHour)} / h · TTC : CHF ${chf(r.rateTtc)}`} />
+          <BigResult label={L.result} value={`CHF ${chf(r.rate)}`} sub={fill(L.resultSub, { cost: chf(r.costPerHour), ttc: chf(r.rateTtc) })} />
           <Lines
-            title="Ce que coûte une heure"
+            title={L.hourCost}
             rows={[
-              { label: 'Salaire et charges', value: `CHF ${chf(r.salaryPerHour)}`, meta: `CHF ${chf(r.payroll + r.charges, 0)} / an` },
-              { label: 'Frais généraux', value: `CHF ${chf(r.overheadPerHour)}`, meta: `CHF ${chf(num(overhead), 0)} / an` },
-              { label: 'Prix de revient', value: `CHF ${chf(r.costPerHour)}`, strong: true },
-              { label: `Marge (${pct(num(margin), 1)})`, value: `CHF ${chf(r.rate - r.costPerHour)}` },
-              { label: 'Taux de vente HT', value: `CHF ${chf(r.rate)}`, strong: true },
+              { label: L.salaryCharges, value: `CHF ${chf(r.salaryPerHour)}`, meta: `CHF ${chf(r.payroll + r.charges, 0)} ${L.perYearShort}` },
+              { label: L.overheadLine, value: `CHF ${chf(r.overheadPerHour)}`, meta: `CHF ${chf(num(overhead), 0)} ${L.perYearShort}` },
+              { label: L.costPrice, value: `CHF ${chf(r.costPerHour)}`, strong: true },
+              { label: fill(L.marginLine, { m: pct(num(margin), 1) }), value: `CHF ${chf(r.rate - r.costPerHour)}` },
+              { label: L.rateHt, value: `CHF ${chf(r.rate)}`, strong: true },
             ]}
           />
-          <Note tone="ok">
-            Avec {chf(r.hours, 0)} heures facturées par an, ce taux couvre CHF {chf(r.cost, 0)} de coûts et dégage environ CHF {chf(r.yearlyProfit, 0)} de bénéfice.
-          </Note>
+          <Note tone="ok">{fill(L.note, { hours: chf(r.hours, 0), cost: chf(r.cost, 0), profit: chf(r.yearlyProfit, 0) })}</Note>
           {Platform.OS === 'web' ? (
             <View style={{ gap: spacing.xs }}>
-              <LeadGate source={`outil:${SLUG}`} locale="fr" onUnlock={pdf} />
-              <Hint>Le détail du calcul sur une page, à garder pour vos devis.</Hint>
+              <LeadGate source={`outil:${SLUG}`} locale={locale} onUnlock={pdf} />
+              <Hint>{L.pdfHint}</Hint>
             </View>
           ) : null}
         </View>
       }
-      cta={{
-        title: 'Cantia calcule la rentabilité de chaque chantier',
-        points: [
-          'Vos taux horaires repris automatiquement dans chaque devis',
-          'Les heures saisies sur le chantier comparées au devis, en direct',
-          'Rentabilité réelle par chantier : heures, matériel, sous-traitants',
-          'Factures QR, rappels et salaires suisses dans le même outil',
-        ],
-      }}
-      faq={FAQ}
+      cta={{ title: L.ctaTitle, points: L.ctaPoints }}
+      faq={L.faq}
     />
   );
 }

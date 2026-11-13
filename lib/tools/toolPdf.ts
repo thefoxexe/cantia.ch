@@ -23,7 +23,10 @@ export function downloadToolPdf(opts: {
   notes?: string[];
   cta: string;
   file: string;
+  // Section names, disclaimer and date format (French by default).
+  labels?: { data: string; result: string; disclaimer: string; dateLocale: string };
 }) {
+  const labels = opts.labels ?? { data: 'Données', result: 'Résultat', disclaimer: 'Résultat indicatif, calculé avec les règles suisses en vigueur. Vérifiez les cas particuliers avec votre fiduciaire.', dateLocale: 'fr-CH' };
   const doc = new SimplePdf();
   const L = 48;
   const R = doc.width - 48;
@@ -31,7 +34,7 @@ export function downloadToolPdf(opts: {
   doc.rect(0, 0, doc.width, 6, BRAND);
   doc.text('CANTIA', L, 40, { size: 11, bold: true, color: BRAND });
   doc.text(opts.title, L, 66, { size: 19, bold: true });
-  const date = new Date().toLocaleDateString('fr-CH');
+  const date = new Date().toLocaleDateString(labels.dateLocale);
   doc.text(`${date} · ${opts.url}`, L, 82, { size: 8.5, color: MUTED });
 
   let y = 108;
@@ -46,21 +49,21 @@ export function downloadToolPdf(opts: {
     }
     y += 22;
   };
-  section('Données', opts.inputs);
+  section(labels.data, opts.inputs);
   if (opts.highlight) {
     doc.rect(L, y - 6, W, 46, INK);
     doc.text(opts.highlight.label.toUpperCase(), L + 14, y + 10, { size: 7.5, bold: true, color: [232, 201, 168] });
     doc.text(opts.highlight.value, L + 14, y + 31, { size: 18, bold: true, color: [251, 246, 238] });
     y += 60;
   }
-  section('Résultat', opts.results);
+  section(labels.result, opts.results);
   for (const n of opts.notes ?? []) y = doc.paragraph(n, L, y, W, { size: 8.5, color: MUTED, leading: 11.5 }) + 4;
 
   const ctaY = Math.max(y + 16, doc.height - 92);
   doc.rect(L, ctaY, W, 34, DARK);
   doc.text(opts.cta, L + 14, ctaY + 21, { size: 9.5, bold: true, color: [251, 246, 238] });
   doc.link(L, ctaY, W, 34, 'https://cantia.ch');
-  doc.paragraph('Résultat indicatif, calculé avec les règles suisses en vigueur. Vérifiez les cas particuliers avec votre fiduciaire.', L, ctaY + 50, W, { size: 7, color: MUTED, leading: 9 });
+  doc.paragraph(labels.disclaimer, L, ctaY + 50, W, { size: 7, color: MUTED, leading: 9 });
   downloadPdf(doc.build(opts.title), opts.file);
 }
 

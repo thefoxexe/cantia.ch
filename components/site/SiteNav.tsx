@@ -7,6 +7,7 @@ import { sans, site, gutter } from '../../lib/siteTheme';
 import { SITE_COPY, type SiteLocale } from '../../lib/site/copy';
 import { getAppLocale } from '../../lib/translations';
 import { authHref } from '../../lib/appHost';
+import { SiteImage } from './SiteImage';
 
 const LOGO = require('../../assets/brand/logo.png');
 
@@ -67,7 +68,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
       <View style={[styles.bar, { height: phone ? 75 : 86, paddingHorizontal: gutter(width) }]}>
         <Link href={(p || '/') as any} asChild>
           <Pressable accessibilityRole="link" accessibilityLabel="Cantia">
-            <Image source={LOGO} style={{ width: phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158, height: (phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158) * (192 / 1036) }} resizeMode="contain" />
+            <SiteImage source={LOGO} alt="Cantia" priority style={{ width: phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158, height: (phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158) * (192 / 1036) }} resizeMode="contain" />
           </Pressable>
         </Link>
 
@@ -152,7 +153,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
       <Modal visible={drawerOpen} animationType="fade" transparent onRequestClose={() => setDrawerOpen(false)}>
         <View style={styles.drawer}>
           <View style={[styles.drawerHead, { paddingHorizontal: gutter(width) }]}>
-            <Image source={LOGO} style={{ width: 135, height: 135 * (192 / 1036) }} resizeMode="contain" />
+            <SiteImage source={LOGO} alt="Cantia" style={{ width: 135, height: 135 * (192 / 1036) }} resizeMode="contain" />
             <Pressable onPress={() => setDrawerOpen(false)} accessibilityRole="button" accessibilityLabel={c.close} style={styles.burger} hitSlop={6}>
               <Feather name="x" size={20} color={site.ink} />
             </Pressable>

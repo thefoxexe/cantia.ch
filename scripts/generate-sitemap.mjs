@@ -2,7 +2,7 @@
 // two builds' SEO meta tags (scripts/seo-routes.mjs) — so a new /blog
 // article only needs adding there once, instead of being hand-copied into
 // a third place. Run manually after adding routes or changing a page: `node scripts/generate-sitemap.mjs`.
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -37,12 +37,17 @@ function lastContentChange(file) {
 
 const LOCALE_DIRS = { fr: '', de: 'de/', it: 'it/' };
 const TRADE_DATA = { fr: 'lib/tradeLandingPages.ts', de: 'lib/tradeLandingPagesDe.ts', it: 'lib/tradeLandingPagesIt.ts' };
+const SUBTRADE_FILES = readdirSync(path.join(rootDir, 'lib/site/subTrades')).map((f) => `lib/site/subTrades/${f}`);
 const BLOG_DIRS = { fr: 'lib/blog/posts', de: 'lib/blog/posts-de', it: 'lib/blog/posts-it' };
 
 function sourceFilesFor(route) {
   const { locale, bare } = localeAndBareOf(route.path);
   if (bare.startsWith('blog/')) return [`${BLOG_DIRS[locale]}/${blogBaseSlug(locale, bare.slice('blog/'.length))}.ts`];
   if (bare.startsWith('aide/') && !['aide/videos', 'aide/ressources'].includes(bare)) return ['lib/helpArticles.ts'];
+  // Sub-trade pages (metiers/<sector>/<trade>): one dynamic route per sector,
+  // their copy in lib/site/subTrades/.
+  const sub = bare.match(/^metiers\/([a-z-]+)\/[a-z-]+$/);
+  if (sub) return [`app/metiers/${sub[1]}/[trade].tsx`, 'lib/site/sectors.ts', ...SUBTRADE_FILES];
   const files = [];
   for (const loc of new Set([locale, 'fr'])) {
     const base = `app/${LOCALE_DIRS[loc]}${bare || 'index'}`;
@@ -77,7 +82,7 @@ function isTradeFile(bare) {
 function priorityFor(routePath) {
   const { bare } = localeAndBareOf(routePath);
   if (bare === '') return '1.0';
-  if (bare === 'tarifs' || bare === 'logiciel-chantier') return '0.8';
+  if (bare === 'tarifs') return '0.8';
   if (bare.startsWith('solutions/')) return '0.7';
   if (bare === 'blog' || bare.startsWith('blog/')) return '0.6';
   return '0.4';

@@ -4287,6 +4287,7 @@ export const fr = {
     tradeLinkText: 'Voir comment Cantia s’adapte à ce métier',
     sectorLinkText: 'Cantia pour {{sector}}',
     seeAlsoEyebrow: 'À lire aussi',
+    sameCategoryTitle: 'Dans la même rubrique : {{category}}',
     readArticle: 'Lire l’article',
     closingTitle: 'Piloter vos chantiers sans y penser',
     closingText: 'Devis, factures QR, rapports et rentabilité par chantier, réunis dans un seul outil. 14 jours d’essai, aucun code nécessaire.',

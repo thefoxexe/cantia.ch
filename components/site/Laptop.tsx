@@ -1,6 +1,7 @@
 import { createElement, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Image, Platform, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { sans } from '../../lib/siteTheme';
+import { SiteImage } from './SiteImage';
 
 // The laptop of the site: a dark lid with the same bezel on every side
 // around a 1440×900 screen, and its base. Used by the home hero
@@ -54,20 +55,34 @@ function Recording({ base, label }: { base: string; label: string }) {
   });
 }
 
-// A real screen of the app (or a recording of it) in the laptop, sized to
-// the column it sits in, with the small "real screen · sample data" note.
-export function LaptopShot({ source, video, alt, caption, maxWidth = 760 }: { source?: ImageSourcePropType; video?: string; alt: string; caption?: string; maxWidth?: number }) {
-  const [w, setW] = useState(0);
-  const width = Math.min(w / 1.08, maxWidth);
+// The same laptop, sized in CSS (percentages and aspect ratios of the column
+// it sits in) instead of measured pixels: it already has its final size in the
+// pre-rendered HTML, at any screen width, so nothing grows or moves once
+// JavaScript runs. `width` is the share of the column it takes.
+export function FluidLaptop({ width = '92.6%', maxWidth, align = 'center', children }: { width?: `${number}%`; maxWidth: number; align?: 'center' | 'flex-start'; children: ReactNode }) {
   return (
-    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ width: '100%', alignItems: 'center' }}>
-      {w ? (
-        <LaptopFrame width={width}>
-          {video ? <Recording base={video} label={alt} /> : <Image source={source!} style={{ width: '100%', height: '100%' }} resizeMode="cover" accessibilityLabel={alt} />}
-        </LaptopFrame>
-      ) : (
-        <View style={{ height: 320 }} />
-      )}
+    <View style={{ width, maxWidth, alignSelf: align, alignItems: 'center' }}>
+      {/* padding % is a share of this wrapper's width: the 3 % bezel of LaptopFrame */}
+      <View style={[styles.lid, { width: '100%', padding: '3%', borderRadius: 12, alignItems: 'center' }]}>
+        <View style={[styles.camera, { top: 4 }]} />
+        <View style={{ width: '100%', aspectRatio: 1440 / 900, overflow: 'hidden', borderRadius: 3, backgroundColor: '#f7f1e6' }}>{children}</View>
+      </View>
+      <View style={[styles.base, { width: '108%', aspectRatio: 1.08 / 0.022, minHeight: 10 }]}>
+        <View style={[styles.notch, { width: '14.8%' }]} />
+      </View>
+    </View>
+  );
+}
+
+// A real screen of the app (or a recording of it) in the laptop, sized to
+// the column it sits in. `priority` for the one at the top of a page (the
+// largest picture of the first screen: loaded first, never lazily).
+export function LaptopShot({ source, video, alt, caption, maxWidth = 760, priority }: { source?: ImageSourcePropType; video?: string; alt: string; caption?: string; maxWidth?: number; priority?: boolean }) {
+  return (
+    <View style={{ width: '100%', alignItems: 'center' }}>
+      <FluidLaptop maxWidth={maxWidth}>
+        {video ? <Recording base={video} label={alt} /> : <SiteImage source={source!} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} priority={priority} />}
+      </FluidLaptop>
       {caption ? <Text style={[sans, styles.note]}>{caption.toUpperCase()}</Text> : null}
     </View>
   );

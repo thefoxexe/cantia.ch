@@ -237,3 +237,23 @@ export function getRelatedPosts(post: BlogPost, max = 3, locale: BlogLocale = 'f
   const fallback = getAllPosts(locale).filter((p) => baseSlugOf(p) !== self && p.category === post.category && !bySlug.includes(p));
   return [...bySlug, ...fallback].slice(0, max);
 }
+
+// Other articles of the same category, for the "same category" list under
+// every article. The listed articles of a category form a ring (oldest
+// first): each one links to the next `count` around it, so every article
+// receives `count` links from its neighbours (more than the hand-picked
+// "see also" cards can promise). Articles already in `exclude` are skipped.
+export function getCategoryNeighbours(post: BlogPost, count = 4, locale: BlogLocale = 'fr', exclude: BlogPost[] = []): BlogPost[] {
+  const ring = getAllPosts(locale)
+    .filter((p) => p.category === post.category)
+    .sort((a, b) => a.publishedAt.localeCompare(b.publishedAt) || baseSlugOf(a).localeCompare(baseSlugOf(b)));
+  const at = ring.findIndex((p) => baseSlugOf(p) === baseSlugOf(post));
+  if (at < 0 || ring.length < 2) return [];
+  const skip = new Set(exclude.map(baseSlugOf));
+  const out: BlogPost[] = [];
+  for (let step = 1; step < ring.length && out.length < count; step++) {
+    const p = ring[(at + step) % ring.length];
+    if (!skip.has(baseSlugOf(p))) out.push(p);
+  }
+  return out;
+}

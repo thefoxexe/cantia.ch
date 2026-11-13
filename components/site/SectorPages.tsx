@@ -65,7 +65,7 @@ export function MetiersPage() {
         </View>
         <View style={[styles.switchRow, (phone || tablet) && { flexDirection: 'column', alignItems: 'stretch', gap: 28 }]}>
           <View style={phone || tablet ? undefined : { flex: 1.5, minWidth: 0 }}>
-            <LaptopShot source={SECTOR_SCREENS[locale][active].list} alt={`${s.words} · Cantia`} maxWidth={820} />
+            <LaptopShot source={SECTOR_SCREENS[locale][active].list} alt={`${s.words} · Cantia`} maxWidth={820} priority />
           </View>
           <View style={phone || tablet ? undefined : { flex: 1, minWidth: 0 }}>
             <Eyebrow>{s.label}</Eyebrow>
@@ -240,7 +240,7 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
             <Text style={[sans, styles.copy]}>{c.wordText}</Text>
           </View>
           <View style={phone || tablet ? undefined : { flex: 1.4, minWidth: 0 }}>
-            <LaptopShot source={screens.list} alt={`${c.words} · Cantia`} />
+            <LaptopShot source={screens.list} alt={`${c.words} · Cantia`} priority />
           </View>
         </View>
       </Section>
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   lead: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 620 },
   hero: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 26 },
-  trust: { fontSize: 10, color: '#8b9380', marginTop: 18 },
+  trust: { fontSize: 10, color: '#6b6f65', marginTop: 18 },
   copy: { fontSize: 14, color: site.muted, lineHeight: 26, maxWidth: 520 },
   words: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 34 },
   word: { borderWidth: 1, borderColor: site.line, borderRadius: 6, paddingVertical: 9, paddingHorizontal: 18, backgroundColor: site.white },

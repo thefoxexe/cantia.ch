@@ -3,7 +3,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-n
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
-import { Breadcrumbs, DocVisual, PhoneShot, ScreenShot, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
+import { Breadcrumbs, DocVisual, PhoneShot, ScreenShot, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
 import { LaptopShot } from './Laptop';
@@ -12,6 +12,7 @@ import { SITE_COPY } from '../../lib/site/copy';
 import { SITE_PAGES, type FamilyKey, type PageLabels } from '../../lib/site/pages';
 import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
+import { SiteImage } from './SiteImage';
 
 type IconName = React.ComponentProps<typeof Feather>['name'];
 
@@ -237,23 +238,25 @@ const FAMILY_SCREEN: Record<FamilyKey, ScreenKind> = { signer: 'devis', organise
 
 function HeroVisual({ family, labels: L }: { family: FamilyKey; labels: PageLabels }) {
   const locale = useSiteLocale();
-  return <LaptopShot source={APP_SCREENS[locale][FAMILY_SCREEN[family]]} alt={L.appScreen} />;
+  return <LaptopShot source={APP_SCREENS[locale][FAMILY_SCREEN[family]]} alt={L.appScreen} priority />;
 }
 
 // The sand ground with a real phone screen of the app, cropped at the bottom.
 export function PhoneStage({ shot, alt, caption }: { shot: { source: any; ratio: number }; alt: string; caption: string }) {
-  const [w, setW] = useState(0);
   const { phone } = useSiteLayout();
   const h = phone ? 380 : 420;
-  const phoneW = Math.min(w * 0.6, 250);
+  // Sized in CSS (60 % of the stage, 250 px at most), so the pre-rendered
+  // page already shows the phone; the stage crops it at the bottom.
   return (
     <View>
-      <View style={[styles.visual, { height: h, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-        {w ? (
-          <View style={{ position: 'absolute', top: 34, left: (w - phoneW) / 2 }}>
-            <PhoneShot source={shot.source} ratio={shot.ratio} width={phoneW} alt={alt} />
+      <View style={[styles.visual, { height: h, overflow: 'hidden' }]}>
+        <View style={{ position: 'absolute', top: 34, left: 0, right: 0, alignItems: 'center' }}>
+          <View style={[phoneFrame.outer, paperShadow]}>
+            <View style={phoneFrame.screen}>
+              <SiteImage source={shot.source} style={{ width: '100%', aspectRatio: 1 / shot.ratio }} resizeMode="cover" alt={alt} />
+            </View>
           </View>
-        ) : null}
+        </View>
       </View>
       <Text style={[sans, styles.stageCaption]}>{caption.toUpperCase()}</Text>
     </View>
@@ -266,7 +269,7 @@ const styles = StyleSheet.create({
   lead: { fontSize: 15, color: site.muted, lineHeight: 28, maxWidth: 610 },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginTop: 26 },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 24 },
-  tag: { fontSize: 9, color: '#777e6c', borderWidth: 1, borderColor: site.line, borderRadius: 3, paddingVertical: 5, paddingHorizontal: 9 },
+  tag: { fontSize: 9, color: '#6b6f65', borderWidth: 1, borderColor: site.line, borderRadius: 3, paddingVertical: 5, paddingHorizontal: 9 },
   subnavFrame: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: site.line },
   subnav: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16 },
   subnavText: { fontSize: 11, color: site.ink },
@@ -284,7 +287,7 @@ const styles = StyleSheet.create({
   showcase: { flexDirection: 'row', alignItems: 'center' },
   showcaseHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 60, marginBottom: 35 },
   copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390 },
-  proofNote: { fontSize: 9, color: '#8b9380', marginTop: 15 },
+  proofNote: { fontSize: 9, color: '#6b6f65', marginTop: 15 },
   inlineLink: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center' },
   faq: { maxWidth: 820, width: '100%', marginHorizontal: 'auto' },
   faqItem: { borderTopWidth: 1, borderColor: site.line, paddingVertical: 20 },
@@ -314,4 +317,9 @@ const styles = StyleSheet.create({
   paperLineText: { fontSize: 10, color: site.ink },
   paperTotal: { color: site.copper, fontWeight: '600' },
   paperCaption: { fontSize: 7, color: '#a0a28f', borderTopWidth: 1, borderTopColor: '#e8ebde', paddingTop: 15, marginTop: 4, letterSpacing: 0.3 },
+});
+
+const phoneFrame = StyleSheet.create({
+  outer: { width: '60%', maxWidth: 250, padding: 8, borderRadius: 35, backgroundColor: '#1f231d' },
+  screen: { width: '100%', overflow: 'hidden', borderRadius: 26, backgroundColor: '#f7f1e6' },
 });

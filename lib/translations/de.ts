@@ -4298,6 +4298,7 @@ export const de: TranslationDict = {
     tradeLinkText: 'So passt sich Cantia diesem Beruf an',
     sectorLinkText: 'Cantia für {{sector}}',
     seeAlsoEyebrow: 'Das könnte Sie auch interessieren',
+    sameCategoryTitle: 'Mehr zum Thema {{category}}',
     readArticle: 'Artikel lesen',
     closingTitle: 'Ihre Baustellen im Griff, ohne Mehraufwand',
     closingText: 'Offerten, QR-Rechnungen, Rapporte und Rentabilität pro Baustelle, gebündelt in einem Tool. 14 Tage Testphase, kein Code nötig.',
