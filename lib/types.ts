@@ -95,6 +95,8 @@ export interface Organization {
   devis_terms: string | null;
   devis_template: string;
   brand_color: string;
+  // Second colour of the document models (Angle, Plan, Épuré); null = the model's default.
+  brand_accent_color?: string | null;
   logo_placement: 'left' | 'center' | 'right';
   // Client address on devis/factures: left (in the page) or right, where
   // the window of a Swiss envelope is, with a fine adjustment in mm.

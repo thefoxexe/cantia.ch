@@ -9,6 +9,7 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { BrandColorPicker } from '../../../components/BrandColorPicker';
+import { DocumentModelThumb, type DocumentModelId } from '../../../components/DocumentModelThumb';
 import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
@@ -21,6 +22,17 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { downloadWindowTestPage, type WindowTestTexts } from '../../../lib/pdf/windowTestPage';
 import { documentOptionsReady } from '../../../lib/documentOptions';
 import { Platform } from 'react-native';
+
+const DEFAULT_ACCENT = '#C9A46A';
+const ACCENT_PRESETS = ['#C9A46A', '#D8B98A', '#E0B23C', '#E07A3F', '#A65D36', '#C0392B', '#5B8DB8', '#7A9E7E', '#9AA0A6', '#2B2D31'];
+// base_layout ids already allowed by the database: moderne = Angle,
+// structure = Plan, minimal = Épuré.
+const MODELS: { id: DocumentModelId; key: 'classic' | 'angle' | 'plan' | 'epure' }[] = [
+  { id: 'classic', key: 'classic' },
+  { id: 'moderne', key: 'angle' },
+  { id: 'structure', key: 'plan' },
+  { id: 'minimal', key: 'epure' },
+];
 
 export default function ApparenceScreen() {
   const { t } = useTranslation();
@@ -39,6 +51,13 @@ export default function ApparenceScreen() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasCustomization, setHasCustomization] = useState<boolean | null>(null);
   const [logoColors, setLogoColors] = useState<string[]>([]);
+  // Document model (pdf_templates, kind 'devis', shared by devis and
+  // factures) and the models' accent colour.
+  const [model, setModel] = useState<DocumentModelId>('classic');
+  const [savedModel, setSavedModel] = useState<DocumentModelId>('classic');
+  const [modelIds, setModelIds] = useState<Partial<Record<DocumentModelId, string>>>({});
+  const [modelError, setModelError] = useState<string | null>(null);
+  const [accentColor, setAccentColor] = useState(organization?.brand_accent_color ?? DEFAULT_ACCENT);
   const isAdmin = role === 'owner' || role === 'admin';
 
   const { dirty, saving, markDirty, save, discard, confirmBeforeBack, leaveModalVisible, onLeaveSave, onLeaveDiscard, onLeaveCancel } =
@@ -62,9 +81,30 @@ export default function ApparenceScreen() {
     setOffsetY(String(organization.client_address_offset_y_mm ?? 0));
     setOffsetError(null);
     if (organization.logo_url) setLogoUrl(await getSignedUrl(organization.logo_url));
+    setAccentColor(organization.brand_accent_color ?? DEFAULT_ACCENT);
     const { data: plan } = await supabase.from('plans').select('has_customization').eq('id', organization.plan_id).maybeSingle();
     setHasCustomization(plan?.has_customization ?? true);
-  }, [organization]);
+    const { data: templates, error: templatesError } = await supabase
+      .from('pdf_templates')
+      .select('id, base_layout, is_default')
+      .eq('organization_id', organization.id)
+      .eq('kind', 'devis');
+    if (templatesError) {
+      setModelError(t('apparence.modelUnavailable'));
+    } else {
+      setModelError(null);
+      const ids: Partial<Record<DocumentModelId, string>> = {};
+      let current: DocumentModelId = 'classic';
+      for (const row of templates ?? []) {
+        if (!MODELS.some((m) => m.id === row.base_layout)) continue;
+        ids[row.base_layout as DocumentModelId] = row.id;
+        if (row.is_default) current = row.base_layout as DocumentModelId;
+      }
+      setModelIds(ids);
+      setModel(current);
+      setSavedModel(current);
+    }
+  }, [organization, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -83,10 +123,13 @@ export default function ApparenceScreen() {
     }
     setOffsetError(null);
     setSaveError(null);
+    const validAccent = HEX_COLOR_RE.test(accentColor.trim());
     const { error } = await supabase
       .from('organizations')
       .update({
         brand_color: validHex ? brandColor.trim() : organization.brand_color,
+        // Only once the column exists (migration 20261113100000).
+        ...('brand_accent_color' in organization && validAccent ? { brand_accent_color: accentColor.trim() } : {}),
         logo_placement: logoPlacement,
         footer_text: footerText.trim() || null,
         website: website.trim() || null,
@@ -96,6 +139,14 @@ export default function ApparenceScreen() {
     if (error) {
       setSaveError(`${t('entreprise.saveFailed')} (${error.message})`);
       return false;
+    }
+    if (model !== savedModel && modelIds[model]) {
+      const { error: modelSaveError } = await supabase.rpc('set_default_pdf_template', { p_org: organization.id, p_template: modelIds[model], p_kind: 'devis' });
+      if (modelSaveError) {
+        setSaveError(`${t('entreprise.saveFailed')} (${modelSaveError.message})`);
+        return false;
+      }
+      setSavedModel(model);
     }
     refreshOrganization();
   }
@@ -126,6 +177,8 @@ export default function ApparenceScreen() {
   }
 
   const previewColor = HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : colors.border;
+  const thumbBrand = HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : '#1F3D3A';
+  const thumbAccent = HEX_COLOR_RE.test(accentColor.trim()) ? accentColor.trim() : DEFAULT_ACCENT;
 
   return (
     <AppScreen>
@@ -222,6 +275,64 @@ export default function ApparenceScreen() {
             </SettingsSection>
           )}
 
+          {hasCustomization !== false ? (
+            <SettingsSection icon="layout" title={t('apparence.sections.model.title')} hint={t('apparence.sections.model.hint')}>
+              {modelError ? <Text style={styles.errorText}>{modelError}</Text> : null}
+              <View style={styles.modelGrid}>
+                {MODELS.map((m) => {
+                  const selected = model === m.id;
+                  const available = !!modelIds[m.id];
+                  return (
+                    <Pressable
+                      key={m.id}
+                      disabled={!isAdmin || !available}
+                      onPress={() => withDirty(setModel)(m.id)}
+                      style={[styles.modelCard, selected && { borderColor: thumbBrand, backgroundColor: colors.surface }, !available && { opacity: 0.5 }]}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                    >
+                      <DocumentModelThumb model={m.id} brand={thumbBrand} accent={thumbAccent} logoUri={logoUrl} width={128} />
+                      <View style={styles.modelText}>
+                        <View style={styles.modelNameRow}>
+                          <Text style={styles.modelName}>{t(`apparence.models.${m.key}.name`)}</Text>
+                          {selected ? <Feather name="check-circle" size={16} color={thumbBrand} /> : null}
+                        </View>
+                        <Text style={styles.modelHint}>{t(`apparence.models.${m.key}.text`)}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              {model !== 'classic' ? <Text style={styles.modelNote}>{t('apparence.modelLogoNote')}</Text> : null}
+
+              {'brand_accent_color' in (organization ?? {}) ? (
+                <View style={{ marginTop: spacing.lg }}>
+                  <Text style={styles.accentLabel}>{t('apparence.accentLabel')}</Text>
+                  <Text style={styles.modelHint}>{t('apparence.accentHint')}</Text>
+                  <View style={styles.swatchRow}>
+                    {ACCENT_PRESETS.map((c) => (
+                      <Pressable
+                        key={c}
+                        disabled={!isAdmin}
+                        onPress={() => withDirty(setAccentColor)(c)}
+                        style={[styles.swatch, { backgroundColor: c }, accentColor.toLowerCase() === c.toLowerCase() && styles.swatchSelected]}
+                        accessibilityLabel={c}
+                      />
+                    ))}
+                  </View>
+                  <Field
+                    label={t('apparence.accentHex')}
+                    value={accentColor}
+                    onChangeText={withDirty(setAccentColor)}
+                    editable={isAdmin}
+                    autoCapitalize="none"
+                    placeholder={DEFAULT_ACCENT}
+                  />
+                </View>
+              ) : null}
+            </SettingsSection>
+          ) : null}
+
           {documentOptionsReady(organization) ? (
             <SettingsSection icon="mail" title={t('apparence.sections.address.title')} hint={t('apparence.sections.address.hint')}>
               <View style={styles.placementRow}>
@@ -310,6 +421,18 @@ function parseOffset(raw: string): number | null {
 }
 
 const styles = StyleSheet.create({
+  modelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  modelCard: { flexBasis: 150, flexGrow: 1, maxWidth: 260, padding: spacing.sm, borderRadius: radius.md, borderWidth: 2, borderColor: colors.border, alignItems: 'center', gap: spacing.sm },
+  modelText: { alignSelf: 'stretch', gap: 2 },
+  modelNameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  modelName: { fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  modelHint: { fontSize: fontSize.sm, color: colors.textMuted, lineHeight: 18 },
+  modelNote: { marginTop: spacing.md, fontSize: fontSize.sm, color: colors.textMuted },
+  accentLabel: { fontSize: fontSize.md, fontWeight: '700', color: colors.text, marginBottom: 2 },
+  swatchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.md },
+  swatch: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: 'transparent' },
+  swatchSelected: { borderColor: colors.text },
+  errorText: { color: colors.danger, fontSize: fontSize.sm, marginBottom: spacing.sm },
   offsetRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md, flexWrap: 'wrap' },
   offsetField: { flex: 1, minWidth: 160 },
   error: { fontSize: fontSize.sm, color: colors.danger, marginTop: spacing.xs },
