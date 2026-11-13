@@ -26,11 +26,11 @@ import { Platform } from 'react-native';
 const DEFAULT_ACCENT = '#C9A46A';
 const ACCENT_PRESETS = ['#C9A46A', '#D8B98A', '#E0B23C', '#E07A3F', '#A65D36', '#C0392B', '#5B8DB8', '#7A9E7E', '#9AA0A6', '#2B2D31'];
 // base_layout ids already allowed by the database: moderne = Angle,
-// structure = Plan, minimal = Épuré.
-const MODELS: { id: DocumentModelId; key: 'classic' | 'angle' | 'plan' | 'epure' }[] = [
+// structure = Prestige, minimal = Épuré.
+const MODELS: { id: DocumentModelId; key: 'classic' | 'angle' | 'prestige' | 'epure' }[] = [
   { id: 'classic', key: 'classic' },
   { id: 'moderne', key: 'angle' },
-  { id: 'structure', key: 'plan' },
+  { id: 'structure', key: 'prestige' },
   { id: 'minimal', key: 'epure' },
 ];
 

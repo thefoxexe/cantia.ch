@@ -47,7 +47,6 @@ const LABELS = {
   document: { fr: 'Document', de: 'Dokument', it: 'Documento' },
   details: { fr: 'Détails', de: 'Details', it: 'Dettagli' },
   services: { fr: 'Prestations', de: 'Leistungen', it: 'Prestazioni' },
-  position: { fr: 'Pos.', de: 'Pos.', it: 'Pos.' },
   entrepriseFallback: { fr: 'Entreprise', de: 'Unternehmen', it: 'Azienda' },
   signature: { fr: 'Signature', de: 'Unterschrift', it: 'Firma' },
   signatureOf: { fr: 'Signature {name}', de: 'Unterschrift {name}', it: 'Firma {name}' },

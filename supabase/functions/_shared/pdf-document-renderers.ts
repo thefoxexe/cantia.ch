@@ -195,11 +195,11 @@ function measureMax(font: PDFFont, strings: string[], size: number, fallback = 0
 // The four document models (Compte → Apparence), all built on the same
 // skeleton so the client's address, the signatures and the QR-bill never
 // move: 'classic' (the original), 'angle' (triangles in the top corner, a
-// slanted total), 'plan' (a construction drawing: frame, grid, title block,
-// numbered positions) and 'epure' (Swiss grid, hairlines, colour only on the
+// slanted total), 'prestige' (centred letterhead, serif title and total,
+// fine double rules) and 'epure' (Swiss grid, hairlines, colour only on the
 // top rule and the total). They keep the base_layout ids the database
-// already allows: moderne = angle, structure = plan, minimal = epure.
-type Layout = 'classic' | 'angle' | 'plan' | 'epure';
+// already allows: moderne = angle, structure = prestige, minimal = epure.
+type Layout = 'classic' | 'angle' | 'prestige' | 'epure';
 const DEFAULT_ACCENT_HEX = '#C9A46A';
 
 // A filled polygon, points in PDF coordinates (origin bottom-left).
@@ -221,7 +221,14 @@ function drawSpaced(page: PDFPage, text: string, x: number, y: number, f: PDFFon
 // « Échéance : 05.09.2026 » → ['Échéance', '05.09.2026'].
 function splitMeta(line: string): [string, string] {
   const i = line.indexOf(' : ');
-  return i > 0 ? [line.slice(0, i), line.slice(i + 3)] : ['', line];
+  if (i > 0) return [line.slice(0, i), line.slice(i + 3)];
+  const j = line.indexOf(': '); // German and Italian: « Fällig am: … »
+  return j > 0 ? [line.slice(0, j), line.slice(j + 2)] : ['', line];
+}
+
+function spacedWidth(text: string, f: PDFFont, size: number, spacing: number): number {
+  const t = sanitizePdfText(text);
+  return f.widthOfTextAtSize(t, size) + spacing * Math.max(0, t.length - 1);
 }
 
 function fitText(text: string, f: PDFFont, size: number, maxW: number): string {
@@ -256,7 +263,8 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
     paidSum,
   } = ctx;
   const accent = hexToRgb(org?.brand_accent_color || DEFAULT_ACCENT_HEX);
-  const mono = layout === 'plan' ? pdfDoc.embedStandardFont(StandardFonts.CourierBold) : fontBold;
+  const serif = layout === 'prestige' ? pdfDoc.embedStandardFont(StandardFonts.TimesRoman) : font;
+  const serifItalic = layout === 'prestige' ? pdfDoc.embedStandardFont(StandardFonts.TimesRomanItalic) : font;
   // The QR-bill takes the bottom of a facture's last page: nothing is drawn
   // there on a facture (no bottom corner, no closed frame).
   const isFacture = docKind === 'facture';
@@ -269,28 +277,10 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
         fillPolygon(pg, [[PAGE_WIDTH - 44 * MM, PAGE_HEIGHT], [PAGE_WIDTH, PAGE_HEIGHT], [PAGE_WIDTH, PAGE_HEIGHT - 44 * MM]], accent);
       }
       if (!isFacture) fillPolygon(pg, [[0, 0], [16 * MM, 0], [0, 16 * MM]], brand);
-    } else if (layout === 'plan') {
-      const inset = 10 * MM;
-      const bottom = isFacture ? 112 * MM : 34;
-      pg.drawLine({ start: { x: inset, y: PAGE_HEIGHT - inset }, end: { x: PAGE_WIDTH - inset, y: PAGE_HEIGHT - inset }, thickness: 1.1, color: brand });
-      pg.drawLine({ start: { x: inset, y: PAGE_HEIGHT - inset }, end: { x: inset, y: bottom }, thickness: 1.1, color: brand });
-      pg.drawLine({ start: { x: PAGE_WIDTH - inset, y: PAGE_HEIGHT - inset }, end: { x: PAGE_WIDTH - inset, y: bottom }, thickness: 1.1, color: brand });
-      if (!isFacture) pg.drawLine({ start: { x: inset, y: bottom }, end: { x: PAGE_WIDTH - inset, y: bottom }, thickness: 1.1, color: brand });
-      const marks: [number, number][] = [[inset, PAGE_HEIGHT - inset], [PAGE_WIDTH - inset, PAGE_HEIGHT - inset]];
-      if (!isFacture) marks.push([inset, bottom], [PAGE_WIDTH - inset, bottom]);
-      for (const [mx, my] of marks) {
-        pg.drawLine({ start: { x: mx - 11, y: my }, end: { x: mx + 11, y: my }, thickness: 1.2, color: accent });
-        pg.drawLine({ start: { x: mx, y: my - 11 }, end: { x: mx, y: my + 11 }, thickness: 1.2, color: accent });
-      }
-      if (first) {
-        // The drawing's grid behind the header, 5 mm squares.
-        const gridTop = PAGE_HEIGHT - inset;
-        const gridBottom = PAGE_HEIGHT - 52 * MM;
-        const gridColor = softTint(brand, 0.88);
-        for (let gx = inset + 5 * MM; gx < PAGE_WIDTH - inset; gx += 5 * MM) pg.drawLine({ start: { x: gx, y: gridTop }, end: { x: gx, y: gridBottom }, thickness: 0.35, color: gridColor });
-        for (let gy = gridTop - 5 * MM; gy > gridBottom; gy -= 5 * MM) pg.drawLine({ start: { x: inset, y: gy }, end: { x: PAGE_WIDTH - inset, y: gy }, thickness: 0.35, color: gridColor });
-        pg.drawLine({ start: { x: inset, y: gridBottom }, end: { x: PAGE_WIDTH - inset, y: gridBottom }, thickness: 1.1, color: brand });
-      }
+    } else if (layout === 'prestige') {
+      // A hairline in the secondary colour above the footer (not on a
+      // facture: the QR-bill takes the bottom of its last page).
+      if (!isFacture) pg.drawLine({ start: { x: MARGIN, y: 40 }, end: { x: PAGE_WIDTH - MARGIN, y: 40 }, thickness: 0.5, color: accent });
     } else if (layout === 'epure') {
       pg.drawRectangle({ x: 0, y: PAGE_HEIGHT - 2.2 * MM, width: PAGE_WIDTH, height: 2.2 * MM, color: brand });
     }
@@ -306,11 +296,11 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
     page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
     decorate(page, false);
     pageNum += 1;
-    y = PAGE_HEIGHT - (layout === 'plan' ? MARGIN + 6 : MARGIN);
+    y = PAGE_HEIGHT - MARGIN;
   };
 
-  // Top of the page for the Angle, Plan and Épuré models: logo (always on
-  // the left, the corner belongs to the model's shapes), company, title,
+  // Top of the page for the Angle, Prestige and Épuré models: logo (on the
+  // left, or centred for Prestige; the corner belongs to the model's shapes), company, title,
   // document details, and the client's address at the envelope window's
   // place. Returns where the table starts.
   const drawModelTop = (): number => {
@@ -330,11 +320,12 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
     if (logoImg) {
       const h = Math.min(40, (logoImg.height / logoImg.width) * 150);
       const w = (logoImg.width / logoImg.height) * h;
-      if (layout === 'plan') page.drawRectangle({ x: MARGIN - 6, y: top - h - 6, width: w + 12, height: h + 12, color: rgb(1, 1, 1) });
-      page.drawImage(logoImg, { x: MARGIN, y: top - h, width: w, height: h });
+      page.drawImage(logoImg, { x: layout === 'prestige' ? (PAGE_WIDTH - w) / 2 : MARGIN, y: top - h, width: w, height: h });
       logoBottom = top - h;
     } else {
-      drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, top - 16, fontBold, 16, brand);
+      const name = org?.name ?? pdfT(locale, 'entrepriseFallback');
+      const nx = layout === 'prestige' ? (PAGE_WIDTH - fontBold.widthOfTextAtSize(sanitizePdfText(name), 16)) / 2 : MARGIN;
+      drawText(page, name, nx, top - 16, fontBold, 16, brand);
       logoBottom = top - 20;
     }
     const street = org?.street || null;
@@ -375,42 +366,35 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
       return rowTop - 46;
     }
 
-    if (layout === 'plan') {
-      // Title block (cartouche) top right.
-      const cw = 72 * MM;
-      const cx = PAGE_WIDTH - MARGIN - cw;
-      const ct = PAGE_HEIGHT - 16 * MM;
-      const cellH = 25;
-      const cells: [string, string][] = [[pdfT(locale, 'document').toUpperCase(), docLabel], ...metas.slice(0, 3).map(([k, v]) => [k.toUpperCase(), v] as [string, string])];
-      const rest = metas.slice(3);
-      const bar = rest.shift();
-      const rowsN = Math.ceil(cells.length / 2);
-      const boxH = rowsN * cellH + (bar ? 18 : 0);
-      page.drawRectangle({ x: cx, y: ct - boxH, width: cw, height: boxH, color: rgb(1, 1, 1), borderColor: brand, borderWidth: 1.1 });
-      cells.forEach(([k, v], i) => {
-        const col = i % 2, row = Math.floor(i / 2);
-        const x0 = cx + col * (cw / 2), y0 = ct - row * cellH;
-        if (col) page.drawLine({ start: { x: x0, y: y0 }, end: { x: x0, y: y0 - cellH }, thickness: 0.8, color: brand });
-        if (row) page.drawLine({ start: { x: cx, y: y0 }, end: { x: cx + cw, y: y0 }, thickness: 0.8, color: brand });
-        drawSpaced(page, fitText(k, font, 6.3, cw / 2 - 14), x0 + 6, y0 - 9, font, 6.3, brand, 0.6);
-        drawText(page, fitText(v, mono, 8.6, cw / 2 - 12), x0 + 6, y0 - 20, mono, 8.6, INK);
+    if (layout === 'prestige') {
+      // Coordinates on one centred line in spaced capitals, under the logo.
+      const info = [addressLines.join(' · '), ...contactLines, ide].filter(Boolean).join(' · ').toUpperCase();
+      let cs = 6.8, csp = 1.1;
+      while (spacedWidth(info, font, cs, csp) > PAGE_WIDTH - 2 * MARGIN && cs > 5.6) { cs -= 0.3; csp = Math.max(0.3, csp - 0.2); }
+      const iw = Math.min(spacedWidth(info, font, cs, csp), PAGE_WIDTH - 2 * MARGIN);
+      drawSpaced(page, fitText(info, font, cs, PAGE_WIDTH - 2 * MARGIN), (PAGE_WIDTH - iw) / 2, logoBottom - 13, font, cs, MUTED, csp);
+      // Double rule: main colour, then a fine secondary line.
+      const ruleY = Math.min(PAGE_HEIGHT - 40 * MM, logoBottom - 24);
+      page.drawLine({ start: { x: MARGIN, y: ruleY }, end: { x: PAGE_WIDTH - MARGIN, y: ruleY }, thickness: 1, color: brand });
+      page.drawLine({ start: { x: MARGIN, y: ruleY - 3.4 }, end: { x: PAGE_WIDTH - MARGIN, y: ruleY - 3.4 }, thickness: 0.5, color: accent });
+      const t0 = PAGE_HEIGHT - 61 * MM;
+      drawSpaced(page, docLabel.toUpperCase(), MARGIN, t0 - 7, fontBold, 7.5, brand, 2.6);
+      drawText(page, fitText(`N° ${devis.number ?? '—'}`, serif, 25, 95 * MM), MARGIN, t0 - 32, serif, 25, INK);
+      let subY = t0 - 32;
+      if (devis.projects?.name) {
+        subY = t0 - 48;
+        drawText(page, fitText(devis.projects.name, serifItalic, 12, 95 * MM), MARGIN, subY, serifItalic, 12, MUTED);
+      }
+      const rowTop = Math.min(PAGE_HEIGHT - 98 * MM, clientBottom - 16, subY - 22);
+      const details = metas.slice(1, 5);
+      const colW = (PAGE_WIDTH - 2 * MARGIN) / Math.max(1, details.length);
+      details.forEach(([k, v], i) => {
+        const cx = MARGIN + i * colW + (i ? 14 : 0);
+        if (i) page.drawLine({ start: { x: MARGIN + i * colW, y: rowTop + 2 }, end: { x: MARGIN + i * colW, y: rowTop - 24 }, thickness: 0.5, color: accent });
+        drawSpaced(page, fitText(k.toUpperCase(), font, 6.8, colW - 20), cx, rowTop - 7, font, 6.8, MUTED, 1);
+        drawText(page, fitText(v, font, 9, colW - 20), cx, rowTop - 20, font, 9, INK);
       });
-      if (bar) {
-        const by = ct - rowsN * cellH;
-        page.drawRectangle({ x: cx, y: by - 18, width: cw, height: 18, color: brand });
-        const tc = pickReadableTextColor(brand);
-        const label = `${bar[0].toUpperCase()}  `;
-        const lw = drawSpaced(page, label, cx + 6, by - 12, font, 6.3, tc, 0.6);
-        drawText(page, fitText(bar[1], fontBold, 8.6, cw - lw - 16), cx + 8 + lw, by - 12.5, fontBold, 8.6, tc);
-      }
-      let oy = PAGE_HEIGHT - 61 * MM - 9;
-      drawText(page, org?.name ?? pdfT(locale, 'entrepriseFallback'), MARGIN, oy, fontBold, 9, INK);
-      oy -= 12;
-      for (const l of [...addressLines, contactLines.join(' · '), ide, ...rest.map(([k, v]) => `${k} : ${v}`)].filter(Boolean) as string[]) {
-        drawText(page, fitText(l, font, 8.5, 92 * MM), MARGIN, oy, font, 8.5, MUTED);
-        oy -= 11;
-      }
-      return Math.min(oy, clientBottom) - 22;
+      return rowTop - 44;
     }
 
     // Épuré: company in two columns top right, title, a « details » row.
@@ -602,9 +586,9 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
   const tableRight = PAGE_WIDTH - MARGIN;
   // Épuré keeps a label column on the left; Plan numbers its positions.
   const tableLeft = layout === 'epure' ? MARGIN + 34 * MM : MARGIN;
-  const posW = layout === 'plan' ? 24 : 0;
+  const posW = 0;
   const gutter = 12;
-  const totalW = Math.max(60, measureMax(layout === 'plan' ? mono : fontBold, amountSamples, 10));
+  const totalW = Math.max(60, measureMax(fontBold, amountSamples, 10));
   const priceW = Math.max(55, measureMax(font, amountSamples, 10));
   const unitW = Math.max(26, measureMax(font, unitStrings, 10));
   const qtyW = Math.max(22, measureMax(font, qtyStrings, 10));
@@ -620,32 +604,32 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
     qty: colRight.qty - qtyW,
   };
   const descWidth = colX.qty - gutter - colX.desc;
-  const descPad = layout === 'epure' ? 0 : 8;
+  const descPad = layout === 'epure' || layout === 'prestige' ? 0 : 8;
 
   const headerH = 22;
   let servicesLabelDrawn = false;
   const drawTableHeader = () => {
     const top = y;
-    const filled = layout === 'classic' || layout === 'plan';
+    const filled = layout === 'classic';
     if (filled) page.drawRectangle({ x: tableLeft, y: top - headerH, width: tableRight - tableLeft, height: headerH, color: brand });
     if (layout === 'angle') page.drawLine({ start: { x: tableLeft, y: top - headerH }, end: { x: tableRight, y: top - headerH }, thickness: 1.6, color: brand });
+    if (layout === 'prestige') page.drawLine({ start: { x: tableLeft, y: top - headerH }, end: { x: tableRight, y: top - headerH }, thickness: 0.8, color: brand });
     if (layout === 'epure' && !servicesLabelDrawn) {
       page.drawLine({ start: { x: MARGIN, y: top + 4 }, end: { x: tableRight, y: top + 4 }, thickness: 0.8, color: INK });
       drawText(page, pdfT(locale, 'services'), MARGIN, top - headerH + 7, font, 8, MUTED);
       servicesLabelDrawn = true;
     }
     const headTextColor = filled ? pickReadableTextColor(brand) : layout === 'angle' ? brand : MUTED;
-    const hf = layout === 'epure' ? font : fontBold;
-    const hs = layout === 'classic' ? 9 : 7.8;
-    const up = (k: string) => (layout === 'angle' || layout === 'plan' ? pdfT(locale, k).toUpperCase() : pdfT(locale, k));
+    const endPadH = layout === 'epure' || layout === 'prestige' ? 0 : 8;
+    const hf = layout === 'epure' || layout === 'prestige' ? font : fontBold;
+    const hs = layout === 'classic' ? 9 : layout === 'prestige' ? 6.8 : 7.8;
+    const up = (k: string) => (layout === 'angle' || layout === 'prestige' ? pdfT(locale, k).toUpperCase() : pdfT(locale, k));
     const midY = top - headerH + 7;
-    const endPad = layout === 'epure' ? 0 : 8;
-    if (layout === 'plan') drawText(page, up('position'), tableLeft + 6, midY, hf, hs, headTextColor);
     drawText(page, up('description'), colX.desc + descPad, midY, hf, hs, headTextColor);
     drawTextRight(page, up('quantity'), colRight.qty, midY, hf, hs, headTextColor);
     drawTextRight(page, up('unit'), colRight.unit, midY, hf, hs, headTextColor);
     drawTextRight(page, up('price'), colRight.price, midY, hf, hs, headTextColor);
-    drawTextRight(page, up('total'), colRight.total - endPad, midY, hf, hs, headTextColor);
+    drawTextRight(page, up('total'), colRight.total - endPadH, midY, hf, hs, headTextColor);
     y = top - headerH - 4;
   };
 
@@ -668,21 +652,15 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
       drawText(page, line, colX.desc + descPad, lineY, font, 10, INK);
       lineY -= 13;
     }
-    const endPad = layout === 'epure' ? 0 : 8;
-    if (layout === 'plan') drawText(page, String(idx + 1).padStart(2, '0'), tableLeft + 6, rowTop - 15, mono, 9.5, brand);
+    const endPad = layout === 'epure' || layout === 'prestige' ? 0 : 8;
     drawTextRight(page, String(item.quantity), colRight.qty, rowTop - 15, font, 10, INK);
     drawTextRight(page, item.unit ?? pdfT(locale, 'unitFallback'), colRight.unit, rowTop - 15, font, 10, INK);
     drawTextRight(page, chf(Number(item.unit_price)), colRight.price, rowTop - 15, font, 10, INK);
-    drawTextRight(page, chf(lineTotal), colRight.total - endPad, rowTop - 15, layout === 'epure' ? font : layout === 'plan' ? mono : fontBold, 10, INK);
-    page.drawLine({ start: { x: tableLeft, y: rowTop - rowH }, end: { x: tableRight, y: rowTop - rowH }, thickness: 0.5, color: layout === 'plan' ? softTint(brand, 0.6) : LINE });
-    if (layout === 'plan') {
-      page.drawLine({ start: { x: tableLeft, y: rowTop + 4 }, end: { x: tableLeft, y: rowTop - rowH }, thickness: 1.1, color: brand });
-      page.drawLine({ start: { x: tableRight, y: rowTop + 4 }, end: { x: tableRight, y: rowTop - rowH }, thickness: 1.1, color: brand });
-    }
+    drawTextRight(page, chf(lineTotal), colRight.total - endPad, rowTop - 15, layout === 'epure' || layout === 'prestige' ? font : fontBold, 10, INK);
+    page.drawLine({ start: { x: tableLeft, y: rowTop - rowH }, end: { x: tableRight, y: rowTop - rowH }, thickness: layout === 'prestige' ? 0.4 : 0.5, color: LINE });
     y = rowTop - rowH;
   });
 
-  if (layout === 'plan') page.drawLine({ start: { x: tableLeft, y }, end: { x: tableRight, y }, thickness: 1.1, color: brand });
   y -= 14;
   if (y < MARGIN + 150) newPage();
 
@@ -702,23 +680,13 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
   if (hasPaidSum) totalsValueSamples.push(chf(-(paidSum as number)));
   if (netToPay != null) totalsValueSamples.push(chf(netToPay));
   const totalsLabelW = measureMax(font, totalsLabelSamples, 10.5);
-  const totalsValueW = measureMax(layout === 'plan' ? mono : fontBold, totalsValueSamples, 12, 60);
+  const totalsValueW = Math.max(measureMax(fontBold, totalsValueSamples, 12, 60), layout === 'prestige' ? measureMax(serif, totalsValueSamples, 18, 60) : 0);
   const totalsBoxW = Math.max(220, totalsLabelW + totalsValueW + 30);
   const totalsRight = PAGE_WIDTH - MARGIN;
   const totalsLeft = totalsRight - totalsBoxW;
 
-  if (layout === 'plan') page.drawLine({ start: { x: totalsLeft, y: y + 12 }, end: { x: totalsRight, y: y + 12 }, thickness: 1.1, color: brand });
   const plainRow = (label: string, value: string) => {
-    if (layout === 'plan') {
-      drawText(page, label, totalsLeft + 8, y, font, 10, MUTED);
-      drawTextRight(page, value, totalsRight - 8, y, mono, 10, INK);
-      page.drawLine({ start: { x: totalsLeft, y: y + 12 }, end: { x: totalsLeft, y: y - 6 }, thickness: 1.1, color: brand });
-      page.drawLine({ start: { x: totalsRight, y: y + 12 }, end: { x: totalsRight, y: y - 6 }, thickness: 1.1, color: brand });
-      page.drawLine({ start: { x: totalsLeft, y: y - 6 }, end: { x: totalsRight, y: y - 6 }, thickness: 0.5, color: softTint(brand, 0.6) });
-      y -= 18;
-      return;
-    }
-    const muted = layout === 'angle' || layout === 'epure';
+    const muted = layout !== 'classic';
     drawText(page, label, totalsLeft, y, font, 10.5, muted ? MUTED : INK);
     drawTextRight(page, value, totalsRight, y, font, 10.5, INK);
     y -= 15;
@@ -734,14 +702,13 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
       y -= h + 8;
       return;
     }
-    if (layout === 'plan') {
-      const h = 24;
-      const top = y + 12;
-      page.drawRectangle({ x: totalsLeft, y: top - h, width: totalsBoxW, height: h, color: brand, borderColor: brand, borderWidth: 1.1 });
-      const tc = pickReadableTextColor(brand);
-      drawText(page, label.toUpperCase(), totalsLeft + 8, top - 15.5, fontBold, 9.5, tc);
-      drawTextRight(page, value, totalsRight - 8, top - 16, mono, 12, tc);
-      y -= h + 4;
+    if (layout === 'prestige') {
+      y -= 2;
+      page.drawLine({ start: { x: totalsLeft, y: y + 11 }, end: { x: totalsRight, y: y + 11 }, thickness: 1, color: brand });
+      page.drawLine({ start: { x: totalsLeft, y: y + 7.6 }, end: { x: totalsRight, y: y + 7.6 }, thickness: 0.5, color: accent });
+      drawSpaced(page, label.toUpperCase(), totalsLeft, y - 9, fontBold, 7.5, brand, 1.8);
+      drawTextRight(page, value, totalsRight, y - 11, serif, 18, brand);
+      y -= 34;
       return;
     }
     if (layout === 'epure') {
@@ -790,12 +757,14 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
         y -= 12;
       }
     } else {
-      drawText(page, pdfT(locale, 'remarkLabel'), MARGIN, y, fontBold, 9, layout === 'angle' || layout === 'plan' ? brand : MUTED);
+      drawText(page, pdfT(locale, 'remarkLabel'), MARGIN, y, fontBold, 9, layout === 'angle' ? brand : MUTED);
       y -= 13;
-      const remarkLines = wrapText(devis.notes, font, 9.5, PAGE_WIDTH - 2 * MARGIN);
+      const rf = layout === 'prestige' ? serifItalic : font;
+      const rs = layout === 'prestige' ? 11 : 9.5;
+      const remarkLines = wrapText(devis.notes, rf, rs, PAGE_WIDTH - 2 * MARGIN);
       for (const line of remarkLines) {
-        drawText(page, line, MARGIN, y, font, 9.5, INK);
-        y -= 12;
+        drawText(page, line, MARGIN, y, rf, rs, layout === 'prestige' ? MUTED : INK);
+        y -= rs + 2.5;
       }
     }
     y -= 8;
@@ -846,7 +815,7 @@ function renderUnified(ctx: RenderCtx, layout: Layout = 'classic'): RenderResult
 export const RENDERERS: Record<TemplateId, (ctx: RenderCtx) => RenderResult> = {
   classic: (ctx) => renderUnified(ctx, 'classic'),
   moderne: (ctx) => renderUnified(ctx, 'angle'),
-  structure: (ctx) => renderUnified(ctx, 'plan'),
+  structure: (ctx) => renderUnified(ctx, 'prestige'),
   minimal: (ctx) => renderUnified(ctx, 'epure'),
 };
 

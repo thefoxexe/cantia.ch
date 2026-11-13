@@ -102,48 +102,38 @@ export function DocumentModelThumb({ model, brand, accent, logoUri, width = 132 
       </>
     );
   } else if (model === 'structure') {
-    const grid = [];
-    for (let x = 15; x < 200; x += 5) grid.push(<View key={`x${x}`} style={{ position: 'absolute', left: x * u, top: 10 * u, width: 0.25 * u, height: 42 * u, backgroundColor: tint(brand, 0.86) }} />);
-    for (let y = 15; y < 52; y += 5) grid.push(<View key={`y${y}`} style={{ position: 'absolute', left: 10 * u, right: 10 * u, top: y * u, height: 0.25 * u, backgroundColor: tint(brand, 0.86) }} />);
-    const mark = (x: number, y: number, k: string) => (
-      <View key={k} style={{ position: 'absolute', left: (x - 4) * u, top: (y - 4) * u, width: 8 * u, height: 8 * u }}>
-        <View style={{ position: 'absolute', left: 3.7 * u, top: 0, width: 0.6 * u, height: 8 * u, backgroundColor: accent }} />
-        <View style={{ position: 'absolute', top: 3.7 * u, left: 0, height: 0.6 * u, width: 8 * u, backgroundColor: accent }} />
-      </View>
-    );
+    // Prestige: centred letterhead, double rule, serif number and total.
     body = (
       <>
-        {grid}
-        <View style={{ position: 'absolute', left: 10 * u, right: 10 * u, top: 10 * u, bottom: 12 * u, borderWidth: Math.max(0.7, 0.45 * u), borderColor: brand }} />
-        <View style={{ position: 'absolute', left: 10 * u, right: 10 * u, top: 52 * u, height: Math.max(0.7, 0.45 * u), backgroundColor: brand }} />
-        {mark(10, 10, 'a')}
-        {mark(200, 10, 'b')}
-        {mark(10, 285, 'c')}
-        {mark(200, 285, 'd')}
-        <View style={{ position: 'absolute', left: 16 * u, top: 16 * u, backgroundColor: '#fff', padding: 1.5 * u }}>{logo}</View>
-        <View style={{ position: 'absolute', right: 16 * u, top: 16 * u, width: 70 * u, height: 26 * u, backgroundColor: '#fff', borderWidth: Math.max(0.7, 0.45 * u), borderColor: brand }}>
-          <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
-            {[0, 1, 2, 3].map((i) => (
-              <View key={i} style={{ width: '50%', height: '50%', padding: 1.6 * u, borderColor: brand, borderLeftWidth: i % 2 ? 0.4 * u : 0, borderTopWidth: i > 1 ? 0.4 * u : 0, gap: u }}>
-                {bar(10, brand, 1.2 * u)}
-                {bar(18, INK, 1.6 * u)}
-              </View>
-            ))}
-          </View>
-          <View style={{ height: 6 * u, backgroundColor: brand }} />
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 14 * u, alignItems: 'center', gap: 3 * u }}>
+          {logo}
+          {bar(150, MUTED, 1.2 * u)}
         </View>
-        <View style={{ position: 'absolute', left: 18 * u, top: 61 * u, gap: 1.8 * u }}>
-          {bar(30, INK, 1.8 * u)}
-          {bar(42)}
-          {bar(36)}
-        </View>
+        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 40 * u, height: Math.max(0.8, 0.5 * u), backgroundColor: brand }} />
+        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 41.4 * u, height: Math.max(0.5, 0.3 * u), backgroundColor: accent }} />
+        <View style={{ position: 'absolute', left: 18 * u, top: 60 * u }}>{bar(12, brand, 1.4 * u)}</View>
+        <Text style={{ position: 'absolute', left: 18 * u, top: 63 * u, fontSize: 10 * u, color: INK, fontFamily: 'Georgia, serif' }}>N° 0142</Text>
+        <Text style={{ position: 'absolute', left: 18 * u, top: 77 * u, fontSize: 5 * u, color: '#8A8E87', fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>Villa des Vignes</Text>
         {address}
-        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 118 * u, height: 8 * u, backgroundColor: brand }} />
-        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 118 * u, height: 54 * u, borderWidth: Math.max(0.7, 0.45 * u), borderColor: brand }} />
-        {rows(5, 18, tint(brand, 0.6))}
-        <View style={{ position: 'absolute', right: 18 * u, top: 178 * u, width: 66 * u, height: 16 * u, borderWidth: Math.max(0.7, 0.45 * u), borderColor: brand, justifyContent: 'flex-end' }}>
-          <View style={{ height: 7 * u, backgroundColor: brand }} />
+        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 98 * u, flexDirection: 'row' }}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ flex: 1, paddingLeft: i ? 4 * u : 0, borderLeftWidth: i ? Math.max(0.5, 0.3 * u) : 0, borderColor: accent, gap: 1.5 * u }}>
+              {bar(14)}
+              {bar(20, INK)}
+            </View>
+          ))}
         </View>
+        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, top: 125 * u, height: Math.max(0.6, 0.35 * u), backgroundColor: brand }} />
+        {rows(5)}
+        <View style={{ position: 'absolute', right: 18 * u, top: 180 * u, width: 66 * u }}>
+          <View style={{ height: Math.max(0.8, 0.5 * u), backgroundColor: brand }} />
+          <View style={{ height: Math.max(0.5, 0.3 * u), backgroundColor: accent, marginTop: 1.2 * u }} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 * u }}>
+            {bar(14, brand, 1.4 * u)}
+            <Text style={{ fontSize: 7 * u, color: brand, fontFamily: 'Georgia, serif' }}>14 107.05</Text>
+          </View>
+        </View>
+        <View style={{ position: 'absolute', left: 18 * u, right: 18 * u, bottom: 14 * u, height: Math.max(0.5, 0.3 * u), backgroundColor: accent }} />
       </>
     );
   } else {
