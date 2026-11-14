@@ -17,6 +17,10 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 //            it as the company will.
 //   rewrite  (Super Admin, id, lang): the draft written again in French,
 //            German or Italian, same code.
+//   request  (anyone, form of cantia.ch/nouvelle-entreprise): a company asks
+//            for the 3 months; kept in trial_requests, the admin is told.
+//   request_send / request_ignore (Super Admin, id): sends that company its
+//            personal code by e-mail, or sets the request aside.
 //
 // The text never congratulates nor speaks of a new company: if the site
 // found belongs to another company with the same name, the e-mail still
@@ -390,6 +394,101 @@ ${sentHtml}${waitHtml}<p style="margin:0;font-size:13px;color:#6b6f65;">Au plus 
   return { sent: sentNames.length, drafted, waiting: n };
 }
 
+// ─── Requests from cantia.ch/nouvelle-entreprise ────────────────────────────
+
+const EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]{2,}$/;
+const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+
+async function receiveRequest(admin: SupabaseClient, body: Record<string, unknown>): Promise<{ ok: boolean; error?: string }> {
+  const name = clean(body.name, 120);
+  const company = clean(body.company, 160);
+  const email = clean(body.email, 160).toLowerCase();
+  const phone = clean(body.phone, 40) || null;
+  const message = clean(body.message, 1500) || null;
+  const locale = body.locale === 'de' || body.locale === 'it' ? body.locale : 'fr';
+  if (!name || !company || !EMAIL_RE.test(email)) return { ok: false, error: 'champs manquants' };
+  // The same address twice in a day: one request is enough. Many requests
+  // in an hour: someone is playing with the form.
+  const dayAgo = new Date(Date.now() - 86400000).toISOString();
+  const { count: sameEmail } = await admin.from('trial_requests').select('id', { count: 'exact', head: true }).eq('email', email).gte('created_at', dayAgo);
+  if ((sameEmail ?? 0) > 0) return { ok: true };
+  const { count: lastHour } = await admin.from('trial_requests').select('id', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 3600000).toISOString());
+  if ((lastHour ?? 0) >= 30) return { ok: false, error: 'trop de demandes' };
+  const { error } = await admin.from('trial_requests').insert({ name, company, email, phone, message, locale });
+  if (error) return { ok: false, error: error.message };
+  const to = Deno.env.get('WEEKLY_REPORT_EMAIL');
+  if (to) {
+    const rows = [
+      `<strong>${escapeHtml(company)}</strong>`,
+      escapeHtml(name),
+      escapeHtml(email),
+      phone ? escapeHtml(phone) : '',
+      message ? `<em>${escapeHtml(message)}</em>` : '',
+    ].filter(Boolean).join('<br>');
+    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#23251f;max-width:560px;">
+<p style="margin:0 0 12px;">Nouvelle demande de 3 mois offerts (cantia.ch/nouvelle-entreprise) :</p>
+<p style="margin:0 0 20px;">${rows}</p>
+<p style="margin:0;"><a href="${APP_URL}/registre?onglet=envois" style="display:inline-block;padding:11px 22px;border-radius:999px;background:#23251f;color:#ffffff;font-weight:600;text-decoration:none;">Envoyer le code</a></p>
+</div>`;
+    await sendMail(to, `Demande de 3 mois : ${company}`, { html, text: `${company} · ${name} · ${email} : ${APP_URL}/registre?onglet=envois` });
+  }
+  return { ok: true };
+}
+
+const REQUEST_MAIL: Record<Lang, { subject: string; hello: (n: string) => string; body: (company: string, code: string, until: string) => string; link: string; question: string }> = {
+  fr: {
+    subject: 'Vos 3 mois offerts sur Cantia',
+    hello: (n) => `Bonjour ${n},`,
+    body: (company, code, until) => `Merci pour votre demande pour ${company}. Voici votre code personnel : ${code}. Il vous donne 3 mois d’essai au lieu de 14 jours, et il est valable jusqu’au ${until}. Rien n’est débité pendant ces 3 mois.`,
+    link: 'Créer mon compte avec les 3 mois offerts',
+    question: 'Une question ? Répondez simplement à cet e-mail.',
+  },
+  de: {
+    subject: 'Ihre 3 Monate Cantia geschenkt',
+    hello: (n) => `Guten Tag ${n}`,
+    body: (company, code, until) => `Danke für Ihre Anfrage für ${company}. Hier ist Ihr persönlicher Code: ${code}. Er gibt Ihnen 3 Monate Testphase statt 14 Tage und ist gültig bis ${until}. In diesen 3 Monaten wird nichts belastet.`,
+    link: 'Konto mit 3 Monaten gratis erstellen',
+    question: 'Eine Frage? Antworten Sie einfach auf diese E-Mail.',
+  },
+  it: {
+    subject: 'I vostri 3 mesi offerti su Cantia',
+    hello: (n) => `Buongiorno ${n},`,
+    body: (company, code, until) => `Grazie per la richiesta per ${company}. Ecco il vostro codice personale: ${code}. Vi dà 3 mesi di prova invece di 14 giorni ed è valido fino al ${until}. In questi 3 mesi non viene addebitato nulla.`,
+    link: 'Creare il conto con i 3 mesi offerti',
+    question: 'Una domanda? Rispondete semplicemente a questa e-mail.',
+  },
+};
+
+async function sendRequestCode(admin: SupabaseClient, id: string): Promise<{ ok: boolean; code?: string; error?: string }> {
+  const { data: r } = await admin.from('trial_requests').select('*').eq('id', id).maybeSingle();
+  if (!r) return { ok: false, error: 'demande introuvable' };
+  if (r.status === 'sent' && r.code) return { ok: true, code: r.code };
+  const now = new Date();
+  let code: string | null = null;
+  for (let i = 0; i < 3 && !code; i++) {
+    const candidate = makeCode(r.company);
+    const { error } = await admin.from('trial_offer_codes').insert({ code: candidate, trial_days: TRIAL_DAYS, expires_at: new Date(now.getTime() + VALID_DAYS * 86400000).toISOString() });
+    if (!error) code = candidate;
+  }
+  if (!code) return { ok: false, error: 'code impossible à créer' };
+  const lang: Lang = r.locale === 'de' || r.locale === 'it' ? r.locale : 'fr';
+  const t = REQUEST_MAIL[lang];
+  const until = validUntil(lang, now);
+  const link = offerLink(code);
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#23251f;max-width:560px;">
+<p style="margin:0 0 16px;">${escapeHtml(t.hello(r.name))}</p>
+<p style="margin:0 0 16px;">${escapeHtml(t.body(r.company, code, until))}</p>
+<p style="margin:0 0 16px;"><a href="${escapeHtml(link)}" style="color:#9c5733;font-weight:600;">${escapeHtml(t.link)}</a></p>
+<p style="margin:0 0 16px;">${escapeHtml(t.question)}</p>
+<p style="margin:24px 0 0;">Cantia · cantia.ch</p>
+</div>`;
+  const text = `${t.hello(r.name)}\n\n${t.body(r.company, code, until)}\n\n${link}\n\n${t.question}\n\nCantia · cantia.ch`;
+  const sent = await sendMail(r.email, t.subject, { html, text });
+  if (!sent.ok) return { ok: false, error: sent.error };
+  await admin.from('trial_requests').update({ status: 'sent', code, sent_at: now.toISOString() }).eq('id', id);
+  return { ok: true, code };
+}
+
 // Sends one draft; true when it left.
 async function sendOne(admin: SupabaseClient, c: Company): Promise<boolean> {
   const now = new Date();
@@ -453,6 +552,9 @@ Deno.serve(async (req: Request) => {
       return json(await prepare(admin));
     }
 
+    // The form of cantia.ch/nouvelle-entreprise: anyone.
+    if (body.action === 'request') return json(await receiveRequest(admin, body));
+
     // Everything else is the Super Admin's click.
     const userClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
       global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
@@ -474,6 +576,11 @@ Deno.serve(async (req: Request) => {
       return json(done ? { ok: true, subject: done.outreach_subject, body: done.outreach_body, language: done.language } : { error: 'réécriture impossible' });
     }
     if (body.action === 'prepare_now') return json(await prepare(admin));
+    if (body.action === 'request_send' && typeof body.id === 'string') return json(await sendRequestCode(admin, body.id));
+    if (body.action === 'request_ignore' && typeof body.id === 'string') {
+      await admin.from('trial_requests').update({ status: 'ignored' }).eq('id', body.id).eq('status', 'new');
+      return json({ ok: true });
+    }
     return json({ error: 'action inconnue' }, 400);
   } catch (err) {
     console.error('registry-outreach', err);

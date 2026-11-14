@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { EmptyState, LoadingScreen } from '../ui';
 import { AdminErrorBanner } from '../AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { callOutreach, listOutreach, updateOutreachDraft, type RegistryCompany, type TrialOfferCode } from '../../lib/api/admin';
+import { callOutreach, listOutreach, updateOutreachDraft, type RegistryCompany, type TrialOfferCode, type TrialRequest } from '../../lib/api/admin';
 
 // Super Admin › Nouvelles entreprises › À envoyer: the welcome e-mails
 // written each morning at 07:30 (supabase/functions/registry-outreach), one
@@ -23,15 +23,17 @@ function zurichDayStart(): number {
 export function OutreachPanel() {
   const [rows, setRows] = useState<RegistryCompany[]>([]);
   const [codes, setCodes] = useState<Record<string, TrialOfferCode>>({});
+  const [requests, setRequests] = useState<TrialRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { rows: r, codes: k, error: err } = await listOutreach();
+    const { rows: r, codes: k, requests: q, error: err } = await listOutreach();
     setRows(r);
     setCodes(k);
+    setRequests(q);
     setError(err);
     setLoading(false);
   }, []);
@@ -83,6 +85,20 @@ export function OutreachPanel() {
     load();
   }
 
+  async function answerRequest(id: string, action: 'request_send' | 'request_ignore') {
+    setBusy(`req-${id}`);
+    setError(null);
+    setInfo(null);
+    const { data, error: err } = await callOutreach({ action, id });
+    setBusy(null);
+    if (err || data?.ok === false) setError(err ?? data?.error ?? 'Échec');
+    else if (action === 'request_send') setInfo(`Code ${data.code} envoyé.`);
+    load();
+  }
+
+  const newRequests = requests.filter((q) => q.status === 'new');
+  const sentRequests = requests.filter((q) => q.status === 'sent');
+
   if (loading) return <LoadingScreen label="Chargement…" />;
 
   return (
@@ -114,6 +130,43 @@ export function OutreachPanel() {
 
       {error ? <AdminErrorBanner message={error} /> : null}
       {info ? <Text style={styles.info}>{info}</Text> : null}
+
+      {newRequests.length || sentRequests.length ? (
+        <View style={{ gap: spacing.sm }}>
+          <Text style={styles.sectionTitle}>Demandes du site (cantia.ch/nouvelle-entreprise)</Text>
+          {newRequests.map((q) => (
+            <View key={q.id} style={styles.card}>
+              <View style={styles.head}>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={styles.name}>{q.company}</Text>
+                  <Text style={styles.sub}>{[q.name, q.email, q.phone, q.locale.toUpperCase()].filter(Boolean).join(' · ')}</Text>
+                </View>
+                <Text style={styles.sub}>{new Date(q.created_at).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })}</Text>
+              </View>
+              {q.message ? <Text style={styles.message}>{q.message}</Text> : null}
+              <View style={styles.actions}>
+                <Pressable onPress={() => answerRequest(q.id, 'request_send')} disabled={busy !== null} style={[styles.primary, busy !== null && { opacity: 0.5 }]}>
+                  <Feather name="gift" size={14} color="#fff" />
+                  <Text style={styles.primaryText}>{busy === `req-${q.id}` ? 'Envoi…' : 'Envoyer le code 3 mois'}</Text>
+                </Pressable>
+                <Pressable onPress={() => answerRequest(q.id, 'request_ignore')} disabled={busy !== null} style={styles.ghost}>
+                  <Feather name="x" size={14} color={colors.textMuted} />
+                  <Text style={[styles.ghostText, { color: colors.textMuted }]}>Ignorer</Text>
+                </Pressable>
+              </View>
+            </View>
+          ))}
+          {sentRequests.slice(0, 30).map((q) => {
+            const k = q.code ? codes[q.code] : undefined;
+            const state = k?.redeemed_at ? 'essai démarré' : k?.claimed_at ? 'paiement ouvert' : (k?.visits ?? 0) > 0 ? 'lien ouvert' : 'pas encore cliqué';
+            return (
+              <Text key={q.id} style={styles.sentRow}>
+                {q.sent_at ? new Date(q.sent_at).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' }) : ''} · {q.company} · {q.email} · {q.code} · <Text style={{ color: k?.visits ? colors.success : colors.textMuted, fontWeight: '700' }}>{state}</Text>
+              </Text>
+            );
+          })}
+        </View>
+      ) : null}
 
       {drafts.length === 0 ? (
         <EmptyState title="Rien à valider" subtitle="Les e-mails pas certains arrivent ici chaque matin à 7 h 30 ; les e-mails confirmés partent seuls." />
@@ -282,4 +335,5 @@ const styles = StyleSheet.create({
   ghostText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.primary },
   sectionTitle: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: colors.textMuted },
   sentRow: { fontSize: fontSize.xs, color: colors.text },
+  message: { fontSize: fontSize.sm, color: colors.text, fontStyle: 'italic', lineHeight: 20 },
 });

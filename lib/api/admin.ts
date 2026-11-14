@@ -337,7 +337,20 @@ export interface TrialOfferCode {
   claimed_at?: string | null;
   redeemed_at?: string | null;
 }
-export async function listOutreach(): Promise<{ rows: RegistryCompany[]; codes: Record<string, TrialOfferCode>; error: string | null }> {
+export interface TrialRequest {
+  id: string;
+  created_at: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string | null;
+  message: string | null;
+  locale: string;
+  status: 'new' | 'sent' | 'ignored';
+  code: string | null;
+  sent_at: string | null;
+}
+export async function listOutreach(): Promise<{ rows: RegistryCompany[]; codes: Record<string, TrialOfferCode>; requests: TrialRequest[]; error: string | null }> {
   const { data, error } = await supabase
     .from('registry_companies')
     .select('*')
@@ -348,12 +361,16 @@ export async function listOutreach(): Promise<{ rows: RegistryCompany[]; codes: 
   const rows = err || !data ? [] : (data as RegistryCompany[]);
   // What each e-mail led to: link opened, payment opened, trial started.
   const codes: Record<string, TrialOfferCode> = {};
-  const list = rows.map((r) => r.outreach_code).filter((c): c is string => !!c);
+  // Requests made on cantia.ch/nouvelle-entreprise (table added by
+  // 20261114090000_trial_offer_tracking.sql; empty until it exists).
+  const { data: req } = await supabase.from('trial_requests').select('*').order('created_at', { ascending: false }).limit(200);
+  const requests = (req ?? []) as TrialRequest[];
+  const list = [...rows.map((r) => r.outreach_code), ...requests.map((r) => r.code)].filter((c): c is string => !!c);
   if (list.length) {
     const { data: c } = await supabase.from('trial_offer_codes').select('*').in('code', list);
     for (const row of (c ?? []) as TrialOfferCode[]) codes[row.code] = row;
   }
-  return { rows, codes, error: err };
+  return { rows, codes, requests, error: err };
 }
 export async function updateOutreachDraft(id: string, patch: { subject?: string; body?: string; skip?: boolean }): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_registry_outreach_update', {
@@ -364,7 +381,7 @@ export async function updateOutreachDraft(id: string, patch: { subject?: string;
   });
   return { error: logRpcError('admin_registry_outreach_update', error) };
 }
-export async function callOutreach(body: { action: 'send'; ids: string[] } | { action: 'test'; id: string } | { action: 'prepare_now' } | { action: 'rewrite'; id: string; lang: 'fr' | 'de' | 'it' }): Promise<{ data: any; error: string | null }> {
+export async function callOutreach(body: { action: 'send'; ids: string[] } | { action: 'test'; id: string } | { action: 'prepare_now' } | { action: 'rewrite'; id: string; lang: 'fr' | 'de' | 'it' } | { action: 'request_send' | 'request_ignore'; id: string }): Promise<{ data: any; error: string | null }> {
   const { data, error } = await supabase.functions.invoke('registry-outreach', { body });
   if (error) return { data: null, error: error.message };
   if (data?.error) return { data: null, error: String(data.error) };

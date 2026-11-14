@@ -468,12 +468,12 @@ export const ROUTES = [
     path: "nouvelle-entreprise",
     title: "Nouvelle entreprise : Cantia offert 3 mois | Cantia",
     description:
-      "Entreprise inscrite au registre du commerce depuis peu ? Devis, factures QR, heures, salaires et TVA : 3 mois d’essai au lieu de 14 jours avec le code NOUVELLE.",
+      "Votre entreprise démarre ? Devis, factures QR, heures, salaires et TVA : demandez vos 3 mois d’essai offerts au lieu des 14 jours habituels.",
     faq: [
-      { q: "Qui peut profiter des 3 mois offerts ?", a: "Les entreprises inscrites au registre du commerce depuis moins de 12 mois, raisons individuelles comprises. L’offre vaut pour un nouveau compte Cantia." },
+      { q: "Qui peut demander les 3 mois ?", a: "Les nouvelles entreprises. Faites la demande avec le formulaire de cette page : nous vous répondons par e-mail avec votre code personnel." },
       { q: "Faut-il une carte bancaire ?", a: "Oui, comme pour l’essai habituel. Rien n’est débité pendant les 3 mois et l’abonnement peut être arrêté en un clic avant la fin." },
       { q: "Que se passe-t-il après les 3 mois ?", a: "L’abonnement du plan choisi commence au prix affiché sur la page des tarifs, sans engagement. Vous pouvez changer de plan ou arrêter à tout moment." },
-      { q: "Mon entreprise n’est pas encore inscrite au registre, puis-je commencer ?", a: "Oui. Vous pouvez créer votre compte et préparer vos premiers documents ; l’offre vaut pour les entreprises qui démarrent leur activité." },
+      { q: "Combien de temps le code est-il valable ?", a: "60 jours à partir de l’envoi : il suffit de créer votre compte avec le lien reçu pendant cette période." },
     ],
   },
   {
@@ -3543,12 +3543,12 @@ export const ROUTES = [
     path: "de/nouvelle-entreprise",
     title: "Neues Unternehmen: Cantia 3 Monate geschenkt | Cantia",
     description:
-      "Unternehmen neu im Handelsregister? Offerten, QR-Rechnungen, Stunden, Löhne und MWST: 3 Monate Testphase statt 14 Tage mit dem Code NOUVELLE.",
+      "Ihr Unternehmen startet? Offerten, QR-Rechnungen, Stunden, Löhne und MWST: Fordern Sie 3 Monate Testphase statt der üblichen 14 Tage an.",
     faq: [
-      { q: "Wer erhält die 3 Monate geschenkt?", a: "Unternehmen, die seit weniger als 12 Monaten im Handelsregister eingetragen sind, Einzelunternehmen eingeschlossen. Das Angebot gilt für ein neues Cantia-Konto." },
+      { q: "Wer kann die 3 Monate anfordern?", a: "Neue Unternehmen. Senden Sie die Anfrage mit dem Formular dieser Seite: Wir antworten per E-Mail mit Ihrem persönlichen Code." },
       { q: "Braucht es eine Kreditkarte?", a: "Ja, wie bei der üblichen Testphase. In den 3 Monaten wird nichts belastet, und das Abonnement kann vorher mit einem Klick beendet werden." },
       { q: "Was passiert nach den 3 Monaten?", a: "Das Abonnement des gewählten Plans beginnt zum Preis der Tarifseite, ohne Mindestlaufzeit. Sie können jederzeit wechseln oder kündigen." },
-      { q: "Mein Unternehmen ist noch nicht eingetragen, kann ich trotzdem starten?", a: "Ja. Sie können Ihr Konto erstellen und die ersten Dokumente vorbereiten; das Angebot gilt für Unternehmen, die ihre Tätigkeit aufnehmen." },
+      { q: "Wie lange ist der Code gültig?", a: "60 Tage ab dem Versand: Erstellen Sie Ihr Konto in dieser Zeit mit dem erhaltenen Link." },
     ],
   },
   {
@@ -3891,12 +3891,12 @@ export const ROUTES = [
     path: "it/nouvelle-entreprise",
     title: "Nuova impresa: Cantia offerto per 3 mesi | Cantia",
     description:
-      "Impresa appena iscritta al registro di commercio? Preventivi, fatture QR, ore, salari e IVA: 3 mesi di prova invece di 14 giorni con il codice NOUVELLE.",
+      "La vostra impresa inizia? Preventivi, fatture QR, ore, salari e IVA: chiedete 3 mesi di prova offerti invece dei soliti 14 giorni.",
     faq: [
-      { q: "Chi può approfittare dei 3 mesi offerti?", a: "Le imprese iscritte al registro di commercio da meno di 12 mesi, ditte individuali comprese. L’offerta vale per un nuovo conto Cantia." },
+      { q: "Chi può chiedere i 3 mesi?", a: "Le nuove imprese. Fate la richiesta con il modulo di questa pagina: vi rispondiamo per e-mail con il vostro codice personale." },
       { q: "Serve una carta di credito?", a: "Sì, come per la prova abituale. Nei 3 mesi non viene addebitato nulla e l’abbonamento può essere fermato prima con un clic." },
       { q: "Cosa succede dopo i 3 mesi?", a: "L’abbonamento del piano scelto inizia al prezzo della pagina tariffe, senza impegno. Potete cambiare piano o disdire in qualsiasi momento." },
-      { q: "La mia impresa non è ancora iscritta, posso iniziare?", a: "Sì. Potete creare il conto e preparare i primi documenti; l’offerta vale per le imprese che avviano la loro attività." },
+      { q: "Quanto tempo è valido il codice?", a: "60 giorni dall’invio: basta creare il conto con il link ricevuto in questo periodo." },
     ],
   },
   {

@@ -19,7 +19,8 @@ import { useTranslation } from '../../lib/translations';
 import { SurMesureContactForm } from '../SurMesureContactForm';
 import { ContactForm } from '../ContactForm';
 import { HeroDevices } from './HeroDevices';
-import { NEW_COMPANY_CODE, NEW_COMPANY_COPY } from '../../lib/site/newCompany';
+import { NEW_COMPANY_COPY } from '../../lib/site/newCompany';
+import { TrialRequestForm } from './TrialRequestForm';
 
 type IconName = React.ComponentProps<typeof Feather>['name'];
 const HOME = { fr: 'Accueil', de: 'Startseite', it: 'Home' } as const;
@@ -217,15 +218,19 @@ export function SurMesurePage() {
 
 // ─── Nouvelle entreprise ─────────────────────────────────────────────────────
 
-// cantia.ch/nouvelle-entreprise: 3 months of trial for companies that have
-// just been registered, with the code NOUVELLE (lib/site/newCompany.ts).
+// cantia.ch/nouvelle-entreprise: 3 months of trial for new companies, asked
+// for with the form of the page (lib/site/newCompany.ts, TrialRequestForm).
 export function NewCompanyPage() {
   const locale = useSiteLocale();
   const c = NEW_COMPANY_COPY[locale];
   const L = SITE_PAGES[locale].labels;
   const p = usePrefix();
-  const { phone } = useSiteLayout();
-  const signup = authHref('signup', { offer: NEW_COMPANY_CODE });
+  const { phone, h2Size } = useSiteLayout();
+  const shot = EXPORTS[locale].app.dash;
+  // The buttons go down to the request form of the page.
+  const toForm = () => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') document.getElementById('demande-3-mois')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <SitePage title={c.seoTitle} description={c.seoDescription}>
@@ -235,26 +240,11 @@ export function NewCompanyPage() {
         plain={c.h1Plain}
         accent={c.h1Accent}
         lead={c.lead}
-        visual={
-          <View style={[styles.visual, { padding: phone ? 22 : 30 }]}>
-            <View style={[styles.paperCard, paperShadow]}>
-              <Text style={[sans, styles.paperTop]}>{c.paper.tag}</Text>
-              <Text style={[sans, styles.paperTitle]}>{c.paper.title}</Text>
-              <Text style={[sans, styles.paperSub]}>{c.paper.sub}</Text>
-              {c.paper.lines.map((l) => (
-                <View key={l} style={styles.paperLine}>
-                  <Feather name="check" size={12} color={site.copper} />
-                  <Text style={[sans, { fontSize: 11, color: site.ink }]}>{l}</Text>
-                </View>
-              ))}
-              <Text style={[sans, styles.paperCaption]}>{c.paper.caption}</Text>
-            </View>
-          </View>
-        }
+        visual={<ScreenShot source={shot.source} ratio={shot.ratio} alt={c.shotAlt} />}
       >
         <Actions>
           <View>
-            <Btn label={c.cta} href={signup} small={phone} />
+            <Btn label={c.cta} href="#demande-3-mois" onPress={toForm} small={phone} />
           </View>
           <View>
             <TextLink label={c.pricing} href={`${p}/tarifs`} size={phone ? 11 : 12} />
@@ -274,12 +264,22 @@ export function NewCompanyPage() {
       <Section>
         <SectionHead eyebrow={c.stepsEyebrow} plain={c.stepsTitle} />
         <Steps items={c.steps} />
-        <View style={{ marginTop: 28, alignSelf: 'flex-start' }}>
-          <Btn label={c.cta} href={signup} small={phone} />
-        </View>
       </Section>
 
       <Section white>
+        <View nativeID="demande-3-mois" style={[styles.split, phone ? { flexDirection: 'column', gap: 29, alignItems: 'stretch' } : { gap: 60, alignItems: 'flex-start' }]}>
+          <View style={phone ? undefined : { flex: 0.8 }}>
+            <Eyebrow>{c.formEyebrow}</Eyebrow>
+            <Headline plain={c.formPlain} accent={c.formAccent} size={h2Size} style={{ marginTop: 15, marginBottom: 22 }} />
+            <Text style={[sans, styles.copy]}>{c.formText}</Text>
+          </View>
+          <View style={phone ? undefined : { flex: 1.2 }}>
+            <TrialRequestForm locale={locale} />
+          </View>
+        </View>
+      </Section>
+
+      <Section>
         <Faq eyebrow={L.faqEyebrow} title={L.faqTitle} items={c.faq} />
       </Section>
     </SitePage>

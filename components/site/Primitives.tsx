@@ -101,12 +101,12 @@ const TONES: Record<BtnTone, { bg: string; fg: string; hover: string; border?: s
 
 // `external`: a file or another site (PDF download…), opened in a new tab
 // instead of being routed inside the app.
-export function Btn({ label, href, tone = 'copper', large = false, small = false, block = false, external = false }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean; block?: boolean; external?: boolean }) {
+export function Btn({ label, href, tone = 'copper', large = false, small = false, block = false, external = false, onPress }: { label: string; href: string; tone?: BtnTone; large?: boolean; small?: boolean; block?: boolean; external?: boolean; onPress?: () => void }) {
   const t = TONES[tone];
   const button = (
     <Hover
       accessibilityRole="link"
-      onPress={external ? () => { if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(href, '_blank', 'noopener'); } : undefined}
+      onPress={onPress ?? (external ? () => { if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(href, '_blank', 'noopener'); } : undefined)}
       base={[styles.btn, large && styles.btnLarge, small && styles.btnSmall, block && { alignSelf: 'stretch' }, { backgroundColor: t.bg, borderColor: t.border ?? t.bg }]}
       hover={{ backgroundColor: t.hover, borderColor: t.hoverFg ?? t.hover }}
     >
@@ -118,7 +118,8 @@ export function Btn({ label, href, tone = 'copper', large = false, small = false
       )}
     </Hover>
   );
-  if (external) return button;
+  // onPress: an action on the page itself (e.g. scroll to a form), no link.
+  if (external || onPress) return button;
   return (
     <Link href={href as any} asChild>
       {button}
