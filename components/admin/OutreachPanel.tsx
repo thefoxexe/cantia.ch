@@ -12,7 +12,8 @@ import { callOutreach, listOutreach, updateOutreachDraft, type RegistryCompany, 
 // if needed, then send: nothing leaves without this click, 20 a day at most
 // (the rest waits for the next day).
 
-const MAX_PER_DAY = 20;
+// Only a safety stop, no real daily limit (same value as registry-outreach).
+const MAX_PER_DAY = 500;
 
 function zurichDayStart(): number {
   const now = new Date();
@@ -59,7 +60,7 @@ export function OutreachPanel() {
     if (err) setError(err);
     else {
       const parts = [`${data.sent} envoyé${data.sent > 1 ? 's' : ''}`];
-      if (data.postponed) parts.push(`${data.postponed} pour demain (limite de ${MAX_PER_DAY} par jour)`);
+      if (data.postponed) parts.push(`${data.postponed} pour demain`);
       if (data.failed) parts.push(`${data.failed} en échec`);
       setInfo(parts.join(' · '));
     }
@@ -105,7 +106,7 @@ export function OutreachPanel() {
     <View style={{ gap: spacing.md }}>
       <View style={styles.bar}>
         <Text style={styles.barText}>
-          {drafts.length} à valider · {sentToday}/{MAX_PER_DAY} envoyés aujourd’hui · {sent.length} envoyés en tout
+          {drafts.length} à valider · {sentToday} envoyés aujourd’hui · {sent.length} envoyés en tout
         </Text>
         <View style={styles.barActions}>
           <Pressable onPress={prepareNow} disabled={busy !== null} style={[styles.ghost, busy !== null && { opacity: 0.5 }]}>
@@ -125,7 +126,7 @@ export function OutreachPanel() {
       <Text style={styles.hint}>
         Chaque matin à 7 h 30 : les nouvelles entreprises de Suisse romande dont l’e-mail est confirmé sur leur propre site partent
         automatiquement ; celles dont l’e-mail n’est pas certain attendent ici. Chaque e-mail contient un code personnel : 3 mois d’essai, une
-        seule entreprise, valable 60 jours après l’envoi. Au plus 20 envois par jour. Expéditeur : info@cantia.ch.
+        seule entreprise, valable 60 jours après l’envoi. Expéditeur : info@cantia.ch.
       </Text>
 
       {error ? <AdminErrorBanner message={error} /> : null}
