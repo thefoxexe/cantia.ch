@@ -77,7 +77,7 @@ export function OutreachPanel() {
     const { data, error: err } = await callOutreach({ action: 'prepare_now' });
     setBusy(null);
     if (err) setError(err);
-    else setInfo(data.prepared ? `${data.prepared} nouveau${data.prepared > 1 ? 'x' : ''} brouillon${data.prepared > 1 ? 's' : ''}.` : 'Aucune nouvelle entreprise avec un e-mail confirmé.');
+    else setInfo(data.sent || data.drafted ? `${data.sent} envoyé${data.sent > 1 ? 's' : ''} · ${data.drafted} nouveau${data.drafted > 1 ? 'x' : ''} brouillon${data.drafted > 1 ? 's' : ''}.` : 'Rien de nouveau.');
     load();
   }
 
@@ -92,7 +92,7 @@ export function OutreachPanel() {
         <View style={styles.barActions}>
           <Pressable onPress={prepareNow} disabled={busy !== null} style={[styles.ghost, busy !== null && { opacity: 0.5 }]}>
             <Feather name="edit-3" size={14} color={colors.primary} />
-            <Text style={styles.ghostText}>{busy === 'prepare' ? 'Rédaction…' : 'Préparer maintenant'}</Text>
+            <Text style={styles.ghostText}>{busy === 'prepare' ? 'En cours…' : 'Lancer le passage du matin'}</Text>
           </Pressable>
           <Pressable
             onPress={() => send(drafts.slice(0, room).map((d) => d.id))}
@@ -105,16 +105,16 @@ export function OutreachPanel() {
         </View>
       </View>
       <Text style={styles.hint}>
-        Chaque matin à 7 h 30, un brouillon par nouvelle entreprise de Suisse romande dont l’e-mail est confirmé sur son propre site (IDE ou adresse du
-        registre). Chaque e-mail contient un code personnel : 3 mois d’essai, une seule entreprise, valable 60 jours après l’envoi. Expéditeur :
-        info@cantia.ch.
+        Chaque matin à 7 h 30 : les nouvelles entreprises de Suisse romande dont l’e-mail est confirmé sur leur propre site partent
+        automatiquement ; celles dont l’e-mail n’est pas certain attendent ici. Chaque e-mail contient un code personnel : 3 mois d’essai, une
+        seule entreprise, valable 60 jours après l’envoi. Au plus 20 envois par jour. Expéditeur : info@cantia.ch.
       </Text>
 
       {error ? <AdminErrorBanner message={error} /> : null}
       {info ? <Text style={styles.info}>{info}</Text> : null}
 
       {drafts.length === 0 ? (
-        <EmptyState title="Rien à valider" subtitle="Les brouillons arrivent chaque matin à 7 h 30, dès qu’une nouvelle entreprise a un e-mail confirmé." />
+        <EmptyState title="Rien à valider" subtitle="Les e-mails pas certains arrivent ici chaque matin à 7 h 30 ; les e-mails confirmés partent seuls." />
       ) : (
         drafts.map((d) => (
           <DraftCard key={d.id} r={d} busy={busy} canSend={room > 0} onSend={() => send([d.id])} onTest={() => test(d.id)} onChanged={load} onError={setError} />

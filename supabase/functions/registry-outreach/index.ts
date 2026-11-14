@@ -3,19 +3,22 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 // Nouvelles entreprises › e-mail de bienvenue avec 3 mois offerts
 // (see supabase/migrations/20261113100000_registry_outreach.sql).
 //
-//   prepare  (pg_cron, 07:30 Swiss time, dispatch secret): writes a draft
-//            for each new company of French-speaking Switzerland whose
-//            address was confirmed on its own site or typed by the admin,
-//            with its own 90-day code, so that at most 20 drafts wait; then
-//            e-mails the admin the list with a link to the page where they
-//            are read and sent.
+//   prepare  (pg_cron, 07:30 Swiss time, dispatch secret): for each new
+//            company of French-speaking Switzerland with an address, writes
+//            the e-mail with its own 90-day code. Address confirmed on the
+//            company's own site (or typed by the admin): sent right away, 20
+//            a day at most, the rest the next mornings. Address not certain
+//            (probable, doubtful): kept as a draft for the admin, 20 waiting
+//            at most. Then e-mails the admin what left and what waits.
 //   send     (Super Admin, ids): sends the drafts the admin validated, at
 //            most 20 a day (Swiss day). The others stay drafts for the
 //            next day.
 //   test     (Super Admin, id): sends one draft to the admin only, to see
 //            it as the company will.
 //
-// Nothing goes to a company without the admin's click. The admin's address
+// The text never congratulates nor speaks of a new company: if the site
+// found belongs to another company with the same name, the e-mail still
+// reads as an ordinary introduction. The admin's address
 // is the WEEKLY_REPORT_EMAIL secret, the sender OUTREACH_FROM (default
 // "Cantia <info@cantia.ch>"): neither is written elsewhere in the code.
 
@@ -24,6 +27,9 @@ const MODEL = 'claude-opus-5-5';
 const ROMANDIE = ['VS', 'VD', 'FR', 'GE', 'NE', 'JU'];
 const MAX_WAITING = 20;
 const MAX_PER_DAY = 20;
+// Drafts written before this text (they congratulated on the launch) are
+// written again on the next run, with the same code.
+const TEXT_SINCE = '2026-11-14T03:30:00Z';
 const TRIAL_DAYS = 90;
 const VALID_DAYS = 60;
 const APP_URL = 'https://app.cantia.ch';
@@ -45,11 +51,13 @@ interface Company {
   outreach_body: string | null;
   outreach_code: string | null;
   outreach_status: string | null;
+  outreach_prepared_at: string | null;
+  email_check: string | null;
   unsubscribe_token: string;
   unsubscribed_at: string | null;
 }
 
-const SELECT = 'id, name, legal_form, canton, language, town, purpose, trades, email, outreach_subject, outreach_body, outreach_code, outreach_status, unsubscribe_token, unsubscribed_at';
+const SELECT = 'id, name, legal_form, canton, language, town, purpose, trades, email, email_check, outreach_subject, outreach_body, outreach_code, outreach_status, outreach_prepared_at, unsubscribe_token, unsubscribed_at';
 
 function langOf(c: Pick<Company, 'language'>): Lang {
   return c.language === 'de' || c.language === 'it' ? c.language : 'fr';
@@ -73,7 +81,7 @@ function zurichHour(): number {
 // misread (no 0/O, 1/I/L).
 function makeCode(name: string): string {
   const core = name
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .split(/\s+-\s+|,/)[0]
     .replace(/\b(sarl|sàrl|sa|ag|gmbh|sagl|snc|ltd|succursale.*)\b/gi, ' ')
     .toUpperCase().replace(/[^A-Z0-9]+/g, '')
@@ -102,21 +110,21 @@ const FACTS = `What Cantia is (only these facts may be used, never anything else
 - The offer: 3 months free instead of the usual 14 days, with a personal code, valid 60 days; nothing is charged during the 3 months and it can be stopped in one click.`;
 
 function systemPrompt(lang: Lang): string {
-  const language = lang === 'de' ? 'Swiss Standard German (ss, never ß; "Sie")' : lang === 'it' ? 'Italian as written in Switzerland ("Lei" or "voi" for a company, be consistent)' : 'French as written in Switzerland ("vous")';
-  return `You write the first e-mail Cantia sends to a company that has just been founded in Switzerland. It must read like a short, warm note written by a person who looked at what this company does, not like an advertisement.
+  const language = lang === 'de' ? 'Swiss Standard German (ss, never ß; "Sie")' : lang === 'it' ? 'Italian as written in Switzerland ("voi" for the company)' : 'French as written in Switzerland ("vous")';
+  return `You write a short e-mail introducing Cantia to a small Swiss business. It must read like a short, friendly note from a person who looked at what this business does, not like an advertisement.
 
 ${FACTS}
 
 Rules:
 - Write in ${language}.
-- 90 to 150 words in the body. Plain text, short paragraphs, no bullet list, no bold, no emoji, no exclamation marks in a row.
-- Open by congratulating them on starting the company (use its name as registered, without changing it). Never say how you know about it: no register, no FOSC/SHAB/FUSC, no "official gazette", no "we saw".
-- Then one or two sentences on what usually takes time at the start in THEIR line of work (deduce it from the purpose), and how Cantia helps with that, using only the facts above. If Cantia is not really made for their trade, say so honestly in a few words and talk only about the administrative side (quotes, invoices, payroll, VAT).
-- Then the offer: 3 months free instead of 14 days, the code written exactly as given, valid until the date given, nothing charged during the 3 months. Put the literal placeholder [LIEN] alone on its own line right after the offer: it becomes the sign-up link.
+- 80 to 140 words in the body. Plain text, short paragraphs, no bullet list, no bold, no emoji.
+- Start with a simple greeting ("Bonjour," / "Guten Tag" / "Buongiorno,"). Never congratulate, never speak of a launch, a creation, a new or young company, a start: we are not sure of its age. Never say how you found them: no register, no FOSC/SHAB/FUSC, no website, no "we saw".
+- Then one or two sentences on what usually takes time in THEIR line of work (deduce it from the purpose), and how Cantia helps with that, using only the facts above. If Cantia is not really made for their trade, say so honestly in a few words and talk only about the administrative side (quotes, invoices, payroll, VAT).
+- Then the offer: 3 months offered instead of the usual 14 days, the code written exactly as given, valid until the date given, nothing charged during the 3 months. Put the literal placeholder [LIEN] alone on its own line right after the offer: it becomes the sign-up link.
 - End with one sentence saying that a simple reply "non merci" (in the e-mail's language) is enough and they will not be written to again.
-- No signature, no greeting name, no "Bastien": the e-mail ends after that sentence and is signed "Cantia" automatically.
-- Never invent a number, a customer, a review, a price, a feature or a fact about the company.
-- Subject: 3 to 8 words, natural, contains the company name or its trade, no "offer", "promo", "free" or "gratuit" in it.
+- No signature, no name, no "Bastien": the e-mail ends after that sentence and is signed "Cantia" automatically.
+- Never invent a number, a customer, a review, a price, a feature or a fact about the business.
+- Subject: 3 to 8 words, natural, about their line of work (it may contain the company name), no "offer", "promo", "free", "gratuit", no congratulations.
 
 Answer with JSON only: {"subject": "...", "body": "..."}`;
 }
@@ -125,19 +133,19 @@ function fallbackDraft(c: Company, code: string, until: string): { subject: stri
   const lang = langOf(c);
   if (lang === 'de') {
     return {
-      subject: `${c.name}: Gratulation zum Start`,
-      body: `Guten Tag\n\nHerzliche Gratulation zur Gründung der ${c.name}.\n\nCantia ist eine Schweizer Software für KMU: Offerten und QR-Rechnungen, Stunden und Löhne, die MWST-Abrechnung und der Überblick über offene Rechnungen, auf dem Telefon und am Computer.\n\nZum Start schenken wir Ihnen 3 Monate statt der üblichen 14 Tage, mit Ihrem persönlichen Code ${code} (gültig bis ${until}). In diesen 3 Monaten wird nichts belastet.\n\n[LIEN]\n\nFalls das nichts für Sie ist, genügt ein kurzes «Nein danke», und wir melden uns nicht mehr.`,
+      subject: `Offerten und Rechnungen für ${c.name}`,
+      body: `Guten Tag\n\nCantia ist eine Schweizer Software für KMU: Offerten und QR-Rechnungen, Stunden und Löhne, die MWST-Abrechnung und der Überblick über offene Rechnungen, auf dem Telefon und am Computer.\n\nWir schenken Ihnen 3 Monate statt der üblichen 14 Tage, mit Ihrem persönlichen Code ${code} (gültig bis ${until}). In diesen 3 Monaten wird nichts belastet.\n\n[LIEN]\n\nFalls das nichts für Sie ist, genügt ein kurzes «Nein danke», und wir melden uns nicht mehr.`,
     };
   }
   if (lang === 'it') {
     return {
-      subject: `${c.name}: complimenti per l’avvio`,
-      body: `Buongiorno,\n\ncomplimenti per la fondazione di ${c.name}.\n\nCantia è un software svizzero per le PMI: preventivi e fatture con QR, ore e salari, il rendiconto IVA e la visione sulle fatture aperte, dal telefono e dal computer.\n\nPer l’avvio vi offriamo 3 mesi invece dei soliti 14 giorni, con il vostro codice personale ${code} (valido fino al ${until}). In questi 3 mesi non viene addebitato nulla.\n\n[LIEN]\n\nSe non fa per voi, basta rispondere «no grazie» e non vi scriveremo più.`,
+      subject: `Preventivi e fatture per ${c.name}`,
+      body: `Buongiorno,\n\nCantia è un software svizzero per le PMI: preventivi e fatture con QR, ore e salari, il rendiconto IVA e la visione sulle fatture aperte, dal telefono e dal computer.\n\nVi offriamo 3 mesi invece dei soliti 14 giorni, con il vostro codice personale ${code} (valido fino al ${until}). In questi 3 mesi non viene addebitato nulla.\n\n[LIEN]\n\nSe non fa per voi, basta rispondere «no grazie» e non vi scriveremo più.`,
     };
   }
   return {
-    subject: `${c.name} : félicitations pour le lancement`,
-    body: `Bonjour,\n\nFélicitations pour le lancement de ${c.name}.\n\nCantia est un logiciel suisse pour les petites entreprises : devis et factures avec QR-facture, heures et salaires, décompte TVA et suivi des factures ouvertes, depuis le téléphone comme depuis l’ordinateur.\n\nPour vos débuts, nous vous offrons 3 mois au lieu des 14 jours habituels, avec votre code personnel ${code} (valable jusqu’au ${until}). Rien n’est débité pendant ces 3 mois.\n\n[LIEN]\n\nSi ce n’est pas pour vous, un simple « non merci » suffit et nous ne vous écrirons plus.`,
+    subject: `Devis et factures pour ${c.name}`,
+    body: `Bonjour,\n\nCantia est un logiciel suisse pour les petites entreprises : devis et factures avec QR-facture, heures et salaires, décompte TVA et suivi des factures ouvertes, depuis le téléphone comme depuis l’ordinateur.\n\nNous vous offrons 3 mois au lieu des 14 jours habituels, avec votre code personnel ${code} (valable jusqu’au ${until}). Rien n’est débité pendant ces 3 mois.\n\n[LIEN]\n\nSi ce n’est pas pour vous, un simple « non merci » suffit et nous ne vous écrirons plus.`,
   };
 }
 
@@ -173,7 +181,7 @@ async function writeDraft(c: Company, code: string): Promise<{ subject: string; 
     // The draft must carry the exact code and the link; otherwise the safe text.
     if (!subject || !body || !body.includes(code)) return fallbackDraft(c, code, until);
     if (!body.includes('[LIEN]')) body = body.replace(new RegExp(`(${code}[^\\n]*\\n?)`), `$1\n[LIEN]\n`);
-    if (/registre|fosc|fusc|shab|handelsregister|registro di commercio|bastien/i.test(subject + body)) return fallbackDraft(c, code, until);
+    if (/registre|fosc|fusc|shab|handelsregister|registro di commercio|bastien|f[ée]licit|gratul|complimenti|congrat|lancement|gr[üu]ndung|fondazione|neu gegr|nouvelle entreprise|jeune entreprise/i.test(subject + body)) return fallbackDraft(c, code, until);
     return { subject: subject.slice(0, 140), body: body.slice(0, 3000) };
   } catch (err) {
     console.error('registry-outreach: draft failed', err);
@@ -256,77 +264,136 @@ async function blockedEmails(admin: SupabaseClient, emails: string[]): Promise<S
   return blocked;
 }
 
-async function prepare(admin: SupabaseClient): Promise<{ prepared: number; waiting: number }> {
-  const { count: waitingBefore } = await admin
+async function newCode(admin: SupabaseClient, c: Company): Promise<string | null> {
+  for (let i = 0; i < 3; i++) {
+    const code = makeCode(c.name);
+    const { error } = await admin.from('trial_offer_codes').insert({ code, registry_id: c.id, trial_days: TRIAL_DAYS });
+    if (!error) return code;
+  }
+  return null;
+}
+
+// Writes (or writes again) the e-mail of one company and keeps it as a draft.
+async function draftFor(admin: SupabaseClient, c: Company): Promise<Company | null> {
+  const code = c.outreach_code ?? (await newCode(admin, c));
+  if (!code) return null;
+  const draft = await writeDraft(c, code);
+  const now = new Date().toISOString();
+  const { error } = await admin
     .from('registry_companies')
-    .select('id', { count: 'exact', head: true })
-    .eq('outreach_status', 'draft');
-  const slots = Math.max(0, MAX_WAITING - (waitingBefore ?? 0));
-  let prepared = 0;
-  if (slots > 0) {
-    const { data: candidates } = await admin
-      .from('registry_companies')
-      .select(SELECT)
-      .not('email', 'is', null)
-      .in('email_check', ['confirmed', 'manual'])
-      .is('outreach_status', null)
-      .eq('status', 'new')
-      .is('unsubscribed_at', null)
-      .in('canton', ROMANDIE)
-      .order('email_checked_at', { ascending: true, nullsFirst: false })
-      .limit(slots * 3);
-    const list = (candidates ?? []) as Company[];
-    const blocked = await blockedEmails(admin, list.map((c) => c.email!).filter(Boolean));
-    for (const c of list) {
-      if (prepared >= slots) break;
-      if (!c.email || blocked.has(c.email)) continue;
-      blocked.add(c.email);
-      let code = makeCode(c.name);
-      let inserted = false;
-      for (let i = 0; i < 3 && !inserted; i++) {
-        const { error } = await admin.from('trial_offer_codes').insert({ code, registry_id: c.id, trial_days: TRIAL_DAYS });
-        if (!error) inserted = true;
-        else code = makeCode(c.name);
-      }
-      if (!inserted) continue;
-      const draft = await writeDraft(c, code);
-      const { error } = await admin
-        .from('registry_companies')
-        .update({
-          outreach_status: 'draft',
-          outreach_subject: draft.subject,
-          outreach_body: draft.body,
-          outreach_code: code,
-          outreach_prepared_at: new Date().toISOString(),
-          outreach_error: null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', c.id)
-        .is('outreach_status', null);
-      if (!error) prepared++;
+    .update({ outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now, outreach_error: null, updated_at: now })
+    .eq('id', c.id);
+  if (error) return null;
+  return { ...c, outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now };
+}
+
+const SURE = ['confirmed', 'manual'];
+
+async function prepare(admin: SupabaseClient): Promise<{ sent: number; drafted: number; waiting: number }> {
+  // 1. Drafts written with the former text: written again, same code.
+  const { data: stale } = await admin.from('registry_companies').select(SELECT).eq('outreach_status', 'draft').lt('outreach_prepared_at', TEXT_SINCE);
+  for (const c of (stale ?? []) as Company[]) await draftFor(admin, c);
+
+  // 2. Companies not written to yet.
+  const { data: fresh } = await admin
+    .from('registry_companies')
+    .select(SELECT)
+    .not('email', 'is', null)
+    .in('email_check', ['confirmed', 'manual', 'probable', 'doubtful'])
+    .is('outreach_status', null)
+    .eq('status', 'new')
+    .is('unsubscribed_at', null)
+    .in('canton', ROMANDIE)
+    .order('email_checked_at', { ascending: true, nullsFirst: false })
+    .limit(200);
+  const list = (fresh ?? []) as Company[];
+  const blocked = await blockedEmails(admin, list.map((c) => c.email!).filter(Boolean));
+
+  // 3. Sure addresses: sent now, within the day's limit (drafts of sure
+  //    addresses left from before are sent too).
+  const { data: sureDrafts } = await admin.from('registry_companies').select(SELECT).eq('outreach_status', 'draft').in('email_check', SURE);
+  const { count: sentToday } = await admin.from('registry_companies').select('id', { count: 'exact', head: true }).gte('outreach_sent_at', zurichDayStart());
+  let room = Math.max(0, MAX_PER_DAY - (sentToday ?? 0));
+  const sentNames: string[] = [];
+  const sureQueue: Company[] = [...((sureDrafts ?? []) as Company[])];
+  for (const c of list) {
+    if (!c.email || blocked.has(c.email) || !SURE.includes(c.email_check ?? '')) continue;
+    blocked.add(c.email);
+    sureQueue.push(c);
+  }
+  for (const c of sureQueue) {
+    if (room <= 0) break;
+    const ready = c.outreach_status === 'draft' && c.outreach_body ? c : await draftFor(admin, c);
+    if (!ready) continue;
+    if (await sendOne(admin, ready)) {
+      room--;
+      sentNames.push(`${ready.name}${ready.town ? `, ${ready.town}` : ''}`);
     }
   }
 
+  // 4. Addresses not certain: drafts for the admin, 20 waiting at most.
+  const { count: waitingBefore } = await admin.from('registry_companies').select('id', { count: 'exact', head: true }).eq('outreach_status', 'draft');
+  let slots = Math.max(0, MAX_WAITING - (waitingBefore ?? 0));
+  let drafted = 0;
+  for (const c of list) {
+    if (slots <= 0) break;
+    if (!c.email || blocked.has(c.email) || SURE.includes(c.email_check ?? '')) continue;
+    blocked.add(c.email);
+    if (await draftFor(admin, c)) {
+      slots--;
+      drafted++;
+    }
+  }
+
+  // 5. The morning e-mail to the admin.
   const { data: waiting } = await admin
     .from('registry_companies')
-    .select('name, town, outreach_subject')
+    .select('name, town, outreach_subject, email_evidence')
     .eq('outreach_status', 'draft')
     .order('outreach_prepared_at', { ascending: true });
   const n = waiting?.length ?? 0;
   const to = Deno.env.get('WEEKLY_REPORT_EMAIL');
-  if (n > 0 && to) {
-    const rows = (waiting ?? [])
-      .map((w) => `<li style="margin:0 0 8px;"><strong>${escapeHtml(w.name)}</strong>${w.town ? `, ${escapeHtml(w.town)}` : ''}<br><span style="color:#6b6f65;">${escapeHtml(w.outreach_subject ?? '')}</span></li>`)
-      .join('');
+  if ((n > 0 || sentNames.length > 0) && to) {
+    const sentHtml = sentNames.length
+      ? `<p style="margin:0 0 8px;"><strong>${sentNames.length} envoyé${sentNames.length > 1 ? 's' : ''} ce matin</strong> (e-mail confirmé sur le site de l’entreprise) :</p><ul style="padding-left:18px;margin:0 0 20px;">${sentNames.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`
+      : '';
+    const waitHtml = n
+      ? `<p style="margin:0 0 8px;"><strong>${n} à valider</strong> (e-mail pas certain) :</p><ul style="padding-left:18px;margin:0 0 20px;">${(waiting ?? [])
+          .map((w) => `<li style="margin:0 0 8px;"><strong>${escapeHtml(w.name)}</strong>${w.town ? `, ${escapeHtml(w.town)}` : ''}<br><span style="color:#6b6f65;">${escapeHtml(w.email_evidence ?? w.outreach_subject ?? '')}</span></li>`)
+          .join('')}</ul>
+<p style="margin:0 0 20px;"><a href="${APP_URL}/registre?onglet=envois" style="display:inline-block;padding:11px 22px;border-radius:999px;background:#23251f;color:#ffffff;font-weight:600;text-decoration:none;">Relire et envoyer</a></p>`
+      : '';
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#23251f;max-width:560px;">
-<p style="margin:0 0 14px;">${n === 1 ? '1 e-mail de bienvenue attend' : `${n} e-mails de bienvenue attendent`} ta validation${prepared > 0 ? ` (${prepared} nouveau${prepared > 1 ? 'x' : ''} ce matin)` : ''}.</p>
-<ul style="padding-left:18px;margin:0 0 20px;">${rows}</ul>
-<p style="margin:0 0 20px;"><a href="${APP_URL}/registre?onglet=envois" style="display:inline-block;padding:11px 22px;border-radius:999px;background:#23251f;color:#ffffff;font-weight:600;text-decoration:none;">Relire et envoyer</a></p>
-<p style="margin:0;font-size:13px;color:#6b6f65;">Rien ne part sans ton clic. Au plus ${MAX_PER_DAY} envois par jour : le reste attend le lendemain.</p>
+${sentHtml}${waitHtml}<p style="margin:0;font-size:13px;color:#6b6f65;">Au plus ${MAX_PER_DAY} envois par jour : le reste part les matins suivants.</p>
 </div>`;
-    await sendMail(to, n === 1 ? '1 e-mail de bienvenue à valider' : `${n} e-mails de bienvenue à valider`, { html, text: `${n} e-mail(s) à valider : ${APP_URL}/registre?onglet=envois` });
+    const subject = [sentNames.length ? `${sentNames.length} e-mail${sentNames.length > 1 ? 's' : ''} de bienvenue envoyé${sentNames.length > 1 ? 's' : ''}` : '', n ? `${n} à valider` : ''].filter(Boolean).join(' · ');
+    await sendMail(to, subject, { html, text: `${sentNames.length} envoyé(s), ${n} à valider : ${APP_URL}/registre?onglet=envois` });
   }
-  return { prepared, waiting: n };
+  return { sent: sentNames.length, drafted, waiting: n };
+}
+
+// Sends one draft; true when it left.
+async function sendOne(admin: SupabaseClient, c: Company): Promise<boolean> {
+  const now = new Date();
+  if (!c.email || c.unsubscribed_at || !c.outreach_code || !c.outreach_subject || !c.outreach_body) {
+    await admin.from('registry_companies').update({ outreach_status: 'failed', outreach_error: 'brouillon incomplet', updated_at: now.toISOString() }).eq('id', c.id);
+    return false;
+  }
+  const r = await sendMail(c.email, c.outreach_subject, renderEmail(c));
+  if (!r.ok) {
+    await admin.from('registry_companies').update({ outreach_status: 'failed', outreach_error: r.error ?? 'échec', updated_at: now.toISOString() }).eq('id', c.id);
+    return false;
+  }
+  await admin.from('trial_offer_codes').update({ expires_at: new Date(now.getTime() + VALID_DAYS * 86400000).toISOString() }).eq('code', c.outreach_code);
+  await admin.from('registry_companies').update({
+    outreach_status: 'sent',
+    outreach_sent_at: now.toISOString(),
+    outreach_error: null,
+    status: 'contacted',
+    contacted_at: now.toISOString(),
+    updated_at: now.toISOString(),
+  }).eq('id', c.id);
+  return true;
 }
 
 async function sendDrafts(admin: SupabaseClient, ids: string[]): Promise<{ sent: number; failed: number; postponed: number }> {
@@ -341,26 +408,7 @@ async function sendDrafts(admin: SupabaseClient, ids: string[]): Promise<{ sent:
   let postponed = 0;
   for (const c of (data ?? []) as Company[]) {
     if (room <= 0) { postponed++; continue; }
-    if (!c.email || c.unsubscribed_at || !c.outreach_code || !c.outreach_subject || !c.outreach_body) { failed++; continue; }
-    const mail = renderEmail(c);
-    const r = await sendMail(c.email, c.outreach_subject, mail);
-    const now = new Date();
-    if (r.ok) {
-      room--;
-      sent++;
-      await admin.from('trial_offer_codes').update({ expires_at: new Date(now.getTime() + VALID_DAYS * 86400000).toISOString() }).eq('code', c.outreach_code);
-      await admin.from('registry_companies').update({
-        outreach_status: 'sent',
-        outreach_sent_at: now.toISOString(),
-        outreach_error: null,
-        status: 'contacted',
-        contacted_at: now.toISOString(),
-        updated_at: now.toISOString(),
-      }).eq('id', c.id);
-    } else {
-      failed++;
-      await admin.from('registry_companies').update({ outreach_status: 'failed', outreach_error: r.error ?? 'échec', updated_at: now.toISOString() }).eq('id', c.id);
-    }
+    if (await sendOne(admin, c)) { room--; sent++; } else failed++;
   }
   return { sent, failed, postponed };
 }
