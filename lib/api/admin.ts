@@ -330,7 +330,14 @@ export async function updateRegistryCompany(
 
 // Welcome e-mails (supabase/functions/registry-outreach): the drafts of the
 // morning, corrected here, then sent on the admin's click (20 a day at most).
-export async function listOutreach(): Promise<{ rows: RegistryCompany[]; error: string | null }> {
+export interface TrialOfferCode {
+  code: string;
+  visits?: number;
+  visited_at?: string | null;
+  claimed_at?: string | null;
+  redeemed_at?: string | null;
+}
+export async function listOutreach(): Promise<{ rows: RegistryCompany[]; codes: Record<string, TrialOfferCode>; error: string | null }> {
   const { data, error } = await supabase
     .from('registry_companies')
     .select('*')
@@ -338,7 +345,15 @@ export async function listOutreach(): Promise<{ rows: RegistryCompany[]; error: 
     .order('outreach_prepared_at', { ascending: false })
     .limit(300);
   const err = logRpcError('registry_companies outreach', error);
-  return { rows: err || !data ? [] : (data as RegistryCompany[]), error: err };
+  const rows = err || !data ? [] : (data as RegistryCompany[]);
+  // What each e-mail led to: link opened, payment opened, trial started.
+  const codes: Record<string, TrialOfferCode> = {};
+  const list = rows.map((r) => r.outreach_code).filter((c): c is string => !!c);
+  if (list.length) {
+    const { data: c } = await supabase.from('trial_offer_codes').select('*').in('code', list);
+    for (const row of (c ?? []) as TrialOfferCode[]) codes[row.code] = row;
+  }
+  return { rows, codes, error: err };
 }
 export async function updateOutreachDraft(id: string, patch: { subject?: string; body?: string; skip?: boolean }): Promise<{ error: string | null }> {
   const { error } = await supabase.rpc('admin_registry_outreach_update', {
@@ -349,7 +364,7 @@ export async function updateOutreachDraft(id: string, patch: { subject?: string;
   });
   return { error: logRpcError('admin_registry_outreach_update', error) };
 }
-export async function callOutreach(body: { action: 'send'; ids: string[] } | { action: 'test'; id: string } | { action: 'prepare_now' }): Promise<{ data: any; error: string | null }> {
+export async function callOutreach(body: { action: 'send'; ids: string[] } | { action: 'test'; id: string } | { action: 'prepare_now' } | { action: 'rewrite'; id: string; lang: 'fr' | 'de' | 'it' }): Promise<{ data: any; error: string | null }> {
   const { data, error } = await supabase.functions.invoke('registry-outreach', { body });
   if (error) return { data: null, error: error.message };
   if (data?.error) return { data: null, error: String(data.error) };

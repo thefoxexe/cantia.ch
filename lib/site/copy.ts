@@ -39,6 +39,7 @@ export interface SiteCopy {
     tradeLink: string;
     pricingLink: string;
     customLink: string;
+    newCompanyLink: string;
     ecosystemLink: string;
     devicesLink: string;
     compareLink: string;
@@ -141,6 +142,7 @@ const fr: SiteCopy = {
     tradeLink: 'Métiers',
     pricingLink: 'Tarifs & formules',
     customLink: 'Développements sur mesure',
+    newCompanyLink: 'Nouvelle entreprise : 3 mois offerts',
     ecosystemLink: 'À propos',
     devicesLink: 'Ordinateur & téléphone',
     compareLink: 'Comparatifs',
@@ -243,6 +245,7 @@ const de: SiteCopy = {
     tradeLink: 'Branchen',
     pricingLink: 'Preise & Abos',
     customLink: 'Massgeschneiderte Entwicklungen',
+    newCompanyLink: 'Neues Unternehmen: 3 Monate geschenkt',
     ecosystemLink: 'Über uns',
     devicesLink: 'Computer & Handy',
     compareLink: 'Vergleiche',
@@ -345,6 +348,7 @@ const it: SiteCopy = {
     tradeLink: 'Mestieri',
     pricingLink: 'Prezzi & formule',
     customLink: 'Sviluppi su misura',
+    newCompanyLink: 'Nuova impresa: 3 mesi offerti',
     ecosystemLink: 'Chi siamo',
     devicesLink: 'Computer & telefono',
     compareLink: 'Confronti',

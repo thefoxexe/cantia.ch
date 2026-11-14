@@ -290,6 +290,11 @@
   status = 200
 
 [[redirects]]
+  from = "/nouvelle-entreprise"
+  to = "/nouvelle-entreprise.html"
+  status = 200
+
+[[redirects]]
   from = "/plans/essentiel"
   to = "/plans/essentiel.html"
   status = 200
@@ -697,6 +702,11 @@
 [[redirects]]
   from = "/de/sur-mesure"
   to = "/de/sur-mesure.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/nouvelle-entreprise"
+  to = "/de/nouvelle-entreprise.html"
   status = 200
 
 [[redirects]]
@@ -1122,6 +1132,11 @@
 [[redirects]]
   from = "/it/sur-mesure"
   to = "/it/sur-mesure.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/nouvelle-entreprise"
+  to = "/it/nouvelle-entreprise.html"
   status = 200
 
 [[redirects]]

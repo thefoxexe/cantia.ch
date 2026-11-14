@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { EmptyState, LoadingScreen } from '../ui';
 import { AdminErrorBanner } from '../AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
-import { callOutreach, listOutreach, updateOutreachDraft, type RegistryCompany } from '../../lib/api/admin';
+import { callOutreach, listOutreach, updateOutreachDraft, type RegistryCompany, type TrialOfferCode } from '../../lib/api/admin';
 
 // Super Admin › Nouvelles entreprises › À envoyer: the welcome e-mails
 // written each morning at 07:30 (supabase/functions/registry-outreach), one
@@ -22,14 +22,16 @@ function zurichDayStart(): number {
 
 export function OutreachPanel() {
   const [rows, setRows] = useState<RegistryCompany[]>([]);
+  const [codes, setCodes] = useState<Record<string, TrialOfferCode>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { rows: r, error: err } = await listOutreach();
+    const { rows: r, codes: k, error: err } = await listOutreach();
     setRows(r);
+    setCodes(k);
     setError(err);
     setLoading(false);
   }, []);
@@ -117,19 +119,41 @@ export function OutreachPanel() {
         <EmptyState title="Rien à valider" subtitle="Les e-mails pas certains arrivent ici chaque matin à 7 h 30 ; les e-mails confirmés partent seuls." />
       ) : (
         drafts.map((d) => (
-          <DraftCard key={d.id} r={d} busy={busy} canSend={room > 0} onSend={() => send([d.id])} onTest={() => test(d.id)} onChanged={load} onError={setError} />
+          <DraftCard key={`${d.id}-${d.outreach_prepared_at}`} r={d} busy={busy} canSend={room > 0} onSend={() => send([d.id])} onTest={() => test(d.id)} onChanged={load} onError={setError} />
         ))
       )}
 
       {sent.length ? (
         <View style={{ gap: 6, marginTop: spacing.md }}>
           <Text style={styles.sectionTitle}>Envoyés</Text>
-          {sent.slice(0, 30).map((r) => (
-            <Text key={r.id} style={styles.sentRow}>
-              {new Date(r.outreach_sent_at!).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })} · {r.name} · {r.email} · code {r.outreach_code}
-              {r.unsubscribed_at ? ' · désinscrit' : ''}
-            </Text>
-          ))}
+          <Text style={styles.hint}>
+            {(() => {
+              const k = sent.map((r) => (r.outreach_code ? codes[r.outreach_code] : undefined));
+              const clicked = k.filter((x) => (x?.visits ?? 0) > 0).length;
+              const claimed = k.filter((x) => x?.claimed_at).length;
+              const started = k.filter((x) => x?.redeemed_at).length;
+              return `${sent.length} envoyés · ${clicked} ont ouvert le lien · ${claimed} ont ouvert le paiement · ${started} essais de 3 mois démarrés`;
+            })()}
+          </Text>
+          {sent.slice(0, 50).map((r) => {
+            const k = r.outreach_code ? codes[r.outreach_code] : undefined;
+            const state = r.unsubscribed_at
+              ? 'désinscrit'
+              : k?.redeemed_at
+                ? 'essai démarré'
+                : k?.claimed_at
+                  ? 'paiement ouvert'
+                  : (k?.visits ?? 0) > 0
+                    ? `lien ouvert${(k?.visits ?? 0) > 1 ? ` (${k?.visits}×)` : ''}`
+                    : 'pas encore cliqué';
+            const strong = !!(k?.redeemed_at || k?.claimed_at || (k?.visits ?? 0) > 0);
+            return (
+              <Text key={r.id} style={styles.sentRow}>
+                {new Date(r.outreach_sent_at!).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })} · {r.name} · {r.email} · {r.outreach_code} ·{' '}
+                <Text style={strong ? { color: colors.success, fontWeight: '700' } : { color: colors.textMuted }}>{state}</Text>
+              </Text>
+            );
+          })}
         </View>
       ) : null}
     </View>
@@ -155,6 +179,8 @@ function DraftCard({
 }) {
   const [subject, setSubject] = useState(r.outreach_subject ?? '');
   const [body, setBody] = useState(r.outreach_body ?? '');
+  const [lang, setLang] = useState(r.language === 'de' || r.language === 'it' ? r.language : 'fr');
+  const [busyLang, setBusyLang] = useState<string | null>(null);
   const dirty = subject !== (r.outreach_subject ?? '') || body !== (r.outreach_body ?? '');
 
   async function save(): Promise<boolean> {
@@ -165,6 +191,19 @@ function DraftCard({
       return false;
     }
     return true;
+  }
+
+  async function rewrite(lang: 'fr' | 'de' | 'it') {
+    if (busyLang) return;
+    setBusyLang(lang);
+    const { data, error } = await callOutreach({ action: 'rewrite', id: r.id, lang });
+    setBusyLang(null);
+    if (error) onError(error);
+    else if (data?.subject) {
+      setSubject(data.subject);
+      setBody(data.body);
+      setLang(data.language);
+    }
   }
 
   async function skip() {
@@ -186,6 +225,15 @@ function DraftCard({
         <Text style={styles.code}>{r.outreach_code}</Text>
       </View>
       {r.outreach_status === 'failed' ? <Text style={styles.failed}>Échec du dernier envoi : {r.outreach_error}</Text> : null}
+      <View style={styles.langRow}>
+        <Text style={styles.small}>Langue du mail :</Text>
+        {(['fr', 'de', 'it'] as const).map((l) => (
+          <Pressable key={l} onPress={() => l !== lang && rewrite(l)} disabled={busyLang !== null} style={[styles.langChip, l === lang && styles.langChipOn]}>
+            <Text style={[styles.langChipText, l === lang && { color: '#fff' }]}>{busyLang === l ? '…' : l.toUpperCase()}</Text>
+          </Pressable>
+        ))}
+        {busyLang ? <Text style={styles.small}>Traduction en cours…</Text> : null}
+      </View>
       <TextInput value={subject} onChangeText={setSubject} onBlur={save} style={styles.subject} placeholder="Objet" placeholderTextColor={colors.textMuted} />
       <TextInput value={body} onChangeText={setBody} onBlur={save} multiline style={styles.body} textAlignVertical="top" />
       <Text style={styles.small}>[LIEN] devient le lien d’inscription avec le code. Le pied de page (Cantia · cantia.ch, lien de désinscription) est ajouté à l’envoi.</Text>
@@ -223,6 +271,10 @@ const styles = StyleSheet.create({
   subject: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: 8, fontSize: fontSize.sm, fontWeight: '700', color: colors.text, backgroundColor: colors.bg },
   body: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, minHeight: 260, fontSize: fontSize.sm, lineHeight: 21, color: colors.text, backgroundColor: colors.bg },
   small: { fontSize: 11.5, color: colors.textMuted },
+  langRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
+  langChip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border },
+  langChipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  langChipText: { fontSize: 12, fontWeight: '700', color: colors.text },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   primary: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: spacing.lg, paddingVertical: 9 },
   primaryText: { color: '#fff', fontSize: fontSize.sm, fontWeight: '700' },

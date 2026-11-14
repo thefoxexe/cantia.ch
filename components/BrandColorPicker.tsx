@@ -1,21 +1,21 @@
-import { createElement, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { suggestBrandColorsFromWebsite } from '../lib/api/brandColors';
-import { BRAND_COLOR_PRESETS, HEX_COLOR_RE } from './PdfTemplatePicker';
+import { HEX_COLOR_RE } from './PdfTemplatePicker';
+import { HueColorPicker } from './HueColorPicker';
 import { getAppLocale } from '../lib/translations';
 import { colors, fontSize, radius, spacing } from '../lib/theme';
 
-// The brand colour of devis, factures and rapports, chosen three ways:
-// ready-made colours, the colours of the company's website (analysed only
-// when asked — nothing happens just by typing the address), or any colour
-// at all with a picker and its HEX code. Used in the onboarding and in
-// Compte › Apparence.
-
-type Mode = 'presets' | 'website' | 'custom';
+// The brand colour of devis, factures and rapports: any colour with the
+// three bars of HueColorPicker (hue, intensity, lightness, slid with the
+// finger), plus the colours of the logo and of the company's website as
+// one-tap suggestions (the site is analysed only when asked). Used in the
+// onboarding and in Compte › Apparence.
 
 const COPY = {
   fr: {
+    suggestions: 'Suggestions',
     presets: 'Couleurs prêtes',
     website: 'Depuis mon site',
     custom: 'Sur mesure',
@@ -34,6 +34,7 @@ const COPY = {
     total: 'Total TTC',
   },
   de: {
+    suggestions: 'Vorschläge',
     presets: 'Fertige Farben',
     website: 'Von meiner Website',
     custom: 'Individuell',
@@ -52,6 +53,7 @@ const COPY = {
     total: 'Total inkl. MWST',
   },
   it: {
+    suggestions: 'Suggerimenti',
     presets: 'Colori pronti',
     website: 'Dal mio sito',
     custom: 'Su misura',
@@ -70,29 +72,6 @@ const COPY = {
     total: 'Totale IVA incl.',
   },
 };
-
-function hslToHex(h: number, s: number, l: number): string {
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const c = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(c * 255).toString(16).padStart(2, '0');
-  };
-  return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
-}
-
-// 12 hues × 5 tones + greys: enough to land on any shade quickly, on every
-// platform (the web also gets the system colour picker).
-const HUES = [0, 20, 35, 50, 95, 140, 165, 190, 210, 230, 260, 300];
-const TONES: [number, number][] = [
-  [0.55, 0.22],
-  [0.5, 0.32],
-  [0.55, 0.42],
-  [0.6, 0.55],
-  [0.65, 0.7],
-];
-const GRID = TONES.map(([s, l]) => HUES.map((h) => hslToHex(h, s, l)));
-const GREYS = ['#111111', '#2B2B2B', '#444444', '#5E5E5E', '#7A7A7A', '#999999', '#22333B', '#2F3E46', '#354F52', '#3D405B', '#4A4E69', '#6E4B2A'];
 
 export function normalizeHex(raw: string): string {
   let v = raw.trim().replace(/^#*/, '');
@@ -125,16 +104,9 @@ export function BrandColorPicker({
 }) {
   const l = getAppLocale();
   const c = COPY[l === 'de' || l === 'it' ? l : 'fr'];
-  const [mode, setMode] = useState<Mode>(() => (value && !BRAND_COLOR_PRESETS.some((p) => p.toLowerCase() === value.toLowerCase()) ? 'custom' : 'presets'));
   const [analyzing, setAnalyzing] = useState(false);
   const [siteColors, setSiteColors] = useState<string[] | null>(null);
   const [analyzedSite, setAnalyzedSite] = useState('');
-  const [hexText, setHexText] = useState(value);
-  const [hexFocused, setHexFocused] = useState(false);
-  // Follow outside changes (swatch, picker) but never rewrite what is being typed.
-  useEffect(() => {
-    if (!hexFocused) setHexText(value);
-  }, [value, hexFocused]);
 
   const valid = HEX_COLOR_RE.test(value);
   const site = website.trim();
@@ -152,7 +124,7 @@ export function BrandColorPicker({
 
   const pick = (hex: string) => !disabled && onChange(hex.toUpperCase());
 
-  const swatch = (hex: string, size = 34) => {
+  const swatch = (hex: string, size = 30) => {
     const active = value.toLowerCase() === hex.toLowerCase();
     return (
       <Pressable
@@ -162,144 +134,39 @@ export function BrandColorPicker({
         accessibilityLabel={hex}
         style={[styles.swatch, { width: size, height: size, borderRadius: size / 2, backgroundColor: hex }, active && styles.swatchActive]}
       >
-        {active ? <Feather name="check" size={size > 24 ? 15 : 11} color={textOn(hex)} /> : null}
+        {active ? <Feather name="check" size={13} color={textOn(hex)} /> : null}
       </Pressable>
     );
   };
 
   return (
     <View style={styles.wrap}>
-      <View style={styles.tabs}>
-        {(
-          [
-            ['presets', 'grid', c.presets],
-            ['website', 'globe', c.website],
-            ['custom', 'droplet', c.custom],
-          ] as const
-        ).map(([m, icon, label]) => (
-          <Pressable key={m} onPress={() => setMode(m)} style={[styles.tab, mode === m && styles.tabActive]}>
-            <Feather name={icon} size={16} color={mode === m ? colors.text : colors.textMuted} />
-            <Text style={[styles.tabText, mode === m && styles.tabTextActive]}>
-              {label}
-            </Text>
-          </Pressable>
-        ))}
+      <View style={styles.panel}>
+        <HueColorPicker value={value} onChange={(hex) => !disabled && onChange(hex)} disabled={disabled} />
       </View>
 
-      <View style={styles.panel}>
-        {mode === 'presets' ? (
-          <View style={{ gap: spacing.sm }}>
-            <View style={styles.swatchRow}>{BRAND_COLOR_PRESETS.map((h) => swatch(h))}</View>
-            {logoColors.length ? (
-              <View style={styles.logoRow}>
-                <Text style={styles.small}>{c.fromLogo}</Text>
-                {logoColors.map((h) => swatch(h, 26))}
-              </View>
-            ) : null}
-          </View>
-        ) : mode === 'website' ? (
-          <View style={{ gap: spacing.sm }}>
-            {!site ? (
-              <View style={styles.infoRow}>
-                <Feather name="info" size={14} color={colors.textMuted} />
-                <Text style={styles.small}>{c.noWebsite}</Text>
-              </View>
-            ) : (
-              <>
-                <View style={styles.siteRow}>
-                  <View style={styles.siteChip}>
-                    <Feather name="globe" size={13} color={colors.textMuted} />
-                    <Text style={styles.siteText} numberOfLines={1}>
-                      {site.replace(/^https?:\/\//, '')}
-                    </Text>
-                  </View>
-                  <Pressable onPress={analyze} disabled={analyzing || disabled} style={styles.analyzeBtn}>
-                    {analyzing ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="search" size={14} color="#fff" />}
-                    <Text style={styles.analyzeText}>{analyzing ? c.analyzing : c.analyze}</Text>
-                  </Pressable>
-                </View>
-                {siteColors === null ? (
-                  <Text style={styles.small}>{c.analyzeHint}</Text>
-                ) : siteColors.length ? (
-                  <>
-                    <Text style={styles.small}>{c.found.replace('{{site}}', analyzedSite)}</Text>
-                    <View style={styles.swatchRow}>{siteColors.map((h) => swatch(h))}</View>
-                  </>
-                ) : (
-                  <Text style={[styles.small, { color: colors.warning }]}>{c.noneFound}</Text>
-                )}
-              </>
-            )}
-          </View>
-        ) : (
-          <View style={{ gap: spacing.md }}>
-            <Text style={styles.small}>{c.pickerHint}</Text>
-            <View style={styles.customRow}>
-              {Platform.OS === 'web' ? (
-                <View style={[styles.bigSwatch, { backgroundColor: valid ? value : colors.border }]}>
-                  {createElement('input', {
-                    type: 'color',
-                    value: valid ? value.toLowerCase() : '#1f3d3a',
-                    disabled,
-                    onChange: (e: { target: { value: string } }) => pick(e.target.value),
-                    'aria-label': c.custom,
-                    style: { position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', border: 'none', padding: 0 },
-                  })}
-                  <Feather name="droplet" size={18} color={textOn(valid ? value : '#ffffff')} />
-                </View>
-              ) : (
-                <View style={[styles.bigSwatch, { backgroundColor: valid ? value : colors.border }]} />
-              )}
-              <View style={{ flex: 1, minWidth: 160, gap: 4 }}>
-                <Text style={styles.hexLabel}>{c.hex}</Text>
-                <TextInput
-                  value={hexText}
-                  editable={!disabled}
-                  onFocus={() => setHexFocused(true)}
-                  onChangeText={(v) => {
-                    setHexText(v);
-                    // Full 6-character codes apply as they are typed; the
-                    // short form (#C24) only once the field is left.
-                    const n = `#${v.trim().replace(/^#*/, '')}`.toUpperCase();
-                    if (HEX_COLOR_RE.test(n)) onChange(n);
-                  }}
-                  onBlur={() => {
-                    setHexFocused(false);
-                    const n = normalizeHex(hexText);
-                    if (HEX_COLOR_RE.test(n)) onChange(n);
-                    else setHexText(value);
-                  }}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  maxLength={7}
-                  placeholder="#1F3D3A"
-                  placeholderTextColor={colors.textMuted}
-                  style={styles.hexInput}
-                />
-                {hexText && !hexFocused && !HEX_COLOR_RE.test(normalizeHex(hexText)) ? <Text style={styles.error}>{c.hexError}</Text> : null}
-              </View>
+      {logoColors.length || site ? (
+        <View style={styles.suggest}>
+          <Text style={styles.suggestLabel}>{c.suggestions}</Text>
+          {logoColors.length ? (
+            <View style={styles.logoRow}>
+              <Text style={styles.small}>{c.fromLogo}</Text>
+              {logoColors.map((h) => swatch(h, 26))}
             </View>
-            <View style={styles.grid}>
-              {[...GRID, GREYS].map((row, i) => (
-                <View key={i} style={styles.gridRow}>
-                  {row.map((hex) => {
-                    const active = value.toLowerCase() === hex.toLowerCase();
-                    return (
-                      <Pressable
-                        key={hex}
-                        onPress={() => pick(hex)}
-                        disabled={disabled}
-                        accessibilityLabel={hex}
-                        style={[styles.cell, { backgroundColor: hex }, active && styles.cellActive]}
-                      />
-                    );
-                  })}
-                </View>
-              ))}
+          ) : null}
+          {site ? (
+            <View style={styles.siteRow}>
+              <Pressable onPress={analyze} disabled={analyzing || disabled} style={styles.analyzeBtn}>
+                {analyzing ? <ActivityIndicator size="small" color={colors.text} /> : <Feather name="globe" size={14} color={colors.text} />}
+                <Text style={styles.analyzeText}>{analyzing ? c.analyzing : c.analyze}</Text>
+              </Pressable>
+              {siteColors?.length ? siteColors.map((h) => swatch(h, 26)) : null}
             </View>
-          </View>
-        )}
-      </View>
+          ) : null}
+          {siteColors && !siteColors.length ? <Text style={[styles.small, { color: colors.warning }]}>{c.noneFound}</Text> : null}
+          {siteColors?.length ? <Text style={styles.small}>{c.found.replace('{{site}}', analyzedSite)}</Text> : null}
+        </View>
+      ) : null}
 
       {/* What it looks like on a quote */}
       <View style={styles.previewCard}>
@@ -344,8 +211,10 @@ const styles = StyleSheet.create({
   siteRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   siteChip: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1, paddingHorizontal: 10, paddingVertical: 8, borderRadius: radius.sm, backgroundColor: colors.bg, maxWidth: '100%' },
   siteText: { fontSize: fontSize.sm, color: colors.text, flexShrink: 1 },
-  analyzeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.sm, backgroundColor: colors.text },
-  analyzeText: { fontSize: fontSize.sm, fontWeight: '700', color: '#fff' },
+  analyzeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  analyzeText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.text },
+  suggest: { gap: spacing.sm },
+  suggestLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase', color: colors.textMuted },
   customRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md },
   bigSwatch: { width: 64, height: 64, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative', borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)' },
   hexLabel: { fontSize: fontSize.xs, fontWeight: '600', color: colors.textMuted },

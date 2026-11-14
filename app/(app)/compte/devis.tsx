@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { vatApplies } from '../../../lib/vat/vatStatus';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
@@ -72,6 +72,13 @@ export default function DevisSettingsScreen() {
         <Container>
           <PageHeader title={t('devisSettings.title')} backTo="/(app)/compte" onBeforeBack={confirmBeforeBack} />
           <Text style={styles.intro}>{t('devisSettings.intro')}</Text>
+
+          {/* The look of the documents lives on its own page: say where. */}
+          <Pressable onPress={() => router.push('/(app)/compte/apparence' as any)} style={({ pressed }) => [styles.lookLink, pressed && { opacity: 0.7 }]}>
+            <Feather name="droplet" size={16} color={colors.primary} />
+            <Text style={styles.lookLinkText}>{t('devisSettings.lookShortcut')}</Text>
+            <Feather name="chevron-right" size={16} color={colors.textMuted} />
+          </Pressable>
 
           <View style={styles.sectionHeader}>
             <View style={styles.sectionIcon}>
@@ -154,6 +161,8 @@ export default function DevisSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  lookLink: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, marginBottom: spacing.md },
+  lookLinkText: { flex: 1, fontSize: fontSize.sm, color: colors.text, lineHeight: 19 },
   intro: {
     fontSize: fontSize.xs,
     color: colors.textMuted,

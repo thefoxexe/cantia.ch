@@ -15,6 +15,8 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 //            next day.
 //   test     (Super Admin, id): sends one draft to the admin only, to see
 //            it as the company will.
+//   rewrite  (Super Admin, id, lang): the draft written again in French,
+//            German or Italian, same code.
 //
 // The text never congratulates nor speaks of a new company: if the site
 // found belongs to another company with the same name, the e-mail still
@@ -61,6 +63,20 @@ const SELECT = 'id, name, legal_form, canton, language, town, purpose, trades, e
 
 function langOf(c: Pick<Company, 'language'>): Lang {
   return c.language === 'de' || c.language === 'it' ? c.language : 'fr';
+}
+
+// The language the company itself writes in, read from the purpose it
+// registered (« Zweck der Gesellschaft ist… » is German even when the
+// publication was in French). Null when the text says too little.
+function detectLang(purpose: string | null): Lang | null {
+  const t = ` ${(purpose ?? '').toLowerCase()} `;
+  const count = (re: RegExp) => (t.match(re) ?? []).length;
+  const de = count(/\s(der|die|das|und|mit|von|für|sowie|zweck|gesellschaft|betrieb|einer|eines)\s/g);
+  const it = count(/\s(il|della|delle|dello|di|e|per|società|scopo|gestione|esercizio|nonché)\s/g);
+  const fr = count(/\s(le|les|des|et|du|une|pour|société|exploitation|ainsi|notamment)\s/g);
+  const best = Math.max(de, it, fr);
+  if (best < 2) return null;
+  return best === de ? 'de' : best === it ? 'it' : 'fr';
 }
 
 // Start of today in Zurich, as an ISO instant.
@@ -273,18 +289,20 @@ async function newCode(admin: SupabaseClient, c: Company): Promise<string | null
   return null;
 }
 
-// Writes (or writes again) the e-mail of one company and keeps it as a draft.
-async function draftFor(admin: SupabaseClient, c: Company): Promise<Company | null> {
+// Writes (or writes again) the e-mail of one company and keeps it as a
+// draft, in the language asked by the admin, else the one of its purpose.
+async function draftFor(admin: SupabaseClient, c: Company, forceLang?: Lang): Promise<Company | null> {
   const code = c.outreach_code ?? (await newCode(admin, c));
   if (!code) return null;
-  const draft = await writeDraft(c, code);
+  const language = forceLang ?? detectLang(c.purpose) ?? langOf(c);
+  const draft = await writeDraft({ ...c, language }, code);
   const now = new Date().toISOString();
   const { error } = await admin
     .from('registry_companies')
-    .update({ outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now, outreach_error: null, updated_at: now })
+    .update({ language, outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now, outreach_error: null, updated_at: now })
     .eq('id', c.id);
   if (error) return null;
-  return { ...c, outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now };
+  return { ...c, language, outreach_status: 'draft', outreach_subject: draft.subject, outreach_body: draft.body, outreach_code: code, outreach_prepared_at: now };
 }
 
 const SURE = ['confirmed', 'manual'];
@@ -448,6 +466,13 @@ Deno.serve(async (req: Request) => {
       return json(await sendDrafts(admin, ids));
     }
     if (body.action === 'test' && typeof body.id === 'string') return json(await sendTest(admin, body.id));
+    // « Traduire » : the draft written again in another language, same code.
+    if (body.action === 'rewrite' && typeof body.id === 'string' && (body.lang === 'fr' || body.lang === 'de' || body.lang === 'it')) {
+      const { data } = await admin.from('registry_companies').select(SELECT).eq('id', body.id).in('outreach_status', ['draft', 'failed']).maybeSingle();
+      if (!data) return json({ error: 'brouillon introuvable' }, 404);
+      const done = await draftFor(admin, data as Company, body.lang);
+      return json(done ? { ok: true, subject: done.outreach_subject, body: done.outreach_body, language: done.language } : { error: 'réécriture impossible' });
+    }
     if (body.action === 'prepare_now') return json(await prepare(admin));
     return json({ error: 'action inconnue' }, 400);
   } catch (err) {

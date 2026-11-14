@@ -106,6 +106,10 @@
     <priority>0.4</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/nouvelle-entreprise</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/plans/essentiel</loc>
     <lastmod>2026-09-11</lastmod>
     <priority>0.4</priority>
@@ -1081,6 +1085,10 @@
     <priority>0.4</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/nouvelle-entreprise</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/plans/essentiel</loc>
     <lastmod>2026-09-11</lastmod>
     <priority>0.4</priority>
@@ -1532,7 +1540,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/mwst-abrechnung-fristen-schweiz</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1577,7 +1585,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/lohnausweis-erstellen-erster-mitarbeiter</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1757,7 +1765,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/mwst-effektive-methode-oder-saldosteuersatz</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1838,6 +1846,10 @@
   <url>
     <loc>https://cantia.ch/it/sur-mesure</loc>
     <lastmod>2026-11-10</lastmod>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/it/nouvelle-entreprise</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2412,7 +2424,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/delai-declaration-tva-suisse-calendrier</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2462,7 +2474,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/etablir-certificat-salaire-lohnausweis-premier-employe</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2627,7 +2639,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/tva-methode-effective-ou-tdfn-batiment</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-13</lastmod>
     <priority>0.6</priority>
   </url>
   <url>

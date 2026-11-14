@@ -113,11 +113,18 @@ Deno.serve(async (req: Request) => {
     if (promoCodeNormalized && !useEssai30) {
       const { data: offer } = await admin
         .from('trial_offer_codes')
-        .select('code, trial_days, expires_at, organization_id, redeemed_at')
+        .select('*')
         .eq('code', promoCodeNormalized)
         .maybeSingle();
       const usable = offer && offer.expires_at && new Date(offer.expires_at).getTime() > Date.now() && !offer.redeemed_at;
-      if (usable && offer.organization_id === org.id) {
+      if (usable && offer.multi_use === true) {
+        // The public code of cantia.ch/nouvelle-entreprise: any new account,
+        // only once per organization (not after a first trial).
+        if (org.trial_used !== true) {
+          offerCode = offer.code;
+          offerDays = offer.trial_days;
+        }
+      } else if (usable && offer.organization_id === org.id) {
         offerCode = offer.code;
         offerDays = offer.trial_days;
       } else if (usable && !offer.organization_id) {

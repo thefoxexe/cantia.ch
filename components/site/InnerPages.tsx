@@ -19,6 +19,7 @@ import { useTranslation } from '../../lib/translations';
 import { SurMesureContactForm } from '../SurMesureContactForm';
 import { ContactForm } from '../ContactForm';
 import { HeroDevices } from './HeroDevices';
+import { NEW_COMPANY_CODE, NEW_COMPANY_COPY } from '../../lib/site/newCompany';
 
 type IconName = React.ComponentProps<typeof Feather>['name'];
 const HOME = { fr: 'Accueil', de: 'Startseite', it: 'Home' } as const;
@@ -208,6 +209,77 @@ export function SurMesurePage() {
       </Section>
 
       <Section>
+        <Faq eyebrow={L.faqEyebrow} title={L.faqTitle} items={c.faq} />
+      </Section>
+    </SitePage>
+  );
+}
+
+// ─── Nouvelle entreprise ─────────────────────────────────────────────────────
+
+// cantia.ch/nouvelle-entreprise: 3 months of trial for companies that have
+// just been registered, with the code NOUVELLE (lib/site/newCompany.ts).
+export function NewCompanyPage() {
+  const locale = useSiteLocale();
+  const c = NEW_COMPANY_COPY[locale];
+  const L = SITE_PAGES[locale].labels;
+  const p = usePrefix();
+  const { phone } = useSiteLayout();
+  const signup = authHref('signup', { offer: NEW_COMPANY_CODE });
+
+  return (
+    <SitePage title={c.seoTitle} description={c.seoDescription}>
+      <PageHero
+        crumb={c.crumb}
+        eyebrow={c.eyebrow}
+        plain={c.h1Plain}
+        accent={c.h1Accent}
+        lead={c.lead}
+        visual={
+          <View style={[styles.visual, { padding: phone ? 22 : 30 }]}>
+            <View style={[styles.paperCard, paperShadow]}>
+              <Text style={[sans, styles.paperTop]}>{c.paper.tag}</Text>
+              <Text style={[sans, styles.paperTitle]}>{c.paper.title}</Text>
+              <Text style={[sans, styles.paperSub]}>{c.paper.sub}</Text>
+              {c.paper.lines.map((l) => (
+                <View key={l} style={styles.paperLine}>
+                  <Feather name="check" size={12} color={site.copper} />
+                  <Text style={[sans, { fontSize: 11, color: site.ink }]}>{l}</Text>
+                </View>
+              ))}
+              <Text style={[sans, styles.paperCaption]}>{c.paper.caption}</Text>
+            </View>
+          </View>
+        }
+      >
+        <Actions>
+          <View>
+            <Btn label={c.cta} href={signup} small={phone} />
+          </View>
+          <View>
+            <TextLink label={c.pricing} href={`${p}/tarifs`} size={phone ? 11 : 12} />
+          </View>
+        </Actions>
+      </PageHero>
+
+      <Section white>
+        <SectionHead eyebrow={c.cardsEyebrow} plain={c.cardsPlain} accent={c.cardsAccent} />
+        <Grid>
+          {c.cards.map((k, i) => (
+            <Card key={k.title} icon={(['file-text', 'clock', 'percent'] as IconName[])[i]} title={k.title} text={k.text} />
+          ))}
+        </Grid>
+      </Section>
+
+      <Section>
+        <SectionHead eyebrow={c.stepsEyebrow} plain={c.stepsTitle} />
+        <Steps items={c.steps} />
+        <View style={{ marginTop: 28, alignSelf: 'flex-start' }}>
+          <Btn label={c.cta} href={signup} small={phone} />
+        </View>
+      </Section>
+
+      <Section white>
         <Faq eyebrow={L.faqEyebrow} title={L.faqTitle} items={c.faq} />
       </Section>
     </SitePage>

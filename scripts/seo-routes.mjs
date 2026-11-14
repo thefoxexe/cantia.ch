@@ -465,6 +465,18 @@ export const ROUTES = [
     ],
   },
   {
+    path: "nouvelle-entreprise",
+    title: "Nouvelle entreprise : Cantia offert 3 mois | Cantia",
+    description:
+      "Entreprise inscrite au registre du commerce depuis peu ? Devis, factures QR, heures, salaires et TVA : 3 mois d’essai au lieu de 14 jours avec le code NOUVELLE.",
+    faq: [
+      { q: "Qui peut profiter des 3 mois offerts ?", a: "Les entreprises inscrites au registre du commerce depuis moins de 12 mois, raisons individuelles comprises. L’offre vaut pour un nouveau compte Cantia." },
+      { q: "Faut-il une carte bancaire ?", a: "Oui, comme pour l’essai habituel. Rien n’est débité pendant les 3 mois et l’abonnement peut être arrêté en un clic avant la fin." },
+      { q: "Que se passe-t-il après les 3 mois ?", a: "L’abonnement du plan choisi commence au prix affiché sur la page des tarifs, sans engagement. Vous pouvez changer de plan ou arrêter à tout moment." },
+      { q: "Mon entreprise n’est pas encore inscrite au registre, puis-je commencer ?", a: "Oui. Vous pouvez créer votre compte et préparer vos premiers documents ; l’offre vaut pour les entreprises qui démarrent leur activité." },
+    ],
+  },
+  {
     path: 'plans/essentiel',
     title: 'Plan Essentiel : devis & factures illimités | Cantia',
     description:
@@ -3528,6 +3540,18 @@ export const ROUTES = [
     ],
   },
   {
+    path: "de/nouvelle-entreprise",
+    title: "Neues Unternehmen: Cantia 3 Monate geschenkt | Cantia",
+    description:
+      "Unternehmen neu im Handelsregister? Offerten, QR-Rechnungen, Stunden, Löhne und MWST: 3 Monate Testphase statt 14 Tage mit dem Code NOUVELLE.",
+    faq: [
+      { q: "Wer erhält die 3 Monate geschenkt?", a: "Unternehmen, die seit weniger als 12 Monaten im Handelsregister eingetragen sind, Einzelunternehmen eingeschlossen. Das Angebot gilt für ein neues Cantia-Konto." },
+      { q: "Braucht es eine Kreditkarte?", a: "Ja, wie bei der üblichen Testphase. In den 3 Monaten wird nichts belastet, und das Abonnement kann vorher mit einem Klick beendet werden." },
+      { q: "Was passiert nach den 3 Monaten?", a: "Das Abonnement des gewählten Plans beginnt zum Preis der Tarifseite, ohne Mindestlaufzeit. Sie können jederzeit wechseln oder kündigen." },
+      { q: "Mein Unternehmen ist noch nicht eingetragen, kann ich trotzdem starten?", a: "Ja. Sie können Ihr Konto erstellen und die ersten Dokumente vorbereiten; das Angebot gilt für Unternehmen, die ihre Tätigkeit aufnehmen." },
+    ],
+  },
+  {
     path: 'de/plans/essentiel',
     title: 'Plan Essentiel: unbegrenzte Offerten & Rechnungen | Cantia',
     description:
@@ -3861,6 +3885,18 @@ export const ROUTES = [
       { q: "Il modulo è visibile alle altre aziende?", a: "No. Lo sviluppo privato è riservato alla vostra organizzazione e ai collaboratori autorizzati." },
       { q: "Quanto costa uno sviluppo?", a: "Il costo dipende dal perimetro. Uno scambio permette di inquadrare la richiesta, poi viene proposto un preventivo prima di ogni impegno." },
       { q: "Un’integrazione è sempre possibile?", a: "Dipende in particolare dagli accessi e dai mezzi offerti dal software in questione. La fattibilità è studiata prima di confermare lo sviluppo." },
+    ],
+  },
+  {
+    path: "it/nouvelle-entreprise",
+    title: "Nuova impresa: Cantia offerto per 3 mesi | Cantia",
+    description:
+      "Impresa appena iscritta al registro di commercio? Preventivi, fatture QR, ore, salari e IVA: 3 mesi di prova invece di 14 giorni con il codice NOUVELLE.",
+    faq: [
+      { q: "Chi può approfittare dei 3 mesi offerti?", a: "Le imprese iscritte al registro di commercio da meno di 12 mesi, ditte individuali comprese. L’offerta vale per un nuovo conto Cantia." },
+      { q: "Serve una carta di credito?", a: "Sì, come per la prova abituale. Nei 3 mesi non viene addebitato nulla e l’abbonamento può essere fermato prima con un clic." },
+      { q: "Cosa succede dopo i 3 mesi?", a: "L’abbonamento del piano scelto inizia al prezzo della pagina tariffe, senza impegno. Potete cambiare piano o disdire in qualsiasi momento." },
+      { q: "La mia impresa non è ancora iscritta, posso iniziare?", a: "Sì. Potete creare il conto e preparare i primi documenti; l’offerta vale per le imprese che avviano la loro attività." },
     ],
   },
   {

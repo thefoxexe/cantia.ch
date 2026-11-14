@@ -31,6 +31,10 @@ export default function SignupScreen() {
   // The plan picked on cantia.ch ("Essayer Équipe") waits for the plan screen.
   useEffect(() => {
     savePlanIntent(params);
+    // A welcome code's link was opened: counted for Super Admin (trial_offer_codes.visits).
+    if (typeof params.offer === 'string' && /^[A-Za-z0-9-]{4,40}$/.test(params.offer)) {
+      supabase.rpc('trial_offer_visit', { p_code: params.offer }).then(() => undefined);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.plan, params.billing, params.code, params.offer]);
   const [invitedBy, setInvitedBy] = useState<string | null>(null);

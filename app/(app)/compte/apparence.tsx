@@ -9,6 +9,7 @@ import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo, normalizeImageOrientation } from '../../../lib/imageAsset';
 import { suggestBrandColorFromImage } from '../../../lib/colorFromImage';
 import { BrandColorPicker } from '../../../components/BrandColorPicker';
+import { HueColorPicker } from '../../../components/HueColorPicker';
 import { DocumentModelThumb, type DocumentModelId } from '../../../components/DocumentModelThumb';
 import { Button, Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { showSavedCheckmark } from '../../../components/SaveConfirmation';
@@ -24,7 +25,6 @@ import { documentOptionsReady } from '../../../lib/documentOptions';
 import { Platform } from 'react-native';
 
 const DEFAULT_ACCENT = '#C9A46A';
-const ACCENT_PRESETS = ['#C9A46A', '#D8B98A', '#E0B23C', '#E07A3F', '#A65D36', '#C0392B', '#5B8DB8', '#7A9E7E', '#9AA0A6', '#2B2D31'];
 // base_layout ids already allowed by the database: moderne = Angle,
 // structure = Prestige, minimal = Épuré.
 const MODELS: { id: DocumentModelId; key: 'classic' | 'angle' | 'prestige' | 'epure' }[] = [
@@ -309,25 +309,9 @@ export default function ApparenceScreen() {
                 <View style={{ marginTop: spacing.lg }}>
                   <Text style={styles.accentLabel}>{t('apparence.accentLabel')}</Text>
                   <Text style={styles.modelHint}>{t('apparence.accentHint')}</Text>
-                  <View style={styles.swatchRow}>
-                    {ACCENT_PRESETS.map((c) => (
-                      <Pressable
-                        key={c}
-                        disabled={!isAdmin}
-                        onPress={() => withDirty(setAccentColor)(c)}
-                        style={[styles.swatch, { backgroundColor: c }, accentColor.toLowerCase() === c.toLowerCase() && styles.swatchSelected]}
-                        accessibilityLabel={c}
-                      />
-                    ))}
+                  <View style={{ marginTop: spacing.sm }}>
+                    <HueColorPicker value={accentColor} onChange={withDirty(setAccentColor)} disabled={!isAdmin} />
                   </View>
-                  <Field
-                    label={t('apparence.accentHex')}
-                    value={accentColor}
-                    onChangeText={withDirty(setAccentColor)}
-                    editable={isAdmin}
-                    autoCapitalize="none"
-                    placeholder={DEFAULT_ACCENT}
-                  />
                 </View>
               ) : null}
             </SettingsSection>

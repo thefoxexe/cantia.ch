@@ -5,6 +5,8 @@ import { Feather } from '@expo/vector-icons';
 import { colors, spacing } from '../lib/theme';
 import { getAppLocale, i18next, useTranslation } from '../lib/translations';
 import { getSignedUrl } from '../lib/api/storage';
+import { supabase } from '../lib/supabase';
+import type { DocumentModelId } from './DocumentModelThumb';
 import type { Organization } from '../lib/types';
 import { formatChf as fmtChf } from '../lib/tenders/numbers';
 
@@ -100,9 +102,42 @@ function readableTextColor(hex: string): string {
   return luminance > 0.5 ? INK : '#fff';
 }
 
+// The model chosen in Compte › Apparence (pdf_templates, kind 'devis',
+// shared by devis and factures), so the preview looks like the PDF that
+// will be generated: Classique, Angle, Prestige or Épuré.
+const modelCache = new Map<string, DocumentModelId>();
+function useDocumentModel(orgId: string | undefined): DocumentModelId {
+  const [model, setModel] = useState<DocumentModelId>(() => (orgId && modelCache.get(orgId)) || 'classic');
+  useEffect(() => {
+    if (!orgId) return;
+    let cancelled = false;
+    supabase
+      .from('pdf_templates')
+      .select('base_layout')
+      .eq('organization_id', orgId)
+      .eq('kind', 'devis')
+      .eq('is_default', true)
+      .maybeSingle()
+      .then(({ data }) => {
+        const m = data?.base_layout;
+        if (cancelled || !(m === 'classic' || m === 'moderne' || m === 'structure' || m === 'minimal')) return;
+        modelCache.set(orgId, m);
+        setModel(m);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [orgId]);
+  return model;
+}
+
+const SERIF = 'Georgia, "Times New Roman", serif';
+
 export function DocumentPreview({ kind, organization, clientName, clientAddress, clientEmail, clientReference, projectName, lines, discountPercent, remark, vatRate: vatRateProp }: Props) {
   const { t } = useTranslation();
   const brandColor = safeHex(organization?.brand_color);
+  const accentColor = HEX_RE.test(organization?.brand_accent_color ?? '') ? (organization!.brand_accent_color as string) : '#C9A46A';
+  const model = useDocumentModel(organization?.id);
   const vatRate = vatRateProp ?? documentVatRate(organization);
   const docLabel = kind === 'devis' ? t('documentPreview.docLabelDevis') : t('documentPreview.docLabelFacture');
   const { tableRows, subtotal, vat, total } = computeDocumentTotals(lines, discountPercent, vatRate);
@@ -124,9 +159,10 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
       cancelled = true;
     };
   }, [organization?.logo_url]);
-  const logoPlacement = organization?.logo_placement ?? 'right';
-  const headerDirection = logoPlacement === 'left' ? 'row' : logoPlacement === 'center' ? 'column' : 'row-reverse';
-  const centerHeader = logoPlacement === 'center';
+  // Prestige centres the letterhead, Angle puts the logo above the name.
+  const logoPlacement = model === 'structure' ? 'center' : model === 'moderne' ? 'left' : organization?.logo_placement ?? 'right';
+  const headerDirection = model === 'moderne' ? 'column' : logoPlacement === 'left' ? 'row' : logoPlacement === 'center' ? 'column' : 'row-reverse';
+  const centerHeader = logoPlacement === 'center' && model !== 'moderne';
 
   const orgAddressParts = [
     organization?.street || organization?.address,
@@ -167,6 +203,23 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
   const refBoxBg = tint(brandColor, 0.93);
   const zebraBg = tint(brandColor, 0.96);
   const totalBoxBg = tint(brandColor, 0.9);
+  // Table head and total of each model (same shapes as pdf-document-renderers.ts).
+  const tableHeadStyle =
+    model === 'classic'
+      ? { backgroundColor: brandColor }
+      : model === 'minimal'
+        ? { borderTopWidth: 0.6, borderBottomWidth: 0.6, borderColor: INK }
+        : { borderBottomWidth: model === 'moderne' ? 1 : 0.8, borderBottomColor: brandColor };
+  const thColor = model === 'classic' ? headTextColor : model === 'moderne' ? brandColor : model === 'structure' ? INK : MUTED;
+  const totalBoxStyle =
+    model === 'classic'
+      ? { backgroundColor: totalBoxBg, borderColor: brandColor }
+      : model === 'moderne'
+        ? { backgroundColor: brandColor, borderColor: brandColor, transform: [{ skewX: '-12deg' }] }
+        : model === 'structure'
+          ? { borderWidth: 0, paddingHorizontal: 0 }
+          : { borderWidth: 0, borderTopWidth: 1, borderTopColor: brandColor, borderRadius: 0, paddingHorizontal: 0 };
+  const totalTextColor = model === 'moderne' ? headTextColor : brandColor;
 
   return (
     <View style={styles.wrap}>
@@ -175,6 +228,13 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
       </View>
 
       <View style={styles.page}>
+        {model === 'moderne' ? (
+          <>
+            <View style={[styles.corner, { borderTopWidth: 70, borderLeftWidth: 70, borderTopColor: brandColor }]} />
+            <View style={[styles.corner, { borderTopWidth: 46, borderLeftWidth: 46, borderTopColor: accentColor }]} />
+          </>
+        ) : null}
+        {model === 'minimal' ? <View style={[styles.topBar, { backgroundColor: brandColor }]} /> : null}
         <View style={[styles.headerRow, { flexDirection: headerDirection }, centerHeader && styles.headerRowCenter]}>
           {logoUri ? <Image source={{ uri: logoUri }} style={[styles.logo, centerHeader && styles.logoCenter]} resizeMode="contain" /> : null}
           <View style={centerHeader ? styles.headerTextCenter : styles.headerText}>
@@ -183,17 +243,54 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
             {contactLine ? <Text style={[styles.meta, centerHeader && styles.textCenter]}>{contactLine}</Text> : null}
           </View>
         </View>
-        <View style={styles.rule} />
+        {model === 'structure' ? (
+          <View style={{ marginTop: 10, marginBottom: 14, gap: 1.5 }}>
+            <View style={{ height: 1, backgroundColor: brandColor }} />
+            <View style={{ height: 0.6, backgroundColor: accentColor }} />
+          </View>
+        ) : model === 'classic' ? (
+          <View style={styles.rule} />
+        ) : (
+          <View style={{ height: 14 }} />
+        )}
 
-        <Text style={[styles.docTitle, { color: brandColor }]}>{docLabel.toUpperCase()}</Text>
+        {model === 'classic' ? (
+          <Text style={[styles.docTitle, { color: brandColor }]}>{docLabel.toUpperCase()}</Text>
+        ) : model === 'moderne' ? (
+          <View>
+            <Text style={[styles.docTitle, { color: brandColor, fontWeight: '300', letterSpacing: 3 }]}>{docLabel.toUpperCase()}</Text>
+            <View style={{ width: 22, height: 2.5, marginTop: 3, backgroundColor: brandColor, transform: [{ skewX: '-30deg' }] }} />
+          </View>
+        ) : model === 'structure' ? (
+          <Text style={[styles.docTitle, { color: INK, fontWeight: '400', fontFamily: SERIF }]}>{docLabel}</Text>
+        ) : (
+          <Text style={[styles.docTitle, { color: INK, fontWeight: '300', fontSize: 16 }]}>{docLabel}</Text>
+        )}
 
-        <View style={[styles.refBox, { backgroundColor: refBoxBg, borderLeftColor: brandColor }]}>
-          {boxRows.map((row, i) => (
-            <Text key={i} style={styles.refBoxLine}>
-              {row}
-            </Text>
-          ))}
-        </View>
+        {model === 'classic' ? (
+          <View style={[styles.refBox, { backgroundColor: refBoxBg, borderLeftColor: brandColor }]}>
+            {boxRows.map((row, i) => (
+              <Text key={i} style={styles.refBoxLine}>
+                {row}
+              </Text>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.refCells}>
+            {boxRows.map((row, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.refCell,
+                  model === 'moderne' && { borderTopWidth: 0.8, borderTopColor: brandColor, paddingTop: 3 },
+                  model === 'structure' && i > 0 && { borderLeftWidth: 0.6, borderLeftColor: accentColor, paddingLeft: 6 },
+                ]}
+              >
+                <Text style={styles.refBoxLine}>{row}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         <Text style={styles.label}>{t('documentPreview.clientLabel')}</Text>
         {clientLines.map((line, i) => (
@@ -202,18 +299,18 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
           </Text>
         ))}
 
-        <View style={[styles.tableHeadRow, { backgroundColor: brandColor }]}>
-          <Text style={[styles.th, styles.colDesc, { color: headTextColor }]}>{t('documentPreview.colDescription')}</Text>
-          <Text style={[styles.th, styles.colQty, { color: headTextColor }]}>{t('documentPreview.colQty')}</Text>
-          <Text style={[styles.th, styles.colUnit, { color: headTextColor }]}>{t('documentPreview.colUnit')}</Text>
-          <Text style={[styles.th, styles.colPrice, { color: headTextColor }]}>{t('documentPreview.colPrice')}</Text>
-          <Text style={[styles.th, styles.colTotal, { color: headTextColor }]}>{t('documentPreview.colTotal')}</Text>
+        <View style={[styles.tableHeadRow, tableHeadStyle]}>
+          <Text style={[styles.th, styles.colDesc, { color: thColor }]}>{t('documentPreview.colDescription')}</Text>
+          <Text style={[styles.th, styles.colQty, { color: thColor }]}>{t('documentPreview.colQty')}</Text>
+          <Text style={[styles.th, styles.colUnit, { color: thColor }]}>{t('documentPreview.colUnit')}</Text>
+          <Text style={[styles.th, styles.colPrice, { color: thColor }]}>{t('documentPreview.colPrice')}</Text>
+          <Text style={[styles.th, styles.colTotal, { color: thColor }]}>{t('documentPreview.colTotal')}</Text>
         </View>
         {tableRows.length === 0 ? (
           <Text style={styles.emptyHint}>{t('documentPreview.emptyLinesHint')}</Text>
         ) : (
           tableRows.map((l, i) => (
-            <View key={i} style={[styles.tableRow, i % 2 === 1 && { backgroundColor: zebraBg }]}>
+            <View key={i} style={[styles.tableRow, model === 'classic' && i % 2 === 1 && { backgroundColor: zebraBg }]}>
               <Text style={[styles.td, styles.colDesc]} numberOfLines={2}>
                 {l.description}
               </Text>
@@ -236,9 +333,15 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
               <Text style={styles.body}>CHF {fmtChf(vat)}</Text>
             </View>
           ) : null}
-          <View style={[styles.grandTotalBox, { backgroundColor: totalBoxBg, borderColor: brandColor }]}>
-            <Text style={[styles.grandTotalLabel, { color: brandColor }]}>{vatRate > 0 ? t('documentPreview.grandTotal') : t('documentPreview.total')}</Text>
-            <Text style={[styles.grandTotalValue, { color: brandColor }]}>CHF {fmtChf(total)}</Text>
+          {model === 'structure' ? (
+            <View style={{ marginTop: 4, gap: 1.5 }}>
+              <View style={{ height: 1, backgroundColor: brandColor }} />
+              <View style={{ height: 0.6, backgroundColor: accentColor }} />
+            </View>
+          ) : null}
+          <View style={[styles.grandTotalBox, totalBoxStyle]}>
+            <Text style={[styles.grandTotalLabel, { color: totalTextColor }]}>{vatRate > 0 ? t('documentPreview.grandTotal') : t('documentPreview.total')}</Text>
+            <Text style={[styles.grandTotalValue, { color: totalTextColor }, model === 'structure' && { fontFamily: SERIF, fontWeight: '400', fontSize: 11 }]}>CHF {fmtChf(total)}</Text>
           </View>
         </View>
 
@@ -266,6 +369,8 @@ export function DocumentPreview({ kind, organization, clientName, clientAddress,
 
         {showQrNote ? <Text style={styles.qrNote}>{t('documentPreview.qrNote')}</Text> : null}
 
+        {model === 'structure' ? <View style={[styles.footerRule, { backgroundColor: accentColor }]} /> : null}
+        {model === 'moderne' ? <View style={[styles.cornerBottom, { borderBottomColor: brandColor }]} /> : null}
         <View style={styles.footerRow}>
           <Text style={styles.footerText} numberOfLines={1}>
             {footerText}
@@ -390,6 +495,46 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 2,
     alignSelf: 'flex-start',
+  },
+  refCells: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  refCell: {
+    flex: 1,
+  },
+  corner: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+    borderLeftColor: 'transparent',
+  },
+  cornerBottom: {
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    borderBottomWidth: 18,
+    borderRightWidth: 18,
+    borderRightColor: 'transparent',
+  },
+  topBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 3,
+  },
+  footerRule: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    bottom: 22,
+    height: 0.6,
   },
   refBoxLine: {
     fontSize: 8,
