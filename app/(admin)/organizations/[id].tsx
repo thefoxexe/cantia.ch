@@ -188,7 +188,7 @@ export default function AdminOrganizationDetailScreen() {
     if (error) {
       setFeedback(`Erreur : ${error}`);
     } else {
-      setFeedback(next ? `✓ ${moduleName} activé pour ${detail?.organization.name}` : `${moduleName} désactivé pour ${detail?.organization.name}`);
+      setFeedback(next ? `${moduleName} assigné à ${detail?.organization.name}, actif tout de suite.` : `${moduleName} retiré à ${detail?.organization.name}.`);
       await load();
     }
     setTimeout(() => setFeedback(null), 4000);

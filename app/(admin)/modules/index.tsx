@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { Container, EmptyState, LoadingScreen } from '../../../components/ui';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
@@ -16,10 +18,11 @@ const STATUS_LABEL: Record<string, string> = { active: 'Actif', beta: 'Beta', di
 // self-service "create" button here. A private module is built by Claude
 // during a real dev session (the code + the admin_upsert_module registry
 // entry together, in the same commit); this screen only lists what already
-// exists and lets you grant it to a company (from its detail page). Once
-// granted, the company's own admin switches it on themselves in their
-// Compte → Outils & modules.
+// exists. A module opens on the companies it is assigned to
+// (modules/[key].tsx), where it is assigned or removed; the same switch sits
+// on each company's page. Assigning switches it on at once.
 export default function AdminModulesList() {
+  const router = useRouter();
   const [modules, setModules] = useState<AdminModuleSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +52,8 @@ export default function AdminModulesList() {
         </View>
         <Text style={styles.hint}>
           Le registre des modules sur mesure développés pour des entreprises précises. Pour en créer un, demande-le
-          directement dans la conversation : le module et son entrée ici sont livrés ensemble.
+          directement dans la conversation : le module et son entrée ici sont livrés ensemble. Clique sur un module pour
+          l’assigner à des entreprises.
         </Text>
 
         <AdminBuiltInModules />
@@ -64,7 +68,7 @@ export default function AdminModulesList() {
         ) : (
           <View style={styles.list}>
             {modules.map((mod) => (
-              <View key={mod.id} style={styles.row}>
+              <Pressable key={mod.id} style={styles.row} onPress={() => router.push(`/(admin)/modules/${mod.key}` as any)}>
                 <View style={{ flexGrow: 1, flexBasis: 220, minWidth: 0 }}>
                   <View style={styles.rowTitleLine}>
                     <Text style={styles.rowTitle}>{mod.name}</Text>
@@ -81,7 +85,8 @@ export default function AdminModulesList() {
                 <Text style={styles.rowCount}>
                   {mod.organizations_count} entreprise{mod.organizations_count > 1 ? 's' : ''}
                 </Text>
-              </View>
+                <Feather name="chevron-right" size={16} color={colors.textMuted} />
+              </Pressable>
             ))}
           </View>
         )}

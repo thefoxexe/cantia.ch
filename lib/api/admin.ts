@@ -190,6 +190,22 @@ export async function setOrganizationModule(orgId: string, moduleKey: string, en
   return { error: logRpcError('admin_set_organization_module', error) };
 }
 
+// The companies a module is assigned to (Super Admin › Modules › a module).
+export interface AdminModuleOrganization {
+  organization_id: string;
+  name: string;
+  plan_id: string | null;
+  subscription_status: string | null;
+  activated: boolean;
+  assigned_at: string;
+}
+
+export async function listModuleOrganizations(moduleKey: string): Promise<{ rows: AdminModuleOrganization[]; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_module_organizations', { p_module_key: moduleKey });
+  const err = logRpcError('admin_module_organizations', error);
+  return { rows: err || !data ? [] : (data as AdminModuleOrganization[]), error: err };
+}
+
 // Retired products still present in the database until their rows are
 // deleted (Cantia Panorama: supabase/migrations/20261020100000_drop_panorama.sql,
 // disabled meanwhile). Never shown anywhere.
