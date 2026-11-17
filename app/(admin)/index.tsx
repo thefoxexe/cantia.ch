@@ -280,7 +280,7 @@ export default function AdminHome() {
             <KpiRow>
               <Kpi label="Clients payants" value={String(overview?.active_count ?? stats?.paid_subscriptions_count ?? 0)} icon="check-circle" tone="success" onPress={() => router.push('/(admin)/subscriptions' as any)} />
               <Kpi label="En essai" value={String(overview?.trialing_count ?? stats?.active_trials_count ?? 0)} icon="clock" sub={overview && overview.trialing_cancelling_count > 0 ? `dont ${overview.trialing_cancelling_count} déjà résilié${overview.trialing_cancelling_count > 1 ? 's' : ''}` : undefined} onPress={() => router.push('/(admin)/subscriptions' as any)} />
-              <Kpi label="Offerts" value={String(overview?.complimentary_count ?? stats?.complimentary_count ?? 0)} icon="gift" sub="Comptes gratuits à vie" />
+              <Kpi label="Offerts" value={String(stats?.complimentary_count ?? overview?.complimentary_count ?? 0)} icon="gift" sub="Comptes gratuits à vie" />
             </KpiRow>
             <KpiRow>
               <Kpi label="Inscriptions 7 j" value={String(signupsThisWeek)} icon="user-plus" tone="primary" onPress={() => router.push('/(admin)/organizations' as any)} />
