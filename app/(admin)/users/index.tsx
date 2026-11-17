@@ -8,6 +8,7 @@ import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listUsers } from '../../../lib/api/admin';
 import type { AdminUserSummary } from '../../../lib/types';
+import { AdminPage } from '../../../components/admin/kit';
 
 const PAGE_SIZE = 50;
 
@@ -70,14 +71,8 @@ export default function AdminUsersList() {
     // layout's flex:1/minHeight:0 content column doesn't reliably get a
     // constrained height on web, so it never gets a scrollable viewport —
     // the page just silently doesn't scroll once content overflows.
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <PageHeader
-          title={`Comptes ${total > 0 ? `(${total})` : ''}`}
-          backTo="/(admin)/organizations"
-          right={<AdminRefreshButton onPress={() => load(search)} loading={loading} />}
-        />
-        <View style={{ height: spacing.md }} />
+    <AdminPage back={{ href: '/(admin)/organizations', label: 'Entreprises' }} title="Personnes" subtitle={total > 0 ? `${total} comptes utilisateurs, toutes entreprises confondues.` : undefined} actions={<AdminRefreshButton onPress={() => load(search)} loading={loading} />}>
+        <View style={{ gap: spacing.lg }}>
         {!loading && rows.length > 0 ? (
           <View style={styles.miniGrid}>
             <MiniStat label="Actifs (7 derniers jours)" value={activeLast7d} icon="activity" accent={colors.success} />
@@ -110,8 +105,8 @@ export default function AdminUsersList() {
             ))}
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

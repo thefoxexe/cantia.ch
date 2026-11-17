@@ -10,6 +10,7 @@ import { deleteTutorialChapter, listTutorialChapters, upsertTutorialChapter } fr
 import { buildPublicVideoDescription } from '../../../lib/tutorialYoutubeDescription';
 import type { AdminTutorialChapter, TutorialChapterStatus } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 const STATUS_ORDER: TutorialChapterStatus[] = ['a_faire', 'tourne', 'monte', 'publie'];
 const STATUS_LABEL: Record<TutorialChapterStatus, string> = {
@@ -166,25 +167,16 @@ export default function AdminTutorialsScreen() {
     // layout's flex:1/minHeight:0 content column doesn't reliably get a
     // constrained height on web, so it never gets a scrollable viewport —
     // the page just silently doesn't scroll once content overflows.
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
-            <Text style={styles.title}>Tutoriels</Text>
-            <Text style={styles.hint}>
-              Plan de tournage : un chapitre par fonctionnalité, avec les points à montrer et le lien YouTube une fois publié.
-            </Text>
-          </View>
-          <View style={styles.headerActions}>
-            <Link href="/(admin)/tutoriels/miniatures" asChild>
-              <Pressable style={styles.thumbnailsLink}>
-                <Feather name="image" size={14} color={colors.primary} />
-                <Text style={styles.thumbnailsLinkText}>Miniatures & descriptions</Text>
-              </Pressable>
-            </Link>
-            <AdminRefreshButton onPress={load} loading={loading} />
-          </View>
-        </View>
+    <AdminPage eyebrow="Communication" title="Tutoriels" subtitle="Plan de tournage : un chapitre par fonction, avec les points à montrer et le lien YouTube une fois publié." actions={<>
+          <Link href="/(admin)/tutoriels/miniatures" asChild>
+            <Pressable style={styles.thumbnailsLink}>
+              <Feather name="image" size={14} color={colors.primary} />
+              <Text style={styles.thumbnailsLinkText}>Miniatures & descriptions</Text>
+            </Pressable>
+          </Link>
+          <AdminRefreshButton onPress={load} loading={loading} />
+        </>}>
+        <View style={{ gap: spacing.lg }}>
 
         {!loading && chapters.length > 0 ? (
           <View style={styles.progressCard}>
@@ -262,8 +254,8 @@ export default function AdminTutorialsScreen() {
             <Text style={styles.addButtonText}>Ajouter un chapitre</Text>
           </Pressable>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

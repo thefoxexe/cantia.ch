@@ -10,6 +10,7 @@ import { listModules } from '../../../lib/api/admin';
 import type { AdminModuleSummary } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { AdminBuiltInModules } from '../../../components/AdminBuiltInModules';
+import { AdminPage } from '../../../components/admin/kit';
 
 const VISIBILITY_LABEL: Record<string, string> = { standard: 'Standard', private: 'Privé', experimental: 'Beta' };
 const STATUS_LABEL: Record<string, string> = { active: 'Actif', beta: 'Beta', disabled: 'Désactivé' };
@@ -44,18 +45,13 @@ export default function AdminModulesList() {
     // layout's flex:1/minHeight:0 content column doesn't reliably get a
     // constrained height on web, so it never gets a scrollable viewport —
     // the page just silently doesn't scroll once content overflows.
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Modules</Text>
-          <AdminRefreshButton onPress={load} loading={loading} />
-        </View>
-        <Text style={styles.hint}>
-          Le registre des modules sur mesure développés pour des entreprises précises. Pour en créer un, demande-le
-          directement dans la conversation : le module et son entrée ici sont livrés ensemble. Clique sur un module pour
-          l’assigner à des entreprises.
-        </Text>
-
+    <AdminPage
+      eyebrow="Produit"
+      title="Modules"
+      subtitle="Ce que contient chaque plan, et les modules sur mesure : un clic sur un module permet de l’assigner à des entreprises. Un nouveau module se demande dans la conversation : son code et son entrée ici arrivent ensemble."
+      actions={<AdminRefreshButton onPress={load} loading={loading} />}
+    >
+        <View style={{ gap: spacing.lg }}>
         <AdminBuiltInModules />
 
         <Text style={styles.sectionTitle}>Modules sur mesure</Text>
@@ -90,8 +86,8 @@ export default function AdminModulesList() {
             ))}
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

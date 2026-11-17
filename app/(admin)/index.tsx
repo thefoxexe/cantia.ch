@@ -1,85 +1,195 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container } from '../../components/ui';
 import { AdminErrorBanner } from '../../components/AdminErrorBanner';
 import { AdminRefreshButton } from '../../components/AdminRefreshButton';
-import { GrowthChart } from '../../components/charts/LazyCharts';
-import { CashCollectedChart } from '../../components/charts/LazyCharts';
+import { GrowthChart, CashCollectedChart } from '../../components/charts/LazyCharts';
 import { TrialForecast } from '../../components/TrialForecast';
 import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { useAdminData } from '../../lib/adminDataContext';
 import type { AdminRevenueOverview } from '../../lib/types';
-import { adminDisplay as displayType } from '../../lib/adminTheme';
+import { adminDisplay } from '../../lib/adminTheme';
+import { listActivity, type ActivityEvent, type AdminAttention } from '../../lib/api/admin';
 import { partnersAdmin, type AdminOverview as PartnersOverview } from '../../lib/partners/api';
 import { accAdmin } from '../../lib/accounting/api';
+import { AdminCard, AdminEmpty, AdminPage, AdminSection, Kpi, KpiRow, formatChf, ink } from '../../components/admin/kit';
+import { KIND_BY_ID, NEGATIVE_ACTIONS, headline, subline } from '../../components/admin/activity';
 
-function formatChf(amount: number, decimals = 0): string {
-  return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: decimals }).format(amount);
+type IconName = keyof typeof Feather.glyphMap;
+
+// Super Admin › Accueil. Read from top to bottom: what waits for me, how the
+// business is doing, then the detail (trials, ecosystem, money over time).
+
+interface TodoItem {
+  key: string;
+  icon: IconName;
+  text: string;
+  hint?: string;
+  href: string;
+  // urgent: an action to take; info: good to know.
+  level: 'urgent' | 'info';
 }
 
-function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
+const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
+
+function todoItems(a: AdminAttention | null, overview: AdminRevenueOverview | null): TodoItem[] {
+  if (!a) return [];
+  const items: TodoItem[] = [];
+  const push = (n: number, item: Omit<TodoItem, 'text'> & { text: (n: number) => string }) => {
+    if (n > 0) items.push({ ...item, text: item.text(n) });
+  };
+  push(a.past_due, { key: 'past_due', icon: 'alert-octagon', level: 'urgent', href: '/(admin)/subscriptions', text: (n) => `${plural(n, 'paiement', 'paiements')} en retard`, hint: 'Le moyen de paiement a été refusé : à relancer.' });
+  push(a.outreach_failed, { key: 'outreach_failed', icon: 'x-circle', level: 'urgent', href: '/(admin)/registre?onglet=envois', text: (n) => `${plural(n, 'e-mail de bienvenue', 'e-mails de bienvenue')} pas parti${n > 1 ? 's' : ''}`, hint: 'Envoi refusé : à corriger ou renvoyer.' });
+  push(a.outreach_drafts, { key: 'outreach_drafts', icon: 'send', level: 'urgent', href: '/(admin)/registre?onglet=envois', text: (n) => `${plural(n, 'e-mail de bienvenue', 'e-mails de bienvenue')} à valider`, hint: 'Adresse pas certaine : à relire avant l’envoi.' });
+  push(a.trial_requests, { key: 'trial_requests', icon: 'gift', level: 'urgent', href: '/(admin)/registre?onglet=envois', text: (n) => `${plural(n, 'demande', 'demandes')} de 3 mois offerts`, hint: 'Formulaire de cantia.ch/nouvelle-entreprise : envoyer le code.' });
+  push(a.partner_payouts, { key: 'partner_payouts', icon: 'award', level: 'urgent', href: '/(admin)/partners', text: (n) => `${plural(n, 'virement', 'virements')} partenaire à faire` });
+  push(a.fiduciaries_suspicious, { key: 'fiduciaries', icon: 'shield', level: 'urgent', href: '/(admin)/fiduciaires', text: (n) => `${plural(n, 'fiduciaire', 'fiduciaires')} à vérifier` });
+  push(a.trials_ending_3d, { key: 'trials', icon: 'clock', level: 'info', href: '/(admin)/subscriptions', text: (n) => `${plural(n, 'essai se termine', 'essais se terminent')} dans les 3 jours`, hint: 'Un bon moment pour un appel.' });
+  push(overview?.scheduled_cancellations_count ?? 0, { key: 'cancel', icon: 'log-out', level: 'info', href: '/(admin)/subscriptions', text: (n) => `${plural(n, 'résiliation programmée', 'résiliations programmées')}`, hint: 'Encore actifs jusqu’à la fin de la période.' });
+  push(a.cancellation_reasons_7d, { key: 'reasons', icon: 'message-circle', level: 'info', href: '/(admin)/subscriptions', text: (n) => `${plural(n, 'motif de résiliation reçu', 'motifs de résiliation reçus')} cette semaine` });
+  push(a.signups_24h, { key: 'signups', icon: 'user-plus', level: 'info', href: '/(admin)/organizations', text: (n) => `${plural(n, 'nouvelle inscription', 'nouvelles inscriptions')} en 24 heures` });
+  push(a.incomplete_signups_7d, { key: 'incomplete', icon: 'user-x', level: 'info', href: '/(admin)/organizations', text: (n) => `${plural(n, 'inscription', 'inscriptions')} pas terminée${n > 1 ? 's' : ''} cette semaine`, hint: 'Compte créé, aucun plan choisi.' });
+  return items;
+}
+
+function TodoList({ items }: { items: TodoItem[] }) {
+  const router = useRouter();
+  if (items.length === 0) {
+    return (
+      <AdminCard>
+        <AdminEmpty icon="check" title="Rien à traiter" text="Pas de paiement en retard, pas d’e-mail à valider, pas de virement à faire." />
+      </AdminCard>
+    );
+  }
   return (
-    <View style={styles.sectionHeading}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {subtitle ? <Text style={styles.sectionSubtitle}>{subtitle}</Text> : null}
-    </View>
+    <AdminCard padded={false}>
+      {items.map((item, i) => (
+        <Pressable
+          key={item.key}
+          onPress={() => router.push(item.href as any)}
+          style={({ hovered }: any) => [styles.todo, i > 0 && styles.todoBorder, hovered && styles.todoHover]}
+        >
+          <View style={[styles.todoIcon, item.level === 'urgent' ? styles.todoIconUrgent : styles.todoIconInfo]}>
+            <Feather name={item.icon} size={15} color={item.level === 'urgent' ? colors.primary : colors.textMuted} />
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.todoText}>{item.text}</Text>
+            {item.hint ? <Text style={styles.todoHint}>{item.hint}</Text> : null}
+          </View>
+          <Feather name="chevron-right" size={16} color={colors.textMuted} />
+        </Pressable>
+      ))}
+    </AdminCard>
   );
 }
 
-// The one figure this whole platform exists to grow, promoted above
-// everything else on the page — a dark card, not another tile among tiles,
-// so it reads as the headline the instant the dashboard loads.
-function MrrHero({ overview, cancelPct }: { overview: AdminRevenueOverview; cancelPct: number | null }) {
-  const netUp = overview.net_mrr_this_month_chf >= 0;
-  // Light tints: the dark card needs them to stay readable.
-  const deltaColor = netUp ? '#8fdc9a' : '#f4a3a3';
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const min = Math.round(diff / 60000);
+  if (min < 1) return 'à l’instant';
+  if (min < 60) return `il y a ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const d = Math.round(h / 24);
+  if (d === 1) return 'hier';
+  if (d < 7) return `il y a ${d} jours`;
+  return new Date(iso).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' });
+}
+
+function RecentActivity() {
+  const router = useRouter();
+  const [rows, setRows] = useState<ActivityEvent[] | null>(null);
+  useEffect(() => {
+    listActivity({ limit: 7 }).then(({ rows: r }) => setRows(r));
+  }, []);
   return (
-    <View style={styles.hero}>
-      <Text style={styles.heroLabel}>Revenu récurrent mensuel (MRR)</Text>
-      <Text style={styles.heroValue}>{formatChf(overview.mrr_active_chf)}</Text>
-      <View style={styles.heroMetaRow}>
-        <View style={[styles.heroDelta, netUp ? styles.heroDeltaUp : styles.heroDeltaDown]}>
-          <Feather name={netUp ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={deltaColor} />
-          <Text style={[styles.heroDeltaText, { color: deltaColor }]}>
-            {netUp ? '+' : '−'}
+    <AdminCard padded={false}>
+      {rows === null ? (
+        <Text style={styles.loadingText}>Chargement…</Text>
+      ) : rows.length === 0 ? (
+        <AdminEmpty icon="activity" title="Pas encore d’activité" />
+      ) : (
+        rows.map((e, i) => {
+          const kind = KIND_BY_ID[e.kind];
+          const bad = NEGATIVE_ACTIONS.has(e.action) || e.kind === 'sync_error';
+          const sub = subline(e);
+          return (
+            <Pressable
+              key={`${e.at}-${i}`}
+              onPress={() => (e.organization_id ? router.push(`/(admin)/organizations/${e.organization_id}` as any) : router.push('/(admin)/logs' as any))}
+              style={({ hovered }: any) => [styles.event, i > 0 && styles.todoBorder, hovered && styles.todoHover]}
+            >
+              <View style={[styles.eventIcon, { backgroundColor: bad ? colors.dangerSoft : kind?.soft ?? colors.surfaceAlt }]}>
+                <Feather name={kind?.icon ?? 'circle'} size={13} color={bad ? colors.danger : kind?.color ?? colors.textMuted} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.eventTitle} numberOfLines={1}>
+                  {headline(e)}
+                </Text>
+                {sub ? (
+                  <Text style={styles.eventSub} numberOfLines={1}>
+                    {sub}
+                  </Text>
+                ) : null}
+              </View>
+              <Text style={styles.eventTime}>{relativeTime(e.at)}</Text>
+            </Pressable>
+          );
+        })
+      )}
+      <Pressable onPress={() => router.replace('/(admin)/logs' as any)} style={({ hovered }: any) => [styles.cardFootLink, hovered && styles.todoHover]}>
+        <Text style={styles.cardFootText}>Tout le journal</Text>
+        <Feather name="arrow-right" size={13} color={colors.primary} />
+      </Pressable>
+    </AdminCard>
+  );
+}
+
+// The one figure this business exists to grow, on the side menu's ink.
+function MrrCard({ overview, cancelPct }: { overview: AdminRevenueOverview; cancelPct: number | null }) {
+  const up = overview.net_mrr_this_month_chf >= 0;
+  return (
+    <View style={styles.mrr}>
+      <Text style={styles.mrrLabel}>Revenu récurrent mensuel</Text>
+      <Text style={styles.mrrValue} adjustsFontSizeToFit numberOfLines={1}>
+        {formatChf(overview.mrr_active_chf)}
+      </Text>
+      <View style={styles.mrrMeta}>
+        <View style={[styles.mrrChip, { backgroundColor: up ? 'rgba(143,220,154,0.14)' : 'rgba(244,163,163,0.14)' }]}>
+          <Feather name={up ? 'arrow-up-right' : 'arrow-down-right'} size={12} color={up ? '#9fdca8' : '#f4a3a3'} />
+          <Text style={[styles.mrrChipText, { color: up ? '#9fdca8' : '#f4a3a3' }]}>
+            {up ? '+' : '−'}
             {formatChf(Math.abs(overview.net_mrr_this_month_chf))} ce mois
           </Text>
         </View>
-        <Text style={styles.heroSub}>
-          ARR {formatChf(overview.arr_chf)} · {overview.active_count} client{overview.active_count > 1 ? 's' : ''} payant{overview.active_count > 1 ? 's' : ''}
+        <Text style={styles.mrrSub}>ARR {formatChf(overview.arr_chf)}</Text>
+      </View>
+      <View style={styles.mrrSplit}>
+        <View style={styles.mrrSplitCell}>
+          <Text style={styles.mrrSplitValue}>{formatChf(overview.new_mrr_this_month_chf)}</Text>
+          <Text style={styles.mrrSplitLabel}>Nouveau ce mois</Text>
+        </View>
+        <View style={styles.mrrSplitCell}>
+          <Text style={styles.mrrSplitValue}>{formatChf(overview.churned_mrr_this_month_chf)}</Text>
+          <Text style={styles.mrrSplitLabel}>Perdu ce mois</Text>
+        </View>
+        <View style={styles.mrrSplitCell}>
+          <Text style={styles.mrrSplitValue}>{formatChf(overview.mrr_trialing_chf)}</Text>
+          <Text style={styles.mrrSplitLabel}>En essai</Text>
+        </View>
+      </View>
+      {cancelPct !== null && cancelPct > 0 ? (
+        <Text style={styles.mrrWarn}>
+          {cancelPct.toLocaleString('fr-CH', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} % des abonnements vivants ont une résiliation programmée.
         </Text>
-        {cancelPct !== null ? (
-          <View style={[styles.heroDelta, { backgroundColor: cancelPct > 0 ? 'rgba(240, 170, 60, 0.18)' : 'rgba(255,255,255,0.08)' }]}>
-            <Feather name="alert-triangle" size={12} color={cancelPct > 0 ? '#f3c37a' : 'rgba(255,255,255,0.6)'} />
-            <Text style={[styles.heroDeltaText, { color: cancelPct > 0 ? '#f3c37a' : 'rgba(255,255,255,0.6)' }]}>{cancelPct.toLocaleString('fr-CH', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} % de résiliations programmées</Text>
-          </View>
-        ) : null}
-      </View>
-    </View>
-  );
-}
-
-function StatTile({ label, value, icon, accent, hint }: { label: string; value: string; icon: keyof typeof Feather.glyphMap; accent?: string; hint?: string }) {
-  return (
-    <View style={styles.statTile}>
-      <View style={[styles.statIcon, accent ? { backgroundColor: `${accent}1c` } : null]}>
-        <Feather name={icon} size={15} color={accent ?? colors.textMuted} />
-      </View>
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={[styles.statValue, accent ? { color: accent } : null]}>{value}</Text>
-        <Text style={styles.statLabel}>{label}</Text>
-        {hint ? <Text style={styles.statHint}>{hint}</Text> : null}
-      </View>
+      ) : null}
     </View>
   );
 }
 
 type AccountingOverview = NonNullable<Awaited<ReturnType<typeof accAdmin.overview>>['data']>;
 
-// Cantia Partners and Cantia Accounting in one glance; their full
-// administration lives on their own pages (Écosystème in the sidebar).
 function Ecosystem() {
   const router = useRouter();
   const [partners, setPartners] = useState<PartnersOverview | null>(null);
@@ -88,301 +198,167 @@ function Ecosystem() {
     partnersAdmin.overview().then(({ data }) => setPartners(data));
     accAdmin.overview().then(({ data }) => setFiduciaries(data));
   }, []);
+  const row = (label: string, value: string) => (
+    <View style={styles.ecoLine}>
+      <Text style={styles.ecoLineLabel}>{label}</Text>
+      <Text style={styles.ecoLineValue}>{value}</Text>
+    </View>
+  );
   return (
-    <View style={styles.ecoRow}>
-      <Pressable style={styles.ecoCard} onPress={() => router.replace('/(admin)/partners' as any)}>
+    <View style={{ gap: spacing.md }}>
+      <AdminCard onPress={() => router.replace('/(admin)/partners' as any)}>
         <View style={styles.ecoHead}>
+          <Feather name="award" size={15} color={colors.plum} />
           <Text style={styles.ecoTitle}>Cantia Partners</Text>
-          {partners && partners.to_pay_count > 0 ? (
-            <View style={styles.ecoAlert}>
-              <Text style={styles.ecoAlertText}>{partners.to_pay_count} virement(s) à faire</Text>
-            </View>
-          ) : null}
           <Feather name="chevron-right" size={16} color={colors.textMuted} />
         </View>
-        <View style={styles.ecoStats}>
-          <EcoStat label="Partenaires actifs" value={partners ? String(partners.partners_active) : '—'} />
-          <EcoStat label="Clients payants amenés" value={partners ? String(partners.paying_customers) : '—'} />
-          <EcoStat label="Commissions dues" value={partners ? formatChf(Number(partners.available_chf) + Number(partners.pending_chf)) : '—'} />
-          <EcoStat label="Versé au total" value={partners ? formatChf(Number(partners.paid_chf)) : '—'} />
-        </View>
-      </Pressable>
-      <Pressable style={styles.ecoCard} onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
+        {row('Partenaires actifs', partners ? String(partners.partners_active) : '—')}
+        {row('Clients payants amenés', partners ? String(partners.paying_customers) : '—')}
+        {row('Commissions dues', partners ? formatChf(Number(partners.available_chf) + Number(partners.pending_chf)) : '—')}
+      </AdminCard>
+      <AdminCard onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
         <View style={styles.ecoHead}>
+          <Feather name="shield" size={15} color={colors.plum} />
           <Text style={styles.ecoTitle}>Cantia Accounting</Text>
-          {fiduciaries && fiduciaries.suspicious > 0 ? (
-            <View style={styles.ecoAlert}>
-              <Text style={styles.ecoAlertText}>{fiduciaries.suspicious} à vérifier</Text>
-            </View>
-          ) : null}
           <Feather name="chevron-right" size={16} color={colors.textMuted} />
         </View>
-        <View style={styles.ecoStats}>
-          <EcoStat label="Fiduciaires" value={fiduciaries ? String(fiduciaries.firms) : '—'} />
-          <EcoStat label="Mandants liés" value={fiduciaries ? String(fiduciaries.linked_clients) : '—'} />
-          <EcoStat label="Clients acquis" value={fiduciaries ? String(fiduciaries.acquired_clients) : '—'} />
-          <EcoStat label="MRR acquis" value={fiduciaries ? formatChf(Number(fiduciaries.acquired_mrr_chf)) : '—'} />
-        </View>
-      </Pressable>
+        {row('Fiduciaires', fiduciaries ? String(fiduciaries.firms) : '—')}
+        {row('Mandants liés', fiduciaries ? String(fiduciaries.linked_clients) : '—')}
+        {row('MRR acquis par les fiduciaires', fiduciaries ? formatChf(Number(fiduciaries.acquired_mrr_chf)) : '—')}
+      </AdminCard>
     </View>
   );
 }
 
-function EcoStat({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.ecoStat}>
-      <Text style={styles.ecoValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
+function greeting(): string {
+  const h = new Date().getHours();
+  return h < 5 ? 'Bonsoir' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
 }
 
-// Just the essential financial picture — MRR, ARR, growth, cash — nothing
-// else. Signup funnel detail lives on Entreprises, subscription counts on
-// Abonnements, traffic and shortcuts were cut: this screen answers one
-// question only, "is the business growing," at a glance.
-export default function AdminDashboard() {
-  const { stats, overview, trialForecast, refreshing, error, newSignal, refresh } = useAdminData();
+export default function AdminHome() {
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const wide = width >= 1180;
+  const { stats, overview, trialForecast, attention, refreshing, error, newSignal, refresh } = useAdminData();
 
-  // Real, not estimated: the sum of actual daily signups over the last 7
-  // timeseries points — never a percentage derived from small counts (a
-  // 1→3 week reads as "+200%" and means nothing at Cantia's current size).
-  const signupsThisWeek = useMemo(() => {
-    if (!overview) return 0;
-    return (overview.timeseries ?? []).slice(-7).reduce((sum, p) => sum + p.signups, 0);
-  }, [overview]);
-
-  // % of everyone still alive today (payants + essais réellement en cours)
-  // whose subscription Stripe already shows as cancel_at_period_end — real,
-  // already-decided churn that just hasn't landed yet, not a projection.
+  const signupsThisWeek = useMemo(() => (overview?.timeseries ?? []).slice(-7).reduce((sum, p) => sum + p.signups, 0), [overview]);
   const scheduledCancelPct = useMemo(() => {
     if (!overview) return null;
     const base = overview.active_count + overview.trialing_count + overview.trialing_cancelling_count;
     return base > 0 ? (overview.scheduled_cancellations_count / base) * 100 : 0;
   }, [overview]);
+  const todos = useMemo(() => todoItems(attention, overview), [attention, overview]);
+  const urgent = todos.filter((t) => t.level === 'urgent').length;
+  const today = new Date().toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    // style={{ flex: 1 }} in addition to contentContainerStyle — the latter
-    // alone only sizes the inner content wrapper, not the ScrollView's own
-    // box within this layout's flex:1/minHeight:0 content column, so
-    // without it the page can end up with no constrained scroll viewport.
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scroll}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
-            <Text style={styles.title}>Tableau de bord</Text>
-            <Text style={styles.today}>{new Date().toLocaleDateString('fr-CH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
-          </View>
-          <AdminRefreshButton onPress={refresh} loading={refreshing} hasSignal={newSignal} />
-        </View>
+    <AdminPage
+      eyebrow={today}
+      title={greeting()}
+      subtitle={urgent > 0 ? `${plural(urgent, 'point attend', 'points attendent')} une action.` : 'Rien d’urgent : tout est à jour.'}
+      actions={<AdminRefreshButton onPress={refresh} loading={refreshing} hasSignal={newSignal} />}
+    >
+      {error ? <AdminErrorBanner message={error} /> : null}
 
-        {error ? <AdminErrorBanner message={error} /> : null}
+      <View style={[styles.columns, wide && styles.columnsWide]}>
+        <AdminSection title="À traiter" subtitle="Ce qui attend une action, puis ce qui est bon à savoir." style={wide ? styles.colMain : undefined}>
+          <TodoList items={todos} />
+        </AdminSection>
+        <AdminSection title="Dernière activité" style={wide ? styles.colSide : undefined}>
+          <RecentActivity />
+        </AdminSection>
+      </View>
 
-        {overview ? <MrrHero overview={overview} cancelPct={scheduledCancelPct} /> : null}
-
-        <View style={styles.statGrid}>
-          <StatTile
-            label="Entreprises"
-            value={(stats?.organizations_count ?? 0).toLocaleString('fr-CH')}
-            icon="briefcase"
-            hint={signupsThisWeek > 0 ? `+${signupsThisWeek} cette semaine` : undefined}
-          />
-          <StatTile label="Utilisateurs" value={(stats?.users_count ?? 0).toLocaleString('fr-CH')} icon="users" />
+      <AdminSection title="Chiffres du moment">
+        <View style={[styles.columns, wide && styles.columnsWide]}>
           {overview ? (
-            <>
-              <StatTile
-                label="Encaissé ce mois"
-                value={formatChf(overview.ca_this_month_chf)}
-                icon="calendar"
-                accent={colors.success}
-                hint={overview.stripe_fees_this_month_chf > 0 ? `frais Stripe déduits : ${formatChf(overview.stripe_fees_this_month_chf)}` : undefined}
-              />
-              <StatTile
-                label="Encaissé à vie"
-                value={formatChf(overview.ca_total_chf)}
-                icon="dollar-sign"
-                accent={colors.success}
-                hint={overview.stripe_fees_total_chf > 0 ? `frais Stripe déduits : ${formatChf(overview.stripe_fees_total_chf)}` : undefined}
-              />
-
-            </>
+            <View style={wide ? styles.colSideFixed : undefined}>
+              <MrrCard overview={overview} cancelPct={scheduledCancelPct} />
+            </View>
           ) : null}
+          <View style={[{ gap: spacing.md }, wide ? styles.colMain : undefined]}>
+            <KpiRow>
+              <Kpi label="Clients payants" value={String(overview?.active_count ?? stats?.paid_subscriptions_count ?? 0)} icon="check-circle" tone="success" onPress={() => router.push('/(admin)/subscriptions' as any)} />
+              <Kpi label="En essai" value={String(overview?.trialing_count ?? stats?.active_trials_count ?? 0)} icon="clock" sub={overview && overview.trialing_cancelling_count > 0 ? `dont ${overview.trialing_cancelling_count} déjà résilié${overview.trialing_cancelling_count > 1 ? 's' : ''}` : undefined} onPress={() => router.push('/(admin)/subscriptions' as any)} />
+              <Kpi label="Offerts" value={String(overview?.complimentary_count ?? stats?.complimentary_count ?? 0)} icon="gift" sub="Comptes gratuits à vie" />
+            </KpiRow>
+            <KpiRow>
+              <Kpi label="Inscriptions 7 j" value={String(signupsThisWeek)} icon="user-plus" tone="primary" onPress={() => router.push('/(admin)/organizations' as any)} />
+              <Kpi label="Entreprises" value={(stats?.organizations_count ?? 0).toLocaleString('fr-CH')} icon="briefcase" sub={`${(stats?.users_count ?? 0).toLocaleString('fr-CH')} utilisateurs`} onPress={() => router.push('/(admin)/organizations' as any)} />
+              <Kpi
+                label="Encaissé ce mois"
+                value={overview ? formatChf(overview.ca_this_month_chf) : '—'}
+                icon="dollar-sign"
+                tone="success"
+                sub={overview ? `${formatChf(overview.ca_total_chf)} depuis le début, net des frais Stripe` : undefined}
+                onPress={() => router.push('/(admin)/rentabilite' as any)}
+              />
+            </KpiRow>
+          </View>
         </View>
+      </AdminSection>
 
-        <SectionHeading title="Écosystème" subtitle="Programme partenaire et espace fiduciaires." />
-        <Ecosystem />
+      {overview ? (
+        <AdminSection title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés, par période.">
+          <GrowthChart points={overview.timeseries} />
+        </AdminSection>
+      ) : null}
 
-        <SectionHeading title="Prévisions" subtitle="Essais en cours, triés par date de fin, avec le montant réel qui sera facturé à la conversion." />
-        <TrialForecast rows={trialForecast} />
+      <View style={[styles.columns, wide && styles.columnsWide]}>
+        <AdminSection title="Essais en cours" subtitle="Par date de fin, avec le montant réel facturé à la conversion." style={wide ? styles.colMain : undefined}>
+          <TrialForecast rows={trialForecast} />
+        </AdminSection>
+        <AdminSection title="Écosystème" style={wide ? styles.colSide : undefined}>
+          <Ecosystem />
+        </AdminSection>
+      </View>
 
-        {overview ? (
-          <>
-            <SectionHeading title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés : filtrable par période." />
-            <GrowthChart points={overview.timeseries} />
-
-            <SectionHeading title="Cash encaissé par mois" subtitle="Factures Stripe effectivement payées, frais Stripe déjà déduits, regroupées par mois." />
-            <CashCollectedChart points={overview.timeseries} />
-          </>
-        ) : null}
-      </Container>
-    </ScrollView>
+      {overview ? (
+        <AdminSection title="Cash encaissé par mois" subtitle="Factures Stripe payées, frais Stripe déduits.">
+          <CashCollectedChart points={overview.timeseries} />
+        </AdminSection>
+      ) : null}
+    </AdminPage>
   );
 }
 
 const styles = StyleSheet.create({
-  ecoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  ecoCard: { flexGrow: 1, flexBasis: 320, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md },
-  ecoHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  ecoTitle: { flex: 1, fontSize: fontSize.md, fontWeight: '800', color: colors.text },
-  ecoAlert: { backgroundColor: colors.warningSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  ecoAlertText: { fontSize: 11, fontWeight: '700', color: colors.warning },
-  ecoStats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  ecoStat: { flexGrow: 1, flexBasis: 120, gap: 2 },
-  ecoValue: { fontSize: fontSize.lg, fontWeight: '800', color: colors.text, fontVariant: ['tabular-nums'] },
-  scroll: {
-    flexGrow: 1,
-  },
-  container: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xl,
-  },
-  title: {
-    ...displayType,
-    fontSize: 30,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  today: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-  hero: {
-    backgroundColor: colors.text,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.16,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
-  },
-  heroLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: 'rgba(255,255,255,0.65)',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  heroValue: {
-    ...displayType,
-    fontSize: 44,
-    fontWeight: '800',
-    color: '#fff',
-    fontVariant: ['tabular-nums'],
-    marginTop: spacing.xs,
-  },
-  heroMetaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  heroDelta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-  },
-  heroDeltaUp: {
-    backgroundColor: 'rgba(76, 175, 80, 0.18)',
-  },
-  heroDeltaDown: {
-    backgroundColor: 'rgba(220, 76, 76, 0.18)',
-  },
-  heroDeltaText: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-  },
-  heroSub: {
-    fontSize: fontSize.xs,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '500',
-  },
-  sectionHeading: {
-    marginTop: spacing.xxl,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  sectionSubtitle: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-    maxWidth: 560,
-  },
-  statGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  statTile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    // Two per row on a phone, up to four side by side on a computer.
-    flexBasis: 150,
-    minWidth: 0,
-    flexGrow: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
-  statIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-    fontVariant: ['tabular-nums'],
-  },
-  statLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    fontWeight: '600',
-  },
-  statHint: {
-    fontSize: 10,
-    color: colors.primary,
-    fontWeight: '700',
-    marginTop: 1,
-  },
+  columns: { gap: spacing.xl },
+  columnsWide: { flexDirection: 'row', alignItems: 'flex-start' },
+  colMain: { flex: 1.35, minWidth: 0 },
+  colSide: { flex: 1, minWidth: 0 },
+  colSideFixed: { width: 360 },
+  todo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  todoBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+  todoHover: { backgroundColor: colors.bg },
+  todoIcon: { width: 32, height: 32, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center' },
+  todoIconUrgent: { backgroundColor: colors.primarySoft },
+  todoIconInfo: { backgroundColor: colors.surfaceAlt },
+  todoText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
+  todoHint: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 1 },
+  loadingText: { fontSize: fontSize.xs, color: colors.textMuted, padding: spacing.lg },
+  event: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: 10 },
+  eventIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  eventTitle: { fontSize: fontSize.sm, fontWeight: '600', color: colors.text },
+  eventSub: { fontSize: 11.5, color: colors.textMuted, marginTop: 1 },
+  eventTime: { fontSize: 11.5, color: colors.textMuted, fontVariant: ['tabular-nums'] },
+  cardFootLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: spacing.md, borderTopWidth: 1, borderTopColor: colors.border },
+  cardFootText: { fontSize: fontSize.xs, fontWeight: '700', color: colors.primary },
+  mrr: { backgroundColor: ink.bg, borderRadius: radius.xl, padding: spacing.xl, gap: spacing.sm },
+  mrrLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', color: ink.accent },
+  mrrValue: { ...adminDisplay, fontSize: 42, lineHeight: 48, fontWeight: '700', color: ink.text, fontVariant: ['tabular-nums'] },
+  mrrMeta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md },
+  mrrChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: radius.pill },
+  mrrChipText: { fontSize: fontSize.xs, fontWeight: '700' },
+  mrrSub: { fontSize: fontSize.xs, color: ink.muted, fontWeight: '600' },
+  mrrSplit: { flexDirection: 'row', gap: spacing.md, borderTopWidth: 1, borderTopColor: ink.line, marginTop: spacing.sm, paddingTop: spacing.md },
+  mrrSplitCell: { flex: 1, minWidth: 0, gap: 2 },
+  mrrSplitValue: { fontSize: fontSize.md, fontWeight: '700', color: ink.text, fontVariant: ['tabular-nums'] },
+  mrrSplitLabel: { fontSize: 11, color: ink.muted },
+  mrrWarn: { fontSize: fontSize.xs, color: '#f3c37a', marginTop: spacing.xs },
+  ecoHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.sm },
+  ecoTitle: { flex: 1, fontSize: fontSize.md, fontWeight: '700', color: colors.text },
+  ecoLine: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md, paddingVertical: 5 },
+  ecoLineLabel: { fontSize: fontSize.sm, color: colors.textMuted, flexShrink: 1 },
+  ecoLineValue: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text, fontVariant: ['tabular-nums'] },
 });

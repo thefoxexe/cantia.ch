@@ -7,6 +7,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getBlogFunnelOverview } from '../../../lib/api/admin';
 import type { AdminBlogFunnelOverview } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
@@ -39,16 +40,8 @@ export default function AdminBlogLeadsScreen() {
   }, [load]);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Blog & Leads</Text>
-          <AdminRefreshButton onPress={load} loading={loading} />
-        </View>
-        <Text style={styles.hint}>
-          Emails captés via le modèle de devis gratuit, clics sur les CTA et pages vues, par article, sur les 30
-          derniers jours : pour voir quels contenus amènent vraiment des inscriptions, pas seulement du trafic.
-        </Text>
+    <AdminPage eyebrow="Croissance" title="Blog & leads" subtitle="E-mails captés par le modèle de devis gratuit, clics sur les boutons et pages vues, par article, sur 30 jours : les contenus qui amènent vraiment des inscriptions." actions={<AdminRefreshButton onPress={load} loading={loading} />}>
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -118,8 +111,8 @@ export default function AdminBlogLeadsScreen() {
             </View>
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

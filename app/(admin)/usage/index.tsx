@@ -8,6 +8,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getFeatureUsage, getFeatureUsageByOrg } from '../../../lib/api/admin';
 import type { AdminFeatureUsage, AdminFeatureUsageByOrg } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 const CATEGORY_ORDER = ['coeur_metier', 'rh', 'finance', 'integrations', 'ia', 'personnalisation'];
 const CATEGORY_LABEL: Record<string, string> = {
@@ -113,16 +114,8 @@ export default function AdminUsageScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Utilisation</Text>
-          <AdminRefreshButton onPress={load} loading={loading} />
-        </View>
-        <Text style={styles.hint}>
-          Adoption réelle par fonctionnalité : comptée depuis les vraies données créées (un devis enregistré, une
-          heure pointée, un compte bancaire connecté…), jamais depuis des clics. Entreprises internes/test exclues.
-        </Text>
+    <AdminPage eyebrow="Produit" title="Utilisation" subtitle="Adoption réelle par fonction, comptée depuis les vraies données créées (un devis enregistré, une heure pointée, un compte bancaire connecté…), jamais depuis des clics. Entreprises internes et de test exclues." actions={<AdminRefreshButton onPress={load} loading={loading} />}>
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -150,8 +143,8 @@ export default function AdminUsageScreen() {
             ))}
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

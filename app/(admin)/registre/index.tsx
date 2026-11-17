@@ -9,6 +9,8 @@ import { listRegistryCompanies, refreshRegistry, registryPending, updateRegistry
 import { addToEmailList, emailListAddresses } from '../../../lib/admin/emailList';
 import { OutreachPanel } from '../../../components/admin/OutreachPanel';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { AdminButton, AdminPage, AdminTabs } from '../../../components/admin/kit';
+import { useAdminData } from '../../../lib/adminDataContext';
 
 // Super Admin › Nouvelles entreprises: companies entered in the commercial
 // register these last days (FOSC, fetched by the database every morning and
@@ -97,6 +99,7 @@ export default function AdminRegistry() {
   // « À envoyer » (the welcome e-mails to validate) opens from the morning e-mail: ?onglet=envois.
   const { onglet } = useLocalSearchParams<{ onglet?: string }>();
   const router = useRouter();
+  const { attention } = useAdminData();
   const [tab, setTab] = useState<'list' | 'outreach'>(onglet === 'envois' ? 'outreach' : 'list');
   const [rows, setRows] = useState<RegistryCompany[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,26 +198,32 @@ export default function AdminRegistry() {
   }, [rows, days, cantons]);
 
   return (
-    <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
-            <Text style={styles.title}>Nouvelles entreprises</Text>
-            <Text style={styles.hint}>
-              Les entreprises inscrites au registre du commerce ces derniers jours (Feuille officielle suisse du commerce). Mises à jour chaque matin
-              pour la Suisse romande. Le registre ne donne pas d’e-mail : cherchez le site de l’entreprise, gardez l’adresse ici et ajoutez-la à votre
-              liste d’envoi.
-            </Text>
-          </View>
-          <Pressable onPress={search} disabled={searching !== null} style={[styles.primary, searching !== null && { opacity: 0.6 }]}>
-            <Feather name="refresh-cw" size={15} color="#fff" />
-            <Text style={styles.primaryText}>{searching !== null ? 'Recherche en cours…' : 'Chercher les nouvelles'}</Text>
-          </Pressable>
-        </View>
-        <View style={styles.chips}>
-          <Chip label="Entreprises" active={tab === 'list'} strong onPress={() => { setTab('list'); router.setParams({ onglet: undefined }); }} />
-          <Chip label="À envoyer" active={tab === 'outreach'} strong onPress={() => { setTab('outreach'); router.setParams({ onglet: 'envois' }); }} />
-        </View>
+    <AdminPage
+      eyebrow="Croissance"
+      title="Prospection"
+      subtitle="Les entreprises inscrites ces derniers jours au registre du commerce (FOSC), mises à jour chaque matin pour la Suisse romande, et les e-mails de bienvenue avec 3 mois offerts."
+      actions={
+        <AdminButton
+          label={searching !== null ? 'Recherche en cours…' : 'Chercher les nouvelles'}
+          icon="refresh-cw"
+          tone="primary"
+          onPress={search}
+          disabled={searching !== null}
+        />
+      }
+    >
+        <View style={{ gap: spacing.lg }}>
+        <AdminTabs
+          tabs={[
+            { key: 'list' as const, label: 'Entreprises du registre', count: counts.total || null },
+            { key: 'outreach' as const, label: 'E-mails & demandes', count: attention ? attention.outreach_drafts + attention.outreach_failed + attention.trial_requests || null : null },
+          ]}
+          value={tab}
+          onChange={(k) => {
+            setTab(k);
+            router.setParams({ onglet: k === 'outreach' ? 'envois' : undefined });
+          }}
+        />
 
         {tab === 'outreach' ? <OutreachPanel /> : <>
         <Text style={styles.meta}>
@@ -284,8 +293,8 @@ export default function AdminRegistry() {
           </View>
         )}
         </>}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

@@ -231,8 +231,8 @@ export default function AdminLedgerScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={{ flex: 1, minWidth: phone ? '100%' : 280, gap: 4 }}>
-            <Text style={kit.eyebrow}>Ma gestion · indépendant</Text>
-            <Text style={[kit.display, { fontSize: phone ? 34 : 42 }]}>Comptabilité</Text>
+            <Text style={kit.eyebrow}>Finances</Text>
+            <Text style={[kit.display, { fontSize: phone ? 28 : 30, lineHeight: phone ? 34 : 36 }]}>Comptabilité</Text>
             <Text style={[kit.muted, { maxWidth: 620 }]}>Recettes, dépenses et justificatifs. Le rapport PDF justifie votre bénéfice auprès de la caisse AVS ou des impôts.</Text>
           </View>
           <View style={[kit.row, phone && { width: '100%' }]}>

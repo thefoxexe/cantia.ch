@@ -13,6 +13,7 @@ import { buildYoutubeDescription, buildYoutubeTitle } from '../../../lib/tutoria
 import { downloadFile } from '../../../lib/downloadFile';
 import type { AdminTutorialChapter } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 function slugify(title: string): string {
   return title
@@ -147,23 +148,8 @@ export default function AdminTutorialThumbnailsScreen() {
   }, [load]);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
-            <Link href="/(admin)/tutoriels" asChild>
-              <Pressable style={styles.back} hitSlop={8}>
-                <Feather name="arrow-left" size={14} color={colors.textMuted} />
-                <Text style={styles.backText}>Tutoriels</Text>
-              </Pressable>
-            </Link>
-            <Text style={styles.title}>Miniatures & descriptions</Text>
-            <Text style={styles.hint}>
-              Une miniature au format YouTube et une description prête à coller, générées à partir de chaque chapitre.
-            </Text>
-          </View>
-          <AdminRefreshButton onPress={load} loading={loading} />
-        </View>
+    <AdminPage back={{ href: '/(admin)/tutoriels', label: 'Tutoriels' }} title="Miniatures & descriptions" subtitle="Une miniature au format YouTube et une description prête à coller, générées à partir de chaque chapitre." actions={<AdminRefreshButton onPress={load} loading={loading} />}>
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -178,8 +164,8 @@ export default function AdminTutorialThumbnailsScreen() {
             ))}
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

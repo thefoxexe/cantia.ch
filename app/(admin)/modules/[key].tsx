@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Container, EmptyState, Field, LoadingScreen, PageHeader } from '../../../components/ui';
+import { EmptyState, Field, LoadingScreen } from '../../../components/ui';
+import { AdminPage } from '../../../components/admin/kit';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { listModuleOrganizations, listModules, listOrganizations, setOrganizationModule, type AdminModuleOrganization } from '../../../lib/api/admin';
@@ -89,9 +90,8 @@ export default function AdminModuleDetail() {
   if (loading) return <LoadingScreen label="Chargement…" />;
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <PageHeader title={mod?.name ?? String(key)} subtitle={mod?.description ?? undefined} backTo="/(admin)/modules" />
+    <AdminPage back={{ href: '/(admin)/modules', label: 'Modules' }} title={mod?.name ?? String(key)} subtitle={mod?.description ?? undefined}>
+      <View style={styles.container}>
         {error ? <AdminErrorBanner message={error} /> : null}
         {!mod ? (
           <EmptyState title="Module introuvable" subtitle="Il a peut-être été retiré du registre." />
@@ -166,13 +166,13 @@ export default function AdminModuleDetail() {
             )}
           </>
         )}
-      </Container>
-    </ScrollView>
+      </View>
+    </AdminPage>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: spacing.xl, paddingVertical: spacing.xl, gap: spacing.sm },
+  container: { gap: spacing.sm },
   sectionTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text, marginTop: spacing.lg },
   warning: { fontSize: fontSize.sm, color: colors.danger },
   list: { gap: spacing.sm },

@@ -17,6 +17,7 @@ import { getOrgStatus, type OrgStatusBucket } from '../../../lib/adminStatus';
 import { downloadTextFile } from '../../../lib/downloadFile';
 import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBillingStatus } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminButton, AdminPage } from '../../../components/admin/kit';
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
@@ -350,22 +351,11 @@ export default function AdminOrganizationsList() {
     // layout's flex:1/minHeight:0 content column doesn't reliably get a
     // constrained height on web, so it never gets a scrollable viewport —
     // the page just silently doesn't scroll once content overflows.
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Entreprises {total > 0 ? `(${total})` : ''}</Text>
-          <View style={styles.headerActions}>
-            <Pressable
-              style={styles.exportButton}
-              onPress={handleExport}
-              disabled={exporting || filteredRows.length === 0}
-            >
-              <Feather name="download" size={14} color={colors.text} />
-              <Text style={styles.exportButtonText}>{exporting ? 'Export…' : 'Exporter CSV'}</Text>
-            </Pressable>
-            <AdminRefreshButton onPress={() => load(search)} loading={loading} />
-          </View>
-        </View>
+    <AdminPage eyebrow="Clients" title="Entreprises" subtitle={total > 0 ? `${total} entreprises inscrites : plan, membres, activité et provenance.` : undefined} actions={<>
+          <AdminButton label={exporting ? 'Export…' : 'Exporter CSV'} icon="download" onPress={handleExport} disabled={exporting || filteredRows.length === 0} />
+          <AdminRefreshButton onPress={() => load(search)} loading={loading} />
+        </>}>
+        <View style={{ gap: spacing.lg }}>
         <Field label="Rechercher" placeholder="Nom de l'entreprise…" value={search} onChangeText={setSearch} />
         {/* flexWrap, not a horizontal ScrollView — a horizontal scroller
             nested inside this page's outer vertical ScrollView captured the
@@ -428,8 +418,8 @@ export default function AdminOrganizationsList() {
             ))}
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

@@ -87,7 +87,7 @@ export default function AdminPartners() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.wrap}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.wrap}>
         {allowed === null ? (
           <Text style={styles.muted}>Chargement…</Text>
         ) : !allowed ? (
@@ -644,8 +644,8 @@ function History({ payouts }: { payouts: AdminPayout[] | null }) {
 const styles = StyleSheet.create({
   wrap: { width: '100%', maxWidth: 1180, alignSelf: 'center', padding: spacing.xl, paddingBottom: 80, gap: spacing.lg },
   head: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap', gap: spacing.md },
-  eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
-  h1: { ...displayType, fontSize: 36, lineHeight: 40, fontWeight: '800', color: colors.text },
+  eyebrow: { fontSize: 11, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1.1 },
+  h1: { ...displayType, fontSize: 30, lineHeight: 36, fontWeight: '700', color: colors.text },
   period: { fontSize: fontSize.md, fontWeight: '700', color: colors.textMuted, textTransform: 'capitalize' },
   muted: { fontSize: fontSize.sm, lineHeight: 20, color: colors.textMuted, fontWeight: '400' },
   small: { fontSize: fontSize.xs, lineHeight: 17, color: colors.textMuted },

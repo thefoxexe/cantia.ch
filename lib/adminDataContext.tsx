@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { getDashboardStats, getOrgBillingStatuses, getRevenueOverview, listOrganizations, subscribeToNewOrganizations } from './api/admin';
+import { getAttention, getDashboardStats, getOrgBillingStatuses, getRevenueOverview, listOrganizations, subscribeToNewOrganizations, type AdminAttention } from './api/admin';
 import { getOrgStatus } from './adminStatus';
 import type { AdminDashboardStats, AdminRevenueOverview } from './types';
 
@@ -21,6 +21,9 @@ interface AdminData {
   overview: AdminRevenueOverview | null;
   // null while still computing, [] once resolved with no trials in flight.
   trialForecast: TrialForecastRow[] | null;
+  // What waits for an action: the home page's « À traiter » and the
+  // counters of the side menu. Null until loaded or when it failed.
+  attention: AdminAttention | null;
   // True only for the very first fetch, since login/app-resume — the admin
   // layout blocks the whole platform behind a "Calcul en cours…" screen
   // until this flips false, so the money numbers are already sitting there
@@ -70,14 +73,16 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [overview, setOverview] = useState<AdminRevenueOverview | null>(null);
   const [trialForecast, setTrialForecast] = useState<TrialForecastRow[] | null>(null);
+  const [attention, setAttention] = useState<AdminAttention | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newSignal, setNewSignal] = useState(false);
 
   const load = useCallback(async () => {
-    const [s, ov, tf] = await Promise.all([getDashboardStats(), getRevenueOverview(), loadTrialForecast()]);
+    const [s, ov, tf, at] = await Promise.all([getDashboardStats(), getRevenueOverview(), loadTrialForecast(), getAttention()]);
     setStats(s.stats);
+    setAttention(at.attention);
     setOverview(ov.overview);
     setTrialForecast(tf);
     setError(s.error ?? ov.error);
@@ -102,8 +107,8 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const value = useMemo<AdminData>(
-    () => ({ stats, overview, trialForecast, loading, refreshing, error, newSignal, refresh }),
-    [stats, overview, trialForecast, loading, refreshing, error, newSignal, refresh],
+    () => ({ stats, overview, trialForecast, attention, loading, refreshing, error, newSignal, refresh }),
+    [stats, overview, trialForecast, attention, loading, refreshing, error, newSignal, refresh],
   );
 
   return <AdminDataContext.Provider value={value}>{children}</AdminDataContext.Provider>;

@@ -8,6 +8,7 @@ import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import { getSiteTrafficOverview } from '../../../lib/api/admin';
 import type { AdminSiteTrafficOverview } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 function pct(current: number, previous: number): { label: string; direction: 'up' | 'down' | 'flat' } {
   if (previous === 0) {
@@ -87,17 +88,8 @@ export default function AdminTrafficScreen() {
   const totalSourceVisits = overview ? overview.sources_30d.reduce((sum, s) => sum + s.visits, 0) : 0;
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Trafic</Text>
-          <AdminRefreshButton onPress={load} loading={loading} />
-        </View>
-        <Text style={styles.hint}>
-          D'où viennent les visites et les inscriptions. Recherche organique, campagnes payantes (Google Ads via
-          utm_source/gclid), liens directs. Une source n'apparaît que si le lien cliqué portait des paramètres
-          utm_* ou gclid ; sinon la visite compte comme « direct / organique ».
-        </Text>
+    <AdminPage eyebrow="Croissance" title="Trafic" subtitle="D’où viennent les visites et les inscriptions : recherche, campagnes (utm_source, gclid), liens directs. Sans paramètre utm ou gclid, une visite compte comme « direct / organique »." actions={<AdminRefreshButton onPress={load} loading={loading} />}>
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -247,8 +239,8 @@ export default function AdminTrafficScreen() {
             </View>
           </View>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

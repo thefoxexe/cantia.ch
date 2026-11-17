@@ -190,6 +190,27 @@ export async function setOrganizationModule(orgId: string, moduleKey: string, en
   return { error: logRpcError('admin_set_organization_module', error) };
 }
 
+// Everything that waits for an action (admin_attention, 20261117110000):
+// the « À traiter » list of the home page and the counters of the menu.
+export interface AdminAttention {
+  outreach_drafts: number;
+  outreach_failed: number;
+  trial_requests: number;
+  past_due: number;
+  trials_ending_3d: number;
+  signups_24h: number;
+  incomplete_signups_7d: number;
+  cancellation_reasons_7d: number;
+  partner_payouts: number;
+  fiduciaries_suspicious: number;
+}
+
+export async function getAttention(): Promise<{ attention: AdminAttention | null; error: string | null }> {
+  const { data, error } = await supabase.rpc('admin_attention');
+  const err = logRpcError('admin_attention', error);
+  return { attention: err || !data ? null : (data as AdminAttention), error: err };
+}
+
 // The companies a module is assigned to (Super Admin › Modules › a module).
 export interface AdminModuleOrganization {
   organization_id: string;

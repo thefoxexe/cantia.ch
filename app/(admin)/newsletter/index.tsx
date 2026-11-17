@@ -24,6 +24,7 @@ import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { AdminUserSummary } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 type SendMode = 'now' | 'schedule';
 
@@ -440,15 +441,8 @@ export default function AdminNewsletterScreen() {
     (sendMode === 'now' || !!scheduledAt);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>E-mails</Text>
-        </View>
-        <Text style={styles.hint}>
-          Envoyez un e-mail ciblé à vos clients : newsletter, nouveauté pour un métier précis, relance des comptes inactifs ou un mot à ceux qui ont
-          résilié. Le HTML collé est envoyé tel quel, avec le prénom et l’entreprise de chacun, dans sa langue si vous avez préparé la version.
-        </Text>
+    <AdminPage eyebrow="Communication" title="E-mails" subtitle="Un e-mail ciblé à vos clients : newsletter, nouveauté pour un métier, relance des comptes inactifs ou un mot à ceux qui ont résilié. Le HTML collé part tel quel, avec le prénom et l’entreprise de chacun, dans sa langue si la version existe.">
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -868,8 +862,8 @@ export default function AdminNewsletterScreen() {
             </View>
           )
         ) : null}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

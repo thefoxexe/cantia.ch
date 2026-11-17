@@ -10,6 +10,7 @@ import { useAdminData } from '../../../lib/adminDataContext';
 import { deletePlatformExpense, listPlatformExpenses, upsertPlatformExpense } from '../../../lib/api/admin';
 import type { AdminPlatformExpense, AdminRevenueTransaction, PlatformExpenseCategory } from '../../../lib/types';
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
+import { AdminPage } from '../../../components/admin/kit';
 
 function formatChf(amount: number): string {
   return new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 2 }).format(amount);
@@ -206,15 +207,8 @@ export default function AdminRentabiliteScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <View style={styles.header}>
-          <View style={{ flexGrow: 1, flexBasis: 240, minWidth: 0 }}>
-            <Text style={styles.title}>Rentabilité</Text>
-            <Text style={styles.hint}>Cash réellement encaissé (brut) moins les frais Stripe et les dépenses de la plateforme.</Text>
-          </View>
-          <AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />
-        </View>
+    <AdminPage eyebrow="Finances" title="Rentabilité" subtitle="Cash réellement encaissé (brut), moins les frais Stripe et les dépenses de la plateforme." actions={<AdminRefreshButton onPress={refreshAll} loading={loading || overviewLoading} />}>
+        <View style={{ gap: spacing.lg }}>
 
         {error ? <AdminErrorBanner message={error} /> : null}
 
@@ -336,8 +330,8 @@ export default function AdminRentabiliteScreen() {
             <Text style={styles.addButtonText}>Ajouter une dépense</Text>
           </Pressable>
         )}
-      </Container>
-    </ScrollView>
+        </View>
+    </AdminPage>
   );
 }
 

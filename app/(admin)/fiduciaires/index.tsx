@@ -53,7 +53,7 @@ export default function AdminFiduciaires() {
   const active7 = firms.filter((f) => Date.now() - lastActive(f.id) < 7 * 86400000).length;
 
   return (
-    <ScrollView contentContainerStyle={styles.wrap}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.wrap}>
         {allowed === null ? (
           <Text style={styles.muted}>Chargement…</Text>
         ) : !allowed ? (
@@ -172,8 +172,8 @@ function Pill({ label, tone }: { label: string; tone: 'ok' | 'bad' | 'accent' })
 
 const styles = StyleSheet.create({
   wrap: { width: '100%', maxWidth: 1180, alignSelf: 'center', padding: spacing.xl, paddingBottom: 80, gap: spacing.lg },
-  eyebrow: { fontSize: 12, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
-  h1: { ...displayType, fontSize: 34, fontWeight: '800', color: colors.text },
+  eyebrow: { fontSize: 11, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1.1 },
+  h1: { ...displayType, fontSize: 30, lineHeight: 36, fontWeight: '700', color: colors.text },
   kpis: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   kpi: { flexGrow: 1, flexBasis: 150, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing.lg, gap: 2 },
   kpiLabel: { fontSize: fontSize.xs, color: colors.textMuted, fontWeight: '600' },

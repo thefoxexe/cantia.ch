@@ -4,7 +4,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
-import { Container, EmptyState, LoadingScreen, PageHeader, Switch } from '../../../components/ui';
+import { EmptyState, LoadingScreen, Switch } from '../../../components/ui';
+import { AdminButton, AdminCard, AdminEmpty, AdminPage, AdminSection, AdminTabs, Badge, Fact } from '../../../components/admin/kit';
 import { AdminErrorBanner } from '../../../components/AdminErrorBanner';
 import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminSignupOrigin } from '../../../components/AdminSignupOrigin';
@@ -20,6 +21,8 @@ import type { Plan } from '../../../lib/types';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
 
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
+
+const ROLE_LABEL: Record<string, string> = { owner: 'Propriétaire', admin: 'Administrateur', member: 'Membre' };
 
 const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
@@ -115,7 +118,7 @@ function formatChf(amount: number): string {
 }
 
 export default function AdminOrganizationDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, onglet } = useLocalSearchParams<{ id: string; onglet?: string }>();
   const router = useRouter();
   const [detail, setDetail] = useState<AdminOrganizationDetail | null>(null);
   const [allModules, setAllModules] = useState<AdminModuleSummary[]>([]);
@@ -233,264 +236,271 @@ export default function AdminOrganizationDetailScreen() {
     setTimeout(() => setFeedback(null), 2000);
   }
 
+  type Tab = 'activite' | 'abonnement' | 'membres' | 'modules' | 'provenance';
+  const tab: Tab = (['activite', 'abonnement', 'membres', 'modules', 'provenance'] as const).includes(onglet as Tab) ? (onglet as Tab) : 'activite';
+  const setTab = (k: Tab) => router.setParams({ onglet: k === 'activite' ? undefined : k });
+  const trialEnd = org.trial_ends_at ?? (org.subscription_status === 'trialing' ? billing?.next_invoice_date ?? null : null);
+  const nextCharge = billing?.will_be_charged && billing.next_invoice_amount_chf != null ? `${formatChf(billing.next_invoice_amount_chf)} le ${formatDate(billing.next_invoice_date)}` : null;
+  const place = [org.locality, org.trade].filter(Boolean).join(' · ');
+
   return (
-    // style={{ flex: 1 }} is required here: a bare <ScrollView> inside this
-    // layout's flex:1/minHeight:0 content column doesn't reliably get a
-    // constrained height on web, so it never gets a scrollable viewport —
-    // the page just silently doesn't scroll once content overflows.
-    <ScrollView style={{ flex: 1 }}>
-      <Container style={styles.container}>
-        <PageHeader title={org.name} backTo="/(admin)/organizations" />
-
-        <View style={styles.actionsRow}>
-          <Pressable style={styles.actionButton} onPress={copyOrgId}>
-            <Feather name="hash" size={13} color={colors.text} />
-            <Text style={styles.actionButtonText}>Copier l'ID</Text>
-          </Pressable>
-          {contactEmail ? (
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => Linking.openURL(`mailto:${contactEmail}`).catch(() => {})}
-            >
-              <Feather name="mail" size={13} color={colors.text} />
-              <Text style={styles.actionButtonText}>Contacter le propriétaire</Text>
-            </Pressable>
-          ) : null}
+    <AdminPage
+      back={{ href: '/(admin)/organizations', label: 'Entreprises' }}
+      title={org.name}
+      subtitle={[`Inscrite le ${formatDate(org.created_at)}`, `${detail.members.length} membre${detail.members.length > 1 ? 's' : ''}`, place].filter(Boolean).join(' · ')}
+      actions={
+        <>
+          {contactEmail ? <AdminButton label="Écrire" icon="mail" onPress={() => Linking.openURL(`mailto:${contactEmail}`).catch(() => {})} /> : null}
           {org.stripe_customer_id ? (
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => Linking.openURL(`https://dashboard.stripe.com/customers/${org.stripe_customer_id}`).catch(() => {})}
-            >
-              <Feather name="external-link" size={13} color={colors.text} />
-              <Text style={styles.actionButtonText}>Voir dans Stripe</Text>
-            </Pressable>
+            <AdminButton label="Stripe" icon="external-link" onPress={() => Linking.openURL(`https://dashboard.stripe.com/customers/${org.stripe_customer_id}`).catch(() => {})} />
           ) : null}
+          <AdminButton label="Copier l’ID" icon="hash" onPress={copyOrgId} />
+        </>
+      }
+    >
+      {error ? <AdminErrorBanner message={error} /> : null}
+      {feedback ? (
+        <View style={styles.feedback}>
+          <Text style={styles.feedbackText}>{feedback}</Text>
         </View>
+      ) : null}
 
-        {error ? <AdminErrorBanner message={error} /> : null}
-
-        {feedback ? (
-          <View style={styles.feedback}>
-            <Text style={styles.feedbackText}>{feedback}</Text>
-          </View>
-        ) : null}
-
-        <View style={styles.infoGrid}>
-          <View style={styles.infoCell}>
-            <Text style={styles.infoLabel}>Plan</Text>
-            <Text style={styles.infoValue}>{org.plan_name}</Text>
-          </View>
-          <View style={styles.infoCell}>
-            <Text style={styles.infoLabel}>Statut abonnement</Text>
+      <AdminCard>
+        <View style={styles.factsRow}>
+          <Fact label="Plan" value={org.plan_name} />
+          <Fact label="Statut">
             <AdminOrgStatusPill org={org} />
-          </View>
-          <View style={styles.infoCell}>
-            <Text style={styles.infoLabel}>Essai jusqu'au</Text>
-            <Text style={styles.infoValue}>
-              {formatDate(org.trial_ends_at ?? (org.subscription_status === 'trialing' ? billing?.next_invoice_date ?? null : null))}
-            </Text>
-          </View>
-          <View style={styles.infoCell}>
-            <Text style={styles.infoLabel}>Créée le</Text>
-            <Text style={styles.infoValue}>{formatDateTime(org.created_at)}</Text>
-          </View>
-          <View style={styles.infoCell}>
-            <Text style={styles.infoLabel}>Identifiant</Text>
-            <Text style={styles.infoValueMono} numberOfLines={1}>
-              {org.id}
-            </Text>
-          </View>
+          </Fact>
+          <Fact label={org.subscription_status === 'trialing' ? 'Fin de l’essai' : 'Prochain débit'} value={org.subscription_status === 'trialing' ? formatDate(trialEnd) : billingLoading ? '…' : nextCharge ?? '—'} />
+          <Fact label="Paiement" value={billingLoading ? '…' : billing?.has_payment_method ? (billing.card_brand && billing.card_last4 ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4}` : PAYMENT_METHOD_LABEL[billing.payment_method_type ?? ''] ?? 'Enregistré') : 'Aucun'} />
+          <Fact label="Contact" value={contactEmail ?? null} />
         </View>
+      </AdminCard>
 
-        <Text style={styles.sectionTitle}>Utilisation</Text>
-        {usage ? (
-          <View style={styles.usageCard}>
+      <AdminTabs
+        tabs={[
+          { key: 'activite' as const, label: 'Activité' },
+          { key: 'abonnement' as const, label: 'Abonnement', count: events.length || null },
+          { key: 'membres' as const, label: 'Membres', count: detail.members.length },
+          { key: 'modules' as const, label: 'Modules', count: detail.private_modules.filter((m) => m.enabled).length || null },
+          { key: 'provenance' as const, label: 'Provenance' },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+
+      {tab === 'activite' ? (
+        usage ? (
+          <AdminCard>
             <OrgUsagePanel usage={usage} />
-          </View>
+          </AdminCard>
         ) : (
-          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>
-            {usageError ? `Utilisation indisponible : ${usageError}` : 'Aucune donnée d’utilisation.'}
-          </Text>
-        )}
+          <AdminCard>
+            <AdminEmpty icon="bar-chart-2" title="Aucune donnée d’utilisation" text={usageError ? `Indisponible : ${usageError}` : undefined} />
+          </AdminCard>
+        )
+      ) : null}
 
-        <Text style={styles.sectionTitle}>Provenance de l'inscription</Text>
-        {origin ? (
-          <AdminSignupOrigin origin={origin} />
-        ) : (
-          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>
-            {originError ? `Provenance indisponible : ${originError}` : 'Aucune donnée de provenance.'}
-          </Text>
-        )}
+      {tab === 'abonnement' ? (
+        <View style={{ gap: spacing.xl }}>
+          {org.stripe_customer_id || org.promo_code_used ? (
+            <AdminSection title="Facturation Stripe" subtitle="Lu en direct chez Stripe.">
+              {billingLoading ? (
+                <Text style={styles.emptyText}>Vérification auprès de Stripe…</Text>
+              ) : (
+                <AdminCard style={styles.billingCard}>
+                  <View style={styles.billingRow}>
+                    <Feather
+                      name="credit-card"
+                      size={16}
+                      color={billing?.payment_method_is_default ? colors.success : billing?.has_payment_method ? colors.warning : colors.danger}
+                    />
+                    <Text style={styles.billingText}>{billing ? describePaymentMethod(billing) : 'Aucun moyen de paiement enregistré'}</Text>
+                  </View>
+                  {billing?.has_payment_method ? (
+                    <View style={styles.billingRow}>
+                      <Feather name="info" size={16} color={colors.textMuted} />
+                      <Text style={styles.billingText}>{describePaymentMethodSource(billing)}</Text>
+                    </View>
+                  ) : null}
+                  {billing?.subscription_status ? (
+                    <View style={styles.billingRow}>
+                      <Feather name={billing.will_be_charged ? 'check-circle' : 'alert-triangle'} size={16} color={billing.will_be_charged ? colors.success : colors.warning} />
+                      <Text style={styles.billingText}>{describeChargeOutlook(billing)}</Text>
+                    </View>
+                  ) : null}
+                  {org.promo_code_used ? (
+                    <View style={styles.billingRow}>
+                      <Feather name="tag" size={16} color={colors.textMuted} />
+                      <Text style={styles.billingText}>Code utilisé à l'inscription : {org.promo_code_used}</Text>
+                    </View>
+                  ) : null}
+                  {org.stripe_subscription_id ? (
+                    <Pressable
+                      style={[styles.trialButton, confirmingTrial && styles.trialButtonConfirm]}
+                      onPress={handleGrantTrial}
+                      disabled={grantingTrial}
+                    >
+                      <Feather name="clock" size={14} color={confirmingTrial ? '#fff' : colors.primary} />
+                      <Text style={[styles.trialButtonText, confirmingTrial && styles.trialButtonTextConfirm]}>
+                        {grantingTrial
+                          ? 'Application…'
+                          : confirmingTrial
+                            ? 'Confirmer : décale le prochain débit à dans 30 jours'
+                            : 'Accorder un essai de 30 jours'}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+                </AdminCard>
+              )}
+            </AdminSection>
+          ) : null}
 
-        {org.stripe_customer_id || org.promo_code_used ? (
-          <>
-            <Text style={styles.sectionTitle}>Facturation Stripe</Text>
-            {billingLoading ? (
-              <Text style={styles.emptyText}>Vérification auprès de Stripe…</Text>
+          <AdminSection title="Historique de l'abonnement">
+            {eventsLoading ? (
+              <Text style={styles.emptyText}>Chargement…</Text>
+            ) : events.length === 0 ? (
+              <AdminCard>
+                <AdminEmpty icon="clock" title="Aucun événement enregistré pour l'instant" />
+              </AdminCard>
             ) : (
-              <View style={styles.billingCard}>
-                <View style={styles.billingRow}>
-                  <Feather
-                    name="credit-card"
-                    size={16}
-                    color={billing?.payment_method_is_default ? colors.success : billing?.has_payment_method ? colors.warning : colors.danger}
-                  />
-                  <Text style={styles.billingText}>{billing ? describePaymentMethod(billing) : 'Aucun moyen de paiement enregistré'}</Text>
-                </View>
-                {billing?.has_payment_method ? (
-                  <View style={styles.billingRow}>
-                    <Feather name="info" size={16} color={colors.textMuted} />
-                    <Text style={styles.billingText}>{describePaymentMethodSource(billing)}</Text>
-                  </View>
-                ) : null}
-                {billing?.subscription_status ? (
-                  <View style={styles.billingRow}>
-                    <Feather name={billing.will_be_charged ? 'check-circle' : 'alert-triangle'} size={16} color={billing.will_be_charged ? colors.success : colors.warning} />
-                    <Text style={styles.billingText}>{describeChargeOutlook(billing)}</Text>
-                  </View>
-                ) : null}
-                {org.promo_code_used ? (
-                  <View style={styles.billingRow}>
-                    <Feather name="tag" size={16} color={colors.textMuted} />
-                    <Text style={styles.billingText}>Code promo utilisé à l'inscription : {org.promo_code_used}</Text>
-                  </View>
-                ) : null}
-                {org.stripe_subscription_id ? (
-                  <Pressable
-                    style={[styles.trialButton, confirmingTrial && styles.trialButtonConfirm]}
-                    onPress={handleGrantTrial}
-                    disabled={grantingTrial}
-                  >
-                    <Feather name="clock" size={14} color={confirmingTrial ? '#fff' : colors.primary} />
-                    <Text style={[styles.trialButtonText, confirmingTrial && styles.trialButtonTextConfirm]}>
-                      {grantingTrial
-                        ? 'Application…'
-                        : confirmingTrial
-                          ? 'Confirmer : décale le prochain débit à dans 30 jours'
-                          : 'Accorder un essai de 30 jours'}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
+              <AdminCard padded={false}>
+                {events.map((ev, i) => {
+                  const meta = EVENT_META[ev.event_type] ?? { label: ev.event_type, icon: 'circle' as const, color: colors.textMuted };
+                  const sub = describeEvent(ev);
+                  return (
+                    <View key={ev.id} style={[styles.eventRow, i > 0 && styles.rowBorder]}>
+                      <View style={[styles.eventIcon, { backgroundColor: `${meta.color}1a` }]}>
+                        <Feather name={meta.icon} size={14} color={meta.color} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.memberName}>{meta.label}</Text>
+                        {sub ? <Text style={styles.memberSubtitle}>{sub}</Text> : null}
+                      </View>
+                      <Text style={styles.memberMeta}>{formatDateTime(ev.created_at)}</Text>
+                    </View>
+                  );
+                })}
+              </AdminCard>
             )}
-          </>
-        ) : null}
+          </AdminSection>
 
-        <Text style={styles.sectionTitle}>Historique de l'abonnement</Text>
-        {eventsLoading ? (
-          <Text style={styles.emptyText}>Chargement…</Text>
-        ) : events.length === 0 ? (
-          <Text style={[styles.emptyText, { marginBottom: spacing.xl }]}>Aucun événement enregistré pour l'instant.</Text>
-        ) : (
-          <View style={styles.list}>
-            {events.map((ev) => {
-              const meta = EVENT_META[ev.event_type];
-              const sub = describeEvent(ev);
-              return (
-                <View key={ev.id} style={styles.eventRow}>
-                  <View style={[styles.eventIcon, { backgroundColor: `${meta.color}1a` }]}>
-                    <Feather name={meta.icon} size={14} color={meta.color} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.memberName}>{meta.label}</Text>
-                    {sub ? <Text style={styles.memberSubtitle}>{sub}</Text> : null}
-                  </View>
-                  <Text style={styles.memberMeta}>{formatDateTime(ev.created_at)}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
+          <AdminCancellationReasons organizationId={detail.organization.id} />
+        </View>
+      ) : null}
 
-        <AdminCancellationReasons organizationId={detail.organization.id} />
-
-        <Text style={styles.sectionTitle}>Membres ({detail.members.length})</Text>
-        <View style={styles.list}>
-          {detail.members.map((m) => (
+      {tab === 'membres' ? (
+        <AdminCard padded={false}>
+          {detail.members.map((m, i) => (
             <Pressable
               key={m.user_id}
-              style={styles.memberRow}
+              style={({ hovered }: any) => [styles.memberRow, i > 0 && styles.rowBorder, hovered && { backgroundColor: colors.bg }]}
               onPress={() => router.push(`/(admin)/users?q=${encodeURIComponent(m.email)}` as any)}
             >
-              <View style={{ flex: 1 }}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{(m.full_name || m.email).slice(0, 1).toUpperCase()}</Text>
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={styles.memberName}>{m.full_name || m.email}</Text>
-                <Text style={styles.memberSubtitle}>
-                  {m.email} · {m.role}
+                <Text style={styles.memberSubtitle} numberOfLines={1}>
+                  {m.email} · {ROLE_LABEL[m.role] ?? m.role}
                 </Text>
               </View>
-              <View>
-                <Text style={styles.memberMeta}>Dernière utilisation : {formatDateTime(m.last_seen_at)}</Text>
-                <Text style={styles.memberMetaSub}>Dernière connexion : {formatDateTime(m.last_sign_in_at)}</Text>
+              <View style={styles.memberDates}>
+                <Text style={styles.memberMeta}>Vu {formatDateTime(m.last_seen_at)}</Text>
+                <Text style={styles.memberMetaSub}>Connexion {formatDateTime(m.last_sign_in_at)}</Text>
               </View>
               <Feather name="chevron-right" size={16} color={colors.textMuted} />
             </Pressable>
           ))}
-        </View>
+        </AdminCard>
+      ) : null}
 
-        <Text style={styles.sectionTitle}>Modules standards</Text>
-        <View style={styles.chipRow}>
-          {detail.standard_modules.length === 0 ? (
-            <Text style={styles.emptyText}>Aucun module standard activé.</Text>
-          ) : (
-            detail.standard_modules.map((key) => (
-              <View key={key} style={styles.chip}>
-                <Text style={styles.chipText}>{STANDARD_MODULE_LABELS.get(key) ?? key}</Text>
-              </View>
-            ))
-          )}
-        </View>
-
-        <Text style={styles.sectionTitle}>Outils des nouveaux chantiers</Text>
-        <View style={styles.chipRow}>
-          {projectModulesFor(org).length === 0 || defaultProjectModules(org).length === 0 ? (
-            <Text style={styles.emptyText}>Aucun outil coché d'office.</Text>
-          ) : (
-            defaultProjectModules(org).map((key) => {
-              const field = PROJECT_MODULE_PLAN_GATED[key as ModuleKey];
-              const planBlocked = !!field && planFlags !== null && !planFlags[field];
-              return (
-                <View key={key} style={[styles.chip, planBlocked && { opacity: 0.45 }]}>
-                  <Text style={styles.chipText}>
-                    {STANDARD_MODULE_LABELS.get(key) ?? key}
-                    {planBlocked ? ' · pas dans son plan' : ''}
-                  </Text>
-                </View>
-              );
-            })
-          )}
-        </View>
-
-        <Text style={styles.sectionTitle}>Modules privés / Extensions</Text>
-        <View style={styles.list}>
-          {nonStandardModules.length === 0 ? (
-            <Text style={styles.emptyText}>Aucun module privé enregistré dans le registre.</Text>
-          ) : (
-            nonStandardModules.map((mod) => {
-              const enabled = enabledByKey.get(mod.key) ?? false;
-              const pending = pendingKeys.has(mod.key);
-              return (
-                <View key={mod.id} style={styles.moduleRow}>
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.moduleTitleRow}>
-                      <Text style={styles.memberName}>{mod.name}</Text>
-                      <View style={[styles.visibilityPill, mod.visibility === 'experimental' && styles.visibilityPillExperimental]}>
-                        <Text style={styles.visibilityPillText}>{mod.visibility === 'experimental' ? 'Beta' : 'Privé'}</Text>
+      {tab === 'modules' ? (
+        <View style={{ gap: spacing.xl }}>
+          <AdminSection title="Modules sur mesure" subtitle="Assigner un module l’active tout de suite pour cette entreprise. La liste complète est dans Produit › Modules.">
+            {nonStandardModules.length === 0 ? (
+              <AdminCard>
+                <AdminEmpty icon="grid" title="Aucun module sur mesure dans le registre" />
+              </AdminCard>
+            ) : (
+              <AdminCard padded={false}>
+                {nonStandardModules.map((mod, i) => {
+                  const enabled = enabledByKey.get(mod.key) ?? false;
+                  const pending = pendingKeys.has(mod.key);
+                  return (
+                    <View key={mod.id} style={[styles.moduleRow, i > 0 && styles.rowBorder]}>
+                      <View style={{ flex: 1 }}>
+                        <View style={styles.moduleTitleRow}>
+                          <Text style={styles.memberName}>{mod.name}</Text>
+                          {enabled ? <Badge label="Assigné" tone="success" /> : null}
+                        </View>
+                        {mod.description ? <Text style={styles.memberSubtitle}>{mod.description}</Text> : null}
                       </View>
+                      <Switch value={enabled} disabled={pending} onChange={(next) => toggle(mod.key, next, mod.name)} />
                     </View>
-                    {mod.description ? <Text style={styles.memberSubtitle}>{mod.description}</Text> : null}
+                  );
+                })}
+              </AdminCard>
+            )}
+          </AdminSection>
+
+          <AdminSection title="Modules de l’entreprise" subtitle="Ce que l’entreprise a allumé elle-même dans ses paramètres.">
+            <View style={styles.chipRow}>
+              {detail.standard_modules.length === 0 ? (
+                <Text style={styles.emptyText}>Aucun module standard activé.</Text>
+              ) : (
+                detail.standard_modules.map((key) => (
+                  <View key={key} style={styles.chip}>
+                    <Text style={styles.chipText}>{STANDARD_MODULE_LABELS.get(key) ?? key}</Text>
                   </View>
-                  <Switch value={enabled} disabled={pending} onChange={(next) => toggle(mod.key, next, mod.name)} />
-                </View>
-              );
-            })
-          )}
+                ))
+              )}
+            </View>
+          </AdminSection>
+
+          <AdminSection title="Outils des nouveaux chantiers">
+            <View style={styles.chipRow}>
+              {projectModulesFor(org).length === 0 || defaultProjectModules(org).length === 0 ? (
+                <Text style={styles.emptyText}>Aucun outil coché d'office.</Text>
+              ) : (
+                defaultProjectModules(org).map((key) => {
+                  const field = PROJECT_MODULE_PLAN_GATED[key as ModuleKey];
+                  const planBlocked = !!field && planFlags !== null && !planFlags[field];
+                  return (
+                    <View key={key} style={[styles.chip, planBlocked && { opacity: 0.45 }]}>
+                      <Text style={styles.chipText}>
+                        {STANDARD_MODULE_LABELS.get(key) ?? key}
+                        {planBlocked ? ' · pas dans son plan' : ''}
+                      </Text>
+                    </View>
+                  );
+                })
+              )}
+            </View>
+          </AdminSection>
         </View>
-      </Container>
-    </ScrollView>
+      ) : null}
+
+      {tab === 'provenance' ? (
+        origin ? (
+          <AdminSignupOrigin origin={origin} />
+        ) : (
+          <AdminCard>
+            <AdminEmpty icon="compass" title="Aucune donnée de provenance" text={originError ? `Indisponible : ${originError}` : undefined} />
+          </AdminCard>
+        )
+      ) : null}
+    </AdminPage>
   );
 }
 
 const styles = StyleSheet.create({
+  factsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
+  rowBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: fontSize.sm, fontWeight: '700', color: colors.primary },
+  memberDates: { alignItems: 'flex-end' },
   container: {
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xl,
@@ -581,21 +591,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     marginBottom: spacing.xl,
   },
-  billingCard: {
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.xl,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
+  billingCard: { gap: spacing.md },
   billingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -632,22 +628,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.xl,
   },
-  memberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
+  memberRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   memberName: {
     fontSize: fontSize.md,
     fontWeight: '700',
@@ -670,22 +651,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 1,
   },
-  eventRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
+  eventRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   eventIcon: {
     width: 28,
     height: 28,
@@ -710,22 +676,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  moduleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
+  moduleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   moduleTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',

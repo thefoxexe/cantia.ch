@@ -1,4 +1,4 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Slot, usePathname, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,77 +9,26 @@ import { useAuth } from '../../lib/auth-context';
 import { LoadingScreen } from '../../components/ui';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { AdminDataProvider, useAdminData } from '../../lib/adminDataContext';
-import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
+import { colors, fontSize, radius, spacing } from '../../lib/theme';
 import { BrandLogo, BrandMark } from '../../components/brand/Logo';
+import { AdminSearch, type SearchPage } from '../../components/admin/AdminSearch';
+import { ink } from '../../components/admin/kit';
+import { NAV_GROUPS, NAV_ITEMS, TAB_HREFS, TAB_LABEL, activeHrefFor, type NavItem } from '../../components/admin/nav';
+import type { AdminAttention } from '../../lib/api/admin';
 
-// Grouped by what you come to do, in the order you need it: clients first,
-// then the two other spaces (fiduciaries, partners), writing to people,
-// the product numbers, and Cantia's own books and log. "Comptes" (individual
-// users) is not a destination: a member is reached from its company's page.
-// Each entry carries one line saying what is in it, shown in the phone
-// menu, so nobody has to open a page to find out.
-type NavItem = { href: string; label: string; icon: keyof typeof Feather.glyphMap; desc: string; short?: string };
-const NAV_GROUPS: { title: string | null; items: NavItem[] }[] = [
-  { title: null, items: [{ href: '/(admin)', label: 'Tableau de bord', icon: 'home', desc: 'Revenu mensuel, inscriptions et encaissements du moment.' }] },
-  {
-    title: 'Clients',
-    items: [
-      { href: '/(admin)/organizations', label: 'Entreprises', icon: 'briefcase', desc: 'Toutes les entreprises inscrites, leur plan, leurs membres et leur activité.' },
-      { href: '/(admin)/subscriptions', label: 'Abonnements', icon: 'credit-card', desc: 'Qui paie, qui est en essai, les retards et les motifs de résiliation.' },
-      { href: '/(admin)/rentabilite', label: 'Rentabilité', icon: 'trending-up', desc: 'Encaissé, frais Stripe et dépenses de la plateforme.' },
-    ],
-  },
-  {
-    title: 'Écosystème',
-    items: [
-      { href: '/(admin)/fiduciaires', label: 'Fiduciaires', icon: 'shield', desc: 'Cantia Accounting : les cabinets, leurs mandats et leur activité.' },
-      { href: '/(admin)/partners', label: 'Partenaires', icon: 'award', desc: 'Cantia Partners : les apporteurs, leurs clients et leurs commissions.' },
-    ],
-  },
-  {
-    title: 'Prospection',
-    items: [
-      { href: '/(admin)/registre', label: 'Nouvelles entreprises', short: 'Prospection', icon: 'search', desc: 'Les entreprises inscrites ces derniers jours au registre du commerce, par canton et par métier.' },
-    ],
-  },
-  {
-    title: 'Communication',
-    items: [
-      { href: '/(admin)/newsletter', label: 'E-mails', icon: 'mail', desc: 'Écrire à vos clients, fiduciaires, partenaires ou à n’importe quelle adresse.' },
-      { href: '/(admin)/tutoriels', label: 'Tutoriels', icon: 'video', desc: 'Le plan de tournage des vidéos, chapitre par chapitre.' },
-    ],
-  },
-  {
-    title: 'Produit',
-    items: [
-      { href: '/(admin)/usage', label: 'Utilisation', icon: 'bar-chart-2', desc: 'Les fonctions vraiment utilisées, entreprise par entreprise.' },
-      { href: '/(admin)/modules', label: 'Modules', icon: 'grid', desc: 'Ce que contient chaque plan et les modules sur mesure.' },
-      { href: '/(admin)/trafic', label: 'Trafic', icon: 'compass', desc: 'D’où viennent les visites et les inscriptions.' },
-      { href: '/(admin)/blog-leads', label: 'Blog & leads', icon: 'download', desc: 'Les e-mails captés et ce que rapporte chaque article.' },
-    ],
-  },
-  {
-    title: 'Gestion',
-    items: [
-      { href: '/(admin)/compta', label: 'Comptabilité', icon: 'book', desc: 'Les recettes, dépenses et justificatifs de Cantia.' },
-      { href: '/(admin)/logs', label: 'Journal', icon: 'list', desc: 'Tout ce qui se passe : inscriptions, paiements, envois, actions admin.' },
-    ],
-  },
-];
-const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
-// Phone: the four pages opened most often sit in a bar at the bottom, the
-// rest is one tap away under « Plus ».
-const TAB_HREFS = ['/(admin)', '/(admin)/organizations', '/(admin)/subscriptions', '/(admin)/newsletter'];
-const TAB_LABEL: Record<string, string> = { '/(admin)': 'Accueil' };
+const SEARCH_PAGES: SearchPage[] = NAV_ITEMS.map((i) => ({ href: i.href, label: i.label, desc: i.desc, icon: i.icon }));
 
-function activeHrefFor(pathname: string): string | null {
-  let best: string | null = null;
-  for (const item of NAV_ITEMS) {
-    const compare = item.href.replace('/(admin)', '') || '/';
-    const matches = compare === '/' ? pathname === '/' : pathname === compare || pathname.startsWith(`${compare}/`);
-    if (matches && (!best || item.href.length > best.length)) best = item.href;
-  }
-  return best;
+function countOf(item: NavItem, attention: AdminAttention | null): number {
+  return attention && item.count ? item.count(attention) : 0;
+}
+
+function NavCount({ value, urgent, dark }: { value: number; urgent?: boolean; dark?: boolean }) {
+  if (!value) return null;
+  return (
+    <View style={[styles.count, urgent ? styles.countUrgent : dark ? styles.countDark : styles.countLight]}>
+      <Text style={[styles.countText, urgent ? styles.countTextUrgent : dark ? styles.countTextDark : styles.countTextLight]}>{value > 99 ? '99+' : value}</Text>
+    </View>
+  );
 }
 
 // Access to this whole route group is gated on isPlatformAdmin — resolved
@@ -108,9 +57,9 @@ export default function AdminLayout() {
     return <LoadingScreen label="Vérification des accès…" />;
   }
 
-  // The dashboard's own numbers (MRR, ARR, growth…) are prefetched here,
-  // once per login/app-resume, behind one full-platform loading screen —
-  // see AdminNavShell below — instead of the dashboard popping its own
+  // The home page's numbers (MRR, growth, what waits for an action…) are
+  // prefetched here, once per login/app-resume, behind one loading screen —
+  // see AdminNavShell below — instead of the home page popping its own
   // spinner every time you land back on it.
   return (
     <AdminDataProvider>
@@ -124,9 +73,9 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const isDesktop = width >= 860;
+  const isDesktop = width >= 900;
   const activeHref = activeHrefFor(pathname);
-  const { loading: dataLoading } = useAdminData();
+  const { loading: dataLoading, attention } = useAdminData();
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (dataLoading) {
@@ -136,17 +85,17 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
   if (isDesktop) {
     return (
       <View style={styles.desktopRoot}>
-        <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom }]}>
+        <View style={[styles.sidebar, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.sm }]}>
           <View style={styles.brandRow}>
-            <BrandLogo height={28} />
+            <BrandLogo height={22} tone="white" />
           </View>
-          <View style={styles.badge}>
-            <Feather name="shield" size={10} color="#fff" />
-            <Text style={styles.badgeText}>SUPER ADMIN</Text>
+          <Text style={styles.brandSub}>Super admin</Text>
+          <View style={styles.searchWrap}>
+            <AdminSearch pages={SEARCH_PAGES} dark />
           </View>
-          <ScrollView style={styles.nav} contentContainerStyle={{ gap: 2, paddingBottom: spacing.md }} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.nav} contentContainerStyle={styles.navContent} showsVerticalScrollIndicator={false}>
             {NAV_GROUPS.map((group) => (
-              <View key={group.title ?? 'home'} style={{ gap: 2 }}>
+              <View key={group.title ?? 'home'} style={styles.navGroup}>
                 {group.title ? <Text style={styles.groupTitle}>{group.title}</Text> : null}
                 {group.items.map((item) => {
                   const active = item.href === activeHref;
@@ -155,20 +104,26 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
                       key={item.href}
                       style={({ hovered }: any) => [styles.navItem, hovered && !active && styles.navItemHover, active && styles.navItemActive]}
                       onPress={() => router.replace(item.href as any)}
+                      accessibilityRole="link"
+                      accessibilityState={{ selected: active }}
                     >
-                      {active ? <View style={styles.navItemBar} /> : null}
-                      <Feather name={item.icon} size={16} color={active ? colors.primary : colors.textMuted} />
-                      <Text style={[styles.navItemText, active && styles.navItemTextActive]}>{item.label}</Text>
+                      <Feather name={item.icon} size={15} color={active ? ink.accent : ink.muted} />
+                      <Text style={[styles.navItemText, active && styles.navItemTextActive]} numberOfLines={1}>
+                        {item.label}
+                      </Text>
+                      <NavCount value={countOf(item, attention)} urgent={item.urgent} dark />
                     </Pressable>
                   );
                 })}
               </View>
             ))}
           </ScrollView>
-          <Pressable style={styles.exitLink} onPress={signOut}>
-            <Feather name="log-out" size={15} color={colors.textMuted} />
-            <Text style={styles.exitLinkText}>Déconnexion</Text>
-          </Pressable>
+          <View style={styles.sidebarFoot}>
+            <Pressable style={({ hovered }: any) => [styles.footLink, hovered && styles.navItemHover]} onPress={signOut}>
+              <Feather name="log-out" size={14} color={ink.muted} />
+              <Text style={styles.footLinkText}>Déconnexion</Text>
+            </Pressable>
+          </View>
         </View>
         <View style={styles.content}>
           <ErrorBoundary key={pathname}>
@@ -185,23 +140,28 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
     setMenuOpen(false);
     router.replace(href as any);
   };
+  // What waits outside the four tabs, shown on « Plus ».
+  const moreCount = NAV_ITEMS.filter((i) => !TAB_HREFS.includes(i.href) && i.urgent).reduce((n, i) => n + countOf(i, attention), 0);
 
   return (
     <View style={styles.mobileRoot}>
       <View style={[styles.mobileTopBar, { paddingTop: insets.top + spacing.sm }]}>
-        <BrandMark size={26} />
-        <Text style={styles.mobileTitle} numberOfLines={1}>
-          {menuOpen ? 'Toutes les sections' : 'Administration'}
-        </Text>
-        <View style={[styles.badge, styles.badgeInline]}>
-          <Feather name="shield" size={10} color="#fff" />
-          <Text style={styles.badgeText}>ADMIN</Text>
+        <BrandMark size={24} />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.mobileKicker}>Super admin</Text>
+          <Text style={styles.mobileTitle} numberOfLines={1}>
+            {menuOpen ? 'Toutes les sections' : current?.label ?? 'Administration'}
+          </Text>
         </View>
+        <Pressable style={styles.mobileIconButton} onPress={() => setMenuOpen((v) => !v)} accessibilityLabel={menuOpen ? 'Fermer le menu' : 'Rechercher'}>
+          <Feather name={menuOpen ? 'x' : 'search'} size={18} color={ink.text} />
+        </Pressable>
       </View>
 
       <View style={styles.mobileContent}>
         {menuOpen ? (
-          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.sheet}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled">
+            <AdminSearch pages={SEARCH_PAGES} onNavigate={() => setMenuOpen(false)} />
             {NAV_GROUPS.map((group) => (
               <View key={group.title ?? 'home'} style={styles.sheetGroup}>
                 {group.title ? <Text style={styles.sheetGroupTitle}>{group.title}</Text> : null}
@@ -215,12 +175,13 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
                         style={({ pressed }) => [styles.sheetRow, idx > 0 && styles.sheetRowBorder, (pressed || active) && styles.sheetRowActive]}
                       >
                         <View style={[styles.sheetIcon, active && styles.sheetIconActive]}>
-                          <Feather name={item.icon} size={17} color={active ? '#fff' : colors.primary} />
+                          <Feather name={item.icon} size={16} color={active ? '#fff' : colors.primary} />
                         </View>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.sheetLabel}>{item.label}</Text>
                           <Text style={styles.sheetDesc}>{item.desc}</Text>
                         </View>
+                        <NavCount value={countOf(item, attention)} urgent={item.urgent} />
                         <Feather name="chevron-right" size={16} color={colors.textMuted} />
                       </Pressable>
                     );
@@ -244,9 +205,13 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
         {TAB_HREFS.map((href) => {
           const item = NAV_ITEMS.find((i) => i.href === href)!;
           const active = !menuOpen && activeHref === href;
+          const n = item.urgent ? countOf(item, attention) : 0;
           return (
             <Pressable key={href} style={styles.tab} onPress={() => go(href)} accessibilityRole="tab" accessibilityState={{ selected: active }}>
-              <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
+              <View>
+                <Feather name={item.icon} size={20} color={active ? colors.primary : colors.textMuted} />
+                {n > 0 ? <View style={styles.tabDot} /> : null}
+              </View>
               <Text style={[styles.tabText, active && styles.tabTextActive]} numberOfLines={1}>
                 {TAB_LABEL[href] ?? item.label}
               </Text>
@@ -254,7 +219,10 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
           );
         })}
         <Pressable style={styles.tab} onPress={() => setMenuOpen((v) => !v)} accessibilityRole="tab" accessibilityState={{ selected: menuOpen || !inTabs }}>
-          <Feather name={menuOpen ? 'x' : 'menu'} size={20} color={menuOpen || !inTabs ? colors.primary : colors.textMuted} />
+          <View>
+            <Feather name={menuOpen ? 'x' : 'menu'} size={20} color={menuOpen || !inTabs ? colors.primary : colors.textMuted} />
+            {moreCount > 0 && !menuOpen ? <View style={styles.tabDot} /> : null}
+          </View>
           <Text style={[styles.tabText, (menuOpen || !inTabs) && styles.tabTextActive]} numberOfLines={1}>
             {!menuOpen && !inTabs && current ? current.short ?? current.label : 'Plus'}
           </Text>
@@ -265,322 +233,82 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  desktopRoot: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: colors.bg,
-  },
-  sidebar: {
-    width: 240,
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingHorizontal: spacing.md,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    shadowOffset: { width: 6, height: 0 },
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  desktopRoot: { flex: 1, flexDirection: 'row', backgroundColor: colors.bg },
+  sidebar: { width: 248, backgroundColor: ink.bg, paddingHorizontal: spacing.md },
+  brandRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm },
+  brandSub: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    color: ink.accent,
     paddingHorizontal: spacing.sm,
-    marginBottom: spacing.md,
-    gap: spacing.sm,
+    marginTop: spacing.sm,
+    marginBottom: spacing.lg,
   },
-  brandLogo: {
-    width: 26,
-    height: 26,
-  },
-  mobileBrandLogo: {
-    width: 22,
-    height: 22,
-  },
-  brandText: {
-    fontSize: fontSize.lg,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    marginHorizontal: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  badgeInline: {
-    marginBottom: 0,
-    marginHorizontal: 0,
-    alignSelf: 'center',
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.6,
-    color: '#fff',
-  },
-  nav: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 9,
-    borderRadius: radius.md,
-  },
-  navItemActive: {
-    backgroundColor: colors.primarySoft,
-  },
-  navItemHover: {
-    backgroundColor: colors.bg,
-  },
+  searchWrap: { paddingHorizontal: 2, marginBottom: spacing.md, zIndex: 30 },
+  nav: { flex: 1 },
+  navContent: { gap: spacing.md, paddingBottom: spacing.md },
+  navGroup: { gap: 1 },
   groupTitle: {
     fontSize: 10.5,
     fontWeight: '700',
-    letterSpacing: 0.6,
+    letterSpacing: 0.9,
     textTransform: 'uppercase',
-    color: colors.textMuted,
+    color: ink.faint,
     paddingHorizontal: spacing.sm,
-    marginTop: spacing.md,
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  mobileCurrent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm + 2,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  mobileCurrentText: {
-    flex: 1,
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  mobileMenu: {
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.md,
-  },
-  mobileMenuRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  navItemBar: {
-    position: 'absolute',
-    left: -spacing.md,
-    top: '50%',
-    marginTop: -10,
-    width: 3,
-    height: 20,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primary,
-  },
-  navItemText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  navItemTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  exitLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  exitLinkText: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
-    fontWeight: '500',
-  },
+  navItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.sm, paddingVertical: 8, borderRadius: radius.lg },
+  navItemHover: { backgroundColor: 'rgba(255,255,255,0.05)' },
+  navItemActive: { backgroundColor: ink.raised },
+  navItemText: { flex: 1, minWidth: 0, fontSize: fontSize.sm, fontWeight: '500', color: ink.muted },
+  navItemTextActive: { color: ink.text, fontWeight: '700' },
+  count: { minWidth: 20, height: 18, paddingHorizontal: 5, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  countUrgent: { backgroundColor: colors.primary },
+  countDark: { backgroundColor: 'rgba(255,255,255,0.1)' },
+  countLight: { backgroundColor: colors.surfaceAlt },
+  countText: { fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  countTextUrgent: { color: '#fff' },
+  countTextDark: { color: ink.text },
+  countTextLight: { color: colors.textMuted },
+  sidebarFoot: { borderTopWidth: 1, borderTopColor: ink.line, paddingTop: spacing.sm },
+  footLink: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, borderRadius: radius.lg },
+  footLinkText: { fontSize: fontSize.sm, color: ink.muted, fontWeight: '500' },
   // minHeight: 0 matters here on web: a flex child otherwise refuses to
   // shrink below its content's natural height, so the Slot's own ScrollView
   // never gets a bounded height to scroll within — the whole document
-  // scrolls instead and drags the sidebar/tab bar along with it. This is
-  // the root cause behind the "scroll sometimes breaks" reports.
-  content: {
-    flex: 1,
-    minHeight: 0,
-  },
-  mobileRoot: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
+  // scrolls instead and drags the sidebar/tab bar along with it.
+  content: { flex: 1, minHeight: 0 },
+  mobileRoot: { flex: 1, backgroundColor: colors.bg },
   mobileTopBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    shadowColor: '#0B0F0E',
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  mobileExitButton: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.bg,
-  },
-  mobileContent: {
-    flex: 1,
-    minHeight: 0,
-  },
-  mobileNavBar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  mobileNavItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-    backgroundColor: colors.bg,
-  },
-  mobileNavItemActive: {
-    backgroundColor: colors.primarySoft,
-  },
-  mobileNavItemText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  mobileNavItemTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  mobileTitle: {
-    flex: 1,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  sheet: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-    gap: spacing.lg,
-  },
-  sheetGroup: {
-    gap: spacing.xs,
-  },
-  sheetGroupTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    color: colors.textMuted,
-    paddingHorizontal: spacing.xs,
-  },
-  sheetCard: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-  },
-  sheetRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm + 2,
+    backgroundColor: ink.bg,
   },
-  sheetRowBorder: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  sheetRowActive: {
-    backgroundColor: colors.primarySoft,
-  },
-  sheetIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sheetIconActive: {
-    backgroundColor: colors.primary,
-  },
-  sheetLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  sheetDesc: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-    lineHeight: 17,
-  },
-  sheetLogout: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.md,
-  },
-  sheetLogoutText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 6,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    paddingVertical: 4,
-    minWidth: 0,
-  },
-  tabText: {
-    fontSize: 10.5,
-    fontWeight: '600',
-    color: colors.textMuted,
-    maxWidth: '100%',
-  },
-  tabTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
+  mobileKicker: { fontSize: 10, fontWeight: '700', letterSpacing: 1.2, textTransform: 'uppercase', color: ink.accent },
+  mobileTitle: { fontSize: fontSize.md, fontWeight: '700', color: ink.text },
+  mobileIconButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: ink.raised },
+  mobileContent: { flex: 1, minHeight: 0 },
+  sheet: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
+  sheetGroup: { gap: spacing.xs },
+  sheetGroupTitle: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color: colors.textMuted, paddingHorizontal: spacing.xs },
+  sheetCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, overflow: 'hidden' },
+  sheetRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.md, paddingVertical: spacing.md },
+  sheetRowBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+  sheetRowActive: { backgroundColor: colors.primarySoft },
+  sheetIcon: { width: 34, height: 34, borderRadius: radius.lg, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  sheetIconActive: { backgroundColor: colors.primary },
+  sheetLabel: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
+  sheetDesc: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: 2, lineHeight: 17 },
+  sheetLogout: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md },
+  sheetLogoutText: { fontSize: fontSize.sm, fontWeight: '600', color: colors.textMuted },
+  tabBar: { flexDirection: 'row', backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 6 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: 4, minWidth: 0 },
+  tabDot: { position: 'absolute', top: -2, right: -5, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary, borderWidth: 1.5, borderColor: colors.surface },
+  tabText: { fontSize: 10.5, fontWeight: '600', color: colors.textMuted, maxWidth: '100%' },
+  tabTextActive: { color: colors.primary, fontWeight: '700' },
 });
