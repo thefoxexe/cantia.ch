@@ -101,7 +101,7 @@ function RecentActivity() {
   const router = useRouter();
   const [rows, setRows] = useState<ActivityEvent[] | null>(null);
   useEffect(() => {
-    listActivity({ limit: 7 }).then(({ rows: r }) => setRows(r));
+    listActivity({ limit: 9 }).then(({ rows: r }) => setRows(r));
   }, []);
   return (
     <AdminCard padded={false}>
@@ -205,8 +205,8 @@ function Ecosystem() {
     </View>
   );
   return (
-    <View style={{ gap: spacing.md }}>
-      <AdminCard onPress={() => router.replace('/(admin)/partners' as any)}>
+    <View style={styles.ecoRow}>
+      <AdminCard style={styles.ecoCard} onPress={() => router.replace('/(admin)/partners' as any)}>
         <View style={styles.ecoHead}>
           <Feather name="award" size={15} color={colors.plum} />
           <Text style={styles.ecoTitle}>Cantia Partners</Text>
@@ -216,7 +216,7 @@ function Ecosystem() {
         {row('Clients payants amenés', partners ? String(partners.paying_customers) : '—')}
         {row('Commissions dues', partners ? formatChf(Number(partners.available_chf) + Number(partners.pending_chf)) : '—')}
       </AdminCard>
-      <AdminCard onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
+      <AdminCard style={styles.ecoCard} onPress={() => router.replace('/(admin)/fiduciaires' as any)}>
         <View style={styles.ecoHead}>
           <Feather name="shield" size={15} color={colors.plum} />
           <Text style={styles.ecoTitle}>Cantia Accounting</Text>
@@ -238,7 +238,8 @@ function greeting(): string {
 export default function AdminHome() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const wide = width >= 1180;
+  // Two columns once the page itself (window minus the side menu) is wide enough.
+  const wide = width >= 1100;
   const { stats, overview, trialForecast, attention, refreshing, error, newSignal, refresh } = useAdminData();
 
   const signupsThisWeek = useMemo(() => (overview?.timeseries ?? []).slice(-7).reduce((sum, p) => sum + p.signups, 0), [overview]);
@@ -260,15 +261,6 @@ export default function AdminHome() {
     >
       {error ? <AdminErrorBanner message={error} /> : null}
 
-      <View style={[styles.columns, wide && styles.columnsWide]}>
-        <AdminSection title="À traiter" subtitle="Ce qui attend une action, puis ce qui est bon à savoir." style={wide ? styles.colMain : undefined}>
-          <TodoList items={todos} />
-        </AdminSection>
-        <AdminSection title="Dernière activité" style={wide ? styles.colSide : undefined}>
-          <RecentActivity />
-        </AdminSection>
-      </View>
-
       <AdminSection title="Chiffres du moment">
         <View style={[styles.columns, wide && styles.columnsWide]}>
           {overview ? (
@@ -286,11 +278,11 @@ export default function AdminHome() {
               <Kpi label="Inscriptions 7 j" value={String(signupsThisWeek)} icon="user-plus" tone="primary" onPress={() => router.push('/(admin)/organizations' as any)} />
               <Kpi label="Entreprises" value={(stats?.organizations_count ?? 0).toLocaleString('fr-CH')} icon="briefcase" sub={`${(stats?.users_count ?? 0).toLocaleString('fr-CH')} utilisateurs`} onPress={() => router.push('/(admin)/organizations' as any)} />
               <Kpi
-                label="Encaissé ce mois"
+                label="Encaissé"
                 value={overview ? formatChf(overview.ca_this_month_chf) : '—'}
                 icon="dollar-sign"
                 tone="success"
-                sub={overview ? `${formatChf(overview.ca_total_chf)} depuis le début, net des frais Stripe` : undefined}
+                sub={overview ? `Ce mois, net des frais Stripe · ${formatChf(overview.ca_total_chf)} au total` : undefined}
                 onPress={() => router.push('/(admin)/rentabilite' as any)}
               />
             </KpiRow>
@@ -298,20 +290,34 @@ export default function AdminHome() {
         </View>
       </AdminSection>
 
+      <View style={[styles.columns, wide && styles.columnsWide]}>
+        <View style={[styles.stack, wide && styles.colMain]}>
+          {todos.length > 0 ? (
+            <AdminSection
+              title={urgent > 0 ? 'À traiter' : 'À savoir'}
+              subtitle={urgent > 0 ? 'Ce qui attend une action, puis ce qui est bon à savoir.' : 'Rien d’urgent, seulement ce qui est bon à savoir.'}
+            >
+              <TodoList items={todos} />
+            </AdminSection>
+          ) : null}
+          <AdminSection title="Essais en cours" subtitle="Par date de fin, avec le montant réel facturé à la conversion.">
+            <TrialForecast rows={trialForecast} />
+          </AdminSection>
+          <AdminSection title="Écosystème">
+            <Ecosystem />
+          </AdminSection>
+        </View>
+        <AdminSection title="Dernière activité" style={wide ? styles.colSide : undefined}>
+          <RecentActivity />
+        </AdminSection>
+      </View>
+
       {overview ? (
         <AdminSection title="Croissance" subtitle="Inscriptions, argent encaissé et clients payants cumulés, par période.">
           <GrowthChart points={overview.timeseries} />
         </AdminSection>
       ) : null}
 
-      <View style={[styles.columns, wide && styles.columnsWide]}>
-        <AdminSection title="Essais en cours" subtitle="Par date de fin, avec le montant réel facturé à la conversion." style={wide ? styles.colMain : undefined}>
-          <TrialForecast rows={trialForecast} />
-        </AdminSection>
-        <AdminSection title="Écosystème" style={wide ? styles.colSide : undefined}>
-          <Ecosystem />
-        </AdminSection>
-      </View>
 
       {overview ? (
         <AdminSection title="Cash encaissé par mois" subtitle="Factures Stripe payées, frais Stripe déduits.">
@@ -327,7 +333,10 @@ const styles = StyleSheet.create({
   columnsWide: { flexDirection: 'row', alignItems: 'flex-start' },
   colMain: { flex: 1.35, minWidth: 0 },
   colSide: { flex: 1, minWidth: 0 },
-  colSideFixed: { width: 360 },
+  colSideFixed: { width: 340 },
+  stack: { gap: spacing.xl },
+  ecoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  ecoCard: { flexGrow: 1, flexBasis: 240, minWidth: 0 },
   todo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   todoBorder: { borderTopWidth: 1, borderTopColor: colors.border },
   todoHover: { backgroundColor: colors.bg },

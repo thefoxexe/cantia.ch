@@ -117,13 +117,13 @@ function AdminNavShell({ signOut }: { signOut: () => void }) {
                 })}
               </View>
             ))}
+            <View style={styles.sidebarFoot}>
+              <Pressable style={({ hovered }: any) => [styles.footLink, hovered && styles.navItemHover]} onPress={signOut}>
+                <Feather name="log-out" size={14} color={ink.muted} />
+                <Text style={styles.footLinkText}>Déconnexion</Text>
+              </Pressable>
+            </View>
           </ScrollView>
-          <View style={styles.sidebarFoot}>
-            <Pressable style={({ hovered }: any) => [styles.footLink, hovered && styles.navItemHover]} onPress={signOut}>
-              <Feather name="log-out" size={14} color={ink.muted} />
-              <Text style={styles.footLinkText}>Déconnexion</Text>
-            </Pressable>
-          </View>
         </View>
         <View style={styles.content}>
           <ErrorBoundary key={pathname}>
@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
     color: ink.accent,
     paddingHorizontal: spacing.sm,
     marginTop: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   searchWrap: { paddingHorizontal: 2, marginBottom: spacing.md, zIndex: 30 },
   nav: { flex: 1 },
-  navContent: { gap: spacing.md, paddingBottom: spacing.md },
+  navContent: { gap: spacing.sm + 2, paddingBottom: spacing.lg },
   navGroup: { gap: 1 },
   groupTitle: {
     fontSize: 10.5,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     marginBottom: 4,
   },
-  navItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.sm, paddingVertical: 8, borderRadius: radius.lg },
+  navItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.sm, paddingVertical: 6, borderRadius: radius.lg },
   navItemHover: { backgroundColor: 'rgba(255,255,255,0.05)' },
   navItemActive: { backgroundColor: ink.raised },
   navItemText: { flex: 1, minWidth: 0, fontSize: fontSize.sm, fontWeight: '500', color: ink.muted },
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   countTextUrgent: { color: '#fff' },
   countTextDark: { color: ink.text },
   countTextLight: { color: colors.textMuted },
-  sidebarFoot: { borderTopWidth: 1, borderTopColor: ink.line, paddingTop: spacing.sm },
+  sidebarFoot: { borderTopWidth: 1, borderTopColor: ink.line, paddingTop: spacing.sm, marginTop: spacing.xs },
   footLink: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, borderRadius: radius.lg },
   footLinkText: { fontSize: fontSize.sm, color: ink.muted, fontWeight: '500' },
   // minHeight: 0 matters here on web: a flex child otherwise refuses to

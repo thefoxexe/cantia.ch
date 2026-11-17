@@ -8,6 +8,9 @@ import { PLAN_LABEL } from '../AdminEmailAudience';
 // and colours, its headline and the line under it. Shared by the Journal
 // and the « Dernière activité » of the home page.
 
+// Private plans that are not in the list of public plans.
+const EXTRA_PLAN_LABEL: Record<string, string> = { 'solo-essai-soumissions': 'Essentiel (essai soumissions)' };
+
 export const KINDS: { id: ActivityKind; label: string; icon: keyof typeof Feather.glyphMap; color: string; soft: string }[] = [
   { id: 'signup', label: 'Inscriptions', icon: 'user-plus', color: colors.primary, soft: colors.primarySoft },
   { id: 'company', label: 'Entreprises', icon: 'briefcase', color: colors.primary, soft: colors.primarySoft },
@@ -78,7 +81,7 @@ export function headline(e: ActivityEvent): string {
 // Plan ids and cancellation reason keys, in words.
 export function readable(e: ActivityEvent): string | null {
   if (!e.detail) return null;
-  if (e.kind === 'subscription') return e.detail.split(' → ').map((id) => PLAN_LABEL[id] ?? id).join(' → ');
+  if (e.kind === 'subscription') return e.detail.split(' → ').map((id) => PLAN_LABEL[id] ?? EXTRA_PLAN_LABEL[id] ?? id).join(' → ');
   if (e.kind === 'cancel_reason') return e.detail.replace(/^[a-z_]+/, (k) => CANCEL_REASON_LABELS[k] ?? k);
   return e.detail;
 }

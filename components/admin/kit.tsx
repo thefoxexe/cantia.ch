@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   },
   pagePhone: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg, gap: spacing.lg },
   titlePhone: { fontSize: 26, lineHeight: 31 },
-  head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing.md },
+  head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   headText: { flexGrow: 1, flexShrink: 1, flexBasis: 280, minWidth: 0, gap: 4 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.1, textTransform: 'uppercase', color: colors.primary },
   back: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingVertical: 2 },
