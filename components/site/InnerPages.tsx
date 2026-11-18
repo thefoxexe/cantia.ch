@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
+import { Btn, Eyebrow, Headline, KeywordH1, Hover, TextLink, Wrap } from './Primitives';
 import { Breadcrumbs, Callout, PhoneShot, ScreenShot, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { FaqItem } from './FamilyPage';
 import { useSiteLocale } from './SiteNav';
@@ -26,15 +26,16 @@ type IconName = React.ComponentProps<typeof Feather>['name'];
 const HOME = { fr: 'Accueil', de: 'Startseite', it: 'Home' } as const;
 
 
-function PageHero({ crumb, eyebrow, plain, accent, lead, children, visual }: { crumb: string; eyebrow: string; plain: string; accent: string; lead: string; children?: React.ReactNode; visual?: React.ReactNode }) {
+function PageHero({ crumb, eyebrow, h1, plain, accent, lead, children, visual }: { crumb: string; eyebrow: string; h1?: string; plain: string; accent: string; lead: string; children?: React.ReactNode; visual?: React.ReactNode }) {
   const locale = useSiteLocale();
   const p = usePrefix();
   const { phone, tablet } = useSiteLayout();
   const h1Size = visual ? (phone ? 43 : tablet ? 46 : 56) : phone ? 43 : tablet ? 52 : 62;
   const text = (
     <View style={visual && !phone ? { flex: 1.25, minWidth: 0 } : undefined}>
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <Headline level={1} size={h1Size} plain={plain} accent={accent} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07 }]} />
+      {/* With h1, the keyword line is the H1 and the slogan keeps its look as an H2. */}
+      {h1 ? <KeywordH1>{h1}</KeywordH1> : <Eyebrow>{eyebrow}</Eyebrow>}
+      <Headline level={1} semanticLevel={h1 ? 2 : 1} size={h1Size} plain={plain} accent={accent} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07 }]} />
       <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{lead}</Text>
       {children}
     </View>
@@ -462,6 +463,7 @@ export function AppPage() {
       <PageHero
         crumb={c.crumb}
         eyebrow={c.eyebrow}
+        h1={c.h1}
         plain={c.h1Plain}
         accent={c.h1Accent}
         lead={c.lead}

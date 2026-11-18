@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
+import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap, KeywordH1, keywordOf } from './Primitives';
 import { Breadcrumbs, Callout, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
 import { FaqItem } from './FamilyPage';
 import { LaptopShot } from './Laptop';
@@ -44,8 +44,8 @@ export function MetiersPage() {
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 35 : 52 }}>
         <Wrap>
           <Breadcrumbs items={[{ label: ui.crumbHome, href: p || '/' }, { label: ui.crumbTrades }]} />
-          <Eyebrow>{h.eyebrow}</Eyebrow>
-          <Headline level={1} size={h1Size} plain={h.h1Plain} accent={h.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07, maxWidth: 900 }} />
+          <KeywordH1>{keywordOf(h.seoTitle)}</KeywordH1>
+          <Headline level={1} semanticLevel={2} size={h1Size} plain={h.h1Plain} accent={h.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07, maxWidth: 900 }} />
           <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{h.lead}</Text>
         </Wrap>
       </View>
@@ -140,8 +140,8 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
           <Breadcrumbs items={[{ label: ui.crumbHome, href: p || '/' }, { label: ui.crumbTrades, href: `${p}/metiers` }, { label: c.label }]} />
           <View style={[styles.hero, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 64 }]}>
             <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
-              <Eyebrow>{c.eyebrow}</Eyebrow>
-              <Headline level={1} size={h1} plain={c.h1Plain} accent={c.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.07 }} />
+              <KeywordH1>{keywordOf(c.seoTitle)}</KeywordH1>
+              <Headline level={1} semanticLevel={2} size={h1} plain={c.h1Plain} accent={c.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.07 }} />
               <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{c.lead}</Text>
               <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
                 <View>
@@ -335,8 +335,8 @@ export function SubTradePage({ sector, slug }: { sector: SectorKey; slug: string
           <Breadcrumbs items={[{ label: ui.crumbHome, href: p || '/' }, { label: ui.crumbTrades, href: `${p}/metiers` }, { label: c.label, href: sectorUrl }, { label: t.name }]} />
           <View style={[styles.hero, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 64 }]}>
             <View style={phone ? undefined : { flex: 1, minWidth: 0 }}>
-              <Eyebrow>{t.eyebrow}</Eyebrow>
-              <Headline level={1} size={h1} plain={t.h1Plain} accent={t.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.2, lineHeight: h1 * 1.08 }} />
+              <KeywordH1>{keywordOf(t.seoTitle)}</KeywordH1>
+              <Headline level={1} semanticLevel={2} size={h1} plain={t.h1Plain} accent={t.h1Accent} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.2, lineHeight: h1 * 1.08 }} />
               <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{t.lead}</Text>
               <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
                 <View>

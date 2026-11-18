@@ -4,7 +4,7 @@ import { Link, Redirect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
 import { MarketingHead } from '../components/MarketingHead';
-import { Btn, Eyebrow, Hover, Headline, TextLink, Wrap, useSiteFontScope } from '../components/site/Primitives';
+import { Btn, Eyebrow, Hover, Headline, KeywordH1, TextLink, Wrap, useSiteFontScope } from '../components/site/Primitives';
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
 import { PhoneShot, SectionHead, SiteCta } from '../components/site/Sections';
 import { ModuleMockup } from '../components/solutions/ModuleMockup';
@@ -78,8 +78,9 @@ function LandingContent() {
           <Wrap style={{ flex: 1, justifyContent: 'space-between' }}>
             <View style={[styles.heroTop, { flex: 1, alignItems: 'center' }, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 28 } : { gap: tablet ? 25 : 80 }]}>
               <View style={phone ? undefined : { flex: tablet ? 0.9 : 0.95, minWidth: 0 }}>
-                <Eyebrow>{h.eyebrow}</Eyebrow>
-                <Headline level={1} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
+                {/* The H1 carries what the page is about; the slogan below keeps its look as an H2. */}
+                <KeywordH1>{h.h1}</KeywordH1>
+                <Headline level={1} semanticLevel={2} size={heroSize} plain={h.titlePlain} accent={h.titleAccent} style={{ marginTop: phone ? 20 : 23, marginBottom: phone ? 22 : 28 }} />
                 <Text style={[sans, styles.lead, { fontSize: phone || tablet ? (tablet ? 13 : 14) : 15 }]}>
                   <Text style={{ color: site.ink, fontWeight: '500' }}>{h.leadStrong}</Text> {h.lead}
                 </Text>

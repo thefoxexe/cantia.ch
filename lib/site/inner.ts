@@ -7,7 +7,7 @@
 import type { SiteLocale } from './copy';
 import type { FamilyKey } from './pages';
 
-type Hero = { seoTitle: string; seoDescription: string; crumb: string; eyebrow: string; h1Plain: string; h1Accent: string; lead: string };
+type Hero = { seoTitle: string; seoDescription: string; crumb: string; eyebrow: string; h1?: string; h1Plain: string; h1Accent: string; lead: string };
 export type Sector = { key: string; label: string; eyebrow: string; title: string; desc: string; word: string; items: string[]; link: FamilyKey };
 
 export interface InnerCopy {
@@ -201,6 +201,7 @@ const fr: InnerCopy = {
     seoDescription: 'Cantia s’utilise dans le navigateur, sur ordinateur, tablette et téléphone. Ajoutez Cantia à l’écran d’accueil en trois étapes, sans installation obligatoire.',
     crumb: 'Ordinateur & téléphone',
     eyebrow: 'Votre bureau vous suit',
+    h1: 'Cantia sur téléphone, tablette et ordinateur : l’application de gestion de chantier',
     h1Plain: 'À votre place.',
     h1Accent: 'Où que vous soyez.',
     lead: 'Consultez un document, ajoutez une photo ou saisissez vos heures depuis le téléphone. Retrouvez le projet dans le même espace lorsque vous revenez au bureau.',
@@ -369,6 +370,7 @@ const de: InnerCopy = {
     seoDescription: 'Cantia läuft im Browser, auf Computer, Tablet und Smartphone. Fügen Sie Cantia in drei Schritten zum Startbildschirm hinzu, ohne Installationspflicht.',
     crumb: 'Computer & Smartphone',
     eyebrow: 'Ihr Büro begleitet Sie',
+    h1: 'Cantia auf Smartphone, Tablet und Computer: die App für die Baustellenverwaltung',
     h1Plain: 'Am richtigen Ort.',
     h1Accent: 'Wo auch immer Sie sind.',
     lead: 'Sehen Sie ein Dokument an, fügen Sie ein Foto hinzu oder erfassen Sie Ihre Stunden auf dem Smartphone. Zurück im Büro finden Sie das Projekt im selben Bereich.',
@@ -537,6 +539,7 @@ const it: InnerCopy = {
     seoDescription: 'Cantia si usa nel browser, su computer, tablet e telefono. Aggiungete Cantia alla schermata iniziale in tre passi, senza installazione obbligatoria.',
     crumb: 'Computer e telefono',
     eyebrow: 'Il vostro ufficio vi segue',
+    h1: 'Cantia su telefono, tablet e computer: l’app per la gestione dei cantieri',
     h1Plain: 'Al vostro posto.',
     h1Accent: 'Ovunque siate.',
     lead: 'Consultate un documento, aggiungete una foto o registrate le ore dal telefono. Ritrovate il progetto nello stesso spazio quando tornate in ufficio.',

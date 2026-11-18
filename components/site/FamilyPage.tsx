@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
+import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap, KeywordH1, keywordOf } from './Primitives';
 import { Breadcrumbs, DocVisual, PhoneShot, ScreenShot, Section, SectionHead, SitePage, paperShadow, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { EXPORTS } from './exports';
@@ -51,8 +51,8 @@ export function FamilyPage({ family }: { family: FamilyKey }) {
           <Breadcrumbs items={[{ label: L.home, href: p || '/' }, { label: L.software, href: `${p}/fonctionnalites` }, { label: f.name }]} />
           <View style={[styles.leadGrid, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 30 } : { gap: tablet ? 40 : 70 }]}>
             <View style={phone ? undefined : { flex: 1.25, minWidth: 0 }}>
-              <Eyebrow>{f.eyebrow}</Eyebrow>
-              <Headline level={1} size={h1Size} plain={f.h1Plain} accent={f.h1Accent} inline={f.h1Plain.includes('\n')} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07 }]} />
+              <KeywordH1>{keywordOf(f.seoTitle)}</KeywordH1>
+              <Headline level={1} semanticLevel={2} size={h1Size} plain={f.h1Plain} accent={f.h1Accent} inline={f.h1Plain.includes('\n')} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.07 }]} />
               <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{f.lead}</Text>
               <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
                 <View>

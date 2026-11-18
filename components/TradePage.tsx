@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './site/Primitives';
+import { Btn, Eyebrow, Headline, KeywordH1, Hover, TextLink, Wrap } from './site/Primitives';
 import { Breadcrumbs, Section, SectionHead, SitePage, useSiteLayout } from './site/Sections';
 import { LaptopShot } from './site/Laptop';
 import { APP_SCREENS } from './site/appScreens';
@@ -67,8 +67,9 @@ export function TradePage({ slug }: { slug: string }) {
           />
           <View style={[styles.lead, phone ? { flexDirection: 'column', alignItems: 'stretch', gap: 32 } : { gap: tablet ? 40 : 70 }]}>
             <View style={phone ? undefined : { flex: 1.1, minWidth: 0 }}>
-              <Eyebrow>{trade.hero.eyebrow}</Eyebrow>
-              <Headline level={1} plain={trade.hero.title} size={h1} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.08 }} />
+              {/* H1: what the page is about, from its SEO title (« Logiciel de gestion pour électriciens en Suisse »). */}
+              <KeywordH1>{trade.seo.title.replace(/\s*\|\s*Cantia$/, '')}</KeywordH1>
+              <Headline level={1} semanticLevel={2} plain={trade.hero.title} size={h1} style={{ marginTop: 17, marginBottom: 21, letterSpacing: phone ? -1.6 : -2.4, lineHeight: h1 * 1.08 }} />
               <Text style={[sans, styles.leadText, phone && { fontSize: 13, lineHeight: 24 }]}>{trade.hero.subtitle}</Text>
               <View style={[styles.actions, { gap: phone ? 23 : 25 }]}>
                 <View>

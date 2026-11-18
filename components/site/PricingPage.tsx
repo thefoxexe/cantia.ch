@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap } from './Primitives';
+import { Btn, Eyebrow, Headline, Hover, TextLink, Wrap, KeywordH1, keywordOf } from './Primitives';
 import { Breadcrumbs, Callout, Section, SectionHead, SitePage, useSiteLayout, usePrefix } from './Sections';
 import { FaqItem } from './FamilyPage';
 import { useSiteLocale } from './SiteNav';
@@ -73,8 +73,8 @@ export function PricingPage() {
       <View style={{ paddingTop: phone ? 32 : 58, paddingBottom: phone ? 35 : 52 }}>
         <Wrap>
           <Breadcrumbs items={[{ label: SITE_HOME[locale], href: p || '/' }, { label: c.crumb }]} />
-          <Eyebrow>{c.eyebrow}</Eyebrow>
-          <Headline level={1} size={h1Size} plain={c.h1Plain} accent={c.h1Accent} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.06 }]} />
+          <KeywordH1>{keywordOf(c.seoTitle)}</KeywordH1>
+          <Headline level={1} semanticLevel={2} size={h1Size} plain={c.h1Plain} accent={c.h1Accent} style={[styles.h1, { letterSpacing: phone ? -1.9 : -3, lineHeight: h1Size * 1.06 }]} />
           <Text style={[sans, styles.lead, phone && { fontSize: 13, lineHeight: 24 }]}>{c.lead}</Text>
           <View style={styles.switch} role="radiogroup">
             <SwitchButton label={c.monthly} active={!yearly} onPress={() => setYearly(false)} />

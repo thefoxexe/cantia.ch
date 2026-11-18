@@ -65,10 +65,14 @@ export function Headline({
   color = site.ink,
   style,
   inline = false,
+  semanticLevel,
 }: {
   plain: string;
   accent?: string;
   level?: 1 | 2 | 3;
+  // The heading level read by search engines and screen readers when it
+  // differs from the look (a slogan drawn as a title under a keyword H1).
+  semanticLevel?: 1 | 2 | 3;
   size: number;
   accentColor?: string;
   color?: string;
@@ -79,7 +83,7 @@ export function Headline({
   const accent = rawAccent === undefined ? undefined : nbsp(rawAccent);
   const tracking = level === 1 ? -size * 0.055 : -size * 0.045;
   return (
-    <Text role="heading" aria-level={level} style={[sans, { color, fontSize: size, lineHeight: size * (level === 1 ? 1.02 : 1.13), letterSpacing: tracking, fontWeight: level === 1 ? '500' : '400' }, style]}>
+    <Text role="heading" aria-level={semanticLevel ?? level} style={[sans, { color, fontSize: size, lineHeight: size * (level === 1 ? 1.02 : 1.13), letterSpacing: tracking, fontWeight: level === 1 ? '500' : '400' }, style]}>
       {plain}
       {accent ? (
         <>
@@ -87,6 +91,23 @@ export function Headline({
           <Text style={[serif, { color: accentColor, letterSpacing: level === 1 ? -size * 0.027 : -size * 0.02, lineHeight: size * 1.12 }]}>{accent}</Text>
         </>
       ) : null}
+    </Text>
+  );
+}
+
+// The keyword line of a page, from its SEO title without the brand.
+export function keywordOf(seoTitle: string): string {
+  return seoTitle.replace(/\s*[|–-]\s*Cantia\s*$/, '').trim();
+}
+
+// The page's H1 when the big title is a slogan: a short line in the eyebrow's
+// place carrying what the page is about (« Logiciel de gestion de chantier… »).
+export function KeywordH1({ children, style }: { children: string; style?: StyleProp<TextStyle> }) {
+  const { width } = useWindowDimensions();
+  const phone = width <= 760;
+  return (
+    <Text role="heading" aria-level={1} style={[sans, styles.keywordH1, { fontSize: phone ? 12 : 13.5, lineHeight: phone ? 17 : 19 }, style]}>
+      {children}
     </Text>
   );
 }
@@ -144,6 +165,7 @@ export function Micro({ children, color = site.muted, style }: { children: strin
 
 const styles = StyleSheet.create({
   eyebrow: { fontWeight: '600' },
+  keywordH1: { color: site.copper, fontWeight: '600', letterSpacing: 0.1, maxWidth: 560 },
   btn: {
     flexDirection: 'row',
     alignItems: 'center',
