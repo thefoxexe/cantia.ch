@@ -45,6 +45,24 @@ function offerRoute(locale) {
   return { title: field('seoTitle'), description: field('seoDescription'), faq };
 }
 
+// Title, description and FAQ of the new-company offer, read from the copy
+// the page shows (lib/site/newCompany.ts).
+const NEW_COMPANY_SRC = readFileSync(new URL('../lib/site/newCompany.ts', import.meta.url), 'utf8');
+const QUOTED = `(?:"((?:[^"\\\\]|\\\\.)*)"|'((?:[^'\\\\]|\\\\.)*)')`;
+const unquote = (m, i) => m[i] ?? m[i + 1] ?? '';
+function newCompanyRoute(locale) {
+  const start = NEW_COMPANY_SRC.indexOf(`  ${locale}: {\n    seoTitle:`);
+  const block = NEW_COMPANY_SRC.slice(start, start + 20000);
+  const field = (name) => {
+    const m = block.match(new RegExp(`\\n    ${name}:\\s*${QUOTED}`));
+    return m ? unquote(m, 1) : '';
+  };
+  const from = block.indexOf('\n    faq: [');
+  const faqBlock = block.slice(from, block.indexOf('\n    ],', from));
+  const faq = [...faqBlock.matchAll(new RegExp(`q: ${QUOTED}, a: ${QUOTED}`, 'g'))].map((m) => ({ q: unquote(m, 1), a: unquote(m, 3) }));
+  return { title: `${field('seoTitle')} | Cantia`, description: field('seoDescription'), faq };
+}
+
 const HOME = {
   path: '',
   title: 'Logiciel de gestion de chantier en Suisse | Cantia',
@@ -479,16 +497,9 @@ export const ROUTES = [
     ],
   },
   {
-    path: "nouvelle-entreprise",
-    title: "Nouvelle entreprise : Cantia offert 3 mois | Cantia",
-    description:
-      "Votre entreprise démarre ? Devis, factures QR, heures, salaires et TVA : demandez vos 3 mois d’essai offerts au lieu des 14 jours habituels.",
-    faq: [
-      { q: "Qui peut demander les 3 mois ?", a: "Les nouvelles entreprises. Faites la demande avec le formulaire de cette page : nous vous répondons par e-mail avec votre code personnel." },
-      { q: "Faut-il une carte bancaire ?", a: "Oui, comme pour l’essai habituel. Rien n’est débité pendant les 3 mois et l’abonnement peut être arrêté en un clic avant la fin." },
-      { q: "Que se passe-t-il après les 3 mois ?", a: "L’abonnement du plan choisi commence au prix affiché sur la page des tarifs, sans engagement. Vous pouvez changer de plan ou arrêter à tout moment." },
-      { q: "Combien de temps le code est-il valable ?", a: "60 jours à partir de l’envoi : il suffit de créer votre compte avec le lien reçu pendant cette période." },
-    ],
+    // The offer for new companies (lib/site/newCompany.ts); title, description and FAQ as the page shows them.
+    path: 'nouvelle-entreprise',
+    ...newCompanyRoute('fr'),
   },
   {
     path: 'plans/essentiel',
@@ -3547,16 +3558,9 @@ export const ROUTES = [
     ],
   },
   {
-    path: "de/nouvelle-entreprise",
-    title: "Neues Unternehmen: Cantia 3 Monate geschenkt | Cantia",
-    description:
-      "Ihr Unternehmen startet? Offerten, QR-Rechnungen, Stunden, Löhne und MWST: Fordern Sie 3 Monate Testphase statt der üblichen 14 Tage an.",
-    faq: [
-      { q: "Wer kann die 3 Monate anfordern?", a: "Neue Unternehmen. Senden Sie die Anfrage mit dem Formular dieser Seite: Wir antworten per E-Mail mit Ihrem persönlichen Code." },
-      { q: "Braucht es eine Kreditkarte?", a: "Ja, wie bei der üblichen Testphase. In den 3 Monaten wird nichts belastet, und das Abonnement kann vorher mit einem Klick beendet werden." },
-      { q: "Was passiert nach den 3 Monaten?", a: "Das Abonnement des gewählten Plans beginnt zum Preis der Tarifseite, ohne Mindestlaufzeit. Sie können jederzeit wechseln oder kündigen." },
-      { q: "Wie lange ist der Code gültig?", a: "60 Tage ab dem Versand: Erstellen Sie Ihr Konto in dieser Zeit mit dem erhaltenen Link." },
-    ],
+    // The offer for new companies (lib/site/newCompany.ts); title, description and FAQ as the page shows them.
+    path: 'de/neues-unternehmen',
+    ...newCompanyRoute('de'),
   },
   {
     path: 'de/plans/essentiel',
@@ -3890,16 +3894,9 @@ export const ROUTES = [
     ],
   },
   {
-    path: "it/nouvelle-entreprise",
-    title: "Nuova impresa: Cantia offerto per 3 mesi | Cantia",
-    description:
-      "La vostra impresa inizia? Preventivi, fatture QR, ore, salari e IVA: chiedete 3 mesi di prova offerti invece dei soliti 14 giorni.",
-    faq: [
-      { q: "Chi può chiedere i 3 mesi?", a: "Le nuove imprese. Fate la richiesta con il modulo di questa pagina: vi rispondiamo per e-mail con il vostro codice personale." },
-      { q: "Serve una carta di credito?", a: "Sì, come per la prova abituale. Nei 3 mesi non viene addebitato nulla e l’abbonamento può essere fermato prima con un clic." },
-      { q: "Cosa succede dopo i 3 mesi?", a: "L’abbonamento del piano scelto inizia al prezzo della pagina tariffe, senza impegno. Potete cambiare piano o disdire in qualsiasi momento." },
-      { q: "Quanto tempo è valido il codice?", a: "60 giorni dall’invio: basta creare il conto con il link ricevuto in questo periodo." },
-    ],
+    // The offer for new companies (lib/site/newCompany.ts); title, description and FAQ as the page shows them.
+    path: 'it/nuova-impresa',
+    ...newCompanyRoute('it'),
   },
   {
     path: 'it/plans/essentiel',
@@ -4939,7 +4936,10 @@ export function localeAndBareOf(routePath) {
 
 // Pages whose German or Italian address is a word of that language
 // (French path → path in the language), like lib/site/localPaths.ts.
-const LOCAL_PAGES = { 'solutions/devis': { de: 'offerte-erstellen', it: 'creare-preventivo' } };
+const LOCAL_PAGES = {
+  'solutions/devis': { de: 'offerte-erstellen', it: 'creare-preventivo' },
+  'nouvelle-entreprise': { de: 'neues-unternehmen', it: 'nuova-impresa' },
+};
 const LOCAL_PAGES_BASE = Object.fromEntries(
   Object.entries(LOCAL_PAGES).flatMap(([fr, byLocale]) => Object.entries(byLocale).map(([locale, local]) => [`${locale}:${local}`, fr])),
 );

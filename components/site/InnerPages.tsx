@@ -234,7 +234,7 @@ export function NewCompanyPage() {
   };
 
   return (
-    <SitePage title={c.seoTitle} description={c.seoDescription}>
+    <SitePage title={c.seoTitle} description={c.seoDescription} cta={false}>
       <PageHero
         crumb={c.crumb}
         eyebrow={c.eyebrow}
@@ -248,9 +248,10 @@ export function NewCompanyPage() {
             <Btn label={c.cta} href="#demande-3-mois" onPress={toForm} small={phone} />
           </View>
           <View>
-            <TextLink label={c.pricing} href={`${p}/tarifs`} size={phone ? 11 : 12} />
+            <TextLink label={c.howCta} href="#comment-ca-marche" size={phone ? 11 : 12} />
           </View>
         </Actions>
+        <Text style={[sans, styles.ncReassure]}>{c.reassurance}</Text>
       </PageHero>
 
       <Section white>
@@ -263,8 +264,39 @@ export function NewCompanyPage() {
       </Section>
 
       <Section>
-        <SectionHead eyebrow={c.stepsEyebrow} plain={c.stepsTitle} />
-        <Steps items={c.steps} />
+        <SectionHead eyebrow={c.timelineEyebrow} plain={c.timelineTitle} />
+        <Timeline items={c.timeline} highlight={0} phone={phone} />
+      </Section>
+
+      <Section white>
+        <View nativeID="comment-ca-marche">
+          <SectionHead eyebrow={c.stepsEyebrow} plain={c.stepsTitle} />
+          <Steps items={c.steps} />
+        </View>
+      </Section>
+
+      <Section>
+        <SectionHead eyebrow={c.compareEyebrow} plain={c.compareTitle} />
+        <View style={styles.ncTable}>
+          <View style={[styles.ncRow, styles.ncHead]}>
+            <Text style={[sans, styles.ncCell, styles.ncLabel]} />
+            {c.compareCols.map((col, i) => (
+              <Text key={col} style={[sans, styles.ncCell, styles.ncTh, i === 1 && { color: site.copper }]}>
+                {col}
+              </Text>
+            ))}
+          </View>
+          {c.compareRows.map((r) => (
+            <View key={r.label} style={[styles.ncRow, phone && { flexWrap: 'wrap' }]}>
+              <Text style={[sans, styles.ncCell, styles.ncLabel, phone && { width: '100%', paddingBottom: 0 }]}>{r.label}</Text>
+              {r.values.map((v, i) => (
+                <Text key={i} style={[sans, styles.ncCell, i === 1 && { color: site.ink, fontWeight: '500' }]}>
+                  {v}
+                </Text>
+              ))}
+            </View>
+          ))}
+        </View>
       </Section>
 
       <Section white>
@@ -281,8 +313,29 @@ export function NewCompanyPage() {
       </Section>
 
       <Section>
+        <SectionHead eyebrow={c.guideEyebrow} plain={c.guideTitle} />
+        <View style={styles.ncGuide}>
+          {c.guide.map((g) => (
+            <View key={g.href} style={[styles.ncGuideItem, !phone && { width: '31.5%' }]}>
+              <TextLink label={g.label} href={g.href} size={12} />
+            </View>
+          ))}
+        </View>
+      </Section>
+
+      <Section white>
         <Faq eyebrow={L.faqEyebrow} title={L.faqTitle} items={c.faq} />
       </Section>
+
+      <View style={styles.ncFinal}>
+        <Wrap>
+          <Headline plain={c.finalTitle} size={phone ? 30 : 38} color="#f4f3e9" />
+          <Text style={[sans, { fontSize: 13, color: '#b2b9a7', marginTop: 14, lineHeight: 22, maxWidth: 620 }]}>{c.finalText}</Text>
+          <View style={{ marginTop: 24, alignSelf: 'flex-start' }}>
+            <Btn label={c.cta} href="#demande-3-mois" onPress={toForm} small={phone} />
+          </View>
+        </Wrap>
+      </View>
     </SitePage>
   );
 }
@@ -595,6 +648,16 @@ export function ContactPage() {
 }
 
 const styles = StyleSheet.create({
+  ncReassure: { fontSize: 11.5, color: site.muted, marginTop: 16, lineHeight: 18 },
+  ncTable: { borderWidth: 1, borderColor: site.line, borderRadius: 8, overflow: 'hidden', backgroundColor: site.white, maxWidth: 860 },
+  ncRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: site.line },
+  ncHead: { borderTopWidth: 0, backgroundColor: site.bg },
+  ncCell: { flex: 1, paddingHorizontal: 14, paddingVertical: 12, fontSize: 12.5, lineHeight: 19, color: site.muted },
+  ncTh: { fontSize: 11.5, fontWeight: '700', color: site.ink },
+  ncLabel: { color: site.ink, fontWeight: '600' },
+  ncGuide: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
+  ncGuideItem: { borderWidth: 1, borderColor: site.line, borderRadius: 8, padding: 16, backgroundColor: site.white },
+  ncFinal: { backgroundColor: site.ink, paddingVertical: 60 },
   aboutSteps: { flexDirection: 'row', gap: 20 },
   aboutStep: { gap: 10, paddingTop: 20, borderTopWidth: 1, borderTopColor: site.line },
   aboutStepNum: { fontSize: 22, color: site.copper },

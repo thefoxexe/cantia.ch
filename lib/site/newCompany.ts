@@ -41,20 +41,36 @@ type Copy = {
   faqEyebrow: string;
   faqTitle: string;
   faq: { q: string; a: string }[];
+  // SEO audit, November 2026: the page answers what new companies search
+  // (« logiciel de facturation »…), the offer comes second.
+  howCta: string;
+  reassurance: string;
+  timelineEyebrow: string;
+  timelineTitle: string;
+  timeline: { when: string; title: string; text: string }[];
+  compareEyebrow: string;
+  compareTitle: string;
+  compareCols: [string, string];
+  compareRows: { label: string; values: [string, string] }[];
+  guideEyebrow: string;
+  guideTitle: string;
+  guide: { href: string; label: string }[];
+  finalTitle: string;
+  finalText: string;
 };
 
 export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
   fr: {
-    seoTitle: 'Nouvelle entreprise : Cantia offert 3 mois | Cantia',
+    seoTitle: "Logiciel de facturation nouvelle entreprise : 3 mois offerts",
     seoDescription:
-      'Votre entreprise démarre ? Devis, factures QR, heures, salaires et TVA : demandez vos 3 mois d’essai offerts au lieu des 14 jours habituels.',
+      "Vous créez votre entreprise en Suisse ? Devis, factures QR, heures et TVA dans un seul logiciel. 3 mois offerts au lieu de 14 jours, sans engagement.",
     crumb: 'Nouvelle entreprise',
     eyebrow: 'Pour les entreprises qui démarrent',
-    h1Plain: 'Votre entreprise démarre :',
-    h1Accent: 'Cantia offert 3 mois',
+    h1Plain: "Le logiciel de devis et factures pour votre nouvelle entreprise.",
+    h1Accent: "3 mois offerts pour démarrer.",
     lead:
       'Les premiers mois, on n’a ni le temps ni l’envie de monter une administration. Pour les nouvelles entreprises, Cantia est offert pendant 3 mois au lieu des 14 jours d’essai habituels.',
-    cta: 'Demander mes 3 mois',
+    cta: "Demander mes 3 mois offerts",
     pricing: 'Voir les plans',
     shotAlt: 'Tableau de bord de Cantia',
     cardsEyebrow: 'Ce qui sert dès le début',
@@ -95,19 +111,36 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
       { q: 'Faut-il une carte bancaire ?', a: 'Oui, comme pour l’essai habituel. Rien n’est débité pendant les 3 mois et l’abonnement peut être arrêté en un clic avant la fin.' },
       { q: 'Que se passe-t-il après les 3 mois ?', a: 'L’abonnement du plan choisi commence au prix affiché sur la page des tarifs, sans engagement. Vous pouvez changer de plan ou arrêter à tout moment.' },
       { q: 'Combien de temps le code est-il valable ?', a: '60 jours à partir de l’envoi : il suffit de créer votre compte avec le lien reçu pendant cette période.' },
+      { q: "Je n’ai pas encore de numéro IDE, puis-je commencer ?", a: "Oui. Le numéro IDE se renseigne quand vous l’avez, dans les informations de l’entreprise ; il apparaît ensuite sur vos devis et factures." },
+      { q: "Dois-je être inscrit à la TVA ?", a: "Non, ce n’est pas nécessaire pour utiliser Cantia. Le taux de TVA appliqué se règle dans les paramètres ; quand vous devenez assujetti, le décompte se prépare à partir de vos factures." },
+      { q: "Puis-je importer mes premiers clients ?", a: "Oui : clients et catalogue s’importent depuis un fichier Excel ou CSV." },
     ],
+    howCta: "Voir comment ça marche",
+    reassurance: "Sans engagement · Rien n’est débité pendant les 3 mois · Données hébergées à Zurich",
+    timelineEyebrow: "Vos 90 premiers jours",
+    timelineTitle: "Du premier devis au premier bilan.",
+    timeline: [{"when": "Semaine 1", "title": "Le premier devis part", "text": "Entreprise, logo et premières positions configurés. Le client signe le devis en ligne, sans créer de compte."}, {"when": "Mois 1", "title": "Les premières factures sont payées", "text": "Factures QR envoyées depuis le devis signé, paiements suivis, relances préparées pour celles qui traînent."}, {"when": "Mois 3", "title": "Vous savez où vous en êtes", "text": "Facturé, encaissé, factures ouvertes : tout est au même endroit, et vous choisissez la formule qui vous convient."}],
+    compareEyebrow: "Excel ou logiciel ?",
+    compareTitle: "Pour une entreprise qui démarre.",
+    compareCols: ["Excel / Word", "Cantia"],
+    compareRows: [{"label": "Premier devis", "values": ["Un modèle à mettre en page", "Prêt en quelques minutes, à vos couleurs"]}, {"label": "Facture QR", "values": ["Bulletin QR à générer à part", "Inclus dans chaque facture"]}, {"label": "Signature du client", "values": ["Impression et scan", "En ligne, sans compte"]}, {"label": "Factures ouvertes", "values": ["À suivre à la main", "Suivies et relancées"]}, {"label": "Coût", "values": ["Souvent déjà installé", "3 mois offerts, puis dès CHF 39.– / mois"]}],
+    guideEyebrow: "Le guide pour démarrer",
+    guideTitle: "Créer son entreprise du bâtiment, étape par étape.",
+    guide: [{"href": "/blog/creer-entreprise-batiment-suisse-guide-complet", "label": "Créer son entreprise du bâtiment en Suisse : le guide complet"}, {"href": "/blog/raison-individuelle-sarl-sa-quel-statut-batiment", "label": "Raison individuelle, Sàrl ou SA ?"}, {"href": "/blog/immatriculer-entreprise-construction-registre-commerce", "label": "Inscription au registre du commerce"}, {"href": "/blog/avs-ai-independant-batiment", "label": "AVS et assurances d’un indépendant"}, {"href": "/blog/cout-creation-entreprise-construction-suisse", "label": "Combien coûte la création d’une entreprise"}, {"href": "/blog/calculer-prix-horaire-reel-ouvrier-batiment", "label": "Calculer son vrai prix horaire"}, {"href": "/blog/modele-devis-gratuit-artisan-batiment-suisse", "label": "Modèle de devis gratuit"}, {"href": "/blog/etablir-certificat-salaire-lohnausweis-premier-employe", "label": "Le premier employé : certificat de salaire"}, {"href": "/blog/trouver-clients-artisan-batiment-suisse", "label": "Trouver ses premiers clients"}],
+    finalTitle: "Votre premier devis, cette semaine.",
+    finalText: "3 mois offerts pour les nouvelles entreprises, au lieu des 14 jours d’essai habituels. Sans engagement.",
   },
   de: {
-    seoTitle: 'Neues Unternehmen: Cantia 3 Monate geschenkt | Cantia',
+    seoTitle: "Rechnungsprogramm für Neugründer: 3 Monate gratis",
     seoDescription:
-      'Ihr Unternehmen startet? Offerten, QR-Rechnungen, Stunden, Löhne und MWST: Fordern Sie 3 Monate Testphase statt der üblichen 14 Tage an.',
+      "Sie gründen Ihr Unternehmen in der Schweiz? Offerten, QR-Rechnungen, Stunden und MWST in einer Software. 3 Monate statt 14 Tage, ohne Verpflichtung.",
     crumb: 'Neues Unternehmen',
     eyebrow: 'Für Unternehmen am Start',
-    h1Plain: 'Ihr Unternehmen startet:',
-    h1Accent: 'Cantia 3 Monate geschenkt',
+    h1Plain: "Die Software für Offerten und Rechnungen Ihres neuen Unternehmens.",
+    h1Accent: "3 Monate gratis zum Start.",
     lead:
       'In den ersten Monaten fehlt die Zeit für eine eigene Administration. Neue Unternehmen erhalten Cantia 3 Monate geschenkt, statt der üblichen 14 Tage Testphase.',
-    cta: 'Meine 3 Monate anfordern',
+    cta: "Meine 3 Monate anfordern",
     pricing: 'Pläne ansehen',
     shotAlt: 'Dashboard von Cantia',
     cardsEyebrow: 'Was von Anfang an hilft',
@@ -148,19 +181,36 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
       { q: 'Braucht es eine Kreditkarte?', a: 'Ja, wie bei der üblichen Testphase. In den 3 Monaten wird nichts belastet, und das Abonnement kann vorher mit einem Klick beendet werden.' },
       { q: 'Was passiert nach den 3 Monaten?', a: 'Das Abonnement des gewählten Plans beginnt zum Preis der Tarifseite, ohne Mindestlaufzeit. Sie können jederzeit wechseln oder kündigen.' },
       { q: 'Wie lange ist der Code gültig?', a: '60 Tage ab dem Versand: Erstellen Sie Ihr Konto in dieser Zeit mit dem erhaltenen Link.' },
+      { q: "Ich habe noch keine UID-Nummer. Kann ich trotzdem starten?", a: "Ja. Die UID-Nummer tragen Sie in den Unternehmensangaben ein, sobald Sie sie haben; danach erscheint sie auf Offerten und Rechnungen." },
+      { q: "Muss ich mehrwertsteuerpflichtig sein?", a: "Nein, das ist für Cantia nicht nötig. Der MWST-Satz wird in den Einstellungen festgelegt; sobald Sie pflichtig sind, wird die Abrechnung aus Ihren Rechnungen vorbereitet." },
+      { q: "Kann ich meine ersten Kunden importieren?", a: "Ja: Kunden und Katalog lassen sich aus einer Excel- oder CSV-Datei importieren." },
     ],
+    howCta: "So funktioniert es",
+    reassurance: "Ohne Verpflichtung · In den 3 Monaten wird nichts belastet · Daten in Zürich gespeichert",
+    timelineEyebrow: "Ihre ersten 90 Tage",
+    timelineTitle: "Von der ersten Offerte zur ersten Bilanz.",
+    timeline: [{"when": "Woche 1", "title": "Die erste Offerte geht raus", "text": "Unternehmen, Logo und erste Positionen eingerichtet. Der Kunde unterschreibt die Offerte online, ohne Konto."}, {"when": "Monat 1", "title": "Die ersten Rechnungen sind bezahlt", "text": "QR-Rechnungen aus der unterschriebenen Offerte, Zahlungen verfolgt, Mahnungen für säumige Kunden vorbereitet."}, {"when": "Monat 3", "title": "Sie wissen, wo Sie stehen", "text": "Fakturiert, bezahlt, offen: alles an einem Ort, und Sie wählen den passenden Plan."}],
+    compareEyebrow: "Excel oder Software?",
+    compareTitle: "Für ein Unternehmen am Start.",
+    compareCols: ["Excel / Word", "Cantia"],
+    compareRows: [{"label": "Erste Offerte", "values": ["Vorlage selbst gestalten", "In wenigen Minuten, in Ihren Farben"]}, {"label": "QR-Rechnung", "values": ["QR-Teil separat erstellen", "In jeder Rechnung enthalten"]}, {"label": "Unterschrift des Kunden", "values": ["Ausdrucken und scannen", "Online, ohne Konto"]}, {"label": "Offene Rechnungen", "values": ["Von Hand verfolgen", "Verfolgt und gemahnt"]}, {"label": "Kosten", "values": ["Oft schon vorhanden", "3 Monate gratis, dann ab CHF 39.– / Monat"]}],
+    guideEyebrow: "Der Leitfaden zum Start",
+    guideTitle: "Ein Bauunternehmen gründen, Schritt für Schritt.",
+    guide: [{"href": "/de/blog/bauunternehmen-gruenden-schweiz", "label": "Ein Bauunternehmen in der Schweiz gründen"}, {"href": "/de/blog/stundenkosten-bauarbeiter-berechnen", "label": "Den echten Stundenansatz berechnen"}, {"href": "/de/offerte-erstellen", "label": "Die erste Offerte erstellen (mit Vorlage)"}, {"href": "/de/blog/qr-rechnung-obligatorisch-schweiz", "label": "QR-Rechnung: was gilt"}, {"href": "/de/blog/lohnausweis-erstellen-erster-mitarbeiter", "label": "Der erste Mitarbeiter: Lohnausweis"}, {"href": "/de/blog/kunden-finden-handwerker", "label": "Die ersten Kunden finden"}, {"href": "/de/blog/software-bauunternehmen-schweiz-auswahl", "label": "Welche Software zum Start?"}],
+    finalTitle: "Ihre erste Offerte, diese Woche.",
+    finalText: "3 Monate gratis für neue Unternehmen, statt der üblichen 14 Tage Testphase. Ohne Verpflichtung.",
   },
   it: {
-    seoTitle: 'Nuova impresa: Cantia offerto per 3 mesi | Cantia',
+    seoTitle: "Software di fatturazione per nuove imprese: 3 mesi gratis",
     seoDescription:
-      'La vostra impresa inizia? Preventivi, fatture QR, ore, salari e IVA: chiedete 3 mesi di prova offerti invece dei soliti 14 giorni.',
+      "State aprendo la vostra impresa in Svizzera? Preventivi, fatture QR, ore e IVA in un solo software. 3 mesi invece di 14 giorni, senza impegno.",
     crumb: 'Nuova impresa',
     eyebrow: 'Per le imprese che iniziano',
-    h1Plain: 'La vostra impresa inizia:',
-    h1Accent: 'Cantia offerto per 3 mesi',
+    h1Plain: "Il software di preventivi e fatture per la vostra nuova impresa.",
+    h1Accent: "3 mesi gratis per iniziare.",
     lead:
       'Nei primi mesi manca il tempo per costruire un’amministrazione. Per le nuove imprese Cantia è offerto per 3 mesi invece dei soliti 14 giorni di prova.',
-    cta: 'Chiedere i miei 3 mesi',
+    cta: "Richiedere i miei 3 mesi",
     pricing: 'Vedere i piani',
     shotAlt: 'Cruscotto di Cantia',
     cardsEyebrow: 'Ciò che serve dall’inizio',
@@ -201,6 +251,23 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
       { q: 'Serve una carta di credito?', a: 'Sì, come per la prova abituale. Nei 3 mesi non viene addebitato nulla e l’abbonamento può essere fermato prima con un clic.' },
       { q: 'Cosa succede dopo i 3 mesi?', a: 'L’abbonamento del piano scelto inizia al prezzo della pagina tariffe, senza impegno. Potete cambiare piano o disdire in qualsiasi momento.' },
       { q: 'Quanto tempo è valido il codice?', a: '60 giorni dall’invio: basta creare il conto con il link ricevuto in questo periodo.' },
+      { q: "Non ho ancora un numero IDI, posso iniziare?", a: "Sì. Il numero IDI si inserisce nei dati dell’impresa quando lo avete; poi compare su preventivi e fatture." },
+      { q: "Devo essere assoggettato all’IVA?", a: "No, non è necessario per usare Cantia. L’aliquota IVA si imposta nelle impostazioni; quando diventate assoggettati, il rendiconto si prepara dalle vostre fatture." },
+      { q: "Posso importare i miei primi clienti?", a: "Sì: clienti e catalogo si importano da un file Excel o CSV." },
     ],
+    howCta: "Come funziona",
+    reassurance: "Senza impegno · Nulla viene addebitato nei 3 mesi · Dati ospitati a Zurigo",
+    timelineEyebrow: "I vostri primi 90 giorni",
+    timelineTitle: "Dal primo preventivo al primo bilancio.",
+    timeline: [{"when": "Settimana 1", "title": "Parte il primo preventivo", "text": "Impresa, logo e prime voci configurati. Il cliente firma il preventivo online, senza creare un conto."}, {"when": "Mese 1", "title": "Le prime fatture sono pagate", "text": "Fatture QR dal preventivo firmato, pagamenti seguiti, solleciti pronti per chi ritarda."}, {"when": "Mese 3", "title": "Sapete a che punto siete", "text": "Fatturato, incassato, aperto: tutto in un unico posto, e scegliete il piano giusto."}],
+    compareEyebrow: "Excel o software?",
+    compareTitle: "Per un’impresa che inizia.",
+    compareCols: ["Excel / Word", "Cantia"],
+    compareRows: [{"label": "Primo preventivo", "values": ["Un modello da impaginare", "Pronto in pochi minuti, nei vostri colori"]}, {"label": "Fattura QR", "values": ["Parte QR da generare a parte", "Inclusa in ogni fattura"]}, {"label": "Firma del cliente", "values": ["Stampa e scansione", "Online, senza conto"]}, {"label": "Fatture aperte", "values": ["Da seguire a mano", "Seguite e sollecitate"]}, {"label": "Costo", "values": ["Spesso già disponibile", "3 mesi gratis, poi da CHF 39.– / mese"]}],
+    guideEyebrow: "La guida per iniziare",
+    guideTitle: "Aprire un’impresa edile, passo dopo passo.",
+    guide: [{"href": "/it/blog/aprire-impresa-edile-svizzera", "label": "Aprire un’impresa edile in Svizzera"}, {"href": "/it/blog/avs-ai-indipendente-edilizia", "label": "AVS e assicurazioni per indipendenti"}, {"href": "/it/blog/costo-orario-operaio-edile", "label": "Calcolare la vera tariffa oraria"}, {"href": "/it/creare-preventivo", "label": "Il primo preventivo (con modello)"}, {"href": "/it/blog/fattura-qr-obbligatoria-svizzera", "label": "Fattura QR: cosa sapere"}, {"href": "/it/blog/certificato-di-salario-primo-dipendente", "label": "Il primo dipendente: certificato di salario"}, {"href": "/it/blog/trovare-clienti-artigiano", "label": "Trovare i primi clienti"}, {"href": "/it/blog/software-impresa-costruzioni-quale-scegliere", "label": "Quale software per iniziare?"}],
+    finalTitle: "Il vostro primo preventivo, questa settimana.",
+    finalText: "3 mesi gratis per le nuove imprese, invece dei soliti 14 giorni di prova. Senza impegno.",
   },
 };

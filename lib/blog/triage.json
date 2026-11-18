@@ -704,7 +704,9 @@
     "de/solutions/devis": "de/offerte-erstellen",
     "it/solutions/devis": "it/creare-preventivo",
     "de/blog/offerte-erstellen-online-schweiz": "de/offerte-erstellen",
-    "it/blog/preventivo-gratuito-online": "it/creare-preventivo"
+    "it/blog/preventivo-gratuito-online": "it/creare-preventivo",
+    "de/nouvelle-entreprise": "de/neues-unternehmen",
+    "it/nouvelle-entreprise": "it/nuova-impresa"
   },
   "noindex": [
     "blog/acompte-demenagement-suisse-montant-facture",

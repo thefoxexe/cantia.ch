@@ -705,8 +705,8 @@
   status = 200
 
 [[redirects]]
-  from = "/de/nouvelle-entreprise"
-  to = "/de/nouvelle-entreprise.html"
+  from = "/de/neues-unternehmen"
+  to = "/de/neues-unternehmen.html"
   status = 200
 
 [[redirects]]
@@ -1135,8 +1135,8 @@
   status = 200
 
 [[redirects]]
-  from = "/it/nouvelle-entreprise"
-  to = "/it/nouvelle-entreprise.html"
+  from = "/it/nuova-impresa"
+  to = "/it/nuova-impresa.html"
   status = 200
 
 [[redirects]]
@@ -4384,6 +4384,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/nouvelle-entreprise"
+  to = "/de/neues-unternehmen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/photographe"
   to = "/de/metiers/agences-evenementiel/photographe-videaste"
   status = 301
@@ -6144,6 +6150,12 @@
 [[redirects]]
   from = "/it/informaticien"
   to = "/it/metiers/bureaux-etudes/informaticien-formateur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/nouvelle-entreprise"
+  to = "/it/nuova-impresa"
   status = 301
   force = true
 

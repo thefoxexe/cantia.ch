@@ -5,6 +5,8 @@
 export const LOCAL_PAGE_PATHS: Record<string, string> = {
   '/de/solutions/devis': '/de/offerte-erstellen',
   '/it/solutions/devis': '/it/creare-preventivo',
+  '/de/nouvelle-entreprise': '/de/neues-unternehmen',
+  '/it/nouvelle-entreprise': '/it/nuova-impresa',
 };
 
 export function localHref(href: string): string {
