@@ -6,7 +6,7 @@ import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
 import { Card, Container, PageHeader, Switch, AppScreen } from '../../../components/ui';
 import { ProjectToolsPicker } from '../../../components/ProjectToolsPicker';
-import { ORG_MODULES, defaultProjectModules, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
+import { ORG_MODULES, orgModulesFor, defaultProjectModules, isModuleEnabled, listMyPrivateModules, toggleModuleActivation, type ModuleKey, type PrivateModuleGrant } from '../../../lib/modules';
 import { useTranslation } from '../../../lib/translations';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
 import type { Plan } from '../../../lib/types';
@@ -19,6 +19,7 @@ const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
   payroll: 'has_payroll',
   treasury: 'has_treasury',
+  metres: 'has_tenders',
 };
 
 const MODULE_ICON: Record<ModuleKey, IconName> = {
@@ -26,6 +27,7 @@ const MODULE_ICON: Record<ModuleKey, IconName> = {
   photos: 'image',
   devis: 'file-text',
   metre: 'grid',
+  metres: 'sliders',
   gantt: 'bar-chart-2',
   planning: 'calendar',
   profitability: 'pie-chart',
@@ -114,7 +116,7 @@ export default function ModulesScreen() {
           </View>
 
           <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
-            {ORG_MODULES.map((m) => {
+            {orgModulesFor(organization).map((m) => {
               const gated = isPlanGated(m.key);
               const active = !gated && isModuleEnabled(enabledModules, m.key);
               return (

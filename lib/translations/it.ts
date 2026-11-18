@@ -1039,6 +1039,7 @@ export const it: TranslationDict = {
       label: 'Liquidità',
       description: 'Proiezione di liquidità su 90 giorni: fatture, salari, subappaltatori, spese ricorrenti.',
     },
+    metres: { label: 'Computi e consuntivo', description: 'Riprendete il capitolato di un cantiere, inserite le quantità eseguite e i costi reali: Cantia confronta con quanto venduto e mostra l’utile per posizione.' },
     accounting: {
       label: 'Contabilità',
       description: 'Conto economico e libro mastro generati automaticamente da preventivi, fatture, spese e salari.',
@@ -2501,6 +2502,7 @@ export const it: TranslationDict = {
     tasks: 'Attività',
     sectionChantiers: 'CANTIERI',
     chantiers: 'Cantieri',
+    metres: 'Computi',
     soumissions: 'Capitolati',
     subcontractors: 'Subappaltatori',
     sectionFacturation: 'FATTURAZIONE',

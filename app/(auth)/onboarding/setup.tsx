@@ -35,6 +35,7 @@ const PLAN_GATED: Partial<Record<ModuleKey, keyof Plan>> = {
   planning: 'has_planning',
   payroll: 'has_payroll',
   treasury: 'has_treasury',
+  metres: 'has_tenders',
 };
 const MODULE_ICONS: Record<ModuleKey, keyof typeof Feather.glyphMap> = {
   devis: 'file-text',
@@ -45,6 +46,7 @@ const MODULE_ICONS: Record<ModuleKey, keyof typeof Feather.glyphMap> = {
   documents: 'folder',
   photos: 'camera',
   metre: 'list',
+  metres: 'sliders',
   gantt: 'bar-chart-2',
   subcontractors: 'briefcase',
   profitability: 'bar-chart-2',
@@ -497,7 +499,8 @@ function StepModules({
       <Text style={styles.subtitle}>{t('authOnboardingSetup.modulesSubtitle')}</Text>
 
       <View style={{ gap: spacing.md }}>
-        {ORG_MODULES.map((m) => {
+        {/* Métrés is switched on later, from Paramètres › Modules. */}
+        {ORG_MODULES.filter((m) => m.key !== 'metres').map((m) => {
           const gated = plan !== undefined && isPlanGated(m.key);
           const active = !gated && isModuleEnabled(enabledModules, m.key);
           return (

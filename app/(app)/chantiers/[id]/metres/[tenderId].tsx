@@ -35,6 +35,8 @@ import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
 import { lineAmount, selectedQuantity, subtotalsByNode, tenderTotals } from '../../../../../lib/tenders/calc';
 import { fill, useTenderCopy } from '../../../../../lib/tenders/copy';
 import { formatChf, formatQuantity } from '../../../../../lib/tenders/numbers';
+import { isPostcalc } from '../../../../../lib/tenders/postcalc';
+import { postcalcCopy } from '../../../../../lib/tenders/postcalcCopy';
 import { flattenTree, searchTree, sortOrderAfter, type FlatRow } from '../../../../../lib/tenders/tree';
 import { UNIT_CHOICES, unitLabel } from '../../../../../lib/tenders/units';
 import type { NodeType, PositionPrice, TenderNode, TenderPosition } from '../../../../../lib/tenders/types';
@@ -384,11 +386,13 @@ export default function TenderEditorScreen() {
   ) : null;
 
   const showPrices = bundle.pricesVisible;
+  const postcalc = isPostcalc(tender);
+  const pc = postcalcCopy();
 
   return (
     <AppScreen>
       <View style={[styles.header, phone && { paddingHorizontal: spacing.lg }]}>
-        <Pressable onPress={() => router.replace(`/(app)/chantiers/${projectId}/metre` as any)} style={styles.backBtn} hitSlop={8}>
+        <Pressable onPress={() => router.replace((postcalc ? `/(app)/metres/${tender.id}` : `/(app)/chantiers/${projectId}/metre`) as any)} style={styles.backBtn} hitSlop={8}>
           <Feather name="arrow-left" size={18} color={colors.text} />
         </Pressable>
         <View style={{ flex: 1, minWidth: 0 }}>
@@ -401,6 +405,14 @@ export default function TenderEditorScreen() {
         {!editable ? <Chip small label={c.readOnly} active={false} icon="lock" onPress={() => {}} /> : null}
       </View>
       {save.state === 'error' ? <Text style={[styles.error, { paddingHorizontal: spacing.xl }]}>{fill(c.saveFailed, { error: save.error ?? '' })}</Text> : null}
+      {/* A métré of the Métrés module: real quantities and real unit costs, compared with its soumission. */}
+      {postcalc ? (
+        <View style={[styles.postcalc, phone && { marginHorizontal: spacing.lg }]}>
+          <Feather name="sliders" size={15} color={colors.primary} />
+          <Text style={[kit.body, { flex: 1, minWidth: 200 }]}>{pc.postcalcBanner}</Text>
+          <Btn label={pc.compareCta} icon="bar-chart-2" variant="primary" onPress={() => router.push(`/(app)/metres/${tender.id}` as any)} />
+        </View>
+      ) : null}
 
       <ScrollView horizontal={phone} showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={[styles.stats, phone && { paddingHorizontal: spacing.lg, flexWrap: 'nowrap' }]}>
         <Stat value={billableCount} label={c.statPositions} />
@@ -1237,6 +1249,7 @@ function AddSheet({ kind, c, onClose, onAdd }: { kind: 'section' | 'position'; c
 }
 
 const styles = StyleSheet.create({
+  postcalc: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing.sm, marginHorizontal: spacing.xl, marginBottom: spacing.sm, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.primarySoft },
   recapWarn: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.warningSoft },
   recapCheck: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
   exportOpt: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },

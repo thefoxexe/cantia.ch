@@ -1036,6 +1036,7 @@ export const de: TranslationDict = {
       label: 'Liquidität',
       description: 'Liquiditätsprognose über 90 Tage: Rechnungen, Löhne, Subunternehmer, wiederkehrende Ausgaben.',
     },
+    metres: { label: 'Ausmass & Nachkalkulation', description: 'Nehmen Sie das Leistungsverzeichnis einer Baustelle, tragen Sie die ausgeführten Mengen und Ihre effektiven Kosten ein: Cantia vergleicht mit dem Verkauften und zeigt den Gewinn pro Position.' },
     accounting: {
       label: 'Buchhaltung',
       description: 'Erfolgsrechnung und Hauptbuch, automatisch aus Angeboten, Rechnungen, Ausgaben und Löhnen erstellt.',
@@ -2493,6 +2494,7 @@ export const de: TranslationDict = {
     tasks: 'Aufgaben',
     sectionChantiers: 'BAUSTELLEN',
     chantiers: 'Baustellen',
+    metres: 'Ausmass',
     soumissions: 'Leistungsverzeichnisse',
     subcontractors: 'Subunternehmer',
     sectionFacturation: 'ABRECHNUNG',

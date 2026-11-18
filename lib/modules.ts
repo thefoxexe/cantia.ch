@@ -4,7 +4,7 @@ import { useAuth } from './auth-context';
 import type { Plan } from './types';
 import { fillsSoumissions } from './trades';
 
-export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'gantt' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
+export type ModuleKey = 'documents' | 'photos' | 'devis' | 'metre' | 'metres' | 'gantt' | 'planning' | 'profitability' | 'subcontractors' | 'payroll' | 'treasury' | 'accounting';
 
 interface ModuleDef {
   key: ModuleKey;
@@ -20,7 +20,17 @@ export const ORG_MODULES: ModuleDef[] = [
   { key: 'payroll', label: 'RH & Salaires', description: 'Heures, frais professionnels et fiches de salaire par employé.' },
   { key: 'treasury', label: 'Trésorerie', description: 'Projection de trésorerie sur 90 jours : factures, salaires, sous-traitants, dépenses récurrentes.' },
   { key: 'accounting', label: 'Comptabilité', description: 'Compte de résultat et grand livre générés automatiquement depuis devis, factures, dépenses et salaires.' },
+  // Post-calcul: a métré made from the soumission of a chantier, with the
+  // quantities really executed and the real costs, compared position by
+  // position with what was sold (app/(app)/metres).
+  { key: 'metres', label: 'Métrés', description: 'Reprenez la soumission d’un chantier, mettez les quantités exécutées et vos coûts réels : Cantia compare avec ce qui a été vendu et montre le bénéfice par position.' },
 ];
+
+// The org modules this company can switch on: Métrés works on soumissions,
+// so building companies only (like the soumission tools).
+export function orgModulesFor(org: { trade: string | null } | null | undefined): ModuleDef[] {
+  return ORG_MODULES.filter((m) => m.key !== 'metres' || fillsSoumissions(org));
+}
 
 // Per-chantier: shown as a hub inside each chantier, toggled independently
 // per project from ses paramètres (voir chantiers/[id]/settings.tsx) and

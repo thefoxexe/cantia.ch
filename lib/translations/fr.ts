@@ -1017,6 +1017,7 @@ export const fr = {
       label: 'Trésorerie',
       description: 'Projection de trésorerie sur 90 jours : factures, salaires, sous-traitants, dépenses récurrentes.',
     },
+    metres: { label: 'Métrés', description: 'Reprenez la soumission d’un chantier, mettez les quantités exécutées et vos coûts réels : Cantia compare avec ce qui a été vendu et montre le bénéfice par position.' },
     accounting: {
       label: 'Comptabilité',
       description: 'Compte de résultat et grand livre générés automatiquement depuis devis, factures, dépenses et salaires.',
@@ -2479,6 +2480,7 @@ export const fr = {
     tasks: 'Tâches',
     sectionChantiers: 'CHANTIERS',
     chantiers: 'Chantiers',
+    metres: 'Métrés',
     soumissions: 'Soumissions',
     subcontractors: 'Sous-traitants',
     sectionFacturation: 'FACTURATION',

@@ -8,6 +8,7 @@ export const APP_MENU_ROOTS = new Set([
   '/planning',
   '/chantiers',
   '/soumissions',
+  '/metres',
   '/clients',
   '/devis',
   '/devis/factures',

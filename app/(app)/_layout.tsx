@@ -56,6 +56,7 @@ function buildSections(
   accountingEnabled: boolean,
   emailsVisible: boolean,
   soumissionsVisible: boolean,
+  metresVisible: boolean,
 ): NavSection[] {
   // What people open every day sits on top: home (tasks live there, no
   // separate entry), the mailbox and the planning.
@@ -88,6 +89,9 @@ function buildSections(
         { href: '/(app)/chantiers', label: t('nav.chantiers'), icon: 'layers' as const },
         // Every soumission across chantiers (building companies, beta).
         ...(soumissionsVisible ? [{ href: '/(app)/soumissions', label: t('nav.soumissions'), icon: 'clipboard' as const }] : []),
+        // Post-calcul: the soumission sold vs what the chantier really cost
+        // (module Métrés, Paramètres › Modules).
+        ...(metresVisible ? [{ href: '/(app)/metres', label: t('nav.metres'), icon: 'sliders' as const }] : []),
         // Contacts (clients + sous-traitants) normally sits under Facturation;
         // without devis access it lands here, sous-traitants only.
         ...(!devisVisible && subcontractorsVisible ? [{ href: '/(app)/clients', label: t('nav.clients'), icon: 'users' as const }] : []),
@@ -173,7 +177,7 @@ export default function AppLayout() {
   useEffect(() => {
     salesTrackingReady().then(setSalesReady);
   }, []);
-  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady, fillsSoumissions(organization) && permissions.metre);
+  const sections = buildSections(t, devisVisible, planningEnabled, permissions.subcontractors, payrollEnabled, canManagePayroll, treasuryEnabled, accountingEnabled, devisVisible && canViewFinances && salesReady, fillsSoumissions(organization) && permissions.metre, fillsSoumissions(organization) && permissions.metre && isModuleEnabled(organization?.enabled_modules, 'metres'));
   // The signed-in app is private: its build-time HTML serves no one, and
   // hydrating it against the visitor's real session, screen and date only
   // produced mismatches (React error #418). Render it in the browser only.

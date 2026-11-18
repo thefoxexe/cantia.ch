@@ -44,13 +44,14 @@ export default function SoumissionsScreen() {
     const [{ data }, q, { data: proj }] = await Promise.all([
       supabase
         .from('tenders')
-        .select('id, project_id, name, number, status, created_at, projects(name), tender_positions(count)')
+        .select('id, project_id, name, number, status, created_at, metadata, projects(name), tender_positions(count)')
         .eq('organization_id', organization.id)
         .order('created_at', { ascending: false }),
       tenderQuota(organization.id),
       supabase.from('projects').select('id, name').eq('organization_id', organization.id).order('created_at', { ascending: false }).limit(200),
     ]);
-    const list = (data ?? []) as any[];
+    // Métrés of the Métrés module (post-calcul) have their own page.
+    const list = ((data ?? []) as any[]).filter((r) => r.metadata?.role !== 'postcalc');
     const ids = list.map((r) => r.id);
     // Prices only come back for members with the Finances permission.
     const { data: prices } = ids.length
