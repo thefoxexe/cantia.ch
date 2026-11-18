@@ -11,6 +11,7 @@ export const post: BlogPost = {
   category: 'Juridique & normes',
   keywords: ['SIA 118', 'Norm', 'Vertrag', 'Offerte', 'Pflicht', 'Bauwesen'],
   publishedAt: '2026-09-03',
+  updatedAt: '2026-11-18',
   readMinutes: 5,
   blocks: [
     {
@@ -36,6 +37,20 @@ export const post: BlogPost = {
         'Von der Norm präzisierte Regeln zu Kündigung und Anzahlungen',
         'Ein Richter wendet die SIA 118 nur an, wenn der Vertrag sie schwarz auf weiss erwähnt; er leitet sie nie aus dem Kontext ab',
       ],
+    },
+    { type: 'h2', text: 'Garantie nach SIA 118: Garantieschein, Rügefrist, Verjährung' },
+    {
+      type: 'list',
+      items: [
+        'Rügefrist (Garantiefrist, Art. 172 ff. SIA 118): 2 Jahre ab der Abnahme des Werks. In dieser Zeit kann der Bauherr Mängel jederzeit rügen, nicht nur sofort nach der Entdeckung.',
+        'Nach Ablauf der 2 Jahre: verdeckte Mängel müssen sofort nach ihrer Entdeckung gerügt werden.',
+        'Verjährung: grundsätzlich 5 Jahre ab der Abnahme, 10 Jahre bei absichtlich verschwiegenen Mängeln.',
+        'Garantieschein: Der Unternehmer leistet für die Garantiefrist eine Sicherheit, meist als Bankgarantie oder Garantieschein einer Versicherung. Die Höhe wird im Vertrag festgelegt.',
+      ],
+    },
+    {
+      type: 'p',
+      text: 'Ohne Hinweis auf die SIA 118 gelten die Regeln des Obligationenrechts: Mängel müssen dann rasch nach ihrer Entdeckung gemeldet werden.',
     },
     { type: 'h2', text: 'Sollte man sie auf der eigenen Offerte selbst vorschreiben?' },
     {

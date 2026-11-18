@@ -1087,6 +1087,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/neues-unternehmen</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1110,123 +1111,99 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/charpentier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/zimmermann</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/macon</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/maurer</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/electricien</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/elektroinstallateur</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/plombier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/sanitaerinstallateur</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/peintre</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/maler</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/menuisier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/schreiner</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/entreprise-generale</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/generalunternehmer</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/paysagiste</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/gartenbau</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/couvreur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/dachdecker</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/chauffagiste</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/heizungsinstallateur</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/carreleur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/plattenleger</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/platrier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/gipser</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/genie-civil</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/tiefbau</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/terrassier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/erdbau</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/entreprise-renovation</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/renovationsfirma</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/serrurier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/metallbauer</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/ferblantier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/spengler</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/facadier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/fassadenbauer</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/etancheur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/abdichter</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/construction-bois</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/holzbau</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/vitrier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/glaser</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/parqueteur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/parkettleger</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/echafaudeur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/geruestbau</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/demolition</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/de/rueckbau-abbruch</loc>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1846,6 +1823,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/nuova-impresa</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1869,123 +1847,99 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/charpentier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/carpentiere</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/macon</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/muratore</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/electricien</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/elettricista</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/plombier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/idraulico</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/peintre</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/pittore-edile</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/menuisier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/falegname</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/entreprise-generale</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/impresa-generale</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/paysagiste</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/giardiniere-paesaggista</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/couvreur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/copritetto</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/chauffagiste</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/impiantista-termoidraulico</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/carreleur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/piastrellista</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/platrier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/gessatore</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/genie-civil</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/genio-civile</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/terrassier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/movimento-terra</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/entreprise-renovation</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/impresa-ristrutturazioni</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/serrurier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/fabbro</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/ferblantier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/lattoniere</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/facadier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/facciatista</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/etancheur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/impermeabilizzatore</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/construction-bois</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/costruzione-legno</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/vitrier</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/vetraio</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/parqueteur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/parchettista</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/echafaudeur</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/ponteggiatore</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/demolition</loc>
-    <lastmod>2026-10-09</lastmod>
+    <loc>https://cantia.ch/it/demolizioni</loc>
     <priority>0.4</priority>
   </url>
   <url>

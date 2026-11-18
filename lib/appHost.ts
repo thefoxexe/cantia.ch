@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { forceLocale, getAppLocale, type AppLocale } from './translations';
 import { IS_DEMO } from './demo';
+import { localHref, unlocalizedHref } from './site/localPaths';
 
 // The marketing site (cantia.ch) and the authenticated app (app.cantia.ch)
 // are the same Expo Router web build, deployed once and reachable under two
@@ -82,11 +83,14 @@ export function authHref(kind: 'login' | 'signup', extra?: Record<string, string
 const LOCALE_PATH_PREFIXES: Record<'fr' | 'de' | 'it', string> = { fr: '', de: '/de', it: '/it' };
 
 export function toggleLocalePathname(pathname: string, targetLocale: 'fr' | 'de' | 'it'): string {
-  const prefixed = (['de', 'it'] as const).find((loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`));
-  const bare = prefixed ? pathname.slice(1 + prefixed.length) || '/' : pathname;
+  // A page with an address in its own language (/de/offerte-erstellen) goes
+  // through its French path, then to the other language's own address.
+  const source = unlocalizedHref(pathname);
+  const prefixed = (['de', 'it'] as const).find((loc) => source === `/${loc}` || source.startsWith(`/${loc}/`));
+  const bare = prefixed ? source.slice(1 + prefixed.length) || '/' : source;
   const targetPrefix = LOCALE_PATH_PREFIXES[targetLocale];
   if (!targetPrefix) return bare;
-  return bare === '/' ? targetPrefix : `${targetPrefix}${bare}`;
+  return localHref(bare === '/' ? targetPrefix : `${targetPrefix}${bare}`);
 }
 
 // The in-app "Aide" screen used to duplicate the marketing site's Centre

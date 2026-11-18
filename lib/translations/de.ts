@@ -4282,6 +4282,7 @@ export const de: TranslationDict = {
   blogIndexPage: {
     kicker: 'Blog',
     title: 'Konkrete Antworten für die Schweizer Baustelle',
+    quoteLink: 'Offerte erstellen, mit kostenloser Vorlage',
     subtitle: 'Offerten, Rechnungsstellung, HR, Recht, Vergleiche. Präzise Antworten auf die Fragen, die sich Handwerker und Bauunternehmen in der Schweiz wirklich stellen.',
     searchPlaceholder: 'z. B. QR-Rechnung, Subunternehmer, Stunden, SIA 118…',
     allArticles: 'Alle Artikel',

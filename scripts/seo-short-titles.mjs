@@ -102,7 +102,7 @@ export const SHORT_TITLES = {
   'de/blog/betreibung-unbezahlte-rechnung-ablauf': 'Unbezahlte Rechnung: die Betreibung Schritt für Schritt',
   'de/blog/software-bauunternehmen-schweiz-auswahl': 'Software für Bauunternehmen: welche zum Start?',
   'de/blog/previsionnel-tresorerie-entreprise-batiment': 'Liquiditätsplanung für ein Bauunternehmen',
-  'de/blog/rabais-escompte-tva-ordre-soumission': 'Rabatt, Skonto, MWST: die Reihenfolge im LV',
+  'de/blog/rabais-escompte-tva-ordre-soumission': 'Rabatt und Skonto: Reihenfolge und MWST in der Offerte',
   'de/blog/reception-travaux-proces-verbal-chantier': 'Bauabnahme: warum das Protokoll beide schützt',
   'de/blog/rediger-devis-qui-inspire-confiance-client': 'Eine Offerte schreiben, die Vertrauen schafft',
   'de/blog/remplir-soumission-pdf-architecte': 'Ein PDF-Leistungsverzeichnis ausfüllen, ohne abzutippen',

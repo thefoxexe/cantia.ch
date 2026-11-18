@@ -14,6 +14,7 @@ import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostByBase } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { StarterOffer } from './site/StarterOffer';
+import { localHref } from '../lib/site/localPaths';
 
 // One trade page (cantia.ch/charpentier, /de/zimmermann…): the trade's
 // situations, uses, a day with Cantia, before/after, included modules,
@@ -201,7 +202,7 @@ export function TradePage({ slug }: { slug: string }) {
           <Eyebrow>{t('tradePage.seeAlsoEyebrow')}</Eyebrow>
           <View style={styles.chips}>
             {related.map((r) => (
-              <Link key={r.slug} href={`${pre}${r.slug}` as any} asChild>
+              <Link key={r.slug} href={localHref(`${pre}${r.slug}`) as any} asChild>
                 <Hover accessibilityRole="link" base={styles.chip} hover={{ borderColor: site.copper }}>
                   <Text style={[sans, styles.chipText]}>{t('tradePage.seeAlsoTradeChip', { trade: r.tradeName })}</Text>
                 </Hover>

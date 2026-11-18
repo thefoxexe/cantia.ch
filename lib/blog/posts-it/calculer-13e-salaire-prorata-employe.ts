@@ -11,6 +11,7 @@ export const post: BlogPost = {
   category: 'RH & salaires',
   keywords: ['tredicesima', 'pro rata', 'calcolo salario', 'assunzione in corso d’anno', 'partenza dipendente'],
   publishedAt: '2026-09-10',
+  updatedAt: '2026-11-18',
   readMinutes: 5,
   blocks: [
     {
@@ -36,6 +37,11 @@ export const post: BlogPost = {
       type: 'callout',
       title: 'Il dettaglio che falsa il calcolo: i mesi incompleti',
       text: 'Un dipendente assunto il 15 del mese non ha in linea di principio diritto a un mese completo nel calcolo: la maggior parte dei contratti e degli usi applica una regola proporzionale al numero di giorni lavorati in quel mese, piuttosto che arrotondare sistematicamente al mese intero. Il contratto di lavoro o il CCL applicabile precisa generalmente il metodo esatto da seguire.',
+    },
+    { type: 'h2', text: 'Esempio di calcolo' },
+    {
+      type: 'p',
+      text: 'Un operaio guadagna CHF 5’200 lordi al mese e la sua tredicesima completa corrisponde a un mese di salario. È assunto il 1° aprile e lascia l’impresa il 30 settembre: ha lavorato 6 mesi completi. Tredicesima dovuta: 6 ÷ 12 × CHF 5’200 = CHF 2’600. Con il metodo percentuale si arriva allo stesso risultato: 8,33 % dei salari lordi versati (6 × CHF 5’200 = CHF 31’200) danno circa CHF 2’600.',
     },
     { type: 'h2', text: 'Cosa può ridurre la tredicesima' },
     {

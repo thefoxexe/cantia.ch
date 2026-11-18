@@ -4289,8 +4289,9 @@ export const it: TranslationDict = {
   },
   blogIndexPage: {
     kicker: 'Blog',
-    title: 'Le risposte concrete del cantiere svizzero',
-    subtitle: 'Preventivi, fatturazione, personale, giuridico, confronti. Risposte precise alle domande che si pongono davvero gli artigiani e le imprese del settore edile in Svizzera.',
+    title: 'Preventivi, fatture e cantieri: le risposte per l’edilizia svizzera',
+    subtitle: 'Preventivi per le costruzioni, fatturazione, personale, giuridico, confronti. Risposte precise alle domande che si pongono davvero gli artigiani e le imprese del settore edile in Svizzera.',
+    quoteLink: 'Creare un preventivo per l’edilizia, con modello gratuito',
     searchPlaceholder: 'es.: QR-fattura, subappaltatore, ore, SIA 118…',
     allArticles: 'Tutti gli articoli',
     empty: 'Nessun articolo corrisponde a questa ricerca.',

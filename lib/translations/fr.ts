@@ -4271,6 +4271,7 @@ export const fr = {
   blogIndexPage: {
     kicker: 'Blog',
     title: 'Les réponses concrètes du chantier suisse',
+    quoteLink: 'Faire un devis de chantier, avec le module Devis',
     subtitle: 'Devis, facturation, RH, juridique, comparatifs. Des réponses précises aux questions que se posent vraiment les artisans et entreprises du bâtiment en Suisse.',
     searchPlaceholder: 'ex : QR-facture, sous-traitant, heures, SIA 118…',
     allArticles: 'Tous les articles',

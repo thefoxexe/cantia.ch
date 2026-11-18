@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
+import { BLOG_DATES_FR, BLOG_FAQ_FR, BLOG_MODIFIED_FR, BLOG_SEO_DE, HELP_SEO_DE, HELP_SEO_FR, TRADE_SEO_DE } from './de-seo-data.generated.mjs';
 import { BLOG_SEO_IT, HELP_SEO_IT, TRADE_SEO_IT } from './it-seo-data.generated.mjs';
 import { DESCRIPTION_OVERRIDES } from './seo-descriptions.mjs';
 import { CRUMB_NAMES } from './crumb-names.mjs';
@@ -3933,7 +3933,7 @@ export const ROUTES = [
   },
   {
     path: 'it/blog',
-    title: "Blog | Cantia: Risposte concrete per l'edilizia svizzera",
+    title: "Preventivi costruzioni e fatture: il blog dell'edilizia | Cantia",
     description:
       "Preventivi, fatturazione, HR, aspetti legali, confronti: risposte precise alle domande che si pongono gli artigiani e le imprese edili in Svizzera.",
   },
@@ -4882,6 +4882,7 @@ for (const locale of ['de', 'it']) {
 // German and Italian slugs of the articles (French slug → slug in the
 // language); the address with the French slug redirects (BLOG_REDIRECTS).
 const LOCAL_SLUGS = { de: TRIAGE.deSlugs, it: TRIAGE.itSlugs ?? {} };
+const LOCAL_TRADE_SLUGS = JSON.parse(readFileSync(new URL('../lib/site/tradeSlugs.json', import.meta.url), 'utf8'));
 const LOCAL_BASE = Object.fromEntries(
   Object.entries(LOCAL_SLUGS).map(([locale, map]) => [locale, Object.fromEntries(Object.entries(map).map(([base, slug]) => [slug, base]))]),
 );
@@ -4889,6 +4890,9 @@ for (let i = ROUTES.length - 1; i >= 0; i--) {
   const route = ROUTES[i];
   const localBlog = route.path.match(/^(de|it)\/blog\/(.+)$/);
   if (localBlog && LOCAL_SLUGS[localBlog[1]][localBlog[2]]) route.path = `${localBlog[1]}/blog/${LOCAL_SLUGS[localBlog[1]][localBlog[2]]}`;
+  // Trade pages take their German or Italian address (lib/site/tradeSlugs.json).
+  const localTrade = route.path.match(/^(de|it)\/([a-z-]+)$/);
+  if (localTrade && LOCAL_TRADE_SLUGS[localTrade[1]]?.[localTrade[2]]) route.path = `${localTrade[1]}/${LOCAL_TRADE_SLUGS[localTrade[1]][localTrade[2]]}`;
   if (route.path in BLOG_REDIRECTS) ROUTES.splice(i, 1);
   else if (TRIAGE.noindex.includes(route.path)) route.noindex = true;
 }
@@ -4922,6 +4926,7 @@ for (const route of ROUTES) {
   if (!slug) continue;
   if (!route.publishedAt && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
   if (BLOG_FAQ_FR[slug]) route.faq = BLOG_FAQ_FR[slug];
+  if (BLOG_MODIFIED_FR[slug]) route.modifiedAt = BLOG_MODIFIED_FR[slug];
 }
 
 const LOCALE_PREFIXES = { de: 'de', it: 'it' };
@@ -4940,6 +4945,10 @@ const LOCAL_PAGES = {
   'solutions/devis': { de: 'offerte-erstellen', it: 'creare-preventivo' },
   'nouvelle-entreprise': { de: 'neues-unternehmen', it: 'nuova-impresa' },
 };
+// Trade pages with an address in their own language (lib/site/tradeSlugs.json).
+for (const [locale, slugs] of Object.entries(LOCAL_TRADE_SLUGS)) {
+  for (const [fr, local] of Object.entries(slugs)) (LOCAL_PAGES[fr] ??= {})[locale] = local;
+}
 const LOCAL_PAGES_BASE = Object.fromEntries(
   Object.entries(LOCAL_PAGES).flatMap(([fr, byLocale]) => Object.entries(byLocale).map(([locale, local]) => [`${locale}:${local}`, fr])),
 );
@@ -4997,7 +5006,7 @@ const LOCALE_TAGS = { fr: 'fr-CH', de: 'de-CH', it: 'it-CH' };
 const HOME_LABELS = { fr: 'Accueil', de: 'Startseite', it: 'Home' };
 
 export function jsonLdFor(url, route) {
-  const { path: routePath, title, description, faq, publishedAt } = route;
+  const { path: routePath, title, description, faq, publishedAt, modifiedAt } = route;
   const { locale: routeLocale } = localeAndBareOf(routePath);
   const locale = LOCALE_TAGS[routeLocale];
   const homeLabel = HOME_LABELS[routeLocale];
@@ -5052,7 +5061,7 @@ export function jsonLdFor(url, route) {
       url,
       image: ogImageUrl(routePath),
       inLanguage: locale,
-      ...(publishedAt ? { datePublished: publishedAt, dateModified: publishedAt } : {}),
+      ...(publishedAt ? { datePublished: publishedAt, dateModified: modifiedAt ?? publishedAt } : {}),
       author: { '@type': 'Person', '@id': `${SITE}/#bastien`, name: 'Bastien', worksFor: { '@id': `${SITE}/#organization` } },
       publisher: { '@id': `${SITE}/#organization` },
       mainEntityOfPage: url,
@@ -5080,12 +5089,15 @@ export function jsonLdFor(url, route) {
   } else {
     const { bare } = localeAndBareOf(routePath);
     // A trade page sits under « Votre métier › Bâtiment & artisanat », as on the page.
-    const segments = TRADE_SLUGS.has(bare) ? ['metiers', 'batiment-artisanat', bare] : bare.split('/').filter(Boolean);
+    // Its German or Italian address (tradeSlugs.json) stands for the French slug.
+    const frBare = LOCAL_PAGES_BASE[`${routeLocale}:${bare}`] ?? bare;
+    const isTrade = TRADE_SLUGS.has(frBare);
+    const segments = isTrade ? ['metiers', 'batiment-artisanat', bare] : bare.split('/').filter(Boolean);
     const homeUrl = routeLocale === 'fr' ? `${SITE}/` : `${SITE}/${LOCALE_PREFIXES[routeLocale]}`;
     const items = [{ '@type': 'ListItem', position: 1, name: homeLabel, item: homeUrl }];
     let acc = homeUrl.endsWith('/') ? homeUrl.slice(0, -1) : homeUrl;
     segments.forEach((seg, i) => {
-      const key = TRADE_SLUGS.has(bare) && i === 2 ? bare : segments.slice(0, i + 1).join('/');
+      const key = isTrade && i === 2 ? bare : segments.slice(0, i + 1).join('/');
       // Sections without a page of their own point where the page's own
       // breadcrumb does: the features overview and the pricing page.
       const target = { solutions: 'fonctionnalites', plans: 'tarifs' }[key] ?? key;
@@ -5093,7 +5105,7 @@ export function jsonLdFor(url, route) {
       const last = i === segments.length - 1;
       // Real names (with accents), else the page's own title for the last
       // crumb, else the slug made readable.
-      const name = CRUMB_NAMES[routeLocale]?.[key] ?? (last ? title.split(' | ')[0] : humanizeSegment(seg));
+      const name = CRUMB_NAMES[routeLocale]?.[isTrade && i === 2 ? frBare : key] ?? (last ? title.split(' | ')[0] : humanizeSegment(seg));
       items.push({ '@type': 'ListItem', position: i + 2, name, item: acc });
     });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: items });

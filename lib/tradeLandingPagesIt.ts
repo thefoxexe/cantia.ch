@@ -688,7 +688,7 @@ export const TRADE_PAGES_IT: Record<string, TradeLandingPage> = {
     slug: 'chauffagiste',
     tradeName: 'Termoidraulici',
     seo: {
-      title: 'Software di gestione per termoidraulici in Svizzera | Cantia',
+      title: 'Software gestione cantieri per impiantisti termoidraulici | Cantia',
       description:
         'Segua impianti, interventi e team con Cantia, il software di gestione pensato per le imprese di riscaldamento in Svizzera.',
     },

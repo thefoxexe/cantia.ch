@@ -11,6 +11,7 @@ export const post: BlogPost = {
   category: 'Chantier & rentabilité',
   keywords: ['construction modulaire suisse', 'construction préfabriquée bâtiment', 'ossature préfabriquée atelier chantier'],
   publishedAt: '2026-09-22',
+  updatedAt: '2026-11-18',
   readMinutes: 6,
   blocks: [
     {
@@ -55,6 +56,11 @@ export const post: BlogPost = {
     },
   ],
   faq: [
+    {
+      question: 'Quelle différence entre construction modulaire et construction préfabriquée ?',
+      answer:
+        'La préfabrication consiste à fabriquer des éléments en atelier (murs, dalles, façades) puis à les assembler sur place. La construction modulaire va plus loin : des volumes entiers, déjà équipés, sont fabriqués en atelier puis posés sur le chantier.',
+    },
     {
       question: 'La construction modulaire coûte-t-elle plus cher que la construction traditionnelle ?',
       answer:

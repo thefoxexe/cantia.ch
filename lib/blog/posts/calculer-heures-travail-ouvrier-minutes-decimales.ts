@@ -11,11 +11,30 @@ export const post: BlogPost = {
   category: 'RH & salaires',
   keywords: ['heures de travail', 'décompte heures', 'salaire horaire', 'rh bâtiment', 'fiche de paie'],
   publishedAt: '2026-08-19',
+  updatedAt: '2026-11-18',
   readMinutes: 5,
   blocks: [
     {
       type: 'p',
       text: 'Un ouvrier commence à 8h00, termine à 12h45. Combien d’heures a-t-il travaillé ? « 4h45 » est la bonne réponse instinctive. Le problème arrive dès qu’il faut la taper dans un tableur ou un logiciel de paie : 4h45 n’est pas 4,45 en écriture décimale, et cette confusion produit des fiches de salaire fausses sans qu’aucun signal d’alarme ne se déclenche.',
+    },
+    {
+      type: 'table',
+      headers: ['Durée notée', 'En heures décimales'],
+      rows: [
+        ['0h15', '0,25'],
+        ['0h30', '0,5'],
+        ['0h45', '0,75'],
+        ['4h15', '4,25'],
+        ['4h45', '4,75'],
+        ['7h30', '7,5'],
+        ['8h20', '8,33'],
+        ['8h40', '8,67'],
+      ],
+    },
+    {
+      type: 'p',
+      text: 'La règle : diviser les minutes par 60. 45 minutes font 45 ÷ 60 = 0,75 heure, donc 4h45 = 4,75 heures.',
     },
     { type: 'h2', text: 'Le piège du séparateur' },
     {

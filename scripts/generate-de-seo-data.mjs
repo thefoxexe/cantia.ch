@@ -29,6 +29,7 @@ const blogRoutes = blogFiles
       description: post.description,
       faq: (post.faq ?? []).map((item) => ({ q: item.question, a: item.answer })),
       publishedAt: post.publishedAt,
+      ...(post.updatedAt ? { modifiedAt: post.updatedAt } : {}),
     };
   })
   .sort((a, b) => a.path.localeCompare(b.path));
@@ -40,6 +41,11 @@ const postsFr = readdirSync(postsFrDir)
   .map((f) => loadTsModule(path.join(postsFrDir, f)).post);
 const blogDatesFr = postsFr.reduce((acc, post) => {
   acc[post.slug] = post.publishedAt;
+  return acc;
+}, {});
+// Last real content change (updatedAt), for Article.dateModified.
+const blogModifiedFr = postsFr.reduce((acc, post) => {
+  if (post.updatedAt) acc[post.slug] = post.updatedAt;
   return acc;
 }, {});
 // The FAQ each French article really shows (components/BlogArticle.tsx), so
@@ -90,6 +96,8 @@ export const TRADE_SEO_DE = ${JSON.stringify(tradeRoutes, null, 2)};
 export const BLOG_DATES_FR = ${JSON.stringify(blogDatesFr, null, 2)};
 
 export const BLOG_FAQ_FR = ${JSON.stringify(blogFaqFr, null, 2)};
+
+export const BLOG_MODIFIED_FR = ${JSON.stringify(blogModifiedFr, null, 2)};
 
 export const HELP_SEO_FR = ${JSON.stringify(helpRoutesFr, null, 2)};
 

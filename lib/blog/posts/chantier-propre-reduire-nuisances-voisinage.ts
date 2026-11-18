@@ -11,6 +11,7 @@ export const post: BlogPost = {
   category: 'Juridique & normes',
   keywords: ['chantier propre voisinage', 'réduire nuisances chantier', 'nuisances chantier construction'],
   publishedAt: '2026-09-22',
+  updatedAt: '2026-11-18',
   readMinutes: 5,
   blocks: [
     {
@@ -27,7 +28,7 @@ export const post: BlogPost = {
         'Les accès piétons ou véhicules bloqués sans préavis, notamment dans des rues étroites ou en milieu urbain dense',
       ],
     },
-    { type: 'h2', text: 'Les bonnes pratiques qui font une vraie différence' },
+    { type: 'h2', text: 'Comment réduire les nuisances de chantier' },
     {
       type: 'p',
       text: 'Réduire les nuisances ne demande pas de moyens exceptionnels, mais une organisation un peu plus rigoureuse que le strict minimum.',

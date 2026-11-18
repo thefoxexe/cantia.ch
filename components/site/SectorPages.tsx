@@ -13,6 +13,7 @@ import { sans, serif, site } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
 import { getTradePage } from '../../lib/tradeLandingPages';
 import { getSubTrade, subTradesOf } from '../../lib/site/subTrades';
+import { localHref } from '../../lib/site/localPaths';
 
 type IconName = keyof typeof Feather.glyphMap;
 const SECTOR_ICONS: Record<SectorKey, IconName> = { batiment: 'home', services: 'droplet', etudes: 'compass', creatifs: 'aperture' };
@@ -166,7 +167,7 @@ export function SectorPage({ sector }: { sector: SectorKey }) {
         {sector === 'batiment' ? (
           <View style={styles.chips}>
             {trades.map((t) => (
-              <Link key={t.slug} href={`${p}/${t.slug}` as any} asChild>
+              <Link key={t.slug} href={localHref(`${p}/${t.slug}`) as any} asChild>
                 <Hover accessibilityRole="link" base={styles.chip} hover={{ borderColor: site.copper }}>
                   {(hovered) => (
                     <>

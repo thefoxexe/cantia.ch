@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Eyebrow, Hover } from './Primitives';
@@ -13,7 +13,7 @@ import { sans, site } from '../../lib/siteTheme';
 // starter_offer_click (lib/siteAnalytics.ts) and the request form on the offer
 // page sends both with the request, so the admin sees which placement brought it.
 // The conditions are those of lib/site/newCompany.ts: nothing else is promised.
-export type StarterOfferVariant = 'box' | 'inline' | 'banner';
+export type StarterOfferVariant = 'box' | 'inline' | 'banner' | 'sticky';
 
 const COPY = {
   fr: {
@@ -22,6 +22,7 @@ const COPY = {
     text: 'Pour les nouvelles entreprises : 3 mois d’essai au lieu de 14 jours, sans engagement, pour faire vos premiers devis et vos premières factures QR.',
     cta: 'Voir l’offre',
     inline: 'Vous créez votre entreprise ? Cantia est offert pendant 3 mois.',
+    sticky: '3 mois offerts pour démarrer',
   },
   de: {
     eyebrow: 'Neues Unternehmen',
@@ -29,6 +30,7 @@ const COPY = {
     text: 'Für neue Unternehmen: 3 Monate Testphase statt 14 Tage, ohne Verpflichtung, für die ersten Offerten und QR-Rechnungen.',
     cta: 'Zum Angebot',
     inline: 'Sie gründen Ihr Unternehmen? Cantia ist 3 Monate gratis.',
+    sticky: '3 Monate gratis für Neugründer',
   },
   it: {
     eyebrow: 'Nuova impresa',
@@ -36,6 +38,7 @@ const COPY = {
     text: 'Per le nuove imprese: 3 mesi di prova invece di 14 giorni, senza impegno, per i primi preventivi e le prime fatture QR.',
     cta: 'Vedere l’offerta',
     inline: 'State aprendo la vostra impresa? Cantia è gratuito per 3 mesi.',
+    sticky: '3 mesi gratis per nuove imprese',
   },
 } as const;
 
@@ -60,6 +63,17 @@ export function StarterOffer({ variant = 'box', source }: { variant?: StarterOff
           <Feather name="arrow-right" size={15} color={site.copper} />
         </Hover>
       </Link>
+    );
+  }
+
+  // Phone only: a bar fixed at the bottom of the screen (articles about starting out).
+  if (variant === 'sticky') {
+    if (!phone || Platform.OS !== 'web') return null;
+    return (
+      <View style={styles.sticky}>
+        <Text style={[sans, styles.stickyText]} numberOfLines={2}>{c.sticky}</Text>
+        <Btn label={c.cta} href={href} small />
+      </View>
     );
   }
 
@@ -102,6 +116,8 @@ const styles = StyleSheet.create({
   boxText: { fontSize: 13, lineHeight: 22, color: '#b2b9a7', maxWidth: 560 },
   inline: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: site.line, borderRadius: 8, padding: 16, backgroundColor: site.white },
   inlineText: { flex: 1, fontSize: 13, lineHeight: 20, color: site.ink, fontWeight: '500' },
+  sticky: { position: 'fixed' as any, left: 0, right: 0, bottom: 0, zIndex: 50, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: site.ink, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' as any },
+  stickyText: { flex: 1, fontSize: 13, lineHeight: 18, color: '#f4f3e9', fontWeight: '600' },
   banner: { backgroundColor: site.ink, paddingVertical: 9, paddingHorizontal: 16, alignItems: 'center' },
   bannerText: { fontSize: 12, lineHeight: 17, color: '#f4f3e9', textAlign: 'center' },
 });

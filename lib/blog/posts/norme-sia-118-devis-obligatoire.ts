@@ -11,11 +11,24 @@ export const post: BlogPost = {
   category: 'Juridique & normes',
   keywords: ['sia 118', 'norme', 'contrat', 'devis', 'obligation', 'construction'],
   publishedAt: '2026-08-19',
+  updatedAt: '2026-11-18',
   readMinutes: 5,
   blocks: [
     {
       type: 'p',
       text: 'Un architecte a évoqué la SIA 118 en réunion de chantier, et depuis vous croyez qu’elle s’applique automatiquement à tout ce que vous signez en Suisse. C’est faux. Il s’agit même de l’une des confusions juridiques les plus répandues du bâtiment romand, celle qui fait perdre des recours en garantie à des entrepreneurs pourtant dans leur bon droit.',
+    },
+    { type: 'h2', text: 'La SIA 118 en 5 points' },
+    {
+      type: 'list',
+      ordered: true,
+      items: [
+        'C’est un contrat-type privé de la SIA, pas une loi.',
+        'Elle ne s’applique que si le contrat ou le devis signé la mentionne expressément.',
+        'Elle organise la réception de l’ouvrage, en général avec un procès-verbal.',
+        'Elle prévoit un délai de garantie de 2 ans après la réception, pendant lequel les défauts peuvent être signalés à tout moment.',
+        'Les droits liés aux défauts se prescrivent en principe par 5 ans à compter de la réception.',
+      ],
     },
     { type: 'h2', text: 'Ce qu’est réellement la SIA 118' },
     {
@@ -36,6 +49,15 @@ export const post: BlogPost = {
         'Règles de résiliation et d’acomptes précisées par la norme',
         'Un juge n’applique la SIA 118 que si le contrat la mentionne noir sur blanc ; il ne la déduit jamais du contexte',
       ],
+    },
+    { type: 'h2', text: 'Garantie et délais selon la SIA 118' },
+    {
+      type: 'p',
+      text: 'Le délai de garantie (art. 172 ss SIA 118) court pendant 2 ans à partir de la réception de l’ouvrage. Pendant ce délai, le maître de l’ouvrage peut signaler les défauts à tout moment, sans devoir le faire immédiatement après leur découverte. Une fois ce délai passé, un défaut caché doit être signalé dès qu’il est découvert. Les droits se prescrivent en principe par 5 ans dès la réception, et par 10 ans pour un défaut dissimulé intentionnellement.',
+    },
+    {
+      type: 'p',
+      text: 'La norme prévoit aussi que l’entrepreneur fournisse une sûreté pour la période de garantie, souvent sous forme de garantie bancaire ou d’assurance. Son montant se fixe dans le contrat. Sans mention de la SIA 118, ce sont les règles du Code des obligations qui s’appliquent, avec un avis des défauts à donner rapidement après leur découverte.',
     },
     { type: 'h2', text: 'Faut-il l’imposer sur ses propres devis ?' },
     {

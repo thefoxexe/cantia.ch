@@ -17,6 +17,7 @@ export const post: BlogPost = {
     'guide création entreprise construction',
   ],
   publishedAt: '2026-09-22',
+  updatedAt: '2026-11-18',
   readMinutes: 9,
   blocks: [
     {
@@ -27,6 +28,19 @@ export const post: BlogPost = {
       type: 'callout',
       title: 'Un point commun à toute la trajectoire',
       text: 'Quel que soit le statut choisi, le budget de départ ou le rythme d’embauche, la façon de chiffrer un devis, facturer un client et suivre un chantier reste la même dès le premier jour. C’est le seul choix qui vaut la peine d’être fait correctement une fois pour toutes.',
+    },
+    { type: 'h2', text: 'Ouvrir son entreprise dans le bâtiment : les étapes' },
+    {
+      type: 'list',
+      ordered: true,
+      items: [
+        'Choisir un statut juridique : raison individuelle, Sàrl ou SA.',
+        'Budgéter le démarrage, au-delà des frais d’inscription.',
+        'S’équiper des premiers outils, sans se disperser.',
+        'Trouver et facturer les premiers clients.',
+        'Embaucher le premier employé.',
+        'Éviter les erreurs les plus fréquentes de la première année.',
+      ],
     },
     { type: 'h2', text: '1. Choisir un statut juridique' },
     {

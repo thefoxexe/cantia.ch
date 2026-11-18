@@ -730,123 +730,123 @@
   status = 200
 
 [[redirects]]
-  from = "/de/charpentier"
-  to = "/de/charpentier.html"
+  from = "/de/zimmermann"
+  to = "/de/zimmermann.html"
   status = 200
 
 [[redirects]]
-  from = "/de/macon"
-  to = "/de/macon.html"
+  from = "/de/maurer"
+  to = "/de/maurer.html"
   status = 200
 
 [[redirects]]
-  from = "/de/electricien"
-  to = "/de/electricien.html"
+  from = "/de/elektroinstallateur"
+  to = "/de/elektroinstallateur.html"
   status = 200
 
 [[redirects]]
-  from = "/de/plombier"
-  to = "/de/plombier.html"
+  from = "/de/sanitaerinstallateur"
+  to = "/de/sanitaerinstallateur.html"
   status = 200
 
 [[redirects]]
-  from = "/de/peintre"
-  to = "/de/peintre.html"
+  from = "/de/maler"
+  to = "/de/maler.html"
   status = 200
 
 [[redirects]]
-  from = "/de/menuisier"
-  to = "/de/menuisier.html"
+  from = "/de/schreiner"
+  to = "/de/schreiner.html"
   status = 200
 
 [[redirects]]
-  from = "/de/entreprise-generale"
-  to = "/de/entreprise-generale.html"
+  from = "/de/generalunternehmer"
+  to = "/de/generalunternehmer.html"
   status = 200
 
 [[redirects]]
-  from = "/de/paysagiste"
-  to = "/de/paysagiste.html"
+  from = "/de/gartenbau"
+  to = "/de/gartenbau.html"
   status = 200
 
 [[redirects]]
-  from = "/de/couvreur"
-  to = "/de/couvreur.html"
+  from = "/de/dachdecker"
+  to = "/de/dachdecker.html"
   status = 200
 
 [[redirects]]
-  from = "/de/chauffagiste"
-  to = "/de/chauffagiste.html"
+  from = "/de/heizungsinstallateur"
+  to = "/de/heizungsinstallateur.html"
   status = 200
 
 [[redirects]]
-  from = "/de/carreleur"
-  to = "/de/carreleur.html"
+  from = "/de/plattenleger"
+  to = "/de/plattenleger.html"
   status = 200
 
 [[redirects]]
-  from = "/de/platrier"
-  to = "/de/platrier.html"
+  from = "/de/gipser"
+  to = "/de/gipser.html"
   status = 200
 
 [[redirects]]
-  from = "/de/genie-civil"
-  to = "/de/genie-civil.html"
+  from = "/de/tiefbau"
+  to = "/de/tiefbau.html"
   status = 200
 
 [[redirects]]
-  from = "/de/terrassier"
-  to = "/de/terrassier.html"
+  from = "/de/erdbau"
+  to = "/de/erdbau.html"
   status = 200
 
 [[redirects]]
-  from = "/de/entreprise-renovation"
-  to = "/de/entreprise-renovation.html"
+  from = "/de/renovationsfirma"
+  to = "/de/renovationsfirma.html"
   status = 200
 
 [[redirects]]
-  from = "/de/serrurier"
-  to = "/de/serrurier.html"
+  from = "/de/metallbauer"
+  to = "/de/metallbauer.html"
   status = 200
 
 [[redirects]]
-  from = "/de/ferblantier"
-  to = "/de/ferblantier.html"
+  from = "/de/spengler"
+  to = "/de/spengler.html"
   status = 200
 
 [[redirects]]
-  from = "/de/facadier"
-  to = "/de/facadier.html"
+  from = "/de/fassadenbauer"
+  to = "/de/fassadenbauer.html"
   status = 200
 
 [[redirects]]
-  from = "/de/etancheur"
-  to = "/de/etancheur.html"
+  from = "/de/abdichter"
+  to = "/de/abdichter.html"
   status = 200
 
 [[redirects]]
-  from = "/de/construction-bois"
-  to = "/de/construction-bois.html"
+  from = "/de/holzbau"
+  to = "/de/holzbau.html"
   status = 200
 
 [[redirects]]
-  from = "/de/vitrier"
-  to = "/de/vitrier.html"
+  from = "/de/glaser"
+  to = "/de/glaser.html"
   status = 200
 
 [[redirects]]
-  from = "/de/parqueteur"
-  to = "/de/parqueteur.html"
+  from = "/de/parkettleger"
+  to = "/de/parkettleger.html"
   status = 200
 
 [[redirects]]
-  from = "/de/echafaudeur"
-  to = "/de/echafaudeur.html"
+  from = "/de/geruestbau"
+  to = "/de/geruestbau.html"
   status = 200
 
 [[redirects]]
-  from = "/de/demolition"
-  to = "/de/demolition.html"
+  from = "/de/rueckbau-abbruch"
+  to = "/de/rueckbau-abbruch.html"
   status = 200
 
 [[redirects]]
@@ -1160,123 +1160,123 @@
   status = 200
 
 [[redirects]]
-  from = "/it/charpentier"
-  to = "/it/charpentier.html"
+  from = "/it/carpentiere"
+  to = "/it/carpentiere.html"
   status = 200
 
 [[redirects]]
-  from = "/it/macon"
-  to = "/it/macon.html"
+  from = "/it/muratore"
+  to = "/it/muratore.html"
   status = 200
 
 [[redirects]]
-  from = "/it/electricien"
-  to = "/it/electricien.html"
+  from = "/it/elettricista"
+  to = "/it/elettricista.html"
   status = 200
 
 [[redirects]]
-  from = "/it/plombier"
-  to = "/it/plombier.html"
+  from = "/it/idraulico"
+  to = "/it/idraulico.html"
   status = 200
 
 [[redirects]]
-  from = "/it/peintre"
-  to = "/it/peintre.html"
+  from = "/it/pittore-edile"
+  to = "/it/pittore-edile.html"
   status = 200
 
 [[redirects]]
-  from = "/it/menuisier"
-  to = "/it/menuisier.html"
+  from = "/it/falegname"
+  to = "/it/falegname.html"
   status = 200
 
 [[redirects]]
-  from = "/it/entreprise-generale"
-  to = "/it/entreprise-generale.html"
+  from = "/it/impresa-generale"
+  to = "/it/impresa-generale.html"
   status = 200
 
 [[redirects]]
-  from = "/it/paysagiste"
-  to = "/it/paysagiste.html"
+  from = "/it/giardiniere-paesaggista"
+  to = "/it/giardiniere-paesaggista.html"
   status = 200
 
 [[redirects]]
-  from = "/it/couvreur"
-  to = "/it/couvreur.html"
+  from = "/it/copritetto"
+  to = "/it/copritetto.html"
   status = 200
 
 [[redirects]]
-  from = "/it/chauffagiste"
-  to = "/it/chauffagiste.html"
+  from = "/it/impiantista-termoidraulico"
+  to = "/it/impiantista-termoidraulico.html"
   status = 200
 
 [[redirects]]
-  from = "/it/carreleur"
-  to = "/it/carreleur.html"
+  from = "/it/piastrellista"
+  to = "/it/piastrellista.html"
   status = 200
 
 [[redirects]]
-  from = "/it/platrier"
-  to = "/it/platrier.html"
+  from = "/it/gessatore"
+  to = "/it/gessatore.html"
   status = 200
 
 [[redirects]]
-  from = "/it/genie-civil"
-  to = "/it/genie-civil.html"
+  from = "/it/genio-civile"
+  to = "/it/genio-civile.html"
   status = 200
 
 [[redirects]]
-  from = "/it/terrassier"
-  to = "/it/terrassier.html"
+  from = "/it/movimento-terra"
+  to = "/it/movimento-terra.html"
   status = 200
 
 [[redirects]]
-  from = "/it/entreprise-renovation"
-  to = "/it/entreprise-renovation.html"
+  from = "/it/impresa-ristrutturazioni"
+  to = "/it/impresa-ristrutturazioni.html"
   status = 200
 
 [[redirects]]
-  from = "/it/serrurier"
-  to = "/it/serrurier.html"
+  from = "/it/fabbro"
+  to = "/it/fabbro.html"
   status = 200
 
 [[redirects]]
-  from = "/it/ferblantier"
-  to = "/it/ferblantier.html"
+  from = "/it/lattoniere"
+  to = "/it/lattoniere.html"
   status = 200
 
 [[redirects]]
-  from = "/it/facadier"
-  to = "/it/facadier.html"
+  from = "/it/facciatista"
+  to = "/it/facciatista.html"
   status = 200
 
 [[redirects]]
-  from = "/it/etancheur"
-  to = "/it/etancheur.html"
+  from = "/it/impermeabilizzatore"
+  to = "/it/impermeabilizzatore.html"
   status = 200
 
 [[redirects]]
-  from = "/it/construction-bois"
-  to = "/it/construction-bois.html"
+  from = "/it/costruzione-legno"
+  to = "/it/costruzione-legno.html"
   status = 200
 
 [[redirects]]
-  from = "/it/vitrier"
-  to = "/it/vitrier.html"
+  from = "/it/vetraio"
+  to = "/it/vetraio.html"
   status = 200
 
 [[redirects]]
-  from = "/it/parqueteur"
-  to = "/it/parqueteur.html"
+  from = "/it/parchettista"
+  to = "/it/parchettista.html"
   status = 200
 
 [[redirects]]
-  from = "/it/echafaudeur"
-  to = "/it/echafaudeur.html"
+  from = "/it/ponteggiatore"
+  to = "/it/ponteggiatore.html"
   status = 200
 
 [[redirects]]
-  from = "/it/demolition"
-  to = "/it/demolition.html"
+  from = "/it/demolizioni"
+  to = "/it/demolizioni.html"
   status = 200
 
 [[redirects]]
@@ -2951,7 +2951,7 @@
 
 [[redirects]]
   from = "/de/blog/calculer-prix-devis-renovation-suisse"
-  to = "/de/entreprise-renovation"
+  to = "/de/renovationsfirma"
   status = 301
   force = true
 
@@ -3227,19 +3227,19 @@
 
 [[redirects]]
   from = "/de/blog/devis-carreleur-facturation-au-m2-suisse"
-  to = "/de/carreleur"
+  to = "/de/plattenleger"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/devis-charpente-bois-facturation-suisse"
-  to = "/de/charpentier"
+  to = "/de/zimmermann"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/devis-facture-chauffagiste-cvc-suisse"
-  to = "/de/chauffagiste"
+  to = "/de/heizungsinstallateur"
   status = 301
   force = true
 
@@ -3275,7 +3275,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-facture-facadier-isolation-suisse"
-  to = "/de/facadier"
+  to = "/de/fassadenbauer"
   status = 301
   force = true
 
@@ -3311,7 +3311,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-facture-paysagiste-jardinier-suisse"
-  to = "/de/paysagiste"
+  to = "/de/gartenbau"
   status = 301
   force = true
 
@@ -3323,7 +3323,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-facture-plombier-sanitaire-suisse"
-  to = "/de/plombier"
+  to = "/de/sanitaerinstallateur"
   status = 301
   force = true
 
@@ -3341,7 +3341,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-facture-serrurier-metallier-suisse"
-  to = "/de/serrurier"
+  to = "/de/metallbauer"
   status = 301
   force = true
 
@@ -3371,7 +3371,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-menuisier-sur-mesure-facturation-suisse"
-  to = "/de/menuisier"
+  to = "/de/schreiner"
   status = 301
   force = true
 
@@ -3383,7 +3383,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-peintre-batiment-calcul-surface-suisse"
-  to = "/de/peintre"
+  to = "/de/maler"
   status = 301
   force = true
 
@@ -3599,13 +3599,13 @@
 
 [[redirects]]
   from = "/de/blog/gestion-chantier-devis-couvreur-toiture-suisse"
-  to = "/de/couvreur"
+  to = "/de/dachdecker"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/gestion-chantier-facturation-electricien-suisse"
-  to = "/de/electricien"
+  to = "/de/elektroinstallateur"
   status = 301
   force = true
 
@@ -3731,7 +3731,7 @@
 
 [[redirects]]
   from = "/de/blog/logiciel-devis-facture-maconnerie-suisse"
-  to = "/de/macon"
+  to = "/de/maurer"
   status = 301
   force = true
 
@@ -4336,8 +4336,32 @@
   force = true
 
 [[redirects]]
+  from = "/de/carreleur"
+  to = "/de/plattenleger"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/charpentier"
+  to = "/de/zimmermann"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/chauffagiste"
+  to = "/de/heizungsinstallateur"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/conciergerie"
   to = "/de/metiers/service-entretien/conciergerie"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/construction-bois"
+  to = "/de/holzbau"
   status = 301
   force = true
 
@@ -4348,14 +4372,68 @@
   force = true
 
 [[redirects]]
+  from = "/de/couvreur"
+  to = "/de/dachdecker"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/demenageur"
   to = "/de/metiers/service-entretien/demenageur"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/de/demolition"
+  to = "/de/rueckbau-abbruch"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/echafaudeur"
+  to = "/de/geruestbau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/electricien"
+  to = "/de/elektroinstallateur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/entreprise-generale"
+  to = "/de/generalunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/entreprise-nettoyage"
   to = "/de/metiers/service-entretien/entreprise-nettoyage"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/entreprise-renovation"
+  to = "/de/renovationsfirma"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/etancheur"
+  to = "/de/abdichter"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/facadier"
+  to = "/de/fassadenbauer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/ferblantier"
+  to = "/de/spengler"
   status = 301
   force = true
 
@@ -4372,6 +4450,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/genie-civil"
+  to = "/de/tiefbau"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/graphiste"
   to = "/de/metiers/agences-evenementiel/graphiste"
   status = 301
@@ -4384,8 +4468,38 @@
   force = true
 
 [[redirects]]
+  from = "/de/macon"
+  to = "/de/maurer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/menuisier"
+  to = "/de/schreiner"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/nouvelle-entreprise"
   to = "/de/neues-unternehmen"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/parqueteur"
+  to = "/de/parkettleger"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/paysagiste"
+  to = "/de/gartenbau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/peintre"
+  to = "/de/maler"
   status = 301
   force = true
 
@@ -4396,14 +4510,44 @@
   force = true
 
 [[redirects]]
+  from = "/de/platrier"
+  to = "/de/gipser"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/plombier"
+  to = "/de/sanitaerinstallateur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/serrurier"
+  to = "/de/metallbauer"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/solutions/devis"
   to = "/de/offerte-erstellen"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/de/terrassier"
+  to = "/de/erdbau"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/traiteur"
   to = "/de/metiers/agences-evenementiel/traiteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/vitrier"
+  to = "/de/glaser"
   status = 301
   force = true
 
@@ -4673,7 +4817,7 @@
 
 [[redirects]]
   from = "/it/blog/calculer-prix-devis-renovation-suisse"
-  to = "/it/entreprise-renovation"
+  to = "/it/impresa-ristrutturazioni"
   status = 301
   force = true
 
@@ -4955,19 +5099,19 @@
 
 [[redirects]]
   from = "/it/blog/devis-carreleur-facturation-au-m2-suisse"
-  to = "/it/carreleur"
+  to = "/it/piastrellista"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/devis-charpente-bois-facturation-suisse"
-  to = "/it/charpentier"
+  to = "/it/carpentiere"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/devis-facture-chauffagiste-cvc-suisse"
-  to = "/it/chauffagiste"
+  to = "/it/impiantista-termoidraulico"
   status = 301
   force = true
 
@@ -5003,7 +5147,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-facture-facadier-isolation-suisse"
-  to = "/it/facadier"
+  to = "/it/facciatista"
   status = 301
   force = true
 
@@ -5039,7 +5183,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-facture-paysagiste-jardinier-suisse"
-  to = "/it/paysagiste"
+  to = "/it/giardiniere-paesaggista"
   status = 301
   force = true
 
@@ -5051,7 +5195,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-facture-plombier-sanitaire-suisse"
-  to = "/it/plombier"
+  to = "/it/idraulico"
   status = 301
   force = true
 
@@ -5069,7 +5213,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-facture-serrurier-metallier-suisse"
-  to = "/it/serrurier"
+  to = "/it/fabbro"
   status = 301
   force = true
 
@@ -5099,7 +5243,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-menuisier-sur-mesure-facturation-suisse"
-  to = "/it/menuisier"
+  to = "/it/falegname"
   status = 301
   force = true
 
@@ -5111,7 +5255,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-peintre-batiment-calcul-surface-suisse"
-  to = "/it/peintre"
+  to = "/it/pittore-edile"
   status = 301
   force = true
 
@@ -5327,13 +5471,13 @@
 
 [[redirects]]
   from = "/it/blog/gestion-chantier-devis-couvreur-toiture-suisse"
-  to = "/it/couvreur"
+  to = "/it/copritetto"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/gestion-chantier-facturation-electricien-suisse"
-  to = "/it/electricien"
+  to = "/it/elettricista"
   status = 301
   force = true
 
@@ -5459,7 +5603,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-devis-facture-maconnerie-suisse"
-  to = "/it/macon"
+  to = "/it/muratore"
   status = 301
   force = true
 
@@ -6106,8 +6250,32 @@
   force = true
 
 [[redirects]]
+  from = "/it/carreleur"
+  to = "/it/piastrellista"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/charpentier"
+  to = "/it/carpentiere"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/chauffagiste"
+  to = "/it/impiantista-termoidraulico"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/conciergerie"
   to = "/it/metiers/service-entretien/conciergerie"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/construction-bois"
+  to = "/it/costruzione-legno"
   status = 301
   force = true
 
@@ -6118,14 +6286,68 @@
   force = true
 
 [[redirects]]
+  from = "/it/couvreur"
+  to = "/it/copritetto"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/demenageur"
   to = "/it/metiers/service-entretien/demenageur"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/demolition"
+  to = "/it/demolizioni"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/echafaudeur"
+  to = "/it/ponteggiatore"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/electricien"
+  to = "/it/elettricista"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/entreprise-generale"
+  to = "/it/impresa-generale"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/entreprise-nettoyage"
   to = "/it/metiers/service-entretien/entreprise-nettoyage"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/entreprise-renovation"
+  to = "/it/impresa-ristrutturazioni"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/etancheur"
+  to = "/it/impermeabilizzatore"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/facadier"
+  to = "/it/facciatista"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/ferblantier"
+  to = "/it/lattoniere"
   status = 301
   force = true
 
@@ -6142,6 +6364,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/genie-civil"
+  to = "/it/genio-civile"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/graphiste"
   to = "/it/metiers/agences-evenementiel/graphiste"
   status = 301
@@ -6154,8 +6382,38 @@
   force = true
 
 [[redirects]]
+  from = "/it/macon"
+  to = "/it/muratore"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/menuisier"
+  to = "/it/falegname"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/nouvelle-entreprise"
   to = "/it/nuova-impresa"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/parqueteur"
+  to = "/it/parchettista"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/paysagiste"
+  to = "/it/giardiniere-paesaggista"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/peintre"
+  to = "/it/pittore-edile"
   status = 301
   force = true
 
@@ -6166,14 +6424,44 @@
   force = true
 
 [[redirects]]
+  from = "/it/platrier"
+  to = "/it/gessatore"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/plombier"
+  to = "/it/idraulico"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/serrurier"
+  to = "/it/fabbro"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/solutions/devis"
   to = "/it/creare-preventivo"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/terrassier"
+  to = "/it/movimento-terra"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/traiteur"
   to = "/it/metiers/agences-evenementiel/traiteur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/vitrier"
+  to = "/it/vetraio"
   status = 301
   force = true
 

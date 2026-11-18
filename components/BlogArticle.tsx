@@ -24,6 +24,7 @@ import { blogHref } from '../lib/blog/triage';
 const BLOG_AUTHOR = 'Bastien';
 import { getAppLocale, useTranslation } from '../lib/translations';
 import { StarterOffer } from './site/StarterOffer';
+import { localHref } from '../lib/site/localPaths';
 
 const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap> = {
   'Devis & facturation': 'file-text',
@@ -163,6 +164,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         <View style={{ marginTop: 40 }}>
           <StarterOffer variant={isStarterArticle(post.baseSlug ?? post.slug) ? 'box' : 'inline'} source={`blog-${post.baseSlug ?? post.slug}`.slice(0, 70)} />
         </View>
+        {isStarterArticle(post.baseSlug ?? post.slug) ? <StarterOffer variant="sticky" source={`blog-${post.baseSlug ?? post.slug}`.slice(0, 70)} /> : null}
 
         {post.faq?.length ? (
           <View style={{ marginTop: 40 }}>
@@ -176,7 +178,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         ) : null}
 
         {post.relatedTradeSlug && BUILDING_TRADES.includes(post.relatedTradeSlug) ? (
-          <Link href={`${tradeHrefPrefix}${post.relatedTradeSlug}` as any} asChild>
+          <Link href={localHref(`${tradeHrefPrefix}${post.relatedTradeSlug}`) as any} asChild>
             <Hover accessibilityRole="link" base={styles2.trade} hover={{ borderColor: site.copper }}>
               <Feather name="tool" size={16} color={site.copper} />
               <Text style={[sans, styles2.tradeText]}>{t('blogArticlePage.tradeLinkText')}</Text>

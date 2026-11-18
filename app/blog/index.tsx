@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Breadcrumbs, Section, SitePage, useSiteLayout } from '../../components/site/Sections';
-import { Eyebrow, Headline, Hover, Wrap } from '../../components/site/Primitives';
+import { Eyebrow, Headline, Hover, TextLink, Wrap } from '../../components/site/Primitives';
 import { SITE_PAGES } from '../../lib/site/pages';
 import { sans, site } from '../../lib/siteTheme';
 import { BLOG_CATEGORIES, getAllPosts } from '../../lib/blog';
@@ -53,6 +53,10 @@ export default function BlogIndexScreen() {
           <Eyebrow style={{ marginTop: phone ? 24 : 32 }}>{t('blogIndexPage.kicker')}</Eyebrow>
           <Headline level={1} plain={t('blogIndexPage.title')} size={phone ? 40 : tablet ? 48 : 58} style={{ marginTop: 16, marginBottom: 18, maxWidth: 900 }} />
           <Text style={[sans, styles.lead, phone && { fontSize: 13 }]}>{t('blogIndexPage.subtitle')}</Text>
+          {/* The quote page of the language (it also answers « preventivo costruzioni »). */}
+          <View style={{ marginTop: 14, alignSelf: 'flex-start' }}>
+            <TextLink label={t('blogIndexPage.quoteLink')} href={`${home === '/' ? '' : home}/solutions/devis`} size={12} color={site.copper} />
+          </View>
           <View style={styles.search}>
             <Feather name="search" size={17} color={site.muted} />
             <TextInput value={query} onChangeText={setQuery} placeholder={t('blogIndexPage.searchPlaceholder')} placeholderTextColor="#a1a697" style={[sans, styles.searchInput]} accessibilityLabel={t('blogIndexPage.searchPlaceholder')} />

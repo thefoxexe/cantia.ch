@@ -1991,7 +1991,7 @@ export const TRADE_SEO_IT = [
   },
   {
     "path": "it/chauffagiste",
-    "title": "Software di gestione per termoidraulici in Svizzera | Cantia",
+    "title": "Software gestione cantieri per impiantisti termoidraulici | Cantia",
     "description": "Segua impianti, interventi e team con Cantia, il software di gestione pensato per le imprese di riscaldamento in Svizzera.",
     "faq": [
       {

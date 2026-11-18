@@ -55,6 +55,8 @@ export interface BlogPost {
   category: BlogCategory;
   keywords: string[];
   publishedAt: string; // ISO date, e.g. "2026-02-03"
+  // Last real change to the content (Article.dateModified); absent = never changed.
+  updatedAt?: string;
   readMinutes: number;
   blocks: BlogBlock[];
   faq?: BlogFaqItem[];

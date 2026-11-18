@@ -15,6 +15,7 @@ export const post: BlogPost = {
     'vol outillage chantier assurance',
   ],
   publishedAt: '2026-09-22',
+  updatedAt: '2026-11-18',
   readMinutes: 6,
   blocks: [
     {
@@ -47,6 +48,21 @@ export const post: BlogPost = {
         ['Franchise applicable', 'Une franchise élevée sur du petit outillage peut rendre certains sinistres non rentables à déclarer.'],
       ],
     },
+    { type: 'h2', text: 'Assurance bris de machine pour une entreprise : ce qui est couvert' },
+    {
+      type: 'p',
+      text: 'L’assurance bris de machine couvre les dommages soudains et imprévus subis par une machine ou un appareil, sur chantier comme à l’atelier selon le contrat. Elle ne remplace pas la garantie du fabricant, ni l’entretien : ce qui s’use normalement reste à la charge de l’entreprise. Le détail exact dépend toujours des conditions générales de l’assureur, à lire avant de signer.',
+    },
+    {
+      type: 'table',
+      headers: ['En général couvert', 'En général exclu'],
+      rows: [
+        ['Erreur de manipulation, maladresse, chute de la machine', 'Usure normale, corrosion lente, encrassement'],
+        ['Court-circuit, surtension, défaut électrique soudain', 'Pièces d’usure (lames, forets, courroies, pneus) changées régulièrement'],
+        ['Défaut de matériau ou de fabrication apparu après la garantie', 'Dommages déjà connus au moment de la conclusion du contrat'],
+        ['Dommage causé par un tiers sur le chantier', 'Vol, sauf si une garantie vol est ajoutée au contrat'],
+      ],
+    },
     {
       type: 'callout',
       title: 'Le détail qui change tout : la valeur déclarée',
@@ -60,6 +76,11 @@ export const post: BlogPost = {
     },
   ],
   faq: [
+    {
+      question: 'Qu’est-ce que l’assurance bris de machine couvre pour une entreprise ?',
+      answer:
+        'Les dommages soudains et imprévus à une machine : chute, erreur de manipulation, court-circuit, défaut de matériau apparu après la garantie. L’usure normale, les pièces d’usure et les dommages connus avant la signature sont en général exclus.',
+    },
     {
       question: 'L’assurance de l’entreprise couvre-t-elle automatiquement le vol sur chantier ?',
       answer:

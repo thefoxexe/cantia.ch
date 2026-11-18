@@ -6,7 +6,7 @@ existante au lieu d'en créer une deuxième ; si deux pages se concurrencent, fu
 dans la meilleure et rediriger l'autre en 301 (`lib/blog/triage.json`).
 
 Sources : audit Search Console du 18.11.2026 (90 jours) et état du dépôt après les
-corrections du même jour.
+corrections du même jour (mis à jour le 18.11.2026 : pages métier DE/IT, offre nouvelles entreprises).
 
 ## Pages produit
 
@@ -20,7 +20,12 @@ corrections du même jour.
 | creare preventivo | IT | `/it/creare-preventivo` | preventivo gratuito, preventivo costruzioni, modello preventivo |
 | software für bauunternehmen | DE | `/de/metiers/batiment-artisanat` | bauunternehmen software, software baugewerbe, branchensoftware baugewerbe |
 | application mobile chantier | FR | `/telechargement` | application mobile entreprise suisse |
-| logiciel pour {métier} | FR/DE/IT | page métier (`/electricien`, `/de/electricien`… ; slugs DE/IT des pages métier : à traduire, P2) | H1 = titre SEO de la page |
+| logiciel pour {métier} | FR/DE/IT | page métier (`/electricien`, `/de/elektroinstallateur`, `/it/elettricista`… : slugs dans `lib/site/tradeSlugs.json`) | H1 = titre SEO de la page |
+| software gestione cantieri (termoidraulici) | IT | `/it/impiantista-termoidraulico` | software gestione edilizia, gestione impianti termoidraulici |
+| logiciel de facturation nouvelle entreprise | FR | `/nouvelle-entreprise` | créer son entreprise, premier logiciel de devis |
+| Rechnungsprogramm Neugründer | DE | `/de/neues-unternehmen` | rechnungsprogramm baugewerbe |
+| software fatturazione nuove imprese | IT | `/it/nuova-impresa` | |
+| preventivo costruzioni | IT | `/it/creare-preventivo` (lié depuis `/it/blog`) | |
 
 ## Articles
 
@@ -59,5 +64,7 @@ corrections du même jour.
   (`node scripts/generate-sitemap.mjs`).
 - Aucun lien interne ne passe par une redirection : `scripts/inject-seo-meta.mjs` réécrit ceux qui
   restent vers l'adresse finale.
+- Les pages métier allemandes et italiennes ont un slug dans leur langue (`lib/site/tradeSlugs.json`) ; l'ancienne adresse avec le slug français redirige en 301.
+- L'offre « 3 mois offerts » (`components/site/StarterOffer.tsx`) est sur l'accueil, les tarifs, les pages métier, le menu et chaque article ; chaque lien porte `?ref=…&cta=…`.
 - Pas de page « gestion du matériel » (geräteverwaltung bau) tant que Cantia n'a pas cette
   fonction : le Catalogue est une liste de prix, pas un suivi de stock.

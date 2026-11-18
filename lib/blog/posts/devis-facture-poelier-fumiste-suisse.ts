@@ -16,11 +16,17 @@ export const post: BlogPost = {
     'conduit de fumée devis',
   ],
   publishedAt: '2026-09-22',
+  updatedAt: '2026-11-18',
   readMinutes: 6,
   blocks: [
     {
       type: 'p',
       text: 'Le poêlier-fumiste occupe un métier de niche, à la croisée de la maçonnerie et du chauffage, où chaque installation touche directement à la sécurité incendie du bâtiment. Le devis doit refléter cette exigence, et pas seulement le prix du poêle choisi en showroom.',
+    },
+    { type: 'h2', text: 'Poêlier-fumiste : le métier et ses prestations' },
+    {
+      type: 'p',
+      text: 'Le poêlier-fumiste pose et entretient les poêles à bois et à pellets, les poêles en faïence, les cheminées et les canaux de fumée qui les relient au conduit. Son travail comprend le conseil sur la puissance adaptée au logement, le montage du foyer, le raccordement au conduit de fumée, le tubage d’un conduit existant si nécessaire et la mise en service. Le prix d’une installation varie fortement selon le type de poêle, l’état du conduit et l’accès au chantier : c’est pour cela que le devis doit détailler chaque poste.',
     },
     { type: 'h2', text: 'Trois postes à chiffrer séparément' },
     {

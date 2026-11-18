@@ -1077,7 +1077,8 @@ export const BLOG_SEO_DE = [
         "a": "Ja, da ihre Einbindung auf einer Vereinbarung zwischen den Parteien beruht: Ein Kunde kann ihren Wegfall oder ihre Ersetzung durch die alleinigen OR-Regeln vor Unterzeichnung der Offerte aushandeln."
       }
     ],
-    "publishedAt": "2026-09-03"
+    "publishedAt": "2026-09-03",
+    "modifiedAt": "2026-11-18"
   },
   {
     "path": "de/blog/note-de-credit-facture-rectificative-suisse",
@@ -2935,6 +2936,10 @@ export const BLOG_FAQ_FR = {
   ],
   "assurance-bris-machine-outillage-chantier": [
     {
+      "q": "Qu’est-ce que l’assurance bris de machine couvre pour une entreprise ?",
+      "a": "Les dommages soudains et imprévus à une machine : chute, erreur de manipulation, court-circuit, défaut de matériau apparu après la garantie. L’usure normale, les pièces d’usure et les dommages connus avant la signature sont en général exclus."
+    },
+    {
       "q": "L’assurance de l’entreprise couvre-t-elle automatiquement le vol sur chantier ?",
       "a": "Pas toujours. Une police d’assurance choses standard couvre en général le matériel dans les locaux de l’entreprise, pas systématiquement sur chantier. Il faut vérifier ou ajouter une extension outillage mobile."
     },
@@ -3348,6 +3353,10 @@ export const BLOG_FAQ_FR = {
     }
   ],
   "construction-modulaire-prefabriquee-suisse": [
+    {
+      "q": "Quelle différence entre construction modulaire et construction préfabriquée ?",
+      "a": "La préfabrication consiste à fabriquer des éléments en atelier (murs, dalles, façades) puis à les assembler sur place. La construction modulaire va plus loin : des volumes entiers, déjà équipés, sont fabriqués en atelier puis posés sur le chantier."
+    },
     {
       "q": "La construction modulaire coûte-t-elle plus cher que la construction traditionnelle ?",
       "a": "Cela dépend fortement du projet. Le gain de temps et la réduction de la main-d’œuvre sur site compensent souvent un coût de fabrication en atelier plus élevé, mais le calcul reste à faire projet par projet, notamment selon la complexité du transport et du grutage."
@@ -4947,6 +4956,16 @@ export const BLOG_FAQ_FR = {
       "a": "Pas forcément. WhatsApp reste efficace pour l’urgence ponctuelle, mais la transition la plus efficace déplace surtout ce qui doit rester retrouvable (planning, photos, historique) vers un outil structuré par chantier."
     }
   ]
+};
+
+export const BLOG_MODIFIED_FR = {
+  "assurance-bris-machine-outillage-chantier": "2026-11-18",
+  "calculer-heures-travail-ouvrier-minutes-decimales": "2026-11-18",
+  "chantier-propre-reduire-nuisances-voisinage": "2026-11-18",
+  "construction-modulaire-prefabriquee-suisse": "2026-11-18",
+  "creer-entreprise-batiment-suisse-guide-complet": "2026-11-18",
+  "devis-facture-poelier-fumiste-suisse": "2026-11-18",
+  "norme-sia-118-devis-obligatoire": "2026-11-18"
 };
 
 export const HELP_SEO_FR = [
