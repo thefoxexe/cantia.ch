@@ -27,6 +27,11 @@ export interface CompareLine {
   profit: number | null;
   // Only in the métré (work added) or only in the soumission (not executed).
   only: 'base' | 'real' | null;
+  // Ids in the métré, to edit the line there (null when not in the métré).
+  realPositionId: string | null;
+  realNodeId: string | null;
+  // The soumission's line, to bring it into the métré.
+  basePositionId: string | null;
 }
 
 export interface CompareChapter {
@@ -36,6 +41,9 @@ export interface CompareChapter {
   billable: number;
   real: number;
   profit: number;
+  // The chapter's node in the métré, where an added position goes.
+  realChapterId: string | null;
+  realChapterDepth: number;
 }
 
 export interface Comparison {
@@ -53,6 +61,7 @@ export interface Comparison {
 
 interface Pos {
   key: string;
+  positionId: string;
   chapter: TenderNode | null;
   node: TenderNode;
   unit: string;
@@ -81,7 +90,7 @@ function positionsOf(b: TenderBundle): Pos[] {
         const base = `${refOf(n)}|${(n.title ?? '').trim().toLowerCase()}`;
         const rank = seen.get(base) ?? 0;
         seen.set(base, rank + 1);
-        out.push({ key: `${base}#${rank}`, chapter: top, node: n, unit: p.unit ?? p.raw_unit ?? '', qty, price, amount: lineAmount(qty, price, p.excluded) });
+        out.push({ key: `${base}#${rank}`, positionId: p.id, chapter: top, node: n, unit: p.unit ?? p.raw_unit ?? '', qty, price, amount: lineAmount(qty, price, p.excluded) });
       }
       walk(n.id, top);
     }
@@ -96,11 +105,16 @@ export function compareTenders(base: TenderBundle, real: TenderBundle): Comparis
   const doneByKey = new Map(done.map((p) => [p.key, p]));
   const used = new Set<string>();
   const chapters = new Map<string, CompareChapter>();
+  const chapterKey = (n: TenderNode | null) => (n ? `${refOf(n)}|${(n.title ?? '').trim()}` : '');
+  // Chapters of the métré by the same key, so an added line lands there.
+  const realChapters = new Map<string, TenderNode>();
+  for (const n of real.nodes) if (!n.parent_id && n.node_type !== 'billable_position') realChapters.set(chapterKey(n), n);
   const chapterOf = (n: TenderNode | null) => {
-    const key = n ? `${refOf(n)}|${(n.title ?? '').trim()}` : '';
+    const key = chapterKey(n);
     let c = chapters.get(key);
     if (!c) {
-      c = { key, title: n ? [refOf(n), n.title].filter(Boolean).join(' ') : '', lines: [], billable: 0, real: 0, profit: 0 };
+      const rc = realChapters.get(key) ?? null;
+      c = { key, title: n ? [refOf(n), n.title].filter(Boolean).join(' ') : '', lines: [], billable: 0, real: 0, profit: 0, realChapterId: rc?.id ?? null, realChapterDepth: rc?.depth ?? -1 };
       chapters.set(key, c);
     }
     return c;
@@ -125,6 +139,9 @@ export function compareTenders(base: TenderBundle, real: TenderBundle): Comparis
       real: r?.amount ?? null,
       profit: null,
       only: s && r ? null : s ? 'base' : 'real',
+      realPositionId: r?.positionId ?? null,
+      realNodeId: r?.node.id ?? null,
+      basePositionId: s?.positionId ?? null,
     };
     if (r && r.price == null && (r.qty ?? 0) !== 0) missingCosts++;
     else if (line.billable != null || line.real != null) line.profit = round((line.billable ?? 0) - (line.real ?? 0), 2);

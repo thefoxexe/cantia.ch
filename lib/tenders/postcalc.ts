@@ -13,8 +13,8 @@
 // real costs are entered, not copied from the sale.
 
 import { supabase } from '../supabase';
-import { duplicateTender, loadTender, type TenderBundle } from './api';
-import type { Tender } from './types';
+import { addNode, duplicateTender, loadTender, setUnitPrice, updatePosition, type TenderBundle } from './api';
+import type { PositionPrice, Tender, TenderNode, TenderPosition } from './types';
 
 export const POSTCALC_ROLE = 'postcalc';
 
@@ -50,4 +50,82 @@ export async function loadComparison(metreId: string): Promise<{ metre: TenderBu
   const { bundle: base, error: e2 } = await loadTender(baseId);
   if (!base) return { metre, base: null, comparison: null, error: e2 ?? 'La soumission de base n’existe plus' };
   return { metre, base, comparison: compareTenders(base, metre), error: null };
+}
+
+// ---- Editing the métré from the comparison --------------------------------
+// Each helper writes to the database and returns the métré bundle with the
+// change applied, so the comparison is recomputed without reloading.
+
+function withPosition(b: TenderBundle, position: TenderPosition): TenderBundle {
+  const exists = b.positions.some((p) => p.id === position.id);
+  return { ...b, positions: exists ? b.positions.map((p) => (p.id === position.id ? position : p)) : [...b.positions, position] };
+}
+
+function withPrice(b: TenderBundle, price: PositionPrice): TenderBundle {
+  const exists = b.prices.some((p) => p.position_id === price.position_id);
+  return { ...b, prices: exists ? b.prices.map((p) => (p.position_id === price.position_id ? price : p)) : [...b.prices, price] };
+}
+
+// The quantity really executed (entered by hand).
+export async function setRealQuantity(metre: TenderBundle, positionId: string, quantity: number | null): Promise<{ metre: TenderBundle; error: string | null }> {
+  const { position, error } = await updatePosition(positionId, { quantity_manual: quantity, quantity_selected_source: 'manual' });
+  if (!position) return { metre, error: error ?? 'Erreur' };
+  return { metre: withPosition(metre, position), error: null };
+}
+
+// The real cost per unit (stored as the métré's unit price).
+export async function setRealCost(metre: TenderBundle, positionId: string, cost: number | null): Promise<{ metre: TenderBundle; error: string | null }> {
+  const { price, error } = await setUnitPrice(metre.tender.id, positionId, cost);
+  if (!price) return { metre, error: error ?? 'Erreur' };
+  return { metre: withPrice(metre, price), error: null };
+}
+
+export interface NewLine {
+  reference: string;
+  title: string;
+  unit: string;
+  quantity: number | null;
+  cost: number | null;
+}
+
+// A position added to the métré (work not in the soumission), in a chapter
+// of the métré or at its root.
+export async function addRealPosition(metre: TenderBundle, chapterId: string | null, line: NewLine): Promise<{ metre: TenderBundle; error: string | null }> {
+  const parent = chapterId ? metre.nodes.find((n) => n.id === chapterId) ?? null : null;
+  const siblings = metre.nodes.filter((n) => n.parent_id === (parent?.id ?? null));
+  const sortOrder = siblings.reduce((m, n) => Math.max(m, n.sort_order), 0) + 1000;
+  const { node, position, error } = await addNode(metre.tender.id, {
+    parentId: parent?.id ?? null,
+    nodeType: 'billable_position',
+    depth: parent ? parent.depth + 1 : 0,
+    sortOrder,
+    title: line.title.trim(),
+    reference: line.reference.trim() || null,
+    unit: line.unit.trim() || null,
+  });
+  if (!node || !position) return { metre, error: error ?? 'Erreur' };
+  let next: TenderBundle = withPosition({ ...metre, nodes: [...metre.nodes, node as TenderNode] }, position);
+  const q = await setRealQuantity(next, position.id, line.quantity);
+  next = q.metre;
+  if (line.cost != null) {
+    const c = await setRealCost(next, position.id, line.cost);
+    next = c.metre;
+    if (c.error) return { metre: next, error: c.error };
+  }
+  return { metre: next, error: q.error };
+}
+
+// Brings a soumission position that is missing from the métré back into it,
+// with the soumission's quantity and no cost yet.
+export async function bringFromBase(metre: TenderBundle, base: TenderBundle, basePositionId: string, chapterId: string | null): Promise<{ metre: TenderBundle; error: string | null }> {
+  const pos = base.positions.find((p) => p.id === basePositionId);
+  const node = pos ? base.nodes.find((n) => n.id === pos.node_id) : null;
+  if (!pos || !node) return { metre, error: 'Position introuvable' };
+  return addRealPosition(metre, chapterId, {
+    reference: node.display_reference ?? node.position_path ?? node.raw_number ?? '',
+    title: node.title ?? node.description ?? '',
+    unit: pos.unit ?? pos.raw_unit ?? '',
+    quantity: pos.quantity_selected ?? pos.quantity_manual ?? pos.quantity_original,
+    cost: null,
+  });
 }

@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { AppScreen, LoadingScreen, PageHeader } from '../../../components/ui';
 import { Btn, Chip, kit, usePhone } from '../../../components/admin/ledger/kit';
-import { loadComparison, type Comparison, type CompareLine } from '../../../lib/tenders/postcalc';
+import { addRealPosition, bringFromBase, compareTenders, loadComparison, setRealCost, setRealQuantity, type CompareChapter, type Comparison, type CompareLine, type NewLine } from '../../../lib/tenders/postcalc';
+import { canEditTenders } from '../../../lib/tenders/api';
+import { NumberInput } from '../../../components/tenders/TenderDetail';
 import { postcalcCopy } from '../../../lib/tenders/postcalcCopy';
 import { formatChf, formatQuantity } from '../../../lib/tenders/numbers';
 import type { TenderBundle } from '../../../lib/tenders/api';
@@ -24,12 +26,45 @@ export default function MetreCompareScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<{ metre: TenderBundle | null; base: TenderBundle | null; comparison: Comparison | null; error: string | null } | null>(null);
   const [onlyLoss, setOnlyLoss] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+  const [saving, setSaving] = useState(0);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  // Phone = consultation, as in the métré editor.
+  const editable = canEdit && !phone && !!state?.comparison?.pricesVisible;
 
   useFocusEffect(
     useCallback(() => {
-      loadComparison(id).then(setState);
+      loadComparison(id).then((s) => {
+        setState(s);
+        if (s.metre) canEditTenders(s.metre.tender.organization_id).then(setCanEdit);
+      });
     }, [id]),
   );
+
+  // Every edit: write, then recompute the comparison from the updated métré.
+  // Latest state, so edits made one after the other each start from the last result.
+  const latest = useRef(state);
+  latest.current = state;
+  async function run(op: (metre: TenderBundle, base: TenderBundle) => Promise<{ metre: TenderBundle; error: string | null }>) {
+    const cur = latest.current;
+    if (!cur?.metre || !cur.base) return;
+    setSaving((n) => n + 1);
+    setSaveError(null);
+    const res = await op(cur.metre, cur.base);
+    setSaving((n) => n - 1);
+    if (res.error) setSaveError(res.error);
+    const next = { ...cur, metre: res.metre, comparison: compareTenders(cur.base, res.metre) };
+    latest.current = next;
+    setState(next);
+  }
+  const onQty = (l: CompareLine, v: number | null) => l.realPositionId && run((m) => setRealQuantity(m, l.realPositionId!, v));
+  const onCost = (l: CompareLine, v: number | null) => l.realPositionId && run((m) => setRealCost(m, l.realPositionId!, v));
+  const onBring = (ch: CompareChapter, l: CompareLine) => l.basePositionId && run((m, b) => bringFromBase(m, b, l.basePositionId!, ch.realChapterId));
+  const onAdd = (ch: CompareChapter, line: NewLine) => run((m) => addRealPosition(m, ch.realChapterId, line));
+  async function bringAll() {
+    for (const ch of state?.comparison?.chapters ?? []) for (const l of ch.lines) if (l.only === 'base' && l.basePositionId) await onBring(ch, l);
+  }
+  const missingFromMetre = (state?.comparison?.chapters ?? []).reduce((n, ch) => n + ch.lines.filter((l) => l.only === 'base').length, 0);
 
   const chapters = useMemo(() => {
     const list = state?.comparison?.chapters ?? [];
@@ -92,9 +127,14 @@ export default function MetreCompareScreen() {
               </View>
             ) : null}
 
-            <View style={[kit.row, { gap: spacing.sm }]}>
+            {editable ? <Text style={kit.hint}>{c.editHint}</Text> : null}
+            {editable && missingFromMetre > 0 ? <Btn label={c.bringAll(missingFromMetre)} icon="download" onPress={bringAll} /> : null}
+
+            <View style={[kit.row, { gap: spacing.sm, alignItems: 'center', flexWrap: 'wrap' }]}>
               <Chip label={c.all} active={!onlyLoss} onPress={() => setOnlyLoss(false)} />
               <Chip label={c.onlyLoss} active={onlyLoss} onPress={() => setOnlyLoss(true)} tone="bad" />
+              {saving > 0 ? <Text style={kit.hint}>{c.saving}</Text> : null}
+              {saveError ? <Text style={{ color: colors.danger }}>{saveError}</Text> : null}
             </View>
 
             <View style={{ gap: spacing.lg }}>
@@ -111,13 +151,27 @@ export default function MetreCompareScreen() {
                       <Text style={[styles.th, styles.cRef]}>{c.colRef}</Text>
                       <Text style={[styles.th, styles.cTitle]}>{c.colTitle}</Text>
                       <Text style={[styles.th, styles.cNum]}>{c.colSold}</Text>
-                      <Text style={[styles.th, styles.cNum]}>{c.colReal}</Text>
+                      {editable ? (
+                        <>
+                          <Text style={[styles.th, styles.cInput]}>{c.colQty}</Text>
+                          <Text style={[styles.th, styles.cInput]}>{c.colCost}</Text>
+                        </>
+                      ) : (
+                        <Text style={[styles.th, styles.cNum]}>{c.colReal}</Text>
+                      )}
                       <Text style={[styles.th, styles.cNum]}>{c.billable}</Text>
                       <Text style={[styles.th, styles.cNum]}>{c.real}</Text>
                       <Text style={[styles.th, styles.cNum]}>{c.profit}</Text>
                     </View>
                   ) : null}
-                  {ch.lines.map((l) => (phone ? <LineCard key={l.key} l={l} /> : <LineRow key={l.key} l={l} />))}
+                  {ch.lines.map((l) =>
+                    phone ? (
+                      <LineCard key={l.key} l={l} />
+                    ) : (
+                      <LineRow key={l.key} l={l} editable={editable} onQty={(v) => onQty(l, v)} onCost={(v) => onCost(l, v)} onBring={() => onBring(ch, l)} />
+                    ),
+                  )}
+                  {editable && !onlyLoss ? <AddLine onAdd={(line) => onAdd(ch, line)} /> : null}
                 </View>
               ))}
             </View>
@@ -155,7 +209,8 @@ function qtyPrice(q: number | null, p: number | null, unit: string): string {
   return `${formatQuantity(q)} ${unit}${p != null ? ` × ${formatChf(p)}` : ''}`.trim();
 }
 
-function LineRow({ l }: { l: CompareLine }) {
+function LineRow({ l, editable, onQty, onCost, onBring }: { l: CompareLine; editable: boolean; onQty: (v: number | null) => void; onCost: (v: number | null) => void; onBring: () => void }) {
+  const c = postcalcCopy();
   return (
     <View style={styles.tr}>
       <Text style={[styles.td, styles.cRef]}>{l.ref}</Text>
@@ -166,10 +221,60 @@ function LineRow({ l }: { l: CompareLine }) {
         <Tag l={l} />
       </View>
       <Text style={[styles.td, styles.cNum]}>{qtyPrice(l.soldQty, l.soldPrice, l.unit)}</Text>
-      <Text style={[styles.td, styles.cNum]}>{qtyPrice(l.realQty, l.realCost, l.unit)}</Text>
+      {editable ? (
+        l.realPositionId ? (
+          <>
+            <View style={[styles.cInput, styles.inputCell]}>
+              <NumberInput value={l.realQty} onCommit={onQty} editable placeholder="0" style={styles.numInput} />
+              <Text style={styles.unit}>{l.unit}</Text>
+            </View>
+            <View style={[styles.cInput, styles.inputCell]}>
+              <NumberInput value={l.realCost} onCommit={onCost} editable placeholder="0.00" style={styles.numInput} />
+            </View>
+          </>
+        ) : (
+          <View style={[styles.cInputDouble, styles.inputCell]}>
+            <Btn label={c.bring} icon="download" onPress={onBring} />
+          </View>
+        )
+      ) : (
+        <Text style={[styles.td, styles.cNum]}>{qtyPrice(l.realQty, l.realCost, l.unit)}</Text>
+      )}
       <Text style={[styles.td, styles.cNum]}>{money(l.billable)}</Text>
       <Text style={[styles.td, styles.cNum]}>{money(l.real)}</Text>
       <Text style={[styles.td, styles.cNum, { color: tone(l.profit), fontWeight: '700' }]}>{money(l.profit)}</Text>
+    </View>
+  );
+}
+
+// A position added to the métré: work not planned in the soumission.
+function AddLine({ onAdd }: { onAdd: (line: NewLine) => void }) {
+  const c = postcalcCopy();
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({ reference: '', title: '', unit: '', quantity: null as number | null, cost: null as number | null });
+  if (!open) {
+    return (
+      <View style={styles.addRow}>
+        <Btn label={c.addLine} icon="plus" variant="ghost" onPress={() => setOpen(true)} />
+        <Text style={kit.hint}>{c.addLineHint}</Text>
+      </View>
+    );
+  }
+  const submit = () => {
+    if (!f.title.trim()) return;
+    onAdd(f);
+    setF({ reference: '', title: '', unit: '', quantity: null, cost: null });
+    setOpen(false);
+  };
+  return (
+    <View style={[styles.addRow, { flexWrap: 'wrap' }]}>
+      <TextInput value={f.reference} onChangeText={(v) => setF({ ...f, reference: v })} placeholder={c.refPh} style={[kit.input, { width: 90 }]} />
+      <TextInput value={f.title} onChangeText={(v) => setF({ ...f, title: v })} placeholder={c.titlePh} style={[kit.input, { flex: 1, minWidth: 220 }]} autoFocus onSubmitEditing={submit} />
+      <TextInput value={f.unit} onChangeText={(v) => setF({ ...f, unit: v })} placeholder={c.unitPh} style={[kit.input, { width: 80 }]} />
+      <NumberInput value={f.quantity} onCommit={(v) => setF((x) => ({ ...x, quantity: v }))} editable placeholder={c.colQty} style={{ width: 120 }} />
+      <NumberInput value={f.cost} onCommit={(v) => setF((x) => ({ ...x, cost: v }))} editable placeholder={c.colCost} style={{ width: 120 }} />
+      <Btn label={c.add} icon="check" variant="primary" onPress={submit} disabled={!f.title.trim()} />
+      <Btn label={c.cancel} onPress={() => setOpen(false)} />
     </View>
   );
 }
@@ -214,6 +319,12 @@ const styles = StyleSheet.create({
   cRef: { width: 90 },
   cTitle: { flex: 1, minWidth: 0 },
   cNum: { width: 130, textAlign: 'right' },
+  cInput: { width: 120, textAlign: 'right' },
+  cInputDouble: { width: 240 },
+  inputCell: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 6, justifyContent: 'flex-end' },
+  numInput: { flex: 1, minWidth: 0, textAlign: 'right', paddingVertical: 6 },
+  unit: { fontSize: 11, color: colors.textMuted, width: 26 },
+  addRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.sm, paddingHorizontal: spacing.md, borderTopWidth: 1, borderTopColor: colors.border },
   tag: { alignSelf: 'flex-start', fontSize: 10.5, fontWeight: '700', color: colors.textMuted, backgroundColor: colors.bg, paddingHorizontal: 6, paddingVertical: 2, borderRadius: radius.pill, overflow: 'hidden' },
   lineCard: { gap: 4, padding: spacing.md, borderTopWidth: 1, borderTopColor: colors.border },
 });

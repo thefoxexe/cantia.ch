@@ -35,7 +35,8 @@ import { useAssignCopy } from '../../../../../lib/tenders/assignCopy';
 import { lineAmount, selectedQuantity, subtotalsByNode, tenderTotals } from '../../../../../lib/tenders/calc';
 import { fill, useTenderCopy } from '../../../../../lib/tenders/copy';
 import { formatChf, formatQuantity } from '../../../../../lib/tenders/numbers';
-import { isPostcalc } from '../../../../../lib/tenders/postcalc';
+import { createPostcalc, isPostcalc } from '../../../../../lib/tenders/postcalc';
+import { isModuleEnabled } from '../../../../../lib/modules';
 import { postcalcCopy } from '../../../../../lib/tenders/postcalcCopy';
 import { flattenTree, searchTree, sortOrderAfter, type FlatRow } from '../../../../../lib/tenders/tree';
 import { UNIT_CHOICES, unitLabel } from '../../../../../lib/tenders/units';
@@ -49,6 +50,8 @@ const STRUCTURE: NodeType[] = ['contract', 'chapter', 'section', 'subsection', '
 export default function TenderEditorScreen() {
   const c = useTenderCopy();
   const router = useRouter();
+  const { organization: org } = useAuth();
+  const [makingMetre, setMakingMetre] = useState(false);
   const { phone } = usePhone();
   const { width } = useWindowDimensions();
   // The detail panel sits beside the table only when both fit comfortably.
@@ -432,6 +435,20 @@ export default function TenderEditorScreen() {
           {editable && derived.noPrice ? <Btn label={c.fillPrices} icon="zap" onPress={() => setFilling(true)} /> : null}
           {Platform.OS === 'web' && !phone ? <Btn label={c.exportBtn} icon="download" onPress={() => setExporting(true)} /> : null}
           {tender.devis_id ? <Btn label={c.openDevis} icon="file-text" onPress={() => router.push(`/(app)/devis/${tender.devis_id}` as any)} /> : null}
+          {/* Module Métrés: the post-calcul of this soumission (quantities executed, real costs). */}
+          {editable && !postcalc && isModuleEnabled(org?.enabled_modules, 'metres') ? (
+            <Btn
+              label={makingMetre ? pc.creating : pc.createMetre}
+              icon="sliders"
+              disabled={makingMetre}
+              onPress={async () => {
+                setMakingMetre(true);
+                const { id: metreId } = await createPostcalc(tender, pc.defaultName(tender.name));
+                setMakingMetre(false);
+                if (metreId) router.push(`/(app)/metres/${metreId}` as any);
+              }}
+            />
+          ) : null}
           {editable ? <Btn label={c.createDevis} icon="send" onPress={() => setOffering(true)} /> : null}
           {editable ? <Btn label={tender.status === 'priced' || tender.status === 'offered' ? `${c.recapBtn} ✓` : c.recapBtn} icon="check-square" variant="primary" onPress={() => setRecapOpen(true)} /> : null}
         </View>
