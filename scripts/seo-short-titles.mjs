@@ -36,7 +36,7 @@ export const SHORT_TITLES = {
   'blog/vacances-employe-batiment-cct-jours': 'Jours de vacances d’un employé du bâtiment (CCT)',
   'blog/affacturage-factoring-entreprise-batiment-suisse': 'Affacturage pour une entreprise du bâtiment',
   'blog/cautionnement-bancaire-entreprise-generale-suisse': 'Cautionnement bancaire d’une entreprise générale',
-  'blog/chantier-copropriete-ppe-facturation-suisse': 'Chantier en PPE : facturer plusieurs propriétaires',
+  'blog/chantier-copropriete-ppe-facturation-suisse': 'Facture PPE : facturer un chantier en copropriété en Suisse',
   'blog/credit-construction-hypothecaire-entreprise-batiment': 'Le crédit de construction expliqué à l’entrepreneur',
   'blog/racheter-entreprise-batiment-existante-suisse': 'Racheter une entreprise du bâtiment : points à vérifier',
   'blog/renovation-apres-sinistre-degat-eau-assurance': 'Rénovation après sinistre et assurance du client',
@@ -59,7 +59,7 @@ export const SHORT_TITLES = {
   'de/blog/appel-offres-marches-publics-batiment-suisse': 'Öffentliche Aufträge im Bau: vor der Offerteingabe',
   'de/blog/apprenti-batiment-salaire-obligations-employeur': 'Lernende im Bau: Lohn und Pflichten des Betriebs',
   'de/blog/betriebshaftpflicht-baugewerbe': 'Betriebshaftpflicht im Bau: obligatorisch oder nicht?',
-  'de/blog/nachtragsofferte-mehrkosten': 'Nachtragsofferte: Mehr- und Minderleistungen fakturieren',
+  'de/blog/nachtragsofferte-mehrkosten': 'Nachtrag zur Offerte: Mehr- und Minderkosten verrechnen',
   'de/blog/calculer-prix-de-revient-chantier-batiment': 'Selbstkosten einer Baustelle richtig berechnen',
   'de/blog/calculer-prix-horaire-reel-ouvrier-batiment': 'Die wahren Stundenkosten eines Bauarbeiters',
   'de/blog/calculer-prix-unitaire-soumission': 'Einheitspreise im Leistungsverzeichnis berechnen',
@@ -235,4 +235,10 @@ export const SHORT_TITLES = {
   'it/blog/devis-gratuit-en-ligne-suisse-outil': "Preventivo gratuito online: le opzioni e i limiti",
   'it/blog/duree-conservation-devis-factures-suisse': "Quanto conservare preventivi e fatture in Svizzera?",
   'it/blog/relancer-client-facture-impayee-sans-perdre-client': "Sollecitare un cliente che non paga senza perderlo",
+  // SEO audit, November 2026: the query people type comes first.
+  'blog/construction-modulaire-prefabriquee-suisse': 'Construction modulaire en Suisse : où en est-on ?',
+  'blog/trouver-clients-artisan-batiment-suisse': 'Comment trouver des clients dans le bâtiment',
+  'de/blog/alles-in-einer-loesung-software-kmu': 'Alles in einer Lösung: Offerten, Rechnungen, Planung für KMU',
+  'de/blog/rabatt-skonto-mwst-reihenfolge': 'Rabatt und Skonto: Unterschied und Reihenfolge mit MWST',
+  'it/blog/calcolo-tredicesima-svizzera-pro-rata': 'Calcolo della tredicesima in Svizzera: il pro rata',
 };

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cantia.ch/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -1022,13 +1022,12 @@
   </url>
   <url>
     <loc>https://cantia.ch/de</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/solutions/devis</loc>
-    <lastmod>2026-11-10</lastmod>
-    <priority>0.7</priority>
+    <loc>https://cantia.ch/de/offerte-erstellen</loc>
+    <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/solutions/facturation</loc>
@@ -1551,11 +1550,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/de/blog/offerte-erstellen-online-schweiz</loc>
-    <lastmod>2026-11-04</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://cantia.ch/de/blog/offerte-gratis-oder-kostenpflichtig</loc>
     <lastmod>2026-11-10</lastmod>
     <priority>0.6</priority>
@@ -1787,13 +1781,12 @@
   </url>
   <url>
     <loc>https://cantia.ch/it</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cantia.ch/it/solutions/devis</loc>
-    <lastmod>2026-11-10</lastmod>
-    <priority>0.7</priority>
+    <loc>https://cantia.ch/it/creare-preventivo</loc>
+    <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/solutions/facturation</loc>
@@ -2108,6 +2101,11 @@
   <url>
     <loc>https://cantia.ch/blog/construction-modulaire-prefabriquee-suisse</loc>
     <lastmod>2026-11-10</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://cantia.ch/blog/credit-construction-hypothecaire-entreprise-batiment</loc>
+    <lastmod>2026-09-22</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2437,11 +2435,6 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/dimissioni-dipendente-edilizia-preavviso</loc>
-    <lastmod>2026-09-10</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://cantia.ch/it/blog/preventivo-gratuito-online</loc>
     <lastmod>2026-09-10</lastmod>
     <priority>0.6</priority>
   </url>

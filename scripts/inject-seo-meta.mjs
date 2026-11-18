@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { SITE, ROUTES, hreflangAlternates, isNoindex, jsonLdFor, localeAndBareOf, ogImageUrl } from './seo-routes.mjs';
+import { SITE, ROUTES, BLOG_REDIRECTS, hreflangAlternates, isNoindex, jsonLdFor, localeAndBareOf, ogImageUrl } from './seo-routes.mjs';
 
 const distDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const distIndex = path.join(distDir, 'index.html');
@@ -252,9 +252,22 @@ for (const file of files) {
   shelled++;
 }
 
+// Internal links to an address that now redirects (renamed slug, merged
+// article, page moved to a word of its language) point straight at the
+// final page, so no link of the site goes through a 301.
+let linksRewritten = 0;
+function directLinks(html) {
+  return html.replace(/href="\/([^"#?]+)([#?][^"]*)?"/g, (whole, target, rest = '') => {
+    const to = BLOG_REDIRECTS[target.replace(/\/$/, '')];
+    if (!to) return whole;
+    linksRewritten++;
+    return `href="/${to}${rest}"`;
+  });
+}
+
 for (const route of ROUTES) {
   const source = rendered.get(route.path);
-  const html = patch(source ?? shell, route);
+  const html = directLinks(patch(source ?? shell, route));
   const target = pageFile(route.path);
   mkdirSync(path.dirname(target), { recursive: true });
   writeFileSync(target, html);
@@ -262,4 +275,4 @@ for (const route of ROUTES) {
   patched++;
 }
 
-console.log(`SEO meta injected into ${patched} pre-rendered page(s); ${shelled} app page(s) reset to the client-rendered shell; ${faqDropped} FAQ question(s) left out of FAQPage (not visible on their page).`);
+console.log(`SEO meta injected into ${patched} pre-rendered page(s); ${shelled} app page(s) reset to the client-rendered shell; ${faqDropped} FAQ question(s) left out of FAQPage (not visible on their page); ${linksRewritten} internal link(s) pointed past a redirect.`);

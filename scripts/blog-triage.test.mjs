@@ -36,8 +36,12 @@ for (const [locale, key] of [['de', 'deSlugs'], ['it', 'itSlugs']]) {
     assert.equal(new Set(values).size, values.length);
     for (const [base, slug] of Object.entries(map)) {
       assert.ok(existsSync(new URL(`../lib/blog/posts-${locale}/${base}.ts`, import.meta.url)), base);
-      assert.ok(ROUTE_PATHS.has(`${locale}/blog/${slug}`), slug);
-      assert.equal(BLOG_REDIRECTS[`${locale}/blog/${base}`], `${locale}/blog/${slug}`);
+      // The article has its page, unless it was merged into a product page
+      // (then both of its addresses lead there).
+      const local = `${locale}/blog/${slug}`;
+      const merged = BLOG_REDIRECTS[local];
+      assert.ok(ROUTE_PATHS.has(local) || merged, slug);
+      assert.equal(BLOG_REDIRECTS[`${locale}/blog/${base}`], merged ?? local);
     }
   });
 }

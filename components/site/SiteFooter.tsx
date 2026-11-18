@@ -8,6 +8,7 @@ import { authHref } from '../../lib/appHost';
 import { StatusLink } from '../StatusLink';
 import { SECTOR_KEYS, SECTOR_SLUGS, SECTORS_COPY } from '../../lib/site/sectors';
 import { SiteImage } from './SiteImage';
+import { localHref } from '../../lib/site/localPaths';
 
 const SECTORS_TITLE = { fr: 'Secteurs', de: 'Branchen', it: 'Settori' } as const;
 
@@ -43,6 +44,7 @@ export function SiteFooter({ languageSwitcher }: { languageSwitcher?: React.Reac
       links: [
         { label: f.tradeLink, href: `${p}/metiers` },
         { label: f.pricingLink, href: `${p}/tarifs` },
+        { label: f.quoteLink, href: localHref(`${p}/solutions/devis`) },
         { label: f.newCompanyLink, href: `${p}/nouvelle-entreprise` },
         { label: f.customLink, href: `${p}/sur-mesure` },
         { label: f.ecosystemLink, href: `${p}/a-propos` },

@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { gutter, sans, serif, site } from '../../lib/siteTheme';
 import { releaseHydrationViewport } from '../../lib/hydrationViewport';
+import { localHref } from '../../lib/site/localPaths';
 
 // Building blocks of the public sites (cantia.ch, accounting, partners):
 // the 1320 px column, the small copper surtitle, headlines with their
@@ -142,7 +143,7 @@ export function Btn({ label, href, tone = 'copper', large = false, small = false
   // onPress: an action on the page itself (e.g. scroll to a form), no link.
   if (external || onPress) return button;
   return (
-    <Link href={href as any} asChild>
+    <Link href={localHref(href) as any} asChild>
       {button}
     </Link>
   );
@@ -150,7 +151,7 @@ export function Btn({ label, href, tone = 'copper', large = false, small = false
 
 export function TextLink({ label, href, color = site.ink, size = 12 }: { label: string; href: string; color?: string; size?: number }) {
   return (
-    <Link href={href as any} asChild>
+    <Link href={localHref(href) as any} asChild>
       <Hover accessibilityRole="link" base={styles.textLink} hover={{ opacity: 0.75 }}>
         <Text style={[sans, { color, fontSize: size, fontWeight: '600' }]}>{label}</Text>
         <Feather name="arrow-right" size={size + 2} color={color} />

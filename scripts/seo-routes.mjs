@@ -31,6 +31,20 @@ export function ogImageUrl(routePath) {
 }
 export const ORG_LOGO = `${SITE}/pwa-icon-512.png`;
 
+// Title, description and FAQ of the quote pages in German and Italian, read
+// from the copy the page shows (lib/site/offerLanding.ts).
+const OFFER_SRC = readFileSync(new URL('../lib/site/offerLanding.ts', import.meta.url), 'utf8');
+function offerRoute(locale) {
+  const block = OFFER_SRC.slice(OFFER_SRC.indexOf(`  ${locale}: {`));
+  const field = (name) => {
+    const m = block.match(new RegExp(`\\n    ${name}:\\s*\\n?\\s*'([^']*)'`));
+    return m ? m[1] : '';
+  };
+  const faqBlock = block.slice(block.indexOf('    faq: ['), block.indexOf('    relatedTitle:'));
+  const faq = [...faqBlock.matchAll(/question: '([^']*)',\s*answer:\s*'([^']*)'/g)].map((m) => ({ q: m[1], a: m[2] }));
+  return { title: field('seoTitle'), description: field('seoDescription'), faq };
+}
+
 const HOME = {
   path: '',
   title: 'Logiciel de gestion de chantier en Suisse | Cantia',
@@ -3402,16 +3416,9 @@ export const ROUTES = [
     faq: HOME_FAQ.de.items,
   },
   {
-    path: 'de/solutions/devis',
-    title: 'Offerten online für Schweizer Handwerker | Cantia',
-    description:
-      'Diktieren Sie Ihre Offertpositionen direkt auf der Baustelle. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, PDF versandbereit.',
-    faq: [
-      { q: 'Wie erstellt man als Handwerker schnell eine Offerte?', a: 'Diktieren Sie Ihre Positionen auf der Baustelle oder im Auto. Cantia wandelt sie mit Ihren gewohnten Preisen in bezifferte Positionen um, und das PDF ist fertig, bevor Sie den Kunden verlassen haben.' },
-      { q: 'Ist die Offerte konform mit den Schweizer Gepflogenheiten (MWST, Layout)?', a: 'Ja: Jede Offerte übernimmt Ihren MWST-Satz, Ihre Firmendaten und lässt sich mit Ihrer Markenfarbe und Ihrem Logo personalisieren.' },
-      { q: 'Kann eine akzeptierte Offerte automatisch in eine Rechnung umgewandelt werden?', a: 'Ja, eine unterzeichnete Offerte wird mit einem Klick zur Rechnung (inklusive Schweizer QR-Rechnung), ohne die Positionen neu zu erfassen.' },
-      { q: 'Ist Cantia für Offerten kostenlos?', a: 'Cantia bietet auf allen Plänen eine 14-tägige kostenlose Testphase (Kreditkarte erforderlich, keine Abbuchung vor Ende der Testphase). Nach dem Abo sind Offerten und Rechnungen auf jedem Plan unbegrenzt, ohne monatliches Kontingent.' },
-    ],
+    // The German quote page (components/site/OfferLandingPage.tsx); FR: solutions/devis.
+    path: 'de/offerte-erstellen',
+    ...offerRoute('de'),
   },
   {
     path: 'de/solutions/facturation',
@@ -3599,10 +3606,12 @@ export const ROUTES = [
   },
   {
     path: "de/metiers/batiment-artisanat",
-    title: "Software für Bau- und Handwerksbetriebe in der Schweiz | Cantia",
+    title: "Software für Bauunternehmen in der Schweiz | Cantia",
     description:
-      "Online unterschriebene Offerten, ausgefüllte Ausschreibungen, Bauprogramm, Rapporte mit Fotos, Stunden und QR-Rechnungen: die Software für Baubetriebe in der Schweiz.",
+      "Software für Bauunternehmen in Hochbau, Tiefbau und Handwerk: Offerten, Ausschreibungen, Bauprogramm, Rapporte, Stunden, QR-Rechnungen und Rentabilität.",
     faq: [
+      { q: "Welche Software brauchen Bauunternehmen in der Schweiz?", a: "Eine, die Offerten, Baustellen, Stunden und Rechnungen verbindet und Schweizer Vorgaben kennt: QR-Rechnung und MWST. Cantia deckt das ab, von der Offerte bis zur Rentabilität jeder Baustelle." },
+      { q: "Was kostet die Software?", a: "Ab CHF 39.– pro Monat, mit 14 Tagen Testphase. Offerten und Rechnungen sind auf jedem Plan unbegrenzt; die Pläne unterscheiden sich nach Anzahl Personen und Modulen." },
       { q: "Eignet sich Cantia für einen kleinen Baubetrieb?", a: "Ja. Eine Einzelfirma beginnt mit Offerten, Baustellen und Rechnungen und ergänzt Team, Planung oder Löhne, wenn sie wächst." },
       { q: "Kann ich die Ausschreibungen des Architekten ausfüllen?", a: "Ja. Sie importieren die PDF-Ausschreibung, Positionen und Mengen werden übernommen, Sie setzen Ihre Preise und senden das ausgefüllte Original-PDF zurück. Die Funktion ist in der Beta-Phase." },
       { q: "Können meine Mitarbeitenden ihre Stunden auf der Baustelle erfassen?", a: "Ja, auf dem Handy, ohne etwas zu installieren. Jede Stunde gehört zu einer Baustelle und einer Tätigkeit." },
@@ -3749,16 +3758,9 @@ export const ROUTES = [
     faq: HOME_FAQ.it.items,
   },
   {
-    path: 'it/solutions/devis',
-    title: 'Preventivi online per artigiani svizzeri | Cantia',
-    description:
-      "Detti le voci del preventivo a voce alta in cantiere. Cantia le trasforma in posizioni con prezzo, con i Suoi prezzi abituali, PDF pronto per l'invio.",
-    faq: [
-      { q: 'Come si fa un preventivo velocemente da artigiano?', a: "Detti le Sue righe a voce alta in cantiere o in auto. Cantia le trasforma in posizioni con prezzo usando i Suoi prezzi abituali, e il PDF è pronto ancora prima di aver lasciato il cliente." },
-      { q: 'Il preventivo è conforme agli usi svizzeri (IVA, impaginazione)?', a: "Sì: ogni preventivo riprende la Sua aliquota IVA, i Suoi dati aziendali e può essere personalizzato con il colore del Suo marchio e il Suo logo." },
-      { q: 'Si può trasformare automaticamente un preventivo accettato in fattura?', a: "Sì, un preventivo accettato si converte in fattura (con fattura QR svizzera), con un clic, senza reinserire le righe." },
-      { q: 'Cantia è gratuito per fare i preventivi?', a: "Cantia offre una prova gratuita di 14 giorni su tutti i piani (carta di credito richiesta, nessun addebito prima della fine della prova). Una volta abbonati, preventivi e fatture sono illimitati su ogni piano, senza quota mensile." },
-    ],
+    // The Italian quote page (components/site/OfferLandingPage.tsx); FR: solutions/devis.
+    path: 'it/creare-preventivo',
+    ...offerRoute('it'),
   },
   {
     path: 'it/solutions/facturation',
@@ -4899,13 +4901,26 @@ export function blogBaseSlug(locale, slug) {
   return LOCAL_BASE[locale]?.[slug] ?? slug;
 }
 
+// The address an article had before its slug was translated: the key the
+// overrides (scripts/seo-descriptions.mjs, scripts/seo-short-titles.mjs)
+// may still use.
+function overrideKeys(routePath) {
+  const m = routePath.match(/^(de|it)\/blog\/(.+)$/);
+  return m ? [routePath, `${m[1]}/blog/${blogBaseSlug(m[1], m[2])}`] : [routePath];
+}
+function overrideFor(table, routePath) {
+  for (const key of overrideKeys(routePath)) if (table[key]) return table[key];
+  return undefined;
+}
+
 // Slug of an article in a language.
 function localBlogSlug(base, locale) {
   return LOCAL_SLUGS[locale]?.[base] ?? base;
 }
 
 for (const route of ROUTES) {
-  if (DESCRIPTION_OVERRIDES[route.path]) route.description = DESCRIPTION_OVERRIDES[route.path];
+  const descriptionOverride = overrideFor(DESCRIPTION_OVERRIDES, route.path);
+  if (descriptionOverride) route.description = descriptionOverride;
   const slug = route.path.startsWith('blog/') ? route.path.slice('blog/'.length) : null;
   if (!slug) continue;
   if (!route.publishedAt && BLOG_DATES_FR[slug]) route.publishedAt = BLOG_DATES_FR[slug];
@@ -4922,9 +4937,17 @@ export function localeAndBareOf(routePath) {
   return { locale: 'fr', bare: routePath };
 }
 
+// Pages whose German or Italian address is a word of that language
+// (French path → path in the language), like lib/site/localPaths.ts.
+const LOCAL_PAGES = { 'solutions/devis': { de: 'offerte-erstellen', it: 'creare-preventivo' } };
+const LOCAL_PAGES_BASE = Object.fromEntries(
+  Object.entries(LOCAL_PAGES).flatMap(([fr, byLocale]) => Object.entries(byLocale).map(([locale, local]) => [`${locale}:${local}`, fr])),
+);
+
 export function alternatePathFor(routePath, targetLocale) {
-  const { locale, bare: rawBare } = localeAndBareOf(routePath);
-  let bare = rawBare;
+  const { locale, bare: localBare } = localeAndBareOf(routePath);
+  let bare = LOCAL_PAGES_BASE[`${locale}:${localBare}`] ?? localBare;
+  if (LOCAL_PAGES[bare]?.[targetLocale]) bare = LOCAL_PAGES[bare][targetLocale];
   if (bare.startsWith('blog/')) {
     const base = blogBaseSlug(locale, bare.slice('blog/'.length));
     bare = `blog/${localBlogSlug(base, targetLocale)}`;
@@ -5112,6 +5135,7 @@ for (const route of ROUTES) route.description = fitDescription(route.description
 
 const BRAND_SUFFIX = / \| (Cantia Hilfe-Center|Centro assistenza Cantia|Centre d'aide Cantia|Cantia)$/;
 for (const route of ROUTES) {
-  if (SHORT_TITLES[route.path]) route.title = SHORT_TITLES[route.path];
+  const shortTitle = overrideFor(SHORT_TITLES, route.path);
+  if (shortTitle) route.title = shortTitle;
   else if (route.title && route.title.length > 60 && BRAND_SUFFIX.test(route.title)) route.title = route.title.replace(BRAND_SUFFIX, '');
 }

@@ -470,4 +470,7 @@ export const DESCRIPTION_OVERRIDES = {
     "Interventi su chiamata, ore per indirizzo, contratti stagionali e fatture raggruppate a fine mese: Cantia per lo sgombero neve in Svizzera.",
   'it/metiers/agences-evenementiel/traiteur':
     "Eventi calcolati sugli ospiti, offerta firmata, personale pianificato, extra fatturati e salari del personale: Cantia per il catering in Svizzera.",
+  // SEO audit, November 2026: the rate itself in the description.
+  'blog/indemnites-kilometriques-2026-nouveau-taux':
+    "Depuis le 1er janvier 2026, l’indemnité kilométrique de référence passe de CHF 0,70 à CHF 0,75/km. Ce qu’elle couvre et ce qui change pour l’employeur.",
 };

@@ -645,8 +645,8 @@
   status = 200
 
 [[redirects]]
-  from = "/de/solutions/devis"
-  to = "/de/solutions/devis.html"
+  from = "/de/offerte-erstellen"
+  to = "/de/offerte-erstellen.html"
   status = 200
 
 [[redirects]]
@@ -1075,8 +1075,8 @@
   status = 200
 
 [[redirects]]
-  from = "/it/solutions/devis"
-  to = "/it/solutions/devis.html"
+  from = "/it/creare-preventivo"
+  to = "/it/creare-preventivo.html"
   status = 200
 
 [[redirects]]
@@ -3359,7 +3359,7 @@
 
 [[redirects]]
   from = "/de/blog/devis-gratuit-en-ligne-suisse-outil"
-  to = "/de/blog/offerte-erstellen-online-schweiz"
+  to = "/de/offerte-erstellen"
   status = 301
   force = true
 
@@ -3922,6 +3922,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/offerte-erstellen-online-schweiz"
+  to = "/de/offerte-erstellen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/onboarding-nouvel-apprenti-premieres-semaines"
   to = "/blog/apprenti-batiment-salaire-obligations-employeur"
   status = 301
@@ -4380,6 +4386,12 @@
 [[redirects]]
   from = "/de/photographe"
   to = "/de/metiers/agences-evenementiel/photographe-videaste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/solutions/devis"
+  to = "/de/offerte-erstellen"
   status = 301
   force = true
 
@@ -5069,7 +5081,7 @@
 
 [[redirects]]
   from = "/it/blog/devis-gratuit-en-ligne-suisse-outil"
-  to = "/it/blog/preventivo-gratuito-online"
+  to = "/it/creare-preventivo"
   status = 301
   force = true
 
@@ -5639,7 +5651,7 @@
 
 [[redirects]]
   from = "/it/blog/offerte-erstellen-online-schweiz"
-  to = "/it/blog/preventivo-gratuito-online"
+  to = "/it/creare-preventivo"
   status = 301
   force = true
 
@@ -5724,6 +5736,12 @@
 [[redirects]]
   from = "/it/blog/prescription-facture-impayee-delai-10-ans"
   to = "/it/blog/prescrizione-fattura-impagata-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/preventivo-gratuito-online"
+  to = "/it/creare-preventivo"
   status = 301
   force = true
 
@@ -6132,6 +6150,12 @@
 [[redirects]]
   from = "/it/photographe"
   to = "/it/metiers/agences-evenementiel/photographe-videaste"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/solutions/devis"
+  to = "/it/creare-preventivo"
   status = 301
   force = true
 
