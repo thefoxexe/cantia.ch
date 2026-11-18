@@ -9,13 +9,13 @@ export type BlogLocale = 'fr' | 'de' | 'it';
 
 const REDIRECTS: Record<string, string> = TRIAGE.redirects;
 const NOINDEX = new Set<string>(TRIAGE.noindex);
-const DE_SLUGS: Record<string, string> = TRIAGE.deSlugs;
+const LOCAL_SLUGS: Partial<Record<BlogLocale, Record<string, string>>> = { de: TRIAGE.deSlugs, it: TRIAGE.itSlugs };
 const PREFIX: Record<BlogLocale, string> = { fr: '', de: 'de/', it: 'it/' };
 
-// Slug of an article in the address of a language (the French slug, except
-// for the articles that have their own German one).
+// Slug of an article in the address of a language: its German or Italian
+// slug when it has one, else the French slug.
 export function publicSlug(base: string, locale: BlogLocale): string {
-  return locale === 'de' ? DE_SLUGS[base] ?? base : base;
+  return LOCAL_SLUGS[locale]?.[base] ?? base;
 }
 
 export function blogRoute(base: string, locale: BlogLocale): string {

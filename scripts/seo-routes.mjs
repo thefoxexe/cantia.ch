@@ -4880,19 +4880,28 @@ for (const locale of ['de', 'it']) {
   }
 }
 
-const DE_SLUGS = TRIAGE.deSlugs;
-const DE_BASE = Object.fromEntries(Object.entries(DE_SLUGS).map(([base, de]) => [de, base]));
+// German and Italian slugs of the articles (French slug → slug in the
+// language); the address with the French slug redirects (BLOG_REDIRECTS).
+const LOCAL_SLUGS = { de: TRIAGE.deSlugs, it: TRIAGE.itSlugs ?? {} };
+const LOCAL_BASE = Object.fromEntries(
+  Object.entries(LOCAL_SLUGS).map(([locale, map]) => [locale, Object.fromEntries(Object.entries(map).map(([base, slug]) => [slug, base]))]),
+);
 for (let i = ROUTES.length - 1; i >= 0; i--) {
   const route = ROUTES[i];
-  const deBlog = route.path.match(/^de\/blog\/(.+)$/);
-  if (deBlog && DE_SLUGS[deBlog[1]]) route.path = `de/blog/${DE_SLUGS[deBlog[1]]}`;
+  const localBlog = route.path.match(/^(de|it)\/blog\/(.+)$/);
+  if (localBlog && LOCAL_SLUGS[localBlog[1]][localBlog[2]]) route.path = `${localBlog[1]}/blog/${LOCAL_SLUGS[localBlog[1]][localBlog[2]]}`;
   if (route.path in BLOG_REDIRECTS) ROUTES.splice(i, 1);
   else if (TRIAGE.noindex.includes(route.path)) route.noindex = true;
 }
 
-// French slug of a German article address (the same slug, unless renamed).
+// French slug of a German or Italian article address (the same slug, unless renamed).
 export function blogBaseSlug(locale, slug) {
-  return locale === 'de' ? DE_BASE[slug] ?? slug : slug;
+  return LOCAL_BASE[locale]?.[slug] ?? slug;
+}
+
+// Slug of an article in a language.
+function localBlogSlug(base, locale) {
+  return LOCAL_SLUGS[locale]?.[base] ?? base;
 }
 
 for (const route of ROUTES) {
@@ -4918,7 +4927,7 @@ export function alternatePathFor(routePath, targetLocale) {
   let bare = rawBare;
   if (bare.startsWith('blog/')) {
     const base = blogBaseSlug(locale, bare.slice('blog/'.length));
-    bare = `blog/${targetLocale === 'de' ? DE_SLUGS[base] ?? base : base}`;
+    bare = `blog/${localBlogSlug(base, targetLocale)}`;
   }
   if (targetLocale === 'fr') return bare;
   const prefix = LOCALE_PREFIXES[targetLocale];

@@ -178,20 +178,25 @@ export function baseSlugOf(post: BlogPost): string {
   return post.baseSlug ?? post.slug;
 }
 
-// German articles with their own German slug carry it as `slug`.
-const POSTS_DE: BlogPost[] = BLOG_POSTS_DE.map((p) => {
-  const slug = publicSlug(p.slug, 'de');
-  return slug === p.slug ? p : { ...p, slug, baseSlug: p.slug };
-});
+// German and Italian articles with their own slug carry it as `slug`, the
+// French one as `baseSlug` (lib/blog/triage.json deSlugs / itSlugs).
+function localized(posts: BlogPost[], locale: BlogLocale): BlogPost[] {
+  return posts.map((p) => {
+    const slug = publicSlug(p.slug, locale);
+    return slug === p.slug ? p : { ...p, slug, baseSlug: p.slug };
+  });
+}
+const POSTS_DE: BlogPost[] = localized(BLOG_POSTS_DE, 'de');
+const POSTS_IT: BlogPost[] = localized(BLOG_POSTS_IT, 'it');
 
 function postsOf(locale: BlogLocale): BlogPost[] {
-  return locale === 'de' ? POSTS_DE : locale === 'it' ? BLOG_POSTS_IT : BLOG_POSTS;
+  return locale === 'de' ? POSTS_DE : locale === 'it' ? POSTS_IT : BLOG_POSTS;
 }
 
 const BY_BASE: Record<BlogLocale, Map<string, BlogPost>> = {
   fr: new Map(BLOG_POSTS.map((p) => [p.slug, p])),
   de: new Map(POSTS_DE.map((p) => [baseSlugOf(p), p])),
-  it: new Map(BLOG_POSTS_IT.map((p) => [p.slug, p])),
+  it: new Map(POSTS_IT.map((p) => [baseSlugOf(p), p])),
 };
 
 // The articles listed in a language (blog index, newest first): translated,

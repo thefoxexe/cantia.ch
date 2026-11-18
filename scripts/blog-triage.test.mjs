@@ -29,13 +29,26 @@ test('a redirected address is never a route', () => {
   for (const from of Object.keys(BLOG_REDIRECTS)) assert.ok(!ROUTE_PATHS.has(from), `/${from} is redirected and generated`);
 });
 
-test('German slugs are unique and their articles exist', () => {
-  const values = Object.values(TRIAGE.deSlugs);
-  assert.equal(new Set(values).size, values.length);
-  for (const [base, de] of Object.entries(TRIAGE.deSlugs)) {
-    assert.ok(existsSync(new URL(`../lib/blog/posts-de/${base}.ts`, import.meta.url)), base);
-    assert.ok(ROUTE_PATHS.has(`de/blog/${de}`), de);
-    assert.equal(BLOG_REDIRECTS[`de/blog/${base}`], `de/blog/${de}`);
+for (const [locale, key] of [['de', 'deSlugs'], ['it', 'itSlugs']]) {
+  test(`${locale} slugs are unique, their articles exist, the French-slug address redirects`, () => {
+    const map = TRIAGE[key];
+    const values = Object.values(map);
+    assert.equal(new Set(values).size, values.length);
+    for (const [base, slug] of Object.entries(map)) {
+      assert.ok(existsSync(new URL(`../lib/blog/posts-${locale}/${base}.ts`, import.meta.url)), base);
+      assert.ok(ROUTE_PATHS.has(`${locale}/blog/${slug}`), slug);
+      assert.equal(BLOG_REDIRECTS[`${locale}/blog/${base}`], `${locale}/blog/${slug}`);
+    }
+  });
+}
+
+test('every German and Italian article has a slug in its language', () => {
+  for (const [locale, key] of [['de', 'deSlugs'], ['it', 'itSlugs']]) {
+    const index = readFileSync(new URL(`../lib/blog/index-${locale}.ts`, import.meta.url), 'utf8');
+    for (const m of index.matchAll(/posts-\w\w\/([a-z0-9-]+)/g)) {
+      const route = `${locale}/blog/${m[1]}`;
+      assert.ok(TRIAGE[key][m[1]] || (route in BLOG_REDIRECTS && !BLOG_REDIRECTS[route].startsWith(`${locale}/blog/${m[1]}`)), `${route}: French slug`);
+    }
   }
 });
 
@@ -45,7 +58,8 @@ test('every remaining article file has a page', () => {
     for (const f of files) {
       const slug = f.match(/\/([a-z0-9-]+)'$/)[1];
       const path = prefix + slug;
-      assert.ok(ROUTE_PATHS.has(path) || path in BLOG_REDIRECTS, `${path} has neither a page nor a redirect`);
+      const local = prefix === 'it/blog/' && TRIAGE.itSlugs[slug] ? prefix + TRIAGE.itSlugs[slug] : path;
+      assert.ok(ROUTE_PATHS.has(local) || path in BLOG_REDIRECTS, `${path} has neither a page nor a redirect`);
     }
   }
 });

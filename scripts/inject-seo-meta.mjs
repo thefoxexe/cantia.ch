@@ -83,10 +83,12 @@ function patch(baseHtml, sourceRoute) {
   const canonicalUrl = routePath ? `${SITE}/${routePath}` : `${SITE}/`;
   const ogImage = ogImageUrl(routePath);
   const alternates = hreflangAlternates(routePath);
-  const frAlternate = alternates.find((a) => a.locale === 'fr');
+  // x-default: the French version, or the first one that exists when the
+  // page was never written in French.
+  const defaultAlternate = alternates.find((a) => a.locale === 'fr') ?? alternates[0];
   const hreflangTags = alternates
     .map((a) => `\n    <link rel="alternate" hreflang="${HREFLANG_TAGS[a.locale]}" href="${a.url}" />`)
-    .join('') + (frAlternate ? `\n    <link rel="alternate" hreflang="x-default" href="${frAlternate.url}" />` : '');
+    .join('') + (defaultAlternate ? `\n    <link rel="alternate" hreflang="x-default" href="${defaultAlternate.url}" />` : '');
   const alternateLocales = alternates
     .filter((a) => a.locale !== routeLocale)
     .map((a) => `\n    <meta property="og:locale:alternate" content="${OG_LOCALES[a.locale]}" />`)

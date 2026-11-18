@@ -2782,6 +2782,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/appel-offres-marches-publics-batiment-suisse"
+  to = "/de/blog/oeffentliche-auftraege-bau-offerteingabe"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/application-devis-mobile-artisan"
   to = "/blog/application-devis-mobile-artisan"
   status = 301
@@ -2796,6 +2802,12 @@
 [[redirects]]
   from = "/de/blog/application-hors-ligne-chantier-pourquoi-important"
   to = "/blog/application-devis-mobile-artisan"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/apprenti-batiment-salaire-obligations-employeur"
+  to = "/de/blog/lernende-bau-lohn-pflichten"
   status = 301
   force = true
 
@@ -2855,7 +2867,7 @@
 
 [[redirects]]
   from = "/de/blog/automatiser-rappels-relances-entreprise"
-  to = "/de/blog/relancer-client-facture-impayee-sans-perdre-client"
+  to = "/de/blog/kunden-mahnen-unbezahlte-rechnung"
   status = 301
   force = true
 
@@ -2884,6 +2896,18 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/avs-ai-independant-batiment"
+  to = "/de/blog/ahv-iv-selbststaendige-bau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/bexio-vs-cantia-logiciel-batiment"
+  to = "/de/blog/bexio-vs-cantia-software-bauunternehmen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/bilan-carbone-chantier-construction-suisse"
   to = "/blog/bilan-carbone-chantier-construction-suisse"
   status = 301
@@ -2891,7 +2915,7 @@
 
 [[redirects]]
   from = "/de/blog/budget-logiciel-gestion-demarrage-entreprise"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
@@ -2902,8 +2926,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/calculer-13e-salaire-prorata-employe"
+  to = "/de/blog/13-monatslohn-berechnen-anteilig"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/calculer-acomptes-impots-independant-batiment"
   to = "/blog/calculer-acomptes-impots-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calculer-heures-travail-ouvrier-minutes-decimales"
+  to = "/de/blog/arbeitsstunden-berechnen-minuten-dezimal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calculer-prix-de-revient-chantier-batiment"
+  to = "/de/blog/selbstkosten-baustelle-berechnen"
   status = 301
   force = true
 
@@ -2914,14 +2956,50 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  to = "/de/blog/stundenkosten-bauarbeiter-berechnen"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/calculer-prix-unitaire-soumission"
+  to = "/de/blog/einheitspreise-leistungsverzeichnis-berechnen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/cantia-adapte-metier-specifique-batiment"
   to = "/de/sur-mesure"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/de/blog/cantia-vs-cresus-facturation"
+  to = "/de/blog/cantia-vs-cresus-facturation-vergleich"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-vs-klara"
+  to = "/de/blog/cantia-vs-klara-vergleich"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/cantia-vs-winbiz"
+  to = "/de/blog/cantia-vs-winbiz-vergleich"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/cautionnement-bancaire-entreprise-generale-suisse"
   to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/certificat-de-travail-obligation-employeur-batiment"
+  to = "/de/blog/arbeitszeugnis-bau-pflicht"
   status = 301
   force = true
 
@@ -2933,7 +3011,7 @@
 
 [[redirects]]
   from = "/de/blog/chantier-complet-peut-etre-en-perte-taux-horaire"
-  to = "/de/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  to = "/de/blog/stundenkosten-bauarbeiter-berechnen"
   status = 301
   force = true
 
@@ -2950,6 +3028,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/checklist-cloture-chantier-avant-facturation"
+  to = "/de/blog/checkliste-bauende-schlussrechnung"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/checklist-fin-annee-entreprise-batiment"
   to = "/blog/checklist-fin-annee-entreprise-batiment"
   status = 301
@@ -2958,6 +3042,12 @@
 [[redirects]]
   from = "/de/blog/checklist-logiciels-ouverture-societe-construction"
   to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/checklist-ouverture-chantier-artisan"
+  to = "/de/blog/checkliste-baustellenstart"
   status = 301
   force = true
 
@@ -2980,8 +3070,20 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/client-refuse-payer-solde-final-que-faire"
+  to = "/de/blog/kunde-zahlt-restbetrag-nicht"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/combien-coute-logiciel-facturation-pas-cher"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
@@ -2998,6 +3100,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/comprendre-soumission-can-positions"
+  to = "/de/blog/leistungsverzeichnis-npk-lesen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/construction-modulaire-prefabriquee-suisse"
   to = "/blog/construction-modulaire-prefabriquee-suisse"
   status = 301
@@ -3005,7 +3113,13 @@
 
 [[redirects]]
   from = "/de/blog/contrat-ecrit-petits-travaux-quand-necessaire"
-  to = "/de/blog/devis-oral-valeur-legale-suisse"
+  to = "/de/blog/muendliche-offerte-rechtlich-verbindlich"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/contrat-entreprise-vs-mandat-artisan"
+  to = "/de/blog/werkvertrag-vs-auftrag-handwerker"
   status = 301
   force = true
 
@@ -3059,7 +3173,13 @@
 
 [[redirects]]
   from = "/de/blog/defaut-construction-decouvert-apres-reception-qui-paie"
-  to = "/de/blog/garantie-travaux-construction-2-ou-5-ans"
+  to = "/de/blog/garantie-bauarbeiten-2-5-10-jahre"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/degats-voisinage-chantier-qui-est-responsable"
+  to = "/de/blog/baustelle-schaeden-nachbarn-haftung"
   status = 301
   force = true
 
@@ -3096,6 +3216,12 @@
 [[redirects]]
   from = "/de/blog/demarrer-entreprise-batiment-outils-indispensables"
   to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/demission-employe-batiment-preavis-a-respecter"
+  to = "/de/blog/kuendigung-mitarbeiter-bau-kuendigungsfrist"
   status = 301
   force = true
 
@@ -3238,8 +3364,20 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/devis-gratuit-ou-payant-que-dit-la-loi"
+  to = "/de/blog/offerte-gratis-oder-kostenpflichtig"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/devis-menuisier-sur-mesure-facturation-suisse"
   to = "/de/menuisier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/devis-oral-valeur-legale-suisse"
+  to = "/de/blog/muendliche-offerte-rechtlich-verbindlich"
   status = 301
   force = true
 
@@ -3274,6 +3412,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/difference-sia-108-sia-118-devis-contrat"
+  to = "/de/blog/sia-108-vs-sia-118-unterschied"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/directive-suva-echafaudage-chantier-obligation"
   to = "/blog/directive-suva-echafaudage-chantier-obligation"
   status = 301
@@ -3292,6 +3436,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/duree-validite-devis-non-signe-combien-temps"
+  to = "/de/blog/offerte-gueltigkeitsdauer-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/entretien-annuel-employe-batiment-comment-faire"
   to = "/blog/motiver-equipe-chantier-batiment-quotidien"
   status = 301
@@ -3305,13 +3455,19 @@
 
 [[redirects]]
   from = "/de/blog/erreurs-soumission-qui-coutent-le-marche"
-  to = "/de/blog/remplir-soumission-pdf-architecte"
+  to = "/de/blog/leistungsverzeichnis-pdf-ausfuellen"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/essai-gratuit-logiciel-facturation-suisse"
-  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/de/blog/beste-offerten-rechnungssoftware-bau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/estimer-chantier-a-distance-devis-photo"
+  to = "/de/blog/baustelle-aus-der-ferne-offerte-fotos"
   status = 301
   force = true
 
@@ -3322,8 +3478,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/excel-vs-logiciel-gestion-chantier-limites"
+  to = "/de/blog/excel-vs-baustellensoftware"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/expertise-judiciaire-malfacon-construction-suisse"
   to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturation-heures-regie-batiment-comment-faire"
+  to = "/de/blog/regiearbeit-fakturieren-bau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/facturer-acompte-suisse-securiser-solde"
+  to = "/de/blog/anzahlung-fakturieren-schweiz"
   status = 301
   force = true
 
@@ -3370,6 +3544,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/fixer-prix-artisan-sans-brader-concurrence-suisse"
+  to = "/de/blog/preise-festlegen-handwerker"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/forfait-ou-temps-passe-consultant-suisse"
   to = "/blog/forfait-ou-temps-passe-consultant-suisse"
   status = 301
@@ -3388,6 +3568,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/garantie-travaux-construction-2-ou-5-ans"
+  to = "/de/blog/garantie-bauarbeiten-2-5-10-jahre"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/gerer-conflit-entre-deux-ouvriers-chantier"
   to = "/blog/gerer-conflit-entre-deux-ouvriers-chantier"
   status = 301
@@ -3402,6 +3588,12 @@
 [[redirects]]
   from = "/de/blog/gerer-entreprise-seul-sans-embaucher-outils"
   to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/gerer-plusieurs-chantiers-en-parallele-methode"
+  to = "/de/blog/mehrere-baustellen-gleichzeitig-verwalten"
   status = 301
   force = true
 
@@ -3448,14 +3640,32 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/heures-supplementaires-batiment-majoration-25"
+  to = "/de/blog/ueberstunden-bau-gav-zuschlag"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/horaires-bruit-chantier-autorises-suisse"
   to = "/blog/horaires-bruit-chantier-autorises-suisse"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/de/blog/hypotheque-legale-artisans-entrepreneurs-suisse"
+  to = "/de/blog/bauhandwerkerpfandrecht-frist"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/immatriculer-entreprise-construction-registre-commerce"
   to = "/blog/immatriculer-entreprise-construction-registre-commerce"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/indemnites-kilometriques-2026-nouveau-taux"
+  to = "/de/blog/kilometerentschaedigung-2026-ansatz"
   status = 301
   force = true
 
@@ -3478,8 +3688,20 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/lancer-entreprise-batiment-suisse-par-ou-commencer"
+  to = "/de/blog/bauunternehmen-gruenden-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/leasing-machines-vehicules-chantier-suisse"
   to = "/blog/leasing-machines-vehicules-chantier-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/licenciement-ouvrier-batiment-delai-conge-cct"
+  to = "/de/blog/kuendigungsfrist-bau-gav"
   status = 301
   force = true
 
@@ -3492,6 +3714,12 @@
 [[redirects]]
   from = "/de/blog/lire-fiche-de-salaire-batiment"
   to = "/blog/lire-fiche-de-salaire-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/litige-chantier-mediation-ou-tribunal"
+  to = "/de/blog/baustreit-mediation-schlichtung-gericht"
   status = 301
   force = true
 
@@ -3509,19 +3737,19 @@
 
 [[redirects]]
   from = "/de/blog/logiciel-facturation-conforme-tva-suisse-pas-cher"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/logiciel-facturation-gratuit-independant-suisse"
-  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/de/blog/beste-offerten-rechnungssoftware-bau"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/logiciel-facturation-qr-facture-comparatif-suisse"
-  to = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/de/blog/beste-offerten-rechnungssoftware-bau"
   status = 301
   force = true
 
@@ -3533,7 +3761,7 @@
 
 [[redirects]]
   from = "/de/blog/logiciel-gestion-chantier-abordable-petite-entreprise"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
@@ -3552,6 +3780,12 @@
 [[redirects]]
   from = "/de/blog/logiciel-gestion-societe-individuelle-suisse"
   to = "/de/blog/baustellensoftware-einzelunternehmer"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/logiciel-gestion-tout-en-un-petite-entreprise-suisse"
+  to = "/de/blog/alles-in-einer-loesung-software-kmu"
   status = 301
   force = true
 
@@ -3586,14 +3820,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/lpp-deuxieme-pilier-independant-batiment"
+  to = "/de/blog/bvg-selbststaendige-bau-pflicht"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/marge-beneficiaire-entreprise-batiment-suisse"
   to = "/blog/calculer-prix-de-revient-chantier-batiment"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/de/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/de/blog/beste-offerten-rechnungssoftware-bau"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/meilleur-logiciel-pas-cher-petit-artisan"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
@@ -3605,13 +3851,19 @@
 
 [[redirects]]
   from = "/de/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment"
-  to = "/de/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/de/blog/baustellensoftware-kosten-nutzen"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/meilleures-alternatives-gratuites-bexio"
-  to = "/de/blog/bexio-vs-cantia-logiciel-batiment"
+  to = "/de/blog/bexio-vs-cantia-software-bauunternehmen"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/mentions-obligatoires-facture-suisse-tva"
+  to = "/de/blog/rechnung-pflichtangaben-schweiz-mwst"
   status = 301
   force = true
 
@@ -3658,14 +3910,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/note-de-credit-facture-rectificative-suisse"
+  to = "/de/blog/gutschrift-rechnung-korrigieren-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/numerotation-facture-obligations-legales-suisse"
-  to = "/de/blog/mentions-obligatoires-facture-suisse-tva"
+  to = "/de/blog/rechnung-pflichtangaben-schweiz-mwst"
   status = 301
   force = true
 
 [[redirects]]
   from = "/de/blog/onboarding-nouvel-apprenti-premieres-semaines"
   to = "/blog/apprenti-batiment-salaire-obligations-employeur"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/outil-devis-factures-sans-double-saisie"
+  to = "/de/blog/offerte-rechnung-ohne-doppelerfassung"
   status = 301
   force = true
 
@@ -3677,7 +3941,7 @@
 
 [[redirects]]
   from = "/de/blog/parrainage-recommandation-clients-artisan-batiment"
-  to = "/de/blog/trouver-clients-artisan-batiment-suisse"
+  to = "/de/blog/kunden-finden-handwerker"
   status = 301
   force = true
 
@@ -3688,8 +3952,38 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/permis-construire-renovation-quand-necessaire"
+  to = "/de/blog/baubewilligung-renovation-wann-noetig"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/photos-chantier-preuve-juridique-litige"
+  to = "/de/blog/baustellenfotos-beweismittel"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/planning-chantier-eviter-conflits-ressources"
+  to = "/de/blog/baustellenplanung-ressourcenkonflikte"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/portfolio-photos-avant-apres-chantier-vente"
+  to = "/de/blog/vorher-nachher-fotos-baustelle"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut"
   to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/pourquoi-entreprises-batiment-font-faillite-suisse"
+  to = "/de/blog/warum-bauunternehmen-konkurs-gehen"
   status = 301
   force = true
 
@@ -3708,6 +4002,12 @@
 [[redirects]]
   from = "/de/blog/prescription-facture-impayee-delai-10-ans"
   to = "/de/blog/verjaehrung-unbezahlte-rechnung-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/previsionnel-tresorerie-entreprise-batiment"
+  to = "/de/blog/liquiditaetsplanung-bauunternehmen"
   status = 301
   force = true
 
@@ -3760,8 +4060,20 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/qr-facture-obligatoire-2026"
+  to = "/de/blog/qr-rechnung-obligatorisch-schweiz"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
   to = "/de/blog/software-bauunternehmen-schweiz-auswahl"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/rabais-escompte-tva-ordre-soumission"
+  to = "/de/blog/rabatt-skonto-mwst-reihenfolge"
   status = 301
   force = true
 
@@ -3778,6 +4090,18 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/reception-travaux-proces-verbal-chantier"
+  to = "/de/blog/bauabnahme-protokoll"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/rediger-devis-qui-inspire-confiance-client"
+  to = "/de/blog/offerte-schreiben-vertrauen-kunde"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/reemploi-materiaux-economie-circulaire-batiment"
   to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
   status = 301
@@ -3786,6 +4110,18 @@
 [[redirects]]
   from = "/de/blog/relancer-client-devis-sans-reponse"
   to = "/blog/relancer-client-devis-sans-reponse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/relancer-client-facture-impayee-sans-perdre-client"
+  to = "/de/blog/kunden-mahnen-unbezahlte-rechnung"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/remplir-soumission-pdf-architecte"
+  to = "/de/blog/leistungsverzeichnis-pdf-ausfuellen"
   status = 301
   force = true
 
@@ -3814,8 +4150,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/resiliation-contrat-entreprise-chantier-en-cours"
+  to = "/de/blog/werkvertrag-kuendigen-laufende-baustelle"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/responsabilite-apres-livraison-travaux-assurance"
   to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/retard-chantier-meteo-obligations-contractuelles"
+  to = "/de/blog/bauverzug-wetter-verantwortung"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/retenue-de-garantie-chantier-consignation"
+  to = "/de/blog/garantierueckbehalt-baustelle"
   status = 301
   force = true
 
@@ -3832,6 +4186,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/salaire-minimum-cct-construction-suisse"
+  to = "/de/blog/mindestlohn-bau-schweiz-gav"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/salaire-personnel-extra-evenementiel-traiteur"
   to = "/blog/salaire-personnel-extra-evenementiel-traiteur"
   status = 301
@@ -3844,6 +4204,18 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/signature-electronique-devis-suisse-valeur-legale"
+  to = "/de/blog/offerte-elektronisch-unterschreiben"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/site-internet-artisan-batiment-utile"
+  to = "/de/blog/website-handwerksbetrieb-bau"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/site-internet-ou-carte-de-visite-artisan"
   to = "/blog/site-internet-artisan-batiment-utile"
   status = 301
@@ -3851,7 +4223,13 @@
 
 [[redirects]]
   from = "/de/blog/sous-effectif-chantier-recruter-ou-sous-traiter"
-  to = "/de/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  to = "/de/blog/subunternehmer-bau-vertrag-haftung"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  to = "/de/blog/subunternehmer-bau-vertrag-haftung"
   status = 301
   force = true
 
@@ -3862,8 +4240,14 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/suivre-rentabilite-chantier-sans-excel"
+  to = "/de/blog/rentabilitaet-baustelle-ohne-excel"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/temps-repondre-soumission-rentable"
-  to = "/de/blog/remplir-soumission-pdf-architecte"
+  to = "/de/blog/leistungsverzeichnis-pdf-ausfuellen"
   status = 301
   force = true
 
@@ -3874,8 +4258,26 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/travail-au-noir-batiment-suisse-risques-controles"
+  to = "/de/blog/schwarzarbeit-baugewerbe-risiken"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/travailleur-detache-batiment-suisse-regles"
   to = "/blog/travailleur-detache-batiment-suisse-regles"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/travailleur-temporaire-interimaire-batiment-regles"
+  to = "/de/blog/temporaerarbeiter-baugewerbe-regeln"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/trouver-clients-artisan-batiment-suisse"
+  to = "/de/blog/kunden-finden-handwerker"
   status = 301
   force = true
 
@@ -3898,8 +4300,32 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/vacances-non-prises-fin-annee-batiment-cct"
+  to = "/de/blog/ferien-nicht-bezogen-jahresende-bau"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/validite-devis-signe-prix-qui-bouge"
+  to = "/de/blog/unterschriebene-offerte-materialpreis-gestiegen"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/variante-soumission-proposer-alternative"
-  to = "/de/blog/remplir-soumission-pdf-architecte"
+  to = "/de/blog/leistungsverzeichnis-pdf-ausfuellen"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/vitesse-reponse-devis-taux-conversion-batiment"
+  to = "/de/blog/offerte-schnell-beantworten-abschlussquote"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/blog/whatsapp-gestion-equipe-chantier-limites"
+  to = "/de/blog/whatsapp-baustellenteam-grenzen"
   status = 301
   force = true
 
@@ -4000,6 +4426,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/accident-travail-chantier-obligations-employeur-suva"
+  to = "/it/blog/infortunio-cantiere-obblighi-datore-suva"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/acompte-demenagement-suisse-montant-facture"
   to = "/blog/acompte-demenagement-suisse-montant-facture"
   status = 301
@@ -4024,6 +4456,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/appel-offres-marches-publics-batiment-suisse"
+  to = "/it/blog/appalti-pubblici-edilizia-offerta"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/application-devis-mobile-artisan"
   to = "/blog/application-devis-mobile-artisan"
   status = 301
@@ -4031,7 +4469,7 @@
 
 [[redirects]]
   from = "/it/blog/application-gestion-freelance-batiment"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
@@ -4042,8 +4480,14 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/apprenti-batiment-salaire-obligations-employeur"
+  to = "/it/blog/apprendista-edilizia-salario-obblighi"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/arbeitsunfall-baustelle-suva-pflichten"
-  to = "/it/blog/accident-travail-chantier-obligations-employeur-suva"
+  to = "/it/blog/infortunio-cantiere-obblighi-datore-suva"
   status = 301
   force = true
 
@@ -4061,7 +4505,7 @@
 
 [[redirects]]
   from = "/it/blog/assurance-chantier-tous-risques-ectr-obligatoire"
-  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  to = "/it/blog/rc-professionale-edilizia-obbligatoria"
   status = 301
   force = true
 
@@ -4073,7 +4517,7 @@
 
 [[redirects]]
   from = "/it/blog/assurance-perte-de-gain-maladie-independant-batiment"
-  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  to = "/it/blog/rc-professionale-edilizia-obbligatoria"
   status = 301
   force = true
 
@@ -4090,6 +4534,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  to = "/it/blog/rc-professionale-edilizia-obbligatoria"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/assurance-transport-materiel-chantier"
   to = "/blog/assurance-bris-machine-outillage-chantier"
   status = 301
@@ -4097,13 +4547,13 @@
 
 [[redirects]]
   from = "/it/blog/aufbewahrungspflicht-rechnungen-offerten-schweiz"
-  to = "/it/blog/duree-conservation-devis-factures-suisse"
+  to = "/it/blog/conservazione-preventivi-fatture-svizzera"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/automatiser-rappels-relances-entreprise"
-  to = "/it/blog/relancer-client-facture-impayee-sans-perdre-client"
+  to = "/it/blog/sollecitare-cliente-fattura-non-pagata"
   status = 301
   force = true
 
@@ -4120,26 +4570,44 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/avenant-chantier-plus-value-moins-value"
+  to = "/it/blog/fatturare-variante-cantiere"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/avis-google-entreprise-construction-suisse"
   to = "/blog/repondre-avis-negatif-google-artisan"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/blog/avs-ai-independant-batiment"
+  to = "/it/blog/avs-ai-indipendente-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/baustellensoftware-einzelunternehmer"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/betreibung-unbezahlte-rechnung-ablauf"
-  to = "/it/blog/poursuite-facture-impayee-procedure-suisse"
+  to = "/it/blog/fattura-non-pagata-procedura-esecutiva"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/betriebshaftpflicht-baugewerbe"
-  to = "/it/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  to = "/it/blog/rc-professionale-edilizia-obbligatoria"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/bexio-vs-cantia-logiciel-batiment"
+  to = "/it/blog/bexio-vs-cantia-software-edilizia"
   status = 301
   force = true
 
@@ -4151,7 +4619,7 @@
 
 [[redirects]]
   from = "/it/blog/budget-logiciel-gestion-demarrage-entreprise"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
   status = 301
   force = true
 
@@ -4162,8 +4630,26 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/calculer-13e-salaire-prorata-employe"
+  to = "/it/blog/calcolo-tredicesima-svizzera-pro-rata"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/calculer-acomptes-impots-independant-batiment"
   to = "/blog/calculer-acomptes-impots-independant-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calculer-heures-travail-ouvrier-minutes-decimales"
+  to = "/it/blog/calcolare-ore-lavoro-minuti-decimali"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calculer-prix-de-revient-chantier-batiment"
+  to = "/it/blog/prezzo-di-costo-cantiere"
   status = 301
   force = true
 
@@ -4174,14 +4660,50 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  to = "/it/blog/costo-orario-operaio-edile"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/calculer-prix-unitaire-soumission"
+  to = "/it/blog/calcolare-prezzo-unitario-capitolato"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/cantia-adapte-metier-specifique-batiment"
   to = "/it/sur-mesure"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/blog/cantia-vs-cresus-facturation"
+  to = "/it/blog/cantia-vs-cresus-facturation-confronto"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-vs-klara"
+  to = "/it/blog/cantia-vs-klara-confronto"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/cantia-vs-winbiz"
+  to = "/it/blog/cantia-vs-winbiz-confronto"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/cautionnement-bancaire-entreprise-generale-suisse"
   to = "/blog/cautionnement-bancaire-entreprise-generale-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/certificat-de-travail-obligation-employeur-batiment"
+  to = "/it/blog/certificato-di-lavoro-edilizia"
   status = 301
   force = true
 
@@ -4193,7 +4715,7 @@
 
 [[redirects]]
   from = "/it/blog/chantier-complet-peut-etre-en-perte-taux-horaire"
-  to = "/it/blog/calculer-prix-horaire-reel-ouvrier-batiment"
+  to = "/it/blog/costo-orario-operaio-edile"
   status = 301
   force = true
 
@@ -4210,6 +4732,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/checklist-cloture-chantier-avant-facturation"
+  to = "/it/blog/checklist-fine-cantiere-fattura"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/checklist-fin-annee-entreprise-batiment"
   to = "/blog/checklist-fin-annee-entreprise-batiment"
   status = 301
@@ -4217,7 +4745,13 @@
 
 [[redirects]]
   from = "/it/blog/checklist-logiciels-ouverture-societe-construction"
-  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/checklist-ouverture-chantier-artisan"
+  to = "/it/blog/checklist-apertura-cantiere"
   status = 301
   force = true
 
@@ -4240,8 +4774,20 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/client-refuse-payer-solde-final-que-faire"
+  to = "/it/blog/cliente-non-paga-saldo-finale"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/combien-coute-logiciel-facturation-pas-cher"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
   status = 301
   force = true
 
@@ -4258,6 +4804,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/comprendre-soumission-can-positions"
+  to = "/it/blog/leggere-capitolato-cpn"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/construction-modulaire-prefabriquee-suisse"
   to = "/blog/construction-modulaire-prefabriquee-suisse"
   status = 301
@@ -4265,7 +4817,13 @@
 
 [[redirects]]
   from = "/it/blog/contrat-ecrit-petits-travaux-quand-necessaire"
-  to = "/it/blog/devis-oral-valeur-legale-suisse"
+  to = "/it/blog/preventivo-verbale-valore-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/contrat-entreprise-vs-mandat-artisan"
+  to = "/it/blog/contratto-appalto-vs-mandato"
   status = 301
   force = true
 
@@ -4306,20 +4864,44 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/crm-artisan-batiment-pourquoi-utile"
+  to = "/it/blog/crm-artigiano-edile"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/crm-baubranche-handwerker"
-  to = "/it/blog/crm-artisan-batiment-pourquoi-utile"
+  to = "/it/blog/crm-artigiano-edile"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/declaration-tva-trimestrielle-artisan-suisse"
-  to = "/it/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/it/blog/rendiconto-iva-svizzera-scadenze"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/defaut-construction-decouvert-apres-reception-qui-paie"
-  to = "/it/blog/garantie-travaux-construction-2-ou-5-ans"
+  to = "/it/blog/garanzia-lavori-costruzione-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/degats-voisinage-chantier-qui-est-responsable"
+  to = "/it/blog/danni-vicinato-cantiere-responsabilita"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/delai-declaration-tva-suisse-calendrier"
+  to = "/it/blog/rendiconto-iva-svizzera-scadenze"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/delai-paiement-facture-artisan-code-obligations"
+  to = "/it/blog/termine-pagamento-fattura-svizzera"
   status = 301
   force = true
 
@@ -4343,7 +4925,13 @@
 
 [[redirects]]
   from = "/it/blog/demarrer-entreprise-batiment-outils-indispensables"
-  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/demission-employe-batiment-preavis-a-respecter"
+  to = "/it/blog/dimissioni-dipendente-edilizia-preavviso"
   status = 301
   force = true
 
@@ -4480,8 +5068,26 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/devis-gratuit-en-ligne-suisse-outil"
+  to = "/it/blog/preventivo-gratuito-online"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-gratuit-ou-payant-que-dit-la-loi"
+  to = "/it/blog/preventivo-gratuito-o-a-pagamento"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/devis-menuisier-sur-mesure-facturation-suisse"
   to = "/it/menuisier"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/devis-oral-valeur-legale-suisse"
+  to = "/it/blog/preventivo-verbale-valore-legale"
   status = 301
   force = true
 
@@ -4510,6 +5116,18 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/difference-devis-offre-facture-pro-forma"
+  to = "/it/blog/preventivo-offerta-fattura-proforma"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/difference-sia-108-sia-118-devis-contrat"
+  to = "/it/blog/sia-108-vs-sia-118-differenza"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/directive-suva-echafaudage-chantier-obligation"
   to = "/blog/directive-suva-echafaudage-chantier-obligation"
   status = 301
@@ -4522,6 +5140,18 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/duree-conservation-devis-factures-suisse"
+  to = "/it/blog/conservazione-preventivi-fatture-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/duree-validite-devis-non-signe-combien-temps"
+  to = "/it/blog/validita-preventivo-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/entretien-annuel-employe-batiment-comment-faire"
   to = "/blog/motiver-equipe-chantier-batiment-quotidien"
   status = 301
@@ -4529,25 +5159,55 @@
 
 [[redirects]]
   from = "/it/blog/erreurs-choisir-premier-logiciel-gestion"
-  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/erreurs-soumission-qui-coutent-le-marche"
-  to = "/it/blog/remplir-soumission-pdf-architecte"
+  to = "/it/blog/compilare-capitolato-pdf-architetto"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/essai-gratuit-logiciel-facturation-suisse"
-  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/it/blog/miglior-software-preventivi-fatture-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/estimer-chantier-a-distance-devis-photo"
+  to = "/it/blog/stimare-cantiere-a-distanza-foto"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/etablir-certificat-salaire-lohnausweis-premier-employe"
+  to = "/it/blog/certificato-di-salario-primo-dipendente"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/excel-vs-logiciel-gestion-chantier-limites"
+  to = "/it/blog/excel-vs-software-gestione-cantiere"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/expertise-judiciaire-malfacon-construction-suisse"
   to = "/blog/litige-chantier-mediation-ou-tribunal"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturation-heures-regie-batiment-comment-faire"
+  to = "/it/blog/fatturare-lavori-in-economia-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/facturer-acompte-suisse-securiser-solde"
+  to = "/it/blog/fatturare-acconto-svizzera"
   status = 301
   force = true
 
@@ -4594,6 +5254,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/fixer-prix-artisan-sans-brader-concurrence-suisse"
+  to = "/it/blog/fissare-prezzi-artigiano"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/forfait-ou-temps-passe-consultant-suisse"
   to = "/blog/forfait-ou-temps-passe-consultant-suisse"
   status = 301
@@ -4612,6 +5278,12 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/garantie-travaux-construction-2-ou-5-ans"
+  to = "/it/blog/garanzia-lavori-costruzione-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/gerer-conflit-entre-deux-ouvriers-chantier"
   to = "/blog/gerer-conflit-entre-deux-ouvriers-chantier"
   status = 301
@@ -4625,7 +5297,13 @@
 
 [[redirects]]
   from = "/it/blog/gerer-entreprise-seul-sans-embaucher-outils"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/gerer-plusieurs-chantiers-en-parallele-methode"
+  to = "/it/blog/gestire-piu-cantieri-in-parallelo"
   status = 301
   force = true
 
@@ -4672,14 +5350,32 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/heures-supplementaires-batiment-majoration-25"
+  to = "/it/blog/ore-straordinarie-edilizia-ccl"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/horaires-bruit-chantier-autorises-suisse"
   to = "/blog/horaires-bruit-chantier-autorises-suisse"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/blog/hypotheque-legale-artisans-entrepreneurs-suisse"
+  to = "/it/blog/ipoteca-legale-artigiani-imprenditori"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/immatriculer-entreprise-construction-registre-commerce"
   to = "/blog/immatriculer-entreprise-construction-registre-commerce"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/indemnites-kilometriques-2026-nouveau-taux"
+  to = "/it/blog/indennita-chilometriche-2026"
   status = 301
   force = true
 
@@ -4702,8 +5398,20 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/lancer-entreprise-batiment-suisse-par-ou-commencer"
+  to = "/it/blog/aprire-impresa-edile-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/leasing-machines-vehicules-chantier-suisse"
   to = "/blog/leasing-machines-vehicules-chantier-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/licenciement-ouvrier-batiment-delai-conge-cct"
+  to = "/it/blog/licenziamento-edilizia-termini-disdetta"
   status = 301
   force = true
 
@@ -4716,6 +5424,12 @@
 [[redirects]]
   from = "/it/blog/lire-fiche-de-salaire-batiment"
   to = "/blog/lire-fiche-de-salaire-batiment"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/litige-chantier-mediation-ou-tribunal"
+  to = "/it/blog/controversia-cantiere-mediazione-tribunale"
   status = 301
   force = true
 
@@ -4733,31 +5447,37 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-facturation-conforme-tva-suisse-pas-cher"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/logiciel-facturation-gratuit-independant-suisse"
-  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/it/blog/miglior-software-preventivi-fatture-edilizia"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/logiciel-facturation-qr-facture-comparatif-suisse"
-  to = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/it/blog/miglior-software-preventivi-fatture-edilizia"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/logiciel-facturation-raison-individuelle-suisse"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/logiciel-gestion-chantier-abordable-petite-entreprise"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
@@ -4769,7 +5489,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-gestion-societe-individuelle-suisse"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
@@ -4793,7 +5513,7 @@
 
 [[redirects]]
   from = "/it/blog/logiciel-simple-debuter-independant-batiment"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
@@ -4810,32 +5530,50 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/lpp-deuxieme-pilier-independant-batiment"
+  to = "/it/blog/lpp-indipendente-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/marge-beneficiaire-entreprise-batiment-suisse"
   to = "/blog/calculer-prix-de-revient-chantier-batiment"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/blog/meilleur-logiciel-devis-facture-batiment-suisse-2026"
+  to = "/it/blog/miglior-software-preventivi-fatture-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/meilleur-logiciel-pas-cher-petit-artisan"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/meilleur-outil-gestion-independant-suisse"
-  to = "/it/blog/logiciel-gestion-chantier-independant-seul"
+  to = "/it/blog/software-gestione-cantiere-indipendente"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/meilleur-rapport-qualite-prix-logiciel-pme-batiment"
-  to = "/it/blog/combien-coute-logiciel-gestion-chantier-roi"
+  to = "/it/blog/software-gestione-cantiere-costo"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/meilleures-alternatives-gratuites-bexio"
-  to = "/it/blog/bexio-vs-cantia-logiciel-batiment"
+  to = "/it/blog/bexio-vs-cantia-software-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/mentions-obligatoires-facture-suisse-tva"
+  to = "/it/blog/fattura-svizzera-indicazioni-obbligatorie-iva"
   status = 301
   force = true
 
@@ -4853,7 +5591,7 @@
 
 [[redirects]]
   from = "/it/blog/nachtragsofferte-mehrkosten"
-  to = "/it/blog/avenant-chantier-plus-value-moins-value"
+  to = "/it/blog/fatturare-variante-cantiere"
   status = 301
   force = true
 
@@ -4882,14 +5620,26 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/norme-sia-118-devis-obligatoire"
+  to = "/it/blog/norma-sia-118-preventivo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/note-de-credit-facture-rectificative-suisse"
+  to = "/it/blog/nota-di-credito-fattura-rettificativa"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/numerotation-facture-obligations-legales-suisse"
-  to = "/it/blog/mentions-obligatoires-facture-suisse-tva"
+  to = "/it/blog/fattura-svizzera-indicazioni-obbligatorie-iva"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/offerte-erstellen-online-schweiz"
-  to = "/it/blog/devis-gratuit-en-ligne-suisse-outil"
+  to = "/it/blog/preventivo-gratuito-online"
   status = 301
   force = true
 
@@ -4913,7 +5663,7 @@
 
 [[redirects]]
   from = "/it/blog/parrainage-recommandation-clients-artisan-batiment"
-  to = "/it/blog/trouver-clients-artisan-batiment-suisse"
+  to = "/it/blog/trovare-clienti-artigiano"
   status = 301
   force = true
 
@@ -4924,14 +5674,62 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/permis-construire-renovation-quand-necessaire"
+  to = "/it/blog/licenza-edilizia-ristrutturazione"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/photos-chantier-preuve-juridique-litige"
+  to = "/it/blog/foto-cantiere-prova-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/planning-chantier-eviter-conflits-ressources"
+  to = "/it/blog/pianificazione-cantieri-conflitti-risorse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/portfolio-photos-avant-apres-chantier-vente"
+  to = "/it/blog/foto-prima-dopo-cantiere"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/pourquoi-artisan-independant-besoin-logiciel-des-le-debut"
-  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/pourquoi-entreprises-batiment-font-faillite-suisse"
+  to = "/it/blog/perche-imprese-edili-falliscono"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/pourquoi-modeles-figes-ne-conviennent-pas-tous-metiers-batiment"
   to = "/it/sur-mesure"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/poursuite-facture-impayee-procedure-suisse"
+  to = "/it/blog/fattura-non-pagata-procedura-esecutiva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/prescription-facture-impayee-delai-10-ans"
+  to = "/it/blog/prescrizione-fattura-impagata-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/previsionnel-tresorerie-entreprise-batiment"
+  to = "/it/blog/previsione-liquidita-impresa-edile"
   status = 301
   force = true
 
@@ -4984,6 +5782,24 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/qr-facture-obligatoire-2026"
+  to = "/it/blog/fattura-qr-obbligatoria-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/rabais-escompte-tva-ordre-soumission"
+  to = "/it/blog/ribasso-sconto-iva-capitolato"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/racheter-entreprise-batiment-existante-suisse"
   to = "/blog/racheter-entreprise-batiment-existante-suisse"
   status = 301
@@ -4996,6 +5812,18 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/reception-travaux-proces-verbal-chantier"
+  to = "/it/blog/verbale-consegna-lavori"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/rediger-devis-qui-inspire-confiance-client"
+  to = "/it/blog/redigere-preventivo-cliente-privato"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/reemploi-materiaux-economie-circulaire-batiment"
   to = "/blog/gestion-dechets-chantier-tri-obligatoire-suisse"
   status = 301
@@ -5004,6 +5832,18 @@
 [[redirects]]
   from = "/it/blog/relancer-client-devis-sans-reponse"
   to = "/blog/relancer-client-devis-sans-reponse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/relancer-client-facture-impayee-sans-perdre-client"
+  to = "/it/blog/sollecitare-cliente-fattura-non-pagata"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/remplir-soumission-pdf-architecte"
+  to = "/it/blog/compilare-capitolato-pdf-architetto"
   status = 301
   force = true
 
@@ -5032,8 +5872,26 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/resiliation-contrat-entreprise-chantier-en-cours"
+  to = "/it/blog/risoluzione-contratto-appalto-cantiere"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/responsabilite-apres-livraison-travaux-assurance"
   to = "/blog/assurance-rc-professionnelle-batiment-obligatoire"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/retard-chantier-meteo-obligations-contractuelles"
+  to = "/it/blog/ritardo-cantiere-meteo-responsabilita"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/retenue-de-garantie-chantier-consignation"
+  to = "/it/blog/ritenuta-di-garanzia-cantiere"
   status = 301
   force = true
 
@@ -5046,6 +5904,12 @@
 [[redirects]]
   from = "/it/blog/saisie-conservatoire-creance-impayee-batiment"
   to = "/blog/poursuite-facture-impayee-procedure-suisse"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/salaire-minimum-cct-construction-suisse"
+  to = "/it/blog/salario-minimo-edilizia-svizzera"
   status = 301
   force = true
 
@@ -5063,7 +5927,19 @@
 
 [[redirects]]
   from = "/it/blog/sia-118-offerte-pflicht"
-  to = "/it/blog/norme-sia-118-devis-obligatoire"
+  to = "/it/blog/norma-sia-118-preventivo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/signature-electronique-devis-suisse-valeur-legale"
+  to = "/it/blog/firmare-preventivo-online-valore-legale"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/site-internet-artisan-batiment-utile"
+  to = "/it/blog/sito-internet-artigiano-edile"
   status = 301
   force = true
 
@@ -5075,13 +5951,19 @@
 
 [[redirects]]
   from = "/it/blog/software-bauunternehmen-schweiz-auswahl"
-  to = "/it/blog/quel-logiciel-choisir-demarrer-entreprise-construction"
+  to = "/it/blog/software-impresa-costruzioni-quale-scegliere"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/sous-effectif-chantier-recruter-ou-sous-traiter"
-  to = "/it/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  to = "/it/blog/subappaltatore-edile-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/sous-traitant-batiment-suisse-contrat-facturation"
+  to = "/it/blog/subappaltatore-edile-svizzera"
   status = 301
   force = true
 
@@ -5092,8 +5974,14 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/suivre-rentabilite-chantier-sans-excel"
+  to = "/it/blog/redditivita-cantiere-senza-excel"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/temps-repondre-soumission-rentable"
-  to = "/it/blog/remplir-soumission-pdf-architecte"
+  to = "/it/blog/compilare-capitolato-pdf-architetto"
   status = 301
   force = true
 
@@ -5104,14 +5992,38 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/travail-au-noir-batiment-suisse-risques-controles"
+  to = "/it/blog/lavoro-nero-edilizia-rischi"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/travailleur-detache-batiment-suisse-regles"
   to = "/blog/travailleur-detache-batiment-suisse-regles"
   status = 301
   force = true
 
 [[redirects]]
+  from = "/it/blog/travailleur-temporaire-interimaire-batiment-regles"
+  to = "/it/blog/lavoratore-temporaneo-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/trouver-clients-artisan-batiment-suisse"
+  to = "/it/blog/trovare-clienti-artigiano"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/tva-methode-effective-ou-tdfn-batiment"
+  to = "/it/blog/iva-metodo-effettivo-o-aliquota-saldo"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/unterschied-offerte-rechnung-proforma"
-  to = "/it/blog/difference-devis-offre-facture-pro-forma"
+  to = "/it/blog/preventivo-offerta-fattura-proforma"
   status = 301
   force = true
 
@@ -5128,20 +6040,44 @@
   force = true
 
 [[redirects]]
+  from = "/it/blog/vacances-non-prises-fin-annee-batiment-cct"
+  to = "/it/blog/vacanze-non-prese-fine-anno-edilizia"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/validite-devis-signe-prix-qui-bouge"
+  to = "/it/blog/preventivo-firmato-prezzo-materiale"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/it/blog/variante-soumission-proposer-alternative"
-  to = "/it/blog/remplir-soumission-pdf-architecte"
+  to = "/it/blog/compilare-capitolato-pdf-architetto"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/verjaehrung-unbezahlte-rechnung-schweiz"
-  to = "/it/blog/prescription-facture-impayee-delai-10-ans"
+  to = "/it/blog/prescrizione-fattura-impagata-svizzera"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/vitesse-reponse-devis-taux-conversion-batiment"
+  to = "/it/blog/velocita-risposta-preventivo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/whatsapp-gestion-equipe-chantier-limites"
+  to = "/it/blog/whatsapp-team-cantiere-limiti"
   status = 301
   force = true
 
 [[redirects]]
   from = "/it/blog/zahlungsfrist-rechnung-handwerker-schweiz"
-  to = "/it/blog/delai-paiement-facture-artisan-code-obligations"
+  to = "/it/blog/termine-pagamento-fattura-svizzera"
   status = 301
   force = true
 
