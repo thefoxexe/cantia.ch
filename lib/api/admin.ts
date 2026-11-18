@@ -382,6 +382,7 @@ export interface TrialRequest {
   email: string;
   phone: string | null;
   message: string | null;
+  source: string | null;
   locale: string;
   status: 'new' | 'sent' | 'ignored';
   code: string | null;

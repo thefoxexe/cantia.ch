@@ -9,6 +9,7 @@ import { PRICING_COPY, type PlanId } from '../../lib/site/pricing';
 import { sans, site } from '../../lib/siteTheme';
 import { authHref, planHref } from '../../lib/appHost';
 import { supabase } from '../../lib/supabase';
+import { StarterOffer } from './StarterOffer';
 
 type PlanFigures = { monthly: number; yearly: number | null; members: number; storageMb: number; aiUses: number | null };
 
@@ -131,6 +132,11 @@ export function PricingPage() {
           </View>
         </Wrap>
       </View>
+
+      {/* New companies: 3 months instead of 14 days */}
+      <Section style={{ paddingTop: 0 }}>
+        <StarterOffer source="tarifs" />
+      </Section>
 
       <Section white>
         <SectionHead eyebrow={c.compareEyebrow} plain={c.compareTitle} text={c.compareNote} />

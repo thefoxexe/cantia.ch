@@ -8,6 +8,7 @@ import { SITE_COPY, type SiteLocale } from '../../lib/site/copy';
 import { getAppLocale } from '../../lib/translations';
 import { authHref } from '../../lib/appHost';
 import { SiteImage } from './SiteImage';
+import { localHref } from '../../lib/site/localPaths';
 
 const LOGO = require('../../assets/brand/logo.png');
 
@@ -58,6 +59,8 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
     { label: c.pricing, href: `${p}/tarifs` },
     ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }, { label: c.ecosystem, href: `${p}/a-propos` }] : []),
   ];
+  // The new-company offer, with its placement for the request form (StarterOffer).
+  const starterHref = (ref: string) => `${localHref(`${p}/nouvelle-entreprise`)}?ref=${ref}&cta=menu`;
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
     { key: 'assistant', name: c.assistant.name, text: c.assistant.text, href: `${p}/assistant` },
@@ -144,6 +147,12 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                     <Text style={[sans, styles.megaBottomLink]}>{c.devices}</Text>
                   </Pressable>
                 </Link>
+                <Link href={starterHref('menu') as any} asChild>
+                  <Pressable onPress={() => setMegaOpen(false)} style={[styles.inlineRow, { gap: 6 }]}>
+                    <Feather name="gift" size={13} color={site.copper} />
+                    <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{SITE_COPY[locale].footer.newCompanyLink}</Text>
+                  </Pressable>
+                </Link>
               </View>
             </View>
           </View>
@@ -170,6 +179,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             ))}
             <DrawerGroup title={c.discover}>
               <DrawerSubLink icon="monitor" label={c.devices} href={`${p}/telechargement`} onNavigate={() => setDrawerOpen(false)} />
+              <DrawerSubLink icon="gift" label={SITE_COPY[locale].footer.newCompanyLink} href={starterHref('menu-mobile')} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="compass" label={c.discover} href={`${p}/ressources`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="help-circle" label={c.help} href={`${p}/aide`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="mail" label={c.contact} href={`${p}/contact`} onNavigate={() => setDrawerOpen(false)} />

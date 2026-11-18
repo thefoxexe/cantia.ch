@@ -31,8 +31,14 @@ export function TrialRequestForm({ locale }: { locale: 'fr' | 'de' | 'it' }) {
       return;
     }
     setStatus('sending');
+    // ?ref=…&cta=… of the offer link that brought the visitor (StarterOffer).
+    let source = '';
+    if (typeof window !== 'undefined') {
+      const q = new URLSearchParams(window.location.search);
+      source = [q.get('ref'), q.get('cta')].filter(Boolean).join(' / ');
+    }
     const { data, error } = await supabase.functions.invoke('registry-outreach', {
-      body: { action: 'request', name: name.trim(), company: company.trim(), email: email.trim(), phone: phone.trim(), message: message.trim(), locale },
+      body: { action: 'request', name: name.trim(), company: company.trim(), email: email.trim(), phone: phone.trim(), message: message.trim(), locale, source },
     });
     setStatus(!error && data?.ok ? 'sent' : 'error');
   }

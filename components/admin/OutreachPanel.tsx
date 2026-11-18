@@ -145,6 +145,7 @@ export function OutreachPanel() {
                 <Text style={styles.sub}>{new Date(q.created_at).toLocaleDateString('fr-CH', { day: 'numeric', month: 'short' })}</Text>
               </View>
               {q.message ? <Text style={styles.message}>{q.message}</Text> : null}
+              {q.source ? <Text style={styles.message}>Venu de : {q.source}</Text> : null}
               <View style={styles.actions}>
                 <Pressable onPress={() => answerRequest(q.id, 'request_send')} disabled={busy !== null} style={[styles.primary, busy !== null && { opacity: 0.5 }]}>
                   <Feather name="gift" size={14} color="#fff" />

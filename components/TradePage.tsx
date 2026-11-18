@@ -13,6 +13,7 @@ import { authHref } from '../lib/appHost';
 import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostByBase } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
+import { StarterOffer } from './site/StarterOffer';
 
 // One trade page (cantia.ch/charpentier, /de/zimmermann…): the trade's
 // situations, uses, a day with Cantia, before/after, included modules,
@@ -162,6 +163,9 @@ export function TradePage({ slug }: { slug: string }) {
         </View>
         <View style={{ marginTop: 34 }}>
           <TextLink label={L.compare} href={`${pre}tarifs`} />
+        </View>
+        <View style={{ marginTop: 40 }}>
+          <StarterOffer source={`metier-${slug}`} />
         </View>
       </Section>
 

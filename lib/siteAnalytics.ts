@@ -413,6 +413,7 @@ export function trackLandingEvent(page: string, kind: LandingEventKind, location
 //   pricing_click  click on a link to the pricing page
 //   generate_lead  contact form sent (components/ContactForm.tsx)
 //   contact_click  click on an e-mail or phone link
+//   starter_offer_click  click on the new-company offer (ref, cta)
 export function trackConversion(name: string, params: Record<string, unknown> = {}): void {
   if (typeof window === 'undefined') return;
   const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
@@ -435,7 +436,11 @@ export function installConversionTracking(): void {
       const page_path = window.location.pathname;
       if (/\/signup(\?|#|$)/.test(local)) trackConversion('signup_start', { page_path });
       else if (/^(\/(de|it))?\/tarifs(\?|#|$)/.test(local) || /#pricing$/.test(local)) trackConversion('pricing_click', { page_path });
-      else if (/^(mailto|tel):/.test(href)) trackConversion('contact_click', { method: href.startsWith('tel') ? 'phone' : 'email', page_path });
+      else if (/^(\/(de|it))?\/(nouvelle-entreprise|neues-unternehmen|nuova-impresa)\?/.test(local)) {
+        // The new-company offer (components/site/StarterOffer.tsx): which placement was clicked.
+        const q = new URLSearchParams(local.split('?')[1]);
+        trackConversion('starter_offer_click', { ref: q.get('ref') ?? '', cta: q.get('cta') ?? '', page_path });
+      } else if (/^(mailto|tel):/.test(href)) trackConversion('contact_click', { method: href.startsWith('tel') ? 'phone' : 'email', page_path });
     },
     { capture: true },
   );

@@ -435,6 +435,8 @@ async function receiveRequest(admin: SupabaseClient, body: Record<string, unknow
   const phone = clean(body.phone, 40) || null;
   const message = clean(body.message, 1500) || null;
   const locale = body.locale === 'de' || body.locale === 'it' ? body.locale : 'fr';
+  // Placement of the offer that brought the visitor (« home / box »).
+  const source = clean(body.source, 80).replace(/[^a-z0-9/_ -]/gi, '') || null;
   if (!name || !company || !EMAIL_RE.test(email)) return { ok: false, error: 'champs manquants' };
   // The same address twice in a day: one request is enough. Many requests
   // in an hour: someone is playing with the form.
@@ -443,7 +445,9 @@ async function receiveRequest(admin: SupabaseClient, body: Record<string, unknow
   if ((sameEmail ?? 0) > 0) return { ok: true };
   const { count: lastHour } = await admin.from('trial_requests').select('id', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 3600000).toISOString());
   if ((lastHour ?? 0) >= 30) return { ok: false, error: 'trop de demandes' };
-  const { error } = await admin.from('trial_requests').insert({ name, company, email, phone, message, locale });
+  let { error } = await admin.from('trial_requests').insert({ name, company, email, phone, message, locale, source });
+  // Before migration 20261118090000 the column does not exist: keep the request anyway.
+  if (error && /source/.test(error.message)) ({ error } = await admin.from('trial_requests').insert({ name, company, email, phone, message, locale }));
   if (error) return { ok: false, error: error.message };
   const to = Deno.env.get('WEEKLY_REPORT_EMAIL');
   if (to) {
@@ -453,6 +457,7 @@ async function receiveRequest(admin: SupabaseClient, body: Record<string, unknow
       escapeHtml(email),
       phone ? escapeHtml(phone) : '',
       message ? `<em>${escapeHtml(message)}</em>` : '',
+      source ? `Venu de : ${escapeHtml(source)}` : '',
     ].filter(Boolean).join('<br>');
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#23251f;max-width:560px;">
 <p style="margin:0 0 12px;">Nouvelle demande de 3 mois offerts (cantia.ch/nouvelle-entreprise) :</p>
