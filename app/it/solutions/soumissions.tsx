@@ -42,6 +42,7 @@ export default function SoumissionsSolutionPageIt() {
           title: 'Archiviato nel cantiere',
           text: 'Ogni capitolato resta nel suo cantiere, accanto a documenti e foto, e tutti si ritrovano nel menu Capitolati.',
         },
+        { icon: 'bar-chart-2', title: 'Dopo, il computo', text: 'Il cantiere avanza o è finito: riprendete lo stesso capitolato in un computo, inserite le quantità eseguite e i costi reali, e vedete se avete davvero guadagnato, posizione per posizione.' },
       ]}
       steps={[
         { title: 'Importate il PDF', text: 'Da un computer, scegliete il cantiere e poi il capitolato ricevuto.' },
@@ -76,8 +77,13 @@ export default function SoumissionsSolutionPageIt() {
           question: 'Per quali mestieri?',
           answer: 'Per le imprese edili e del genio civile: muratura, opere grezze, elettricità, sanitari, riscaldamento, falegnameria, pittura, gessatura e gli altri mestieri che rispondono a capitolati.',
         },
+        {
+          question: "E a cantiere finito, come sapere se il capitolato ha reso?",
+          answer: "Con il modulo Computi: riprendete il capitolato del cantiere, inserite le quantità realmente eseguite e i costi reali, e Cantia confronta con quanto venduto per mostrare l’utile, posizione per posizione.",
+        },
       ]}
       related={[
+        { href: '/it/solutions/metres', label: 'Computi e consuntivo' },
         { href: '/it/solutions/devis', label: 'Preventivi' },
         { href: '/it/solutions/planning', label: 'Pianificazione' },
         { href: '/it/solutions/rentabilite', label: 'Redditività per cantiere' },

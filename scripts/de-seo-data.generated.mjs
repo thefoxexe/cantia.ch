@@ -2762,6 +2762,7 @@ export const BLOG_DATES_FR = {
   "lpp-deuxieme-pilier-independant-batiment": "2026-08-19",
   "meilleur-logiciel-devis-facture-batiment-suisse-2026": "2026-08-27",
   "mentions-obligatoires-facture-suisse-tva": "2026-08-27",
+  "metre-post-calcul-soumission-benefice-chantier": "2026-11-18",
   "modele-devis-gratuit-artisan-batiment-suisse": "2026-09-22",
   "motiver-equipe-chantier-batiment-quotidien": "2026-09-22",
   "norme-aeai-incendie-batiment-obligation": "2026-09-22",
@@ -4152,6 +4153,20 @@ export const BLOG_FAQ_FR = {
     {
       "q": "Une facture sans TVA détaillée est-elle valable ?",
       "a": "Pour les montants supérieurs à CHF 400.-, le taux et le montant de TVA doivent apparaître clairement, car leur absence peut faire refuser la déduction de l’impôt préalable au destinataire."
+    }
+  ],
+  "metre-post-calcul-soumission-benefice-chantier": [
+    {
+      "q": "Quelle différence entre une soumission et un métré ?",
+      "a": "La soumission contient ce que vous avez offert : quantités prévues et prix unitaires. Le métré relève les quantités réellement exécutées sur le chantier. Comparer les deux, avec vos coûts réels, donne le bénéfice de chaque position."
+    },
+    {
+      "q": "Comment calculer le bénéfice d’une position de soumission ?",
+      "a": "Facturable = quantité exécutée × prix unitaire de la soumission. Coût réel = quantité exécutée × coût réel par unité. Le bénéfice est la différence entre les deux."
+    },
+    {
+      "q": "Quand faire le post-calcul d’un chantier ?",
+      "a": "Dès que les quantités sont connues, idéalement en cours de chantier pour corriger le tir, et au plus tard à la facture finale, quand le métré est établi."
     }
   ],
   "modele-devis-gratuit-artisan-batiment-suisse": [

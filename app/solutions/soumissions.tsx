@@ -39,6 +39,7 @@ export default function SoumissionsSolutionPage() {
           title: 'Rangée dans le chantier',
           text: 'Chaque soumission reste dans son chantier, à côté des documents et des photos, et toutes se retrouvent dans le menu Soumissions.',
         },
+        { icon: 'bar-chart-2', title: 'Ensuite, le métré', text: 'Le chantier avance ou il est terminé : reprenez la même soumission dans un métré, mettez les quantités exécutées et vos coûts réels, et voyez si vous avez vraiment gagné de l’argent, position par position.' },
       ]}
       steps={[
         { title: 'Importez le PDF', text: 'Depuis un ordinateur, choisissez le chantier puis la soumission reçue.' },
@@ -73,8 +74,13 @@ export default function SoumissionsSolutionPage() {
           question: 'Pour quels métiers ?',
           answer: 'Pour les entreprises du bâtiment et du génie civil : maçonnerie, gros œuvre, électricité, sanitaire, chauffage, menuiserie, peinture, plâtrerie et les autres corps de métier qui répondent à des soumissions.',
         },
+        {
+          question: "Et une fois le chantier fait, comment savoir si la soumission a rapporté ?",
+          answer: "Avec le module Métrés : vous reprenez la soumission du chantier, vous mettez les quantités réellement exécutées et vos coûts réels, et Cantia compare avec ce que vous avez vendu pour montrer le bénéfice, position par position.",
+        },
       ]}
       related={[
+        { href: '/solutions/metres', label: 'Métrés et post-calcul' },
         { href: '/solutions/devis', label: 'Devis' },
         { href: '/solutions/planning', label: 'Planning' },
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },

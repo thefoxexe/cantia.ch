@@ -42,6 +42,7 @@ export default function SoumissionsSolutionPageDe() {
           title: 'Bei der Baustelle abgelegt',
           text: 'Jedes Leistungsverzeichnis bleibt bei seiner Baustelle, neben Dokumenten und Fotos, und alle finden sich im Menü Leistungsverzeichnisse.',
         },
+        { icon: 'bar-chart-2', title: 'Danach: das Ausmass', text: 'Die Baustelle läuft oder ist fertig: Übernehmen Sie dasselbe LV in ein Ausmass, tragen Sie die ausgeführten Mengen und Ihre effektiven Kosten ein und sehen Sie, ob Sie wirklich Geld verdient haben, Position für Position.' },
       ]}
       steps={[
         { title: 'PDF importieren', text: 'Am Computer die Baustelle wählen, dann das erhaltene Leistungsverzeichnis.' },
@@ -76,8 +77,13 @@ export default function SoumissionsSolutionPageDe() {
           question: 'Für welche Branchen?',
           answer: 'Für Bau- und Tiefbauunternehmen: Maurer, Rohbau, Elektro, Sanitär, Heizung, Schreiner, Maler, Gipser und alle anderen Gewerke, die auf Ausschreibungen antworten.',
         },
+        {
+          question: "Und nach der Baustelle: Wie sieht man, ob sich das LV gelohnt hat?",
+          answer: "Mit dem Modul Ausmass: Sie übernehmen das LV der Baustelle, tragen die effektiv ausgeführten Mengen und Ihre effektiven Kosten ein, und Cantia vergleicht mit dem Verkauften und zeigt den Gewinn pro Position.",
+        },
       ]}
       related={[
+        { href: '/de/solutions/metres', label: 'Ausmass und Nachkalkulation' },
         { href: '/de/solutions/devis', label: 'Offerten' },
         { href: '/de/solutions/planning', label: 'Planung' },
         { href: '/de/solutions/rentabilite', label: 'Rentabilität pro Baustelle' },

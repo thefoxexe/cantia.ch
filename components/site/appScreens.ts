@@ -5,7 +5,7 @@ import type { SiteLocale } from '../../lib/site/copy';
 // company (Atelier Martin SA): rendered at 1440×900 from the app itself with
 // sample data in place of the database, in each language. Shown in the
 // laptop (components/site/Laptop). Never swap them for mock-ups.
-export type ScreenKind = 'devis' | 'facturation' | 'rapports-chantier' | 'planning' | 'rentabilite' | 'rh-salaires' | 'travaux-supplementaires' | 'soumissions' | 'tresorerie' | 'chantier';
+export type ScreenKind = 'devis' | 'facturation' | 'rapports-chantier' | 'planning' | 'rentabilite' | 'rh-salaires' | 'travaux-supplementaires' | 'soumissions' | 'metres' | 'tresorerie' | 'chantier';
 
 export const APP_SCREENS: Record<SiteLocale, Record<ScreenKind, ImageSourcePropType>> = {
   fr: {
@@ -17,6 +17,7 @@ export const APP_SCREENS: Record<SiteLocale, Record<ScreenKind, ImageSourcePropT
     'rh-salaires': require('../../assets/marketing/screens/rh-salaires.jpg'),
     'travaux-supplementaires': require('../../assets/marketing/screens/travaux-supplementaires.jpg'),
     'soumissions': require('../../assets/marketing/screens/soumissions.jpg'),
+    'metres': require('../../assets/marketing/screens/metres.jpg'),
     'tresorerie': require('../../assets/marketing/screens/tresorerie.jpg'),
     'chantier': require('../../assets/marketing/screens/chantier.jpg'),
   },
@@ -29,6 +30,7 @@ export const APP_SCREENS: Record<SiteLocale, Record<ScreenKind, ImageSourcePropT
     'rh-salaires': require('../../assets/marketing/screens/rh-salaires-de.jpg'),
     'travaux-supplementaires': require('../../assets/marketing/screens/travaux-supplementaires-de.jpg'),
     'soumissions': require('../../assets/marketing/screens/soumissions-de.jpg'),
+    'metres': require('../../assets/marketing/screens/metres-de.jpg'),
     'tresorerie': require('../../assets/marketing/screens/tresorerie-de.jpg'),
     'chantier': require('../../assets/marketing/screens/chantier-de.jpg'),
   },
@@ -41,6 +43,7 @@ export const APP_SCREENS: Record<SiteLocale, Record<ScreenKind, ImageSourcePropT
     'rh-salaires': require('../../assets/marketing/screens/rh-salaires-it.jpg'),
     'travaux-supplementaires': require('../../assets/marketing/screens/travaux-supplementaires-it.jpg'),
     'soumissions': require('../../assets/marketing/screens/soumissions-it.jpg'),
+    'metres': require('../../assets/marketing/screens/metres-it.jpg'),
     'tresorerie': require('../../assets/marketing/screens/tresorerie-it.jpg'),
     'chantier': require('../../assets/marketing/screens/chantier-it.jpg'),
   },

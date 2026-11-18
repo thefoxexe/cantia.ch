@@ -275,6 +275,11 @@
   status = 200
 
 [[redirects]]
+  from = "/solutions/metres"
+  to = "/solutions/metres.html"
+  status = 200
+
+[[redirects]]
   from = "/solutions/tresorerie"
   to = "/solutions/tresorerie.html"
   status = 200
@@ -682,6 +687,11 @@
 [[redirects]]
   from = "/de/solutions/soumissions"
   to = "/de/solutions/soumissions.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/solutions/metres"
+  to = "/de/solutions/metres.html"
   status = 200
 
 [[redirects]]
@@ -1112,6 +1122,11 @@
 [[redirects]]
   from = "/it/solutions/soumissions"
   to = "/it/solutions/soumissions.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/solutions/metres"
+  to = "/it/solutions/metres.html"
   status = 200
 
 [[redirects]]

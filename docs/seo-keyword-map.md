@@ -19,6 +19,7 @@ corrections du même jour (mis à jour le 18.11.2026 : pages métier DE/IT, offr
 | offerte erstellen | DE | `/de/offerte-erstellen` | offerte, offertenerstellung, offerten programm, online offerte tool, offerten automatisch erstellen, offerte vorlage, offerten vergleichen |
 | creare preventivo | IT | `/it/creare-preventivo` | preventivo gratuito, preventivo costruzioni, modello preventivo |
 | software für bauunternehmen | DE | `/de/metiers/batiment-artisanat` | bauunternehmen software, software baugewerbe, branchensoftware baugewerbe |
+| métré de chantier, post-calcul | FR / DE / IT | `/solutions/metres`, `/de/solutions/metres`, `/it/solutions/metres` | métré après soumission, Ausmass, Nachkalkulation, computo, consuntivo |
 | application mobile chantier | FR | `/telechargement` | application mobile entreprise suisse |
 | logiciel pour {métier} | FR/DE/IT | page métier (`/electricien`, `/de/elektroinstallateur`, `/it/elettricista`… : slugs dans `lib/site/tradeSlugs.json`) | H1 = titre SEO de la page |
 | software gestione cantieri (termoidraulici) | IT | `/it/impiantista-termoidraulico` | software gestione edilizia, gestione impianti termoidraulici |
@@ -46,6 +47,7 @@ corrections du même jour (mis à jour le 18.11.2026 : pages métier DE/IT, offr
 | construction modulaire | FR | `/blog/construction-modulaire-prefabriquee-suisse` |
 | ouvrir son entreprise dans le bâtiment | FR | `/blog/creer-entreprise-batiment-suisse-guide-complet` |
 | heures en décimal (4h45) | FR | `/blog/calculer-heures-travail-ouvrier-minutes-decimales` |
+| la soumission a-t-elle rapporté (post-calcul) | FR | `/blog/metre-post-calcul-soumission-benefice-chantier` |
 | trouver des clients (bâtiment) | FR | `/blog/trouver-clients-artisan-batiment-suisse` |
 | Lohnausweis | DE | `/de/blog/lohnausweis-erstellen-erster-mitarbeiter` |
 | Nachtrag Offerte | DE | `/de/blog/nachtragsofferte-mehrkosten` |

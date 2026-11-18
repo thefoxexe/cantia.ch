@@ -88,7 +88,7 @@ export default function MetreCompareScreen() {
         <PageHeader title={metre?.tender.name ?? c.title} backTo="/(app)/metres" style={{ marginBottom: 0 }} />
         {base ? (
           <Text style={kit.hint}>
-            {c.base} : {base.tender.number ? `${base.tender.number} · ` : ''}
+            {c.baseLabel} {base.tender.number ? `${base.tender.number} · ` : ''}
             {base.tender.name}
           </Text>
         ) : null}

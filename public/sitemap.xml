@@ -91,6 +91,10 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/solutions/metres</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/solutions/tresorerie</loc>
     <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
@@ -127,7 +131,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -152,7 +156,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/norme-sia-118-devis-obligatoire</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -187,7 +191,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/calculer-heures-travail-ouvrier-minutes-decimales</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -366,6 +370,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/blog/metre-post-calcul-soumission-benefice-chantier</loc>
+    <lastmod>2026-11-18</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/blog/calculer-prix-horaire-reel-ouvrier-batiment</loc>
     <lastmod>2026-09-01</lastmod>
     <priority>0.6</priority>
@@ -527,7 +536,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/creer-entreprise-batiment-suisse-guide-complet</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -582,7 +591,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/devis-facture-poelier-fumiste-suisse</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1066,6 +1075,10 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/de/solutions/metres</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/de/solutions/travaux-supplementaires</loc>
     <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
@@ -1107,103 +1120,127 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/zimmermann</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/maurer</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/elektroinstallateur</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/sanitaerinstallateur</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/maler</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/schreiner</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/generalunternehmer</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/gartenbau</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/dachdecker</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/heizungsinstallateur</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/plattenleger</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/gipser</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/tiefbau</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/erdbau</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/renovationsfirma</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/metallbauer</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/spengler</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/fassadenbauer</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/abdichter</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/holzbau</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/glaser</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/parkettleger</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/geruestbau</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/de/rueckbau-abbruch</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -1633,7 +1670,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/de/blog/sia-118-offerte-pflicht</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -1802,6 +1839,10 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://cantia.ch/it/solutions/metres</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://cantia.ch/it/solutions/travaux-supplementaires</loc>
     <lastmod>2026-11-10</lastmod>
     <priority>0.7</priority>
@@ -1843,103 +1884,127 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/carpentiere</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/muratore</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/elettricista</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/idraulico</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/pittore-edile</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/falegname</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/impresa-generale</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/giardiniere-paesaggista</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/copritetto</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/impiantista-termoidraulico</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/piastrellista</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/gessatore</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/genio-civile</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/movimento-terra</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/impresa-ristrutturazioni</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/fabbro</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/lattoniere</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/facciatista</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/impermeabilizzatore</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/costruzione-legno</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/vetraio</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/parchettista</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/ponteggiatore</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://cantia.ch/it/demolizioni</loc>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.4</priority>
   </url>
   <url>
@@ -2024,7 +2089,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/assurance-bris-machine-outillage-chantier</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2044,7 +2109,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/chantier-propre-reduire-nuisances-voisinage</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2054,7 +2119,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/blog/construction-modulaire-prefabriquee-suisse</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
@@ -2299,7 +2364,7 @@
   </url>
   <url>
     <loc>https://cantia.ch/it/blog/calcolo-tredicesima-svizzera-pro-rata</loc>
-    <lastmod>2026-09-10</lastmod>
+    <lastmod>2026-11-18</lastmod>
     <priority>0.6</priority>
   </url>
   <url>

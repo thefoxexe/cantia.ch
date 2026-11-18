@@ -174,6 +174,7 @@ const fr: Bundle = {
         { title: 'Devis & modèles', text: 'Partez de vos trames, ajustez les quantités et préparez un document à votre image.', more: 'solutions/devis' },
         { title: 'Signature du client', text: 'Le client signe en ligne. La signature et sa date sont intégrées au document.' },
         { title: 'Soumissions', text: 'Préparez vos réponses aux soumissions avec une fonction actuellement en bêta. Les quotas dépendent du plan.', badge: 'Fonction en bêta', more: 'solutions/soumissions' },
+        { title: 'Métrés', text: 'Après la soumission, reprenez-la avec les quantités exécutées et vos coûts réels pour voir le bénéfice, position par position.', more: 'solutions/metres' },
         { title: 'Suivi commercial', text: 'Suivez les statuts de vos offres. Le suivi d’ouverture et les relances automatiques sont disponibles avec Entreprise.' },
       ],
       steps: [
@@ -427,6 +428,7 @@ const de: Bundle = {
         { title: 'Offerten & Vorlagen', text: 'Starten Sie mit Ihren Vorlagen, passen Sie Mengen an und erstellen Sie ein Dokument in Ihrem Design.', more: 'solutions/devis' },
         { title: 'Unterschrift des Kunden', text: 'Der Kunde unterschreibt online. Unterschrift und Datum werden ins Dokument übernommen.' },
         { title: 'Ausschreibungen', text: 'Beantworten Sie Ausschreibungen mit einer Funktion, die sich derzeit in der Beta befindet. Die Kontingente hängen vom Abo ab.', badge: 'Beta-Funktion', more: 'solutions/soumissions' },
+        { title: 'Ausmass & Nachkalkulation', text: 'Nach dem LV übernehmen Sie es mit den ausgeführten Mengen und Ihren effektiven Kosten und sehen den Gewinn pro Position.', more: 'solutions/metres' },
         { title: 'Verkaufsverfolgung', text: 'Verfolgen Sie den Status Ihrer Offerten. Öffnungsverfolgung und automatische Erinnerungen gibt es mit Entreprise.' },
       ],
       steps: [
@@ -680,6 +682,7 @@ const it: Bundle = {
         { title: 'Preventivi e modelli', text: 'Partite dai vostri modelli, adattate le quantità e preparate un documento con la vostra immagine.', more: 'solutions/devis' },
         { title: 'Firma del cliente', text: 'Il cliente firma online. La firma e la data sono integrate nel documento.' },
         { title: 'Capitolati', text: 'Preparate le risposte ai capitolati con una funzione attualmente in beta. Le quote dipendono dal piano.', badge: 'Funzione in beta', more: 'solutions/soumissions' },
+        { title: 'Computi e consuntivo', text: 'Dopo il capitolato, riprendetelo con le quantità eseguite e i costi reali per vedere l’utile, posizione per posizione.', more: 'solutions/metres' },
         { title: 'Seguito commerciale', text: 'Seguite lo stato delle offerte. Il tracciamento delle aperture e i promemoria automatici sono disponibili con Entreprise.' },
       ],
       steps: [

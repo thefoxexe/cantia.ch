@@ -173,7 +173,7 @@ export default function MetresScreen() {
                     {r.name}
                   </Text>
                   <Text style={kit.hint} numberOfLines={1}>
-                    {[r.project?.name, r.base_name ? `${c.base} : ${r.base_name}` : null].filter(Boolean).join(' · ')}
+                    {[r.project?.name, r.base_name ? `${c.baseLabel} ${r.base_name}` : null].filter(Boolean).join(' · ')}
                   </Text>
                 </View>
                 {r.real != null ? (
@@ -264,7 +264,7 @@ export default function MetresScreen() {
           ) : (
             <View style={{ gap: spacing.md }}>
               <Text style={kit.hint}>
-                {project.name} · {c.base} : {base.name}
+                {project.name} · {c.baseLabel} {base.name}
               </Text>
               <Field label={c.nameLabel}>
                 <TextInput value={name} onChangeText={setName} style={kit.input} autoFocus onSubmitEditing={create} />

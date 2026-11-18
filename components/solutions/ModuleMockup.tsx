@@ -13,6 +13,7 @@ export type ModuleKind =
   | 'rh-salaires'
   | 'travaux-supplementaires'
   | 'soumissions'
+  | 'metres'
   | 'tresorerie';
 
 // The hero visual of a module page: the real screen of that very feature in

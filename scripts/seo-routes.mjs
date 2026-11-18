@@ -448,6 +448,22 @@ export const ROUTES = [
       { q: 'Dans quels plans la fonction est-elle disponible ?', a: 'Le plan Essentiel permet d’en essayer une. Le plan Équipe en donne 3 par mois, le plan Entreprise un nombre illimité.' },
       { q: 'Quelles soumissions peut-on importer ?', a: 'Les soumissions en PDF, structurées selon le CAN ou non, y compris les documents scannés. Cantia ne crée pas de soumission vierge : la fonction sert à répondre à celles que vous recevez.' },
       { q: 'Peut-on remplir une soumission depuis un téléphone ?', a: 'Sur téléphone, les soumissions se consultent. L’import et la saisie des prix se font sur ordinateur.' },
+      { q: "Et une fois le chantier fait, comment savoir si la soumission a rapporté ?", a: "Avec le module Métrés : vous reprenez la soumission du chantier, vous mettez les quantités réellement exécutées et vos coûts réels, et Cantia compare avec ce que vous avez vendu pour montrer le bénéfice, position par position." },
+    ],
+  },
+  {
+    // Module Métrés (post-calcul): app/solutions/metres.tsx and its DE/IT versions.
+    path: 'solutions/metres',
+    title: "Métré de chantier : vendu contre coût réel | Cantia",
+    description: "Reprenez la soumission du chantier, mettez les quantités exécutées et vos coûts réels : Cantia montre le bénéfice et la marge, position par position.",
+    faq: [
+      { q: "Quelle différence entre une soumission et un métré dans Cantia ?", a: "La soumission contient ce que vous avez offert : quantités et prix de vente. Le métré reprend la même soumission avec ce qui a été réellement exécuté et ce que chaque position vous a coûté. Cantia compare les deux." },
+      { q: "Comment le bénéfice est-il calculé ?", a: "Le facturable correspond aux quantités exécutées multipliées par les prix unitaires de la soumission, après rabais et escompte, sans TVA. Le bénéfice est le facturable moins le coût réel (quantités exécutées multipliées par vos coûts par unité)." },
+      { q: "Faut-il ressaisir la soumission ?", a: "Non. Le métré reprend toutes les positions et quantités de la soumission choisie ; vous corrigez seulement ce qui a changé." },
+      { q: "Peut-on ajouter des positions qui n’étaient pas dans la soumission ?", a: "Oui, dans chaque chapitre. Leur coût compte dans le bénéfice et elles sont signalées hors soumission, pour être facturées à part." },
+      { q: "Comment activer les métrés ?", a: "Dans Paramètres › Modules, activez « Métrés ». Le module est destiné aux entreprises du bâtiment ; il apparaît ensuite dans le menu, sous Soumissions." },
+      { q: "Les métrés comptent-ils dans le quota de soumissions ?", a: "Non : seul l’import d’une soumission PDF compte. Créer un métré à partir d’une soumission déjà importée ne consomme rien." },
+      { q: "Peut-on l’utiliser sur téléphone ?", a: "Sur téléphone, la comparaison se consulte. La saisie des quantités et des coûts se fait sur ordinateur." },
     ],
   },
   {
@@ -1287,6 +1303,13 @@ export const ROUTES = [
       { q: 'Un employé peut-il reporter ses vacances sur l’année suivante ?', a: 'Oui, dans une mesure raisonnable, mais pas indéfiniment.' },
       { q: 'Qui décide de la date des vacances ?', a: 'L’employeur, en tenant compte des désirs de l’employé dans la mesure compatible avec l’entreprise.' },
     ],
+  },
+  {
+    path: 'blog/metre-post-calcul-soumission-benefice-chantier',
+    title: 'Métré et post-calcul : la soumission a-t-elle rapporté ? | Cantia',
+    description:
+      "La soumission dit ce que vous avez vendu, le métré ce que vous avez exécuté. Comparer les deux, position par position, montre où vous gagnez de l'argent.",
+    faq: [],
   },
   {
     path: 'blog/calculer-prix-horaire-reel-ouvrier-batiment',
@@ -3510,6 +3533,22 @@ export const ROUTES = [
       { q: 'Was ist «Leistungsverzeichnis ausfüllen» in Cantia?', a: 'Eine Beta-Funktion, um auf erhaltene Leistungsverzeichnisse im PDF-Format zu antworten: Cantia übernimmt die Positionen, Sie setzen Ihre Preise ein und erhalten das Original-PDF mit Einheitspreisen, Beträgen, Überträgen und Totalen.' },
       { q: 'In welchen Plänen ist die Funktion enthalten?', a: 'Im Plan Basis können Sie eines testen. Der Plan Team bietet 3 pro Monat, der Plan Entreprise unbegrenzt viele.' },
       { q: 'Welche Leistungsverzeichnisse lassen sich importieren?', a: 'Leistungsverzeichnisse als PDF, nach NPK gegliedert oder nicht, auch gescannte Dokumente. Cantia erstellt keine leeren Leistungsverzeichnisse.' },
+      { q: "Und nach der Baustelle: Wie sieht man, ob sich das LV gelohnt hat?", a: "Mit dem Modul Ausmass: Sie übernehmen das LV der Baustelle, tragen die effektiv ausgeführten Mengen und Ihre effektiven Kosten ein, und Cantia vergleicht mit dem Verkauften und zeigt den Gewinn pro Position." },
+    ],
+  },
+  {
+    // Module Métrés (post-calcul): app/solutions/metres.tsx and its DE/IT versions.
+    path: 'de/solutions/metres',
+    title: "Ausmass und Nachkalkulation am Bau | Cantia",
+    description: "Übernehmen Sie das LV der Baustelle, tragen Sie ausgeführte Mengen und effektive Kosten ein: Cantia zeigt Gewinn und Marge pro Position.",
+    faq: [
+      { q: "Was ist der Unterschied zwischen Leistungsverzeichnis und Ausmass in Cantia?", a: "Das Leistungsverzeichnis enthält, was Sie offeriert haben: Mengen und Verkaufspreise. Das Ausmass übernimmt dasselbe LV mit dem, was effektiv ausgeführt wurde, und was jede Position gekostet hat. Cantia vergleicht beides." },
+      { q: "Wie wird der Gewinn berechnet?", a: "Das Verrechenbare sind die ausgeführten Mengen mal die Einheitspreise des LV, nach Rabatt und Skonto, ohne MWST. Der Gewinn ist das Verrechenbare minus die effektiven Kosten (ausgeführte Mengen mal Ihre Kosten pro Einheit)." },
+      { q: "Muss das Leistungsverzeichnis neu erfasst werden?", a: "Nein. Das Ausmass übernimmt alle Positionen und Mengen des gewählten LV; Sie korrigieren nur, was sich geändert hat." },
+      { q: "Kann man Positionen hinzufügen, die nicht im LV waren?", a: "Ja, in jedem Kapitel. Ihre Kosten zählen im Gewinn, und sie werden als ausserhalb LV markiert, um separat verrechnet zu werden." },
+      { q: "Wie aktiviert man das Ausmass?", a: "In Einstellungen › Module aktivieren Sie «Ausmass & Nachkalkulation». Das Modul ist für Bauunternehmen gedacht und erscheint danach im Menü unter den Leistungsverzeichnissen." },
+      { q: "Zählt ein Ausmass im Kontingent der Leistungsverzeichnisse?", a: "Nein: Nur der Import eines LV als PDF zählt. Ein Ausmass aus einem bereits importierten LV verbraucht nichts." },
+      { q: "Funktioniert es auf dem Telefon?", a: "Auf dem Telefon lässt sich der Vergleich ansehen. Mengen und Kosten werden am Computer erfasst." },
     ],
   },
   {
@@ -3845,6 +3884,22 @@ export const ROUTES = [
       { q: 'Che cos’è «Compilare un capitolato» in Cantia?', a: 'Una funzione in beta per rispondere ai capitolati ricevuti in PDF: Cantia riprende le posizioni del documento, voi inserite i prezzi e ottenete il PDF originale compilato con prezzi unitari, importi, riporti e totali.' },
       { q: 'In quali piani è disponibile?', a: 'Con il piano Essenziale potete provarne uno. Il piano Team ne offre 3 al mese, il piano Entreprise un numero illimitato.' },
       { q: 'Quali capitolati si possono importare?', a: 'I capitolati in PDF, strutturati secondo il CPN o no, compresi i documenti scansionati. Cantia non crea capitolati vuoti.' },
+      { q: "E a cantiere finito, come sapere se il capitolato ha reso?", a: "Con il modulo Computi: riprendete il capitolato del cantiere, inserite le quantità realmente eseguite e i costi reali, e Cantia confronta con quanto venduto per mostrare l’utile, posizione per posizione." },
+    ],
+  },
+  {
+    // Module Métrés (post-calcul): app/solutions/metres.tsx and its DE/IT versions.
+    path: 'it/solutions/metres',
+    title: "Computo e consuntivo di cantiere | Cantia",
+    description: "Riprendete il capitolato del cantiere, inserite quantità eseguite e costi reali: Cantia mostra utile e margine, posizione per posizione.",
+    faq: [
+      { q: "Che differenza c’è tra capitolato e computo in Cantia?", a: "Il capitolato contiene quanto avete offerto: quantità e prezzi di vendita. Il computo riprende lo stesso capitolato con quanto è stato eseguito davvero e quanto è costata ogni posizione. Cantia confronta i due." },
+      { q: "Come si calcola l’utile?", a: "Il fatturabile corrisponde alle quantità eseguite moltiplicate per i prezzi unitari del capitolato, dopo ribasso e sconto, senza IVA. L’utile è il fatturabile meno il costo reale (quantità eseguite moltiplicate per i costi per unità)." },
+      { q: "Bisogna reinserire il capitolato?", a: "No. Il computo riprende tutte le posizioni e quantità del capitolato scelto; correggete solo ciò che è cambiato." },
+      { q: "Si possono aggiungere posizioni non previste nel capitolato?", a: "Sì, in ogni capitolo. Il loro costo conta nell’utile e sono segnalate fuori capitolato, da fatturare a parte." },
+      { q: "Come si attivano i computi?", a: "In Impostazioni › Moduli attivate «Computi e consuntivo». Il modulo è pensato per le imprese edili e appare poi nel menu, sotto i capitolati." },
+      { q: "I computi contano nella quota di capitolati?", a: "No: conta solo l’importazione di un capitolato PDF. Creare un computo da un capitolato già importato non consuma nulla." },
+      { q: "Si può usare dal telefono?", a: "Dal telefono il confronto si consulta. Quantità e costi si inseriscono dal computer." },
     ],
   },
   {
