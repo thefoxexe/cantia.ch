@@ -1,5 +1,5 @@
-import { Component, type ReactNode } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Component, useEffect, useState, type ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Button } from './ui';
 import { colors, fontSize, spacing } from '../lib/theme';
@@ -51,20 +51,74 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       if (this.props.fallback !== undefined) return this.props.fallback;
-      return (
-        <View style={styles.container}>
-          <Feather name="alert-triangle" size={28} color={colors.danger} />
-          <Text style={styles.title}>{i18next.t('errorBoundary.title')}</Text>
-          <Text style={styles.text}>
-            {i18next.t('errorBoundary.text')}
-          </Text>
-          {this.state.error.message ? <Text style={styles.errorDetail}>{this.state.error.message}</Text> : null}
-          <Button title={i18next.t('errorBoundary.reload')} onPress={this.reload} style={{ marginTop: spacing.md }} />
-        </View>
-      );
+      return <ErrorScreen onReload={this.reload} />;
     }
     return this.props.children;
   }
+}
+
+const BACK_AFTER_S = 6;
+
+// Where to go: the page before this one, else the home page. The tree that
+// crashed is still in memory, so on web the page is loaded fresh there
+// (a client-side navigation would show this same screen again).
+function goBack() {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  const sameSiteReferrer = (() => {
+    try {
+      return document.referrer && new URL(document.referrer).origin === window.location.origin && document.referrer !== window.location.href;
+    } catch {
+      return false;
+    }
+  })();
+  if (window.history.length > 1) {
+    const before = window.location.href;
+    window.addEventListener('popstate', () => window.location.reload(), { once: true });
+    window.history.back();
+    // Nothing to go back to inside the site (opened from a link): home.
+    setTimeout(() => {
+      if (window.location.href === before) window.location.assign(sameSiteReferrer ? document.referrer : '/');
+    }, 600);
+  } else {
+    window.location.assign(sameSiteReferrer ? document.referrer : '/');
+  }
+}
+
+// No technical message for visitors: a short apology, then back to where
+// they were after a few seconds. The error itself stays in the console.
+function ErrorScreen({ onReload }: { onReload: () => void }) {
+  const [left, setLeft] = useState(BACK_AFTER_S);
+  const web = Platform.OS === 'web';
+  useEffect(() => {
+    if (!web) return;
+    const t = setInterval(() => setLeft((n) => Math.max(0, n - 1)), 1000);
+    return () => clearInterval(t);
+  }, [web]);
+  useEffect(() => {
+    if (web && left === 0) goBack();
+  }, [left, web]);
+  return (
+    <View style={styles.container}>
+      <View style={styles.badge}>
+        <Feather name="compass" size={26} color={colors.primary} />
+      </View>
+      <Text style={styles.title}>{i18next.t('errorBoundary.title')}</Text>
+      <Text style={styles.text}>{i18next.t('errorBoundary.text')}</Text>
+      {web ? <Text style={styles.countdown}>{i18next.t('errorBoundary.countdown', { s: left })}</Text> : null}
+      <View style={styles.actions}>
+        {web ? (
+          <Button title={i18next.t('errorBoundary.back')} onPress={goBack} />
+        ) : (
+          <Button title={i18next.t('errorBoundary.reload')} onPress={onReload} />
+        )}
+        {web ? (
+          <Pressable onPress={() => window.location.assign('/')} hitSlop={8}>
+            <Text style={styles.link}>{i18next.t('errorBoundary.home')}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -77,8 +131,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
   },
   title: {
-    fontSize: fontSize.lg,
+    fontSize: 22,
     fontWeight: '800',
+    textAlign: 'center',
     color: colors.text,
     marginTop: spacing.sm,
   },
@@ -87,15 +142,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 20,
-    maxWidth: 320,
+    maxWidth: 360,
   },
-  errorDetail: {
-    fontSize: fontSize.xs,
-    color: colors.textMuted,
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'web' ? 'monospace' : undefined,
-    maxWidth: 340,
-    marginTop: spacing.xs,
-    opacity: 0.7,
-  },
+  badge: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primarySoft },
+  countdown: { fontSize: fontSize.xs, color: colors.textMuted, marginTop: spacing.xs },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: spacing.lg, marginTop: spacing.md },
+  link: { fontSize: fontSize.sm, fontWeight: '700', color: colors.primary },
 });

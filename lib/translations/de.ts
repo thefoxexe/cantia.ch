@@ -2741,8 +2741,11 @@ export const de: TranslationDict = {
     searching: 'Suche…',
   },
   errorBoundary: {
-    title: 'Ein Problem ist aufgetreten',
-    text: 'Diese Seite konnte nicht korrekt angezeigt werden. Versuchen Sie es erneut, und falls es weiterhin auftritt, informieren Sie uns.',
+    title: 'Hoppla, da ist etwas schiefgelaufen',
+    text: 'Diese Seite konnte nicht angezeigt werden. Wir bringen Sie zur vorherigen Seite zurück.',
+    countdown: 'Automatisch zurück in {{s}} s…',
+    back: 'Jetzt zurück',
+    home: 'Zur Startseite',
     reload: 'Neu laden',
   },
   appActions: {

@@ -2749,8 +2749,11 @@ export const it: TranslationDict = {
     searching: 'Ricerca…',
   },
   errorBoundary: {
-    title: 'Si è verificato un problema',
-    text: "Questa pagina non è stata visualizzata correttamente. Riprovi, e se persiste, ce lo segnali.",
+    title: 'Ops, qualcosa è andato storto',
+    text: 'Questa pagina non ha potuto essere visualizzata. Vi riportiamo alla pagina precedente.',
+    countdown: 'Ritorno automatico tra {{s}} s…',
+    back: 'Tornare ora',
+    home: 'Andare alla home',
     reload: 'Ricarica',
   },
   appActions: {

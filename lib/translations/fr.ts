@@ -2727,8 +2727,11 @@ export const fr = {
     searching: 'Recherche…',
   },
   errorBoundary: {
-    title: 'Un problème est survenu',
-    text: "Cette page n'a pas pu s'afficher correctement. Réessayez, et si ça persiste, prévenez-nous.",
+    title: 'Oups, quelque chose s’est mal passé',
+    text: 'Cette page n’a pas pu s’afficher. Nous vous ramenons à la page précédente.',
+    countdown: 'Retour automatique dans {{s}} s…',
+    back: 'Revenir maintenant',
+    home: 'Aller à l’accueil',
     reload: 'Recharger',
   },
   appActions: {

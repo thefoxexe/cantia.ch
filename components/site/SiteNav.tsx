@@ -147,8 +147,9 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                     <Text style={[sans, styles.megaBottomLink]}>{c.devices}</Text>
                   </Pressable>
                 </Link>
+                {/* A single style object: Link asChild hands its child's style to the <a>, which refuses an array. */}
                 <Link href={starterHref('menu') as any} asChild>
-                  <Pressable onPress={() => setMegaOpen(false)} style={[styles.inlineRow, { gap: 6 }]}>
+                  <Pressable onPress={() => setMegaOpen(false)} style={styles.megaGift}>
                     <Feather name="gift" size={13} color={site.copper} />
                     <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{SITE_COPY[locale].footer.newCompanyLink}</Text>
                   </Pressable>
@@ -237,6 +238,7 @@ function DrawerSubLink({ icon, label, href, onNavigate }: { icon: IconName; labe
 }
 
 const styles = StyleSheet.create({
+  megaGift: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   header: {
     zIndex: 30,
     position: 'relative',
