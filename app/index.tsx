@@ -20,6 +20,7 @@ import { SECTOR_KEYS, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/si
 import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
 import { SiteImage } from '../components/site/SiteImage';
 import { StarterOffer } from '../components/site/StarterOffer';
+import { BeforeAfter } from '../components/site/BeforeAfter';
 
 const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; title: string; items: { q: string; a: string }[] }>;
 
@@ -131,6 +132,9 @@ function LandingContent() {
         <View style={[styles.section, { paddingVertical: phone ? 53 : 86 }]}>
           <Wrap>
             <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} />
+            {locale === 'fr' ? (
+              <BeforeAfter />
+            ) : (
             <View style={[styles.exportsRow, phone && { flexDirection: 'column' }]}>
               <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} pdf={EXPORTS[locale].devisFull.pdf}>
                 <PaperImage source={EXPORTS[locale].devisFull.source} ratio={EXPORTS[locale].devisFull.ratio} alt={SITE_PAGES[locale].labels.docAlt.signer} />
@@ -139,6 +143,7 @@ function LandingContent() {
                 <PaperImage source={EXPORTS[locale].facture.source} ratio={EXPORTS[locale].facture.ratio} alt={h.exportFacture} />
               </ExportCard>
             </View>
+            )}
           </Wrap>
         </View>
 
