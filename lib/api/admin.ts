@@ -617,3 +617,33 @@ export async function deletePlatformExpense(id: string): Promise<{ error: string
   const { error } = await supabase.rpc('admin_delete_platform_expense', { expense_id: id });
   return { error: logRpcError('admin_delete_platform_expense', error) };
 }
+
+// Super Admin › fiche entreprise › E-mails (supabase/functions/admin-org-emails).
+export interface OrgEmails {
+  addresses: string[];
+  sent: { id: string; to: string[]; from: string; subject: string; created_at: string; last_event: string | null }[];
+  scheduled: { kind: string; label: string; at: string; detail: string | null }[];
+  markers: { kind: string; label: string; at: string }[];
+  resend_error: string | null;
+}
+
+export interface OrgEmail {
+  id: string;
+  subject: string;
+  from: string;
+  to: string[] | string;
+  created_at: string;
+  last_event: string | null;
+  html: string | null;
+  text: string | null;
+}
+
+export async function getOrgEmails(organizationId: string): Promise<{ data: OrgEmails | null; error: string | null }> {
+  const { data, error } = await invokeFunction<OrgEmails>('admin-org-emails', { organization_id: organizationId });
+  return { data: error ? null : data ?? null, error: error ?? null };
+}
+
+export async function getOrgEmail(id: string): Promise<{ data: OrgEmail | null; error: string | null }> {
+  const { data, error } = await invokeFunction<OrgEmail>('admin-org-emails', { action: 'email', id });
+  return { data: error ? null : data ?? null, error: error ?? null };
+}

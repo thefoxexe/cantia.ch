@@ -19,6 +19,7 @@ import { ORG_MODULES, PROJECT_MODULES, PROJECT_MODULE_PLAN_GATED, defaultProject
 import { supabase } from '../../../lib/supabase';
 import type { Plan } from '../../../lib/types';
 import type { AdminModuleSummary, AdminOrgBillingStatus, AdminOrganizationDetail } from '../../../lib/types';
+import { OrgEmailsPanel } from '../../../components/admin/OrgEmailsPanel';
 
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
 
@@ -236,8 +237,8 @@ export default function AdminOrganizationDetailScreen() {
     setTimeout(() => setFeedback(null), 2000);
   }
 
-  type Tab = 'activite' | 'abonnement' | 'membres' | 'modules' | 'provenance';
-  const tab: Tab = (['activite', 'abonnement', 'membres', 'modules', 'provenance'] as const).includes(onglet as Tab) ? (onglet as Tab) : 'activite';
+  type Tab = 'activite' | 'emails' | 'abonnement' | 'membres' | 'modules' | 'provenance';
+  const tab: Tab = (['activite', 'emails', 'abonnement', 'membres', 'modules', 'provenance'] as const).includes(onglet as Tab) ? (onglet as Tab) : 'activite';
   const setTab = (k: Tab) => router.setParams({ onglet: k === 'activite' ? undefined : k });
   const trialEnd = org.trial_ends_at ?? (org.subscription_status === 'trialing' ? billing?.next_invoice_date ?? null : null);
   const nextCharge = billing?.will_be_charged && billing.next_invoice_amount_chf != null ? `${formatChf(billing.next_invoice_amount_chf)} le ${formatDate(billing.next_invoice_date)}` : null;
@@ -280,6 +281,7 @@ export default function AdminOrganizationDetailScreen() {
       <AdminTabs
         tabs={[
           { key: 'activite' as const, label: 'Activité' },
+          { key: 'emails' as const, label: 'E-mails' },
           { key: 'abonnement' as const, label: 'Abonnement', count: events.length || null },
           { key: 'membres' as const, label: 'Membres', count: detail.members.length },
           { key: 'modules' as const, label: 'Modules', count: detail.private_modules.filter((m) => m.enabled).length || null },
@@ -481,6 +483,8 @@ export default function AdminOrganizationDetailScreen() {
           </AdminSection>
         </View>
       ) : null}
+
+      {tab === 'emails' ? <OrgEmailsPanel organizationId={org.id} /> : null}
 
       {tab === 'provenance' ? (
         origin ? (
