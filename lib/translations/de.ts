@@ -1573,6 +1573,7 @@ export const de: TranslationDict = {
     ibanLabel: 'IBAN (für die QR-Rechnung)',
     ibanInvalid: 'Ungültige Schweizer oder liechtensteinische IBAN (Format CHxx.../LIxx...).',
     ibanHint: 'Bei Angabe wird Ihren Rechnungen automatisch ein konformer Schweizer QR-Einzahlungsschein hinzugefügt.',
+    appLocaleTitle: 'Sprache der App',
     documentLocaleTitle: 'Sprache der Dokumente',
     documentLocaleHint: 'Sprache der Offerten, Rechnungen und Kundenportal-Links, die an Ihre Kunden gesendet werden. Unabhängig von der Sprache Ihrer eigenen Oberfläche.',
     localeFr: 'Französisch',

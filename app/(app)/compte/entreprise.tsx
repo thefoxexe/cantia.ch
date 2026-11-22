@@ -10,6 +10,7 @@ import { VatQuestion, useVatQuestionCopy } from '../../../components/VatQuestion
 import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
+import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
@@ -36,8 +37,10 @@ function SectionHeader({ icon, title, hint }: { icon: IconName; title: string; h
 }
 
 export default function EntrepriseScreen() {
-  const { t } = useTranslation();
-  const { organization, role, refreshOrganization } = useAuth();
+  const { t, i18n } = useTranslation();
+  const { organization, role, refreshOrganization, changeLocale } = useAuth();
+  const appLocale = i18n.language as 'fr' | 'de' | 'it';
+  const [appLocaleSaving, setAppLocaleSaving] = useState(false);
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
   const [specialties, setSpecialties] = useState<string[]>(organization?.trade_specialties ?? []);
@@ -260,6 +263,32 @@ export default function EntrepriseScreen() {
           <SectionHeader icon="credit-card" title={t('entreprise.billingTitle')} hint={t('entreprise.ibanHint')} />
           <Card style={styles.card}>
             <IbanField label={t('entreprise.ibanLabel')} value={iban} onChangeText={withDirty(setIban)} editable={isAdmin} />
+          </Card>
+
+          {/* The app's own language sits right here too: people looking for
+              "langue" in the company settings expect the app to switch, and
+              the documents' language alone never did that. Saved at once,
+              per person (organization_members.locale). */}
+          <SectionHeader icon="monitor" title={t('entreprise.appLocaleTitle')} hint={t('profil.languageHint')} />
+          <Card style={styles.card}>
+            <View style={styles.chips}>
+              {(['fr', 'de', 'it'] as const).map((loc) => (
+                <Pressable
+                  key={loc}
+                  disabled={appLocaleSaving}
+                  onPress={async () => {
+                    if (loc === appLocale) return;
+                    setAppLocaleSaving(true);
+                    await changeLocale(loc);
+                    setAppLocaleSaving(false);
+                    showSavedCheckmark();
+                  }}
+                  style={[styles.chip, appLocale === loc && styles.chipActive]}
+                >
+                  <Text style={[styles.chipText, appLocale === loc && styles.chipTextActive]}>{loc === 'fr' ? 'Français' : loc === 'de' ? 'Deutsch' : 'Italiano'}</Text>
+                </Pressable>
+              ))}
+            </View>
           </Card>
 
           <SectionHeader icon="globe" title={t('entreprise.documentLocaleTitle')} hint={t('entreprise.documentLocaleHint')} />

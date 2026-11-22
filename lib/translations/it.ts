@@ -1581,6 +1581,7 @@ export const it: TranslationDict = {
     ibanLabel: 'IBAN (per la QR-fattura)',
     ibanInvalid: 'IBAN svizzero o del Liechtenstein non valido (formato CHxx.../LIxx...).',
     ibanHint: 'Se indicato, una polizza di versamento QR svizzera conforme viene aggiunta automaticamente alle sue fatture.',
+    appLocaleTitle: 'Lingua dell’app',
     documentLocaleTitle: 'Lingua dei documenti',
     documentLocaleHint: 'Lingua dei preventivi, fatture e link del portale cliente inviati ai suoi clienti. Indipendente dalla lingua della sua interfaccia personale.',
     localeFr: 'Francese',

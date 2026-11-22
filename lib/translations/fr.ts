@@ -1559,6 +1559,7 @@ export const fr = {
     ibanLabel: 'IBAN (pour la QR-facture)',
     ibanInvalid: 'IBAN suisse ou liechtensteinois invalide (format CHxx.../LIxx...).',
     ibanHint: 'Renseigné, un bulletin de paiement QR suisse conforme est ajouté automatiquement à vos factures.',
+    appLocaleTitle: 'Langue de l’application',
     documentLocaleTitle: 'Langue des documents',
     documentLocaleHint: 'Langue des devis, factures et liens du portail client envoyés à vos clients. Indépendante de la langue de votre propre interface.',
     localeFr: 'Français',
