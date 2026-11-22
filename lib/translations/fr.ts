@@ -3025,6 +3025,7 @@ export const fr = {
     createInsteadBtn: 'Créer ma propre entreprise à la place',
   },
   devisLayout: {
+    deniedRouteText: "Votre rôle ne donne pas accès à cette partie de l'application. Demandez à un administrateur de vous donner accès depuis Équipe.",
     deniedTitle: 'Accès non autorisé',
     deniedText: "Vous n'avez pas accès aux devis et factures de cette entreprise. Demandez à un administrateur de vous donner accès depuis Équipe.",
     backHome: "Retour à l'accueil",

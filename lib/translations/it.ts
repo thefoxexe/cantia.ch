@@ -3047,6 +3047,7 @@ export const it: TranslationDict = {
     createInsteadBtn: 'Crei invece la mia azienda',
   },
   devisLayout: {
+    deniedRouteText: "Il suo ruolo non dà accesso a questa parte dell'app. Chieda a un amministratore di darle accesso da Team.",
     deniedTitle: 'Accesso non autorizzato',
     deniedText: "Non ha accesso ai preventivi e alle fatture di questa azienda. Chieda a un amministratore di darle accesso da Team.",
     backHome: "Torna alla home",

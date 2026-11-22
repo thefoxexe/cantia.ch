@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
+import { updateMyMember } from '../../../lib/api/members';
 import { getSignedUrl, uploadToOrgBucket } from '../../../lib/api/storage';
 import { assetFileInfo } from '../../../lib/imageAsset';
 import { SignaturePad } from '../../../components/SignaturePad';
@@ -75,11 +76,7 @@ export default function ProfilScreen() {
 
   async function saveName() {
     if (!organization || !user || !fullName.trim()) return false;
-    await supabase
-      .from('organization_members')
-      .update({ full_name: fullName.trim() })
-      .eq('organization_id', organization.id)
-      .eq('user_id', user.id);
+    await updateMyMember(organization.id, user.id, { full_name: fullName.trim() });
     refreshOrganization();
   }
 
@@ -95,11 +92,7 @@ export default function ProfilScreen() {
     const subPath = `avatars/${user.id}-${Date.now()}.${ext}`;
     const { path } = await uploadToOrgBucket(organization.id, subPath, asset.uri, contentType);
     if (path) {
-      await supabase
-        .from('organization_members')
-        .update({ avatar_url: path })
-        .eq('organization_id', organization.id)
-        .eq('user_id', user.id);
+      await updateMyMember(organization.id, user.id, { avatar_url: path });
       setAvatarPath(path);
       setAvatarUrl(await getSignedUrl(path));
       showSavedCheckmark();
@@ -119,11 +112,7 @@ export default function ProfilScreen() {
     const subPath = `signatures/${user.id}-${Date.now()}.${ext}`;
     const { path } = await uploadToOrgBucket(organization.id, subPath, asset.uri, contentType);
     if (path) {
-      await supabase
-        .from('organization_members')
-        .update({ signature_url: path })
-        .eq('organization_id', organization.id)
-        .eq('user_id', user.id);
+      await updateMyMember(organization.id, user.id, { signature_url: path });
       setSignatureUrl(await getSignedUrl(path));
       showSavedCheckmark();
     }
@@ -232,11 +221,7 @@ export default function ProfilScreen() {
     // the photo picker produces, so uploadToOrgBucket needs no changes.
     const { path } = await uploadToOrgBucket(organization.id, subPath, drawnSignature, 'image/png');
     if (path) {
-      await supabase
-        .from('organization_members')
-        .update({ signature_url: path })
-        .eq('organization_id', organization.id)
-        .eq('user_id', user.id);
+      await updateMyMember(organization.id, user.id, { signature_url: path });
       setSignatureUrl(await getSignedUrl(path));
       setDrawnSignature(null);
       showSavedCheckmark();

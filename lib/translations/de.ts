@@ -3039,6 +3039,7 @@ export const de: TranslationDict = {
     createInsteadBtn: 'Stattdessen mein eigenes Unternehmen erstellen',
   },
   devisLayout: {
+    deniedRouteText: 'Ihre Rolle gibt keinen Zugriff auf diesen Bereich der App. Bitten Sie einen Administrator, Ihnen unter Team Zugriff zu geben.',
     deniedTitle: 'Zugriff nicht erlaubt',
     deniedText: 'Sie haben keinen Zugriff auf die Offerten und Rechnungen dieses Unternehmens. Bitten Sie einen Administrator, Ihnen unter Team Zugriff zu geben.',
     backHome: 'Zurück zur Startseite',

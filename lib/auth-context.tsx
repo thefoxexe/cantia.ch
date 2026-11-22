@@ -6,6 +6,7 @@ import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { isPlatformAdmin as checkIsPlatformAdmin } from './api/admin';
+import { updateMyMember } from './api/members';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, i18next, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
 import { setWorkTerm, type WorkTerm } from './vocabulary';
 import { getStoredAttribution, getStoredFiduciaryInvite, getStoredOrigin, getStoredReferral } from './siteAnalytics';
@@ -119,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // <LoadingScreen/>` — including open modals, silently wiping whatever the
   // user was mid-typing or mid-scanning right as a photo finished uploading.
   const lastOrgSnapshotRef = useRef<string | null>(null);
+  const unsavedLocaleRef = useRef<AppLocale | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [canViewFinances, setCanViewFinances] = useState(false);
   const [canManageDevis, setCanManageDevis] = useState(false);
@@ -156,8 +158,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(membership.role as OrgRole);
         // organization_members.locale is the source of truth — reconcile
         // it against whatever the AsyncStorage cache guessed at boot.
+        // A language the member picked but that could not be saved stays in
+        // force for this session instead of being reset at every reload.
         const dbLocale = membership.locale as AppLocale | null;
-        if (dbLocale && AVAILABLE_LOCALES.includes(dbLocale) && dbLocale !== getAppLocale()) {
+        if (!unsavedLocaleRef.current && dbLocale && AVAILABLE_LOCALES.includes(dbLocale) && dbLocale !== getAppLocale()) {
           setAppLocale(dbLocale);
         }
         const assignedRole = membership.organization_roles as unknown as {
@@ -370,12 +374,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (locale: AppLocale) => {
       await setAppLocale(locale);
       if (!session?.user || !organization) return { error: null };
-      const { error } = await supabase
-        .from('organization_members')
-        .update({ locale })
-        .eq('organization_id', organization.id)
-        .eq('user_id', session.user.id);
-      return { error: error?.message ?? null };
+      const { error } = await updateMyMember(organization.id, session.user.id, { locale });
+      unsavedLocaleRef.current = error ? locale : null;
+      return { error };
     },
     [session, organization],
   );

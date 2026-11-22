@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../lib/auth-context';
-import { supabase } from '../lib/supabase';
+import { updateMyMember } from '../lib/api/members';
 import { uploadToOrgBucket } from '../lib/api/storage';
 import { SignaturePad } from './SignaturePad';
 import { Button } from './ui';
@@ -28,11 +28,7 @@ export function SignaturePromptModal({ visible, onDone }: { visible: boolean; on
     const subPath = `signatures/${user.id}-${Date.now()}.png`;
     const { path } = await uploadToOrgBucket(organization.id, subPath, drawn, 'image/png');
     if (path) {
-      await supabase
-        .from('organization_members')
-        .update({ signature_url: path })
-        .eq('organization_id', organization.id)
-        .eq('user_id', user.id);
+      await updateMyMember(organization.id, user.id, { signature_url: path });
     }
     setSaving(false);
     setDrawn(null);

@@ -9,6 +9,8 @@ import { useAuth } from '../../lib/auth-context';
 import { fillsSoumissions } from '../../lib/trades';
 import { routeArea, trackOrgScreen } from '../../lib/api/usage';
 import { isModuleEnabled } from '../../lib/modules';
+import { canOpenRoute } from '../../lib/routeAccess';
+import { AccessDenied } from '../../components/AccessDenied';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { AccountMenu } from '../../components/AccountMenu';
@@ -191,6 +193,15 @@ export default function AppLayout() {
   return <MobileShell sections={sections} />;
 }
 
+// The current screen, or a lock when the member's role does not open it,
+// however it was reached (lib/routeAccess.ts).
+function GuardedSlot() {
+  const pathname = usePathname();
+  const { organization, canViewFinances, canManageDevis, permissions, loading } = useAuth();
+  if (!loading && organization && !canOpenRoute(pathname, { canViewFinances, canManageDevis, permissions })) return <AccessDenied />;
+  return <Slot />;
+}
+
 // A top bar sitting above the content consumes the top safe-area inset
 // itself, so screens rendered inside must not also reserve it (the shared
 // <Screen> wrapper used by every screen file adds `insets.top` on its own,
@@ -216,7 +227,7 @@ function MobileShell({ sections }: { sections: NavSection[] }) {
         <AccountMenu />
       </View>
       <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
-        <Slot />
+        <GuardedSlot />
       </SafeAreaInsetsContext.Provider>
       <NavDrawer visible={drawerOpen} onClose={() => setDrawerOpen(false)} sections={sections} activeHref={activeHref} />
       {!isFeedScreen(pathname) ? <VoiceAssistant /> : null}
@@ -341,7 +352,7 @@ function DesktopShell({ sections }: { sections: NavSection[] }) {
           <AccountMenu />
         </View>
         <SafeAreaInsetsContext.Provider value={{ ...insets, top: 0 }}>
-          <Slot />
+          <GuardedSlot />
         </SafeAreaInsetsContext.Provider>
       </View>
       <SupportPopup visible={supportVisible} onClose={() => setSupportVisible(false)} />
