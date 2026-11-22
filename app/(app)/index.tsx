@@ -161,7 +161,7 @@ export default function DashboardScreen() {
     () => Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, applyWorkTerm(v, i18n.language)])) as typeof raw,
     [raw, i18n.language],
   );
-  const { organization, user, canManageDevis, role, permissions } = useAuth();
+  const { organization, user, canManageDevis, canCreateProjects, role, permissions } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const wide = width >= breakpoints.desktop;
@@ -605,7 +605,7 @@ export default function DashboardScreen() {
             <View style={styles.headerActions}>
               {planningEnabled ? <HeaderAction title={c.create} icon="calendar" variant="secondary" onPress={() => router.push('/(app)/planning' as any)} /> : null}
               {devisVisible ? <HeaderAction title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} /> : null}
-              <HeaderAction title={c.newProject} onPress={() => router.push('/(app)/chantiers/new')} />
+              {canCreateProjects ? <HeaderAction title={c.newProject} onPress={() => router.push('/(app)/chantiers/new')} /> : null}
             </View>
           ) : null}
           {weatherInfo && weather ? (
@@ -634,7 +634,7 @@ export default function DashboardScreen() {
 
         {!wide ? (
           <View style={styles.quickRow}>
-            <Button title={c.newProject} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flexGrow: 1 }} />
+            {canCreateProjects ? <Button title={c.newProject} icon="plus" onPress={() => router.push('/(app)/chantiers/new')} style={{ flexGrow: 1 }} /> : null}
             {devisVisible ? <Button title={c.newDevis} icon="file-plus" variant="secondary" onPress={() => router.push('/(app)/devis/new')} style={{ flexGrow: 1 }} /> : null}
             {planningEnabled ? <Button title={c.create} icon="calendar" variant="secondary" onPress={() => router.push('/(app)/planning' as any)} style={{ flexGrow: 1 }} /> : null}
           </View>

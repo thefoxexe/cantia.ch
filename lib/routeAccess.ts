@@ -8,12 +8,14 @@
 export type RouteAccess = {
   canViewFinances: boolean;
   canManageDevis: boolean;
+  canCreateProjects?: boolean;
   permissions: { metre: boolean; planning: boolean; documents: boolean; subcontractors: boolean };
 };
 
 type Rule = { test: RegExp; allowed: (a: RouteAccess) => boolean };
 
 const RULES: Rule[] = [
+  { test: /^\/chantiers\/new(\/|$)/, allowed: (a) => a.canCreateProjects !== false },
   { test: /^\/(tresorerie|depenses|compta)(\/|$)/, allowed: (a) => a.canViewFinances },
   { test: /^\/chantiers\/[^/]+\/profitability(\/|$)/, allowed: (a) => a.canViewFinances },
   { test: /^\/(soumissions|metres)(\/|$)/, allowed: (a) => a.permissions.metre },

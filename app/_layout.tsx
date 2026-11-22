@@ -199,9 +199,14 @@ function RootNavigation() {
 // scope, but every route module is loaded in the same process at build time,
 // so those calls alone would leave whichever ran last in charge. The app host
 // (app.cantia.ch) keeps the signed-in member's own language instead.
+// The signed-in app also opens on cantia.ch (cantia.ch/login works): its
+// screens keep the member's own language. Forcing French there fought the
+// member's Italian or German at every render, and the app kept switching.
 function MarketingLocaleFromPath() {
   const pathname = usePathname();
-  if (Platform.OS === 'web' && !isAppHost()) {
+  const segments = useSegments() as string[];
+  const appScreen = ['(app)', '(auth)', '(admin)'].includes(segments[0] ?? '');
+  if (Platform.OS === 'web' && !isAppHost() && !appScreen) {
     const prefixed = (['de', 'it'] as const).find((loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`));
     forceLocale(prefixed ?? 'fr');
   }

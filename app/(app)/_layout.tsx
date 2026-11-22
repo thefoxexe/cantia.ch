@@ -10,7 +10,6 @@ import { fillsSoumissions } from '../../lib/trades';
 import { routeArea, trackOrgScreen } from '../../lib/api/usage';
 import { isModuleEnabled } from '../../lib/modules';
 import { canOpenRoute } from '../../lib/routeAccess';
-import { AccessDenied } from '../../components/AccessDenied';
 import { displayType, monoType } from '../../lib/marketingTheme';
 import { colors, fontSize, radius, spacing, breakpoints } from '../../lib/theme';
 import { AccountMenu } from '../../components/AccountMenu';
@@ -193,13 +192,48 @@ export default function AppLayout() {
   return <MobileShell sections={sections} />;
 }
 
-// The current screen, or a lock when the member's role does not open it,
-// however it was reached (lib/routeAccess.ts).
+// The current screen, unless the member's role does not open it
+// (lib/routeAccess.ts), however it was reached. A layout must keep rendering
+// its <Slot/>, or expo-router drops the route and falls back to the home
+// screen on its own: so the member is sent home on purpose, with a notice.
+// When the last refusal happened: the notice survives the remounts the
+// redirect causes and disappears after a few seconds.
+let deniedAt = 0;
+
 function GuardedSlot() {
   const pathname = usePathname();
-  const { organization, canViewFinances, canManageDevis, permissions, loading } = useAuth();
-  if (!loading && organization && !canOpenRoute(pathname, { canViewFinances, canManageDevis, permissions })) return <AccessDenied />;
-  return <Slot />;
+  const router = useRouter();
+  const { t } = useTranslation();
+  const { organization, canViewFinances, canManageDevis, canCreateProjects, permissions, loading } = useAuth();
+  const [notice, setNotice] = useState(() => Date.now() - deniedAt < 8000);
+  const denied = !loading && !!organization && !canOpenRoute(pathname, { canViewFinances, canManageDevis, canCreateProjects, permissions });
+  useEffect(() => {
+    if (!denied) return;
+    deniedAt = Date.now();
+    setNotice(true);
+    router.replace('/(app)');
+  }, [denied, router]);
+  useEffect(() => {
+    if (!notice) return;
+    const id = setTimeout(() => setNotice(false), Math.max(1000, 8000 - (Date.now() - deniedAt)));
+    return () => clearTimeout(id);
+  }, [notice]);
+  if (denied) return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
+  return (
+    <View style={{ flex: 1 }}>
+      {notice ? (
+        <Pressable onPress={() => { deniedAt = 0; setNotice(false); }} style={styles.deniedNotice} accessibilityRole="alert">
+          <Feather name="lock" size={16} color={colors.text} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.deniedNoticeTitle}>{t('devisLayout.deniedTitle')}</Text>
+            <Text style={styles.deniedNoticeText}>{t('devisLayout.deniedRouteText')}</Text>
+          </View>
+          <Feather name="x" size={16} color={colors.textMuted} />
+        </Pressable>
+      ) : null}
+      <Slot />
+    </View>
+  );
 }
 
 // A top bar sitting above the content consumes the top safe-area inset
@@ -525,4 +559,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  deniedNotice: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginHorizontal: spacing.lg, marginTop: spacing.md, padding: spacing.md, borderRadius: radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  deniedNoticeTitle: { fontSize: fontSize.sm, fontWeight: '700', color: colors.text },
+  deniedNoticeText: { fontSize: fontSize.sm, color: colors.textMuted, marginTop: 2 },
 });
