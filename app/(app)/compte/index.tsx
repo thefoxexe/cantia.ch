@@ -30,7 +30,8 @@ type MenuKey =
   | 'entrepriseDanger'
   | 'rh'
   | 'automatisations'
-  | 'import';
+  | 'import'
+  | 'application';
 
 interface MenuItem {
   href: string;
@@ -55,6 +56,7 @@ interface MenuSection {
 const ITEMS = {
   profil: { href: '/(app)/compte/profil', icon: 'user', key: 'profil' },
   notifications: { href: '/(app)/compte/notifications', icon: 'bell', key: 'notifications' },
+  application: { href: '/(app)/compte/application', icon: 'monitor', key: 'application' },
   aide: { href: helpHref(), icon: 'help-circle', key: 'aide', external: true },
   partenaires: { href: PARTNERS_URL, icon: 'gift', key: 'partenaires', external: true },
   danger: { href: '/(app)/compte/danger', icon: 'user-x', key: 'danger' },
@@ -94,7 +96,7 @@ export default function CompteIndexScreen() {
   const sections = useMemo(() => {
     const payroll = canManagePayroll && isModuleEnabled(organization?.enabled_modules, 'payroll');
     const raw: MenuSection[] = [
-      { id: 'account', titleKey: 'compteMenu.secAccount', descriptionKey: 'compteMenu.secAccountDesc', items: [ITEMS.profil, ITEMS.notifications] },
+      { id: 'account', titleKey: 'compteMenu.secAccount', descriptionKey: 'compteMenu.secAccountDesc', items: [ITEMS.profil, ITEMS.application, ITEMS.notifications] },
       { id: 'company', titleKey: 'compteMenu.secCompany', descriptionKey: 'compteMenu.secCompanyDesc', items: [ITEMS.entreprise, ITEMS.apparence, ITEMS.devis, ITEMS.emails, ITEMS.import] },
       { id: 'team', titleKey: 'compteMenu.secTeam', descriptionKey: 'compteMenu.secTeamDesc', items: [ITEMS.equipe, ...(payroll ? [ITEMS.rh] : [])] },
       { id: 'billing', titleKey: 'compteMenu.secBilling', descriptionKey: 'compteMenu.secBillingDesc', items: [ITEMS.facturation, ITEMS.stockage, ...(canViewFinances ? [ITEMS.fiduciaire] : [])] },

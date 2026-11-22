@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../../lib/auth-context';
 import { supabase } from '../../../lib/supabase';
@@ -10,7 +10,6 @@ import { VatQuestion, useVatQuestionCopy } from '../../../components/VatQuestion
 import { hasValidIde } from '../../../lib/vat/vatStatus';
 import { Card, Container, Field, PageHeader, AppScreen } from '../../../components/ui';
 import { UnsavedChangesBar } from '../../../components/UnsavedChangesBar';
-import { showSavedCheckmark } from '../../../components/SaveConfirmation';
 import { UnsavedChangesModal } from '../../../components/UnsavedChangesModal';
 import { useUnsavedChanges } from '../../../lib/useUnsavedChanges';
 import { useTranslation } from '../../../lib/translations';
@@ -37,10 +36,9 @@ function SectionHeader({ icon, title, hint }: { icon: IconName; title: string; h
 }
 
 export default function EntrepriseScreen() {
-  const { t, i18n } = useTranslation();
-  const { organization, role, refreshOrganization, changeLocale } = useAuth();
-  const appLocale = i18n.language as 'fr' | 'de' | 'it';
-  const [appLocaleSaving, setAppLocaleSaving] = useState(false);
+  const { t } = useTranslation();
+  const { organization, role, refreshOrganization } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState(organization?.name ?? '');
   const [trade, setTrade] = useState(organization?.trade ?? null);
   const [specialties, setSpecialties] = useState<string[]>(organization?.trade_specialties ?? []);
@@ -265,31 +263,13 @@ export default function EntrepriseScreen() {
             <IbanField label={t('entreprise.ibanLabel')} value={iban} onChangeText={withDirty(setIban)} editable={isAdmin} />
           </Card>
 
-          {/* The app's own language sits right here too: people looking for
-              "langue" in the company settings expect the app to switch, and
-              the documents' language alone never did that. Saved at once,
-              per person (organization_members.locale). */}
-          <SectionHeader icon="monitor" title={t('entreprise.appLocaleTitle')} hint={t('profil.languageHint')} />
-          <Card style={styles.card}>
-            <View style={styles.chips}>
-              {(['fr', 'de', 'it'] as const).map((loc) => (
-                <Pressable
-                  key={loc}
-                  disabled={appLocaleSaving}
-                  onPress={async () => {
-                    if (loc === appLocale) return;
-                    setAppLocaleSaving(true);
-                    await changeLocale(loc);
-                    setAppLocaleSaving(false);
-                    showSavedCheckmark();
-                  }}
-                  style={[styles.chip, appLocale === loc && styles.chipActive]}
-                >
-                  <Text style={[styles.chipText, appLocale === loc && styles.chipTextActive]}>{loc === 'fr' ? 'Français' : loc === 'de' ? 'Deutsch' : 'Italiano'}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </Card>
+          {/* People look for "langue" here: the app's own language is one
+              tap away (Paramètres › Application). */}
+          <Pressable onPress={() => router.push('/(app)/compte/application')} style={({ hovered }: any) => [styles.appLocaleLink, hovered && { backgroundColor: colors.surfaceAlt }]}>
+            <Feather name="monitor" size={15} color={colors.primary} />
+            <Text style={styles.appLocaleLinkText}>{t('entreprise.appLocaleLink')}</Text>
+            <Feather name="chevron-right" size={15} color={colors.textMuted} />
+          </Pressable>
 
           <SectionHeader icon="globe" title={t('entreprise.documentLocaleTitle')} hint={t('entreprise.documentLocaleHint')} />
           <Card style={styles.card}>
@@ -434,4 +414,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.text,
   },
+  appLocaleLink: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  appLocaleLinkText: { flex: 1, fontSize: fontSize.sm, color: colors.text },
 });
