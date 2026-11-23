@@ -8,6 +8,7 @@ import { AdminOrgStatusPill } from '../../../components/AdminOrgStatusPill';
 import { AdminRefreshButton } from '../../../components/AdminRefreshButton';
 import { InternalTag } from '../../../components/InternalTag';
 import { PaymentStatusIcon } from '../../../components/PaymentStatusIcon';
+import { paymentMethodShort } from '../../../lib/admin/paymentMethod';
 import { SignupChannelChip } from '../../../components/AdminSignupOrigin';
 import { freshnessColor, relativeTime } from '../../../components/AdminUsagePanel';
 import { colors, fontSize, radius, spacing } from '../../../lib/theme';
@@ -19,7 +20,6 @@ import type { AdminOrganizationMember, AdminOrganizationSummary, AdminOrgBilling
 import { adminDisplay as displayType } from '../../../lib/adminTheme';
 import { AdminButton, AdminPage } from '../../../components/admin/kit';
 
-const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
 
 function formatDateShort(iso: string | null): string {
   if (!iso) return '';
@@ -167,7 +167,7 @@ function OrgCard({
 }) {
   const line = billingLine(billing);
   const address = [org.street, [org.postal_code, org.locality].filter(Boolean).join(' ')].filter(Boolean).join(', ');
-  const card = billing?.card_brand && billing.card_last4 ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4}` : null;
+  const paymentMethod = billing ? paymentMethodShort(billing) : '…';
 
   return (
     <View style={[styles.card, org.is_internal && styles.rowInternal]}>
@@ -213,7 +213,7 @@ function OrgCard({
             <DetailField icon="map-pin" label="Adresse" value={address || '—'} />
             <DetailField icon="mail" label="E-mail entreprise" value={org.email ?? '—'} />
             <DetailField icon="phone" label="Téléphone" value={org.phone ?? '—'} />
-            <DetailField icon="credit-card" label="Carte enregistrée" value={card ?? 'Aucune'} />
+            <DetailField icon="credit-card" label="Moyen de paiement" value={paymentMethod} />
             <DetailField icon="calendar" label="Créée le" value={formatDateShort(org.created_at)} />
             <DetailField icon="hash" label="Identifiant" value={org.id} />
             <DetailField

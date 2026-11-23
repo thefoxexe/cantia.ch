@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CARD_BRAND_LABEL, PAYMENT_METHOD_LABEL, WALLET_LABEL, paymentMethodShort } from '../../../lib/admin/paymentMethod';
 import { AdminCancellationReasons } from '../../../components/AdminCancellationReasons';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -24,20 +25,6 @@ import { OrgEmailsPanel } from '../../../components/admin/OrgEmailsPanel';
 const STANDARD_MODULE_LABELS = new Map<string, string>([...ORG_MODULES, ...PROJECT_MODULES].map((m) => [m.key, m.label]));
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Propriétaire', admin: 'Administrateur', member: 'Membre' };
-
-const CARD_BRAND_LABEL: Record<string, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express' };
-
-const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  card: 'Carte',
-  link: 'Stripe Link',
-  twint: 'TWINT',
-  paypal: 'PayPal',
-  sepa_debit: 'Prélèvement SEPA',
-  revolut_pay: 'Revolut Pay',
-  amazon_pay: 'Amazon Pay',
-  klarna: 'Klarna',
-};
-const WALLET_LABEL: Record<string, string> = { apple_pay: 'Apple Pay', google_pay: 'Google Pay', link: 'Stripe Link', samsung_pay: 'Samsung Pay' };
 
 function describePaymentMethod(b: AdminOrgBillingStatus): string {
   if (!b.has_payment_method) return 'Aucun moyen de paiement enregistré chez Stripe (aucun type : carte, Link, wallet, TWINT, PayPal…)';
@@ -273,7 +260,7 @@ export default function AdminOrganizationDetailScreen() {
             <AdminOrgStatusPill org={org} />
           </Fact>
           <Fact label={org.subscription_status === 'trialing' ? 'Fin de l’essai' : 'Prochain débit'} value={org.subscription_status === 'trialing' ? formatDate(trialEnd) : billingLoading ? '…' : nextCharge ?? '—'} />
-          <Fact label="Paiement" value={billingLoading ? '…' : billing?.has_payment_method ? (billing.card_brand && billing.card_last4 ? `${CARD_BRAND_LABEL[billing.card_brand] ?? billing.card_brand} •••• ${billing.card_last4}` : PAYMENT_METHOD_LABEL[billing.payment_method_type ?? ''] ?? 'Enregistré') : 'Aucun'} />
+          <Fact label="Paiement" value={billingLoading ? '…' : paymentMethodShort(billing)} />
           <Fact label="Contact" value={contactEmail ?? null} />
         </View>
       </AdminCard>
