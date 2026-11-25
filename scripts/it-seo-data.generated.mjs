@@ -1060,6 +1060,26 @@ export const BLOG_SEO_IT = [
     "publishedAt": "2026-09-10"
   },
   {
+    "path": "it/blog/metre-post-calcul-soumission-benefice-chantier",
+    "title": "Computo e consuntivo: il preventivo vi ha fatto davvero guadagnare? | Cantia",
+    "description": "Il capitolato dice cosa avete venduto, il computo cosa avete eseguito. Confrontarli posizione per posizione mostra dove guadagnate e dove perdete denaro.",
+    "faq": [
+      {
+        "q": "Qual è la differenza tra capitolato e computo?",
+        "a": "Il capitolato contiene ciò che avete offerto: quantità previste e prezzi unitari. Il computo rileva le quantità realmente eseguite in cantiere. Il confronto tra i due, con i vostri costi reali, dà l’utile di ogni posizione."
+      },
+      {
+        "q": "Come si calcola l’utile di una posizione?",
+        "a": "Fatturabile = quantità eseguita × prezzo unitario del capitolato. Costo reale = quantità eseguita × costo reale per unità. L’utile è la differenza."
+      },
+      {
+        "q": "Quando fare il consuntivo di un cantiere?",
+        "a": "Appena le quantità sono note, idealmente già durante il cantiere per correggere il tiro, e al più tardi alla fattura finale, quando il computo è pronto."
+      }
+    ],
+    "publishedAt": "2026-11-25"
+  },
+  {
     "path": "it/blog/norme-sia-118-devis-obligatoire",
     "title": "La norma SIA 118 è obbligatoria su un preventivo? | Cantia",
     "description": "La norma SIA 118 non è mai automatica: si applica solo se il contratto o il preventivo la menziona esplicitamente. Spiegazioni e buone pratiche.",

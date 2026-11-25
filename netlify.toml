@@ -1910,8 +1910,18 @@
   status = 200
 
 [[redirects]]
+  from = "/outils/qr-facture"
+  to = "/outils/qr-facture.html"
+  status = 200
+
+[[redirects]]
   from = "/de/outils"
   to = "/de/outils.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/outils/qr-facture"
+  to = "/de/outils/qr-facture.html"
   status = 200
 
 [[redirects]]
@@ -1942,6 +1952,11 @@
 [[redirects]]
   from = "/it/outils"
   to = "/it/outils.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/outils/qr-facture"
+  to = "/it/outils/qr-facture.html"
   status = 200
 
 [[redirects]]
@@ -3883,6 +3898,12 @@
   force = true
 
 [[redirects]]
+  from = "/de/blog/metre-post-calcul-soumission-benefice-chantier"
+  to = "/de/blog/ausmass-nachkalkulation-baustelle"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/de/blog/modele-devis-gratuit-artisan-batiment-suisse"
   to = "/blog/modele-devis-gratuit-artisan-batiment-suisse"
   status = 301
@@ -5751,6 +5772,12 @@
 [[redirects]]
   from = "/it/blog/mentions-obligatoires-facture-suisse-tva"
   to = "/it/blog/fattura-svizzera-indicazioni-obbligatorie-iva"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/it/blog/metre-post-calcul-soumission-benefice-chantier"
+  to = "/it/blog/computo-consuntivo-cantiere"
   status = 301
   force = true
 

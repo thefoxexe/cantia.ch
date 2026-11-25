@@ -754,7 +754,9 @@
     "it/plombier": "it/idraulico",
     "it/serrurier": "it/fabbro",
     "it/terrassier": "it/movimento-terra",
-    "it/vitrier": "it/vetraio"
+    "it/vitrier": "it/vetraio",
+    "de/blog/metre-post-calcul-soumission-benefice-chantier": "de/blog/ausmass-nachkalkulation-baustelle",
+    "it/blog/metre-post-calcul-soumission-benefice-chantier": "it/blog/computo-consuntivo-cantiere"
   },
   "noindex": [
     "blog/acompte-demenagement-suisse-montant-facture",
@@ -890,7 +892,8 @@
     "vacances-non-prises-fin-annee-batiment-cct": "ferien-nicht-bezogen-jahresende-bau",
     "validite-devis-signe-prix-qui-bouge": "unterschriebene-offerte-materialpreis-gestiegen",
     "vitesse-reponse-devis-taux-conversion-batiment": "offerte-schnell-beantworten-abschlussquote",
-    "whatsapp-gestion-equipe-chantier-limites": "whatsapp-baustellenteam-grenzen"
+    "whatsapp-gestion-equipe-chantier-limites": "whatsapp-baustellenteam-grenzen",
+    "metre-post-calcul-soumission-benefice-chantier": "ausmass-nachkalkulation-baustelle"
   },
   "itSlugs": {
     "accident-travail-chantier-obligations-employeur-suva": "infortunio-cantiere-obblighi-datore-suva",
@@ -977,6 +980,7 @@
     "vacances-non-prises-fin-annee-batiment-cct": "vacanze-non-prese-fine-anno-edilizia",
     "validite-devis-signe-prix-qui-bouge": "preventivo-firmato-prezzo-materiale",
     "vitesse-reponse-devis-taux-conversion-batiment": "velocita-risposta-preventivo",
-    "whatsapp-gestion-equipe-chantier-limites": "whatsapp-team-cantiere-limiti"
+    "whatsapp-gestion-equipe-chantier-limites": "whatsapp-team-cantiere-limiti",
+    "metre-post-calcul-soumission-benefice-chantier": "computo-consuntivo-cantiere"
   }
 }

@@ -1060,6 +1060,26 @@ export const BLOG_SEO_DE = [
     "publishedAt": "2026-09-03"
   },
   {
+    "path": "de/blog/metre-post-calcul-soumission-benefice-chantier",
+    "title": "Ausmass und Nachkalkulation: Hat sich die Offerte wirklich gelohnt? | Cantia",
+    "description": "Das LV zeigt, was Sie verkauft haben, das Ausmass, was Sie ausgeführt haben. Der Vergleich pro Position zeigt, wo Sie Geld verdienen und wo Sie verlieren.",
+    "faq": [
+      {
+        "q": "Was ist der Unterschied zwischen Leistungsverzeichnis und Ausmass?",
+        "a": "Das Leistungsverzeichnis enthält, was Sie offeriert haben: vorgesehene Mengen und Einheitspreise. Das Ausmass erfasst die effektiv ausgeführten Mengen auf der Baustelle. Der Vergleich beider, mit Ihren effektiven Kosten, ergibt den Gewinn jeder Position."
+      },
+      {
+        "q": "Wie berechnet man den Gewinn einer Position?",
+        "a": "Verrechenbar = ausgeführte Menge × Einheitspreis des LV. Effektive Kosten = ausgeführte Menge × effektive Kosten pro Einheit. Der Gewinn ist die Differenz."
+      },
+      {
+        "q": "Wann macht man die Nachkalkulation einer Baustelle?",
+        "a": "Sobald die Mengen bekannt sind, idealerweise schon während der Baustelle, um korrigieren zu können, und spätestens bei der Schlussrechnung, wenn das Ausmass erstellt ist."
+      }
+    ],
+    "publishedAt": "2026-11-25"
+  },
+  {
     "path": "de/blog/norme-sia-118-devis-obligatoire",
     "title": "SIA 118: Gilt die Norm automatisch für Ihre Offerte? | Cantia",
     "description": "Die SIA-Norm 118 gilt nie automatisch: Sie kommt nur zur Anwendung, wenn der Vertrag oder die Offerte sie ausdrücklich erwähnt. Erklärungen und bewährte Praxis.",
