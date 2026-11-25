@@ -75,6 +75,14 @@ export interface InnerCopy {
     devicesAccent: string;
     spacesPlain: string;
     spacesAccent: string;
+    mobileEyebrow: string;
+    mobilePlain: string;
+    mobileAccent: string;
+    mobileText: string;
+    mobile: { icon: string; title: string; text: string }[];
+    faqEyebrow: string;
+    faqTitle: string;
+    faq: { q: string; a: string }[];
   };
   resources: Hero & { items: { title: string; text: string; link: string; href: string }[] };
   contact: Hero & {
@@ -197,8 +205,8 @@ const fr: InnerCopy = {
     ],
   },
   app: {
-    seoTitle: 'Cantia sur ordinateur et téléphone | Cantia',
-    seoDescription: 'Cantia s’utilise dans le navigateur, sur ordinateur, tablette et téléphone. Ajoutez Cantia à l’écran d’accueil en trois étapes, sans installation obligatoire.',
+    seoTitle: "Application chantier mobile : Cantia sur téléphone | Cantia",
+    seoDescription: "Photos, rapports, heures et signature du client depuis le chantier : Cantia fonctionne sur téléphone, tablette et ordinateur, sans installation obligatoire.",
     crumb: 'Ordinateur & téléphone',
     eyebrow: 'Votre bureau vous suit',
     h1: 'Cantia sur téléphone, tablette et ordinateur : l’application de gestion de chantier',
@@ -217,6 +225,27 @@ const fr: InnerCopy = {
       { title: 'Ouvrez Cantia.', text: 'Accédez à app.cantia.ch depuis le navigateur de votre téléphone et connectez-vous à votre compte.' },
       { title: 'Ajoutez un raccourci.', text: 'Sur Android, utilisez le menu du navigateur. Sur iPhone, ouvrez le menu de partage de Safari, puis « Sur l’écran d’accueil ».' },
       { title: 'Retrouvez vos projets.', text: 'Utilisez le raccourci pour accéder à Cantia et aux modules autorisés pour votre compte.' },
+    ],
+    mobileEyebrow: "Sur le chantier",
+    mobilePlain: "Ce que l’équipe fait",
+    mobileAccent: "depuis le téléphone.",
+    mobileText: "Les mêmes données qu’au bureau, avec des écrans pensés pour une main et un écran de téléphone.",
+    mobile: [
+      { icon: "camera", title: "Rapport de chantier", text: "Dictez vos notes ou prenez des photos : Cantia les met en forme en rapport PDF prêt à envoyer au client." },
+      { icon: "edit-3", title: "Travaux en plus signés", text: "Chiffrez le travail imprévu et faites signer le client sur le téléphone, avant de le faire." },
+      { icon: "clock", title: "Heures et dépenses", text: "Chaque personne saisit ses heures et ses dépenses sur le chantier concerné, sans feuille papier." },
+      { icon: "calendar", title: "Planning de l’équipe", text: "Chacun voit ses rendez-vous et ses chantiers de la semaine." },
+      { icon: "file-text", title: "Devis et factures", text: "Consultez un devis, vérifiez une facture ou envoyez une relance entre deux rendez-vous." },
+      { icon: "folder", title: "Documents du chantier", text: "Plans, photos et documents restent rattachés au chantier, accessibles depuis le téléphone." },
+    ],
+    faqEyebrow: "Questions fréquentes",
+    faqTitle: "Cantia sur téléphone.",
+    faq: [
+      { q: "Faut-il télécharger une application pour utiliser Cantia sur téléphone ?", a: "Non. Cantia s’ouvre dans le navigateur du téléphone (Safari, Chrome). Vous pouvez l’ajouter à l’écran d’accueil pour l’ouvrir comme une application, en trois étapes." },
+      { q: "Cantia fonctionne-t-il sur iPhone et sur Android ?", a: "Oui, sur iPhone, Android, tablette et ordinateur, avec le même compte et les mêmes données." },
+      { q: "Les employés ont-ils accès à tout depuis leur téléphone ?", a: "Non. Chaque membre de l’équipe a un rôle : l’administrateur choisit qui peut voir les finances, créer des chantiers, gérer les devis ou le planning." },
+      { q: "Le client peut-il signer sur mon téléphone ?", a: "Oui. Un devis ou des travaux en plus peuvent être signés directement à l’écran, sur le chantier. La date et l’heure de la signature figurent sur le PDF." },
+      { q: "Existe-t-il une application dans l’App Store ou Google Play ?", a: "Pas encore : les versions App Store et Google Play sont en développement. Aujourd’hui, l’accès se fait par le navigateur, avec toutes les fonctions." },
     ],
   },
   resources: {
@@ -366,8 +395,8 @@ const de: InnerCopy = {
     ],
   },
   app: {
-    seoTitle: 'Cantia auf Computer und Smartphone | Cantia',
-    seoDescription: 'Cantia läuft im Browser, auf Computer, Tablet und Smartphone. Fügen Sie Cantia in drei Schritten zum Startbildschirm hinzu, ohne Installationspflicht.',
+    seoTitle: "Baustellen-App: Cantia auf dem Handy | Cantia",
+    seoDescription: "Fotos, Berichte, Stunden und Unterschrift des Kunden direkt von der Baustelle: Cantia läuft auf Handy, Tablet und Computer, ohne Installationspflicht.",
     crumb: 'Computer & Smartphone',
     eyebrow: 'Ihr Büro begleitet Sie',
     h1: 'Cantia auf Smartphone, Tablet und Computer: die App für die Baustellenverwaltung',
@@ -386,6 +415,27 @@ const de: InnerCopy = {
       { title: 'Cantia öffnen.', text: 'Öffnen Sie app.cantia.ch im Browser Ihres Smartphones und melden Sie sich an.' },
       { title: 'Verknüpfung hinzufügen.', text: 'Auf Android über das Menü des Browsers. Auf dem iPhone über das Teilen-Menü von Safari und «Zum Home-Bildschirm».' },
       { title: 'Projekte wiederfinden.', text: 'Über die Verknüpfung erreichen Sie Cantia und die für Ihr Konto freigegebenen Module.' },
+    ],
+    mobileEyebrow: "Auf der Baustelle",
+    mobilePlain: "Was das Team",
+    mobileAccent: "auf dem Handy erledigt.",
+    mobileText: "Dieselben Daten wie im Büro, mit Ansichten für eine Hand und einen Handybildschirm.",
+    mobile: [
+      { icon: "camera", title: "Baustellenbericht", text: "Notizen diktieren oder Fotos machen: Cantia macht daraus einen PDF-Bericht für den Kunden." },
+      { icon: "edit-3", title: "Unterzeichnete Zusatzarbeiten", text: "Unvorhergesehene Arbeit beziffern und den Kunden auf dem Handy unterschreiben lassen, bevor sie ausgeführt wird." },
+      { icon: "clock", title: "Stunden und Spesen", text: "Jede Person erfasst Stunden und Spesen auf der richtigen Baustelle, ohne Papierzettel." },
+      { icon: "calendar", title: "Teamplanung", text: "Alle sehen ihre Termine und Baustellen der Woche." },
+      { icon: "file-text", title: "Offerten und Rechnungen", text: "Eine Offerte ansehen, eine Rechnung prüfen oder eine Mahnung senden, zwischen zwei Terminen." },
+      { icon: "folder", title: "Baustellendokumente", text: "Pläne, Fotos und Dokumente bleiben bei der Baustelle, auch auf dem Handy." },
+    ],
+    faqEyebrow: "Häufige Fragen",
+    faqTitle: "Cantia auf dem Handy.",
+    faq: [
+      { q: "Muss man eine App herunterladen, um Cantia auf dem Handy zu nutzen?", a: "Nein. Cantia öffnet sich im Browser des Handys (Safari, Chrome). Sie können Cantia in drei Schritten zum Startbildschirm hinzufügen und wie eine App öffnen." },
+      { q: "Funktioniert Cantia auf iPhone und Android?", a: "Ja, auf iPhone, Android, Tablet und Computer, mit demselben Konto und denselben Daten." },
+      { q: "Haben Mitarbeitende auf dem Handy Zugriff auf alles?", a: "Nein. Jedes Teammitglied hat eine Rolle: Der Administrator legt fest, wer die Finanzen sieht, Baustellen erstellt, Offerten oder die Planung verwaltet." },
+      { q: "Kann der Kunde auf meinem Handy unterschreiben?", a: "Ja. Eine Offerte oder Zusatzarbeiten können direkt auf dem Bildschirm unterschrieben werden, auf der Baustelle. Datum und Uhrzeit der Unterschrift stehen auf dem PDF." },
+      { q: "Gibt es eine App im App Store oder bei Google Play?", a: "Noch nicht: Die Versionen für App Store und Google Play sind in Entwicklung. Heute erfolgt der Zugang über den Browser, mit allen Funktionen." },
     ],
   },
   resources: {
@@ -535,8 +585,8 @@ const it: InnerCopy = {
     ],
   },
   app: {
-    seoTitle: 'Cantia su computer e telefono | Cantia',
-    seoDescription: 'Cantia si usa nel browser, su computer, tablet e telefono. Aggiungete Cantia alla schermata iniziale in tre passi, senza installazione obbligatoria.',
+    seoTitle: "App per il cantiere: Cantia sul telefono | Cantia",
+    seoDescription: "Foto, rapporti, ore e firma del cliente direttamente dal cantiere: Cantia funziona su telefono, tablet e computer, senza installazione obbligatoria.",
     crumb: 'Computer e telefono',
     eyebrow: 'Il vostro ufficio vi segue',
     h1: 'Cantia su telefono, tablet e computer: l’app per la gestione dei cantieri',
@@ -555,6 +605,27 @@ const it: InnerCopy = {
       { title: 'Aprite Cantia.', text: 'Andate su app.cantia.ch dal browser del telefono e accedete al vostro account.' },
       { title: 'Aggiungete una scorciatoia.', text: 'Su Android, dal menu del browser. Su iPhone, dal menu di condivisione di Safari, poi «Aggiungi alla schermata Home».' },
       { title: 'Ritrovate i progetti.', text: 'Usate la scorciatoia per accedere a Cantia e ai moduli autorizzati per il vostro account.' },
+    ],
+    mobileEyebrow: "In cantiere",
+    mobilePlain: "Ciò che la squadra fa",
+    mobileAccent: "dal telefono.",
+    mobileText: "Gli stessi dati dell’ufficio, con schermate pensate per una mano e lo schermo di un telefono.",
+    mobile: [
+      { icon: "camera", title: "Rapporto di cantiere", text: "Detti le note o scatti delle foto: Cantia le impagina in un rapporto PDF pronto da inviare al cliente." },
+      { icon: "edit-3", title: "Lavori in più firmati", text: "Quantifichi il lavoro imprevisto e lo faccia firmare al cliente sul telefono, prima di eseguirlo." },
+      { icon: "clock", title: "Ore e spese", text: "Ogni persona registra ore e spese sul cantiere giusto, senza fogli di carta." },
+      { icon: "calendar", title: "Pianificazione della squadra", text: "Ognuno vede i propri appuntamenti e cantieri della settimana." },
+      { icon: "file-text", title: "Preventivi e fatture", text: "Consulti un preventivo, controlli una fattura o invii un sollecito tra due appuntamenti." },
+      { icon: "folder", title: "Documenti del cantiere", text: "Piani, foto e documenti restano collegati al cantiere, accessibili dal telefono." },
+    ],
+    faqEyebrow: "Domande frequenti",
+    faqTitle: "Cantia sul telefono.",
+    faq: [
+      { q: "Bisogna scaricare un’app per usare Cantia sul telefono?", a: "No. Cantia si apre nel browser del telefono (Safari, Chrome). Può aggiungerla alla schermata Home e aprirla come un’app, in tre passaggi." },
+      { q: "Cantia funziona su iPhone e Android?", a: "Sì, su iPhone, Android, tablet e computer, con lo stesso account e gli stessi dati." },
+      { q: "I dipendenti hanno accesso a tutto dal telefono?", a: "No. Ogni membro della squadra ha un ruolo: l’amministratore sceglie chi può vedere le finanze, creare cantieri, gestire preventivi o la pianificazione." },
+      { q: "Il cliente può firmare sul mio telefono?", a: "Sì. Un preventivo o dei lavori in più possono essere firmati direttamente sullo schermo, in cantiere. Data e ora della firma figurano sul PDF." },
+      { q: "Esiste un’app nell’App Store o su Google Play?", a: "Non ancora: le versioni App Store e Google Play sono in sviluppo. Oggi l’accesso avviene dal browser, con tutte le funzioni." },
     ],
   },
   resources: {

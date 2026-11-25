@@ -534,11 +534,20 @@ export function AppPage() {
       </PageHero>
 
       <Section white>
+        <SectionHead eyebrow={c.mobileEyebrow} plain={c.mobilePlain} accent={c.mobileAccent} text={c.mobileText} />
+        <Grid>
+          {c.mobile.map((m) => (
+            <Card key={m.title} icon={m.icon as IconName} title={m.title} text={m.text} />
+          ))}
+        </Grid>
+      </Section>
+
+      <Section>
         <SectionHead eyebrow={c.stepsEyebrow} plain={c.stepsPlain} accent={c.stepsAccent} text={c.stepsNote} />
         <Steps items={c.steps} />
       </Section>
 
-      <Section>
+      <Section white>
         <SectionHead eyebrow={t('telechargementPage.installTitle')} plain={c.devicesPlain} accent={c.devicesAccent} text={t('telechargementPage.installLead')} />
         <Grid>
           {platforms.map((pl) => (
@@ -561,13 +570,17 @@ export function AppPage() {
         </View>
       </Section>
 
-      <Section white>
+      <Section>
         <SectionHead eyebrow={t('telechargementPage.appsTitle')} plain={c.spacesPlain} accent={c.spacesAccent} text={t('telechargementPage.appsLead')} />
         <Grid>
           {spaces.map((s) => (
             <Card key={s.label} label={s.tag} title={s.label} text={s.text} link={s.href ? <TextLink label={s.cta!} href={s.href} /> : undefined} />
           ))}
         </Grid>
+      </Section>
+
+      <Section white>
+        <Faq eyebrow={c.faqEyebrow} title={c.faqTitle} items={c.faq} />
       </Section>
     </SitePage>
   );

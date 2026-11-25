@@ -3404,9 +3404,15 @@ export const ROUTES = [
   },
   {
     path: 'telechargement',
-    title: "Ajouter Cantia à l'écran d'accueil | App web mobile",
-    description:
-      "Cantia est une application 100% web, accessible depuis n'importe quel navigateur. Sur ordinateur comme sur téléphone. Aucun fichier à télécharger. Applications natives iOS et Android bientôt disponibles.",
+    title: "Application chantier mobile : Cantia sur téléphone | Cantia",
+    description: "Photos, rapports, heures et signature du client depuis le chantier : Cantia fonctionne sur téléphone, tablette et ordinateur, sans installation obligatoire.",
+    faq: [
+      { q: "Faut-il télécharger une application pour utiliser Cantia sur téléphone ?", a: "Non. Cantia s’ouvre dans le navigateur du téléphone (Safari, Chrome). Vous pouvez l’ajouter à l’écran d’accueil pour l’ouvrir comme une application, en trois étapes." },
+      { q: "Cantia fonctionne-t-il sur iPhone et sur Android ?", a: "Oui, sur iPhone, Android, tablette et ordinateur, avec le même compte et les mêmes données." },
+      { q: "Les employés ont-ils accès à tout depuis leur téléphone ?", a: "Non. Chaque membre de l’équipe a un rôle : l’administrateur choisit qui peut voir les finances, créer des chantiers, gérer les devis ou le planning." },
+      { q: "Le client peut-il signer sur mon téléphone ?", a: "Oui. Un devis ou des travaux en plus peuvent être signés directement à l’écran, sur le chantier. La date et l’heure de la signature figurent sur le PDF." },
+      { q: "Existe-t-il une application dans l’App Store ou Google Play ?", a: "Pas encore : les versions App Store et Google Play sont en développement. Aujourd’hui, l’accès se fait par le navigateur, avec toutes les fonctions." },
+    ],
   },
   {
     path: 'mentions-legales',
@@ -3710,8 +3716,15 @@ export const ROUTES = [
   },
   {
     path: 'de/telechargement',
-    title: 'Cantia-Verknüpfung zum Startbildschirm hinzufügen | Web-App',
-    description: 'Cantia ist eine 100 % webbasierte Anwendung, zugänglich über jeden Browser. Auf dem Computer wie auf dem Telefon. Keine Datei zum Herunterladen. Native iOS- und Android-Apps demnächst verfügbar.',
+    title: "Baustellen-App: Cantia auf dem Handy | Cantia",
+    description: "Fotos, Berichte, Stunden und Unterschrift des Kunden direkt von der Baustelle: Cantia läuft auf Handy, Tablet und Computer, ohne Installationspflicht.",
+    faq: [
+      { q: "Muss man eine App herunterladen, um Cantia auf dem Handy zu nutzen?", a: "Nein. Cantia öffnet sich im Browser des Handys (Safari, Chrome). Sie können Cantia in drei Schritten zum Startbildschirm hinzufügen und wie eine App öffnen." },
+      { q: "Funktioniert Cantia auf iPhone und Android?", a: "Ja, auf iPhone, Android, Tablet und Computer, mit demselben Konto und denselben Daten." },
+      { q: "Haben Mitarbeitende auf dem Handy Zugriff auf alles?", a: "Nein. Jedes Teammitglied hat eine Rolle: Der Administrator legt fest, wer die Finanzen sieht, Baustellen erstellt, Offerten oder die Planung verwaltet." },
+      { q: "Kann der Kunde auf meinem Handy unterschreiben?", a: "Ja. Eine Offerte oder Zusatzarbeiten können direkt auf dem Bildschirm unterschrieben werden, auf der Baustelle. Datum und Uhrzeit der Unterschrift stehen auf dem PDF." },
+      { q: "Gibt es eine App im App Store oder bei Google Play?", a: "Noch nicht: Die Versionen für App Store und Google Play sind in Entwicklung. Heute erfolgt der Zugang über den Browser, mit allen Funktionen." },
+    ],
   },
   {
     path: 'de/mentions-legales',
@@ -4060,8 +4073,15 @@ export const ROUTES = [
   },
   {
     path: 'it/telechargement',
-    title: 'Aggiungere Cantia alla schermata Home | App web mobile',
-    description: "Cantia è un'applicazione 100% web, accessibile da qualsiasi browser. Su computer come su telefono. Nessun file da scaricare. App native iOS e Android disponibili a breve.",
+    title: "App per il cantiere: Cantia sul telefono | Cantia",
+    description: "Foto, rapporti, ore e firma del cliente direttamente dal cantiere: Cantia funziona su telefono, tablet e computer, senza installazione obbligatoria.",
+    faq: [
+      { q: "Bisogna scaricare un’app per usare Cantia sul telefono?", a: "No. Cantia si apre nel browser del telefono (Safari, Chrome). Può aggiungerla alla schermata Home e aprirla come un’app, in tre passaggi." },
+      { q: "Cantia funziona su iPhone e Android?", a: "Sì, su iPhone, Android, tablet e computer, con lo stesso account e gli stessi dati." },
+      { q: "I dipendenti hanno accesso a tutto dal telefono?", a: "No. Ogni membro della squadra ha un ruolo: l’amministratore sceglie chi può vedere le finanze, creare cantieri, gestire preventivi o la pianificazione." },
+      { q: "Il cliente può firmare sul mio telefono?", a: "Sì. Un preventivo o dei lavori in più possono essere firmati direttamente sullo schermo, in cantiere. Data e ora della firma figurano sul PDF." },
+      { q: "Esiste un’app nell’App Store o su Google Play?", a: "Non ancora: le versioni App Store e Google Play sono in sviluppo. Oggi l’accesso avviene dal browser, con tutte le funzioni." },
+    ],
   },
   {
     path: 'it/mentions-legales',
