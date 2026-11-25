@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { createElement, useMemo, useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Field, Group, Hint, Input, Lines, Note, ToolPage } from '../../components/tools/ToolPage';
 import { num } from '../../lib/tools/toolPdf';
 import { toolCopy, toolLocale } from '../../lib/tools/copy';
-import { buildQrBillPdf, downloadBytes, qrToolErrors, type QrToolInput } from '../../lib/tools/qrBillTool';
+import { buildQrBillPdf, buildQrSvg, downloadBlob, newReferenceId, qrToolErrors, svgDataUrl, svgToPng, type QrToolInput } from '../../lib/tools/qrBillTool';
 import { sans, site } from '../../lib/siteTheme';
 import { spacing } from '../../lib/theme';
 
-// Free tool: a Swiss QR-bill as a PDF, built in the browser with the same
-// renderer as Cantia's invoices (lib/tools/qrbill, copied from the edge
-// functions). Texts in lib/tools/copy.json (French, German, Italian).
+// Free tool: the Swiss payment QR code on its own (PNG or SVG), or the
+// payment part alone to print. Never an invoice. Built in the browser with
+// the same payload as Cantia's invoices (lib/tools/qrbill, copied from the
+// edge functions). Texts in lib/tools/copy.json (French, German, Italian).
 
 const SLUG = 'qr-facture';
 
@@ -34,22 +35,26 @@ export default function QrBillToolPage() {
   });
   const [state, setState] = useState<'idle' | 'building' | 'done'>('idle');
   const [tried, setTried] = useState(false);
+  const [refId, setRefId] = useState(newReferenceId);
   const set = (k: keyof typeof form) => (v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
     setState('idle');
   };
-  const input: QrToolInput = { ...form, amount: num(form.amount) };
+  const input: QrToolInput = { ...form, amount: form.amount.trim() ? num(form.amount) : 0 };
   const errors = qrToolErrors(input);
   const errorText = (k: string) => (tried && errors.includes(k) ? (k === 'iban' ? L.errIban : k === 'creditor' ? L.errCreditor : L.errAmount) : null);
+  const svg = useMemo(() => (errors.length ? null : buildQrSvg(input, refId)), [JSON.stringify(input), errors.length, refId]);
 
-  async function generate() {
+  async function download(kind: 'png' | 'svg' | 'pdf') {
     setTried(true);
-    if (errors.length) return;
+    if (errors.length || !svg) return;
     setState('building');
     try {
-      const bytes = await buildQrBillPdf(input, locale, L.pdfTitle);
-      downloadBytes(bytes, `${L.pdfTitle.toLowerCase()}-qr.pdf`);
+      if (kind === 'svg') downloadBlob(svg, 'qr-code.svg', 'image/svg+xml');
+      else if (kind === 'png') downloadBlob(await svgToPng(svg), 'qr-code.png', 'image/png');
+      else downloadBlob(await buildQrBillPdf(input, locale, refId), 'qr-section-paiement.pdf', 'application/pdf');
       setState('done');
+      setRefId(newReferenceId());
     } catch {
       setState('idle');
     }
@@ -128,22 +133,44 @@ export default function QrBillToolPage() {
       }
       result={
         <View style={{ gap: spacing.lg }}>
-          <Lines title={L.resultTitle} rows={L.resultPoints.map((p: string) => ({ label: p, value: '✓' }))} />
+          <Text style={[sans, { fontSize: 15, fontWeight: '700', color: site.ink }]}>{L.resultTitle}</Text>
           {Platform.OS === 'web' ? (
-            <View style={{ gap: spacing.sm }}>
-              <Pressable
-                onPress={generate}
-                disabled={state === 'building'}
-                accessibilityRole="button"
-                style={({ hovered }: any) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 20, borderRadius: 10, backgroundColor: hovered ? site.rust : site.copper, opacity: state === 'building' ? 0.7 : 1 })}
-              >
-                <Feather name="download" size={17} color="#fff" />
-                <Text style={[sans, { color: '#fff', fontSize: 15, fontWeight: '700' }]}>{state === 'building' ? L.building : L.button}</Text>
+            <View style={{ gap: spacing.md }}>
+              <View style={{ alignSelf: 'center', width: 240, maxWidth: '100%', aspectRatio: 1, borderRadius: 10, borderWidth: 1, borderColor: site.line, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', padding: svg ? 0 : 20 }}>
+                {svg ? (
+                  createElement('img', { src: svgDataUrl(svg), alt: L.previewAlt, width: 238, height: 238, style: { width: '100%', height: '100%', display: 'block' } })
+                ) : (
+                  <Text style={[sans, { fontSize: 13, lineHeight: 19, color: site.muted, textAlign: 'center' }]}>{L.previewEmpty}</Text>
+                )}
+              </View>
+              <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                <Pressable
+                  onPress={() => download('png')}
+                  disabled={state === 'building'}
+                  accessibilityRole="button"
+                  style={({ hovered }: any) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 16, borderRadius: 10, backgroundColor: hovered ? site.rust : site.copper, opacity: state === 'building' ? 0.7 : 1 })}
+                >
+                  <Feather name="download" size={17} color="#fff" />
+                  <Text style={[sans, { color: '#fff', fontSize: 15, fontWeight: '700' }]}>{state === 'building' ? L.building : L.button}</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => download('svg')}
+                  disabled={state === 'building'}
+                  accessibilityRole="button"
+                  style={({ hovered }: any) => ({ alignItems: 'center', justifyContent: 'center', paddingVertical: 15, paddingHorizontal: 18, borderRadius: 10, borderWidth: 1, borderColor: hovered ? site.copper : site.line, backgroundColor: '#fff' })}
+                >
+                  <Text style={[sans, { color: site.ink, fontSize: 15, fontWeight: '700' }]}>{L.buttonSvg}</Text>
+                </Pressable>
+              </View>
+              <Pressable onPress={() => download('pdf')} disabled={state === 'building'} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start' }}>
+                <Feather name="printer" size={15} color={site.copper} />
+                <Text style={[sans, { color: site.copper, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' }]}>{L.buttonPdf}</Text>
               </Pressable>
               {state === 'done' ? <Note tone="ok">{L.done}</Note> : null}
               <Hint>{L.privacy}</Hint>
             </View>
           ) : null}
+          <Lines rows={L.resultPoints.map((p: string) => ({ label: p, value: '✓' }))} />
         </View>
       }
       cta={{ title: L.ctaTitle, points: L.ctaPoints }}

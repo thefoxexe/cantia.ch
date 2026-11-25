@@ -418,3 +418,39 @@ export async function appendQrBillPage(
 function formatIbanDisplay(raw: string): string {
   return raw.replace(/\s+/g, '').toUpperCase().replace(/(.{4})/g, '$1 ').trim();
 }
+
+// Free tool (cantia.ch/outils/qr-facture): the Swiss QR code on its own, as
+// an SVG, without any invoice around it. Same payload as the printed slip
+// (buildSpcPayload), quiet zone of 4 modules, and the Swiss cross of the
+// standard (black square, white cross, white border; 7 mm on a 46 mm code).
+export function swissQrPayload(data: QrBillData): string {
+  return buildSpcPayload(data).payload;
+}
+
+export function swissQrSvg(payload: string, sizePx = 1000): string {
+  const qr = QRCode.create(payload, { errorCorrectionLevel: 'M' });
+  const n = qr.modules.size;
+  const total = n + 8;
+  let path = '';
+  for (let row = 0; row < n; row++) {
+    for (let col = 0; col < n; col++) {
+      if (qr.modules.get(row, col)) path += `M${col + 4} ${row + 4}h1v1h-1z`;
+    }
+  }
+  // Cross box sized on the 46 mm code (quiet zone included), as on the slip.
+  const box = (total * 7) / 46;
+  const c = total / 2;
+  const inner = box * (6 / 7);
+  const armW = inner * 0.19;
+  const armL = inner * 0.62;
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${sizePx}" height="${sizePx}" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">` +
+    `<rect width="${total}" height="${total}" fill="#fff"/>` +
+    `<path d="${path}" fill="#000"/>` +
+    `<rect x="${c - box / 2}" y="${c - box / 2}" width="${box}" height="${box}" fill="#fff"/>` +
+    `<rect x="${c - inner / 2}" y="${c - inner / 2}" width="${inner}" height="${inner}" fill="#000"/>` +
+    `<rect x="${c - armW / 2}" y="${c - armL / 2}" width="${armW}" height="${armL}" fill="#fff"/>` +
+    `<rect x="${c - armL / 2}" y="${c - armW / 2}" width="${armL}" height="${armW}" fill="#fff"/>` +
+    `</svg>`
+  );
+}

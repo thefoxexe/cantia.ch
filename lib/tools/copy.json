@@ -103,8 +103,8 @@
     "Le supplément vacances d’un salaire horaire : 8,33 %, 10,64 % ou 13,04 % selon les semaines."
    ],
    "qr-facture": [
-    "Générateur de QR-facture",
-    "Une QR-facture suisse en PDF à partir de votre IBAN et du montant, sans inscription."
+    "Générateur de QR code de paiement",
+    "Le QR code de paiement suisse en image (PNG ou SVG) à partir de votre IBAN, sans facture ni inscription."
    ]
   },
   "de": {
@@ -133,8 +133,8 @@
     "Der Ferienzuschlag auf einen Stundenlohn: 8,33 %, 10,64 % oder 13,04 % je nach Ferienwochen."
    ],
    "qr-facture": [
-    "QR-Rechnung erstellen",
-    "Eine Schweizer QR-Rechnung als PDF aus IBAN und Betrag, ohne Anmeldung."
+    "Zahlungs-QR-Code erstellen",
+    "Der Schweizer Zahlungs-QR-Code als Bild (PNG oder SVG) aus Ihrer IBAN, ohne Rechnung und ohne Anmeldung."
    ]
   },
   "it": {
@@ -163,8 +163,8 @@
     "Il supplemento vacanze su un salario orario: 8,33 %, 10,64 % o 13,04 % secondo le settimane."
    ],
    "qr-facture": [
-    "Generatore di QR-fattura",
-    "Una QR-fattura svizzera in PDF da IBAN e importo, senza registrazione."
+    "Generatore di codice QR di pagamento",
+    "Il codice QR di pagamento svizzero come immagine (PNG o SVG) dal vostro IBAN, senza fattura né registrazione."
    ]
   }
  },
@@ -1048,10 +1048,10 @@
  "qr-facture": {
   "fr": {
    "metaTitle": "Générateur de QR-facture gratuit (Suisse) | Cantia",
-   "metaDescription": "Créez gratuitement une QR-facture suisse en PDF : IBAN, montant, débiteur et message. Section paiement conforme, prête à imprimer ou à envoyer.",
+   "metaDescription": "Créez gratuitement le QR code de paiement suisse : IBAN, montant et message. En image (PNG ou SVG) ou en section paiement à imprimer, sans facture.",
    "kicker": "Outil gratuit · QR-facture",
-   "title": "Générateur de QR-facture",
-   "lede": "Entrez votre IBAN, le montant et le client : vous obtenez un PDF avec la section paiement suisse et son QR code, que votre client peut scanner dans son e-banking.",
+   "title": "Générateur de QR code de paiement suisse",
+   "lede": "Entrez votre IBAN et, si vous voulez, un montant : vous obtenez le QR code de paiement suisse en image, que vos clients scannent dans leur e-banking. Aucune facture n’est créée.",
    "groupCreditor": "Vous (bénéficiaire)",
    "groupPayment": "Paiement",
    "groupDebtor": "Client (facultatif)",
@@ -1061,22 +1061,22 @@
    "street": "Rue et numéro",
    "postalCode": "NPA",
    "town": "Localité",
-   "amount": "Montant",
+   "amount": "Montant (facultatif)",
    "message": "Message (par ex. Facture 2026-014)",
    "errIban": "Cet IBAN n’est pas valide. Vérifiez qu’il commence par CH ou LI et qu’aucun chiffre ne manque.",
    "errCreditor": "Indiquez votre nom, votre NPA et votre localité.",
    "errAmount": "Indiquez un montant supérieur à 0.",
-   "button": "Télécharger la QR-facture (PDF)",
-   "building": "Création du PDF…",
-   "done": "PDF téléchargé.",
+   "button": "Télécharger le QR code (PNG)",
+   "building": "Création…",
+   "done": "Fichier téléchargé.",
    "pdfTitle": "Facture",
-   "privacy": "Le PDF est créé dans votre navigateur. Aucune donnée n’est envoyée ni enregistrée.",
-   "resultTitle": "Ce que contient le PDF",
+   "privacy": "Le QR code est créé dans votre navigateur. Aucune donnée n’est envoyée ni enregistrée.",
+   "resultTitle": "Votre QR code",
    "resultPoints": [
-    "La section paiement suisse au format officiel : récépissé et partie paiement",
-    "Le QR code avec votre IBAN, le montant, la référence et le message",
+    "Le QR code de paiement suisse avec votre IBAN, le montant et le message",
     "Une référence créancier (SCOR) générée automatiquement",
-    "Un en-tête simple avec votre nom et le message"
+    "En image PNG ou SVG, à coller dans un document, un site ou une affiche",
+    "Ou la section paiement officielle seule, à imprimer"
    ],
    "ctaTitle": "Dans Cantia, chaque facture a sa QR-facture",
    "ctaPoints": [
@@ -1096,20 +1096,24 @@
     },
     {
      "q": "Mes données sont-elles enregistrées ?",
-     "a": "Non. Le PDF est fabriqué directement dans votre navigateur. Rien n’est envoyé à Cantia ni stocké."
+     "a": "Non. Le QR code est fabriqué directement dans votre navigateur. Rien n’est envoyé à Cantia ni stocké."
     },
     {
-     "q": "Puis-je créer une QR-facture sans montant ?",
-     "a": "Cet outil demande un montant. Pour des factures complètes avec positions, TVA et QR-facture, utilisez un logiciel de facturation comme Cantia."
+     "q": "Puis-je créer un QR code sans montant ?",
+     "a": "Oui. Laissez le montant vide : le client saisit lui-même le montant dans son e-banking après avoir scanné le code."
     }
-   ]
+   ],
+   "buttonSvg": "SVG",
+   "buttonPdf": "Section paiement à imprimer (PDF)",
+   "previewEmpty": "Le QR code s’affiche ici dès que l’IBAN, le nom, le NPA et la localité sont remplis.",
+   "previewAlt": "QR code de paiement suisse"
   },
   "de": {
    "metaTitle": "QR-Rechnung erstellen: kostenloser Generator (Schweiz) | Cantia",
-   "metaDescription": "Erstellen Sie kostenlos eine Schweizer QR-Rechnung als PDF: IBAN, Betrag, Zahler und Mitteilung. Normkonformer Zahlteil, bereit zum Drucken oder Versenden.",
+   "metaDescription": "Erstellen Sie kostenlos den Schweizer Zahlungs-QR-Code: IBAN, Betrag und Mitteilung. Als Bild (PNG oder SVG) oder als Zahlteil zum Drucken, ohne Rechnung.",
    "kicker": "Kostenloses Tool · QR-Rechnung",
-   "title": "QR-Rechnung erstellen",
-   "lede": "IBAN, Betrag und Kunde eingeben: Sie erhalten ein PDF mit dem Schweizer Zahlteil und QR-Code, den Ihr Kunde im E-Banking scannen kann.",
+   "title": "Schweizer Zahlungs-QR-Code erstellen",
+   "lede": "IBAN und, wenn Sie möchten, einen Betrag eingeben: Sie erhalten den Schweizer Zahlungs-QR-Code als Bild, den Ihre Kunden im E-Banking scannen. Es wird keine Rechnung erstellt.",
    "groupCreditor": "Sie (Zahlungsempfänger)",
    "groupPayment": "Zahlung",
    "groupDebtor": "Kunde (optional)",
@@ -1119,22 +1123,22 @@
    "street": "Strasse und Nummer",
    "postalCode": "PLZ",
    "town": "Ort",
-   "amount": "Betrag",
+   "amount": "Betrag (optional)",
    "message": "Mitteilung (z. B. Rechnung 2026-014)",
    "errIban": "Diese IBAN ist ungültig. Prüfen Sie, ob sie mit CH oder LI beginnt und keine Ziffer fehlt.",
    "errCreditor": "Geben Sie Ihren Namen, Ihre PLZ und Ihren Ort an.",
    "errAmount": "Geben Sie einen Betrag über 0 an.",
-   "button": "QR-Rechnung herunterladen (PDF)",
-   "building": "PDF wird erstellt…",
-   "done": "PDF heruntergeladen.",
+   "button": "QR-Code herunterladen (PNG)",
+   "building": "Wird erstellt…",
+   "done": "Datei heruntergeladen.",
    "pdfTitle": "Rechnung",
-   "privacy": "Das PDF wird in Ihrem Browser erstellt. Es werden keine Daten gesendet oder gespeichert.",
-   "resultTitle": "Was das PDF enthält",
+   "privacy": "Der QR-Code wird in Ihrem Browser erstellt. Es werden keine Daten gesendet oder gespeichert.",
+   "resultTitle": "Ihr QR-Code",
    "resultPoints": [
-    "Den Schweizer Zahlteil im offiziellen Format: Empfangsschein und Zahlteil",
-    "Den QR-Code mit IBAN, Betrag, Referenz und Mitteilung",
+    "Den Schweizer Zahlungs-QR-Code mit IBAN, Betrag und Mitteilung",
     "Eine automatisch erzeugte Creditor Reference (SCOR)",
-    "Einen einfachen Kopf mit Ihrem Namen und der Mitteilung"
+    "Als PNG- oder SVG-Bild, für ein Dokument, eine Website oder ein Plakat",
+    "Oder nur den offiziellen Zahlteil zum Drucken"
    ],
    "ctaTitle": "In Cantia hat jede Rechnung ihren QR-Zahlteil",
    "ctaPoints": [
@@ -1154,20 +1158,24 @@
     },
     {
      "q": "Werden meine Daten gespeichert?",
-     "a": "Nein. Das PDF wird direkt in Ihrem Browser erzeugt. Nichts wird an Cantia gesendet oder gespeichert."
+     "a": "Nein. Der QR-Code wird direkt in Ihrem Browser erzeugt. Nichts wird an Cantia gesendet oder gespeichert."
     },
     {
-     "q": "Geht eine QR-Rechnung ohne Betrag?",
-     "a": "Dieses Tool verlangt einen Betrag. Für vollständige Rechnungen mit Positionen, MWST und QR-Zahlteil nutzen Sie eine Rechnungssoftware wie Cantia."
+     "q": "Kann ich einen QR-Code ohne Betrag erstellen?",
+     "a": "Ja. Lassen Sie den Betrag leer: Der Kunde gibt den Betrag nach dem Scannen selbst im E-Banking ein."
     }
-   ]
+   ],
+   "buttonSvg": "SVG",
+   "buttonPdf": "Zahlteil zum Drucken (PDF)",
+   "previewEmpty": "Der QR-Code erscheint hier, sobald IBAN, Name, PLZ und Ort ausgefüllt sind.",
+   "previewAlt": "Schweizer Zahlungs-QR-Code"
   },
   "it": {
    "metaTitle": "Creare una QR-fattura: generatore gratuito (Svizzera) | Cantia",
-   "metaDescription": "Create gratis una QR-fattura svizzera in PDF: IBAN, importo, debitore e messaggio. Sezione pagamento conforme, pronta da stampare o inviare.",
+   "metaDescription": "Create gratis il codice QR di pagamento svizzero: IBAN, importo e messaggio. Come immagine (PNG o SVG) o come sezione pagamento da stampare, senza fattura.",
    "kicker": "Strumento gratuito · QR-fattura",
-   "title": "Generatore di QR-fattura",
-   "lede": "Inserite IBAN, importo e cliente: ottenete un PDF con la sezione di pagamento svizzera e il codice QR, che il cliente può scansionare nell’e-banking.",
+   "title": "Generatore di codice QR di pagamento svizzero",
+   "lede": "Inserite l’IBAN e, se volete, un importo: ottenete il codice QR di pagamento svizzero come immagine, che i vostri clienti scansionano nell’e-banking. Non viene creata nessuna fattura.",
    "groupCreditor": "Voi (beneficiario)",
    "groupPayment": "Pagamento",
    "groupDebtor": "Cliente (facoltativo)",
@@ -1177,22 +1185,22 @@
    "street": "Via e numero",
    "postalCode": "NPA",
    "town": "Località",
-   "amount": "Importo",
+   "amount": "Importo (facoltativo)",
    "message": "Messaggio (ad es. Fattura 2026-014)",
    "errIban": "Questo IBAN non è valido. Verificate che inizi con CH o LI e che non manchi nessuna cifra.",
    "errCreditor": "Indicate nome, NPA e località.",
    "errAmount": "Indicate un importo superiore a 0.",
-   "button": "Scaricare la QR-fattura (PDF)",
-   "building": "Creazione del PDF…",
-   "done": "PDF scaricato.",
+   "button": "Scaricare il codice QR (PNG)",
+   "building": "Creazione…",
+   "done": "File scaricato.",
    "pdfTitle": "Fattura",
-   "privacy": "Il PDF viene creato nel vostro browser. Nessun dato viene inviato o salvato.",
-   "resultTitle": "Cosa contiene il PDF",
+   "privacy": "Il codice QR viene creato nel vostro browser. Nessun dato viene inviato o salvato.",
+   "resultTitle": "Il vostro codice QR",
    "resultPoints": [
-    "La sezione di pagamento svizzera in formato ufficiale: ricevuta e sezione pagamento",
-    "Il codice QR con IBAN, importo, riferimento e messaggio",
+    "Il codice QR di pagamento svizzero con IBAN, importo e messaggio",
     "Un riferimento creditore (SCOR) generato automaticamente",
-    "Un’intestazione semplice con il vostro nome e il messaggio"
+    "Come immagine PNG o SVG, da inserire in un documento, un sito o un manifesto",
+    "Oppure solo la sezione pagamento ufficiale, da stampare"
    ],
    "ctaTitle": "In Cantia ogni fattura ha la sua QR-fattura",
    "ctaPoints": [
@@ -1212,13 +1220,17 @@
     },
     {
      "q": "I miei dati vengono salvati?",
-     "a": "No. Il PDF viene creato direttamente nel browser. Niente viene inviato a Cantia né salvato."
+     "a": "No. Il codice QR viene creato direttamente nel browser. Niente viene inviato a Cantia né salvato."
     },
     {
-     "q": "Si può fare una QR-fattura senza importo?",
-     "a": "Questo strumento richiede un importo. Per fatture complete con posizioni, IVA e QR-fattura usate un software di fatturazione come Cantia."
+     "q": "Posso creare un codice QR senza importo?",
+     "a": "Sì. Lasciate vuoto l’importo: il cliente lo inserisce da sé nell’e-banking dopo aver scansionato il codice."
     }
-   ]
+   ],
+   "buttonSvg": "SVG",
+   "buttonPdf": "Sezione pagamento da stampare (PDF)",
+   "previewEmpty": "Il codice QR appare qui appena IBAN, nome, NPA e località sono compilati.",
+   "previewAlt": "Codice QR di pagamento svizzero"
   }
  }
 }
