@@ -4925,7 +4925,9 @@ export const BLOG_REDIRECTS = TRIAGE.redirects;
 // The free tools in German and Italian (/de/outils, /it/outils): titles,
 // descriptions and FAQ from lib/tools/copy.json, the texts the pages show.
 const TOOL_COPY = JSON.parse(readFileSync(new URL('../lib/tools/copy.json', import.meta.url), 'utf8'));
-const TOOL_SLUGS = ['calcul-taux-horaire', 'calcul-tva', 'calcul-marge', 'interets-de-retard', 'indemnite-vacances'];
+const TOOL_SLUGS = ['qr-facture', 'calcul-taux-horaire', 'calcul-tva', 'calcul-marge', 'interets-de-retard', 'indemnite-vacances'];
+// The QR-bill generator has no hand-written French entry above: same texts as the page.
+ROUTES.push({ path: 'outils/qr-facture', title: TOOL_COPY['qr-facture'].fr.metaTitle, description: TOOL_COPY['qr-facture'].fr.metaDescription, faq: TOOL_COPY['qr-facture'].fr.faq });
 for (const locale of ['de', 'it']) {
   ROUTES.push({ path: `${locale}/outils`, title: TOOL_COPY.hub[locale].title, description: TOOL_COPY.hub[locale].description });
   for (const slug of TOOL_SLUGS) {

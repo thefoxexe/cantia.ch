@@ -4,7 +4,7 @@ import { getAppLocale } from '../translations';
 // Texts of the free tools in the visitor's language (lib/tools/copy.json:
 // French, German, Italian). The same file feeds scripts/seo-routes.mjs.
 export type ToolLocale = 'fr' | 'de' | 'it';
-export type ToolSlug = 'calcul-tva' | 'calcul-taux-horaire' | 'calcul-marge' | 'interets-de-retard' | 'indemnite-vacances';
+export type ToolSlug = 'qr-facture' | 'calcul-tva' | 'calcul-taux-horaire' | 'calcul-marge' | 'interets-de-retard' | 'indemnite-vacances';
 
 export function toolLocale(): ToolLocale {
   const l = getAppLocale();
