@@ -19,7 +19,7 @@ const COPY = {
   fr: {
     eyebrow: 'Nouvelle entreprise',
     title: 'Vous démarrez ? 3 mois offerts.',
-    text: 'Pour les nouvelles entreprises : 3 mois d’essai au lieu de 14 jours, sans engagement, pour faire vos premiers devis et vos premières factures QR.',
+    text: 'Pour les entreprises créées il y a moins de 6 mois : 3 mois d’essai au lieu de 14 jours, sans engagement, pour faire vos premiers devis et vos premières factures QR.',
     cta: 'Voir l’offre',
     inline: 'Vous créez votre entreprise ? Cantia est offert pendant 3 mois.',
     sticky: '3 mois offerts pour démarrer',
@@ -27,7 +27,7 @@ const COPY = {
   de: {
     eyebrow: 'Neues Unternehmen',
     title: 'Sie gründen? 3 Monate gratis.',
-    text: 'Für neue Unternehmen: 3 Monate Testphase statt 14 Tage, ohne Verpflichtung, für die ersten Offerten und QR-Rechnungen.',
+    text: 'Für Unternehmen, die jünger als 6 Monate sind: 3 Monate Testphase statt 14 Tage, ohne Verpflichtung, für die ersten Offerten und QR-Rechnungen.',
     cta: 'Zum Angebot',
     inline: 'Sie gründen Ihr Unternehmen? Cantia ist 3 Monate gratis.',
     sticky: '3 Monate gratis für Neugründer',
@@ -35,7 +35,7 @@ const COPY = {
   it: {
     eyebrow: 'Nuova impresa',
     title: 'State iniziando? 3 mesi gratis.',
-    text: 'Per le nuove imprese: 3 mesi di prova invece di 14 giorni, senza impegno, per i primi preventivi e le prime fatture QR.',
+    text: 'Per le imprese create da meno di 6 mesi: 3 mesi di prova invece di 14 giorni, senza impegno, per i primi preventivi e le prime fatture QR.',
     cta: 'Vedere l’offerta',
     inline: 'State aprendo la vostra impresa? Cantia è gratuito per 3 mesi.',
     sticky: '3 mesi gratis per nuove imprese',

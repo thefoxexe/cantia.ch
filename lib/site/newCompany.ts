@@ -69,7 +69,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     h1Plain: "Le logiciel de devis et factures pour votre nouvelle entreprise.",
     h1Accent: "3 mois offerts pour démarrer.",
     lead:
-      'Les premiers mois, on n’a ni le temps ni l’envie de monter une administration. Pour les nouvelles entreprises, Cantia est offert pendant 3 mois au lieu des 14 jours d’essai habituels.',
+      'Les premiers mois, on n’a ni le temps ni l’envie de monter une administration. Pour les entreprises créées il y a moins de 6 mois, Cantia est offert pendant 3 mois au lieu des 14 jours d’essai habituels.',
     cta: "Demander mes 3 mois offerts",
     pricing: 'Voir les plans',
     shotAlt: 'Tableau de bord de Cantia',
@@ -91,7 +91,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     formEyebrow: 'Demander les 3 mois',
     formPlain: 'Recevez votre code',
     formAccent: 'par e-mail',
-    formText: 'Indiquez votre entreprise et votre adresse e-mail. Nous vous répondons avec votre code personnel, valable 60 jours.',
+    formText: 'L’offre est réservée aux entreprises créées il y a moins de 6 mois. Indiquez votre entreprise et votre adresse e-mail : nous vous répondons avec votre code personnel, valable 60 jours.',
     form: {
       name: 'Votre nom',
       company: 'Entreprise',
@@ -107,7 +107,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     faqEyebrow: 'Questions',
     faqTitle: 'Questions fréquentes',
     faq: [
-      { q: 'Qui peut demander les 3 mois ?', a: 'Les nouvelles entreprises. Faites la demande avec le formulaire de cette page : nous vous répondons par e-mail avec votre code personnel.' },
+      { q: 'Qui peut demander les 3 mois ?', a: 'Les entreprises créées il y a moins de 6 mois (date d’inscription au registre du commerce ou de début d’activité). Faites la demande avec le formulaire de cette page : nous vous répondons par e-mail avec votre code personnel.' },
       { q: 'Faut-il une carte bancaire ?', a: 'Oui, comme pour l’essai habituel. Rien n’est débité pendant les 3 mois et l’abonnement peut être arrêté en un clic avant la fin.' },
       { q: 'Que se passe-t-il après les 3 mois ?', a: 'L’abonnement du plan choisi commence au prix affiché sur la page des tarifs, sans engagement. Vous pouvez changer de plan ou arrêter à tout moment.' },
       { q: 'Combien de temps le code est-il valable ?', a: '60 jours à partir de l’envoi : il suffit de créer votre compte avec le lien reçu pendant cette période.' },
@@ -128,7 +128,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     guideTitle: "Créer son entreprise du bâtiment, étape par étape.",
     guide: [{"href": "/blog/creer-entreprise-batiment-suisse-guide-complet", "label": "Créer son entreprise du bâtiment en Suisse : le guide complet"}, {"href": "/blog/raison-individuelle-sarl-sa-quel-statut-batiment", "label": "Raison individuelle, Sàrl ou SA ?"}, {"href": "/blog/immatriculer-entreprise-construction-registre-commerce", "label": "Inscription au registre du commerce"}, {"href": "/blog/avs-ai-independant-batiment", "label": "AVS et assurances d’un indépendant"}, {"href": "/blog/cout-creation-entreprise-construction-suisse", "label": "Combien coûte la création d’une entreprise"}, {"href": "/blog/calculer-prix-horaire-reel-ouvrier-batiment", "label": "Calculer son vrai prix horaire"}, {"href": "/blog/modele-devis-gratuit-artisan-batiment-suisse", "label": "Modèle de devis gratuit"}, {"href": "/blog/etablir-certificat-salaire-lohnausweis-premier-employe", "label": "Le premier employé : certificat de salaire"}, {"href": "/blog/trouver-clients-artisan-batiment-suisse", "label": "Trouver ses premiers clients"}],
     finalTitle: "Votre premier devis, cette semaine.",
-    finalText: "3 mois offerts pour les nouvelles entreprises, au lieu des 14 jours d’essai habituels. Sans engagement.",
+    finalText: "3 mois offerts pour les entreprises de moins de 6 mois, au lieu des 14 jours d’essai habituels. Sans engagement.",
   },
   de: {
     seoTitle: "Rechnungsprogramm für Neugründer: 3 Monate gratis",
@@ -161,7 +161,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     formEyebrow: '3 Monate anfordern',
     formPlain: 'Ihr Code',
     formAccent: 'per E-Mail',
-    formText: 'Geben Sie Ihr Unternehmen und Ihre E-Mail-Adresse an. Wir antworten mit Ihrem persönlichen Code, 60 Tage gültig.',
+    formText: 'Das Angebot gilt für Unternehmen, die vor weniger als 6 Monaten gegründet wurden. Geben Sie Ihr Unternehmen und Ihre E-Mail-Adresse an: Wir antworten mit Ihrem persönlichen Code, 60 Tage gültig.',
     form: {
       name: 'Ihr Name',
       company: 'Unternehmen',
@@ -177,7 +177,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     faqEyebrow: 'Fragen',
     faqTitle: 'Häufige Fragen',
     faq: [
-      { q: 'Wer kann die 3 Monate anfordern?', a: 'Neue Unternehmen. Senden Sie die Anfrage mit dem Formular dieser Seite: Wir antworten per E-Mail mit Ihrem persönlichen Code.' },
+      { q: 'Wer kann die 3 Monate anfordern?', a: 'Unternehmen, die vor weniger als 6 Monaten gegründet wurden (Eintrag im Handelsregister oder Beginn der Tätigkeit). Senden Sie die Anfrage mit dem Formular dieser Seite: Wir antworten per E-Mail mit Ihrem persönlichen Code.' },
       { q: 'Braucht es eine Kreditkarte?', a: 'Ja, wie bei der üblichen Testphase. In den 3 Monaten wird nichts belastet, und das Abonnement kann vorher mit einem Klick beendet werden.' },
       { q: 'Was passiert nach den 3 Monaten?', a: 'Das Abonnement des gewählten Plans beginnt zum Preis der Tarifseite, ohne Mindestlaufzeit. Sie können jederzeit wechseln oder kündigen.' },
       { q: 'Wie lange ist der Code gültig?', a: '60 Tage ab dem Versand: Erstellen Sie Ihr Konto in dieser Zeit mit dem erhaltenen Link.' },
@@ -198,7 +198,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     guideTitle: "Ein Bauunternehmen gründen, Schritt für Schritt.",
     guide: [{"href": "/de/blog/bauunternehmen-gruenden-schweiz", "label": "Ein Bauunternehmen in der Schweiz gründen"}, {"href": "/de/blog/stundenkosten-bauarbeiter-berechnen", "label": "Den echten Stundenansatz berechnen"}, {"href": "/de/offerte-erstellen", "label": "Die erste Offerte erstellen (mit Vorlage)"}, {"href": "/de/blog/qr-rechnung-obligatorisch-schweiz", "label": "QR-Rechnung: was gilt"}, {"href": "/de/blog/lohnausweis-erstellen-erster-mitarbeiter", "label": "Der erste Mitarbeiter: Lohnausweis"}, {"href": "/de/blog/kunden-finden-handwerker", "label": "Die ersten Kunden finden"}, {"href": "/de/blog/software-bauunternehmen-schweiz-auswahl", "label": "Welche Software zum Start?"}],
     finalTitle: "Ihre erste Offerte, diese Woche.",
-    finalText: "3 Monate gratis für neue Unternehmen, statt der üblichen 14 Tage Testphase. Ohne Verpflichtung.",
+    finalText: "3 Monate gratis für Unternehmen, die jünger als 6 Monate sind, statt der üblichen 14 Tage Testphase. Ohne Verpflichtung.",
   },
   it: {
     seoTitle: "Software di fatturazione per nuove imprese: 3 mesi gratis",
@@ -209,7 +209,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     h1Plain: "Il software di preventivi e fatture per la vostra nuova impresa.",
     h1Accent: "3 mesi gratis per iniziare.",
     lead:
-      'Nei primi mesi manca il tempo per costruire un’amministrazione. Per le nuove imprese Cantia è offerto per 3 mesi invece dei soliti 14 giorni di prova.',
+      'Nei primi mesi manca il tempo per costruire un’amministrazione. Per le imprese create da meno di 6 mesi Cantia è offerto per 3 mesi invece dei soliti 14 giorni di prova.',
     cta: "Richiedere i miei 3 mesi",
     pricing: 'Vedere i piani',
     shotAlt: 'Cruscotto di Cantia',
@@ -231,7 +231,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     formEyebrow: 'Chiedere i 3 mesi',
     formPlain: 'Il vostro codice',
     formAccent: 'per e-mail',
-    formText: 'Indicate la vostra impresa e il vostro indirizzo e-mail. Vi rispondiamo con il vostro codice personale, valido 60 giorni.',
+    formText: 'L’offerta è riservata alle imprese create da meno di 6 mesi. Indicate la vostra impresa e il vostro indirizzo e-mail: vi rispondiamo con il vostro codice personale, valido 60 giorni.',
     form: {
       name: 'Il vostro nome',
       company: 'Impresa',
@@ -247,7 +247,7 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     faqEyebrow: 'Domande',
     faqTitle: 'Domande frequenti',
     faq: [
-      { q: 'Chi può chiedere i 3 mesi?', a: 'Le nuove imprese. Fate la richiesta con il modulo di questa pagina: vi rispondiamo per e-mail con il vostro codice personale.' },
+      { q: 'Chi può chiedere i 3 mesi?', a: 'Le imprese create da meno di 6 mesi (iscrizione al registro di commercio o inizio dell’attività). Fate la richiesta con il modulo di questa pagina: vi rispondiamo per e-mail con il vostro codice personale.' },
       { q: 'Serve una carta di credito?', a: 'Sì, come per la prova abituale. Nei 3 mesi non viene addebitato nulla e l’abbonamento può essere fermato prima con un clic.' },
       { q: 'Cosa succede dopo i 3 mesi?', a: 'L’abbonamento del piano scelto inizia al prezzo della pagina tariffe, senza impegno. Potete cambiare piano o disdire in qualsiasi momento.' },
       { q: 'Quanto tempo è valido il codice?', a: '60 giorni dall’invio: basta creare il conto con il link ricevuto in questo periodo.' },
@@ -268,6 +268,6 @@ export const NEW_COMPANY_COPY: Record<'fr' | 'de' | 'it', Copy> = {
     guideTitle: "Aprire un’impresa edile, passo dopo passo.",
     guide: [{"href": "/it/blog/aprire-impresa-edile-svizzera", "label": "Aprire un’impresa edile in Svizzera"}, {"href": "/it/blog/avs-ai-indipendente-edilizia", "label": "AVS e assicurazioni per indipendenti"}, {"href": "/it/blog/costo-orario-operaio-edile", "label": "Calcolare la vera tariffa oraria"}, {"href": "/it/creare-preventivo", "label": "Il primo preventivo (con modello)"}, {"href": "/it/blog/fattura-qr-obbligatoria-svizzera", "label": "Fattura QR: cosa sapere"}, {"href": "/it/blog/certificato-di-salario-primo-dipendente", "label": "Il primo dipendente: certificato di salario"}, {"href": "/it/blog/trovare-clienti-artigiano", "label": "Trovare i primi clienti"}, {"href": "/it/blog/software-impresa-costruzioni-quale-scegliere", "label": "Quale software per iniziare?"}],
     finalTitle: "Il vostro primo preventivo, questa settimana.",
-    finalText: "3 mesi gratis per le nuove imprese, invece dei soliti 14 giorni di prova. Senza impegno.",
+    finalText: "3 mesi gratis per le imprese create da meno di 6 mesi, invece dei soliti 14 giorni di prova. Senza impegno.",
   },
 };
