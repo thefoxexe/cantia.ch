@@ -218,7 +218,7 @@ export const SHORT_TITLES = {
   'de/metiers/agences-evenementiel': "Software für Agenturen, Studios und Eventfirmen",
   'de/blog/cantia-vs-klara': "Cantia vs. Klara: welche Software für den Bau?",
   'de/blog/crm-baubranche-handwerker': "CRM für Handwerksbetriebe: nützlich oder überflüssig?",
-  'de/blog/offerte-erstellen-online-schweiz': "Offerte erstellen: online, mit Vorlage oder Software",
+  'de/blog/offerte-erstellen-online-schweiz': "Online-Offerte: kostenlose Tools, Vorlage oder Software?",
   'de/blog/garantie-travaux-construction-2-ou-5-ans': "Garantie auf Bauarbeiten: 2, 5 oder 10 Jahre?",
   'de/blog/outil-devis-factures-sans-double-saisie': "Keine Doppelerfassung mehr zwischen Offerte und Rechnung",
   'de/blog/permis-construire-renovation-quand-necessaire': "Baubewilligung für eine Renovation: wann nötig?",

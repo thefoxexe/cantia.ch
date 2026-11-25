@@ -1760,7 +1760,7 @@ export const ROUTES = [
   },
   {
     path: 'blog/trouver-clients-artisan-batiment-suisse',
-    title: 'Trouver des clients sans budget marketing | Cantia',
+    title: 'Trouver des clients dans le bâtiment sans budget | Cantia',
     description:
       "Pas besoin d'une grosse campagne publicitaire pour remplir son carnet de commandes. Les canaux qui fonctionnent réellement pour un artisan du bâtiment en Suisse, du bouche-à-oreille au référencement local.",
     faq: [

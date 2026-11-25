@@ -3,13 +3,13 @@ import { BlogPost } from '../types';
 export const post: BlogPost = {
   slug: 'norme-sia-118-devis-obligatoire',
   question: 'Ist die SIA-Norm 118 auf meiner Offerte obligatorisch?',
-  title: 'Ist die SIA-Norm 118 auf einer Offerte obligatorisch?',
+  title: 'SIA 118: Gilt die Norm automatisch für Ihre Offerte?',
   description:
     'Die SIA-Norm 118 gilt nie automatisch: Sie kommt nur zur Anwendung, wenn der Vertrag oder die Offerte sie ausdrücklich erwähnt. Erklärungen und bewährte Praxis.',
   excerpt:
     'Ein Architekt hat die SIA 118 in einer Sitzung erwähnt, und Sie glauben, sie gelte automatisch für Ihre Baustelle. Das ist falsch, und im Streitfall teuer.',
   category: 'Juridique & normes',
-  keywords: ['SIA 118', 'Norm', 'Vertrag', 'Offerte', 'Pflicht', 'Bauwesen'],
+  keywords: ['SIA 118', 'SIA-Norm 118', 'SIA 118 Offerte', 'Norm', 'Vertrag', 'Offerte', 'Pflicht', 'Bauwesen'],
   publishedAt: '2026-09-03',
   updatedAt: '2026-11-18',
   readMinutes: 5,

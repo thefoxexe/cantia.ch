@@ -541,8 +541,8 @@ export const BLOG_SEO_DE = [
   },
   {
     "path": "de/blog/devis-gratuit-en-ligne-suisse-outil",
-    "title": "Offerte erstellen: kostenlos online, mit Vorlage oder Software | Cantia",
-    "description": "Offerte erstellen als Handwerker in der Schweiz: kostenlose Online-Generatoren, Word-Vorlagen und Offertensoftware ehrlich verglichen, mit Grenzen.",
+    "title": "Online-Offerte: kostenlose Tools, Vorlage oder Software? | Cantia",
+    "description": "Online-Offerten für Handwerker in der Schweiz: kostenlose Online-Tools, Word-Vorlagen und Offertensoftware ehrlich verglichen, mit ihren Grenzen.",
     "faq": [
       {
         "q": "Reicht eine kostenlose Word-Vorlage aus, um als Handwerker Offerten zu erstellen?",
@@ -1061,7 +1061,7 @@ export const BLOG_SEO_DE = [
   },
   {
     "path": "de/blog/norme-sia-118-devis-obligatoire",
-    "title": "Ist die SIA-Norm 118 auf einer Offerte obligatorisch? | Cantia",
+    "title": "SIA 118: Gilt die Norm automatisch für Ihre Offerte? | Cantia",
     "description": "Die SIA-Norm 118 gilt nie automatisch: Sie kommt nur zur Anwendung, wenn der Vertrag oder die Offerte sie ausdrücklich erwähnt. Erklärungen und bewährte Praxis.",
     "faq": [
       {

@@ -190,6 +190,10 @@ Format : `AAAA-MM-JJ · type · ce qui a changé · pages touchées`
 - 2026-11-04 · SEO · titles et meta réécrits d'après les requêtes réelles : bruit de chantier, indemnités kilométriques, SIA 118, salaire minimum CCT, TVA, Lohnausweis, bris de machine, 4h45, régie · 9 articles FR
 - 2026-11-04 · technique · 10 pages métiers hors bâtiment (traiteur, graphiste, garage…) en noindex et retirées de /metiers · 30 pages FR, DE, IT
 - 2026-11-04 · performance · bloc JS commun 1 741 → 1 512 Ko gzip (articles retirés) · toutes
+- 2026-11-25 · contenu · pilier « Facturation de chantier en Suisse : le guide complet » (devis, acompte, situations, travaux en plus, décompte final, QR-facture, relances, conservation), relié à 14 articles et depuis /solutions/facturation · /blog/facturation-chantier-guide-complet-suisse
+- 2026-11-25 · aimants à leads · modèles gratuits : devis Word, facture Excel (TVA 8,1 % et arrondi 5 ct. en formules), checklist de fin de chantier (PDF) · /downloads, pilier et modèle de devis
+- 2026-11-25 · outil · générateur gratuit de QR-facture (PDF créé dans le navigateur, même moteur que les factures Cantia) · /outils/qr-facture, /de/outils/qr-facture, /it/outils/qr-facture
+- 2026-11-25 · SEO · cannibalisation « offerte erstellen » : la landing /de/offerte-erstellen garde la requête, l'article devient « Online-Offerte » (online offerten 14,3, online offerte tool tombé de 2,4 à 24,7) ; titre SIA 118 DE recentré sur « SIA 118 » (27,3, depuis 9,4) ; titre « trouver des clients dans le bâtiment » (4,8) · /de/blog/offerte-erstellen-online-schweiz, /de/blog/sia-118-offerte-pflicht, /blog/trouver-clients-artisan-batiment-suisse
 
 ### Après les changements du 3 novembre 2026 (même méthode, labo)
 
