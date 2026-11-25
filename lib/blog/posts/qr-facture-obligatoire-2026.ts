@@ -78,7 +78,7 @@ export const post: BlogPost = {
     },
   ],
   relatedSlugs: [
-    'delai-paiement-facture-artisan-code-obligations',
+    'facturation-chantier-guide-complet-suisse',
     'duree-conservation-devis-factures-suisse',
     'calculer-prix-devis-renovation-suisse',
   ],

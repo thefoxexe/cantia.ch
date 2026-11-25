@@ -1305,6 +1305,13 @@ export const ROUTES = [
     ],
   },
   {
+    path: 'blog/facturation-chantier-guide-complet-suisse',
+    title: 'Facturation de chantier en Suisse : le guide complet | Cantia',
+    description:
+      'Devis, acomptes, situations, travaux en plus, QR-facture et relances : toutes les étapes pour facturer un chantier en Suisse, avec modèles gratuits.',
+    faq: [],
+  },
+  {
     path: 'blog/metre-post-calcul-soumission-benefice-chantier',
     title: 'Métré et post-calcul : la soumission a-t-elle rapporté ? | Cantia',
     description:

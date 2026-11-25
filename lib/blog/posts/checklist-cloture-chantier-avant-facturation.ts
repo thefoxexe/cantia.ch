@@ -67,7 +67,7 @@ export const post: BlogPost = {
     },
   ],
   relatedSlugs: [
-    'checklist-ouverture-chantier-artisan',
+    'facturation-chantier-guide-complet-suisse',
     'reception-travaux-proces-verbal-chantier',
     'avenant-chantier-plus-value-moins-value',
   ],

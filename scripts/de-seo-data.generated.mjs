@@ -2731,6 +2731,7 @@ export const BLOG_DATES_FR = {
   "estimer-chantier-a-distance-devis-photo": "2026-08-19",
   "etablir-certificat-salaire-lohnausweis-premier-employe": "2026-09-22",
   "excel-vs-logiciel-gestion-chantier-limites": "2026-08-27",
+  "facturation-chantier-guide-complet-suisse": "2026-11-25",
   "facturation-heures-regie-batiment-comment-faire": "2026-08-27",
   "facturer-acompte-suisse-securiser-solde": "2026-08-19",
   "facturer-depannage-urgent-sans-devis": "2026-09-22",
@@ -3719,6 +3720,24 @@ export const BLOG_FAQ_FR = {
     {
       "q": "À partir de quand faut-il envisager un vrai logiciel de gestion ?",
       "a": "Dès que plusieurs chantiers tournent en parallèle ou que plusieurs personnes doivent accéder aux mêmes informations en même temps, un tableur devient un point de friction plutôt qu’un gain de temps."
+    }
+  ],
+  "facturation-chantier-guide-complet-suisse": [
+    {
+      "q": "Quelle différence entre une facture d’acompte et une facture de situation ?",
+      "a": "La facture d’acompte est demandée avant ou au démarrage des travaux, sur un montant fixé dans le devis. La facture de situation facture la part des travaux déjà exécutée, à une date donnée, moins ce qui a déjà été facturé."
+    },
+    {
+      "q": "Quel taux de TVA appliquer sur une facture de chantier ?",
+      "a": "Le taux normal de 8,1 % s’applique à la plupart des travaux du bâtiment depuis le 1er janvier 2024, si votre entreprise est assujettie à la TVA. Le taux se vérifie selon votre situation, avec votre fiduciaire en cas de doute."
+    },
+    {
+      "q": "Que mettre dans le décompte final d’un chantier ?",
+      "a": "Les quantités réellement exécutées aux prix du devis, les travaux en plus acceptés, les moins-values, moins l’acompte et les situations déjà facturés, la retenue de garantie éventuelle, la TVA et le total arrondi aux 5 centimes, avec la QR-facture."
+    },
+    {
+      "q": "Quand relancer une facture de chantier impayée ?",
+      "a": "Quelques jours après l’échéance pour une première relance aimable, puis par un rappel écrit avec un nouveau délai court. Après l’échéance, des intérêts moratoires de 5 % par an peuvent être réclamés (art. 104 CO)."
     }
   ],
   "facturation-heures-regie-batiment-comment-faire": [

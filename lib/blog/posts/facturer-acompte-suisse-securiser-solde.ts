@@ -65,7 +65,7 @@ export const post: BlogPost = {
     },
   ],
   relatedSlugs: [
-    'delai-paiement-facture-artisan-code-obligations',
+    'facturation-chantier-guide-complet-suisse',
     'relancer-client-facture-impayee-sans-perdre-client',
     'calculer-prix-devis-renovation-suisse',
   ],

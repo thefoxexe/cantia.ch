@@ -64,7 +64,7 @@ export const post: BlogPost = {
     },
   ],
   relatedSlugs: [
-    'qr-facture-obligatoire-2026',
+    'facturation-chantier-guide-complet-suisse',
     'difference-devis-offre-facture-pro-forma',
     'delai-paiement-facture-artisan-code-obligations',
   ],

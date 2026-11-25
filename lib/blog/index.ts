@@ -150,6 +150,7 @@ import { post as p253 } from './posts/salaire-personnel-extra-evenementiel-trait
 import { post as p254 } from './posts/forfait-ou-temps-passe-consultant-suisse';
 import { post as p255 } from './posts/formateur-independant-suisse-tva-facture';
 import { post as p256 } from './posts/metre-post-calcul-soumission-benefice-chantier';
+import { post as p257 } from './posts/facturation-chantier-guide-complet-suisse';
 import { post as soum1 } from './posts/remplir-soumission-pdf-architecte';
 import { post as soum3 } from './posts/calculer-prix-unitaire-soumission';
 import { post as soum4 } from './posts/rabais-escompte-tva-ordre-soumission';
@@ -169,7 +170,7 @@ export const BLOG_POSTS: BlogPost[] = [
   p145, p146, p147, p148, p149, p150, p151, p153, p155, p159, p161, p165, p166, p167, p168, p169, p171, p173, p174, p178, p179, p180, p181, p182, p183, p184,
   p186, p188, p191, p192, p193, p194,
   p195, p196, p198, p203, p204, p206, p207, p208, p209, p211, p223, p224, p225, p226, p229, p231, p233, p236, p238, p239, p241, p244, p245,
-  p246, p247, p248, p249, p250, p251, p252, p253, p254, p255, p256,
+  p246, p247, p248, p249, p250, p251, p252, p253, p254, p255, p256, p257,
 ].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
 export const BLOG_CATEGORIES = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));

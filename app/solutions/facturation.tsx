@@ -78,6 +78,8 @@ export default function FacturationSolutionPage() {
         },
       ]}
       related={[
+        { href: '/blog/facturation-chantier-guide-complet-suisse', label: 'Guide : facturer un chantier' },
+        { href: '/outils/qr-facture', label: 'Générateur de QR-facture gratuit' },
         { href: '/solutions/devis', label: 'Devis en ligne' },
         { href: '/solutions/rentabilite', label: 'Rentabilité par chantier' },
         { href: '/solutions/tresorerie', label: 'Trésorerie prévisionnelle' },

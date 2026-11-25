@@ -53,6 +53,14 @@ export const post: BlogPost = {
       fileUrl: '/downloads/modele-devis-gratuit-batiment.pdf',
       fileLabel: 'Télécharger le modèle (PDF)',
     },
+    {
+      type: 'leadmagnet',
+      title: 'La version Word, à remplir sur ordinateur',
+      text: 'Le même devis en fichier Word : vos positions, la TVA 8,1 %, les conditions de paiement et le bon pour accord, à compléter directement.',
+      buttonLabel: 'Recevoir la version Word',
+      fileUrl: '/downloads/modele-devis-batiment.docx',
+      fileLabel: 'Télécharger le modèle (Word)',
+    },
     { type: 'h2', text: 'Les limites d’un modèle statique' },
     {
       type: 'p',
@@ -88,7 +96,7 @@ export const post: BlogPost = {
     },
   ],
   relatedSlugs: [
-    'calculer-prix-devis-renovation-suisse',
+    'facturation-chantier-guide-complet-suisse',
     'rediger-devis-qui-inspire-confiance-client',
     'mentions-obligatoires-facture-suisse-tva',
     'demarrer-entreprise-batiment-outils-indispensables',
