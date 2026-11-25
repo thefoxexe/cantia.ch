@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, Redirect } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { MarketingFooter, MarketingNav } from '../components/MarketingChrome';
@@ -8,7 +8,6 @@ import { Btn, Eyebrow, Hover, Headline, KeywordH1, TextLink, Wrap, useSiteFontSc
 import { FAMILY_ICONS, localePrefix, useSiteLocale } from '../components/site/SiteNav';
 import { PhoneShot, SectionHead, SiteCta } from '../components/site/Sections';
 import { ModuleMockup } from '../components/solutions/ModuleMockup';
-import { EXPORTS } from '../components/site/exports';
 import { SITE_PAGES } from '../lib/site/pages';
 import { SITE_COPY } from '../lib/site/copy';
 import { marketingPageTitle } from '../lib/marketingSeoTitles';
@@ -18,7 +17,6 @@ import { HeroDevices } from '../components/site/HeroDevices';
 import { FaqItem } from '../components/site/FamilyPage';
 import { SECTOR_KEYS, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/site/sectors';
 import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
-import { SiteImage } from '../components/site/SiteImage';
 import { StarterOffer } from '../components/site/StarterOffer';
 import { BeforeAfter } from '../components/site/BeforeAfter';
 
@@ -28,7 +26,6 @@ const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; 
 // for M. et Mme Dubois). Never replace them with mock-ups or screenshots that
 // still carry the old logo.
 
-const paperShadow = Platform.OS === 'web' ? ({ boxShadow: '0 22px 48px rgba(86,58,34,0.16), 0 2px 6px rgba(86,58,34,0.08)' } as object) : {};
 
 export default function LandingScreen() {
   useSiteFontScope();
@@ -132,18 +129,7 @@ function LandingContent() {
         <View style={[styles.section, { paddingVertical: phone ? 53 : 86 }]}>
           <Wrap>
             <SectionHead eyebrow={h.exportsEyebrow} plain={h.exportsTitlePlain} accent={h.exportsTitleAccent} text={h.exportsText} />
-            {locale === 'fr' ? (
-              <BeforeAfter />
-            ) : (
-            <View style={[styles.exportsRow, phone && { flexDirection: 'column' }]}>
-              <ExportCard title={h.exportDevis} meta={h.exportDevisMeta} phone={phone} pdf={EXPORTS[locale].devisFull.pdf}>
-                <PaperImage source={EXPORTS[locale].devisFull.source} ratio={EXPORTS[locale].devisFull.ratio} alt={SITE_PAGES[locale].labels.docAlt.signer} />
-              </ExportCard>
-              <ExportCard title={h.exportFacture} meta={h.exportFactureMeta} phone={phone} pdf={EXPORTS[locale].facture.pdf}>
-                <PaperImage source={EXPORTS[locale].facture.source} ratio={EXPORTS[locale].facture.ratio} alt={h.exportFacture} />
-              </ExportCard>
-            </View>
-            )}
+            <BeforeAfter locale={locale} />
           </Wrap>
         </View>
 
@@ -266,38 +252,6 @@ function Families({ phone, narrow }: { phone: boolean; narrow: boolean }) {
   );
 }
 
-// One whole document (full A4 page, as the client receives it). The page
-// opens the real PDF.
-function ExportCard({ title, meta, phone, pdf, children }: { title: string; meta: string; phone: boolean; pdf: string; children: React.ReactNode }) {
-  const open = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') window.open(pdf, '_blank', 'noopener');
-  };
-  return (
-    <Hover onPress={open} accessibilityRole="link" base={[styles.exportCard, phone ? undefined : { flex: 1 }]} hover={{ borderColor: site.copper }}>
-      {(hovered) => (
-        <>
-          <View style={[styles.exportStage, phone && { padding: 16 }]}>{children}</View>
-          <View style={[styles.exportMeta, { flexDirection: 'row', alignItems: 'center', gap: 14 }]}>
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text style={[sans, styles.exportTitle]}>{title}</Text>
-              <Text style={[sans, styles.small]}>{meta}</Text>
-            </View>
-            <Feather name="download" size={16} color={hovered ? site.copper : site.ink} />
-          </View>
-        </>
-      )}
-    </Hover>
-  );
-}
-
-function PaperImage({ source, ratio, alt }: { source: ImageSourcePropType; ratio: number; alt: string }) {
-  return (
-    <View style={[styles.paper, paperShadow, { width: '100%', aspectRatio: 1 / ratio }]}>
-      <SiteImage source={source} style={{ width: '100%', height: '100%' }} resizeMode="cover" alt={alt} />
-    </View>
-  );
-}
-
 const HOME_SECTORS = {
   fr: { eyebrow: 'Par secteur', text: 'Le même outil, avec les mots de votre métier : chantiers, interventions, mandats ou projets.', more: 'Voir la page' },
   de: { eyebrow: 'Nach Branche', text: 'Dasselbe Werkzeug, mit den Wörtern Ihrer Branche: Baustellen, Einsätze, Mandate oder Projekte.', more: 'Zur Seite' },
@@ -345,7 +299,6 @@ const styles = StyleSheet.create({
   stage: { backgroundColor: site.stage, borderWidth: 1, borderColor: site.stageBorder, overflow: 'hidden', position: 'relative' },
   stageTag: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
   stageTagText: { fontSize: 9, color: '#8c705a', letterSpacing: 0.7, flexShrink: 1 },
-  paper: { backgroundColor: '#ffffff', borderRadius: 3, overflow: 'hidden' },
   trust: { flexDirection: 'row', justifyContent: 'center', gap: 55, paddingVertical: 24 },
   trustPhone: { flexDirection: 'column', alignItems: 'flex-start', gap: 11, paddingVertical: 22 },
   trustItem: { flexDirection: 'row', alignItems: 'center', gap: 9 },
@@ -360,11 +313,6 @@ const styles = StyleSheet.create({
   familyText: { fontSize: 11, lineHeight: 20, color: site.muted, marginBottom: 22 },
   sectionBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 30, marginTop: 23 },
   small: { fontSize: 11, color: site.muted, lineHeight: 17 },
-  exportsRow: { flexDirection: 'row', gap: 24, alignItems: 'stretch' },
-  exportCard: { borderWidth: 1, borderColor: site.line, borderRadius: 12, overflow: 'hidden', backgroundColor: site.white },
-  exportStage: { flex: 1, backgroundColor: site.stage, padding: 30, justifyContent: 'center' },
-  exportMeta: { paddingVertical: 18, paddingHorizontal: 22, gap: 4, borderTopWidth: 1, borderTopColor: site.line },
-  exportTitle: { fontSize: 14, fontWeight: '600', color: site.ink, letterSpacing: -0.3 },
   split: { flexDirection: 'row', alignItems: 'center' },
   copy: { fontSize: 14, color: site.muted, lineHeight: 27, maxWidth: 390, marginTop: 20 },
   sectorGrid: { flexDirection: 'row', gap: 16, alignItems: 'stretch' },

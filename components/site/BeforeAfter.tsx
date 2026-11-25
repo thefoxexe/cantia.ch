@@ -12,12 +12,14 @@ import { imageUri } from './SiteImage';
 // example; the "après" ones are real exports of the app's own renderers
 // (supabase/functions/_shared/pdf-document-renderers.ts, generate-report-pdf)
 // and the real Planning screen. Same fictitious job everywhere: Atelier
-// Martin SA, villa des Vignes, M. et Mme Dubois. French only for now.
+// Martin, villa des Vignes, the Dubois family. French, German and Italian:
+// each language has its own pictures (scratchpad generators, same layout).
 
 type Key = 'facture' | 'devis' | 'travaux' | 'rapport' | 'planning';
 type Doc = { label: string; before: ImageSourcePropType; after: ImageSourcePropType; beforeAlt: string; afterAlt: string; wide?: boolean; bad: string[]; good: string[] };
 
-const DOCS: Record<Key, Doc> = {
+type Loc = 'fr' | 'de' | 'it';
+const FR: Record<Key, Doc> = {
   facture: {
     label: 'Facture',
     before: require('../../assets/marketing/site/avant-apres/facture-avant.jpg'),
@@ -67,17 +69,121 @@ const DOCS: Record<Key, Doc> = {
 };
 const ORDER: Key[] = ['facture', 'devis', 'travaux', 'rapport', 'planning'];
 
-export function BeforeAfter() {
+type DocText = Omit<Doc, 'before' | 'after' | 'wide'>;
+const IMG: Record<'de' | 'it', Record<Key, [ImageSourcePropType, ImageSourcePropType]>> = {
+  de: {
+    facture: [require('../../assets/marketing/site/avant-apres/facture-avant-de.jpg'), require('../../assets/marketing/site/avant-apres/facture-apres-de.jpg')],
+    devis: [require('../../assets/marketing/site/avant-apres/devis-avant-de.jpg'), require('../../assets/marketing/site/avant-apres/devis-apres-de.jpg')],
+    travaux: [require('../../assets/marketing/site/avant-apres/travaux-avant-de.jpg'), require('../../assets/marketing/site/avant-apres/travaux-apres-de.jpg')],
+    rapport: [require('../../assets/marketing/site/avant-apres/rapport-avant-de.jpg'), require('../../assets/marketing/site/avant-apres/rapport-apres-de.jpg')],
+    planning: [require('../../assets/marketing/site/avant-apres/planning-avant-de.jpg'), require('../../assets/marketing/site/avant-apres/planning-apres-de.jpg')],
+  },
+  it: {
+    facture: [require('../../assets/marketing/site/avant-apres/facture-avant-it.jpg'), require('../../assets/marketing/site/avant-apres/facture-apres-it.jpg')],
+    devis: [require('../../assets/marketing/site/avant-apres/devis-avant-it.jpg'), require('../../assets/marketing/site/avant-apres/devis-apres-it.jpg')],
+    travaux: [require('../../assets/marketing/site/avant-apres/travaux-avant-it.jpg'), require('../../assets/marketing/site/avant-apres/travaux-apres-it.jpg')],
+    rapport: [require('../../assets/marketing/site/avant-apres/rapport-avant-it.jpg'), require('../../assets/marketing/site/avant-apres/rapport-apres-it.jpg')],
+    planning: [require('../../assets/marketing/site/avant-apres/planning-avant-it.jpg'), require('../../assets/marketing/site/avant-apres/planning-apres-it.jpg')],
+  },
+};
+const TEXT: Record<'de' | 'it', Record<Key, DocText>> = {
+  de: {
+    facture: {
+      label: 'Rechnung',
+      beforeAlt: 'Beispiel einer Rechnung aus einer Tabellenkalkulation, mit altem MWST-Satz',
+      afterAlt: 'Cantia-Rechnung mit QR-Rechnung',
+      bad: ['MWST bei 7,7 % geblieben, obwohl der Satz seit 2024 8,1 % beträgt', 'IBAN von Hand abtippen, keine QR-Rechnung', 'Jede Rechnung beginnt als «Kopie von Rechnung 87»'],
+      good: ['MWST 8,1 % auf dem Zwischentotal berechnet', 'Schweizer QR-Rechnung: Der Kunde scannt und bezahlt', 'Nummer, Fälligkeit und Baustelle automatisch ausgefüllt'],
+    },
+    devis: {
+      label: 'Offerte',
+      beforeAlt: 'Beispiel einer Offerte aus einem Textverarbeitungsprogramm',
+      afterAlt: 'Cantia-Offerte, online vom Kunden unterzeichnet',
+      bad: ['«Offerte FINAL v3.docx»: Welche wurde verschickt?', 'Ein vergessenes [DATUM], ein fehlender Preis, der alte MWST-Satz', 'Auftragsbestätigung drucken, unterschreiben und scannen'],
+      good: ['Positionen, Einheiten und Totale immer korrekt', 'Online vom Kunden unterzeichnet, mit Datum und Uhrzeit', 'Die angenommene Offerte wird mit einem Klick zur Rechnung'],
+    },
+    travaux: {
+      label: 'Zusatzarbeiten',
+      beforeAlt: 'Beispiel eines von Hand ausgefüllten Regierapports',
+      afterAlt: 'Cantia-Zusatzarbeiten, vom Kunden unterzeichnet',
+      bad: ['Ein Papierrapport mit Kugelschreiber, im Büro abzutippen', '«pausch.?» und «??»: Die Preise müssen gesucht werden', 'Eine gekritzelte Unterschrift, ohne Datum und Uhrzeit'],
+      good: ['Stunden, Material und Preise beziffert, inklusive MWST', 'Der Kunde unterschreibt auf dem Handy, auf der Baustelle', 'Das unterzeichnete PDF geht per E-Mail an den Kunden'],
+    },
+    rapport: {
+      label: 'Bericht',
+      beforeAlt: 'Beispiel eines Baustellenberichts per E-Mail, mit Fotos im Anhang',
+      afterAlt: 'Cantia-Baustellenbericht',
+      bad: ['Eine E-Mail, am Abend getippt, ohne Struktur', '9 Fotos mit 31 MB im Anhang', 'Stunden und Material müssen anderswo erfasst werden'],
+      good: ['Die Notizen von der Baustelle automatisch aufbereitet', 'Arbeiten, Team und Stunden, Material, Hinweise', 'Ein sauberes PDF für den Kunden'],
+    },
+    planning: {
+      label: 'Planung',
+      beforeAlt: 'Beispiel einer Teamplanung in einer Tabellenkalkulation',
+      afterAlt: 'Planungsansicht von Cantia',
+      bad: ['Ein Blatt pro Woche, von der vorherigen kopiert', 'Farbige Zellen, «krank?» und «Thun ??»', 'Mehrere Versionen der Datei, je nachdem, wer sie geändert hat'],
+      good: ['Termine, Baustellen und Absenzen am selben Ort', 'Jede Person hat ihre Zeile, Woche für Woche', 'Eine einzige Version, für alle aktuell'],
+    },
+  },
+  it: {
+    facture: {
+      label: 'Fattura',
+      beforeAlt: 'Esempio di fattura fatta su un foglio di calcolo, con una vecchia aliquota IVA',
+      afterAlt: 'Fattura Cantia con QR-fattura',
+      bad: ['IVA rimasta al 7,7 %, mentre l’aliquota è dell’8,1 % dal 2024', 'IBAN da ricopiare a mano, nessuna QR-fattura', 'Ogni fattura parte da una «Copia di Fattura 87»'],
+      good: ['IVA 8,1 % calcolata sul subtotale', 'QR-fattura svizzera: il cliente scansiona e paga', 'Numero, scadenza e cantiere compilati da soli'],
+    },
+    devis: {
+      label: 'Preventivo',
+      beforeAlt: 'Esempio di offerta fatta con un programma di videoscrittura',
+      afterAlt: 'Preventivo Cantia firmato online dal cliente',
+      bad: ['«Offerta FINALE v3.docx»: quale è stata inviata?', 'Una [DATA] dimenticata, un prezzo mancante, la vecchia aliquota IVA', '«Per accettazione» da stampare, firmare e scansionare'],
+      good: ['Posizioni, unità e totali sempre corretti', 'Firmato online dal cliente, con data e ora', 'Il preventivo accettato diventa fattura in un clic'],
+    },
+    travaux: {
+      label: 'Lavori in più',
+      beforeAlt: 'Esempio di rapporto a regia compilato a mano su un blocchetto',
+      afterAlt: 'Lavori supplementari Cantia firmati dal cliente',
+      bad: ['Un foglio di carta compilato a penna, da ricopiare in ufficio', '«forf.?» e «??»: i prezzi sono da ritrovare', 'Una firma scarabocchiata, senza data né ora'],
+      good: ['Ore, materiale e prezzi calcolati, IVA compresa', 'Il cliente firma sul telefono, in cantiere', 'Il PDF firmato parte al cliente per e-mail'],
+    },
+    rapport: {
+      label: 'Rapporto',
+      beforeAlt: 'Esempio di rapporto di cantiere inviato per e-mail con foto in allegato',
+      afterAlt: 'Rapporto di cantiere Cantia',
+      bad: ['Un’e-mail scritta la sera, senza struttura', '9 foto da 31 MB in allegato', 'Ore e materiale da ricopiare altrove'],
+      good: ['Le note del cantiere impaginate automaticamente', 'Lavori, squadra e ore, materiale, punti di attenzione', 'Un PDF pulito da inviare al cliente'],
+    },
+    planning: {
+      label: 'Pianificazione',
+      beforeAlt: 'Esempio di pianificazione della squadra fatta su un foglio di calcolo',
+      afterAlt: 'Schermata Pianificazione di Cantia',
+      bad: ['Un foglio per settimana, copiato dal precedente', 'Celle colorate, «malata?» e «Locarno ??»', 'Più versioni del file a seconda di chi l’ha modificato'],
+      good: ['Appuntamenti, cantieri e assenze nello stesso posto', 'Ogni persona ha la sua riga, settimana per settimana', 'Un’unica versione, aggiornata per tutti'],
+    },
+  },
+};
+const UI: Record<Loc, { before: string; after: string; aria: string }> = {
+  fr: { before: 'Avant', after: 'Avec Cantia', aria: 'Comparer avant et avec Cantia' },
+  de: { before: 'Vorher', after: 'Mit Cantia', aria: 'Vorher und mit Cantia vergleichen' },
+  it: { before: 'Prima', after: 'Con Cantia', aria: 'Confrontare prima e con Cantia' },
+};
+const localDocs = (l: 'de' | 'it') =>
+  Object.fromEntries(ORDER.map((k) => [k, { ...TEXT[l][k], before: IMG[l][k][0], after: IMG[l][k][1], wide: FR[k].wide }])) as Record<Key, Doc>;
+const DOCS: Record<Loc, Record<Key, Doc>> = { fr: FR, de: localDocs('de'), it: localDocs('it') };
+
+export function BeforeAfter({ locale = 'fr' }: { locale?: Loc }) {
   const { phone } = useSiteLayout();
   const [key, setKey] = useState<Key>('facture');
-  const doc = DOCS[key];
+  const docs = DOCS[locale] ?? FR;
+  const ui = UI[locale] ?? UI.fr;
+  const doc = docs[key];
   const frameW = doc.wide ? (phone ? undefined : 560) : phone ? 340 : 380;
 
   const tabs = ORDER.map((k) => {
     const on = k === key;
     return (
       <Pressable key={k} onPress={() => setKey(k)} accessibilityRole="tab" accessibilityState={{ selected: on }} style={on ? styles.tabOn : styles.tab}>
-        <Text style={[sans, styles.tabText, on && { color: site.ink }]}>{DOCS[k].label}</Text>
+        <Text style={[sans, styles.tabText, on && { color: site.ink }]}>{docs[k].label}</Text>
       </Pressable>
     );
   });
@@ -94,14 +200,14 @@ export function BeforeAfter() {
       <View style={phone ? { gap: 22 } : { flexDirection: 'row', gap: 48, alignItems: 'center' }}>
         <View style={{ width: frameW ?? '100%', maxWidth: '100%', alignSelf: phone ? 'center' : 'flex-start', gap: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={[sans, styles.tag, { backgroundColor: site.ink }]}>Avant</Text>
-            <Text style={[sans, styles.tag, { backgroundColor: site.copper }]}>Avec Cantia</Text>
+            <Text style={[sans, styles.tag, { backgroundColor: site.ink }]}>{ui.before}</Text>
+            <Text style={[sans, styles.tag, { backgroundColor: site.copper }]}>{ui.after}</Text>
           </View>
-          <Wipe key={key} doc={doc} />
+          <Wipe key={`${locale}-${key}`} doc={doc} aria={ui.aria} />
         </View>
         <View style={phone ? { gap: 18 } : { flex: 1, gap: 22, minWidth: 0 }}>
-          <Points title="Avant" items={doc.bad} good={false} />
-          <Points title="Avec Cantia" items={doc.good} good />
+          <Points title={ui.before} items={doc.bad} good={false} />
+          <Points title={ui.after} items={doc.good} good />
         </View>
       </View>
     </View>
@@ -125,7 +231,7 @@ function Points({ title, items, good }: { title: string; items: string[]; good: 
 
 // The wipe itself is plain DOM: pointer capture, clip-path and an ARIA slider
 // handle, which React Native's views don't offer. The site is web only.
-function Wipe({ doc }: { doc: Doc }) {
+function Wipe({ doc, aria }: { doc: Doc; aria: string }) {
   const [x, setX] = useState(50);
   const frame = useRef<HTMLDivElement | null>(null);
   const drag = useRef(false);
@@ -176,7 +282,7 @@ function Wipe({ doc }: { doc: Doc }) {
       {
         type: 'button',
         role: 'slider',
-        'aria-label': 'Comparer avant et avec Cantia',
+        'aria-label': aria,
         'aria-valuemin': 0,
         'aria-valuemax': 100,
         'aria-valuenow': Math.round(x),

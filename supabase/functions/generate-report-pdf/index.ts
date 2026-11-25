@@ -374,13 +374,17 @@ async function renderReportUnified(ctx: RenderCtx): Promise<Uint8Array> {
 
         // ---- next steps ----
         if (structured.next_steps?.trim()) {
-          const lines = wrapText(structured.next_steps, font, 9.8, PAGE_WIDTH - 2 * MARGIN - 60);
+          // The label is longer in German ("NÄCHSTE SCHRITTE ->"): indent the
+          // text by the label's real width so the two never overlap.
+          const nextLabel = rt(locale, 'next');
+          const nextIndent = Math.max(52, fontBold.widthOfTextAtSize(nextLabel, 8.5) + 10);
+          const lines = wrapText(structured.next_steps, font, 9.8, PAGE_WIDTH - 2 * MARGIN - nextIndent - 8);
           const h = lines.length * 13.5 + 8;
           if (y < MARGIN + h + 20) newPage();
-          drawText(page, rt(locale, 'next'), MARGIN, y, fontBold, 8.5, brand);
+          drawText(page, nextLabel, MARGIN, y, fontBold, 8.5, brand);
           let ty = y;
           for (const line of lines) {
-            drawText(page, line, MARGIN + 52, ty, font, 9.8, INK);
+            drawText(page, line, MARGIN + nextIndent, ty, font, 9.8, INK);
             ty -= 13.5;
           }
           y -= h + 16;
