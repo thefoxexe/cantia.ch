@@ -165,7 +165,11 @@ Deno.serve(async (req: Request) => {
       }
       if (offerCode) await admin.from('organizations').update({ promo_code_used: offerCode }).eq('id', org.id);
     }
-    const trialDays = offerDays ?? (useEssai30 ? 30 : org.trial_used !== true ? 14 : null);
+    // A price offer (Black Friday) is paid at once, monthly or yearly: no
+    // trial. The offer has its own 14-day money-back guarantee instead
+    // (conditions générales), handled as a refund. Every other checkout
+    // keeps its trial.
+    const trialDays = priceOfferCode ? null : offerDays ?? (useEssai30 ? 30 : org.trial_used !== true ? 14 : null);
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
