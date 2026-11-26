@@ -12,9 +12,9 @@ corrections du même jour (mis à jour le 18.11.2026 : pages métier DE/IT, offr
 
 | Mot-clé principal | Langue | URL cible | Variantes couvertes |
 |---|---|---|---|
-| logiciel de gestion de chantier | FR | `/` | cantia, logiciel chantier suisse |
-| Software Baustellenverwaltung | DE | `/de` | Handwerkersoftware Schweiz |
-| software gestione cantieri | IT | `/it` | cantieri, gestione cantieri |
+| logiciel de gestion de chantier, logiciel de gestion de projets | FR | `/` | cantia, logiciel chantier suisse, logiciel de gestion PME suisse |
+| Software Baustellenverwaltung, Projektsoftware | DE | `/de` | Handwerkersoftware Schweiz, KMU Software Schweiz |
+| software gestione cantieri, gestione progetti | IT | `/it` | cantieri, gestione cantieri, software PMI Svizzera |
 | logiciel de devis | FR | `/solutions/devis` | devis en ligne, logiciel devis artisan |
 | offerte erstellen | DE | `/de/offerte-erstellen` | offerte, offertenerstellung, offerten programm, online offerte tool, offerten automatisch erstellen, offerte vorlage, offerten vergleichen |
 | creare preventivo | IT | `/it/creare-preventivo` | preventivo gratuito, preventivo costruzioni, modello preventivo |

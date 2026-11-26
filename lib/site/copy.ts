@@ -159,7 +159,7 @@ const fr: SiteCopy = {
   },
   home: {
     eyebrow: 'La suite de gestion suisse',
-    h1: 'Logiciel de gestion de chantier pour les artisans et PME du bâtiment en Suisse',
+    h1: 'Logiciel de gestion de projets et de chantiers pour les PME suisses',
     titlePlain: 'La suite logique',
     titleAccent: 'de vos projets.',
     leadStrong: 'Du devis à la facture, chaque information trouve sa place.',
@@ -264,7 +264,7 @@ const de: SiteCopy = {
   },
   home: {
     eyebrow: 'Die Schweizer Verwaltungssoftware',
-    h1: 'Software für Baustellenverwaltung, Offerten und Rechnungen für Schweizer Handwerksbetriebe',
+    h1: 'Software für Projekte, Baustellen, Offerten und Rechnungen für Schweizer KMU',
     titlePlain: 'Die logische Fortsetzung',
     titleAccent: 'Ihrer Projekte.',
     leadStrong: 'Von der Offerte bis zur Rechnung hat jede Information ihren Platz.',
@@ -369,7 +369,7 @@ const it: SiteCopy = {
   },
   home: {
     eyebrow: 'Il software gestionale svizzero',
-    h1: 'Software di gestione cantieri, preventivi e fatture per imprese edili svizzere',
+    h1: 'Software di gestione progetti e cantieri, preventivi e fatture per PMI svizzere',
     titlePlain: 'Il seguito logico',
     titleAccent: 'dei suoi progetti.',
     leadStrong: 'Dal preventivo alla fattura, ogni informazione trova il suo posto.',

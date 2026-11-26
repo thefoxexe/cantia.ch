@@ -2,9 +2,9 @@ import type { AppLocale } from './translations';
 
 const TITLES: Record<string, Record<AppLocale, string>> = {
   home: {
-    fr: 'Logiciel de gestion de chantier en Suisse | Cantia',
-    de: 'Software für Baustellenverwaltung in der Schweiz | Cantia',
-    it: 'Software di gestione cantieri in Svizzera | Cantia',
+    fr: 'Logiciel de gestion de projets et chantiers en Suisse | Cantia',
+    de: 'Software für Projekte und Baustellen in der Schweiz | Cantia',
+    it: 'Software di gestione progetti e cantieri in Svizzera | Cantia',
   },
   contact: {
     fr: 'Contact | Cantia',

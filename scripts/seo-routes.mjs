@@ -66,9 +66,9 @@ function newCompanyRoute(locale) {
 
 const HOME = {
   path: '',
-  title: 'Logiciel de gestion de chantier en Suisse | Cantia',
+  title: 'Logiciel de gestion de projets et chantiers en Suisse | Cantia',
   description:
-    'Cantia centralise devis, factures, planning, rapports, heures et rentabilité pour les artisans et PME du bâtiment en Suisse.',
+    'Cantia réunit devis, factures, planning, rapports, heures et rentabilité pour les PME suisses qui travaillent par projets : bâtiment, artisanat, entretien, bureaux d’études et agences.',
   faq: HOME_FAQ.fr.items,
 };
 
@@ -3464,9 +3464,9 @@ export const ROUTES = [
 
   {
     path: 'de',
-    title: 'Software für Baustellenverwaltung in der Schweiz | Cantia',
+    title: 'Software für Projekte und Baustellen in der Schweiz | Cantia',
     description:
-      'Cantia zentralisiert Offerten, Rechnungen, Planung, Berichte, Stunden und Rentabilität für Handwerksbetriebe und KMU im Schweizer Bauwesen.',
+      'Cantia vereint Offerten, Rechnungen, Planung, Rapporte, Stunden und Rentabilität für Schweizer KMU, die in Projekten arbeiten: Bau, Handwerk, Unterhalt, Planungsbüros und Agenturen.',
     faq: HOME_FAQ.de.items,
   },
   {
@@ -3827,9 +3827,9 @@ export const ROUTES = [
 
   {
     path: 'it',
-    title: 'Software di gestione cantieri in Svizzera | Cantia',
+    title: 'Software di gestione progetti e cantieri in Svizzera | Cantia',
     description:
-      'Cantia centralizza preventivi, fatture, pianificazione, rapporti, ore e redditività per artigiani e PMI edili in Svizzera.',
+      'Cantia riunisce preventivi, fatture, pianificazione, rapporti, ore e redditività per le PMI svizzere che lavorano per progetti: edilizia, artigianato, manutenzione, studi tecnici e agenzie.',
     faq: HOME_FAQ.it.items,
   },
   {
