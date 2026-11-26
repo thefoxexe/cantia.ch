@@ -4,151 +4,161 @@
 <meta charset="utf-8">
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  /* Black Friday 2026 motion film. Night ground, one flame orange, huge type,
-     numbers that fall. Every element is a function of time (window.frame),
-     rendered image by image by render.js. */
-  :root{--night:#121410;--night2:#1b1e18;--line:#2c3027;--flame:#ff5b1f;--paper:#f4f3e9;--fog:#a9ae9f}
+  /* Black Friday 2026, film v2: urgency first. Countdown in the first second,
+     words that hit, prices that fall, the real app, an alarm before the end.
+     Every layer is a function of time (window.frame), rendered by render.js;
+     the hits drive the shake, the flashes and the sound (sfx.py, window.sfx). */
+  :root{--night:#070806;--night2:#121410;--line:#2a2d22;--flame:#ff5b1f;--hot:#ff3d00;--paper:#f6f4ec;--fog:#9da293}
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#000;font-family:'DM Sans',sans-serif}
   .film{width:1080px;position:relative;overflow:hidden;margin:0 0 40px;background:var(--night);color:var(--paper)}
   .film.reel{height:1920px}
   .film.feed{height:1350px}
-  .scene{position:absolute;inset:0;display:none}
-  .center{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center}
+  .stage{position:absolute;inset:0;will-change:transform}
+  .layer{position:absolute;inset:0;display:none}
+  .abs{position:absolute}
+  .cx{position:absolute;left:0;right:0;text-align:center}
   .serif{font-family:'DM Serif Display',serif;font-style:italic;font-weight:400}
   .flame{color:var(--flame)}
+  .k{font-weight:900;letter-spacing:-.06em;line-height:.86}
+  .lbl{font-weight:800;letter-spacing:.3em;font-size:34px;color:var(--fog)}
 
-  /* ticker at the top */
-  .ticker{position:absolute;left:0;right:0;top:0;height:86px;background:var(--flame);overflow:hidden;z-index:5}
-  .ticker .track{position:absolute;top:0;left:0;white-space:nowrap;font-size:34px;font-weight:800;letter-spacing:.08em;line-height:86px;color:#fff}
-  .progress{position:absolute;left:0;top:86px;height:6px;background:var(--paper);z-index:5}
-  .grain{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:.07;background-image:radial-gradient(rgba(255,255,255,.6) 1px,transparent 1px);background-size:5px 5px}
-  .glow{position:absolute;width:1400px;height:1400px;border-radius:50%;left:-160px;background:radial-gradient(circle,rgba(255,91,31,.28),rgba(255,91,31,0) 62%);z-index:0}
+  .bgglow{position:absolute;inset:-200px;background:radial-gradient(60% 40% at 50% 50%,rgba(255,91,31,.22),rgba(255,91,31,0) 70%)}
+  .rays{position:absolute;left:50%;top:50%;width:3000px;height:3000px;margin:-1500px 0 0 -1500px;
+        background:repeating-conic-gradient(from 0deg,rgba(255,91,31,.16) 0deg 6deg,rgba(255,91,31,0) 6deg 18deg);
+        -webkit-mask:radial-gradient(circle,#000 8%,transparent 50%);mask:radial-gradient(circle,#000 8%,transparent 50%)}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none;mix-blend-mode:screen}
+  .grain{position:absolute;inset:0;z-index:21;pointer-events:none;opacity:.08;background-image:radial-gradient(rgba(255,255,255,.7) 1px,transparent 1px);background-size:4px 4px}
+  .ticker{position:absolute;left:0;right:0;top:0;height:92px;background:var(--flame);overflow:hidden;z-index:15}
+  .ticker .track{position:absolute;top:0;left:0;white-space:nowrap;font-size:38px;font-weight:900;letter-spacing:.06em;line-height:92px;color:#070806}
+  .live{position:absolute;left:48px;z-index:15;display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800;letter-spacing:.18em}
+  .live i{width:20px;height:20px;border-radius:50%;background:var(--hot);box-shadow:0 0 20px var(--hot)}
+  .mini{position:absolute;right:48px;z-index:15;background:rgba(7,8,6,.85);border:3px solid var(--flame);border-radius:22px;padding:12px 24px;text-align:right}
+  .mini small{display:block;font-size:20px;font-weight:800;letter-spacing:.2em;color:var(--flame)}
+  .mini b{display:block;font-size:42px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .bar{position:absolute;left:0;height:10px;background:var(--flame);z-index:15;box-shadow:0 0 20px var(--flame)}
 
-  /* 1 · BLACK FRIDAY */
-  .bf{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-.05em;line-height:.86}
-  .bf span{display:inline-block}
-  .kicker{position:absolute;left:0;right:0;text-align:center;font-size:36px;font-weight:700;letter-spacing:.32em;color:var(--fog)}
+  .clock{display:flex;justify-content:center;gap:18px}
+  .clock .u{width:220px;background:var(--night2);border:4px solid var(--line);border-radius:30px;padding:26px 0 18px;text-align:center}
+  .clock .u b{display:block;font-size:150px;font-weight:900;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums}
+  .clock .u span{display:block;font-size:26px;font-weight:800;letter-spacing:.25em;color:var(--fog);margin-top:10px}
+  .clock .u.hot{border-color:var(--flame);box-shadow:0 0 60px rgba(255,91,31,.45)}
+  .clock .u.hot b{color:var(--flame)}
 
-  /* lines */
-  .lines{position:absolute;left:90px;right:90px}
-  .lines .ln{display:block;overflow:hidden;padding-bottom:.08em}
-  .lines .ln > span{display:block}
-  .h{font-size:118px;font-weight:600;letter-spacing:-.045em;line-height:1.0}
-  .sub{font-size:52px;line-height:1.25;color:var(--fog);font-weight:500;letter-spacing:-.01em}
+  .plan{font-size:50px;font-weight:900;letter-spacing:.32em;color:var(--fog)}
+  .bigprice{font-weight:900;letter-spacing:-.07em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .bigprice small{font-size:80px;font-weight:800;letter-spacing:-.01em;color:var(--fog);vertical-align:top;position:relative;top:40px;margin-right:16px}
+  .slash{position:absolute;height:26px;background:var(--hot);border-radius:13px;box-shadow:0 0 40px var(--hot);transform-origin:left center}
+  .slot{display:inline-block;overflow:hidden;vertical-align:bottom;height:1em;position:relative}
+  .slot > div{display:flex;flex-direction:column}
+  .slot > div span{display:block;height:1em;line-height:1}
+  .stamp{position:absolute;background:var(--flame);color:#fff;font-weight:900;border-radius:30px;padding:12px 36px;letter-spacing:-.03em;box-shadow:0 30px 80px rgba(255,91,31,.55)}
+  .pill2{display:inline-block;border:4px solid var(--flame);border-radius:999px;padding:16px 44px;font-size:52px;font-weight:900;letter-spacing:.04em;color:var(--flame)}
 
-  /* price drop */
-  .plan{position:absolute;left:0;right:0;text-align:center;font-size:44px;font-weight:800;letter-spacing:.3em;color:var(--fog)}
-  .old{position:absolute;left:0;right:0;text-align:center;font-size:120px;font-weight:700;color:var(--fog);letter-spacing:-.04em}
-  .old .num{position:relative;display:inline-block}
-  .old .strike{position:absolute;left:-12px;top:52%;height:12px;background:var(--flame);border-radius:6px;transform-origin:left center}
-  .new{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
-  .new small{font-size:64px;font-weight:700;letter-spacing:-.01em;color:var(--fog);vertical-align:top;margin-right:14px;position:relative;top:40px}
-  .new i{font-style:normal;font-size:56px;font-weight:600;letter-spacing:-.01em;color:var(--fog);margin-left:10px}
-  .stamp{position:absolute;background:var(--flame);color:#fff;font-weight:800;border-radius:28px;padding:10px 34px;letter-spacing:-.03em;box-shadow:0 20px 60px rgba(255,91,31,.45)}
-  .tag{position:absolute;left:0;right:0;text-align:center;font-size:56px;font-weight:600;letter-spacing:-.02em}
+  .card{position:absolute;left:70px;right:70px;border:3px solid var(--line);background:var(--night2);border-radius:44px;padding:40px 54px;display:flex;align-items:center;justify-content:space-between}
+  .card .nm{font-size:58px;font-weight:800;letter-spacing:-.02em}
+  .card .was{font-size:46px;color:var(--fog);text-decoration:line-through;text-decoration-color:var(--hot);text-decoration-thickness:6px;font-weight:700;margin-top:6px}
+  .card .now{font-size:170px;font-weight:900;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
+  .card .pct{position:absolute;right:40px;top:-34px;background:var(--flame);color:#fff;font-size:52px;font-weight:900;border-radius:20px;padding:4px 22px}
 
-  /* two cards */
-  .card{position:absolute;left:90px;right:90px;border:2px solid var(--line);background:var(--night2);border-radius:40px;padding:44px 54px}
-  .card .row{display:flex;justify-content:space-between;align-items:center}
-  .card .nm{font-size:54px;font-weight:700;letter-spacing:-.02em}
-  .card .pct{background:var(--flame);color:#fff;font-size:50px;font-weight:800;border-radius:18px;padding:4px 20px}
-  .card .was{font-size:44px;color:var(--fog);margin-top:22px}
-  .card .was b{text-decoration:line-through;text-decoration-color:var(--flame);text-decoration-thickness:5px;font-weight:600}
-  .card .now{font-size:150px;font-weight:800;letter-spacing:-.05em;line-height:1;margin-top:6px;font-variant-numeric:tabular-nums}
-  .card .now small{font-size:46px;color:var(--fog);font-weight:700;letter-spacing:0;margin-right:10px}
-  .card .now i{font-style:normal;font-size:44px;color:var(--fog);font-weight:600;letter-spacing:0;margin-left:8px}
+  .laptop{position:absolute;left:60px;right:60px;border-radius:26px;overflow:hidden;border:6px solid #23261e;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 80px rgba(255,91,31,.25);background:#fff}
+  .laptop img,.mobile img{display:block;width:100%}
+  .mobile{position:absolute;border-radius:44px;overflow:hidden;border:10px solid #0d0e0b;box-shadow:0 40px 100px rgba(0,0,0,.7),0 0 60px rgba(255,91,31,.35);background:#fff}
+  .chips{position:absolute;left:60px;right:60px;display:flex;flex-wrap:wrap;justify-content:center;gap:18px}
+  .chip{background:var(--flame);color:#070806;font-size:40px;font-weight:900;border-radius:999px;padding:14px 30px;letter-spacing:-.01em}
 
-  /* à vie */
-  .life{position:absolute;left:0;right:0;text-align:center;font-size:330px;line-height:.9;color:var(--flame)}
-  .lock{position:absolute;left:50%;width:150px;height:170px;margin-left:-75px}
-  .lock path,.lock rect{fill:none;stroke:var(--paper);stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
+  .lock{position:absolute;left:50%;width:190px;height:220px;margin-left:-95px}
+  .lock path,.lock rect{fill:none;stroke:var(--paper);stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
 
-  /* the clock */
-  .ring{position:absolute;left:50%;width:520px;height:520px;margin-left:-260px}
-  .ring circle{fill:none;stroke-width:26}
-  .ring .bg{stroke:var(--line)}
-  .ring .fg{stroke:var(--flame);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
-  .ringtxt{position:absolute;left:0;right:0;text-align:center}
-  .ringtxt .d{font-size:84px;font-weight:800;letter-spacing:-.03em;line-height:1}
-  .ringtxt .t{font-size:40px;font-weight:600;color:var(--fog);margin-top:8px}
+  .alarm{position:absolute;inset:0;border:22px solid var(--flame);opacity:0;z-index:14;pointer-events:none}
 
-  /* end card */
-  .logo{position:absolute;left:50%;height:96px;transform:translateX(-50%)}
-  .cta{position:absolute;left:0;right:0;text-align:center;font-size:104px;font-weight:700;letter-spacing:-.045em;line-height:1.02}
-  .url{position:absolute;left:50%;transform:translateX(-50%);background:var(--flame);color:#fff;font-size:52px;font-weight:800;border-radius:999px;padding:24px 56px;white-space:nowrap;letter-spacing:-.01em}
-  .fine{position:absolute;left:0;right:0;text-align:center;font-size:36px;color:var(--fog);font-weight:600}
+  .logo{position:absolute;left:50%;height:100px;transform:translateX(-50%)}
+  .url{position:absolute;left:50%;transform:translateX(-50%);background:var(--flame);color:#fff;font-size:56px;font-weight:900;border-radius:999px;padding:28px 60px;white-space:nowrap;letter-spacing:-.01em}
+  .arrow{position:absolute;left:50%;font-size:90px;font-weight:900;color:var(--flame);transform:translateX(-50%)}
 </style>
 </head>
 <body>
 
 <script>
-// Same film for both formats: positions are set from the centre of the frame.
 const FORMATS = { reel: 1920, feed: 1350 };
-const TICK = 'BLACK FRIDAY · JUSQU’À -54 % À VIE · FIN LUNDI À MINUIT · ';
+const TICK = 'BLACK FRIDAY · -54 % À VIE · FIN LUNDI MINUIT · DERNIÈRE CHANCE · ';
+const CLOCK = () => `<div class="clock">${['JOURS','HEURES','MIN','SEC'].map((u,i)=>`<div class="u ${i===3?'hot':''}"><b>00</b><span>${u}</span></div>`).join('')}</div>`;
+const SLOT = (digits) => `<span class="slot"><div>${digits.map((d)=>`<span>${d}</span>`).join('')}</div></span>`;
 function film(id, kind) {
   const H = FORMATS[kind];
   document.write(`
 <section class="film ${kind}" id="${id}" data-h="${H}">
-  <div class="glow"></div>
+ <div class="stage">
+  <div class="bgglow"></div>
+  <div class="rays"></div>
+
+  <div class="layer A">
+    <div class="cx lbl a-lbl" style="color:var(--flame)">ATTENTION · OFFRE LIMITÉE</div>
+    <div class="cx a-clock">${CLOCK()}</div>
+    <div class="cx a-sub" style="font-size:52px;font-weight:800">Après, c’est fini. <span class="flame">Pour toujours.</span></div>
+  </div>
+
+  <div class="layer B">
+    <div class="abs b-bg" style="inset:0;background:var(--flame)"></div>
+    <div class="cx k b1">BLACK</div>
+    <div class="cx k b2 flame">FRIDAY</div>
+  </div>
+
+  <div class="layer C">
+    <div class="cx lbl c-lbl">CANTIA · JUSQU’À</div>
+    <div class="cx k c-pct flame">-54%</div>
+    <div class="cx c-life serif" style="font-size:170px">à vie.</div>
+  </div>
+
+  <div class="layer D">
+    <div class="cx plan d-plan">ENTREPRISE</div>
+    <div class="cx bigprice d-price"><small>CHF</small><span class="d-num">${SLOT(['1'])}${SLOT(['2'])}${SLOT(['9'])}</span></div>
+    <div class="slash d-slash"></div>
+    <div class="stamp d-stamp">-54%</div>
+    <div class="cx d-life"><span class="pill2">PAR MOIS · À VIE</span></div>
+  </div>
+
+  <div class="layer E">
+    <div class="card e1"><div><div class="nm">Équipe</div><div class="was">CHF 79.–</div></div><div class="now">45<span style="font-size:60px;color:var(--fog);letter-spacing:0">.–</span></div><div class="pct">-43%</div></div>
+    <div class="card e2"><div><div class="nm">Essentiel</div><div class="was">CHF 39.–</div></div><div class="now">25<span style="font-size:60px;color:var(--fog);letter-spacing:0">.–</span></div><div class="pct">-36%</div></div>
+    <div class="cx e-all" style="font-size:56px;font-weight:800;color:var(--fog)">Tous les plans. <span class="flame">À vie.</span></div>
+  </div>
+
+  <div class="layer F">
+    <div class="cx k f-title">TOUT <span class="flame">CANTIA.</span></div>
+    <div class="laptop f-lap"><img src="app-tableau-de-bord.jpg"></div>
+    <div class="mobile f-mob"><img src="app-tableau-de-bord-mobile.jpg"></div>
+    <div class="chips f-chips">${['Devis signés','Factures QR','Chantiers','Planning','Salaires','Comptabilité'].map((c)=>`<span class="chip">${c}</span>`).join('')}</div>
+  </div>
+
+  <div class="layer G">
+    <svg class="lock g-lock" viewBox="0 0 190 220"><path class="shackle" d="M45 100 V66 a50 50 0 0 1 100 0 V100"/><rect x="14" y="100" width="162" height="108" rx="26"/></svg>
+    <div class="cx serif flame g-life" style="line-height:.9">À vie.</div>
+    <div class="cx g-sub" style="font-size:58px;font-weight:800">Votre prix. <span class="flame">Pour toujours.</span></div>
+  </div>
+
+  <div class="layer Hh">
+    <div class="cx lbl h-lbl" style="color:var(--flame)">FIN LUNDI 30.11 · MINUIT</div>
+    <div class="cx h-clock">${CLOCK()}</div>
+    <div class="cx k h-after">APRÈS : <span class="flame">PRIX NORMAL.</span></div>
+    <div class="cx h-sub" style="font-size:48px;font-weight:700;color:var(--fog)">Ces prix ne reviendront jamais.</div>
+  </div>
+
+  <div class="layer I">
+    <img class="logo i-logo" src="logo-on-dark.png">
+    <div class="cx k i-cta">BLOQUEZ<br><span class="flame">VOTRE PRIX.</span></div>
+    <div class="arrow i-arrow">↓</div>
+    <div class="url i-url">cantia.ch/black-friday</div>
+    <div class="cx i-fine" style="font-size:36px;font-weight:700;color:var(--fog)">Fin lundi minuit · 14 jours d’essai · Sans engagement</div>
+  </div>
+ </div>
+
+  <div class="alarm"></div>
   <div class="ticker"><div class="track">${Array(8).fill(`<span>${TICK}</span>`).join('')}</div></div>
-  <div class="progress"></div>
-
-  <div class="scene s1">
-    <div class="kicker">CANTIA · 2026</div>
-    <div class="bf b1">${[...'BLACK'].map((c) => `<span>${c}</span>`).join('')}</div>
-    <div class="bf b2 flame">${[...'FRIDAY'].map((c) => `<span>${c}</span>`).join('')}</div>
-  </div>
-
-  <div class="scene s2">
-    <div class="lines">
-      <span class="ln h"><span>Le premier</span></span>
-      <span class="ln h"><span>Black Friday</span></span>
-      <span class="ln h"><span>de Cantia.</span></span>
-      <span class="ln h" style="margin-top:40px"><span class="serif flame">Et le plus fort</span></span>
-      <span class="ln h"><span class="serif flame">qu’il y aura jamais.</span></span>
-    </div>
-  </div>
-
-  <div class="scene s3">
-    <div class="plan">ENTREPRISE</div>
-    <div class="old"><span class="num">CHF 129<span class="strike"></span></span></div>
-    <div class="new"><small>CHF</small><span class="v">129</span><i>/mois</i></div>
-    <div class="stamp">-54%</div>
-    <div class="tag">Tout Cantia. <span class="serif flame">À vie.</span></div>
-  </div>
-
-  <div class="scene s4">
-    <div class="card c1"><div class="row"><div class="nm">Équipe</div><div class="pct">-43%</div></div>
-      <div class="was">au lieu de <b>CHF 79</b></div><div class="now"><small>CHF</small><span class="v">79</span><i>/mois</i></div></div>
-    <div class="card c2"><div class="row"><div class="nm">Essentiel</div><div class="pct">-36%</div></div>
-      <div class="was">au lieu de <b>CHF 39</b></div><div class="now"><small>CHF</small><span class="v">39</span><i>/mois</i></div></div>
-  </div>
-
-  <div class="scene s5">
-    <svg class="lock" viewBox="0 0 150 170"><path class="shackle" d="M35 78 V52 a40 40 0 0 1 80 0 V78"/><rect x="12" y="78" width="126" height="84" rx="20"/></svg>
-    <div class="life serif">À vie.</div>
-    <div class="lines s5l" style="text-align:center">
-      <span class="ln sub"><span>Votre prix ne bougera plus.</span></span>
-      <span class="ln sub"><span>Même quand nos tarifs augmenteront.</span></span>
-    </div>
-  </div>
-
-  <div class="scene s6">
-    <svg class="ring" viewBox="0 0 520 520"><circle class="bg" cx="260" cy="260" r="230"/><circle class="fg" cx="260" cy="260" r="230" pathLength="1" stroke-dasharray="1 1"/></svg>
-    <div class="ringtxt"><div class="d">LUNDI</div><div class="t">30.11 · minuit</div></div>
-    <div class="lines s6l" style="text-align:center">
-      <span class="ln h" style="font-size:104px"><span>Après, c’est fini.</span></span>
-      <span class="ln h" style="font-size:104px"><span class="serif flame">Pour toujours.</span></span>
-    </div>
-  </div>
-
-  <div class="scene s7">
-    <img class="logo" src="logo-on-dark.png">
-    <div class="cta">Bloquez<br>votre prix.</div>
-    <div class="url">cantia.ch/black-friday</div>
-    <div class="fine">14 jours d’essai · Résiliable à tout moment</div>
-  </div>
+  <div class="live"><i></i>OFFRE EN COURS</div>
+  <div class="mini"><small>FIN DANS</small><b>3J 07:59:59</b></div>
+  <div class="bar"></div>
+  <div class="flash"></div>
   <div class="grain"></div>
 </section>`);
 }
@@ -159,193 +169,312 @@ film('v-feed', 'feed');
 <script>
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, k) => a + (b - a) * k;
-const expoOut = (x) => (x === 1 ? 1 : 1 - Math.pow(2, -10 * x));
-const backOut = (x) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const expoOut = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+const backOut = (x) => { const c1 = 2.2, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
 const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-const seg = (t, a, b, ease = inOut) => ease(clamp((t - a) / (b - a)));
+const lin = (x) => x;
+const seg = (t, a, b, e = inOut) => e(clamp((t - a) / (b - a)));
+const pad = (n) => String(Math.max(0, Math.floor(n))).padStart(2, '0');
 
-// scene windows [start, end]
-const S = { s1: [0, 2.4], s2: [2.4, 4.8], s3: [4.8, 8.6], s4: [8.6, 11.2], s5: [11.2, 13.6], s6: [13.6, 16.0], s7: [16.0, 19.0] };
-const DUR = 19.0;
-const CUTS = [2.4, 4.8, 8.6, 11.2, 13.6, 16.0];
+const L = { A: [0, 1.6], B: [1.6, 3.2], C: [3.2, 4.8], D: [4.8, 7.6], E: [7.6, 9.6], F: [9.6, 12.0], G: [12.0, 13.6], Hh: [13.6, 16.8], I: [16.8, 20.0] };
+const DUR = 20.0;
+const HITS = [
+  [1.6, 'big'], [2.0, 'big'], [2.4, 'big'], [3.2, 'big'], [4.0, 'mid'],
+  [4.8, 'mid'], [5.4, 'big'], [6.3, 'big'], [7.6, 'mid'], [8.4, 'mid'], [9.0, 'small'],
+  [9.6, 'mid'], [12.0, 'mid'], [12.35, 'big'], [13.6, 'big'], [15.6, 'big'], [16.8, 'big'],
+];
+const SFX = [
+  ...Array.from({ length: 13 }, (_, i) => [0.05 + i * 0.12, 'tick']),
+  [0.9, 'riser'], ...HITS.map(([t, k]) => [t, k === 'big' ? 'hit' : k === 'mid' ? 'punch' : 'pop']),
+  [5.6, 'spin'], [7.5, 'whoosh'], [8.3, 'whoosh'], ...Array.from({ length: 6 }, (_, i) => [10.2 + i * 0.22, 'pop']),
+  ...Array.from({ length: 15 }, (_, i) => [13.75 + i * 0.125, 'tick']), [14.9, 'riser'], [15.6, 'alarm'], [16.0, 'alarm'], [16.4, 'alarm'],
+  [19.2, 'pop'],
+];
 
-function show(F, name, t, fadeOut = true) {
-  const [a, b] = S[name];
+function vis(F, name, t) {
+  const [a, b] = L[name];
   const el = F.querySelector('.' + name);
-  const vis = t >= a - 0.001 && t < b + (fadeOut ? 0.25 : 0);
-  el.style.display = vis ? 'block' : 'none';
-  el.style.opacity = fadeOut ? 1 - seg(t, b - 0.05, b + 0.25) : 1;
+  el.style.display = t >= a && t < b ? 'block' : 'none';
   return el;
 }
-function revealLines(el, t, a, step = 0.14) {
-  el.querySelectorAll('.ln > span').forEach((s, i) => {
-    const k = seg(t, a + i * step, a + i * step + 0.7, expoOut);
-    s.style.transform = `translateY(${(1 - k) * 110}%)`;
-  });
+function shakeAt(t) {
+  let x = 0, y = 0, r = 0, f = 0;
+  for (const [h, k] of HITS) {
+    const d = t - h;
+    if (d < 0 || d > 0.45) continue;
+    const amp = k === 'big' ? 30 : k === 'mid' ? 16 : 7;
+    const e = Math.exp(-d * 11);
+    x += Math.sin(d * 95) * amp * e;
+    y += Math.cos(d * 77) * amp * 0.7 * e;
+    r += Math.sin(d * 60) * (k === 'big' ? 1.2 : 0.5) * e;
+    f = Math.max(f, (k === 'big' ? 0.55 : k === 'mid' ? 0.25 : 0.1) * Math.exp(-d * 20));
+  }
+  return { x, y, r, f };
 }
-function count(from, to, k) { return Math.round(lerp(from, to, k)); }
+function setClock(el, secs) {
+  secs = Math.max(0, secs);
+  const v = [secs / 86400, (secs % 86400) / 3600, (secs % 3600) / 60, secs % 60];
+  el.querySelectorAll('b').forEach((b, i) => (b.textContent = pad(v[i])));
+}
+function buildSlot(s, seq) {
+  if (s.dataset.built) return;
+  s.firstElementChild.innerHTML = seq.map((d) => `<span>${d}</span>`).join('');
+  s.dataset.built = '1';
+}
+function rollSlot(s, k) {
+  const n = s.firstElementChild.children.length - 1;
+  s.firstElementChild.style.transform = `translateY(${-k * n}em)`;
+}
 
 function frame(id, t) {
   const F = document.getElementById(id);
   const H = +F.dataset.h, C = H / 2, tall = H > 1500;
+  const S = F.querySelector('.stage');
 
-  // global: ticker scroll, progress, glow drift
-  const tr = F.querySelector('.track'), loop = tr.firstElementChild.offsetWidth || 1400;
-  tr.style.transform = `translateX(${-(t * 140) % loop}px)`;
-  F.querySelector('.progress').style.width = 1080 * clamp(t / 16.0) + 'px';
-  const endK = seg(t, 15.9, 16.3);
-  F.querySelector('.ticker').style.transform = `translateY(${-endK * 100}px)`;
-  F.querySelector('.progress').style.opacity = 1 - endK;
-  const g = F.querySelector('.glow');
-  g.style.top = C - 700 + Math.sin(t * 0.6) * 120 + 'px';
-  g.style.left = -160 + Math.cos(t * 0.45) * 140 + 'px';
+  const sh = shakeAt(t);
+  S.style.transform = `translate(${sh.x}px,${sh.y}px) rotate(${sh.r}deg) scale(${1 + sh.f * 0.08})`;
+  F.querySelector('.flash').style.opacity = sh.f;
 
-  // 1 · BLACK FRIDAY, letters dropping
+  const chromeOn = t >= 1.6 && t < 16.8;
+  const tr = F.querySelector('.track'), loop = tr.firstElementChild.offsetWidth || 1600;
+  tr.style.transform = `translateX(${-(t * 260) % loop}px)`;
+  F.querySelector('.ticker').style.transform = `translateY(${chromeOn ? 0 : -110}px)`;
+  const live = F.querySelector('.live'), mini = F.querySelector('.mini');
+  live.style.top = '136px'; mini.style.top = '118px';
+  live.style.opacity = chromeOn ? 1 : 0;
+  live.querySelector('i').style.opacity = Math.floor(t * 3) % 2 ? 0.25 : 1;
+  mini.style.opacity = chromeOn ? 1 : 0;
+  const rem = 3 * 86400 + 7 * 3600 + 59 * 60 + 59 - Math.floor(t);
+  mini.querySelector('b').textContent = `3J ${pad((rem % 86400) / 3600)}:${pad((rem % 3600) / 60)}:${pad(rem % 60)}`;
+  const bar = F.querySelector('.bar');
+  bar.style.top = H - 10 + 'px';
+  bar.style.width = 1080 * (1 - clamp(t / DUR)) + 'px';
+  const rays = F.querySelector('.rays');
+  rays.style.transform = `rotate(${t * 22}deg)`;
+  rays.style.opacity = (t >= 3.2 && t < 4.8) || (t >= 12 && t < 13.6) || t >= 16.8 ? 1 : 0;
+  F.querySelector('.bgglow').style.opacity = 0.55 + 0.45 * Math.abs(Math.sin(t * 4));
+
+  // A · the clock running down
   {
-    const el = show(F, 's1', t);
-    const size = tall ? 250 : 220;
-    const b1 = el.querySelector('.b1'), b2 = el.querySelector('.b2');
+    const el = vis(F, 'A', t);
+    const top = C - (tall ? 330 : 280);
+    const lb = el.querySelector('.a-lbl');
+    lb.style.top = top + 'px';
+    lb.style.opacity = Math.floor(t * 6) % 2 ? 0.4 : 1;
+    const ck = el.querySelector('.a-clock');
+    ck.style.top = top + 80 + 'px';
+    const k = seg(t, 0, 0.3, backOut);
+    ck.style.transform = `scale(${lerp(1.6, 1, clamp(k))})`;
+    ck.style.opacity = clamp(k * 3);
+    setClock(ck, 3 * 86400 + 7 * 3600 + 59 * 60 + 59 - Math.pow(t * 6, 3) * 30);
+    const sub = el.querySelector('.a-sub');
+    sub.style.top = top + 400 + 'px';
+    const sk = seg(t, 0.6, 0.9, backOut);
+    sub.style.opacity = clamp(sk * 3); sub.style.transform = `scale(${lerp(1.5, 1, clamp(sk))})`;
+  }
+
+  // B · BLACK / FRIDAY
+  {
+    const el = vis(F, 'B', t);
+    const bg = el.querySelector('.b-bg'), b1 = el.querySelector('.b1'), b2 = el.querySelector('.b2');
+    const phase = t < 2.0 ? 0 : t < 2.4 ? 1 : 2;
+    const size = phase === 2 ? (tall ? 290 : 250) : (tall ? 330 : 290);
     b1.style.fontSize = b2.style.fontSize = size + 'px';
-    b1.style.top = C - size * 0.95 + 'px';
-    b2.style.top = C + size * 0.02 + 'px';
-    [...b1.children, ...b2.children].forEach((s, i) => {
-      const k = seg(t, 0.15 + i * 0.07, 0.15 + i * 0.07 + 0.55, backOut);
-      s.style.transform = `translateY(${(1 - k) * -260}px) scale(${lerp(1.6, 1, clamp(k))})`;
-      s.style.opacity = clamp(k * 3);
-    });
-    const z = seg(t, 1.6, 2.4);
-    b1.style.transform = b2.style.transform = `scale(${1 + z * 0.12})`;
-    const kk = el.querySelector('.kicker');
-    kk.style.top = C - size * 0.95 - 110 + 'px';
-    kk.style.opacity = seg(t, 0.9, 1.4);
-    kk.style.letterSpacing = lerp(0.6, 0.32, seg(t, 0.9, 1.8, expoOut)) + 'em';
+    bg.style.display = phase === 0 ? 'block' : 'none';
+    b1.style.color = phase === 0 ? '#070806' : '#f6f4ec';
+    b1.style.display = phase === 1 ? 'none' : 'block';
+    b2.style.display = phase === 0 ? 'none' : 'block';
+    if (phase === 0) { b1.style.top = C - size * 0.45 + 'px'; b1.style.transform = `scale(${lerp(2.4, 1, seg(t, 1.6, 1.72, expoOut)) + (t - 1.6) * 0.15})`; }
+    if (phase === 1) { b2.style.top = C - size * 0.45 + 'px'; b2.style.transform = `scale(${lerp(2.4, 1, seg(t, 2.0, 2.12, expoOut)) + (t - 2.0) * 0.15})`; }
+    if (phase === 2) {
+      const k = seg(t, 2.4, 2.55, expoOut);
+      b1.style.top = C - size * 0.95 + 'px'; b2.style.top = C + size * 0.02 + 'px';
+      const sc = lerp(1.7, 1, k) + seg(t, 2.55, 3.2, lin) * 0.1;
+      b1.style.transform = b2.style.transform = `scale(${sc})`;
+      b2.style.textShadow = `0 0 60px rgba(255,91,31,.6)`;
+    }
   }
 
-  // 2 · the first, and the strongest
+  // C · -54 %
   {
-    const el = show(F, 's2', t);
-    const L = el.querySelector('.lines');
-    L.style.top = C - (tall ? 380 : 330) + 'px';
-    revealLines(el, t, 2.5);
-    // second part appears a beat later
-    el.querySelectorAll('.ln > span').forEach((s, i) => {
-      if (i < 3) return;
-      const k = seg(t, 3.45 + (i - 3) * 0.14, 3.45 + (i - 3) * 0.14 + 0.7, expoOut);
-      s.style.transform = `translateY(${(1 - k) * 110}%)`;
-    });
+    const el = vis(F, 'C', t);
+    const pct = el.querySelector('.c-pct');
+    pct.style.fontSize = (tall ? 360 : 330) + 'px';
+    pct.style.top = C - (tall ? 200 : 180) + 'px';
+    const k = seg(t, 3.2, 3.42, expoOut);
+    pct.style.transform = `scale(${lerp(3.6, 1, k) + seg(t, 3.42, 4.8, lin) * 0.06})`;
+    pct.style.textShadow = `0 0 ${60 + 50 * Math.abs(Math.sin(t * 6))}px rgba(255,91,31,.6)`;
+    const lb = el.querySelector('.c-lbl');
+    lb.style.top = C - (tall ? 330 : 285) + 'px';
+    lb.style.opacity = seg(t, 3.35, 3.55);
+    const lf = el.querySelector('.c-life');
+    lf.style.top = C + (tall ? 180 : 150) + 'px';
+    const lk = seg(t, 4.0, 4.18, backOut);
+    lf.style.opacity = clamp(lk * 3);
+    lf.style.transform = `scale(${lerp(2.2, 1, clamp(lk))}) rotate(${lerp(-14, -4, clamp(lk))}deg)`;
   }
 
-  // 3 · 129 falls to 59
+  // D · CHF 129 is slashed, the digits spin down to 59
   {
-    const el = show(F, 's3', t);
-    const top = C - (tall ? 380 : 350);
-    el.querySelector('.plan').style.top = top + 'px';
-    el.querySelector('.plan').style.opacity = seg(t, 4.9, 5.3);
-    const old = el.querySelector('.old');
-    const o = seg(t, 5.0, 5.4, expoOut);
-    old.style.top = top + 70 + 'px';
-    old.style.opacity = o * lerp(1, 0.55, seg(t, 6.0, 6.4));
-    old.style.transform = `scale(${lerp(1.4, 1, o) * lerp(1, 0.7, seg(t, 6.0, 6.5))})`;
-    el.querySelector('.strike').style.width = 'calc(100% + 24px)';
-    el.querySelector('.strike').style.transform = `scaleX(${seg(t, 5.5, 5.9)}) rotate(-4deg)`;
-    const nw = el.querySelector('.new');
-    const nk = seg(t, 5.8, 6.2, expoOut);
-    nw.style.fontSize = (tall ? 330 : 290) + 'px';
-    nw.style.top = top + 230 + 'px';
-    nw.style.opacity = nk;
-    nw.style.transform = `translateY(${(1 - nk) * 80}px)`;
-    nw.querySelector('.v').textContent = count(129, 59, seg(t, 6.0, 7.0, expoOut));
-    const st = el.querySelector('.stamp');
-    const sk = seg(t, 7.0, 7.45, backOut);
-    st.style.fontSize = (tall ? 120 : 104) + 'px';
-    st.style.right = '110px';
-    st.style.top = top + (tall ? 170 : 160) + 'px';
+    const el = vis(F, 'D', t);
+    const top = C - (tall ? 380 : 330);
+    const plan = el.querySelector('.d-plan');
+    plan.style.top = top + 'px';
+    plan.style.opacity = seg(t, 4.85, 5.0);
+    const price = el.querySelector('.d-price');
+    const fs = tall ? 360 : 310;
+    price.style.fontSize = fs + 'px';
+    price.style.top = top + 100 + 'px';
+    const pin = seg(t, 4.8, 5.0, expoOut);
+    price.style.transform = `translateX(${-seg(t, 6.15, 6.4, expoOut) * 150}px) scale(${lerp(1.9, 1, pin)})`;
+    price.style.opacity = pin;
+    price.style.color = t < 5.5 ? '#9da293' : '#f6f4ec';
+    const slots = el.querySelectorAll('.d-num .slot');
+    buildSlot(slots[1], ['2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5']);
+    buildSlot(slots[2], ['9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const gone = seg(t, 5.55, 5.8, expoOut);
+    slots[0].style.width = `${(1 - gone) * 0.56}em`;
+    slots[0].style.opacity = 1 - gone;
+    rollSlot(slots[1], seg(t, 5.6, 6.2, expoOut));
+    rollSlot(slots[2], seg(t, 5.6, 6.3, expoOut));
+    const blur = t > 5.6 && t < 6.15 ? 4 : 0;
+    slots[1].style.filter = slots[2].style.filter = `blur(${blur}px)`;
+    const sl = el.querySelector('.d-slash');
+    sl.style.left = '150px'; sl.style.width = '800px';
+    sl.style.top = top + 100 + fs * 0.5 + 'px';
+    sl.style.transform = `rotate(-10deg) scaleX(${seg(t, 5.3, 5.4, lin)})`;
+    sl.style.opacity = 1 - seg(t, 5.55, 5.7);
+    const st = el.querySelector('.d-stamp');
+    const sk = seg(t, 6.3, 6.48, backOut);
+    st.style.fontSize = (tall ? 120 : 100) + 'px';
+    st.style.right = '50px';
+    st.style.top = top + 100 + fs * 0.18 + 'px';
     st.style.opacity = clamp(sk * 4);
-    st.style.transform = `rotate(${lerp(-40, -8, sk)}deg) scale(${lerp(2.4, 1, clamp(sk))})`;
-    const tg = el.querySelector('.tag');
-    tg.style.top = top + (tall ? 640 : 590) + 'px';
-    const tk = seg(t, 7.5, 8.0, expoOut);
-    tg.style.opacity = tk;
-    tg.style.transform = `translateY(${(1 - tk) * 30}px)`;
+    st.style.transform = `rotate(${lerp(-45, -9, clamp(sk))}deg) scale(${lerp(3, 1, clamp(sk))})`;
+    const lf = el.querySelector('.d-life');
+    lf.style.top = top + 100 + fs + (tall ? 70 : 50) + 'px';
+    const lk = seg(t, 6.55, 6.8, backOut);
+    lf.style.opacity = clamp(lk * 3); lf.style.transform = `scale(${lerp(1.6, 1, clamp(lk))})`;
   }
 
-  // 4 · Équipe and Essentiel
+  // E · Équipe and Essentiel
   {
-    const el = show(F, 's4', t);
-    const gap = tall ? 60 : 36, ch = 420;
-    const c1 = el.querySelector('.c1'), c2 = el.querySelector('.c2');
-    c1.style.top = C - ch - gap / 2 + 'px';
-    c2.style.top = C + gap / 2 + 'px';
-    const k1 = seg(t, 8.7, 9.3, expoOut), k2 = seg(t, 8.95, 9.55, expoOut);
-    c1.style.transform = `translateX(${(1 - k1) * -1100}px)`;
-    c2.style.transform = `translateX(${(1 - k2) * 1100}px)`;
-    c1.querySelector('.v').textContent = count(79, 45, seg(t, 9.4, 10.2, expoOut));
-    c2.querySelector('.v').textContent = count(39, 25, seg(t, 9.65, 10.45, expoOut));
-    [c1, c2].forEach((c, i) => {
-      const p = c.querySelector('.pct'), k = seg(t, 10.1 + i * 0.25, 10.5 + i * 0.25, backOut);
-      p.style.transform = `scale(${lerp(0, 1, k)}) rotate(${lerp(-30, -4, clamp(k))}deg)`;
+    const el = vis(F, 'E', t);
+    const e1 = el.querySelector('.e1'), e2 = el.querySelector('.e2'), all = el.querySelector('.e-all');
+    const gap = tall ? 70 : 50, ch = 290;
+    e1.style.top = C - ch - gap / 2 - (tall ? 80 : 60) + 'px';
+    e2.style.top = C + gap / 2 - (tall ? 80 : 60) + 'px';
+    const k1 = seg(t, 7.6, 7.82, expoOut), k2 = seg(t, 8.4, 8.62, expoOut);
+    e1.style.transform = `translateX(${(1 - k1) * -1300}px) rotate(${(1 - k1) * -10}deg)`;
+    e2.style.transform = `translateX(${(1 - k2) * 1300}px) rotate(${(1 - k2) * 10}deg)`;
+    [[e1, 7.82], [e2, 8.62]].forEach(([e, a]) => {
+      const p = e.querySelector('.pct'), k = seg(t, a, a + 0.22, backOut);
+      p.style.transform = `scale(${lerp(0, 1, k)}) rotate(${lerp(-40, -6, clamp(k))}deg)`;
+    });
+    all.style.top = C + ch + gap - (tall ? 40 : 50) + 'px';
+    const ak = seg(t, 9.0, 9.2, backOut);
+    all.style.opacity = clamp(ak * 3); all.style.transform = `scale(${lerp(1.6, 1, clamp(ak))})`;
+  }
+
+  // F · the real app
+  {
+    const el = vis(F, 'F', t);
+    const ti = el.querySelector('.f-title');
+    ti.style.fontSize = (tall ? 150 : 84) + 'px';
+    ti.style.top = (tall ? C - 720 : C - 420) + 'px';
+    const tk = seg(t, 9.6, 9.8, backOut);
+    ti.style.transform = `scale(${lerp(2, 1, clamp(tk))})`; ti.style.opacity = clamp(tk * 3);
+    const lap = el.querySelector('.f-lap');
+    const lk = seg(t, 9.75, 10.25, expoOut);
+    lap.style.top = (tall ? C - 480 : C - 300) + 'px';
+    lap.style.transform = `perspective(1600px) rotateX(${lerp(40, 6, lk)}deg) translateY(${(1 - lk) * 500}px) scale(${lerp(0.85, 1, lk) + seg(t, 10.25, 12, lin) * 0.05})`;
+    lap.style.opacity = lk;
+    const mob = el.querySelector('.f-mob');
+    const mk = seg(t, 10.0, 10.35, backOut);
+    mob.style.width = (tall ? 300 : 220) + 'px';
+    mob.style.right = '60px';
+    mob.style.top = (tall ? C - 160 : C - 120) + 'px';
+    mob.style.transform = `translateY(${(1 - clamp(mk)) * 600}px) rotate(${lerp(16, 4, clamp(mk))}deg)`;
+    const chips = el.querySelector('.f-chips');
+    chips.style.top = (tall ? C + 430 : C + 365) + 'px';
+    chips.querySelectorAll('.chip').forEach((c, i) => {
+      const k = seg(t, 10.2 + i * 0.22, 10.42 + i * 0.22, backOut);
+      c.style.transform = `scale(${Math.max(0, k)})`;
+      c.style.opacity = clamp(k * 3);
     });
   }
 
-  // 5 · À VIE
+  // G · À vie
   {
-    const el = show(F, 's5', t);
-    const lk = el.querySelector('.lock');
-    lk.style.top = C - (tall ? 470 : 420) + 'px';
-    const a = seg(t, 11.3, 11.7, expoOut);
-    lk.style.opacity = a;
-    lk.style.transform = `scale(${lerp(0.6, 1, a)})`;
-    // the shackle closes
-    lk.querySelector('.shackle').style.transform = `translateY(${(1 - seg(t, 11.8, 12.1, backOut)) * -26}px)`;
-    const life = el.querySelector('.life');
-    life.style.top = C - (tall ? 250 : 220) + 'px';
-    const lk2 = seg(t, 11.6, 12.1, backOut);
-    life.style.opacity = clamp(lk2 * 3);
-    life.style.transform = `scale(${lerp(1.5, 1, clamp(lk2))})`;
-    const L = el.querySelector('.s5l');
-    L.style.top = C + (tall ? 150 : 120) + 'px';
-    revealLines(el, t, 12.2, 0.2);
+    const el = vis(F, 'G', t);
+    const lk = el.querySelector('.g-lock');
+    lk.style.top = C - (tall ? 520 : 450) + 'px';
+    const a = seg(t, 12.0, 12.18, expoOut);
+    lk.style.opacity = a; lk.style.transform = `scale(${lerp(0.3, 1, a)})`;
+    lk.querySelector('.shackle').style.transform = `translateY(${(1 - seg(t, 12.25, 12.35, lin)) * -36}px)`;
+    const life = el.querySelector('.g-life');
+    life.style.fontSize = (tall ? 380 : 320) + 'px';
+    life.style.top = C - (tall ? 240 : 210) + 'px';
+    const k = seg(t, 12.35, 12.52, backOut);
+    life.style.opacity = clamp(k * 3);
+    life.style.transform = `scale(${lerp(2.6, 1, clamp(k)) + seg(t, 12.52, 13.6, lin) * 0.06})`;
+    life.style.textShadow = `0 0 ${50 + 50 * Math.abs(Math.sin(t * 7))}px rgba(255,91,31,.65)`;
+    const sub = el.querySelector('.g-sub');
+    sub.style.top = C + (tall ? 170 : 140) + 'px';
+    const sk = seg(t, 12.7, 12.9, backOut);
+    sub.style.opacity = clamp(sk * 3); sub.style.transform = `scale(${lerp(1.5, 1, clamp(sk))})`;
   }
 
-  // 6 · the clock empties
+  // H · the alarm: towards midnight
   {
-    const el = show(F, 's6', t);
-    const ring = el.querySelector('.ring');
-    ring.style.top = C - (tall ? 560 : 500) + 'px';
-    const rk = seg(t, 13.7, 14.1, expoOut);
-    ring.style.opacity = rk;
-    ring.style.transform = `scale(${lerp(0.8, 1, rk)})`;
-    el.querySelector('.fg').style.strokeDashoffset = -seg(t, 13.9, 15.6, (x) => x) * 0.92;
-    const rt = el.querySelector('.ringtxt');
-    rt.style.top = C - (tall ? 560 : 500) + 190 + 'px';
-    rt.style.opacity = seg(t, 14.0, 14.4);
-    const L = el.querySelector('.s6l');
-    L.style.left = '60px'; L.style.right = '60px';
-    L.style.top = C + (tall ? 60 : 70) + 'px';
-    revealLines(el, t, 14.5, 0.25);
+    const el = vis(F, 'Hh', t);
+    const top = C - (tall ? 470 : 410);
+    const lb = el.querySelector('.h-lbl');
+    lb.style.top = top + 'px';
+    lb.style.opacity = Math.floor(t * 5) % 2 ? 0.45 : 1;
+    const ck = el.querySelector('.h-clock');
+    ck.style.top = top + 80 + 'px';
+    const k = seg(t, 13.6, 13.82, backOut);
+    ck.style.transform = `scale(${lerp(1.7, 1, clamp(k))})`;
+    const p = seg(t, 13.6, 15.6, (x) => 1 - Math.pow(1 - x, 2.4));
+    const secs = t < 15.6 ? lerp(3 * 86400 + 7 * 3600 + 59 * 60 + 59, 3, p) : Math.max(0, 3 - Math.floor((t - 15.6) * 2.5));
+    setClock(ck, secs);
+    const units = ck.querySelectorAll('.u');
+    units.forEach((u, i) => u.classList.toggle('hot', t > 15.6 || i === 3));
+    const af = el.querySelector('.h-after');
+    af.style.fontSize = (tall ? 112 : 96) + 'px';
+    af.style.top = top + (tall ? 450 : 400) + 'px';
+    const ak = seg(t, 15.6, 15.75, expoOut);
+    af.style.opacity = ak; af.style.transform = `scale(${lerp(2.2, 1, ak)})`;
+    const sb = el.querySelector('.h-sub');
+    sb.style.top = top + (tall ? 610 : 540) + 'px';
+    sb.style.opacity = seg(t, 15.9, 16.15);
   }
+  F.querySelector('.alarm').style.opacity = t >= 15.6 && t < 16.8 ? (Math.floor(t * 5) % 2 ? 0.15 : 1) : 0;
 
-  // 7 · end card
+  // I · end card
   {
-    const el = show(F, 's7', t, false);
-    const y0 = C - (tall ? 360 : 380);
-    const items = [['.logo', 16.1, y0], ['.cta', 16.3, y0 + 190], ['.url', 16.7, y0 + (tall ? 470 : 460)], ['.fine', 16.9, y0 + (tall ? 620 : 600)]];
+    const el = vis(F, 'I', t);
+    const y0 = C - (tall ? 540 : 470);
+    el.querySelector('.i-cta').style.fontSize = (tall ? 150 : 120) + 'px';
+    const items = [['.i-logo', 16.8, y0], ['.i-cta', 16.9, y0 + 170], ['.i-arrow', 17.4, y0 + (tall ? 530 : 460)], ['.i-url', 17.5, y0 + (tall ? 660 : 580)], ['.i-fine', 17.8, y0 + (tall ? 830 : 740)]];
     items.forEach(([sel, a, y]) => {
-      const e = el.querySelector(sel), k = seg(t, a, a + 0.7, expoOut);
+      const e = el.querySelector(sel), k = seg(t, a, a + 0.3, backOut);
       e.style.top = y + 'px';
-      e.style.opacity = k;
-      e.style.translate = `0 ${(1 - k) * 40}px`;
+      e.style.opacity = clamp(k * 3);
+      e.style.scale = String(lerp(1.6, 1, clamp(k)));
     });
-    // the pill breathes
-    const u = el.querySelector('.url');
-    u.style.scale = 1 + Math.sin(Math.max(0, t - 17.4) * 5) * 0.025 * seg(t, 17.4, 17.8);
+    el.querySelector('.i-arrow').style.translate = `-50% ${Math.abs(Math.sin(t * 7)) * 26}px`;
+    const u = el.querySelector('.i-url');
+    const pulse = (Math.max(0, t - 17.9) * 1.6) % 1;
+    u.style.boxShadow = `0 0 0 ${pulse * 40}px rgba(255,91,31,${0.55 * (1 - pulse)}), 0 20px 60px rgba(255,91,31,.5)`;
   }
 }
 
 window.frame = frame;
 window.durations = { 'v-reel': DUR, 'v-feed': DUR };
-window.cuts = { 'v-reel': CUTS, 'v-feed': CUTS };
-frame('v-reel', 7.6); frame('v-feed', 9.8);
+window.sfx = SFX;
+frame('v-reel', 6.6); frame('v-feed', 10.8);
 </script>
 </body>
 </html>

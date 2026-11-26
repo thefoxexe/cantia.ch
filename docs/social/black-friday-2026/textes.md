@@ -13,8 +13,8 @@ Du vendredi 27 au **lundi 30 novembre à minuit** (heure suisse). Après, le cod
 
 | Fichier | Format | Où |
 |---|---|---|
-| `videos/cantia-black-friday-9x16.mp4` | 1080 × 1920, 19 s | Reel Instagram, Story, YouTube Short, TikTok, pub Meta en Story/Reel |
-| `videos/cantia-black-friday-4x5.mp4` | 1080 × 1350, 19 s | Post vidéo LinkedIn et Instagram, pub LinkedIn et Meta en fil |
+| `videos/cantia-black-friday-9x16.mp4` | 1080 × 1920, 20 s | Reel Instagram, Story, YouTube Short, TikTok, pub Meta en Story/Reel |
+| `videos/cantia-black-friday-4x5.mp4` | 1080 × 1350, 20 s | Post vidéo LinkedIn et Instagram, pub LinkedIn et Meta en fil |
 | `stories/story-1-lancement.png` | 1080 × 1920 | Vendredi matin |
 | `stories/story-2-prix.png` | 1080 × 1920 | Vendredi midi, samedi |
 | `stories/story-3-plus-que-24h.png` | 1080 × 1920 | Dimanche soir |
@@ -25,7 +25,7 @@ Du vendredi 27 au **lundi 30 novembre à minuit** (heure suisse). Après, le cod
 
 Les stories ont une zone pointillée : **posez-y le sticker « Lien »** (vers la page) et, sur la story 4, le **sticker « Compte à rebours »** d’Instagram réglé sur lundi 30.11 à 23:59. Les gens qui appuient sur « Me le rappeler » reçoivent une notification à la fin.
 
-Son des vidéos : un glissement doux à chaque plan, pas de musique. Ajoutez une musique tendance dans Instagram, TikTok ou YouTube, à volume moyen. Tout se lit sans le son.
+Son des vidéos : un battement à 128 BPM, un impact à chaque mot qui frappe, le tic-tac des comptes à rebours et une alarme avant la fin, tout synthétisé (`sfx.py`, sans droits). Vous pouvez le garder tel quel, ou couper le son et poser une musique tendance dans Instagram, TikTok ou YouTube. Tout se lit sans le son.
 
 Pour refaire les rendus : `NODE_PATH=$(npm root -g) node render.js all` (sources : `video.html`, `statics.html`).
 
