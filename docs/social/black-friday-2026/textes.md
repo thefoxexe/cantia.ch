@@ -68,7 +68,7 @@ Pour refaire les rendus : `NODE_PATH=$(npm root -g) node render.js all` (sources
 > Équipe : 45.– au lieu de 79.–
 > Essentiel : 25.– au lieu de 39.–
 >
-> 14 jours d’essai, résiliable à tout moment. Fin lundi 30 novembre à minuit.
+> Satisfait ou remboursé pendant 14 jours. Fin lundi 30 novembre à minuit.
 >
 > 👉 cantia.ch/black-friday (lien en bio)
 >
@@ -93,7 +93,7 @@ Pour refaire les rendus : `NODE_PATH=$(npm root -g) node render.js all` (sources
 >
 > Cantia, c’est le logiciel suisse des artisans et PME du bâtiment : devis, factures QR, rapports de chantier, planning, salaires et comptabilité, en français, en allemand et en italien.
 >
-> 14 jours d’essai, sans engagement.
+> Satisfait ou remboursé pendant 14 jours, résiliable à tout moment.
 > 👉 cantia.ch/black-friday
 >
 > Si vous connaissez un entrepreneur qui fait encore ses devis sur Word, envoyez-lui ce post.
