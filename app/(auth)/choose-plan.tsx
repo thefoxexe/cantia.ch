@@ -27,7 +27,7 @@ export default function ChoosePlanScreen() {
   const [plans, setPlans] = useState<Plan[]>([]);
   // A personal code typed on the sign-up link (lib/planIntent) opens the bespoke plan below.
   const [intent] = useState(readPlanIntent);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>(intent.billing ?? 'year');
   const [busyPlan, setBusyPlan] = useState<string | null>(null);
   const [trialOpen, setTrialOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +66,21 @@ export default function ChoosePlanScreen() {
       if (typeof data === 'number' && data > 0) setOfferDays(data);
     });
   }, [offerCode]);
+
+  // A price offer (Black Friday, price_offers): lifetime prices per plan,
+  // only while it runs. stripe-checkout checks the dates again.
+  const [offerPrices, setOfferPrices] = useState<Record<string, OfferPrice>>({});
+  useEffect(() => {
+    if (!offerCode || offerCode === 'ESSAI30') return;
+    supabase.rpc('price_offer_preview', { p_code: offerCode }).then(({ data }) => {
+      const next: Record<string, OfferPrice> = {};
+      for (const row of (data ?? []) as { plan_id: string; price_chf_monthly: number | string; price_chf_yearly: number | string; ends_at: string }[]) {
+        next[row.plan_id] = { monthly: Number(row.price_chf_monthly), yearly: Number(row.price_chf_yearly), endsAt: row.ends_at };
+      }
+      setOfferPrices(next);
+    });
+  }, [offerCode]);
+  const priceOfferEndsAt = Object.values(offerPrices)[0]?.endsAt ?? null;
 
   // A link like /choose-plan?code=MORINA2026 (sent to one client) opens
   // straight on their personal plan, as if they had typed the code.
@@ -156,6 +171,13 @@ export default function ChoosePlanScreen() {
           </View>
         ) : null}
 
+        {priceOfferEndsAt ? (
+          <View style={[styles.promoBanner, styles.bfBanner]}>
+            <Feather name="zap" size={16} color="#fff" />
+            <Text style={[styles.promoBannerText, { color: '#fff' }]}>{t('authChoosePlan.priceOfferBanner', { code: offerCode })}</Text>
+          </View>
+        ) : null}
+
         {isPlatformAdmin ? (
           <Pressable style={styles.adminShortcut} onPress={() => router.replace('/(admin)')}>
             <Feather name="shield" size={16} color={colors.primary} />
@@ -201,7 +223,9 @@ export default function ChoosePlanScreen() {
                   key={p.id}
                   plan={p}
                   billingInterval={billingInterval}
-                  highlight={p.id === 'equipe'}
+                  highlight={offerPrices.pro ? p.id === 'pro' : p.id === 'equipe'}
+                  offerPrice={offerPrices[p.id]}
+                  badgeLabel={offerPrices[p.id] ? t('authChoosePlan.priceOfferBadge') : undefined}
                   loading={busyPlan === p.id}
                   disabled={!!busyPlan}
                   onChoose={() => choosePlan(p.id)}
@@ -301,8 +325,10 @@ function PlanCard({
   badgeIcon = 'star',
   priceNote,
   includedLabel,
+  offerPrice,
 }: {
   plan: Plan;
+  offerPrice?: OfferPrice;
   billingInterval: 'month' | 'year';
   highlight: boolean;
   loading: boolean;
@@ -332,11 +358,14 @@ function PlanCard({
   // .toFixed() call, or the monthly branch/yearlyNote below crashes.
   const monthlyPrice = Number(plan.price_chf_monthly ?? 0);
   const yearlyPrice = plan.price_chf_yearly != null ? Number(plan.price_chf_yearly) : null;
-  const displayMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
+  const normalMonthly = isYearly && yearlyPrice != null ? yearlyPrice / 12 : monthlyPrice;
+  const displayMonthly = offerPrice ? (isYearly ? offerPrice.yearly / 12 : offerPrice.monthly) : normalMonthly;
+  const shownYearly = offerPrice ? offerPrice.yearly : yearlyPrice;
+  const offerPercent = offerPrice ? Math.round((1 - offerPrice.monthly / monthlyPrice) * 100) : 0;
   return (
     <Card style={[styles.card, highlight && styles.cardHighlight, premium && styles.cardPremium]}>
-      {highlight ? (
-        <View style={[styles.badge, premium && styles.badgePremium]}>
+      {highlight || offerPrice ? (
+        <View style={[styles.badge, premium && styles.badgePremium, offerPrice && styles.badgeOffer]}>
           {premium ? <Feather name={badgeIcon} size={11} color="#fff" style={styles.badgeIcon} /> : null}
           <Text style={styles.badgeText}>{badgeLabel ?? t('authChoosePlan.recommended')}</Text>
         </View>
@@ -352,14 +381,23 @@ function PlanCard({
           <Text style={styles.learnMoreLinkText}>{t('authChoosePlan.learnMore')}</Text>
         </Pressable>
       ) : null}
+      {offerPrice ? (
+        <View style={styles.offerWas}>
+          <Text style={styles.offerWasText}>CHF {Number.isInteger(normalMonthly) ? normalMonthly : normalMonthly.toFixed(2)}</Text>
+          <View style={styles.offerPct}>
+            <Text style={styles.offerPctText}>-{offerPercent}%</Text>
+          </View>
+        </View>
+      ) : null}
       <View style={styles.priceRow}>
         <Text style={styles.price}>CHF {Number.isInteger(displayMonthly) ? displayMonthly : displayMonthly.toFixed(2)}</Text>
         <Text style={styles.period}>{t('authChoosePlan.perMonth')}</Text>
       </View>
       {priceNote ? <Text style={styles.priceNote}>{priceNote}</Text> : null}
-      {isYearly && yearlyPrice != null ? (
-        <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: yearlyPrice.toFixed(2) })}</Text>
+      {isYearly && shownYearly != null ? (
+        <Text style={styles.yearlyNote}>{t('authChoosePlan.billedYearly', { amount: shownYearly.toFixed(2) })}</Text>
       ) : null}
+      {offerPrice ? <Text style={styles.offerLife}>{t('authChoosePlan.priceOfferLifetime')}</Text> : null}
       {includedLabel ? <Text style={styles.includedLabel}>{includedLabel}</Text> : null}
       <View style={styles.features}>
         {(PLAN_HIGHLIGHTS[plan.id] ?? []).map((text) => (
@@ -400,7 +438,16 @@ function Feature({ text, muted, premium }: { text: string; muted?: boolean; prem
   );
 }
 
+type OfferPrice = { monthly: number; yearly: number; endsAt: string };
+
 const styles = StyleSheet.create({
+  bfBanner: { backgroundColor: '#111111', maxWidth: 560 },
+  badgeOffer: { backgroundColor: '#111111' },
+  offerWas: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  offerWasText: { fontSize: fontSize.sm, color: colors.textMuted, textDecorationLine: 'line-through' },
+  offerPct: { backgroundColor: colors.danger, borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 1 },
+  offerPctText: { fontSize: 10, fontWeight: '800', color: '#fff' },
+  offerLife: { fontSize: fontSize.xs, fontWeight: '700', color: colors.primaryDark, marginTop: 2 },
   scroll: {
     flexGrow: 1,
     padding: spacing.xl,

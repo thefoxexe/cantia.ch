@@ -8,7 +8,9 @@ import { SITE_COPY, type SiteLocale } from '../../lib/site/copy';
 import { getAppLocale } from '../../lib/translations';
 import { authHref } from '../../lib/appHost';
 import { SiteImage } from './SiteImage';
-import { localHref } from '../../lib/site/localPaths';
+import { BF_ENDS_AT } from '../../lib/site/blackFriday';
+
+const BF_MENU = { fr: 'Black Friday : -54 % à vie', de: 'Black Friday: -54 % lebenslang', it: 'Black Friday: -54 % a vita' } as const;
 
 const LOGO = require('../../assets/brand/logo.png');
 
@@ -59,8 +61,12 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
     { label: c.pricing, href: `${p}/tarifs` },
     ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }, { label: c.ecosystem, href: `${p}/a-propos` }] : []),
   ];
-  // The new-company offer, with its placement for the request form (StarterOffer).
-  const starterHref = (ref: string) => `${localHref(`${p}/nouvelle-entreprise`)}?ref=${ref}&cta=menu`;
+  // Black Friday 2026 in the menu, until 30 November at midnight
+  // (lib/site/blackFriday.ts). The 3-month offer for new companies is no
+  // longer linked from the site: its page is reached from its own e-mails.
+  const bfLive = Date.now() < BF_ENDS_AT;
+  const bfHref = (ref: string) => `${p}/black-friday?ref=${ref}`;
+  const bfLabel = BF_MENU[locale];
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
     { key: 'assistant', name: c.assistant.name, text: c.assistant.text, href: `${p}/assistant` },
@@ -148,12 +154,14 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                   </Pressable>
                 </Link>
                 {/* A single style object: Link asChild hands its child's style to the <a>, which refuses an array. */}
-                <Link href={starterHref('menu') as any} asChild>
-                  <Pressable onPress={() => setMegaOpen(false)} style={styles.megaGift}>
-                    <Feather name="gift" size={13} color={site.copper} />
-                    <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{SITE_COPY[locale].footer.newCompanyLink}</Text>
-                  </Pressable>
-                </Link>
+                {bfLive ? (
+                  <Link href={bfHref('menu') as any} asChild>
+                    <Pressable onPress={() => setMegaOpen(false)} style={styles.megaGift}>
+                      <Feather name="zap" size={13} color={site.copper} />
+                      <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{bfLabel}</Text>
+                    </Pressable>
+                  </Link>
+                ) : null}
               </View>
             </View>
           </View>
@@ -180,7 +188,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             ))}
             <DrawerGroup title={c.discover}>
               <DrawerSubLink icon="monitor" label={c.devices} href={`${p}/telechargement`} onNavigate={() => setDrawerOpen(false)} />
-              <DrawerSubLink icon="gift" label={SITE_COPY[locale].footer.newCompanyLink} href={starterHref('menu-mobile')} onNavigate={() => setDrawerOpen(false)} />
+              {bfLive ? <DrawerSubLink icon="zap" label={bfLabel} href={bfHref('menu-mobile')} onNavigate={() => setDrawerOpen(false)} /> : null}
               <DrawerSubLink icon="compass" label={c.discover} href={`${p}/ressources`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="help-circle" label={c.help} href={`${p}/aide`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="mail" label={c.contact} href={`${p}/contact`} onNavigate={() => setDrawerOpen(false)} />

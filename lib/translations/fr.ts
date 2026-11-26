@@ -2837,6 +2837,9 @@ export const fr = {
     resend: 'Renvoyer le code',
   },
   authChoosePlan: {
+    priceOfferBanner: 'Black Friday : vos prix sont bloqués à vie, jusqu’à lundi 30 novembre à minuit seulement. 14 jours d’essai, résiliable à tout moment.',
+    priceOfferBadge: 'Black Friday · à vie',
+    priceOfferLifetime: 'Prix bloqué à vie, tant que l’abonnement reste actif.',
     offerBanner: "{{months}} mois offerts avec votre code {{code}} : rien n'est débité pendant cette période, résiliable à tout moment.",
     title: 'Choisissez votre plan',
     subtitle: 'Votre espace {{name}} est créé. Choisissez la formule qui vous convient pour commencer.',

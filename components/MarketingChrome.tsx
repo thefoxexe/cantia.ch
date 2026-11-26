@@ -6,6 +6,7 @@ import { toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/app
 import { AVAILABLE_LOCALES, getAppLocale, type AppLocale } from '../lib/translations';
 import { SiteNav } from './site/SiteNav';
 import { SiteFooter } from './site/SiteFooter';
+import { BlackFridayStrip } from './site/BlackFridayPromo';
 import { sans, site } from '../lib/siteTheme';
 
 // Header, footer and language switcher shared by every public cantia.ch page.
@@ -88,7 +89,14 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
 
 export function MarketingNav(_props: { onServicesPress?: () => void; onPricingPress?: () => void } = {}) {
   useSyncMarketingLocaleFromPath();
-  return <SiteNav languageSwitcher={<LanguageSwitcher compact />} />;
+  // Black Friday 2026: a strip above the menu, except on its own page.
+  const pathname = usePathname();
+  return (
+    <>
+      {pathname.includes('black-friday') ? null : <BlackFridayStrip />}
+      <SiteNav languageSwitcher={<LanguageSwitcher compact />} />
+    </>
+  );
 }
 
 export function MarketingFooter(_props: { onServicesPress?: () => void; onPricingPress?: () => void } = {}) {

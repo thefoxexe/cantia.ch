@@ -17,7 +17,7 @@ import { HeroDevices } from '../components/site/HeroDevices';
 import { FaqItem } from '../components/site/FamilyPage';
 import { SECTOR_KEYS, SECTORS_COPY, sectorHref, type SectorKey } from '../lib/site/sectors';
 import HOME_FAQ_JSON from '../lib/site/homeFaq.json';
-import { StarterOffer } from '../components/site/StarterOffer';
+import { BlackFridayBox } from '../components/site/BlackFridayPromo';
 import { BeforeAfter } from '../components/site/BeforeAfter';
 
 const HOME_FAQ = HOME_FAQ_JSON as Record<'fr' | 'de' | 'it', { eyebrow: string; title: string; items: { q: string; a: string }[] }>;
@@ -168,10 +168,10 @@ function LandingContent() {
           </Wrap>
         </View>
 
-        {/* New companies: 3 months instead of 14 days (lib/site/newCompany.ts) */}
+        {/* Black Friday 2026, until 30 November at midnight (lib/site/blackFriday.ts) */}
         <View style={[styles.section, { paddingTop: 0, paddingBottom: phone ? 53 : 86 }]}>
           <Wrap>
-            <StarterOffer source="home" />
+            <BlackFridayBox source="home" />
           </Wrap>
         </View>
 

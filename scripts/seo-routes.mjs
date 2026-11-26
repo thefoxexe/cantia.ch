@@ -518,6 +518,12 @@ export const ROUTES = [
     ...newCompanyRoute('fr'),
   },
   {
+    // Black Friday 2026 (lib/site/blackFriday.ts), until 30 November at midnight.
+    path: 'black-friday',
+    title: 'Black Friday Cantia : jusqu’à -54 % à vie | Cantia',
+    description: 'Le premier Black Friday de Cantia : jusqu’à -54 % sur tous les plans, prix bloqué à vie. Jusqu’au lundi 30 novembre à minuit seulement.',
+  },
+  {
     path: 'plans/essentiel',
     title: 'Plan Essentiel : devis & factures illimités | Cantia',
     description:
@@ -3615,6 +3621,11 @@ export const ROUTES = [
     ...newCompanyRoute('de'),
   },
   {
+    path: 'de/black-friday',
+    title: 'Black Friday Cantia: bis zu -54 % lebenslang | Cantia',
+    description: 'Der erste Black Friday von Cantia: bis zu -54 % auf alle Pläne, Preis lebenslang garantiert. Nur bis Montag, 30. November, Mitternacht.',
+  },
+  {
     path: 'de/plans/essentiel',
     title: 'Plan Essentiel: unbegrenzte Offerten & Rechnungen | Cantia',
     description:
@@ -3972,6 +3983,11 @@ export const ROUTES = [
     // The offer for new companies (lib/site/newCompany.ts); title, description and FAQ as the page shows them.
     path: 'it/nuova-impresa',
     ...newCompanyRoute('it'),
+  },
+  {
+    path: 'it/black-friday',
+    title: 'Black Friday Cantia: fino a -54 % a vita | Cantia',
+    description: 'Il primo Black Friday di Cantia: fino a -54 % su tutti i piani, prezzo bloccato a vita. Solo fino a lunedì 30 novembre a mezzanotte.',
   },
   {
     path: 'it/plans/essentiel',

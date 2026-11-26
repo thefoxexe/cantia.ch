@@ -319,6 +319,14 @@ async function getRevenueOverview(stripe: Stripe, admin: any) {
     if (p.stripe_price_id) priceToPlan.set(p.stripe_price_id, { id: p.id, name: p.name });
     if (p.stripe_price_id_yearly) priceToPlan.set(p.stripe_price_id_yearly, { id: p.id, name: p.name });
   }
+  // Offer prices (Black Friday…): the same plan, named with the offer.
+  const { data: offers } = await admin.from('price_offers').select('code, plan_id, stripe_price_id, stripe_price_id_yearly');
+  for (const o of offers ?? []) {
+    const base = (plans ?? []).find((p: { id: string }) => p.id === o.plan_id);
+    const entry = { id: o.plan_id, name: `${base?.name ?? o.plan_id} (${o.code})` };
+    priceToPlan.set(o.stripe_price_id, entry);
+    priceToPlan.set(o.stripe_price_id_yearly, entry);
+  }
 
   const monthStart = new Date();
   monthStart.setUTCDate(1);

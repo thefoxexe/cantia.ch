@@ -13,7 +13,7 @@ import { authHref } from '../lib/appHost';
 import { getTradePage } from '../lib/tradeLandingPages';
 import { getPostByBase } from '../lib/blog';
 import { getAppLocale, useTranslation } from '../lib/translations';
-import { StarterOffer } from './site/StarterOffer';
+import { BlackFridayBox } from './site/BlackFridayPromo';
 import { localHref } from '../lib/site/localPaths';
 
 // One trade page (cantia.ch/charpentier, /de/zimmermann…): the trade's
@@ -166,7 +166,7 @@ export function TradePage({ slug }: { slug: string }) {
           <TextLink label={L.compare} href={`${pre}tarifs`} />
         </View>
         <View style={{ marginTop: 40 }}>
-          <StarterOffer source={`metier-${slug}`} />
+          <BlackFridayBox source={`metier-${slug}`} />
         </View>
       </Section>
 

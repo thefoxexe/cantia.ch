@@ -9,7 +9,7 @@ import { PRICING_COPY, type PlanId } from '../../lib/site/pricing';
 import { sans, site } from '../../lib/siteTheme';
 import { authHref, planHref } from '../../lib/appHost';
 import { supabase } from '../../lib/supabase';
-import { StarterOffer } from './StarterOffer';
+import { BlackFridayBox } from './BlackFridayPromo';
 
 type PlanFigures = { monthly: number; yearly: number | null; members: number; storageMb: number; aiUses: number | null };
 
@@ -30,7 +30,7 @@ function chf(n: number): string {
   return dec ? `${grouped}.${dec}` : grouped;
 }
 
-function usePlanFigures(): Record<PlanId, PlanFigures> {
+export function usePlanFigures(): Record<PlanId, PlanFigures> {
   const [figures, setFigures] = useState(FALLBACK);
   useEffect(() => {
     let alive = true;
@@ -133,9 +133,9 @@ export function PricingPage() {
         </Wrap>
       </View>
 
-      {/* New companies: 3 months instead of 14 days */}
+      {/* Black Friday 2026 (lib/site/blackFriday.ts) */}
       <Section style={{ paddingTop: 0 }}>
-        <StarterOffer source="tarifs" />
+        <BlackFridayBox source="tarifs" />
       </Section>
 
       <Section white>

@@ -2851,6 +2851,9 @@ export const de: TranslationDict = {
     resend: 'Code erneut senden',
   },
   authChoosePlan: {
+    priceOfferBanner: 'Black Friday: Ihre Preise gelten lebenslang, nur bis Montag, 30. November, Mitternacht. 14 Tage testen, jederzeit kündbar.',
+    priceOfferBadge: 'Black Friday · lebenslang',
+    priceOfferLifetime: 'Preis lebenslang garantiert, solange das Abo aktiv ist.',
     offerBanner: "{{months}} Monate geschenkt mit Ihrem Code {{code}}: In dieser Zeit wird nichts belastet, jederzeit kündbar.",
     title: 'Wählen Sie Ihren Plan',
     subtitle: 'Ihr Arbeitsbereich {{name}} wurde erstellt. Wählen Sie die passende Formel, um zu starten.',
