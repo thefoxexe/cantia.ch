@@ -31,8 +31,6 @@
   .grain{position:absolute;inset:0;z-index:21;pointer-events:none;opacity:.08;background-image:radial-gradient(rgba(255,255,255,.7) 1px,transparent 1px);background-size:4px 4px}
   .ticker{position:absolute;left:0;right:0;top:0;height:92px;background:var(--flame);overflow:hidden;z-index:15}
   .ticker .track{position:absolute;top:0;left:0;white-space:nowrap;font-size:38px;font-weight:900;letter-spacing:.06em;line-height:92px;color:#070806}
-  .live{position:absolute;left:48px;z-index:15;display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800;letter-spacing:.18em}
-  .live i{width:20px;height:20px;border-radius:50%;background:var(--hot);box-shadow:0 0 20px var(--hot)}
   .mini{position:absolute;right:48px;z-index:15;background:rgba(7,8,6,.85);border:3px solid var(--flame);border-radius:22px;padding:12px 24px;text-align:right}
   .mini small{display:block;font-size:20px;font-weight:800;letter-spacing:.2em;color:var(--flame)}
   .mini b{display:block;font-size:42px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
@@ -158,7 +156,6 @@ function film(id, kind) {
 
   <div class="alarm"></div>
   <div class="ticker"><div class="track">${Array(8).fill(`<span>${TICK}</span>`).join('')}</div></div>
-  <div class="live"><i></i>OFFRE EN COURS</div>
   <div class="mini"><small>FIN DANS</small><b>3J 07:59:59</b></div>
   <div class="bar"></div>
   <div class="flash"></div>
@@ -242,10 +239,8 @@ function frame(id, t) {
   const tr = F.querySelector('.track'), loop = tr.firstElementChild.offsetWidth || 1600;
   tr.style.transform = `translateX(${-(t * 260) % loop}px)`;
   F.querySelector('.ticker').style.transform = `translateY(${chromeOn ? 0 : -110}px)`;
-  const live = F.querySelector('.live'), mini = F.querySelector('.mini');
-  live.style.top = '136px'; mini.style.top = '118px';
-  live.style.opacity = chromeOn ? 1 : 0;
-  live.querySelector('i').style.opacity = Math.floor(t * 3) % 2 ? 0.25 : 1;
+  const mini = F.querySelector('.mini');
+  mini.style.top = '118px';
   mini.style.opacity = chromeOn ? 1 : 0;
   const rem = 3 * 86400 + 7 * 3600 + 59 * 60 + 59 - Math.floor(t);
   mini.querySelector('b').textContent = `3J ${pad((rem % 86400) / 3600)}:${pad((rem % 3600) / 60)}:${pad(rem % 60)}`;
