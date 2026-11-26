@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Btn, Eyebrow, Headline, Wrap } from './Primitives';
-import { Section, SitePage, useSiteLayout, usePrefix } from './Sections';
-import { FaqItem } from './FamilyPage';
+import { Link } from 'expo-router';
+import { Btn, Eyebrow, Headline, Hover, Wrap } from './Primitives';
+import { SitePage, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { usePlanFigures } from './PricingPage';
 import { BF_CODE, BF_ENDS_AT, BF_PRICES, BLACK_FRIDAY_COPY } from '../../lib/site/blackFriday';
 import { PRICING_COPY, type PlanId } from '../../lib/site/pricing';
-import { sans, serif, site } from '../../lib/siteTheme';
+import { sans, serif } from '../../lib/siteTheme';
 import { authHref } from '../../lib/appHost';
 
 // cantia.ch/black-friday (and /de, /it): lib/site/blackFriday.ts. The sign-up
 // links carry the offer code; stripe-checkout only honours it until the end.
 
-const night = '#121410';
+const night = '#0b0c09';
+const night2 = '#111309';
 const nightLine = '#2c3027';
 const flame = '#ff5b1f';
 const paper = '#f4f3e9';
@@ -107,7 +108,7 @@ export function BlackFridayPage() {
               </Text>
               <Text style={[sans, styles.heroLead, phone && { fontSize: 14, lineHeight: 24 }]}>{c.lead}</Text>
               <View style={{ marginTop: 30, alignSelf: 'flex-start' }}>
-                <Btn label={c.cta} href="#prix-black-friday" onPress={toPrices} large={!phone} />
+                <FlameBtn label={c.cta} onPress={toPrices} large={!phone} />
               </View>
               <View style={styles.reassure}>
                 {c.reassurance.map((r) => (
@@ -134,9 +135,10 @@ export function BlackFridayPage() {
 
       {/* Prices */}
       <View nativeID="prix-black-friday" style={[styles.pricesBand, { paddingVertical: phone ? 56 : 96 }]}>
+        <View style={styles.bandGlow} pointerEvents="none" />
         <Wrap>
-          <Eyebrow>{c.pricesEyebrow}</Eyebrow>
-          <Headline plain={c.pricesPlain} accent={c.pricesAccent} size={h2Size} style={{ marginTop: 15 }} />
+          <Eyebrow color={flame}>{c.pricesEyebrow}</Eyebrow>
+          <Headline plain={c.pricesPlain} accent={c.pricesAccent} accentColor={flame} color={paper} size={h2Size} style={{ marginTop: 15 }} />
           <View style={styles.switch} role="radiogroup">
             <SwitchBtn label={c.monthly} active={!yearly} onPress={() => setYearly(false)} />
             <SwitchBtn label={c.yearly} extra={c.yearlyExtra} active={yearly} onPress={() => setYearly(true)} />
@@ -175,21 +177,21 @@ export function BlackFridayPage() {
                   <View style={styles.priceRow}>
                     <Text style={[sans, styles.priceSmall, best && { color: paper }]}>CHF</Text>
                     <Text style={[sans, styles.price, best && { color: paper }, { fontVariant: ['tabular-nums'] }]}>{chf(Math.round(now * 100) / 100)}</Text>
-                    <Text style={[sans, styles.priceSmall, { color: best ? fog : site.muted }]}>{c.perMonth}</Text>
+                    <Text style={[sans, styles.priceSmall, { color: fog }]}>{c.perMonth}</Text>
                   </View>
                   <Text style={[sans, styles.billed, best && { color: fog }]}>{yearly ? c.billedYearly(chf(offer.yearly)) : c.billedMonthly}</Text>
-                  <View style={[styles.lifePill, best && { backgroundColor: '#2a2d25' }]}>
+                  <View style={styles.lifePill}>
                     <Feather name="lock" size={12} color={flame} />
                     <Text style={[sans, styles.lifeText, best && { color: paper }]}>{c.lifetime}</Text>
                   </View>
                   <Text style={[sans, styles.saved, best && { color: flame }]}>{c.savePerYear(chf(Math.round(savedYear * 100) / 100))}</Text>
                   <View style={{ marginTop: 18 }}>
-                    <Btn label={c.planCta(plan.name)} href={signup(id)} tone={best ? 'copper' : 'ink'} block />
+                    <FlameBtn label={c.planCta(plan.name)} href={signup(id)} ghost={!best} block />
                   </View>
                   <View style={styles.lines}>
                     {[pc.membersStorage(normal.members, Math.round(normal.storageMb / 1024)), ...plan.lines].map((l) => (
                       <View key={l} style={styles.lineRow}>
-                        <Feather name="check" size={13} color={best ? flame : site.green} style={{ marginTop: 3 }} />
+                        <Feather name="check" size={13} color={flame} style={{ marginTop: 3 }} />
                         <Text style={[sans, styles.lineText, best && { color: '#d9dccf' }]}>{l}</Text>
                       </View>
                     ))}
@@ -202,9 +204,9 @@ export function BlackFridayPage() {
       </View>
 
       {/* Why for life */}
-      <Section white>
-        <Eyebrow>{c.whyEyebrow}</Eyebrow>
-        <Headline plain={c.whyPlain} accent={c.whyAccent} size={h2Size} style={{ marginTop: 15, marginBottom: 34 }} />
+      <Band alt>
+        <Eyebrow color={flame}>{c.whyEyebrow}</Eyebrow>
+        <Headline plain={c.whyPlain} accent={c.whyAccent} accentColor={flame} color={paper} size={h2Size} style={{ marginTop: 15, marginBottom: 34 }} />
         <View style={[styles.grid3, stack && { flexDirection: 'column' }]}>
           {c.why.map((w, i) => (
             <View key={w.title} style={[styles.whyCard, stack ? undefined : { flex: 1 }]}>
@@ -214,49 +216,49 @@ export function BlackFridayPage() {
             </View>
           ))}
         </View>
-      </Section>
+      </Band>
 
       {/* Included */}
-      <Section>
-        <Eyebrow>{c.includedEyebrow}</Eyebrow>
-        <Headline plain={c.includedTitle} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+      <Band>
+        <Eyebrow color={flame}>{c.includedEyebrow}</Eyebrow>
+        <Headline plain={c.includedTitle} color={paper} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
         <View style={styles.incl}>
           {c.included.map((it) => (
             <View key={it} style={[styles.inclItem, { width: phone ? '100%' : stack ? '48%' : '23.5%' }]}>
-              <Feather name="check-circle" size={16} color={site.copper} />
+              <Feather name="check-circle" size={16} color={flame} />
               <Text style={[sans, styles.inclText]}>{it}</Text>
             </View>
           ))}
         </View>
-      </Section>
+      </Band>
 
       {/* Steps */}
-      <Section white>
-        <Eyebrow>{c.stepsEyebrow}</Eyebrow>
-        <Headline plain={c.stepsTitle} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
+      <Band alt>
+        <Eyebrow color={flame}>{c.stepsEyebrow}</Eyebrow>
+        <Headline plain={c.stepsTitle} color={paper} size={h2Size} style={{ marginTop: 15, marginBottom: 30 }} />
         <View style={[styles.grid3, stack && { flexDirection: 'column' }]}>
           {c.steps.map((s, i) => (
             <View key={s.title} style={[styles.step, stack ? undefined : { flex: 1 }]}>
               <View style={styles.stepNum}>
-                <Text style={[sans, styles.stepNumText]}>{i + 1}</Text>
+                <Text style={[sans, styles.stepNumText, { color: '#fff' }]}>{i + 1}</Text>
               </View>
               <Text style={[sans, styles.whyTitle]}>{s.title}</Text>
               <Text style={[sans, styles.whyText]}>{s.text}</Text>
             </View>
           ))}
         </View>
-      </Section>
+      </Band>
 
       {/* FAQ */}
-      <Section>
+      <Band>
         <View style={{ maxWidth: 860 }}>
-          <Eyebrow>{c.faqEyebrow}</Eyebrow>
-          <Headline plain={c.faqTitle} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 30 }} />
+          <Eyebrow color={flame}>{c.faqEyebrow}</Eyebrow>
+          <Headline plain={c.faqTitle} color={paper} size={phone ? 32 : 42} style={{ marginTop: 15, marginBottom: 30 }} />
           {c.faq.map((q, i) => (
-            <FaqItem key={q.q} q={q.q} a={q.a} last={i === c.faq.length - 1} />
+            <DarkFaq key={q.q} q={q.q} a={q.a} last={i === c.faq.length - 1} />
           ))}
         </View>
-      </Section>
+      </Band>
 
       {/* Final */}
       <View style={[styles.hero, { paddingVertical: phone ? 56 : 90 }]}>
@@ -266,7 +268,7 @@ export function BlackFridayPage() {
               <Headline plain={c.finalTitle} size={phone ? 32 : 46} color={paper} />
               <Text style={[sans, styles.heroLead, { fontSize: 14 }]}>{c.finalText}</Text>
               <View style={{ marginTop: 26, alignSelf: 'flex-start' }}>
-                <Btn label={c.cta} href="#prix-black-friday" onPress={toPrices} large={!phone} />
+                <FlameBtn label={c.cta} onPress={toPrices} large={!phone} />
               </View>
             </View>
             <View style={stack ? undefined : { flex: 0.8 }}>
@@ -276,6 +278,54 @@ export function BlackFridayPage() {
         </Wrap>
       </View>
     </SitePage>
+  );
+}
+
+function Band({ alt, children }: { alt?: boolean; children: React.ReactNode }) {
+  const { phone } = useSiteLayout();
+  return (
+    <View style={{ paddingVertical: phone ? 56 : 92, backgroundColor: alt ? night2 : night, borderTopWidth: 1, borderTopColor: nightLine }}>
+      <Wrap>{children}</Wrap>
+    </View>
+  );
+}
+
+// The flame button of the page: a link (sign-up) or an action (scroll).
+function FlameBtn({ label, href, onPress, large, block, ghost }: { label: string; href?: string; onPress?: () => void; large?: boolean; block?: boolean; ghost?: boolean }) {
+  const button = (
+    <Hover
+      accessibilityRole={href ? 'link' : 'button'}
+      onPress={onPress}
+      base={[styles.fBtn, large && styles.fBtnLarge, block && { alignSelf: 'stretch' }, ghost && styles.fBtnGhost]}
+      hover={ghost ? { backgroundColor: flame, borderColor: flame } : { backgroundColor: '#ff7440' }}
+    >
+      {() => (
+        <>
+          <Text style={[sans, styles.fBtnText, large && { fontSize: 16 }]}>{label}</Text>
+          <Feather name="arrow-right" size={large ? 18 : 15} color="#fff" />
+        </>
+      )}
+    </Hover>
+  );
+  if (!href) return button;
+  return (
+    <Link href={href as any} asChild>
+      {button}
+    </Link>
+  );
+}
+
+function DarkFaq({ q, a, last }: { q: string; a: string; last?: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={[styles.faqItem, last && { borderBottomWidth: 1 }]}>
+      <Pressable onPress={() => setOpen((o) => !o)} accessibilityRole="button" aria-expanded={open} style={styles.faqQ}>
+        <Text style={[sans, styles.faqQText]}>{q}</Text>
+        <Text style={[sans, styles.faqSign]}>{open ? '−' : '+'}</Text>
+      </Pressable>
+      {/* Kept in the page when closed so the answer stays readable by search engines. */}
+      <Text style={[sans, styles.faqA, !open && { display: 'none' }]}>{a}</Text>
+    </View>
   );
 }
 
@@ -297,7 +347,7 @@ const styles = StyleSheet.create({
   reassure: { flexDirection: 'row', flexWrap: 'wrap', gap: 18, marginTop: 22 },
   reassureItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   reassureText: { color: '#d9dccf', fontSize: 12, fontWeight: '600' },
-  heroCard: { borderWidth: 1, borderColor: nightLine, borderRadius: 22, padding: 28, backgroundColor: '#181b15' },
+  heroCard: { borderWidth: 1.5, borderColor: flame, borderRadius: 22, padding: 28, backgroundColor: '#14100b', shadowColor: flame, shadowOpacity: 0.3, shadowRadius: 50, shadowOffset: { width: 0, height: 0 } },
   bigPct: { alignItems: 'flex-start' },
   bigPctUp: { color: fog, fontSize: 12, fontWeight: '800', letterSpacing: 2 },
   bigPctNum: { color: flame, fontSize: 132, lineHeight: 134, fontWeight: '800', letterSpacing: -6 },
@@ -309,43 +359,53 @@ const styles = StyleSheet.create({
   cdBoxCompact: { paddingVertical: 10, borderRadius: 11 },
   cdNum: { color: paper, fontSize: 34, fontWeight: '800', letterSpacing: -1 },
   cdUnit: { color: fog, fontSize: 9, fontWeight: '700', letterSpacing: 1.2, marginTop: 4 },
-  pricesBand: { backgroundColor: site.bg },
-  switch: { flexDirection: 'row', alignSelf: 'flex-start', backgroundColor: '#fff', borderWidth: 1, borderColor: site.line, borderRadius: 999, padding: 4, marginTop: 26, marginBottom: 30 },
+  pricesBand: { backgroundColor: night, overflow: 'hidden', borderTopWidth: 1, borderTopColor: nightLine },
+  bandGlow: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, ...(Platform.OS === 'web' ? ({ backgroundImage: 'radial-gradient(circle at 85% 0%, rgba(255,91,31,0.16), rgba(255,91,31,0) 45%)' } as object) : {}) },
+  switch: { flexDirection: 'row', alignSelf: 'flex-start', backgroundColor: night2, borderWidth: 1, borderColor: nightLine, borderRadius: 999, padding: 4, marginTop: 26, marginBottom: 30 },
   switchBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 9, paddingHorizontal: 18, borderRadius: 999 },
-  switchBtnOn: { backgroundColor: site.ink },
-  switchText: { fontSize: 12, fontWeight: '700', color: site.ink },
-  switchExtra: { fontSize: 11, fontWeight: '700', color: site.copper },
+  switchBtnOn: { backgroundColor: flame },
+  switchText: { fontSize: 12, fontWeight: '700', color: paper },
+  switchExtra: { fontSize: 11, fontWeight: '700', color: flame },
   cards: { flexDirection: 'row', gap: 18, alignItems: 'stretch' },
-  card: { backgroundColor: '#fff', borderWidth: 1, borderColor: site.line, borderRadius: 22, padding: 26 },
-  cardBest: { backgroundColor: night, borderColor: flame, borderWidth: 2, shadowColor: flame, shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
+  card: { backgroundColor: night2, borderWidth: 1, borderColor: nightLine, borderRadius: 22, padding: 26 },
+  cardBest: { backgroundColor: '#1a0f09', borderColor: flame, borderWidth: 2, shadowColor: flame, shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 12 } },
   bestTag: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: flame, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 14 },
   bestTagText: { color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 1 },
   cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  planName: { fontSize: 22, fontWeight: '700', color: site.ink },
+  planName: { fontSize: 22, fontWeight: '700', color: paper },
   pct: { backgroundColor: flame, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4, transform: [{ rotate: '-3deg' }] },
   pctText: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  planText: { fontSize: 12, color: site.muted, marginTop: 6, lineHeight: 19 },
-  was: { fontSize: 13, color: site.muted, marginTop: 18 },
+  planText: { fontSize: 12, color: fog, marginTop: 6, lineHeight: 19 },
+  was: { fontSize: 13, color: fog, marginTop: 18 },
   wasAmount: { textDecorationLine: 'line-through', textDecorationColor: flame },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 2 },
-  priceSmall: { fontSize: 13, fontWeight: '700', color: site.ink },
-  price: { fontSize: 60, fontWeight: '800', color: site.ink, letterSpacing: -2.5 },
-  billed: { fontSize: 11, color: site.muted, marginTop: 2 },
-  lifePill: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: '#fbeee6', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, marginTop: 14 },
-  lifeText: { fontSize: 11, fontWeight: '700', color: site.rust },
-  saved: { fontSize: 12, fontWeight: '700', color: site.copper, marginTop: 10 },
+  priceSmall: { fontSize: 13, fontWeight: '700', color: paper },
+  price: { fontSize: 60, fontWeight: '800', color: paper, letterSpacing: -2.5 },
+  billed: { fontSize: 11, color: fog, marginTop: 2 },
+  fBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: flame, borderWidth: 1.5, borderColor: flame, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 22, alignSelf: 'flex-start' },
+  fBtnLarge: { paddingVertical: 18, paddingHorizontal: 30 },
+  fBtnGhost: { backgroundColor: 'transparent', borderColor: '#4a4f40' },
+  fBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  faqItem: { borderTopWidth: 1, borderColor: nightLine },
+  faqQ: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 20 },
+  faqQText: { flex: 1, color: paper, fontSize: 15, fontWeight: '600', lineHeight: 22 },
+  faqSign: { color: flame, fontSize: 22, fontWeight: '500' },
+  faqA: { color: fog, fontSize: 13, lineHeight: 22, paddingBottom: 20, maxWidth: 760 },
+  lifePill: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,91,31,0.14)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, marginTop: 14 },
+  lifeText: { fontSize: 11, fontWeight: '700', color: paper },
+  saved: { fontSize: 12, fontWeight: '700', color: flame, marginTop: 10 },
   lines: { gap: 8, marginTop: 20 },
   lineRow: { flexDirection: 'row', gap: 8 },
-  lineText: { flex: 1, fontSize: 12, color: site.ink, lineHeight: 19 },
+  lineText: { flex: 1, fontSize: 12, color: '#d9dccf', lineHeight: 19 },
   grid3: { flexDirection: 'row', gap: 18 },
-  whyCard: { borderTopWidth: 2, borderTopColor: site.copper, paddingTop: 18, gap: 8 },
-  whyNum: { fontSize: 12, fontWeight: '800', color: site.copper, letterSpacing: 1 },
-  whyTitle: { fontSize: 18, fontWeight: '700', color: site.ink },
-  whyText: { fontSize: 13, color: site.muted, lineHeight: 22 },
+  whyCard: { borderTopWidth: 2, borderTopColor: flame, paddingTop: 18, gap: 8 },
+  whyNum: { fontSize: 12, fontWeight: '800', color: flame, letterSpacing: 1 },
+  whyTitle: { fontSize: 18, fontWeight: '700', color: paper },
+  whyText: { fontSize: 13, color: fog, lineHeight: 22 },
   incl: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  inclItem: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: site.line, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 14 },
-  inclText: { flex: 1, fontSize: 13, fontWeight: '600', color: site.ink, lineHeight: 19 },
+  inclItem: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: night, borderWidth: 1, borderColor: nightLine, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 14 },
+  inclText: { flex: 1, fontSize: 13, fontWeight: '600', color: paper, lineHeight: 19 },
   step: { gap: 10 },
-  stepNum: { width: 34, height: 34, borderRadius: 17, backgroundColor: night, alignItems: 'center', justifyContent: 'center' },
+  stepNum: { width: 34, height: 34, borderRadius: 17, backgroundColor: flame, alignItems: 'center', justifyContent: 'center' },
   stepNumText: { color: flame, fontWeight: '800', fontSize: 14 },
 });

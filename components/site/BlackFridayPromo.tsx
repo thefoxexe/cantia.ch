@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Hover } from './Primitives';
-import { useSiteLayout } from './Sections';
 import { localePrefix, useSiteLocale } from './SiteNav';
 import { BF_ENDS_AT } from '../../lib/site/blackFriday';
 import { sans, serif } from '../../lib/siteTheme';
@@ -39,7 +38,7 @@ export function blackFridayHref(locale: 'fr' | 'de' | 'it', ref: string): string
 export function BlackFridayStrip() {
   const locale = useSiteLocale();
   const live = useBlackFridayLive();
-  const { phone } = useSiteLayout();
+  const phone = useWindowDimensions().width <= 760;
   if (!live) return null;
   const c = COPY[locale];
   return (
@@ -57,7 +56,7 @@ export function BlackFridayStrip() {
 export function BlackFridayBox({ source }: { source: string }) {
   const locale = useSiteLocale();
   const live = useBlackFridayLive();
-  const { phone } = useSiteLayout();
+  const phone = useWindowDimensions().width <= 760;
   if (!live) return null;
   const c = COPY[locale];
   return (
