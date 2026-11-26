@@ -70,6 +70,10 @@
   .lock{position:absolute;left:50%;width:190px;height:220px;margin-left:-95px}
   .lock path,.lock rect{fill:none;stroke:var(--paper);stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
 
+  .g-list{position:absolute;left:110px;right:110px;display:flex;flex-direction:column;gap:30px}
+  .g-row{display:flex;align-items:center;gap:34px;background:var(--night2);border:3px solid var(--line);border-radius:36px;padding:30px 40px}
+  .g-row i{flex:none;width:96px;height:96px;border-radius:50%;background:var(--flame);color:#fff;font-style:normal;font-size:60px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .g-row span{font-size:62px;font-weight:800;letter-spacing:-.02em}
   .alarm{position:absolute;inset:0;border:22px solid var(--flame);opacity:0;z-index:14;pointer-events:none}
 
   .logo{position:absolute;left:50%;height:100px;transform:translateX(-50%)}
@@ -132,16 +136,15 @@ function film(id, kind) {
   </div>
 
   <div class="layer G">
-    <svg class="lock g-lock" viewBox="0 0 190 220"><path class="shackle" d="M45 100 V66 a50 50 0 0 1 100 0 V100"/><rect x="14" y="100" width="162" height="108" rx="26"/></svg>
-    <div class="cx serif flame g-life" style="line-height:.9">À vie.</div>
-    <div class="cx g-sub" style="font-size:58px;font-weight:800">Votre prix. <span class="flame">Pour toujours.</span></div>
+    <div class="cx k g-title">ZÉRO <span class="flame">RISQUE.</span></div>
+    <div class="g-list">${['14 jours d’essai gratuit', 'Sans engagement', 'Résiliable en 2 clics'].map((x)=>`<div class="g-row"><i>✓</i><span>${x}</span></div>`).join('')}</div>
   </div>
 
   <div class="layer Hh">
     <div class="cx lbl h-lbl" style="color:var(--flame)">FIN LUNDI 30.11 · MINUIT</div>
     <div class="cx h-clock">${CLOCK()}</div>
-    <div class="cx k h-after">APRÈS : <span class="flame">PRIX NORMAL.</span></div>
-    <div class="cx h-sub" style="font-size:48px;font-weight:700;color:var(--fog)">Ces prix ne reviendront jamais.</div>
+    <div class="cx k h-after">À ZÉRO, <span class="flame">C’EST TERMINÉ.</span></div>
+    <div class="cx h-sub" style="font-size:48px;font-weight:700;color:var(--fog)">Pas de prolongation. Pas de deuxième chance.</div>
   </div>
 
   <div class="layer I">
@@ -181,12 +184,12 @@ const DUR = 20.0;
 const HITS = [
   [1.6, 'big'], [2.0, 'big'], [2.4, 'big'], [3.2, 'big'], [4.0, 'mid'],
   [4.8, 'mid'], [5.4, 'big'], [6.3, 'big'], [7.6, 'mid'], [8.4, 'mid'], [9.0, 'small'],
-  [9.6, 'mid'], [12.0, 'mid'], [12.35, 'big'], [13.6, 'big'], [15.6, 'big'], [16.8, 'big'],
+  [9.6, 'mid'], [12.0, 'big'], [12.35, 'small'], [12.65, 'small'], [12.95, 'small'], [13.6, 'big'], [15.6, 'big'], [16.8, 'big'],
 ];
 const SFX = [
   ...Array.from({ length: 13 }, (_, i) => [0.05 + i * 0.12, 'tick']),
   [0.9, 'riser'], ...HITS.map(([t, k]) => [t, k === 'big' ? 'hit' : k === 'mid' ? 'punch' : 'pop']),
-  [5.6, 'spin'], [7.5, 'whoosh'], [8.3, 'whoosh'], ...Array.from({ length: 6 }, (_, i) => [10.2 + i * 0.22, 'pop']),
+  [5.6, 'spin'], [12.35, 'punch'], [12.65, 'punch'], [12.95, 'punch'], [7.5, 'whoosh'], [8.3, 'whoosh'], ...Array.from({ length: 6 }, (_, i) => [10.2 + i * 0.22, 'pop']),
   ...Array.from({ length: 15 }, (_, i) => [13.75 + i * 0.125, 'tick']), [14.9, 'riser'], [15.6, 'alarm'], [16.0, 'alarm'], [16.4, 'alarm'],
   [19.2, 'pop'],
 ];
@@ -404,25 +407,26 @@ function frame(id, t) {
     });
   }
 
-  // G · À vie
+  // G · zero risk: three guarantees land one by one
   {
     const el = vis(F, 'G', t);
-    const lk = el.querySelector('.g-lock');
-    lk.style.top = C - (tall ? 520 : 450) + 'px';
-    const a = seg(t, 12.0, 12.18, expoOut);
-    lk.style.opacity = a; lk.style.transform = `scale(${lerp(0.3, 1, a)})`;
-    lk.querySelector('.shackle').style.transform = `translateY(${(1 - seg(t, 12.25, 12.35, lin)) * -36}px)`;
-    const life = el.querySelector('.g-life');
-    life.style.fontSize = (tall ? 380 : 320) + 'px';
-    life.style.top = C - (tall ? 240 : 210) + 'px';
-    const k = seg(t, 12.35, 12.52, backOut);
-    life.style.opacity = clamp(k * 3);
-    life.style.transform = `scale(${lerp(2.6, 1, clamp(k)) + seg(t, 12.52, 13.6, lin) * 0.06})`;
-    life.style.textShadow = `0 0 ${50 + 50 * Math.abs(Math.sin(t * 7))}px rgba(255,91,31,.65)`;
-    const sub = el.querySelector('.g-sub');
-    sub.style.top = C + (tall ? 170 : 140) + 'px';
-    const sk = seg(t, 12.7, 12.9, backOut);
-    sub.style.opacity = clamp(sk * 3); sub.style.transform = `scale(${lerp(1.5, 1, clamp(sk))})`;
+    const ti = el.querySelector('.g-title');
+    ti.style.fontSize = (tall ? 170 : 140) + 'px';
+    ti.style.top = C - (tall ? 470 : 420) + 'px';
+    const tk = seg(t, 12.0, 12.18, backOut);
+    ti.style.opacity = clamp(tk * 3);
+    ti.style.transform = `scale(${lerp(2.4, 1, clamp(tk))})`;
+    const list = el.querySelector('.g-list');
+    list.style.top = C - (tall ? 210 : 190) + 'px';
+    list.style.gap = (tall ? 34 : 22) + 'px';
+    list.querySelectorAll('.g-row').forEach((r, i) => {
+      const a = 12.35 + i * 0.3;
+      const k = seg(t, a, a + 0.2, expoOut);
+      r.style.opacity = k;
+      r.style.transform = `translateX(${(1 - k) * (i % 2 ? 900 : -900)}px)`;
+      const c = r.querySelector('i'), ck = seg(t, a + 0.15, a + 0.35, backOut);
+      c.style.transform = `scale(${Math.max(0, ck)})`;
+    });
   }
 
   // H · the alarm: towards midnight
@@ -436,13 +440,12 @@ function frame(id, t) {
     ck.style.top = top + 80 + 'px';
     const k = seg(t, 13.6, 13.82, backOut);
     ck.style.transform = `scale(${lerp(1.7, 1, clamp(k))})`;
-    const p = seg(t, 13.6, 15.6, (x) => 1 - Math.pow(1 - x, 2.4));
-    const secs = t < 15.6 ? lerp(3 * 86400 + 7 * 3600 + 59 * 60 + 59, 3, p) : Math.max(0, 3 - Math.floor((t - 15.6) * 2.5));
+    const secs = t < 15.3 ? lerp(3 * 86400 + 7 * 3600 + 59 * 60 + 59, 3, seg(t, 13.6, 15.3, (x) => 1 - Math.pow(1 - x, 2.4))) : Math.max(0, 3 - Math.floor((t - 15.3) * 10));
     setClock(ck, secs);
     const units = ck.querySelectorAll('.u');
     units.forEach((u, i) => u.classList.toggle('hot', t > 15.6 || i === 3));
     const af = el.querySelector('.h-after');
-    af.style.fontSize = (tall ? 112 : 96) + 'px';
+    af.style.fontSize = (tall ? 104 : 90) + 'px';
     af.style.top = top + (tall ? 450 : 400) + 'px';
     const ak = seg(t, 15.6, 15.75, expoOut);
     af.style.opacity = ak; af.style.transform = `scale(${lerp(2.2, 1, ak)})`;
