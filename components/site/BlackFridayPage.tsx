@@ -69,6 +69,21 @@ export function BlackFridayPage() {
   const stack = width <= 900;
   const h1Size = phone ? 40 : tablet ? 56 : 72;
 
+  // Phone: the bar at the bottom only shows once the hero's own button and
+  // the price cards are out of sight, so it never sits on top of them.
+  const [showSticky, setShowSticky] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof IntersectionObserver === 'undefined' || !phone) return;
+    const targets = ['bf-hero-cta', 'bf-hero-card', 'prix-black-friday'].map((id) => document.getElementById(id)).filter(Boolean) as Element[];
+    const seen = new Map<Element, boolean>();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => seen.set(e.target, e.isIntersecting));
+      setShowSticky(![...seen.values()].some(Boolean));
+    });
+    targets.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [phone, ended]);
+
   const toPrices = () => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') document.getElementById('prix-black-friday')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -110,7 +125,7 @@ export function BlackFridayPage() {
                 {c.h1Plain} <Text style={[serif, { color: flame }]}>{c.h1Accent}</Text>
               </Text>
               <Text style={[sans, styles.heroLead, phone && { fontSize: 14, lineHeight: 24 }]}>{c.lead}</Text>
-              <View style={{ marginTop: 30, alignSelf: 'flex-start' }}>
+              <View nativeID="bf-hero-cta" style={{ marginTop: 30, alignSelf: 'flex-start' }}>
                 <FlameBtn label={c.cta} onPress={toPrices} large={!phone} />
               </View>
               <View style={styles.reassure}>
@@ -122,7 +137,7 @@ export function BlackFridayPage() {
                 ))}
               </View>
             </View>
-            <View style={[styles.heroCard, stack ? undefined : { flex: 0.9 }]}>
+            <View nativeID="bf-hero-card" style={[styles.heroCard, stack ? undefined : { flex: 0.9 }]}>
               <View style={styles.bigPct}>
                 <Text style={[sans, styles.bigPctUp]}>{locale === 'de' ? 'BIS ZU' : locale === 'it' ? 'FINO A' : 'JUSQU’À'}</Text>
                 <Text style={[sans, styles.bigPctNum, phone && { fontSize: 92, lineHeight: 96 }]}>-54%</Text>
@@ -308,7 +323,7 @@ export function BlackFridayPage() {
           </View>
         </Wrap>
       </View>
-      {phone ? <StickyBar left={left} label={c.stickyCta} ends={c.stickyEnds} onPress={toPrices} /> : null}
+      {phone && showSticky ? <StickyBar left={left} label={c.stickyCta} ends={c.stickyEnds} onPress={toPrices} /> : null}
     </SitePage>
   );
 }
@@ -342,7 +357,7 @@ function StickyBar({ left, label, ends, onPress }: { left: number | null; label:
   const s = Math.floor((left ?? 0) / 1000);
   const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
   const time = left == null ? '--' : `${d > 0 ? `${d}j ` : ''}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-  return (
+  const bar = (
     <View style={styles.sticky}>
       <View style={{ flex: 1 }}>
         <Text style={[sans, styles.stickyEnds]}>{ends.toUpperCase()}</Text>
@@ -354,6 +369,14 @@ function StickyBar({ left, label, ends, onPress }: { left: number | null; label:
       </Pressable>
     </View>
   );
+  // In the page the bar would be fixed to the scrolling content, not to the
+  // screen: it is put straight into <body>.
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    // react-dom ships without types here; only createPortal is needed.
+    const { createPortal } = require('react-dom') as { createPortal: (node: React.ReactNode, container: Element) => React.ReactElement };
+    return createPortal(bar, document.body);
+  }
+  return bar;
 }
 
 function Band({ alt, children }: { alt?: boolean; children: React.ReactNode }) {
@@ -437,7 +460,7 @@ const styles = StyleSheet.create({
   saveVs: { color: fog, fontSize: 12, marginTop: 10 },
   showStage: { position: 'relative', paddingVertical: 10 },
   showGlow: { position: 'absolute', top: -60, right: -60, bottom: -60, left: -60, ...(Platform.OS === 'web' ? ({ backgroundImage: 'radial-gradient(closest-side, rgba(255,91,31,0.28), rgba(255,91,31,0))' } as object) : {}) },
-  sticky: { ...(Platform.OS === 'web' ? ({ position: 'fixed', boxShadow: '0 -10px 40px rgba(0,0,0,0.5)' } as object) : {}), left: 10, right: 10, bottom: 10, zIndex: 50, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#0b0c09', borderWidth: 1.5, borderColor: flame, borderRadius: 18, paddingVertical: 10, paddingLeft: 16, paddingRight: 10 },
+  sticky: { ...(Platform.OS === 'web' ? ({ position: 'fixed', boxShadow: '0 -12px 30px rgba(0,0,0,0.55)', paddingBottom: 'max(10px, env(safe-area-inset-bottom))' } as object) : {}), left: 0, right: 0, bottom: 0, zIndex: 50, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#0b0c09', borderTopWidth: 2, borderTopColor: flame, paddingTop: 10, paddingLeft: 18, paddingRight: 12 },
   stickyEnds: { color: fog, fontSize: 9, fontWeight: '800', letterSpacing: 1.4 },
   stickyTime: { color: paper, fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
   stickyBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: flame, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16 },

@@ -15,6 +15,8 @@ Du vendredi 27 au **lundi 30 novembre à minuit** (heure suisse). Après, le cod
 |---|---|---|
 | `videos/cantia-black-friday-9x16.mp4` | 1080 × 1920, 20 s | Reel Instagram, Story, YouTube Short, TikTok, pub Meta en Story/Reel |
 | `videos/cantia-black-friday-4x5.mp4` | 1080 × 1350, 20 s | Post vidéo LinkedIn et Instagram, pub LinkedIn et Meta en fil |
+| `videos/cantia-black-friday-1x1.mp4` | 1080 × 1080, 20 s | Facebook, X, LinkedIn, WhatsApp, Pinterest |
+| `videos/cantia-black-friday-16x9.mp4` | 1920 × 1080, 20 s | YouTube (vidéo classique), X, LinkedIn, site, présentation |
 | `stories/story-1-lancement.png` | 1080 × 1920 | Vendredi matin |
 | `stories/story-2-prix.png` | 1080 × 1920 | Vendredi midi, samedi |
 | `stories/story-3-plus-que-24h.png` | 1080 × 1920 | Dimanche soir |
@@ -22,6 +24,10 @@ Du vendredi 27 au **lundi 30 novembre à minuit** (heure suisse). Après, le cod
 | `posts/carrousel-1…4.png` | 1080 × 1350 | Carrousel Instagram, et document PDF LinkedIn (les 4 pages) |
 | `posts/linkedin-1200x627.png` | 1200 × 627 | Image du lien LinkedIn, pub LinkedIn « image unique » |
 | `posts/youtube-1280x720.png` | 1280 × 720 | Miniature, post « Communauté » YouTube |
+| `posts/banniere-linkedin-profil-1584x396.png` | 1584 × 396 | Bannière de ton profil LinkedIn (la photo couvre le bas à gauche, laissé vide exprès) |
+| `posts/banniere-linkedin-entreprise-1128x191.png` | 1128 × 191 | Bannière de la page entreprise Cantia sur LinkedIn |
+| `posts/carre-1080x1080.png` | 1080 × 1080 | Post carré : Facebook, Instagram, LinkedIn, X, WhatsApp, Threads |
+| `posts/x-facebook-1600x900.png` | 1600 × 900 | Post X / Twitter, Facebook, Telegram |
 
 Les stories ont une zone pointillée : **posez-y le sticker « Lien »** (vers la page) et, sur la story 4, le **sticker « Compte à rebours »** d’Instagram réglé sur lundi 30.11 à 23:59. Les gens qui appuient sur « Me le rappeler » reçoivent une notification à la fin.
 

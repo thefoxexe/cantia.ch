@@ -18,7 +18,7 @@ import { displayType } from '../../lib/marketingTheme';
 
 export default function ChoosePlanScreen() {
   const { t } = useTranslation();
-  const { organization, refreshOrganization, isPlatformAdmin } = useAuth();
+  const { organization, refreshOrganization, isPlatformAdmin, user } = useAuth();
   const router = useRouter();
   // No visible field for this anywhere on the page — it only exists for
   // whoever was personally handed a link like /choose-plan?promo=ESSAI30.
@@ -58,7 +58,10 @@ export default function ChoosePlanScreen() {
 
   // Welcome code of a newly founded company (?promo=… or kept from the
   // sign-up link): checked once, shown as a banner, applied at checkout.
-  const offerCode = (typeof promo === 'string' && promo.trim() ? promo.trim() : intent.offer ?? '').toUpperCase();
+  // Last resort: the offer code saved with the account at sign-up (another
+  // device, or cleared storage since).
+  const metaOffer = typeof user?.user_metadata?.offer_code === 'string' ? (user.user_metadata.offer_code as string) : '';
+  const offerCode = (typeof promo === 'string' && promo.trim() ? promo.trim() : intent.offer ?? metaOffer).toUpperCase();
   const [offerDays, setOfferDays] = useState<number | null>(null);
   useEffect(() => {
     if (!offerCode || offerCode === 'ESSAI30') return;

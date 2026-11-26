@@ -1,9 +1,11 @@
 // Renders video.html to MP4 (30 images/s): v-reel 1080 × 1920 (Reel, Story,
-// YouTube Short, TikTok) and v-feed 1080 × 1350 (LinkedIn and Instagram feed),
+// YouTube Short, TikTok), v-feed 1080 × 1350 (LinkedIn and Instagram feed),
+// v-square 1080 × 1080 (Facebook, X, LinkedIn) and v-wide 1920 × 1080 (YouTube, X, site),
 // with the sound of sfx.py (128 BPM pulse, hits, ticks, alarm).
 // Then statics.html to PNG (stories, posts, LinkedIn).
 // Usage: NODE_PATH=$(npm root -g) node render.js [video|statics|all] [--preview]
 const { chromium } = require('playwright');
+const only = process.argv.find((a) => a.startsWith('--only='))?.slice(7);
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -22,11 +24,12 @@ const { execFileSync } = require('child_process');
     const durations = await page.evaluate(() => window.durations);
     const sfx = await page.evaluate(() => window.sfx);
     await page.waitForFunction(() => [...document.images].every((i) => i.complete));
-    const names = { 'v-reel': 'cantia-black-friday-9x16.mp4', 'v-feed': 'cantia-black-friday-4x5.mp4' };
+    const names = { 'v-reel': 'cantia-black-friday-9x16.mp4', 'v-feed': 'cantia-black-friday-4x5.mp4', 'v-square': 'cantia-black-friday-1x1.mp4', 'v-wide': 'cantia-black-friday-16x9.mp4' };
     for (const [id, dur] of Object.entries(durations)) {
+      if (only && id !== only) continue;
       await page.evaluate((id) => document.querySelectorAll('.film').forEach((r) => (r.style.display = r.id === id ? 'block' : 'none')), id);
-      const h = await page.evaluate((id) => +document.getElementById(id).dataset.h, id);
-      await page.setViewportSize({ width: 1080, height: h });
+      const [w, h] = await page.evaluate((id) => [+document.getElementById(id).dataset.w, +document.getElementById(id).dataset.rh], id);
+      await page.setViewportSize({ width: w, height: h });
       const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bf-'));
       const times = preview ? [0.5, 1.8, 2.7, 3.6, 4.3, 5.35, 5.9, 6.9, 8.9, 11.2, 12.9, 14.6, 16.2, 18.6] : Array.from({ length: Math.round(dur * 30) }, (_, i) => i / 30);
       for (let i = 0; i < times.length; i++) {

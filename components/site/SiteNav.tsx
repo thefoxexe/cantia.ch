@@ -117,7 +117,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
           ) : null}
           {width > 370 ? (
             <View>
-              <Btn label={c.tryCta} href={authHref('signup')} small={phone} />
+              <Btn label={c.tryCta} href={authHref('signup', dark ? { offer: 'BF2026', ref: 'black-friday-menu' } : undefined)} small={phone} />
             </View>
           ) : null}
           {phone ? (
@@ -199,7 +199,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             </DrawerGroup>
             <DrawerLink label={c.ecosystem} href={`${p}/a-propos`} onNavigate={() => setDrawerOpen(false)} />
             <View style={{ marginTop: 28, gap: 16 }}>
-              <Btn label={c.tryLong} href={authHref('signup')} />
+              <Btn label={c.tryLong} href={authHref('signup', dark ? { offer: 'BF2026', ref: 'black-friday-menu' } : undefined)} />
               <Link href={authHref('login') as any} asChild>
                 <Pressable onPress={() => setDrawerOpen(false)}>
                   <Text style={[sans, styles.actionLink, { fontSize: 13 }]}>{c.login}</Text>

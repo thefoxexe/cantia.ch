@@ -12,9 +12,8 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#000;font-family:'DM Sans',sans-serif}
   .film{width:1080px;position:relative;overflow:hidden;margin:0 0 40px;background:var(--night);color:var(--paper)}
-  .film.reel{height:1920px}
-  .film.feed{height:1350px}
-  .stage{position:absolute;inset:0;will-change:transform}
+  .film{background:radial-gradient(60% 60% at 50% 50%,#1a100a,var(--night) 70%)}
+  .stage{position:absolute;left:0;top:0;width:1080px;transform-origin:0 0;will-change:transform}
   .layer{position:absolute;inset:0;display:none}
   .abs{position:absolute}
   .cx{position:absolute;left:0;right:0;text-align:center}
@@ -31,8 +30,6 @@
   .grain{position:absolute;inset:0;z-index:21;pointer-events:none;opacity:.08;background-image:radial-gradient(rgba(255,255,255,.7) 1px,transparent 1px);background-size:4px 4px}
   .ticker{position:absolute;left:0;right:0;top:0;height:92px;background:var(--flame);overflow:hidden;z-index:15}
   .ticker .track{position:absolute;top:0;left:0;white-space:nowrap;font-size:38px;font-weight:900;letter-spacing:.06em;line-height:92px;color:#070806}
-  .live{position:absolute;left:48px;z-index:15;display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800;letter-spacing:.18em}
-  .live i{width:20px;height:20px;border-radius:50%;background:var(--hot);box-shadow:0 0 20px var(--hot)}
   .mini{position:absolute;right:48px;z-index:15;background:rgba(7,8,6,.85);border:3px solid var(--flame);border-radius:22px;padding:12px 24px;text-align:right}
   .mini small{display:block;font-size:20px;font-weight:800;letter-spacing:.2em;color:var(--flame)}
   .mini b{display:block;font-size:42px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
@@ -84,15 +81,18 @@
 <body>
 
 <script>
-const FORMATS = { reel: 1920, feed: 1350 };
+// w × h: the video; layout: the height the scenes are drawn for. The square
+// and the 16:9 reuse the 4:5 scenes, scaled to fit and centred.
+const FORMATS = { reel: { w: 1080, h: 1920, layout: 1920 }, feed: { w: 1080, h: 1350, layout: 1350 }, square: { w: 1080, h: 1080, layout: 1350 }, wide: { w: 1920, h: 1080, layout: 1350 } };
 const TICK = 'BLACK FRIDAY · -54 % À VIE · FIN LUNDI MINUIT · DERNIÈRE CHANCE · ';
 const CLOCK = () => `<div class="clock">${['JOURS','HEURES','MIN','SEC'].map((u,i)=>`<div class="u ${i===3?'hot':''}"><b>00</b><span>${u}</span></div>`).join('')}</div>`;
 const SLOT = (digits) => `<span class="slot"><div>${digits.map((d)=>`<span>${d}</span>`).join('')}</div></span>`;
 function film(id, kind) {
-  const H = FORMATS[kind];
+  const { w, h, layout } = FORMATS[kind];
+  const H = layout;
   document.write(`
-<section class="film ${kind}" id="${id}" data-h="${H}">
- <div class="stage">
+<section class="film ${kind}" id="${id}" data-h="${H}" data-w="${w}" data-rh="${h}" style="width:${w}px;height:${h}px">
+ <div class="stage" style="height:${H}px">
   <div class="bgglow"></div>
   <div class="rays"></div>
 
@@ -103,7 +103,7 @@ function film(id, kind) {
   </div>
 
   <div class="layer B">
-    <div class="abs b-bg" style="inset:0;background:var(--flame)"></div>
+    <div class="abs b-bg" style="inset:-1600px;background:var(--flame)"></div>
     <div class="cx k b1">BLACK</div>
     <div class="cx k b2 flame">FRIDAY</div>
   </div>
@@ -158,8 +158,6 @@ function film(id, kind) {
 
   <div class="alarm"></div>
   <div class="ticker"><div class="track">${Array(8).fill(`<span>${TICK}</span>`).join('')}</div></div>
-  <div class="live"><i></i>OFFRE EN COURS</div>
-  <div class="mini"><small>FIN DANS</small><b>3J 07:59:59</b></div>
   <div class="bar"></div>
   <div class="flash"></div>
   <div class="grain"></div>
@@ -167,6 +165,8 @@ function film(id, kind) {
 }
 film('v-reel', 'reel');
 film('v-feed', 'feed');
+film('v-square', 'square');
+film('v-wide', 'wide');
 </script>
 
 <script>
@@ -233,25 +233,26 @@ function frame(id, t) {
   const F = document.getElementById(id);
   const H = +F.dataset.h, C = H / 2, tall = H > 1500;
   const S = F.querySelector('.stage');
+  const RW = +F.dataset.w, RH = +F.dataset.rh;
+  const sc = Math.min(1, RH / H, RW / 1080);
+  const ox = (RW - 1080 * sc) / 2, oy = (RH - H * sc) / 2;
 
   const sh = shakeAt(t);
-  S.style.transform = `translate(${sh.x}px,${sh.y}px) rotate(${sh.r}deg) scale(${1 + sh.f * 0.08})`;
+  const punch = 1 + sh.f * 0.08;
+  // shake and punch around the centre of the frame
+  S.style.transformOrigin = '540px ' + C + 'px';
+  S.style.left = ox - 540 * (1 - sc) + 'px';
+  S.style.top = oy - C * (1 - sc) + 'px';
+  S.style.transform = `translate(${sh.x}px,${sh.y}px) rotate(${sh.r}deg) scale(${sc * punch})`;
   F.querySelector('.flash').style.opacity = sh.f;
 
   const chromeOn = t >= 1.6 && t < 16.8;
   const tr = F.querySelector('.track'), loop = tr.firstElementChild.offsetWidth || 1600;
   tr.style.transform = `translateX(${-(t * 260) % loop}px)`;
   F.querySelector('.ticker').style.transform = `translateY(${chromeOn ? 0 : -110}px)`;
-  const live = F.querySelector('.live'), mini = F.querySelector('.mini');
-  live.style.top = '136px'; mini.style.top = '118px';
-  live.style.opacity = chromeOn ? 1 : 0;
-  live.querySelector('i').style.opacity = Math.floor(t * 3) % 2 ? 0.25 : 1;
-  mini.style.opacity = chromeOn ? 1 : 0;
-  const rem = 3 * 86400 + 7 * 3600 + 59 * 60 + 59 - Math.floor(t);
-  mini.querySelector('b').textContent = `3J ${pad((rem % 86400) / 3600)}:${pad((rem % 3600) / 60)}:${pad(rem % 60)}`;
   const bar = F.querySelector('.bar');
-  bar.style.top = H - 10 + 'px';
-  bar.style.width = 1080 * (1 - clamp(t / DUR)) + 'px';
+  bar.style.top = RH - 10 + 'px';
+  bar.style.width = RW * (1 - clamp(t / DUR)) + 'px';
   const rays = F.querySelector('.rays');
   rays.style.transform = `rotate(${t * 22}deg)`;
   rays.style.opacity = (t >= 3.2 && t < 4.8) || (t >= 12 && t < 13.6) || t >= 16.8 ? 1 : 0;
@@ -475,7 +476,7 @@ function frame(id, t) {
 }
 
 window.frame = frame;
-window.durations = { 'v-reel': DUR, 'v-feed': DUR };
+window.durations = { 'v-reel': DUR, 'v-feed': DUR, 'v-square': DUR, 'v-wide': DUR };
 window.sfx = SFX;
 frame('v-reel', 6.6); frame('v-feed', 10.8);
 </script>
