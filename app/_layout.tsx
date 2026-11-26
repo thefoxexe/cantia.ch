@@ -21,6 +21,16 @@ import { onRouteChange, startSessionReplay } from '../lib/sessionReplay';
 import { holdHydrationViewport, ssrViewport } from '../lib/hydrationViewport';
 import '../lib/pwaInstall';
 import { useFonts } from 'expo-font';
+import { savePlanIntent } from '../lib/planIntent';
+
+// An offer link (Black Friday e-mail: app.cantia.ch/login?offer=BF2026) is
+// kept as soon as the app opens, before any redirect to the login or the
+// onboarding drops the query: the plan screen then shows the offer prices.
+if (typeof window !== 'undefined' && window.location?.search) {
+  const q = new URLSearchParams(window.location.search);
+  const offer = q.get('offer') ?? q.get('promo');
+  if (offer) savePlanIntent({ offer, plan: q.get('plan') ?? undefined, billing: q.get('billing') ?? undefined });
+}
 import { Feather } from '@expo/vector-icons';
 
 // Build-time static rendering has no window: give React Native Web a fixed
