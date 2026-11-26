@@ -57,6 +57,22 @@ export interface BlackFridayCopy {
   faq: { q: string; a: string }[];
   finalTitle: string;
   finalText: string;
+  marquee: string;
+  heroDeal: (plan: string) => string;
+  showEyebrow: string;
+  showPlain: string;
+  showAccent: string;
+  showText: string;
+  showDesktop: string;
+  showPhone: string;
+  saveEyebrow: string;
+  savePlain: string;
+  saveAccent: string;
+  saveText: string;
+  saveYears: string;
+  saveVs: (normal: string, offer: string) => string;
+  stickyCta: string;
+  stickyEnds: string;
   endedEyebrow: string;
   endedTitle: string;
   endedText: string;
@@ -128,6 +144,22 @@ const fr: BlackFridayCopy = {
   ],
   finalTitle: 'Lundi à minuit, c’est fini.',
   finalText: 'Après, ces prix ne reviendront pas. Bloquez le vôtre maintenant : l’essai est gratuit et vous pouvez résilier à tout moment.',
+  marquee: 'BLACK FRIDAY · JUSQU’À -54 % À VIE · FIN LUNDI À MINUIT · PRIX BLOQUÉ POUR TOUJOURS · ',
+  heroDeal: (p) => `${p} :`,
+  showEyebrow: 'Ce que vous débloquez',
+  showPlain: 'Tout Cantia.',
+  showAccent: 'Au bureau et sur le chantier.',
+  showText: 'Devis signés en ligne, factures QR, rapports dictés, planning, salaires et comptabilité. La même app sur l’ordinateur et le téléphone, au prix du Black Friday.',
+  showDesktop: 'Cantia sur ordinateur : tableau de bord, chantiers et devis',
+  showPhone: 'Cantia sur téléphone',
+  saveEyebrow: 'Ce que vous économisez',
+  savePlain: 'Le calcul est vite fait.',
+  saveAccent: 'Et il grandit chaque année.',
+  saveText: 'Au bout de 5 ans, au mois, par rapport au prix normal. Et la différence continue tant que l’abonnement est actif.',
+  saveYears: 'économisés sur 5 ans',
+  saveVs: (n, o) => `CHF ${o}.– au lieu de ${n}.– par mois`,
+  stickyCta: 'Bloquer mon prix',
+  stickyEnds: 'Fin dans',
   endedEyebrow: 'Black Friday 2026',
   endedTitle: 'L’offre Black Friday est terminée.',
   endedText: 'Merci aux entreprises qui en ont profité. Les tarifs habituels restent disponibles, avec 14 jours d’essai.',
@@ -199,6 +231,22 @@ const de: BlackFridayCopy = {
   ],
   finalTitle: 'Montag um Mitternacht ist Schluss.',
   finalText: 'Danach kommen diese Preise nicht wieder. Sichern Sie Ihren jetzt: Die Testphase ist gratis und Sie können jederzeit kündigen.',
+  marquee: 'BLACK FRIDAY · BIS ZU -54 % LEBENSLANG · ENDE MONTAG UM MITTERNACHT · PREIS FÜR IMMER GESICHERT · ',
+  heroDeal: (p) => `${p}:`,
+  showEyebrow: 'Das schalten Sie frei',
+  showPlain: 'Ganz Cantia.',
+  showAccent: 'Im Büro und auf der Baustelle.',
+  showText: 'Online signierte Offerten, QR-Rechnungen, diktierte Rapporte, Planung, Löhne und Buchhaltung. Dieselbe App auf Computer und Handy, zum Black-Friday-Preis.',
+  showDesktop: 'Cantia am Computer: Übersicht, Baustellen und Offerten',
+  showPhone: 'Cantia auf dem Handy',
+  saveEyebrow: 'Das sparen Sie',
+  savePlain: 'Die Rechnung ist einfach.',
+  saveAccent: 'Und sie wächst jedes Jahr.',
+  saveText: 'Nach 5 Jahren, monatlich, gegenüber dem normalen Preis. Und der Unterschied läuft weiter, solange das Abo aktiv ist.',
+  saveYears: 'gespart in 5 Jahren',
+  saveVs: (n, o) => `CHF ${o}.– statt ${n}.– pro Monat`,
+  stickyCta: 'Preis sichern',
+  stickyEnds: 'Ende in',
   endedEyebrow: 'Black Friday 2026',
   endedTitle: 'Das Black-Friday-Angebot ist beendet.',
   endedText: 'Danke an alle Unternehmen, die mitgemacht haben. Die normalen Tarife sind weiterhin verfügbar, mit 14 Tagen Testphase.',
@@ -270,6 +318,22 @@ const it: BlackFridayCopy = {
   ],
   finalTitle: 'Lunedì a mezzanotte è finita.',
   finalText: 'Dopo, questi prezzi non torneranno. Bloccate il vostro ora: la prova è gratuita e potete disdire in qualsiasi momento.',
+  marquee: 'BLACK FRIDAY · FINO A -54 % A VITA · FINE LUNEDÌ A MEZZANOTTE · PREZZO BLOCCATO PER SEMPRE · ',
+  heroDeal: (p) => `${p}:`,
+  showEyebrow: 'Cosa sbloccate',
+  showPlain: 'Tutto Cantia.',
+  showAccent: 'In ufficio e in cantiere.',
+  showText: 'Preventivi firmati online, fatture QR, rapporti dettati, pianificazione, salari e contabilità. La stessa app su computer e telefono, al prezzo del Black Friday.',
+  showDesktop: 'Cantia su computer: panoramica, cantieri e preventivi',
+  showPhone: 'Cantia su telefono',
+  saveEyebrow: 'Cosa risparmiate',
+  savePlain: 'Il calcolo è semplice.',
+  saveAccent: 'E cresce ogni anno.',
+  saveText: 'Dopo 5 anni, al mese, rispetto al prezzo normale. E la differenza continua finché l’abbonamento è attivo.',
+  saveYears: 'risparmiati in 5 anni',
+  saveVs: (n, o) => `CHF ${o}.– invece di ${n}.– al mese`,
+  stickyCta: 'Blocco il prezzo',
+  stickyEnds: 'Fine tra',
   endedEyebrow: 'Black Friday 2026',
   endedTitle: 'L’offerta Black Friday è terminata.',
   endedText: 'Grazie alle imprese che ne hanno approfittato. Le tariffe abituali restano disponibili, con 14 giorni di prova.',

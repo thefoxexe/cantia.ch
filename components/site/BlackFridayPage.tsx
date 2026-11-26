@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Btn, Eyebrow, Headline, Hover, Wrap } from './Primitives';
 import { SitePage, useSiteLayout, usePrefix } from './Sections';
 import { useSiteLocale } from './SiteNav';
 import { usePlanFigures } from './PricingPage';
+import { HeroDevices } from './HeroDevices';
 import { BF_CODE, BF_ENDS_AT, BF_PRICES, BLACK_FRIDAY_COPY } from '../../lib/site/blackFriday';
 import { PRICING_COPY, type PlanId } from '../../lib/site/pricing';
 import { sans, serif } from '../../lib/siteTheme';
@@ -99,6 +100,8 @@ export function BlackFridayPage() {
 
       {/* Hero */}
       <View style={[styles.hero, { paddingTop: phone ? 44 : 84, paddingBottom: phone ? 52 : 96 }]}>
+        <View style={styles.aurora} pointerEvents="none" />
+        <View style={styles.gridLines} pointerEvents="none" />
         <Wrap>
           <View style={[stack ? { gap: 40 } : { flexDirection: 'row', gap: 70, alignItems: 'center' }]}>
             <View style={stack ? undefined : { flex: 1.3 }}>
@@ -125,6 +128,16 @@ export function BlackFridayPage() {
                 <Text style={[sans, styles.bigPctNum, phone && { fontSize: 92, lineHeight: 96 }]}>-54%</Text>
                 <Text style={[serif, styles.bigPctLife]}>{c.lifetime}</Text>
               </View>
+              <View style={styles.deals}>
+                {(['pro', 'equipe', 'solo'] as PlanId[]).map((id) => (
+                  <View key={id} style={styles.deal}>
+                    <Text style={[sans, styles.dealName]}>{pc.plans[id].name}</Text>
+                    <Text style={[sans, styles.dealWas]}>{figures[id].monthly}.–</Text>
+                    <Feather name="arrow-right" size={13} color={fog} />
+                    <Text style={[sans, styles.dealNow]}>{BF_PRICES[id].monthly}.–</Text>
+                  </View>
+                ))}
+              </View>
               <View style={styles.heroCardSep} />
               <Text style={[sans, styles.cdLabel]}>{c.endsLabel}</Text>
               <Countdown left={left} units={c.units} compact={phone} />
@@ -132,6 +145,8 @@ export function BlackFridayPage() {
           </View>
         </Wrap>
       </View>
+
+      <Marquee text={c.marquee} />
 
       {/* Prices */}
       <View nativeID="prix-black-friday" style={[styles.pricesBand, { paddingVertical: phone ? 56 : 96 }]}>
@@ -202,6 +217,51 @@ export function BlackFridayPage() {
           </View>
         </Wrap>
       </View>
+
+      {/* Savings over 5 years */}
+      <Band alt>
+        <Eyebrow color={flame}>{c.saveEyebrow}</Eyebrow>
+        <Headline plain={c.savePlain} accent={c.saveAccent} accentColor={flame} color={paper} size={h2Size} style={{ marginTop: 15 }} />
+        <Text style={[sans, styles.whyText, { marginTop: 14, maxWidth: 640 }]}>{c.saveText}</Text>
+        <View style={[styles.grid3, { marginTop: 34 }, stack && { flexDirection: 'column' }]}>
+          {(['pro', 'equipe', 'solo'] as PlanId[]).map((id) => {
+            const normal = figures[id].monthly;
+            const offer = BF_PRICES[id].monthly;
+            const saved = (normal - offer) * 60;
+            const ratio = offer / normal;
+            return (
+              <View key={id} style={[styles.saveCard, id === 'pro' && styles.saveCardBest, stack ? undefined : { flex: 1 }]}>
+                <Text style={[sans, styles.saveName]}>{pc.plans[id].name}</Text>
+                <Text style={[sans, styles.saveBig, phone && { fontSize: 46 }, { fontVariant: ['tabular-nums'] }]}>CHF {chf(saved)}.–</Text>
+                <Text style={[sans, styles.saveYears]}>{c.saveYears}</Text>
+                <View style={styles.barTrack}>
+                  <View style={[styles.barNormal]} />
+                  <View style={[styles.barOffer, { width: `${Math.round(ratio * 100)}%` }]} />
+                </View>
+                <Text style={[sans, styles.saveVs]}>{c.saveVs(String(normal), String(offer))}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </Band>
+
+      {/* The product, live */}
+      <Band>
+        <View style={[stack ? { gap: 36 } : { flexDirection: 'row', alignItems: 'center', gap: 70 }]}>
+          <View style={stack ? undefined : { flex: 0.9 }}>
+            <Eyebrow color={flame}>{c.showEyebrow}</Eyebrow>
+            <Headline plain={c.showPlain} accent={c.showAccent} accentColor={flame} color={paper} size={h2Size} style={{ marginTop: 15 }} />
+            <Text style={[sans, styles.whyText, { marginTop: 16, fontSize: 14, lineHeight: 24 }]}>{c.showText}</Text>
+            <View style={{ marginTop: 26, alignSelf: 'flex-start' }}>
+              <FlameBtn label={c.cta} onPress={toPrices} />
+            </View>
+          </View>
+          <View style={[styles.showStage, stack ? undefined : { flex: 1.2 }]}>
+            <View style={styles.showGlow} pointerEvents="none" />
+            <HeroDevices locale={locale} phoneOnly={phone} labels={{ desktop: c.showDesktop, phone: c.showPhone }} />
+          </View>
+        </View>
+      </Band>
 
       {/* Why for life */}
       <Band alt>
@@ -277,7 +337,51 @@ export function BlackFridayPage() {
           </View>
         </Wrap>
       </View>
+      {phone ? <StickyBar left={left} label={c.stickyCta} ends={c.stickyEnds} onPress={toPrices} /> : null}
     </SitePage>
+  );
+}
+
+// A ribbon of text running across the page, endlessly.
+function Marquee({ text }: { text: string }) {
+  const x = useRef(new Animated.Value(0)).current;
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    if (!w) return;
+    x.setValue(0);
+    const loop = Animated.loop(Animated.timing(x, { toValue: -w, duration: w * 22, easing: Easing.linear, useNativeDriver: Platform.OS !== 'web' }));
+    loop.start();
+    return () => loop.stop();
+  }, [w, x]);
+  return (
+    <View style={styles.marquee}>
+      <Animated.View style={{ flexDirection: 'row', transform: [{ translateX: x }] }}>
+        {[0, 1, 2].map((k) => (
+          <Text key={k} onLayout={k === 0 ? (e) => setW(e.nativeEvent.layout.width) : undefined} style={[sans, styles.marqueeText]}>
+            {text.repeat(2)}
+          </Text>
+        ))}
+      </Animated.View>
+    </View>
+  );
+}
+
+// Phone only: the time left and the button stay at the bottom of the screen.
+function StickyBar({ left, label, ends, onPress }: { left: number | null; label: string; ends: string; onPress: () => void }) {
+  const s = Math.floor((left ?? 0) / 1000);
+  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  const time = left == null ? '--' : `${d > 0 ? `${d}j ` : ''}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  return (
+    <View style={styles.sticky}>
+      <View style={{ flex: 1 }}>
+        <Text style={[sans, styles.stickyEnds]}>{ends.toUpperCase()}</Text>
+        <Text style={[sans, styles.stickyTime, { fontVariant: ['tabular-nums'] }]}>{time}</Text>
+      </View>
+      <Pressable onPress={onPress} style={styles.stickyBtn} accessibilityRole="button">
+        <Text style={[sans, styles.stickyBtnText]}>{label}</Text>
+        <Feather name="arrow-right" size={15} color="#fff" />
+      </Pressable>
+    </View>
   );
 }
 
@@ -341,7 +445,32 @@ function SwitchBtn({ label, extra, active, onPress }: { label: string; extra?: s
 const styles = StyleSheet.create({
   ribbon: { backgroundColor: flame, paddingVertical: 9, paddingHorizontal: 16, alignItems: 'center' },
   ribbonText: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 1.4, textAlign: 'center' },
-  hero: { backgroundColor: night },
+  hero: { backgroundColor: night, overflow: 'hidden' },
+  aurora: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, ...(Platform.OS === 'web' ? ({ backgroundImage: 'radial-gradient(60% 70% at 85% 30%, rgba(255,91,31,0.22), rgba(255,91,31,0) 70%), radial-gradient(40% 50% at 10% 100%, rgba(255,91,31,0.10), rgba(255,91,31,0) 70%)' } as object) : {}) },
+  gridLines: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, opacity: 0.35, ...(Platform.OS === 'web' ? ({ backgroundImage: 'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)', backgroundSize: '64px 64px', maskImage: 'radial-gradient(ellipse at 50% 40%, black 30%, transparent 75%)' } as object) : {}) },
+  deals: { gap: 8, marginTop: 18 },
+  deal: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: nightLine, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14 },
+  dealName: { flex: 1, color: paper, fontSize: 13, fontWeight: '700' },
+  dealWas: { color: fog, fontSize: 13, textDecorationLine: 'line-through', textDecorationColor: flame },
+  dealNow: { color: flame, fontSize: 18, fontWeight: '800', minWidth: 44, textAlign: 'right' },
+  marquee: { backgroundColor: flame, paddingVertical: 13, overflow: 'hidden', flexDirection: 'row' },
+  marqueeText: { color: '#0b0c09', fontSize: 15, lineHeight: 22, fontWeight: '900', letterSpacing: 2, flexShrink: 0, ...(Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as object) : {}) },
+  saveCard: { backgroundColor: night, borderWidth: 1, borderColor: nightLine, borderRadius: 22, padding: 26 },
+  saveCardBest: { borderColor: flame, ...(Platform.OS === 'web' ? ({ backgroundImage: 'linear-gradient(160deg, rgba(255,91,31,0.16), rgba(255,91,31,0) 55%)' } as object) : {}) },
+  saveName: { color: fog, fontSize: 12, fontWeight: '800', letterSpacing: 1.6, textTransform: 'uppercase' },
+  saveBig: { color: paper, fontSize: 56, fontWeight: '800', letterSpacing: -2.4, marginTop: 10 },
+  saveYears: { color: flame, fontSize: 13, fontWeight: '700', marginTop: 2 },
+  barTrack: { height: 10, borderRadius: 5, backgroundColor: '#2a2d22', marginTop: 22, overflow: 'hidden' },
+  barNormal: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#3a3e31' },
+  barOffer: { position: 'absolute', top: 0, bottom: 0, left: 0, backgroundColor: flame, borderRadius: 5 },
+  saveVs: { color: fog, fontSize: 12, marginTop: 10 },
+  showStage: { position: 'relative', paddingVertical: 10 },
+  showGlow: { position: 'absolute', top: -60, right: -60, bottom: -60, left: -60, ...(Platform.OS === 'web' ? ({ backgroundImage: 'radial-gradient(closest-side, rgba(255,91,31,0.28), rgba(255,91,31,0))' } as object) : {}) },
+  sticky: { ...(Platform.OS === 'web' ? ({ position: 'fixed', boxShadow: '0 -10px 40px rgba(0,0,0,0.5)' } as object) : {}), left: 10, right: 10, bottom: 10, zIndex: 50, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#0b0c09', borderWidth: 1.5, borderColor: flame, borderRadius: 18, paddingVertical: 10, paddingLeft: 16, paddingRight: 10 },
+  stickyEnds: { color: fog, fontSize: 9, fontWeight: '800', letterSpacing: 1.4 },
+  stickyTime: { color: paper, fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
+  stickyBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: flame, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 16 },
+  stickyBtnText: { color: '#fff', fontSize: 13, fontWeight: '800' },
   h1: { color: paper, fontWeight: '500', marginTop: 18 },
   heroLead: { color: fog, fontSize: 16, lineHeight: 28, marginTop: 22, maxWidth: 640 },
   reassure: { flexDirection: 'row', flexWrap: 'wrap', gap: 18, marginTop: 22 },
