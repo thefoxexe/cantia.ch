@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Linking, Modal, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Link, usePathname } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Hover } from './Primitives';
 import { localePrefix, useSiteLocale } from './SiteNav';
 import { BF_ENDS_AT } from '../../lib/site/blackFriday';
+import { IS_DEMO } from '../../lib/demo';
 import { sans, serif } from '../../lib/siteTheme';
 
 // Black Friday 2026 pop-up on the marketing site: opens a few seconds after
@@ -19,7 +20,8 @@ const flame = '#ff5b1f';
 const paper = '#f4f3e9';
 const fog = '#9da293';
 const KEY = 'cantia_bf2026_popup_seen';
-const DELAY_MS = 3500;
+// On demo.cantia.ch the visitor first looks around a little.
+const DELAY_MS = IS_DEMO ? 6000 : 3500;
 
 const COPY = {
   fr: { badge: 'BLACK FRIDAY', title: 'Le premier Black Friday de Cantia.', upTo: 'JUSQU’À', life: 'à vie', text: 'Entreprise à CHF 59.– au lieu de 129.–. Le prix reste bloqué tant que votre abonnement est actif. Il n’y aura pas de meilleure offre.', ends: 'Fin lundi 30 novembre à minuit', units: ['jours', 'heures', 'min', 'sec'], cta: 'J’en profite', later: 'Plus tard', close: 'Fermer' },
@@ -79,7 +81,8 @@ export function BlackFridayPopup() {
   const c = COPY[locale];
   const s = Math.floor(left / 1000);
   const parts = [Math.floor(s / 86400), Math.floor((s % 86400) / 3600), Math.floor((s % 3600) / 60), s % 60];
-  const href = `${localePrefix(locale)}/black-friday?ref=popup`;
+  // The demo is another site: the offer page opens on cantia.ch.
+  const href = IS_DEMO ? `https://cantia.ch${localePrefix(locale)}/black-friday?ref=demo-popup` : `${localePrefix(locale)}/black-friday?ref=popup`;
   const close = () => setOpen(false);
 
   return (
@@ -119,12 +122,19 @@ export function BlackFridayPopup() {
             ))}
           </View>
 
-          <Link href={href as any} asChild>
-            <Hover accessibilityRole="link" onPress={close} base={styles.cta} hover={{ backgroundColor: '#ff7440' }}>
+          {IS_DEMO ? (
+            <Hover accessibilityRole="link" onPress={() => { close(); Linking.openURL(href).catch(() => {}); }} base={styles.cta} hover={{ backgroundColor: '#ff7440' }}>
               <Text style={[sans, styles.ctaText]}>{c.cta}</Text>
               <Feather name="arrow-right" size={18} color="#fff" />
             </Hover>
-          </Link>
+          ) : (
+            <Link href={href as any} asChild>
+              <Hover accessibilityRole="link" onPress={close} base={styles.cta} hover={{ backgroundColor: '#ff7440' }}>
+                <Text style={[sans, styles.ctaText]}>{c.cta}</Text>
+                <Feather name="arrow-right" size={18} color="#fff" />
+              </Hover>
+            </Link>
+          )}
           <Pressable onPress={close} hitSlop={8} style={{ alignSelf: 'center', marginTop: 14 }}>
             <Text style={[sans, styles.later]}>{c.later}</Text>
           </Pressable>

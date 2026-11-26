@@ -167,7 +167,6 @@ export function BlackFridayPage() {
               const was = yearly && normal.yearly != null ? normal.yearly / 12 : normal.monthly;
               const now = yearly ? offer.yearly / 12 : offer.monthly;
               const pct = Math.round((1 - offer.monthly / normal.monthly) * 100);
-              const savedYear = yearly ? (normal.yearly ?? normal.monthly * 12) - offer.yearly : (normal.monthly - offer.monthly) * 12;
               return (
                 <View key={id} style={[styles.card, best && styles.cardBest, stack ? undefined : { flex: 1 }]}>
                   {best ? (
@@ -199,7 +198,6 @@ export function BlackFridayPage() {
                     <Feather name="lock" size={12} color={flame} />
                     <Text style={[sans, styles.lifeText, best && { color: paper }]}>{c.lifetime}</Text>
                   </View>
-                  <Text style={[sans, styles.saved, best && { color: flame }]}>{c.savePerYear(chf(Math.round(savedYear * 100) / 100))}</Text>
                   <View style={{ marginTop: 18 }}>
                     <FlameBtn label={c.planCta(plan.name)} href={signup(id)} ghost={!best} block />
                   </View>
@@ -217,33 +215,6 @@ export function BlackFridayPage() {
           </View>
         </Wrap>
       </View>
-
-      {/* Savings over 5 years */}
-      <Band alt>
-        <Eyebrow color={flame}>{c.saveEyebrow}</Eyebrow>
-        <Headline plain={c.savePlain} accent={c.saveAccent} accentColor={flame} color={paper} size={h2Size} style={{ marginTop: 15 }} />
-        <Text style={[sans, styles.whyText, { marginTop: 14, maxWidth: 640 }]}>{c.saveText}</Text>
-        <View style={[styles.grid3, { marginTop: 34 }, stack && { flexDirection: 'column' }]}>
-          {(['pro', 'equipe', 'solo'] as PlanId[]).map((id) => {
-            const normal = figures[id].monthly;
-            const offer = BF_PRICES[id].monthly;
-            const saved = (normal - offer) * 60;
-            const ratio = offer / normal;
-            return (
-              <View key={id} style={[styles.saveCard, id === 'pro' && styles.saveCardBest, stack ? undefined : { flex: 1 }]}>
-                <Text style={[sans, styles.saveName]}>{pc.plans[id].name}</Text>
-                <Text style={[sans, styles.saveBig, phone && { fontSize: 46 }, { fontVariant: ['tabular-nums'] }]}>CHF {chf(saved)}.–</Text>
-                <Text style={[sans, styles.saveYears]}>{c.saveYears}</Text>
-                <View style={styles.barTrack}>
-                  <View style={[styles.barNormal]} />
-                  <View style={[styles.barOffer, { width: `${Math.round(ratio * 100)}%` }]} />
-                </View>
-                <Text style={[sans, styles.saveVs]}>{c.saveVs(String(normal), String(offer))}</Text>
-              </View>
-            );
-          })}
-        </View>
-      </Band>
 
       {/* The product, live */}
       <Band>
