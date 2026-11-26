@@ -289,6 +289,8 @@ export default function ChoosePlanScreen() {
 
         {/* How the trial and the subscription go: folded by default, one
             tap opens it, so the plans stay the first thing on screen. */}
+        {/* Black Friday: paid at once, no trial: the trial steps would be wrong. */}
+        {priceOfferEndsAt ? null : (
         <View style={styles.trialBox}>
           <Pressable onPress={() => setTrialOpen((v) => !v)} style={styles.trialHead} accessibilityRole="button" aria-expanded={trialOpen} hitSlop={6}>
             <Feather name="info" size={16} color={colors.primary} />
@@ -311,6 +313,7 @@ export default function ChoosePlanScreen() {
             </View>
           ) : null}
         </View>
+        )}
       </OnboardingShell>
   );
 }

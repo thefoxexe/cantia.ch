@@ -57,9 +57,9 @@ const COPY = {
 // left, the windows lead to cantia.ch/black-friday, and the offer pop-up of
 // the site opens once. All of it goes away by itself at the end.
 const BF = {
-  fr: { pill: 'Black Friday : jusqu’à -54 % à vie', ends: 'Fin dans', cta: 'J’en profite', point: 'Black Friday : jusqu’à -54 % à vie, jusqu’à lundi minuit', signup: 'Profiter du Black Friday' },
-  de: { pill: 'Black Friday: bis zu -54 % lebenslang', ends: 'Ende in', cta: 'Jetzt profitieren', point: 'Black Friday: bis zu -54 % lebenslang, bis Montag Mitternacht', signup: 'Black Friday nutzen' },
-  it: { pill: 'Black Friday: fino a -54 % a vita', ends: 'Fine tra', cta: 'Approfitto', point: 'Black Friday: fino a -54 % a vita, fino a lunedì mezzanotte', signup: 'Approfittare del Black Friday' },
+  fr: { pill: 'Black Friday : jusqu’à -54 % à vie', ends: 'Fin dans', cta: 'J’en profite', point: 'Black Friday : jusqu’à -54 % à vie, jusqu’à lundi minuit', signup: 'Profiter du Black Friday', points: ['Satisfait ou remboursé pendant 14 jours', 'Résiliable à tout moment', 'Données hébergées en Suisse'] },
+  de: { pill: 'Black Friday: bis zu -54 % lebenslang', ends: 'Ende in', cta: 'Jetzt profitieren', point: 'Black Friday: bis zu -54 % lebenslang, bis Montag Mitternacht', signup: 'Black Friday nutzen', points: ['14 Tage Geld-zurück-Garantie', 'Jederzeit kündbar', 'Daten in der Schweiz gehostet'] },
+  it: { pill: 'Black Friday: fino a -54 % a vita', ends: 'Fine tra', cta: 'Approfitto', point: 'Black Friday: fino a -54 % a vita, fino a lunedì mezzanotte', signup: 'Approfittare del Black Friday', points: ['Soddisfatti o rimborsati 14 giorni', 'Disdicibile in qualsiasi momento', 'Dati ospitati in Svizzera'] },
 } as const;
 const pad2 = (n: number) => String(Math.max(0, Math.floor(n))).padStart(2, '0');
 
@@ -181,7 +181,7 @@ export function DemoBanner() {
             <Text style={styles.title}>{modal === 'blocked' ? c.blockedTitle : c.tourTitle}</Text>
             <Text style={styles.body}>{modal === 'blocked' ? c.blockedText : c.tourText}</Text>
             <View style={{ gap: 8, marginTop: 4 }}>
-              {(bfLive ? [bf.point, ...c.points] : c.points).map((pt, i) => (
+              {(bfLive ? [bf.point, ...bf.points] : c.points).map((pt, i) => (
                 <View key={pt} style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
                   <Feather name={bfLive && i === 0 ? 'zap' : 'check'} size={14} color={bfLive && i === 0 ? '#ff5b1f' : '#a65d36'} style={{ marginTop: 2 }} />
                   <Text style={[styles.body, { flex: 1 }, bfLive && i === 0 && { color: '#2b2a26', fontWeight: '700' }]}>{pt}</Text>
