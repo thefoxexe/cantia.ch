@@ -2859,6 +2859,9 @@ export const it: TranslationDict = {
     resend: 'Invia di nuovo il codice',
   },
   authChoosePlan: {
+    priceOfferBanner: 'Black Friday: i vostri prezzi sono bloccati a vita, solo fino a lunedì 30 novembre a mezzanotte. 14 giorni di prova, disdicibile in qualsiasi momento.',
+    priceOfferBadge: 'Black Friday · a vita',
+    priceOfferLifetime: 'Prezzo bloccato a vita, finché l’abbonamento resta attivo.',
     offerBanner: "{{months}} mesi offerti con il vostro codice {{code}}: nessun addebito in questo periodo, disdicibile in qualsiasi momento.",
     title: 'Scelga il suo piano',
     subtitle: 'Il suo spazio {{name}} è stato creato. Scelga la formula più adatta per iniziare.',

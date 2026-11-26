@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, usePathname } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Btn, Hover } from './Primitives';
 import { sans, site, gutter } from '../../lib/siteTheme';
@@ -8,9 +8,14 @@ import { SITE_COPY, type SiteLocale } from '../../lib/site/copy';
 import { getAppLocale } from '../../lib/translations';
 import { authHref } from '../../lib/appHost';
 import { SiteImage } from './SiteImage';
-import { localHref } from '../../lib/site/localPaths';
+import { BF_ENDS_AT } from '../../lib/site/blackFriday';
+
+const BF_MENU = { fr: 'Black Friday : -54 % à vie', de: 'Black Friday: -54 % lebenslang', it: 'Black Friday: -54 % a vita' } as const;
 
 const LOGO = require('../../assets/brand/logo.png');
+const LOGO_DARK = require('../../assets/brand/logo-on-dark.png');
+// The Black Friday page wears the menu in black.
+const NIGHT = { bg: '#0b0c09', line: '#2a2d22', ink: '#f4f3e9', muted: '#9da293' };
 
 type IconName = React.ComponentProps<typeof Feather>['name'];
 export const FAMILY_ICONS: Record<string, IconName> = {
@@ -59,19 +64,24 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
     { label: c.pricing, href: `${p}/tarifs` },
     ...(width > 900 ? [{ label: c.discover, href: `${p}/ressources` }, { label: c.ecosystem, href: `${p}/a-propos` }] : []),
   ];
-  // The new-company offer, with its placement for the request form (StarterOffer).
-  const starterHref = (ref: string) => `${localHref(`${p}/nouvelle-entreprise`)}?ref=${ref}&cta=menu`;
+  // Black Friday 2026 in the menu, until 30 November at midnight
+  // (lib/site/blackFriday.ts). The 3-month offer for new companies is no
+  // longer linked from the site: its page is reached from its own e-mails.
+  const bfLive = Date.now() < BF_ENDS_AT;
+  const dark = usePathname().includes('black-friday');
+  const bfHref = (ref: string) => `${p}/black-friday?ref=${ref}`;
+  const bfLabel = BF_MENU[locale];
   const megaItems = [
     ...families.map((f) => ({ key: f.key, name: f.name, text: f.text, href: `${p}/${f.slug}` })),
     { key: 'assistant', name: c.assistant.name, text: c.assistant.text, href: `${p}/assistant` },
   ];
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, dark && { backgroundColor: NIGHT.bg, borderBottomColor: NIGHT.line }]}>
       <View style={[styles.bar, { height: phone ? 75 : 86, paddingHorizontal: gutter(width) }]}>
         <Link href={(p || '/') as any} asChild>
           <Pressable accessibilityRole="link" accessibilityLabel="Cantia">
-            <SiteImage source={LOGO} alt="Cantia" priority style={{ width: phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158, height: (phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158) * (192 / 1036) }} resizeMode="contain" />
+            <SiteImage source={dark ? LOGO_DARK : LOGO} alt="Cantia" priority style={{ width: phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158, height: (phone ? 122 : width <= 900 ? 124 : tablet ? 140 : 158) * (192 / 1036) }} resizeMode="contain" />
           </Pressable>
         </Link>
 
@@ -83,13 +93,13 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
               aria-expanded={megaOpen}
               style={({ hovered }: any) => [styles.menuButton, hovered && { opacity: 0.7 }]}
             >
-              <Text style={[sans, styles.mainLink, tablet && { fontSize: 11 }]}>{c.software}</Text>
-              <Feather name={megaOpen ? 'chevron-up' : 'chevron-down'} size={13} color={site.muted} />
+              <Text style={[sans, styles.mainLink, tablet && { fontSize: 11 }, dark && { color: NIGHT.ink }]}>{c.software}</Text>
+              <Feather name={megaOpen ? 'chevron-up' : 'chevron-down'} size={13} color={dark ? NIGHT.muted : site.muted} />
             </Pressable>
             {links.map((l) => (
               <Link key={l.href} href={l.href as any} asChild>
                 <Hover accessibilityRole="link" hover={{ opacity: 0.7 }}>
-                  <Text style={[sans, styles.mainLink, tablet && { fontSize: 11 }]}>{l.label}</Text>
+                  <Text style={[sans, styles.mainLink, tablet && { fontSize: 11 }, dark && { color: NIGHT.ink }]}>{l.label}</Text>
                 </Hover>
               </Link>
             ))}
@@ -101,7 +111,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
           {!phone ? (
             <Link href={authHref('login') as any} asChild>
               <Pressable accessibilityRole="link">
-                <Text style={[sans, styles.actionLink]}>{c.login}</Text>
+                <Text style={[sans, styles.actionLink, dark && { color: NIGHT.ink }]}>{c.login}</Text>
               </Pressable>
             </Link>
           ) : null}
@@ -111,8 +121,8 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             </View>
           ) : null}
           {phone ? (
-            <Pressable onPress={() => setDrawerOpen(true)} accessibilityRole="button" accessibilityLabel={c.menu} style={styles.burger} hitSlop={6}>
-              <Feather name="menu" size={20} color={site.ink} />
+            <Pressable onPress={() => setDrawerOpen(true)} accessibilityRole="button" accessibilityLabel={c.menu} style={[styles.burger, dark && { borderColor: NIGHT.line }]} hitSlop={6}>
+              <Feather name="menu" size={20} color={dark ? NIGHT.ink : site.ink} />
             </Pressable>
           ) : null}
         </View>
@@ -148,12 +158,14 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
                   </Pressable>
                 </Link>
                 {/* A single style object: Link asChild hands its child's style to the <a>, which refuses an array. */}
-                <Link href={starterHref('menu') as any} asChild>
-                  <Pressable onPress={() => setMegaOpen(false)} style={styles.megaGift}>
-                    <Feather name="gift" size={13} color={site.copper} />
-                    <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{SITE_COPY[locale].footer.newCompanyLink}</Text>
-                  </Pressable>
-                </Link>
+                {bfLive ? (
+                  <Link href={bfHref('menu') as any} asChild>
+                    <Pressable onPress={() => setMegaOpen(false)} style={styles.megaGift}>
+                      <Feather name="zap" size={13} color={site.copper} />
+                      <Text style={[sans, styles.megaBottomLink, { color: site.copper }]}>{bfLabel}</Text>
+                    </Pressable>
+                  </Link>
+                ) : null}
               </View>
             </View>
           </View>
@@ -180,7 +192,7 @@ export function SiteNav({ languageSwitcher }: { languageSwitcher?: React.ReactNo
             ))}
             <DrawerGroup title={c.discover}>
               <DrawerSubLink icon="monitor" label={c.devices} href={`${p}/telechargement`} onNavigate={() => setDrawerOpen(false)} />
-              <DrawerSubLink icon="gift" label={SITE_COPY[locale].footer.newCompanyLink} href={starterHref('menu-mobile')} onNavigate={() => setDrawerOpen(false)} />
+              {bfLive ? <DrawerSubLink icon="zap" label={bfLabel} href={bfHref('menu-mobile')} onNavigate={() => setDrawerOpen(false)} /> : null}
               <DrawerSubLink icon="compass" label={c.discover} href={`${p}/ressources`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="help-circle" label={c.help} href={`${p}/aide`} onNavigate={() => setDrawerOpen(false)} />
               <DrawerSubLink icon="mail" label={c.contact} href={`${p}/contact`} onNavigate={() => setDrawerOpen(false)} />

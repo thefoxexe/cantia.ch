@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{--night:#121410;--night2:#1b1e18;--line:#2c3027;--flame:#ff5b1f;--paper:#f4f3e9;--fog:#a9ae9f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'DM Sans',sans-serif;padding:20px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+  .art{position:relative;overflow:hidden;background:var(--night);color:var(--paper)}
+  .art::before{content:'';position:absolute;width:1300px;height:1300px;border-radius:50%;left:-200px;top:var(--gy,200px);background:radial-gradient(circle,rgba(255,91,31,.26),rgba(255,91,31,0) 62%)}
+  .art::after{content:'';position:absolute;inset:0;opacity:.07;background-image:radial-gradient(rgba(255,255,255,.6) 1px,transparent 1px);background-size:5px 5px}
+  .art > *{position:relative;z-index:1}
+  .story{width:1080px;height:1920px;padding:220px 90px 0}
+  .post{width:1080px;height:1350px;padding:150px 90px 0}
+  .strip{position:absolute !important;left:0;right:0;top:0;height:86px;background:var(--flame);color:#fff;font-size:30px;font-weight:800;letter-spacing:.1em;line-height:86px;white-space:nowrap;overflow:hidden;text-align:center}
+  .serif{font-family:'DM Serif Display',serif;font-style:italic;font-weight:400}
+  .flame{color:var(--flame)}
+  .fog{color:var(--fog)}
+  .eyebrow{font-size:34px;font-weight:800;letter-spacing:.28em;color:var(--flame)}
+  .h{font-size:124px;font-weight:600;letter-spacing:-.045em;line-height:.98}
+  .huge{font-size:300px;font-weight:800;letter-spacing:-.07em;line-height:.85;color:var(--flame)}
+  .lead{font-size:46px;line-height:1.32;color:var(--fog);font-weight:500;letter-spacing:-.01em}
+  .pill{display:inline-block;background:var(--flame);color:#fff;font-size:46px;font-weight:800;border-radius:999px;padding:22px 50px;letter-spacing:-.01em}
+  .logo{height:70px}
+  .bottom{position:absolute !important;left:90px;right:90px}
+  .linkzone{position:absolute !important;left:90px;right:90px;bottom:330px;height:200px;border:4px dashed rgba(244,243,233,.35);border-radius:40px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:var(--fog);letter-spacing:.04em}
+  .pcard{border:2px solid var(--line);background:var(--night2);border-radius:36px;padding:34px 44px;margin-top:26px}
+  .pcard.best{border-color:var(--flame);box-shadow:0 20px 70px rgba(255,91,31,.25)}
+  .pcard .row{display:flex;justify-content:space-between;align-items:center}
+  .pcard .nm{font-size:48px;font-weight:700;letter-spacing:-.02em}
+  .pcard .pct{background:var(--flame);color:#fff;font-size:44px;font-weight:800;border-radius:16px;padding:2px 18px;transform:rotate(-4deg)}
+  .pcard .pr{display:flex;align-items:baseline;gap:18px;margin-top:10px}
+  .pcard .was{font-size:44px;color:var(--fog);text-decoration:line-through;text-decoration-color:var(--flame);text-decoration-thickness:5px;font-weight:600}
+  .pcard .now{font-size:120px;font-weight:800;letter-spacing:-.05em;line-height:1}
+  .pcard .now small{font-size:40px;color:var(--fog);letter-spacing:0;font-weight:700;margin-right:8px}
+  .pcard .now i{font-style:normal;font-size:38px;color:var(--fog);font-weight:600;letter-spacing:0;margin-left:6px}
+  .cd{display:flex;gap:22px}
+  .cd div{flex:1;background:var(--night2);border:2px solid var(--line);border-radius:30px;padding:34px 0;text-align:center}
+  .cd b{display:block;font-size:120px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .cd span{display:block;font-size:26px;font-weight:700;letter-spacing:.18em;color:var(--fog);margin-top:10px}
+  .pt{display:flex;gap:30px;margin-top:48px}
+  .pt b{flex:none;width:76px;height:76px;border-radius:50%;background:var(--flame);color:#fff;font-size:36px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .pt h3{font-size:50px;font-weight:700;letter-spacing:-.02em}
+  .pt p{font-size:36px;line-height:1.35;color:var(--fog);margin-top:8px}
+  .num{position:absolute !important;right:90px;bottom:70px;font-size:30px;font-weight:700;color:var(--fog);letter-spacing:.1em}
+</style>
+</head>
+<body>
+
+<!-- ===================== STORIES 1080 × 1920 ===================== -->
+
+<section class="art story" data-out="stories/story-1-lancement.png" style="--gy:300px">
+  <div class="strip">BLACK FRIDAY · VENDREDI → LUNDI MINUIT</div>
+  <img class="logo" src="logo-on-dark.png">
+  <div class="eyebrow" style="margin-top:110px">C’EST PARTI</div>
+  <div class="h" style="margin-top:30px">Le premier Black Friday de Cantia.</div>
+  <div class="huge" style="margin-top:70px">-54%</div>
+  <div class="h serif flame" style="font-size:150px;margin-top:10px">à vie.</div>
+  <div class="lead" style="margin-top:50px">Jusqu’à lundi minuit.<br>Après, c’est fini.</div>
+  <div class="linkzone">ZONE DU STICKER LIEN</div>
+</section>
+
+<section class="art story" data-out="stories/story-2-prix.png" style="--gy:700px">
+  <div class="strip">BLACK FRIDAY · PRIX BLOQUÉS À VIE</div>
+  <div class="eyebrow">LES PRIX BLACK FRIDAY</div>
+  <div class="h" style="margin-top:26px;font-size:104px">Tous les plans.<br><span class="serif flame">Beaucoup moins chers.</span></div>
+  <div class="pcard best" style="margin-top:60px"><div class="row"><div class="nm">Entreprise</div><div class="pct">-54%</div></div><div class="pr"><span class="was">CHF 129</span><span class="now"><small>CHF</small>59<i>/mois</i></span></div></div>
+  <div class="pcard"><div class="row"><div class="nm">Équipe</div><div class="pct">-43%</div></div><div class="pr"><span class="was">CHF 79</span><span class="now"><small>CHF</small>45<i>/mois</i></span></div></div>
+  <div class="pcard"><div class="row"><div class="nm">Essentiel</div><div class="pct">-36%</div></div><div class="pr"><span class="was">CHF 39</span><span class="now"><small>CHF</small>25<i>/mois</i></span></div></div>
+  <div class="linkzone" style="bottom:170px;height:170px">ZONE DU STICKER LIEN</div>
+</section>
+
+<section class="art story" data-out="stories/story-3-plus-que-24h.png" style="--gy:500px">
+  <div class="strip">BLACK FRIDAY · FIN LUNDI À MINUIT</div>
+  <img class="logo" src="logo-on-dark.png">
+  <div class="eyebrow" style="margin-top:120px">PLUS QUE</div>
+  <div class="huge" style="font-size:380px;margin-top:20px;color:var(--paper)">24<span class="flame">h</span></div>
+  <div class="h" style="margin-top:50px">pour bloquer votre prix <span class="serif flame">à vie.</span></div>
+  <div class="lead" style="margin-top:50px">Entreprise à CHF 59.– au lieu de 129.–.<br>Équipe à 45.–. Essentiel à 25.–.</div>
+  <div class="linkzone">ZONE DU STICKER LIEN</div>
+</section>
+
+<section class="art story" data-out="stories/story-4-dernieres-heures.png" style="--gy:400px">
+  <div class="strip">DERNIÈRES HEURES · DERNIÈRES HEURES · DERNIÈRES HEURES</div>
+  <img class="logo" src="logo-on-dark.png">
+  <div class="h" style="margin-top:110px;font-size:140px">Ce soir à minuit,</div>
+  <div class="h serif flame" style="font-size:160px;margin-top:6px">c’est fini.</div>
+  <div class="lead" style="margin-top:50px">Après, ces prix ne reviendront jamais. Entreprise à CHF 59.– au lieu de 129.–, à vie.</div>
+  <div class="linkzone" style="bottom:560px;height:190px">STICKER « COMPTE À REBOURS » D’INSTAGRAM</div>
+  <div class="linkzone">ZONE DU STICKER LIEN</div>
+</section>
+
+<!-- ===================== CARROUSEL 1080 × 1350 (Instagram + LinkedIn) ===================== -->
+
+<section class="art post" data-out="posts/carrousel-1.png" style="--gy:150px">
+  <div class="strip">BLACK FRIDAY · 27 – 30 NOVEMBRE</div>
+  <img class="logo" src="logo-on-dark.png">
+  <div class="h" style="margin-top:90px">Le premier Black Friday de Cantia.</div>
+  <div class="huge" style="margin-top:60px;font-size:280px">-54%</div>
+  <div class="h serif flame" style="font-size:140px">à vie.</div>
+  <div class="num">1 / 4 →</div>
+</section>
+
+<section class="art post" data-out="posts/carrousel-2.png" style="--gy:400px">
+  <div class="strip">BLACK FRIDAY · PRIX BLOQUÉS À VIE</div>
+  <div class="h" style="font-size:96px">Tous les plans. <span class="serif flame">Beaucoup moins chers.</span></div>
+  <div class="pcard best" style="margin-top:44px"><div class="row"><div class="nm">Entreprise</div><div class="pct">-54%</div></div><div class="pr"><span class="was">CHF 129</span><span class="now"><small>CHF</small>59<i>/mois</i></span></div></div>
+  <div class="pcard"><div class="row"><div class="nm">Équipe</div><div class="pct">-43%</div></div><div class="pr"><span class="was">CHF 79</span><span class="now"><small>CHF</small>45<i>/mois</i></span></div></div>
+  <div class="pcard"><div class="row"><div class="nm">Essentiel</div><div class="pct">-36%</div></div><div class="pr"><span class="was">CHF 39</span><span class="now"><small>CHF</small>25<i>/mois</i></span></div></div>
+  <div class="num">2 / 4 →</div>
+</section>
+
+<section class="art post" data-out="posts/carrousel-3.png" style="--gy:300px">
+  <div class="strip">POURQUOI À VIE ?</div>
+  <div class="h" style="font-size:104px">Une seule fois.<br><span class="serif flame">Jamais aussi bas.</span></div>
+  <div class="pt"><b>1</b><div><h3>Le premier, et le meilleur</h3><p>Nous ne referons pas une remise aussi forte.</p></div></div>
+  <div class="pt"><b>2</b><div><h3>Votre prix ne bouge plus</h3><p>Même quand nos tarifs augmenteront, tant que l’abonnement est actif.</p></div></div>
+  <div class="pt"><b>3</b><div><h3>Aucun risque</h3><p>14 jours d’essai, résiliable à tout moment.</p></div></div>
+  <div class="num">3 / 4 →</div>
+</section>
+
+<section class="art post" data-out="posts/carrousel-4.png" style="--gy:350px">
+  <div class="strip">BLACK FRIDAY · FIN LUNDI À MINUIT</div>
+  <img class="logo" src="logo-on-dark.png">
+  <div class="h" style="margin-top:110px;font-size:140px">Lundi minuit,</div>
+  <div class="h serif flame" style="font-size:150px">c’est fini.</div>
+  <div class="lead" style="margin-top:50px">Devis, factures QR, chantiers, planning, salaires, comptabilité. Tout Cantia, au prix du Black Friday. À vie.</div>
+  <div class="pill" style="margin-top:60px">cantia.ch/black-friday</div>
+  <div class="num">4 / 4</div>
+</section>
+
+<!-- ===================== LINKEDIN 1200 × 627 (image de lien et pub) ===================== -->
+
+<section class="art" data-out="posts/linkedin-1200x627.png" style="width:1200px;height:627px;padding:110px 80px 0;--gy:-400px">
+  <div class="strip" style="height:60px;line-height:60px;font-size:22px">BLACK FRIDAY · JUSQU’À LUNDI MINUIT</div>
+  <div style="display:flex;align-items:center;gap:60px">
+    <div style="flex:1.2">
+      <img class="logo" src="logo-on-dark.png" style="height:46px">
+      <div class="h" style="font-size:76px;margin-top:40px">Le premier Black Friday de Cantia.</div>
+      <div class="lead" style="font-size:30px;margin-top:24px">Tous les plans, prix bloqués à vie.</div>
+    </div>
+    <div style="flex:1;text-align:center">
+      <div class="huge" style="font-size:210px">-54%</div>
+      <div class="serif flame" style="font-size:90px">à vie.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== YOUTUBE 1280 × 720 (miniature, post communauté) ===================== -->
+
+<section class="art" data-out="posts/youtube-1280x720.png" style="width:1280px;height:720px;padding:180px 90px 0;--gy:-350px">
+  <div class="strip" style="height:64px;line-height:64px;font-size:24px">BLACK FRIDAY · FIN LUNDI À MINUIT</div>
+  <div style="display:flex;align-items:center;gap:40px">
+    <div style="flex:1.1">
+      <div class="h" style="font-size:124px">Cantia<br><span class="serif flame">à -54 %.</span></div>
+      <div class="lead" style="font-size:40px;margin-top:28px">À vie. Une seule fois.</div>
+    </div>
+    <div style="flex:1">
+      <div class="pcard best" style="margin-top:0;transform:scale(1.15);transform-origin:left center"><div class="row"><div class="nm">Entreprise</div><div class="pct">-54%</div></div><div class="pr"><span class="was">CHF 129</span><span class="now"><small>CHF</small>59</span></div></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

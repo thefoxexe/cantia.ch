@@ -6,6 +6,8 @@ import { toggleLocalePathname, useSyncMarketingLocaleFromPath } from '../lib/app
 import { AVAILABLE_LOCALES, getAppLocale, type AppLocale } from '../lib/translations';
 import { SiteNav } from './site/SiteNav';
 import { SiteFooter } from './site/SiteFooter';
+import { BlackFridayStrip } from './site/BlackFridayPromo';
+import { BlackFridayPopup } from './site/BlackFridayPopup';
 import { sans, site } from '../lib/siteTheme';
 
 // Header, footer and language switcher shared by every public cantia.ch page.
@@ -23,6 +25,8 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = getAppLocale();
+  // The Black Friday page wears the menu in black (components/site/SiteNav.tsx).
+  const dark = pathname.includes('black-friday');
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const { width: winWidth, height: winHeight } = useWindowDimensions();
@@ -58,9 +62,9 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
 
   return (
     <View ref={triggerRef} collapsable={false} style={compact ? styles.langSwitcherCompact : undefined}>
-      <Pressable onPress={openDropdown} style={({ hovered }: any) => [styles.langTrigger, hovered && styles.langTriggerHovered]}>
+      <Pressable onPress={openDropdown} style={({ hovered }: any) => [styles.langTrigger, dark && { backgroundColor: '#16180f', borderColor: '#2a2d22' }, hovered && styles.langTriggerHovered]}>
         <Text style={styles.langTriggerFlag}>{LOCALE_META[locale].flag}</Text>
-        <Text style={styles.langTriggerCode}>{locale.toUpperCase()}</Text>
+        <Text style={[styles.langTriggerCode, dark && { color: '#f4f3e9' }]}>{locale.toUpperCase()}</Text>
         <Feather name={open ? 'chevron-up' : 'chevron-down'} size={13} color={site.muted} />
       </Pressable>
 
@@ -88,7 +92,15 @@ export function LanguageSwitcher({ compact }: { compact?: boolean }) {
 
 export function MarketingNav(_props: { onServicesPress?: () => void; onPricingPress?: () => void } = {}) {
   useSyncMarketingLocaleFromPath();
-  return <SiteNav languageSwitcher={<LanguageSwitcher compact />} />;
+  // Black Friday 2026: a strip above the menu, except on its own page.
+  const pathname = usePathname();
+  return (
+    <>
+      {pathname.includes('black-friday') ? null : <BlackFridayStrip />}
+      <SiteNav languageSwitcher={<LanguageSwitcher compact />} />
+      <BlackFridayPopup />
+    </>
+  );
 }
 
 export function MarketingFooter(_props: { onServicesPress?: () => void; onPricingPress?: () => void } = {}) {

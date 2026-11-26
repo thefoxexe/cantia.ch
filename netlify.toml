@@ -300,6 +300,11 @@
   status = 200
 
 [[redirects]]
+  from = "/black-friday"
+  to = "/black-friday.html"
+  status = 200
+
+[[redirects]]
   from = "/plans/essentiel"
   to = "/plans/essentiel.html"
   status = 200
@@ -717,6 +722,11 @@
 [[redirects]]
   from = "/de/neues-unternehmen"
   to = "/de/neues-unternehmen.html"
+  status = 200
+
+[[redirects]]
+  from = "/de/black-friday"
+  to = "/de/black-friday.html"
   status = 200
 
 [[redirects]]
@@ -1152,6 +1162,11 @@
 [[redirects]]
   from = "/it/nuova-impresa"
   to = "/it/nuova-impresa.html"
+  status = 200
+
+[[redirects]]
+  from = "/it/black-friday"
+  to = "/it/black-friday.html"
   status = 200
 
 [[redirects]]

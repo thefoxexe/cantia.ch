@@ -23,7 +23,7 @@ import { blogHref } from '../lib/blog/triage';
 // Same name as the Article author in scripts/seo-routes.mjs (JSON-LD).
 const BLOG_AUTHOR = 'Bastien';
 import { getAppLocale, useTranslation } from '../lib/translations';
-import { StarterOffer } from './site/StarterOffer';
+import { BlackFridayBox } from './site/BlackFridayPromo';
 import { localHref } from '../lib/site/localPaths';
 
 const CATEGORY_ICON: Record<BlogPost['category'], keyof typeof Feather.glyphMap> = {
@@ -115,8 +115,6 @@ function sectorOfPost(post: BlogPost): SectorKey {
 }
 
 // Articles about starting a company (FR base slugs): they get the full offer box.
-const STARTER_ARTICLE = /creer-entreprise|lancer-entreprise|demarrer-entreprise|logiciel-gestion-chantier-independant-seul|raison-individuelle|immatriculer-entreprise|avs-ai-independant|cout-creation-entreprise|premier-employe|trouver-clients|prix-horaire-reel|modele-devis-gratuit/;
-const isStarterArticle = (slug: string) => STARTER_ARTICLE.test(slug);
 
 export function BlogArticle({ post }: { post: BlogPost }) {
   const { t } = useTranslation();
@@ -159,12 +157,10 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           <BlockRenderer key={i} block={block} sourceSlug={post.slug} category={post.category} />
         ))}
 
-        {/* The offer for new companies: a box on the articles about starting
-            out, a one-line link everywhere else. */}
+        {/* Black Friday 2026 (lib/site/blackFriday.ts), until 30 November at midnight. */}
         <View style={{ marginTop: 40 }}>
-          <StarterOffer variant={isStarterArticle(post.baseSlug ?? post.slug) ? 'box' : 'inline'} source={`blog-${post.baseSlug ?? post.slug}`.slice(0, 70)} />
+          <BlackFridayBox source={`blog-${post.baseSlug ?? post.slug}`.slice(0, 70)} />
         </View>
-        {isStarterArticle(post.baseSlug ?? post.slug) ? <StarterOffer variant="sticky" source={`blog-${post.baseSlug ?? post.slug}`.slice(0, 70)} /> : null}
 
         {post.faq?.length ? (
           <View style={{ marginTop: 40 }}>

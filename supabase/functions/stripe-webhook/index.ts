@@ -233,6 +233,17 @@ Deno.serve(async (req: Request) => {
               .or(`stripe_price_id.eq.${priceId},stripe_price_id_yearly.eq.${priceId}`)
               .maybeSingle();
             if (plan) planId = plan.id;
+            else {
+              // An offer price (Black Friday…, price_offers) is the same
+              // plan at another price.
+              const { data: offerPlan } = await admin
+                .from('price_offers')
+                .select('plan_id')
+                .or(`stripe_price_id.eq.${priceId},stripe_price_id_yearly.eq.${priceId}`)
+                .limit(1)
+                .maybeSingle();
+              if (offerPlan) planId = offerPlan.plan_id;
+            }
           }
           // Read before overwriting — needed to tell a genuinely new trial
           // (created, currently trialing) from a routine update, and to

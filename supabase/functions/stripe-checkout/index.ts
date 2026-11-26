@@ -58,7 +58,29 @@ Deno.serve(async (req: Request) => {
 
     const { data: plan, error: planError } = await admin.from('plans').select('*').eq('id', plan_id).single();
     if (planError || !plan) return json({ error: 'Plan introuvable' }, 404);
-    const priceId = yearly ? plan.stripe_price_id_yearly : plan.stripe_price_id;
+    let priceId = yearly ? plan.stripe_price_id_yearly : plan.stripe_price_id;
+
+    // Black Friday and similar price offers (price_offers): the plan's own
+    // product at a lifetime price, only with the code of the offer page and
+    // only while the offer runs. The time check is here, server-side; after
+    // the end, the code is ignored and the normal price applies.
+    const requestedCode = typeof promo_code === 'string' ? promo_code.trim().toUpperCase() : '';
+    let priceOfferCode: string | null = null;
+    if (requestedCode) {
+      const nowIso = new Date().toISOString();
+      const { data: priceOffer } = await admin
+        .from('price_offers')
+        .select('*')
+        .eq('code', requestedCode)
+        .eq('plan_id', plan.id)
+        .lte('starts_at', nowIso)
+        .gt('ends_at', nowIso)
+        .maybeSingle();
+      if (priceOffer) {
+        priceId = yearly ? priceOffer.stripe_price_id_yearly : priceOffer.stripe_price_id;
+        priceOfferCode = priceOffer.code;
+      }
+    }
     if (!priceId) {
       return json({ error: `Le plan "${plan.name}" n'est pas encore configuré pour le paiement en ligne.` }, 400);
     }
@@ -110,7 +132,9 @@ Deno.serve(async (req: Request) => {
     // code is simply ignored (normal trial).
     let offerCode: string | null = null;
     let offerDays: number | null = null;
-    if (promoCodeNormalized && !useEssai30) {
+    if (priceOfferCode) {
+      await admin.from('organizations').update({ promo_code_used: priceOfferCode }).eq('id', org.id);
+    } else if (promoCodeNormalized && !useEssai30) {
       const { data: offer } = await admin
         .from('trial_offer_codes')
         .select('*')
@@ -150,12 +174,18 @@ Deno.serve(async (req: Request) => {
       client_reference_id: org.id,
       metadata: { organization_id: org.id, plan_id: plan.id },
       subscription_data: {
-        metadata: { organization_id: org.id, plan_id: plan.id, ...(offerCode ? { offer_code: offerCode } : {}) },
+        metadata: {
+          organization_id: org.id,
+          plan_id: plan.id,
+          ...(offerCode ? { offer_code: offerCode } : {}),
+          ...(priceOfferCode ? { price_offer: priceOfferCode } : {}),
+        },
         ...(trialDays !== null ? { trial_period_days: trialDays } : {}),
       },
       success_url,
       cancel_url,
-      allow_promotion_codes: true,
+      // An offer price is already the discount: no promotion code on top.
+      allow_promotion_codes: !priceOfferCode,
       locale: stripeLocale,
       // The account has Managed Payments on by default, which requires every
       // line item's product to carry a Managed-Payments-eligible tax code.
