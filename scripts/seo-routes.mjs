@@ -27,7 +27,8 @@ export function ogImageFile(routePath) {
   return `og/${routePath || 'index'}.png`;
 }
 export function ogImageUrl(routePath) {
-  return isNoindex(routePath) ? OG_IMAGE : `${SITE}/${ogImageFile(routePath)}`;
+  // ?v=2: new design (November 2026); the platforms cache a preview per address.
+  return isNoindex(routePath) ? OG_IMAGE : `${SITE}/${ogImageFile(routePath)}?v=2`;
 }
 export const ORG_LOGO = `${SITE}/pwa-icon-512.png`;
 

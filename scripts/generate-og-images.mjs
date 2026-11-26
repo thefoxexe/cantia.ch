@@ -22,6 +22,7 @@ const FONTS = [
   { name: 'DM Serif Display', data: font('dm-serif-display-italic.ttf'), weight: 400, style: 'italic' },
 ];
 const LOGO = `data:image/png;base64,${readFileSync(path.join(root, 'assets/brand/logo.png')).toString('base64')}`;
+const LOGO_DARK = `data:image/png;base64,${readFileSync(path.join(root, 'assets/brand/logo-on-dark.png')).toString('base64')}`;
 
 const INK = '#252921';
 const MUTED = '#6f7366';
@@ -50,23 +51,40 @@ function sectionOf(bare) {
 
 const BRAND_SUFFIX = / \| (Cantia Hilfe-Center|Centro assistenza Cantia|Centre d'aide Cantia|Cantia)$/;
 
+// November 2026: the logo big and centred. Snapchat, WhatsApp and iMessage
+// often crop the preview to a square in the middle, so everything that
+// matters sits in the central 630 × 630: the logo, then one short line.
+const el = (type, style, children) => ({ type, props: { style, children } });
+const img = (src, w, h) => ({ type: 'img', props: { src, width: w, height: h, style: { width: w, height: h } } });
+
+const BF = {
+  fr: { pct: '-54 %', life: 'à vie.', line: 'Black Friday · jusqu’à lundi minuit' },
+  de: { pct: '-54 %', life: 'lebenslang.', line: 'Black Friday · bis Montag Mitternacht' },
+  it: { pct: '-54 %', life: 'a vita.', line: 'Black Friday · fino a lunedì mezzanotte' },
+};
+
+// The Black Friday pages: night ground, flame orange.
+function blackFridayCard(locale) {
+  const c = BF[locale];
+  return el('div', { width: 1200, height: 630, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0b0c09', backgroundImage: 'radial-gradient(circle at 50% 55%, rgba(255,91,31,0.32), rgba(255,91,31,0) 60%)', fontFamily: 'DM Sans' }, [
+    img(LOGO_DARK, 420, 78),
+    el('div', { display: 'flex', alignItems: 'baseline', marginTop: 34 }, [
+      el('div', { display: 'flex', fontSize: 190, lineHeight: 1, letterSpacing: -8, color: '#ff5b1f', fontWeight: 600 }, c.pct),
+      el('div', { display: 'flex', fontSize: 74, color: '#f4f3e9', fontFamily: 'DM Serif Display', fontStyle: 'italic', marginLeft: 22 }, c.life),
+    ]),
+    el('div', { display: 'flex', marginTop: 26, fontSize: 26, letterSpacing: 4, color: '#f4f3e9', fontWeight: 600, textTransform: 'uppercase', backgroundColor: '#ff5b1f', padding: '12px 28px', borderRadius: 999 }, c.line),
+  ]);
+}
+
 function card(route) {
   const { locale, bare } = localeAndBareOf(route.path);
+  if (bare === 'black-friday') return blackFridayCard(locale);
   const title = route.title.replace(BRAND_SUFFIX, '');
-  const size = title.length > 70 ? 54 : title.length > 48 ? 62 : 70;
-  const section = SECTIONS[locale][sectionOf(bare)];
-  const eyebrow = section.toLowerCase() === title.toLowerCase() ? 'Cantia' : section;
-  const el = (type, style, children) => ({ type, props: { style, children } });
-  return el('div', { width: 1200, height: 630, display: 'flex', flexDirection: 'column', backgroundColor: PAPER, padding: '64px 80px 56px', fontFamily: 'DM Sans' }, [
-    { type: 'img', props: { src: LOGO, width: 250, height: 46, style: { width: 250, height: 46 } } },
-    el('div', { display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }, [
-      el('div', { display: 'flex', fontSize: 22, letterSpacing: 3.5, color: COPPER, fontWeight: 600, textTransform: 'uppercase', marginBottom: 22 }, eyebrow),
-      el('div', { display: 'flex', fontSize: size, lineHeight: 1.08, letterSpacing: -1.6, color: INK, fontWeight: 600, maxWidth: 1000 }, title),
-    ]),
-    el('div', { display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `2px solid ${LINE}`, paddingTop: 26 }, [
-      el('div', { display: 'flex', fontSize: 30, color: INK, fontFamily: 'DM Serif Display', fontStyle: 'italic' }, 'cantia.ch'),
-      el('div', { display: 'flex', width: 72, height: 4, backgroundColor: COPPER, borderRadius: 2 }, []),
-    ]),
+  const size = title.length > 60 ? 34 : title.length > 40 ? 40 : 46;
+  return el('div', { width: 1200, height: 630, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: PAPER, fontFamily: 'DM Sans', borderBottom: `14px solid ${COPPER}` }, [
+    img(LOGO, 620, 115),
+    el('div', { display: 'flex', width: 90, height: 4, backgroundColor: COPPER, borderRadius: 2, marginTop: 46, marginBottom: 34 }, []),
+    el('div', { display: 'flex', fontSize: size, lineHeight: 1.15, letterSpacing: -0.8, color: INK, fontWeight: 600, maxWidth: 960, textAlign: 'center', justifyContent: 'center' }, title),
   ]);
 }
 

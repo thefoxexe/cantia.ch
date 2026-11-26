@@ -10,6 +10,7 @@ import { updateMyMember } from './api/members';
 import { applyLocaleFromUrlParam, AVAILABLE_LOCALES, getAppLocale, i18next, restoreCachedLocale, setAppLocale, type AppLocale } from './translations';
 import { setWorkTerm, type WorkTerm } from './vocabulary';
 import { getStoredAttribution, getStoredFiduciaryInvite, getStoredOrigin, getStoredReferral } from './siteAnalytics';
+import { readPlanIntent } from './planIntent';
 import type { Organization, OrgRole } from './types';
 
 // Required for web only: lets the popup opened by signInWithGoogle() close
@@ -348,6 +349,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const referral = stored ? { ...stored, source: 'link' } : undefined;
     // Cantia Accounting: same for a fiduciary's invitation link.
     const fiduciaryInvite = Platform.OS === 'web' ? getStoredFiduciaryInvite() : null;
+    // An offer code of the sign-up link (Black Friday BF2026…) also travels
+    // with the account: the plan screen still finds it on another device.
+    const offerCode = readPlanIntent().offer;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -358,6 +362,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           newsletter_opt_in: newsletterOptIn,
           ...(referral ? { referral } : {}),
           ...(fiduciaryInvite ? { fiduciary_invite: fiduciaryInvite } : {}),
+          ...(offerCode ? { offer_code: offerCode } : {}),
         },
       },
     });
