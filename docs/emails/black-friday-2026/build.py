@@ -54,7 +54,13 @@ FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-
 LOGO = 'https://cantia.ch/email/04_blanc_logo_et_texte.png'
 LOGIN = 'https://app.cantia.ch/login?offer=BF2026&locale={loc}&utm_source=email&utm_medium=email&utm_campaign=bf2026-relance'
 
-def build(loc):
+def feats(c):
+    if not c.get('feat'):
+        return ''
+    items = ''.join(f'<tr><td valign="top" style="padding:4px 10px 4px 0;color:{FLAME};font-size:16px;font-weight:800;">&#10003;</td><td style="padding:4px 0;font-size:15px;line-height:22px;color:{INK};">{f}</td></tr>' for f in c['feat'])
+    return f'<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px;">{items}</table>'
+
+def build(loc, C=C):
     c = C[loc]
     link = LINK.format(p=c['p'])
     login = LOGIN.format(loc=loc)
@@ -99,6 +105,7 @@ def build(loc):
     <tr><td class="pad" style="padding:30px 32px 8px;">
       {para(c['hello'])}
       {para(c['p1'])}
+      {feats(c)}
       {para(c['p2'])}
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px;">
         <tr><td style="padding:0 0 8px;font-size:12px;color:{MUTED};">{c['head'][0]}</td>
@@ -121,7 +128,7 @@ def build(loc):
           <a href="{link}" style="display:inline-block;padding:15px 28px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:10px;">{c['cta']}</a>
         </td></tr>
       </table>
-      {para(p3, f'color:{MUTED};font-size:14px;line-height:22px;')}
+      {para(p3, f'color:{MUTED};font-size:14px;line-height:22px;') if p3 else ''}
       {para(c['p4'])}
       {para(c['p5'])}
       {para(c['bye'] + '<br>' + c['sign'], 'margin-bottom:28px;')}
@@ -136,20 +143,21 @@ def build(loc):
 </html>
 """
 
-def build_text(loc):
+def build_text(loc, C=C):
     import re, html
     c = C[loc]
     strip = lambda t: html.unescape(re.sub('<[^>]+>', '', t))
-    lines = [c['hello'], '', strip(c['p1']), '', strip(c['p2']), '']
+    lines = [c['hello'], '', strip(c['p1']), ''] + [f'- {strip(f)}' for f in c.get('feat', [])] + ([''] if c.get('feat') else []) + [strip(c['p2']), '']
     lines += [f"- {n} : CHF {b} au lieu de CHF {a}" if loc == 'fr' else f"- {n}: CHF {b} ({c['head'][1]} CHF {a})" for n, a, b in c['rows']]
-    lines += [f"({c['per']})", '', c['yearT'], c['yearP']] + [f"- {n} : CHF {m} {c['yearPer'][0]} (CHF {y} {c['yearPer'][1]})" for n, m, y in c['yearRows']] + ['', f"{c['cta']} : {LINK.format(p=c['p'])}", '', strip(c['p3'].replace('{login}', '')) + ' ' + LOGIN.format(loc=loc), '', strip(c['p4']), '', strip(c['p5']), '', c['bye'], c['sign'], '', '--', strip(c['foot'])]
+    lines += [f"({c['per']})", '', c['yearT'], c['yearP']] + [f"- {n} : CHF {m} {c['yearPer'][0]} (CHF {y} {c['yearPer'][1]})" for n, m, y in c['yearRows']] + ['', f"{c['cta']} : {LINK.format(p=c['p'])}", ''] + ([strip(c['p3'].replace('{login}', '')) + ' ' + LOGIN.format(loc=loc), ''] if c['p3'] else []) + [strip(c['p4']), '', strip(c['p5']), '', c['bye'], c['sign'], '', '--', strip(c['foot'])]
     return '\n'.join(lines) + '\n'
 
 import json
-meta = {}
-for loc in C:
+if __name__ == '__main__':
+  meta = {}
+  for loc in C:
     open(f'black-friday-relance-{loc}.html', 'w').write(build(loc))
     open(f'black-friday-relance-{loc}.txt', 'w').write(build_text(loc))
     meta[loc] = {'subject': C[loc]['subject'], 'preheader': C[loc]['preheader']}
-json.dump(meta, open('objets.json', 'w'), ensure_ascii=False, indent=1)
-print('ok')
+  json.dump(meta, open('objets.json', 'w'), ensure_ascii=False, indent=1)
+  print('ok')
